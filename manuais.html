@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII - Módulo Manuais</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand-link">
+    <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
+    <span class="navbar-brand-text">NII - HBSH</span>
+</a>
+            <ul class="navbar-nav">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="faturamento.html">Faturamento</a></li>
+                <li><a href="indicadores.html">Indicadores</a></li>
+                <li><a href="manuais.html">Manuais</a></li> </ul>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Módulo Manuais</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <div class="manual-container">
+            <header class="manual-header">
+                <h1>Guia de Faturamento: Consórcios de Saúde (MT)</h1>
+                <p>Um resumo dos processos de credenciamento e faturamento para coordenadores do Faturamento SUS.</p>
+            </header>
+
+            <section class="manual-section">
+                <h2>Resumo Geral do Processo</h2>
+                <p>
+                    Com base nos documentos oficiais, o fluxo para prestadores de serviço (empresas médicas credenciadas) segue este padrão:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Credenciamento:</strong> A empresa (Pessoa Jurídica) participa de um Edital de Credenciamento do Consórcio.
+                    </li>
+                    <li>
+                        <strong>Sistema de Gestão:</strong> Os atendimentos são gerenciados e autorizados por um sistema web específico (como o <strong>SICS</strong> ou <strong>Pentágono</strong>).
+                    </li>
+                    <li>
+                        <strong>Execução:</strong> A empresa credenciada realiza o procedimento no paciente, que porta uma "Guia de Atendimento" autorizada.
+                    </li>
+                    <li>
+                        <strong>Faturamento (Quem Fatura):</strong> A <strong>própria empresa credenciada</strong> emite o faturamento (Nota Fiscal/Fatura) contra o Consórcio.
+                    </li>
+                    <li>
+                        <strong>Validação:</strong> A empresa confirma a realização do serviço no sistema web (ex: SICS) e encaminha os documentos físicos (guias, NF, certidões) ao Consórcio para conferência.
+                    </li>
+                    <li>
+                        <strong>Pagamento:</strong> O Consórcio paga diretamente à empresa credenciada.
+                    </li>
+                </ol>
+                <div class="alert-box">
+                    <p class="font-semibold">Ponto Importante:</p>
+                    <p>Este processo <strong>não utiliza o CISA (SISAIH01)</strong> que você usa no hospital. O faturamento é feito pela empresa credenciada contra o Consórcio, e não pelo hospital contra o DataSUS.</p>
+                </div>
+            </section>
+
+            <div class="tabs-container">
+                <nav class="tabs-nav">
+                    <button class="tab-button active" data-tab="teles-pires">
+                        Vale do Teles Pires
+                    </button>
+                    <button class="tab-button" data-tab="cisvarc">
+                        CISVARC (Vale do Rio Cuiabá)
+                    </button>
+                    <button class="tab-button" data-tab="cismnorte">
+                        CISMNORTE (Médio Norte)
+                    </button>
+                </nav>
+
+                <div class="mt-6">
+                    <div id="teles-pires" class="tab-content">
+                        <h3>1. Consórcio Intermunicipal de Saúde do Vale do Teles Pires</h3>
+                        <ul>
+                            <li><strong>Responsável pelo Faturamento:</strong> A empresa credenciada ("Unidade Executora").</li>
+                            <li><strong>Sistema Utilizado:</strong> <strong>Sistema Web (SICS)</strong>.</li>
+                            <li>
+                                <strong>Processo:</strong>
+                                <ol>
+                                    <li>Agendamento via Centrais de Regulação no SICS (emite "Guia de Atendimento").</li>
+                                    <li>Empresa realiza o procedimento.</li>
+                                    <li>Empresa <strong>confirma a guia dentro do Sistema Web (SICS)</strong>.</li>
+                                    <li>Entre o 1º e 5º dia útil do mês seguinte, empresa encaminha <strong>guias originais</strong> e NF ao Consórcio.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                        <div>
+                            <h4 style="font-weight: 600; margin-top: 1rem;">Documento Chave:</h4>
+                            <a href="https://consorciovaledotelespires.com.br/public/files/publicacoes/portaria-033-2024-processo-de-faturamento.pdf" target="_blank" rel="noopener noreferrer" class="button-link">
+                                PORTARIA N.º 33/2024 (Processo de Faturamento)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="cisvarc" class="tab-content hidden">
+                        <h3>2. Consórcio Intermunicipal de Saúde do Vale do Rio Cuiabá (CISVARC)</h3>
+                        <ul>
+                            <li><strong>Responsável pelo Faturamento:</strong> A empresa credenciada ("Contratada").</li>
+                            <li><strong>Sistema Utilizado:</strong> <strong>Sistema Pentágono</strong> (conforme link "Acesso ao Sistema" no site oficial).</li>
+                            <li>
+                                <strong>Processo:</strong>
+                                <ol>
+                                    <li>Empresas habilitadas via Editais de Credenciamento.</li>
+                                    <li>Gerenciamento dos serviços pelo Sistema Pentágono.</li>
+                                    <li>Empresa apresenta <strong>Nota Fiscal/Fatura</strong> e <strong>Certidões Negativas</strong> para pagamento.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                        <div>
+                            <h4 style="font-weight: 600; margin-top: 1rem;">Documentos Chave:</h4>
+                            <a href="https://www.cisvarc.com.br/licitacao/credenciamento" target="_blank" rel="noopener noreferrer" class="button-link green">
+                                Página de Editais de Credenciamento
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="cismnorte" class="tab-content hidden">
+                        <h3>3. Consórcio Intermunicipal de Saúde da Região do Médio Norte (CISMNORTE)</h3>
+                        <ul>
+                            <li><strong>Responsável pelo Faturamento:</strong> A pessoa jurídica (empresa) credenciada.</li>
+                            <li><strong>Sistema Utilizado:</strong> <strong>Sistema Web</strong> (mencionado nos editais para o credenciamento).</li>
+                            <li>
+                                <strong>Processo:</strong>
+                                <ol>
+                                    <li>Empresas solicitam credenciamento via "Sistema Web" no site.</li>
+                                    <li>Prestação do serviço conforme demanda gerenciada pelo Consórcio.</li>
+                                    <li>Empresa apresenta documentação fiscal para pagamento, conforme rege o edital.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                        <div>
+                            <h4 style="font-weight: 600; margin-top: 1rem;">Documentos Chave (Exemplos):</h4>
+                            <a href="http://cismnorte.com.br/public/files/publicacoes/EDITALCREDEN_2405281552.pdf" target="_blank" rel="noopener noreferrer" class="button-link indigo">
+                                Edital 001/2024
+                            </a>
+                            <a href="https://cismnorte.com.br/public/files/publicacoes/EDITALCREDEN_2412231636.pdf" target="_blank" rel="noopener noreferrer" class="button-link indigo">
+                                Edital 002/2024
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+    <footer class="main-footer">
+        <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTabId = button.getAttribute('data-tab');
+                    
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    button.classList.add('active');
+                    
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    const targetContent = document.getElementById(targetTabId);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
