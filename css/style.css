@@ -311,3 +311,47 @@ body {
 }
 
 /* --- Estilos para a Página de Manuais (Fim) --- */
+
+/* --- Adicione ao final do style.css --- */
+
+.bi-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Uma coluna por padrão (celular) */
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Em telas maiores, coloca os gráficos lado a lado ou expandidos */
+@media (min-width: 768px) {
+    .bi-grid {
+        grid-template-columns: 1fr; /* Mude para 1fr 1fr se quiser lado a lado */
+    }
+}
+
+.bi-card {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.bi-placeholder {
+    background-color: #f8f9fa;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    padding: 2rem;
+    text-align: center;
+    color: #777;
+    min-height: 400px; /* Altura reservada para o gráfico */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bi-placeholder iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border: none;
+}
