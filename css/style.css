@@ -1,0 +1,313 @@
+/* Configurações Globais */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Navbar (Menu Superior) */
+.navbar {
+    background-color: #004a91; /* Azul escuro (pode ajustar) */
+    color: #ffffff;
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* Substitua o antigo .navbar-brand por este conjunto */
+.navbar-brand-link {
+    display: flex;         /* Coloca o logo e o texto lado a lado */
+    align-items: center;   /* Alinha verticalmente */
+    text-decoration: none; /* Remove o sublinhado do link */
+    color: #ffffff;        /* Mantém o texto branco */
+}
+
+.navbar-logo {
+    height: 40px;          /* Define a altura do logo. Ajuste se precisar. */
+    margin-right: 10px;    /* Espaço entre o logo e o texto */
+}
+
+.navbar-brand-text {
+    font-size: 1.5rem;     /* Tamanho do texto "NII - HBSH" */
+    font-weight: bold;
+}
+.navbar-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+.navbar-nav li {
+    margin-left: 20px;
+}
+.navbar-nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+.navbar-nav a:hover {
+    background-color: #005bb5; /* Um azul um pouco mais claro */
+}
+
+/* Cabeçalhos */
+.main-header {
+    background-color: #ffffff;
+    padding: 2rem 0;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+.page-header {
+    background-color: #e9ecef;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Layout de Cards (Dashboard) */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 2rem 0;
+}
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease;
+}
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+.card h2 {
+    margin-top: 0;
+    color: #004a91;
+}
+.card p {
+    flex-grow: 1; /* Faz o texto ocupar o espaço e empurrar o botão para baixo */
+}
+
+/* Botões */
+.button {
+    background-color: #007bff;
+    color: #ffffff;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+.button:hover {
+    background-color: #0056b3;
+}
+.button.disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Seções das Páginas Internas */
+.bi-section, .report-list {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.bi-embed-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* Garante que o iframe fique dentro das bordas */
+}
+
+.report-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+.report-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.report-list li:last-child {
+    border-bottom: none;
+}
+.report-list a {
+    background-color: #28a745; /* Verde */
+    color: white;
+    padding: 5px 12px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+.report-list a:hover {
+    background-color: #218838;
+}
+
+
+/* Rodapé */
+.main-footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    color: #777;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
+}
+
+/* --- Estilos para a Página de Manuais (Início) --- */
+
+/* Contêiner principal do manual */
+.manual-container {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    overflow: hidden; /* Para conter os cantos arredondados */
+    margin-top: 2rem;
+    font-family: 'Inter', sans-serif; /* Usando a fonte que você especificou */
+}
+
+/* Cabeçalho do manual (azul) */
+.manual-header {
+    background-color: #004a91; /* Mesmo azul da navbar */
+    color: #ffffff;
+    padding: 1.5rem 2rem;
+}
+.manual-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+.manual-header p {
+    margin: 0.5rem 0 0;
+    color: #e0e0e0;
+}
+
+/* Seção de Resumo */
+.manual-section {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #eee;
+}
+.manual-section h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+/* Caixa de Alerta (Amarela) */
+.alert-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #fffbeb;
+    border-left: 4px solid #fde047;
+    border-radius: 0 4px 4px 0;
+}
+.alert-box p {
+    margin: 0;
+    color: #b45309;
+}
+.alert-box .font-semibold {
+    font-weight: 600;
+}
+
+/* Sistema de Abas */
+.tabs-container {
+    padding: 1.5rem 2rem;
+}
+.tabs-nav {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    flex-wrap: wrap; /* Permite quebra de linha em telas pequenas */
+}
+.tab-button {
+    font-family: 'Inter', sans-serif;
+    padding: 10px 20px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: -2px; /* Alinha com a borda de baixo */
+    white-space: nowrap; /* Impede que o texto do botão quebre */
+}
+.tab-button:hover {
+    color: #005bb5;
+}
+.tab-button.active {
+    border-bottom-color: #007bff; /* Azul do NII */
+    color: #007bff;
+    font-weight: 600;
+}
+
+.tab-content {
+    padding-top: 1.5rem;
+}
+.tab-content.hidden {
+    display: none;
+}
+
+/* Botões de Link (Documentos) */
+.button-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+    background-color: #007bff;
+    color: #ffffff;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+.button-link:hover {
+    background-color: #0056b3;
+}
+.button-link.green { background-color: #28a745; }
+.button-link.green:hover { background-color: #218838; }
+.button-link.indigo { background-color: #6610f2; }
+.button-link.indigo:hover { background-color: #510bc4; }
+
+/* Listas usadas no manual */
+.manual-section ul, .tab-content ul {
+    list-style: disc;
+    list-style-position: outside;
+    margin-left: 20px;
+    margin-top: 1rem;
+    line-height: 1.8;
+}
+.manual-section ol, .tab-content ol {
+    list-style: decimal;
+    list-style-position: inside;
+    margin-left: 5px;
+    margin-top: 1rem;
+    line-height: 1.8;
+}
+.tab-content ol {
+    margin-left: 20px; /* Ajuste para sub-listas */
+    list-style-position: outside;
+}
+
+/* --- Estilos para a Página de Manuais (Fim) --- */
