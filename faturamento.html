@@ -10,55 +10,64 @@
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="navbar-brand-link">
-    <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
-    <span class="navbar-brand-text">NII - HBSH</span>
-</a>
+                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
+                <span class="navbar-brand-text">NII - HBSH</span>
+            </a>
             <ul class="navbar-nav">
                 <li><a href="index.html">Início</a></li>
                 <li><a href="faturamento.html">Faturamento</a></li>
                 <li><a href="indicadores.html">Indicadores</a></li>
-                <li><a href="manuais.html">Manuais</a></li> </ul>
+                <li><a href="manuais.html">Manuais</a></li>
+            </ul>
         </div>
     </nav>
 
     <header class="page-header">
         <div class="container">
             <h1>Módulo Faturamento SUS</h1>
+            <p>Monitoramento da Produção Hospitalar (SIH) - Competência 2025</p>
         </div>
     </header>
 
     <main class="container">
         
         <section class="bi-section">
-            <h2>Dashboard de Produção (BI)</h2>
-            <p>Gráfico interativo da produção hospitalar. Atualizado automaticamente.</p>
+            <h2>Painel de Indicadores</h2>
+            <p>Visualização baseada nos dados consolidados do SIH (Jan a Set/2025).</p>
             
-            <div class="bi-embed-container">
-                <iframe 
-                    width="100%" 
-                    height="600" 
-                    src="https://lookerstudio.google.com/s/vl_VUdSw-SE" 
-                    frameborder="0" 
-                    style="border:0" 
-                    allowfullscreen>
-                </iframe>
+            <div class="bi-grid">
+                
+                <div class="bi-card">
+                    <h3>💰 Evolução do Faturamento (R$)</h3>
+                    <p>Valor total aprovado por competência.</p>
+                    
+                    <div class="bi-placeholder">
+                        <p><em>O Gráfico de Colunas (Faturamento) aparecerá aqui...</em></p>
+                        </div>
+                </div>
+
+                <div class="bi-card">
+                    <h3>🏥 Internações vs. Taxa de Mortalidade</h3>
+                    <p>Volume de AIHs pagas comparado com a taxa de óbitos.</p>
+                    
+                    <div class="bi-placeholder">
+                        <p><em>O Gráfico Combinado (AIH vs Mortalidade) aparecerá aqui...</em></p>
+                    </div>
+                </div>
+
             </div>
         </section>
 
         <section class="report-list">
-            <h2>Relatórios e Arquivos</h2>
+            <h2>Arquivos da Competência</h2>
             <ul>
                 <li>
-                    Relatório de Produção (Setembro/2025)
-                    <a href="[LINK_DO_SEU_DRIVE_AQUI]" target="_blank">Baixar PDF</a>
+                    Planilha Consolidada SIH (CSV Original)
+                    <a href="#" target="_blank" class="button-link">Visualizar</a>
                 </li>
                 <li>
-                    Valores Faturados por Prestador (Setembro/2025)
-                    <a href="[LINK_DO_SEU_DRIVE_AQUI]" target="_blank">Ver Planilha</a>
-                </li>
-                <li>
-                    Repasse Médico (Setembro/2025)
-                    <a href="[LINK_DO_SEU_DRIVE_AQUI]" target="_blank">Ver Planilha</a>
+                    Relatório de Críticas e Rejeições (Exemplo)
+                    <a href="#" class="button-link">Baixar PDF</a>
                 </li>
             </ul>
         </section>
