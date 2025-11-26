@@ -5,19 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - Núcleo Interno de Informação</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .files-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .file-list-header {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-card-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .file-card-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #0056b3; /* Azul HBSH */
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .file-icon { font-size: 24px; }
+        .file-name { font-weight: bold; color: #333; display: block; }
+        .file-meta { font-size: 0.85rem; color: #777; }
+        .btn-download {
+            background-color: #0056b3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .btn-download:hover { background-color: #003d82; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="navbar-brand-link">
-    <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
-    <span class="navbar-brand-text">NII - HBSH</span>
-</a>
+                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
+                <span class="navbar-brand-text">NII - HBSH</span>
+            </a>
             <ul class="navbar-nav">
                 <li><a href="index.html">Início</a></li>
                 <li><a href="faturamento.html">Faturamento</a></li>
                 <li><a href="indicadores.html">Indicadores</a></li>
-                <li><a href="manuais.html">Manuais</a></li> </ul>
+                <li><a href="manuais.html">Manuais</a></li>
+            </ul>
         </div>
     </nav>
 
@@ -56,12 +108,69 @@
             </article>
 
         </div>
+
+        <section class="files-section">
+            <h2 class="file-list-header">📂 Arquivos Recentes e Uploads</h2>
+            
+            <div id="lista-arquivos">
+                <p style="text-align: center; color: #666;">Carregando lista de arquivos...</p>
+            </div>
+        </section>
+
     </main>
 
-    
     <footer class="main-footer">
         <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
     </footer>
+
+    <script>
+        async function carregarArquivos() {
+            try {
+                // Busca o arquivo JSON criado pelo Python
+                const response = await fetch('dados.json');
+                
+                // Se o arquivo não existir (primeira vez), não mostra erro feio
+                if (!response.ok) {
+                    document.getElementById('lista-arquivos').innerHTML = 
+                        '<p style="text-align:center; padding:20px; background:#fff; border-radius:8px;">' +
+                        'Nenhum arquivo listado ainda.<br><small>Rode "python upload_manager.py" no VS Code para atualizar.</small></p>';
+                    return;
+                }
+
+                const arquivos = await response.json();
+                const container = document.getElementById('lista-arquivos');
+                container.innerHTML = ''; // Limpa o "Carregando..."
+
+                if (arquivos.length === 0) {
+                    container.innerHTML = '<p>A pasta de arquivos está vazia.</p>';
+                    return;
+                }
+
+                // Cria um cartão para cada arquivo
+                arquivos.forEach(arq => {
+                    const card = `
+                        <div class="file-card-item">
+                            <div class="file-info">
+                                <div class="file-icon">${arq.icone}</div>
+                                <div>
+                                    <span class="file-name">${arq.nome}</span>
+                                    <span class="file-meta">${arq.data} • ${arq.tamanho}</span>
+                                </div>
+                            </div>
+                            <a href="${arq.caminho}" target="_blank" class="btn-download">Abrir</a>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+
+            } catch (erro) {
+                console.error("Erro ao carregar arquivos:", erro);
+            }
+        }
+
+        // Executa a função assim que a página carrega
+        carregarArquivos();
+    </script>
 
 </body>
 </html>
