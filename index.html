@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     
     <style>
+        /* Estilos específicos desta página */
         .files-section {
             margin-top: 40px;
             padding-top: 20px;
@@ -61,12 +62,11 @@
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="navbar-brand-link">
-                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
                 <span class="navbar-brand-text">NII - HBSH</span>
             </a>
             <ul class="navbar-nav">
                 <li><a href="index.html">Início</a></li>
-                <li><a href="faturamento.html">Faturamento</a></li>
+                <li><a href="painel_regulacao.html">Regulação</a></li> <li><a href="faturamento.html">Faturamento</a></li>
                 <li><a href="indicadores.html">Indicadores</a></li>
                 <li><a href="manuais.html">Manuais</a></li>
             </ul>
@@ -83,6 +83,12 @@
     <main class="container">
         <div class="dashboard-grid">
             
+            <article class="card" style="border-left: 5px solid #0056b3;">
+                <h2>📊 Painel de Regulação</h2>
+                <p>Monitoramento automático do SISREG: status de aprovação, pendências e produção médica.</p>
+                <a href="painel_regulacao.html" class="button">Acessar Painel</a>
+            </article>
+
             <article class="card">
                 <h2>Módulo Faturamento SUS</h2>
                 <p>Relatórios de produção, valores faturados por prestador, repasses médicos e arquivos da competência.</p>
@@ -91,7 +97,7 @@
 
             <article class="card">
                 <h2>Módulo Indicadores</h2>
-                <p>Taxa de ocupação, média de permanência, taxa de infecção, taxa de mortalidade e outros indicadores hospitalares.</p>
+                <p>Taxa de ocupação, média de permanência, taxa de infecção, taxa de mortalidade e outros indicadores.</p>
                 <a href="indicadores.html" class="button">Acessar Módulo</a>
             </article>
 
