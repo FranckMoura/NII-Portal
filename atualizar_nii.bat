@@ -1,28 +1,22 @@
 @echo off
-echo --- INICIANDO ROTINA DO PORTAL NII (HBSH) ---
-date /t
-time /t
-
-:: 1. Entra na pasta do projeto
 cd /d "C:\Users\DELL\OneDrive\NII-Portal-1"
 
-:: 2. Roda a Extração (Baixa o CSV do SISREG)
-echo [1/4] Extraindo dados do SISREG...
-python extracao_sisreg_v4.py
+echo ---------------------------------------------------------- >> log_execucao.txt
+echo INICIO: %date% - %time% >> log_execucao.txt
 
-:: 3. Roda o Banco de Dados (Lê o CSV e guarda no SQL)
-echo [2/4] Atualizando Banco de Dados...
-python banco_dados_sisreg.py
+echo [1/4] Extraindo... >> log_execucao.txt
+python extracao_sisreg_v4.py >> log_execucao.txt 2>&1
 
-:: 4. Roda o Dashboard (Gera o HTML novo)
-echo [3/4] Gerando Painel HTML...
-python gerar_dashboard_v3.py
+echo [2/4] Banco de Dados... >> log_execucao.txt
+python banco_dados_sisreg.py >> log_execucao.txt 2>&1
 
-:: 5. Envia para o GitHub (Atualiza o site na internet)
-echo [4/4] Publicando no Portal NII...
-git add .
-git commit -m "Atualizacao automatica - Rotina 1h"
-git push
+echo [3/4] Gerando HTML... >> log_execucao.txt
+python gerar_dashboard_v3.py >> log_execucao.txt 2>&1
 
-echo --- PROCESSO CONCLUIDO COM SUCESSO ---
-timeout /t 10
+echo [4/4] Publicando GitHub... >> log_execucao.txt
+git add . >> log_execucao.txt 2>&1
+git commit -m "Rotina 10min" >> log_execucao.txt 2>&1
+git push >> log_execucao.txt 2>&1
+
+echo FIM: %date% - %time% >> log_execucao.txt
+echo ---------------------------------------------------------- >> log_execucao.txt
