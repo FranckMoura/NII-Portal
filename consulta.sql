@@ -1,0 +1,9 @@
+SELECT 
+    nome_do_paciente,
+    cns_do_paciente,
+    n_da_solicitacao,
+    n_aih,
+    nome_do_procedimento_solicitado,
+    status_da_solicitacao_de_internacao
+FROM 
+    solicitacoes;
