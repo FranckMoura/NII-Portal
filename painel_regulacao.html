@@ -7,6 +7,8 @@
         <title>Painel NII - Regulação HBSH</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        
         <style>
             :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; }
             body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
@@ -15,7 +17,6 @@
             .header h1 { margin: 0; color: var(--primary); font-size: 24px; }
             .periodo-badge { background: #e9ecef; padding: 5px 15px; border-radius: 20px; color: #555; font-size: 14px; font-weight: bold; border: 1px solid #ced4da; }
 
-            /* CARDS */
             .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
             .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
             .card h3 { margin: 0 0 10px 0; color: #6c757d; font-size: 14px; text-transform: uppercase; }
@@ -25,15 +26,25 @@
             .card.yellow .value { color: var(--warning); }
             .card.red .value { color: var(--danger); }
 
-            /* GRÁFICOS */
             .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
             .chart-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
             
-            /* TABELA */
             .table-container { background: white; padding: 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); max-height: 600px; overflow-y: auto; position: relative; }
             .table-header-title { padding: 20px; position: sticky; top: 0; background: white; z-index: 5; border-bottom: 2px solid #dee2e6; margin: 0; display: flex; justify-content: space-between; align-items: center; }
+            
             table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-            thead th { position: sticky; top: 0; background-color: #f8f9fa; color: var(--dark); z-index: 2; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); font-size: 13px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
+            
+            /* ESTILO DOS CABEÇALHOS CLICÁVEIS */
+            thead th { 
+                position: sticky; top: 0; background-color: #f8f9fa; color: var(--dark); z-index: 2; 
+                box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); 
+                font-size: 13px; text-transform: uppercase; padding: 12px 15px; text-align: left; 
+                cursor: pointer; /* Mãozinha */
+                user-select: none; /* Não seleciona texto ao clicar rápido */
+            }
+            thead th:hover { background-color: #e2e6ea; }
+            thead th i { margin-left: 5px; color: #ccc; font-size: 10px; }
+            
             td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 13px; }
             tr:hover { background-color: #f1f1f1; }
             
@@ -59,38 +70,20 @@
             </div>
             <div style="text-align: right;">
                 <span class="periodo-badge">📅 Período: Novembro/2025</span>
-                <p style="font-size: 12px; color: #999; margin-top: 5px;">Atualizado: 28/11/2025 09:12</p>
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">Atualizado: 28/11/2025 14:56</p>
             </div>
         </div>
 
         <div class="cards-container">
-            <div class="card blue">
-                <h3>Total (Mês)</h3>
-                <div class="value">808</div>
-            </div>
-            <div class="card green">
-                <h3>Aprovados</h3>
-                <div class="value">517</div>
-            </div>
-            <div class="card yellow">
-                <h3>Pendentes</h3>
-                <div class="value">276</div>
-            </div>
-            <div class="card red">
-                <h3>Negados/Cancel</h3>
-                <div class="value">13</div>
-            </div>
+            <div class="card blue"><h3>Total (Mês)</h3><div class="value">808</div></div>
+            <div class="card green"><h3>Aprovados</h3><div class="value">517</div></div>
+            <div class="card yellow"><h3>Pendentes</h3><div class="value">276</div></div>
+            <div class="card red"><h3>Negados/Cancel</h3><div class="value">13</div></div>
         </div>
 
         <div class="charts-row">
-            <div class="chart-container">
-                <h3>Top 5 Procedimentos (Novembro/2025)</h3>
-                <canvas id="chartProcedimentos"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Status da Regulação</h3>
-                <canvas id="chartStatus"></canvas>
-            </div>
+            <div class="chart-container"><h3>Top 5 Procedimentos</h3><canvas id="chartProcedimentos"></canvas></div>
+            <div class="chart-container"><h3>Status da Regulação</h3><canvas id="chartStatus"></canvas></div>
         </div>
 
         <div class="table-container">
@@ -98,17 +91,17 @@
                 <span>Solicitações de <strong>Novembro/2025</strong></span>
                 <span style="font-size: 12px; color: #666;">808 registros encontrados</span>
             </div>
-            <table>
+            <table id="tabelaRegulacao">
                 <thead>
                     <tr>
-                        <th style="min-width:90px">Data</th>
-                        <th class="col-paciente">Paciente</th>
-                        <th>CNS</th>
-                        <th>Nº Solicit.</th>
-                        <th>Nº AIH</th>
-                        <th class="col-proc">Procedimento</th>
-                        <th>Caráter</th>
-                        <th>Status</th>
+                        <th onclick="sortTable(0)" style="min-width:90px">Data <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(1)" class="col-paciente">Paciente <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(2)">CNS <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(3)">Nº Solicit. <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(4)">Nº AIH <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(5)" class="col-proc">Procedimento <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(6)">Caráter <i class="fas fa-sort"></i></th>
+                        <th onclick="sortTable(7)">Status <i class="fas fa-sort"></i></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -9006,31 +8999,68 @@
         </div>
 
         <script>
+            // GRÁFICOS
             new Chart(document.getElementById('chartProcedimentos'), {
                 type: 'bar',
-                data: {
-                    labels: ['PARTO NORMAL                                                                                                                                                                                                                                              ', 'TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ', 'CURETAGEM POS-ABORTAMENTO / PUERPERAL                                                                                                                                                                                                                     ', 'OPERAÇÃO CESARIANA                                                                                                                                                                                                                                       ', 'PARTO NORMAL EM GESTAÇÃO DE ALTO RISCO                                                                                                                                                                                                                   '],
-                    datasets: [{
-                        label: 'Qtd',
-                        data: [318, 64, 54, 50, 45],
-                        backgroundColor: '#0056b3',
-                        borderRadius: 5
-                    }]
-                },
+                data: { labels: ['PARTO NORMAL                                                                                                                                                                                                                                              ', 'TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ', 'CURETAGEM POS-ABORTAMENTO / PUERPERAL                                                                                                                                                                                                                     ', 'OPERAÇÃO CESARIANA                                                                                                                                                                                                                                       ', 'PARTO NORMAL EM GESTAÇÃO DE ALTO RISCO                                                                                                                                                                                                                   '], datasets: [{ label: 'Qtd', data: [318, 64, 54, 50, 45], backgroundColor: '#0056b3', borderRadius: 5 }] },
                 options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
             });
 
             new Chart(document.getElementById('chartStatus'), {
                 type: 'doughnut',
-                data: {
-                    labels: ['Aprovados', 'Pendentes', 'Negados/Outros'],
-                    datasets: [{
-                        data: [517, 276, 13],
-                        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-                    }]
-                },
+                data: { labels: ['Aprovados', 'Pendentes', 'Negados/Outros'], datasets: [{ data: [517, 276, 13], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }] },
                 options: { responsive: true, cutout: '70%' }
             });
+
+            // FUNÇÃO DE ORDENAÇÃO (JAVASCRIPT)
+            function sortTable(n) {
+                var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                table = document.getElementById("tabelaRegulacao");
+                switching = true;
+                dir = "asc"; // Direção inicial
+
+                while (switching) {
+                    switching = false;
+                    rows = table.rows;
+                    
+                    // Loop por todas as linhas (exceto cabeçalho)
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        shouldSwitch = false;
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        
+                        var xContent = x.innerText.toLowerCase();
+                        var yContent = y.innerText.toLowerCase();
+
+                        // Tratamento especial para datas (Coluna 0) formato dd/mm/aaaa
+                        if (n === 0) {
+                            xContent = xContent.split('/').reverse().join(''); // vira aaaammdd
+                            yContent = yContent.split('/').reverse().join('');
+                        }
+                        // Tratamento para números (tentar converter)
+                        else if (!isNaN(parseFloat(xContent)) && isFinite(xContent)) {
+                            xContent = parseFloat(xContent);
+                            yContent = parseFloat(yContent);
+                        }
+
+                        if (dir == "asc") {
+                            if (xContent > yContent) { shouldSwitch = true; break; }
+                        } else if (dir == "desc") {
+                            if (xContent < yContent) { shouldSwitch = true; break; }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        switchcount ++;
+                    } else {
+                        if (switchcount == 0 && dir == "asc") {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
+            }
         </script>
     </body>
     </html>

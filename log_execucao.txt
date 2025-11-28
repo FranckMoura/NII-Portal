@@ -1009,3 +1009,11 @@ Total Histórico: 79262 registros
 Filtrado Mês Atual (Novembro/2025): 808 registros
 Relatório gerado com sucesso! Mostrando apenas Novembro/2025.
 [4/4] Publicando GitHub... 
+warning: in the working copy of 'log_execucao.txt', LF will be replaced by CRLF the next time Git touches it
+[main1 e93dfa5] Rotina 10min
+ 4 files changed, 58 insertions(+), 2 deletions(-)
+ rename gerar_dashboard_v4.py => gerar_dashboard.py (100%)
+To https://github.com/FranckMoura/NII-Portal.git
+   d61a16c..e93dfa5  main1 -> main1
+FIM: 28/11/2025 -  9:12:20,94 
+---------------------------------------------------------- 
