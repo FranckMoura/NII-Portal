@@ -925,3 +925,31 @@ UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 
 [3/4] Gerando HTML... 
 python: can't open file 'C:\\Users\\DELL\\OneDrive\\NII-Portal-1\\gerar_dashboard_v3.py': [Errno 2] No such file or directory
 [4/4] Publicando GitHub... 
+warning: in the working copy of 'log_execucao.txt', LF will be replaced by CRLF the next time Git touches it
+[main1 b580002] Rotina 10min
+ 20 files changed, 141 insertions(+), 105 deletions(-)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_06.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_07.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_08.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_09.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_10.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_11.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2024_12.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_01.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_02.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_04.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_05.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_06.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_07.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_08.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_09.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_10.csv (100%)
+ rename SISREG_Export/{ => Processados}/SISREG_2025_11.csv (100%)
+ rename gerar_dashboard_v3.py => gerar_dashboard_v4.py (65%)
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File dados_sisreg.db is 65.27 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/FranckMoura/NII-Portal.git
+   0e50f4a..b580002  main1 -> main1
+FIM: 28/11/2025 -  8:52:23,88 
+---------------------------------------------------------- 
