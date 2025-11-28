@@ -10,8 +10,17 @@ BANCO_DADOS = os.path.join(PASTA_PROJETO, "dados_sisreg.db")
 NOME_ARQUIVO_HTML = "painel_regulacao.html"
 CAMINHO_FINAL_HTML = os.path.join(PASTA_PROJETO, NOME_ARQUIVO_HTML)
 
+def formatar_numero(valor):
+    """Remove o .0 de números que viraram texto (ex: 123.0 -> 123)"""
+    if valor is None or valor == "":
+        return "-"
+    valor_str = str(valor)
+    if valor_str.endswith('.0'):
+        return valor_str[:-2]
+    return valor_str
+
 def gerar_html():
-    print("--- GERANDO DASHBOARD COMPLETO (NII) - VERSÃO BLINDADA ---")
+    print("--- GERANDO DASHBOARD COMPLETO (NII) - COLUNAS EXTRAS ---")
     
     # 1. Conectar ao Banco e Pegar Dados
     conn = sqlite3.connect(BANCO_DADOS)
@@ -21,7 +30,6 @@ def gerar_html():
         df_status = pd.read_sql_query("SELECT status_da_solicitacao_de_internacao, COUNT(*) as qtd FROM solicitacoes GROUP BY status_da_solicitacao_de_internacao", conn)
         total_solicitacoes = df_status['qtd'].sum()
         
-        # Tratamento de erro caso o banco esteja vazio ou com nomes diferentes
         try: pendentes = df_status[df_status['status_da_solicitacao_de_internacao'].str.contains('Pendente', case=False, na=False)]['qtd'].sum()
         except: pendentes = 0
         
@@ -51,23 +59,27 @@ def gerar_html():
         labels_top = []
         data_top = []
 
-    # C) TODAS as Solicitações (Sem LIMIT)
+    # C) TODAS as Solicitações (Com Novas Colunas)
     try:
+        # Aqui adicionamos as colunas que você pediu
         query_tabela = """
         SELECT 
             data_da_solicitacao,
-            n_da_solicitacao,
             nome_do_paciente,
+            cns_do_paciente,
+            n_da_solicitacao,
+            n_aih,
             nome_do_procedimento_solicitado,
-            status_da_solicitacao_de_internacao
+            status_da_solicitacao_de_internacao,
+            carater_internacao
         FROM solicitacoes
         ORDER BY 
-            -- Ordena primeiro os Pendentes
             CASE WHEN status_da_solicitacao_de_internacao LIKE '%Pendente%' THEN 1 ELSE 2 END,
             data_da_solicitacao DESC
         """
         df_tabela = pd.read_sql_query(query_tabela, conn)
-    except:
+    except Exception as e:
+        print(f"Erro ao buscar tabela: {e}")
         df_tabela = pd.DataFrame()
 
     conn.close()
@@ -124,7 +136,7 @@ def gerar_html():
                 margin: 0;
             }}
 
-            table {{ width: 100%; border-collapse: collapse; }}
+            table {{ width: 100%; border-collapse: collapse; min-width: 1000px; }} /* min-width garante que a tabela não esmague em telas pequenas */
             
             thead th {{ 
                 position: sticky; 
@@ -133,19 +145,23 @@ def gerar_html():
                 color: var(--dark);
                 z-index: 2; 
                 box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+                font-size: 13px;
+                text-transform: uppercase;
             }}
             
-            th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }}
+            th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 13px; }}
             tr:hover {{ background-color: #f1f1f1; }}
             
-            .status-badge {{ padding: 5px 10px; border-radius: 15px; font-size: 12px; color: white; font-weight: bold; display: inline-block; min-width: 80px; text-align: center; }}
+            .status-badge {{ padding: 5px 10px; border-radius: 15px; font-size: 11px; color: white; font-weight: bold; display: inline-block; min-width: 80px; text-align: center; }}
             .bg-aprovado {{ background-color: var(--success); }}
             .bg-pendente {{ background-color: var(--warning); color: #333; }}
             .bg-negado {{ background-color: var(--danger); }}
             .bg-outro {{ background-color: var(--primary); }}
-            .bg-neutro {{ background-color: #6c757d; }} /* Nova cor para vazios */
-            
-            .total-badge {{ font-size: 12px; color: #666; font-weight: normal; margin-left: 10px; }}
+            .bg-neutro {{ background-color: #6c757d; }}
+
+            .col-data {{ min-width: 90px; }}
+            .col-paciente {{ min-width: 200px; font-weight: 500; }}
+            .col-proc {{ min-width: 200px; color: #555; }}
 
             @media (max-width: 768px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
         </style>
@@ -196,15 +212,18 @@ def gerar_html():
         <div class="table-container">
             <h3 class="table-header-title">
                 Lista Completa de Solicitações
-                <span class="total-badge">Exibindo {len(df_tabela)} registros</span>
+                <span style="font-size: 12px; color: #666; margin-left: 10px; font-weight: normal;">Exibindo {len(df_tabela)} registros</span>
             </h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Data</th>
-                        <th>Nº Solicitação</th>
-                        <th>Paciente</th>
-                        <th>Procedimento</th>
+                        <th class="col-data">Data</th>
+                        <th class="col-paciente">Paciente</th>
+                        <th>CNS</th>
+                        <th>Nº Solicit.</th>
+                        <th>Nº AIH</th>
+                        <th class="col-proc">Procedimento</th>
+                        <th>Caráter</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -213,28 +232,33 @@ def gerar_html():
     
     for index, row in df_tabela.iterrows():
         status = row['status_da_solicitacao_de_internacao']
+        if status is None: status = "Indefinido"
         
-        # --- CORREÇÃO DO ERRO ---
-        # Se o status for vazio (None), define como "Indefinido"
-        if status is None:
-            status = "Indefinido"
-        
-        # Lógica de cores das badges
+        # Cores das badges
         css_class = "bg-outro"
         if "Aprovado" in status: css_class = "bg-aprovado"
         elif "Pendente" in status: css_class = "bg-pendente"
         elif "Negado" in status or "Cancelado" in status: css_class = "bg-negado"
         elif "Indefinido" in status: css_class = "bg-neutro"
         
-        # Formata a data se possível
-        data_formatada = row['data_da_solicitacao']
-        
+        # Formatação
+        data_sol = row['data_da_solicitacao']
+        paciente = row['nome_do_paciente']
+        cns = formatar_numero(row['cns_do_paciente'])
+        n_sol = formatar_numero(row['n_da_solicitacao'])
+        n_aih = formatar_numero(row['n_aih'])
+        proc = row['nome_do_procedimento_solicitado']
+        carater = row['carater_internacao'] if row['carater_internacao'] else "-"
+
         html_content += f"""
                     <tr>
-                        <td>{data_formatada}</td>
-                        <td>{row['n_da_solicitacao']}</td>
-                        <td>{row['nome_do_paciente']}</td>
-                        <td>{row['nome_do_procedimento_solicitado']}</td>
+                        <td>{data_sol}</td>
+                        <td>{paciente}</td>
+                        <td>{cns}</td>
+                        <td>{n_sol}</td>
+                        <td>{n_aih}</td>
+                        <td>{proc}</td>
+                        <td>{carater}</td>
                         <td><span class="status-badge {css_class}">{status}</span></td>
                     </tr>
         """
@@ -281,7 +305,8 @@ def gerar_html():
         f.write(html_content)
     
     print(f"Relatório gerado com sucesso! {len(df_tabela)} registros processados.")
-    webbrowser.open('file://' + os.path.realpath(CAMINHO_FINAL_HTML))
+    # Comente a linha abaixo se não quiser que abra o navegador toda vez
+    # webbrowser.open('file://' + os.path.realpath(CAMINHO_FINAL_HTML))
 
 if __name__ == "__main__":
     gerar_html()
