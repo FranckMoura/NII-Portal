@@ -1081,3 +1081,77 @@ UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 
 Registros do Mês (Novembro/2025): 830
 Relatório gerado com sucesso! (Modo Tabela Dinâmica)
 [4/4] Publicando GitHub... 
+warning: in the working copy of 'log_execucao.txt', LF will be replaced by CRLF the next time Git touches it
+[main1 dda29ef] Rotina 10min
+ 4 files changed, 4659 insertions(+), 4331 deletions(-)
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File dados_sisreg.db is 65.27 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/FranckMoura/NII-Portal.git
+   d4c3f12..dda29ef  main1 -> main1
+FIM: 28/11/2025 - 15:05:47,32 
+---------------------------------------------------------- 
+---------------------------------------------------------- 
+INICIO: 28/11/2025 - 16:34:16,00 
+[1/4] Extraindo... 
+--- Iniciando Script de Extração ---
+Hora atual do sistema: 16:34
+Status: Horário permitido. Iniciando automação...
+Período: 01/11/2025 até 28/11/2025
+Salvando em: C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export
+>> Acessando página de login...
+>> Navegando para o Exportador...
+>> Entrando no formulário (Frame)...
+>> Preenchendo datas...
+>> Selecionando opções...
+>> Clicando em Exportar...
+   Botão principal clicado.
+>> Aguardando download (20 segundos)...
+
+--- Processo Finalizado ---
+[2/4] Banco de Dados... 
+--- INICIANDO ATUALIZAÇÃO DO BANCO DE DADOS (NII) ---
+Encontrados 3 arquivos novos para processar.
+Processando: 2311682-20251128.csv...
+   -> Dados integrados ao banco com sucesso!
+   -> Arquivo movido para 'Processados'.
+Processando: SISREG_2024_05.csv...
+Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 55, in atualizar_banco
+    df = pd.read_csv(arquivo, sep=';', encoding='utf-8')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 626, in _read
+    return parser.read(nrows)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 1923, in read
+    ) = self._engine.read(  # type: ignore[attr-defined]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 234, in read
+    chunks = self._reader.read_low_memory(nrows)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/parsers.pyx", line 838, in pandas._libs.parsers.TextReader.read_low_memory
+  File "pandas/_libs/parsers.pyx", line 905, in pandas._libs.parsers.TextReader._read_rows
+  File "pandas/_libs/parsers.pyx", line 874, in pandas._libs.parsers.TextReader._tokenize_rows
+  File "pandas/_libs/parsers.pyx", line 891, in pandas._libs.parsers.TextReader._check_tokenize_status
+  File "pandas/_libs/parsers.pyx", line 2061, in pandas._libs.parsers.raise_parser_error
+pandas.errors.ParserError: Error tokenizing data. C error: EOF inside string starting at row 983
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 149, in <module>
+    atualizar_banco()
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 131, in atualizar_banco
+    print(f"\u274c Erro ao processar {arquivo}: {e}")
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+[3/4] Gerando HTML... 
+--- GERANDO DASHBOARD (COM ORDENAÇÃO) ---
+Registros do Mês (Novembro/2025): 833
+Relatório gerado com sucesso! (Modo Tabela Dinâmica)
+[4/4] Publicando GitHub... 
