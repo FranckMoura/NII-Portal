@@ -11,7 +11,7 @@ echo [2/4] Banco de Dados... >> log_execucao.txt
 python banco_dados_sisreg.py >> log_execucao.txt 2>&1
 
 echo [3/4] Gerando HTML... >> log_execucao.txt
-python gerar_dashboard_v3.py >> log_execucao.txt 2>&1
+python gerar_dashboard.py >> log_execucao.txt 2>&1
 
 echo [4/4] Publicando GitHub... >> log_execucao.txt
 git add . >> log_execucao.txt 2>&1
