@@ -1591,3 +1591,65 @@ UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 
 Registros do Mês (Novembro/2025): 840
 Relatório gerado com sucesso! (Modo Tabela Dinâmica)
 [4/4] Publicando GitHub... 
+warning: in the working copy of 'log_execucao.txt', LF will be replaced by CRLF the next time Git touches it
+[main1 ea91554] Rotina 10min
+ 2 files changed, 66 insertions(+), 1 deletion(-)
+To https://github.com/FranckMoura/NII-Portal.git
+   ac23ebe..ea91554  main1 -> main1
+FIM: 29/11/2025 -  8:11:46,79 
+---------------------------------------------------------- 
+---------------------------------------------------------- 
+INICIO: 29/11/2025 - 11:47:23,42 
+[1/4] Extraindo... 
+--- Iniciando Script de Extração ---
+Hora atual do sistema: 11:47
+Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\extracao_sisreg_v4.py", line 19, in <module>
+    print("\u26d4 SISTEMA BLOQUEADO PELO SISREG (Horário proibido: 07h às 15h).")
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u26d4' in position 0: character maps to <undefined>
+[2/4] Banco de Dados... 
+--- INICIANDO ATUALIZAÇÃO DO BANCO DE DADOS (NII) ---
+Encontrados 2 arquivos novos para processar.
+Processando: SISREG_2024_05.csv...
+Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 55, in atualizar_banco
+    df = pd.read_csv(arquivo, sep=';', encoding='utf-8')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 626, in _read
+    return parser.read(nrows)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\readers.py", line 1923, in read
+    ) = self._engine.read(  # type: ignore[attr-defined]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 234, in read
+    chunks = self._reader.read_low_memory(nrows)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/parsers.pyx", line 838, in pandas._libs.parsers.TextReader.read_low_memory
+  File "pandas/_libs/parsers.pyx", line 905, in pandas._libs.parsers.TextReader._read_rows
+  File "pandas/_libs/parsers.pyx", line 874, in pandas._libs.parsers.TextReader._tokenize_rows
+  File "pandas/_libs/parsers.pyx", line 891, in pandas._libs.parsers.TextReader._check_tokenize_status
+  File "pandas/_libs/parsers.pyx", line 2061, in pandas._libs.parsers.raise_parser_error
+pandas.errors.ParserError: Error tokenizing data. C error: EOF inside string starting at row 983
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 149, in <module>
+    atualizar_banco()
+  File "C:\Users\DELL\OneDrive\NII-Portal-1\banco_dados_sisreg.py", line 131, in atualizar_banco
+    print(f"\u274c Erro ao processar {arquivo}: {e}")
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+[3/4] Gerando HTML... 
+--- GERANDO DASHBOARD (COM ORDENAÇÃO) ---
+Registros do Mês (Novembro/2025): 840
+Relatório gerado com sucesso! (Modo Tabela Dinâmica)
+[4/4] Publicando GitHub... 
