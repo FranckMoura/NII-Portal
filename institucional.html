@@ -96,7 +96,7 @@
     <script>
         let dataTable;
 
-        // Configuração das Colunas para cada arquivo do Elasticnes
+        // Configuração das Colunas
         const CONFIG_COLUNAS = {
             'profissionais': [
                 { title: "Nome", data: "profissional_nome" },
@@ -125,9 +125,11 @@
         };
 
         async function carregarTabela(tipo) {
-            // Nome padrão do arquivo que o organizador_elastic.py gerou
             const nomeArquivo = `elastic_${tipo}.csv`;
-            const url = `arquivos/${nomeArquivo}`;
+            
+            // --- AQUI ESTÁ A MUDANÇA (Cache Buster) ---
+            // Adicionamos ?v=(timestamp) para obrigar o navegador a baixar a versão nova
+            const url = `arquivos/${nomeArquivo}?v=${new Date().getTime()}`;
             
             document.getElementById('area-tabela').style.display = 'block';
             document.getElementById('titulo-tabela').innerText = `Carregando ${tipo}...`;
@@ -135,17 +137,17 @@
             Papa.parse(url, {
                 download: true,
                 header: true,
-                delimiter: ";", // O Elasticnes usa ponto-e-vírgula
+                delimiter: ";", 
                 skipEmptyLines: true,
                 complete: function(results) {
-                    // Pega as colunas configuradas ou usa todas se não tiver config
                     const colunas = CONFIG_COLUNAS[tipo] || results.meta.fields.map(c => ({title: c, data: c}));
                     
                     renderizarDataTables(results.data, colunas);
                     document.getElementById('titulo-tabela').innerText = `Visualizando: ${tipo.toUpperCase()}`;
                 },
                 error: function(err) {
-                    alert("Erro ao ler arquivo. Verifique se 'organizar_elastic.py' foi executado.");
+                    console.log("Erro PapaParse:", err);
+                    alert("Erro ao ler arquivo. Verifique se o upload foi feito corretamente.");
                 }
             });
         }
@@ -162,7 +164,7 @@
                 language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
                 pageLength: 10,
                 responsive: true,
-                scrollX: true // Adiciona barra de rolagem horizontal se precisar
+                scrollX: true 
             });
         }
     </script>
