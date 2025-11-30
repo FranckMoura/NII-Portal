@@ -2057,3 +2057,21 @@ Traceback (most recent call last):
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3e5' in position 0: character maps to <undefined>
 [6/6] Atualizando Site e Enviando para Nuvem... 
+warning: in the working copy of 'log_execucao.txt', LF will be replaced by CRLF the next time Git touches it
+[main1 1b7ebf9] Atualização automática: 2025-11-30 08:05:08.604751
+ 8 files changed, 167 insertions(+), 36 deletions(-)
+ create mode 100644 arquivos/EQMT2510.dbc
+ create mode 100644 arquivos/LTMT2510.dbc
+ create mode 100644 arquivos/PFMT2510.dbc
+ create mode 100644 arquivos/STMT2510.dbc
+To https://github.com/FranckMoura/NII-Portal.git
+   5986b88..1b7ebf9  main1 -> main1
+--- INICIANDO GERENCIADOR DE UPLOAD NII ---
+Lendo arquivos em 'arquivos'...
+Base de dados atualizada com 6 arquivos.
+
+Enviando para o Portal...
+
+[SUCESSO] Arquivos enviados! O portal atualizar� em alguns minutos.
+FIM: 30/11/2025 -  8:05:13,71 
+---------------------------------------------------------- 

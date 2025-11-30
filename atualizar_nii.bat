@@ -1,31 +1,31 @@
 @echo off
-:: Garante que estamos na pasta certa
-cd /d "C:\Users\DELL\OneDrive\NII-Portal-1"
+echo ==========================================
+echo      NII - SISTEMA DE AUTOMACAO (PRO)
+echo ==========================================
+echo.
 
-echo ---------------------------------------------------------- >> log_execucao.txt
-echo INICIO DA ROTINA NII: %date% - %time% >> log_execucao.txt
+echo [1/4] Gerando Indice de Simuladas...
+python script_simuladas.py
 
-:: --- BLOCO 1: ROTINA SISREG (Existente) ---
-echo [1/6] Extraindo dados do SISREG... >> log_execucao.txt
-python extracao_sisreg_v4.py >> log_execucao.txt 2>&1
+echo.
+echo [2/4] Baixando Arquivos do CNES (FTP)...
+python extrator_cnes_ftp.py
 
-echo [2/6] Atualizando Banco de Dados SISREG... >> log_execucao.txt
-python banco_dados_sisreg.py >> log_execucao.txt 2>&1
+echo.
+echo [ATENCAO] Se voce ja usou o TabWin para converter os DBC em DBF,
+echo o proximo passo vai gerar os CSVs para o site.
+echo.
+pause
 
-echo [3/6] Gerando HTML do Dashboard... >> log_execucao.txt
-python gerar_dashboard.py >> log_execucao.txt 2>&1
+echo [3/4] Convertendo DBF para CSV...
+python conversor_dbf.py
 
-:: --- BLOCO 2: NOVAS ROTINAS (Simuladas e CNES) ---
-echo [4/6] Gerando Indice de Simuladas (PDF)... >> log_execucao.txt
-python script_simuladas.py >> log_execucao.txt 2>&1
+echo.
+echo [4/4] Atualizando o Portal NII...
+python upload_manager.py
 
-echo [5/6] Baixando Dados Oficiais do CNES... >> log_execucao.txt
-python extrator_cnes.py >> log_execucao.txt 2>&1
-
-:: --- BLOCO 3: ATUALIZAÇÃO DO PORTAL E GITHUB ---
-echo [6/6] Atualizando Site e Enviando para Nuvem... >> log_execucao.txt
-:: O upload_manager le a pasta 'arquivos', atualiza o index.html e faz o git push
-python upload_manager.py >> log_execucao.txt 2>&1
-
-echo FIM: %date% - %time% >> log_execucao.txt
-echo ---------------------------------------------------------- >> log_execucao.txt
+echo.
+echo ==========================================
+echo      CONCLUIDO!
+echo ==========================================
+pause

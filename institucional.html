@@ -3,8 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Dados Institucionais</title>
+    <title>NII - Institucional</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        /* Ajustes para a tabela ficar bonita no seu design */
+        .data-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none; /* Escondido até carregar */
+        }
+        table.dataTable thead th {
+            background-color: #0056b3;
+            color: white;
+        }
+        .btn-visualizar {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .btn-visualizar:hover { background-color: #218838; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -18,7 +50,7 @@
                 <li><a href="faturamento.html">Faturamento</a></li>
                 <li><a href="indicadores.html">Indicadores</a></li>
                 <li><a href="manuais.html">Manuais</a></li>
-                <li><a href="institucional.html" class="active">Institucional</a></li>
+                <li><a href="institucional.html">Institucional</a></li>
             </ul>
         </div>
     </nav>
@@ -26,42 +58,107 @@
     <header class="main-header">
         <div class="container">
             <h1>Dados Institucionais (CNES)</h1>
-            <p>Informações oficiais extraídas diretamente da base do DATASUS.</p>
+            <p>Visualize e pesquise dados oficiais extraídos do DATASUS.</p>
         </div>
     </header>
 
     <main class="container">
+        
         <div class="dashboard-grid">
-            
             <article class="card">
-                <h2>📜 Habilitações</h2>
-                <p>Lista oficial de habilitações e incentivos ativos no CNES.</p>
-                <a href="arquivos/CNES_Habilitacoes.csv" class="button">Baixar CSV</a>
+                <h2>👨‍⚕️ Profissionais</h2>
+                <p>Corpo clínico, CBO e Vínculos.</p>
+                <button onclick="carregarTabela('PF')" class="btn-visualizar">Visualizar Tabela</button>
             </article>
 
             <article class="card">
-                <h2>🛏️ Quadro de Leitos</h2>
-                <p>Capacidade instalada, contratualizada e leitos SUS disponíveis.</p>
-                <a href="arquivos/CNES_Leitos.csv" class="button">Baixar CSV</a>
+                <h2>🛏️ Leitos</h2>
+                <p>Capacidade instalada e SUS.</p>
+                <button onclick="carregarTabela('LT')" class="btn-visualizar">Visualizar Tabela</button>
             </article>
 
             <article class="card">
                 <h2>🔬 Equipamentos</h2>
-                <p>Equipamentos cadastrados e disponíveis para uso/SUS.</p>
-                <a href="arquivos/CNES_Equipamentos.csv" class="button">Baixar CSV</a>
+                <p>Equipamentos em uso.</p>
+                <button onclick="carregarTabela('EQ')" class="btn-visualizar">Visualizar Tabela</button>
             </article>
-
-            <article class="card" style="grid-column: 1 / -1;">
-                <h2>👨‍⚕️ Corpo Clínico e Profissionais</h2>
-                <p>Base completa de profissionais com CBO, CNS e Vínculo empregatício.</p>
-                <a href="arquivos/CNES_Profissionais.csv" class="button">Baixar Lista Completa</a>
-            </article>
-
         </div>
+
+        <div id="area-tabela" class="data-container">
+            <h2 id="titulo-tabela" style="color:#0056b3; margin-bottom:15px;">Dados</h2>
+            <table id="tabela-dados" class="display" style="width:100%"></table>
+        </div>
+
     </main>
 
     <footer class="main-footer">
         <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
     </footer>
+
+    <script>
+        let dataTable; // Guarda a instância da tabela
+
+        async function carregarTabela(prefixo) {
+            // 1. Descobrir qual arquivo CSV baixar (busca no JSON do site ou tenta nome padrão)
+            // Para simplificar, vamos tentar o nome padrão que o script gera
+            // Ex: pfmt2409.csv (o script converte para minusculo)
+            
+            // ATENÇÃO: Você precisa garantir que o ano/mes batem com o download
+            // Uma estratégia melhor é o script Python salvar com nome fixo: 'profissionais_atual.csv'
+            // Mas vamos tentar achar o arquivo:
+            
+            let arquivoAlvo = "";
+            const response = await fetch('dados.json'); // Lê o "banco de dados" do site
+            const arquivos = await response.json();
+            
+            // Procura na lista de arquivos um que tenha o prefixo (ex: PFMT) e seja .csv
+            const arquivoEncontrado = arquivos.find(a => a.nome.toUpperCase().includes(prefixo + 'MT') && a.nome.endsWith('.csv'));
+
+            if (!arquivoEncontrado) {
+                alert("Arquivo CSV não encontrado no portal. Rode a conversão primeiro.");
+                return;
+            }
+
+            const url = arquivoEncontrado.caminho;
+            
+            // Mostra a área da tabela
+            document.getElementById('area-tabela').style.display = 'block';
+            document.getElementById('titulo-tabela').innerText = "Carregando " + arquivoEncontrado.nome + "...";
+
+            // 2. Ler o CSV usando PapaParse
+            Papa.parse(url, {
+                download: true,
+                header: true, // Usa a primeira linha como cabeçalho
+                delimiter: ";", // Importante: Nosso script usa ponto-e-vírgula
+                skipEmptyLines: true,
+                complete: function(results) {
+                    renderizarDataTables(results.data, results.meta.fields);
+                    document.getElementById('titulo-tabela').innerText = "Visualizando: " + arquivoEncontrado.nome;
+                }
+            });
+        }
+
+        function renderizarDataTables(dados, colunas) {
+            // Se já existe tabela, destroi ela antes de criar outra
+            if (dataTable) {
+                dataTable.destroy();
+                document.getElementById('tabela-dados').innerHTML = ""; // Limpa HTML
+            }
+
+            // Formata colunas para o DataTables
+            const colsFormatadas = colunas.map(c => ({ title: c, data: c }));
+
+            // Cria a Tabela Poderosa
+            dataTable = $('#tabela-dados').DataTable({
+                data: dados,
+                columns: colsFormatadas,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' // Tradução para Português
+                },
+                pageLength: 10,
+                responsive: true
+            });
+        }
+    </script>
 </body>
 </html>

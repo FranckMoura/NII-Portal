@@ -1,5 +1,13 @@
 [
     {
+        "nome": "eqmt2510.csv",
+        "caminho": "arquivos/eqmt2510.csv",
+        "tamanho": "2441.33 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
         "nome": "EQMT2510.dbc",
         "caminho": "arquivos/EQMT2510.dbc",
         "tamanho": "220.85 KB",
@@ -16,9 +24,25 @@
         "icone": "🌐"
     },
     {
+        "nome": "ltmt2510.csv",
+        "caminho": "arquivos/ltmt2510.csv",
+        "tamanho": "122.2 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
         "nome": "LTMT2510.dbc",
         "caminho": "arquivos/LTMT2510.dbc",
         "tamanho": "14.69 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "pfmt2510.csv",
+        "caminho": "arquivos/pfmt2510.csv",
+        "tamanho": "20887.36 KB",
         "data": "30/11/2025",
         "tipo": "outro",
         "icone": "📄"
@@ -43,6 +67,14 @@
         "nome": "STMT2510.dbc",
         "caminho": "arquivos/STMT2510.dbc",
         "tamanho": "480.64 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "STMT2510.dbf",
+        "caminho": "arquivos/STMT2510.dbf",
+        "tamanho": "5336.67 KB",
         "data": "30/11/2025",
         "tipo": "outro",
         "icone": "📄"
