@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII - Dados Institucionais</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand-link">
+                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
+                <span class="navbar-brand-text">NII - HBSH</span>
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="faturamento.html">Faturamento</a></li>
+                <li><a href="indicadores.html">Indicadores</a></li>
+                <li><a href="manuais.html">Manuais</a></li>
+                <li><a href="institucional.html" class="active">Institucional</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="main-header">
+        <div class="container">
+            <h1>Dados Institucionais (CNES)</h1>
+            <p>Informações oficiais extraídas diretamente da base do DATASUS.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            
+            <article class="card">
+                <h2>📜 Habilitações</h2>
+                <p>Lista oficial de habilitações e incentivos ativos no CNES.</p>
+                <a href="arquivos/CNES_Habilitacoes.csv" class="button">Baixar CSV</a>
+            </article>
+
+            <article class="card">
+                <h2>🛏️ Quadro de Leitos</h2>
+                <p>Capacidade instalada, contratualizada e leitos SUS disponíveis.</p>
+                <a href="arquivos/CNES_Leitos.csv" class="button">Baixar CSV</a>
+            </article>
+
+            <article class="card">
+                <h2>🔬 Equipamentos</h2>
+                <p>Equipamentos cadastrados e disponíveis para uso/SUS.</p>
+                <a href="arquivos/CNES_Equipamentos.csv" class="button">Baixar CSV</a>
+            </article>
+
+            <article class="card" style="grid-column: 1 / -1;">
+                <h2>👨‍⚕️ Corpo Clínico e Profissionais</h2>
+                <p>Base completa de profissionais com CBO, CNS e Vínculo empregatício.</p>
+                <a href="arquivos/CNES_Profissionais.csv" class="button">Baixar Lista Completa</a>
+            </article>
+
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
+    </footer>
+</body>
+</html>
