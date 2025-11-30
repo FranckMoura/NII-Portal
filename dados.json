@@ -1,5 +1,61 @@
 [
     {
+        "nome": "elastic_habilitacoes.csv",
+        "caminho": "arquivos/elastic_habilitacoes.csv",
+        "tamanho": "3.67 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_habilitacoes.csv.csv",
+        "caminho": "arquivos/elastic_habilitacoes.csv.csv",
+        "tamanho": "3.67 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_leitos.csv",
+        "caminho": "arquivos/elastic_leitos.csv",
+        "tamanho": "38.82 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_leitos.csv.csv",
+        "caminho": "arquivos/elastic_leitos.csv.csv",
+        "tamanho": "38.82 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_profissionais.csv",
+        "caminho": "arquivos/elastic_profissionais.csv",
+        "tamanho": "2833.82 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_profissionais.csv.csv",
+        "caminho": "arquivos/elastic_profissionais.csv.csv",
+        "tamanho": "2833.82 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "elastic_servicos.csv",
+        "caminho": "arquivos/elastic_servicos.csv",
+        "tamanho": "166.01 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
         "nome": "eqmt2510.csv",
         "caminho": "arquivos/eqmt2510.csv",
         "tamanho": "0.17 KB",
@@ -75,6 +131,38 @@
         "nome": "STMT2510.dbf",
         "caminho": "arquivos/STMT2510.dbf",
         "tamanho": "5336.67 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "TB_CBO.dbc",
+        "caminho": "arquivos/TB_CBO.dbc",
+        "tamanho": "0.0 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "TB_CBO.dbf",
+        "caminho": "arquivos/TB_CBO.dbf",
+        "tamanho": "0.0 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "TB_EQUIPAMENTO.dbc",
+        "caminho": "arquivos/TB_EQUIPAMENTO.dbc",
+        "tamanho": "0.0 KB",
+        "data": "30/11/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "TB_LEITO.dbc",
+        "caminho": "arquivos/TB_LEITO.dbc",
+        "tamanho": "0.0 KB",
         "data": "30/11/2025",
         "tipo": "outro",
         "icone": "📄"

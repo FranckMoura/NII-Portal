@@ -12,30 +12,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        /* Ajustes para a tabela ficar bonita no seu design */
         .data-container {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-top: 20px;
-            display: none; /* Escondido até carregar */
+            display: none; 
         }
-        table.dataTable thead th {
-            background-color: #0056b3;
-            color: white;
-        }
+        table.dataTable thead th { background-color: #0056b3; color: white; }
         .btn-visualizar {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 0.9rem;
+            background-color: #28a745; color: white; border: none;
+            padding: 8px 12px; border-radius: 4px; cursor: pointer;
+            margin-top: 10px; font-size: 0.9rem; width: 100%;
         }
         .btn-visualizar:hover { background-color: #218838; }
+        .card h2 { font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -58,7 +50,7 @@
     <header class="main-header">
         <div class="container">
             <h1>Dados Institucionais (CNES)</h1>
-            <p>Visualize e pesquise dados oficiais extraídos do DATASUS.</p>
+            <p>Dados oficiais extraídos do Elasticnes (Ministério da Saúde).</p>
         </div>
     </header>
 
@@ -67,20 +59,26 @@
         <div class="dashboard-grid">
             <article class="card">
                 <h2>👨‍⚕️ Profissionais</h2>
-                <p>Corpo clínico, CBO e Vínculos.</p>
-                <button onclick="carregarTabela('PF')" class="btn-visualizar">Visualizar Tabela</button>
+                <p>Corpo clínico e vínculos.</p>
+                <button onclick="carregarTabela('profissionais')" class="btn-visualizar">Visualizar</button>
             </article>
 
             <article class="card">
                 <h2>🛏️ Leitos</h2>
-                <p>Capacidade instalada e SUS.</p>
-                <button onclick="carregarTabela('LT')" class="btn-visualizar">Visualizar Tabela</button>
+                <p>Capacidade instalada.</p>
+                <button onclick="carregarTabela('leitos')" class="btn-visualizar">Visualizar</button>
             </article>
 
             <article class="card">
-                <h2>🔬 Equipamentos</h2>
-                <p>Equipamentos em uso.</p>
-                <button onclick="carregarTabela('EQ')" class="btn-visualizar">Visualizar Tabela</button>
+                <h2>🏥 Habilitações</h2>
+                <p>Incentivos ativos.</p>
+                <button onclick="carregarTabela('habilitacoes')" class="btn-visualizar">Visualizar</button>
+            </article>
+
+            <article class="card">
+                <h2>🩺 Serviços</h2>
+                <p>Serviços especializados.</p>
+                <button onclick="carregarTabela('servicos')" class="btn-visualizar">Visualizar</button>
             </article>
         </div>
 
@@ -96,67 +94,75 @@
     </footer>
 
     <script>
-        let dataTable; // Guarda a instância da tabela
+        let dataTable;
 
-        async function carregarTabela(prefixo) {
-            // 1. Descobrir qual arquivo CSV baixar (busca no JSON do site ou tenta nome padrão)
-            // Para simplificar, vamos tentar o nome padrão que o script gera
-            // Ex: pfmt2409.csv (o script converte para minusculo)
-            
-            // ATENÇÃO: Você precisa garantir que o ano/mes batem com o download
-            // Uma estratégia melhor é o script Python salvar com nome fixo: 'profissionais_atual.csv'
-            // Mas vamos tentar achar o arquivo:
-            
-            let arquivoAlvo = "";
-            const response = await fetch('dados.json'); // Lê o "banco de dados" do site
-            const arquivos = await response.json();
-            
-            // Procura na lista de arquivos um que tenha o prefixo (ex: PFMT) e seja .csv
-            const arquivoEncontrado = arquivos.find(a => a.nome.toUpperCase().includes(prefixo + 'MT') && a.nome.endsWith('.csv'));
+        // Configuração das Colunas para cada arquivo do Elasticnes
+        const CONFIG_COLUNAS = {
+            'profissionais': [
+                { title: "Nome", data: "profissional_nome" },
+                { title: "CNS", data: "profissional_cns" },
+                { title: "CBO", data: "profissional_cbo" },
+                { title: "Vínculo", data: "profissional_vinculo" },
+                { title: "CH Hosp", data: "carga_horaria_hospitalar_sus" }
+            ],
+            'leitos': [
+                { title: "Especialidade", data: "LEITO" },
+                { title: "Tipo", data: "TIPO DO LEITO" },
+                { title: "Qtde Existente", data: "LEITOS EXISTENTES" },
+                { title: "Qtde SUS", data: "LEITOS SUS" }
+            ],
+            'habilitacoes': [
+                { title: "Habilitação", data: "MARCAÇÃO" },
+                { title: "Nº Leitos", data: "MARCAÇÃO - Nº LEITOS" },
+                { title: "Competência", data: "COMPETÊNCIA" }
+            ],
+            'servicos': [
+                { title: "Serviço", data: "SERVIÇO" },
+                { title: "Classificação", data: "SERVIÇO CLASSIFICAÇÃO" },
+                { title: "Amb. SUS", data: "SERVIÇO - AMBULATORIAL SUS" },
+                { title: "Hosp. SUS", data: "SERVIÇO - HOSPITALAR SUS" }
+            ]
+        };
 
-            if (!arquivoEncontrado) {
-                alert("Arquivo CSV não encontrado no portal. Rode a conversão primeiro.");
-                return;
-            }
-
-            const url = arquivoEncontrado.caminho;
+        async function carregarTabela(tipo) {
+            // Nome padrão do arquivo que o organizador_elastic.py gerou
+            const nomeArquivo = `elastic_${tipo}.csv`;
+            const url = `arquivos/${nomeArquivo}`;
             
-            // Mostra a área da tabela
             document.getElementById('area-tabela').style.display = 'block';
-            document.getElementById('titulo-tabela').innerText = "Carregando " + arquivoEncontrado.nome + "...";
+            document.getElementById('titulo-tabela').innerText = `Carregando ${tipo}...`;
 
-            // 2. Ler o CSV usando PapaParse
             Papa.parse(url, {
                 download: true,
-                header: true, // Usa a primeira linha como cabeçalho
-                delimiter: ";", // Importante: Nosso script usa ponto-e-vírgula
+                header: true,
+                delimiter: ";", // O Elasticnes usa ponto-e-vírgula
                 skipEmptyLines: true,
                 complete: function(results) {
-                    renderizarDataTables(results.data, results.meta.fields);
-                    document.getElementById('titulo-tabela').innerText = "Visualizando: " + arquivoEncontrado.nome;
+                    // Pega as colunas configuradas ou usa todas se não tiver config
+                    const colunas = CONFIG_COLUNAS[tipo] || results.meta.fields.map(c => ({title: c, data: c}));
+                    
+                    renderizarDataTables(results.data, colunas);
+                    document.getElementById('titulo-tabela').innerText = `Visualizando: ${tipo.toUpperCase()}`;
+                },
+                error: function(err) {
+                    alert("Erro ao ler arquivo. Verifique se 'organizar_elastic.py' foi executado.");
                 }
             });
         }
 
         function renderizarDataTables(dados, colunas) {
-            // Se já existe tabela, destroi ela antes de criar outra
             if (dataTable) {
                 dataTable.destroy();
-                document.getElementById('tabela-dados').innerHTML = ""; // Limpa HTML
+                $('#tabela-dados').empty(); 
             }
 
-            // Formata colunas para o DataTables
-            const colsFormatadas = colunas.map(c => ({ title: c, data: c }));
-
-            // Cria a Tabela Poderosa
             dataTable = $('#tabela-dados').DataTable({
                 data: dados,
-                columns: colsFormatadas,
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' // Tradução para Português
-                },
+                columns: colunas,
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
                 pageLength: 10,
-                responsive: true
+                responsive: true,
+                scrollX: true // Adiciona barra de rolagem horizontal se precisar
             });
         }
     </script>
