@@ -1,5 +1,5 @@
 @echo off
-:: Garante que o terminal use UTF-8 para acentos
+:: Configura o terminal para aceitar acentos (UTF-8)
 chcp 65001 >nul
 cd /d "C:\Users\DELL\OneDrive\NII-Portal-1"
 
@@ -8,26 +8,26 @@ echo      NII - SISTEMA DE AUTOMACAO GERAL
 echo ==========================================
 echo.
 
-:: --- 1. ROTINA SISREG (Painel de Regulação) ---
-echo [1/4] Atualizando SISREG (Painel de Regulacao)...
+:: --- 1. ROTINA SISREG (Painel de Regulacao) ---
+echo [1/4] Atualizando SISREG...
 python extracao_sisreg_v4.py
 python banco_dados_sisreg.py
 python gerar_dashboard.py
 
 echo.
-:: --- 2. ROTINA SIMULADAS (Índice de Pacientes) ---
-echo [2/4] Gerando Indice de Simuladas (PDF)...
+:: --- 2. ROTINA SIMULADAS ---
+echo [2/4] Gerando Indice de Simuladas...
 python script_simuladas.py
 
 echo.
 :: --- 3. ROTINA CNES (Elasticnes) ---
 echo [3/4] Organizando arquivos do Elasticnes...
-:: Este script pega os CSVs que voce baixou e arruma na pasta correta
+:: Pega os CSVs que voce baixou manualmente e joga na pasta certa
 python organizar_elastic.py
 
 echo.
-:: --- 4. ATUALIZAÇÃO DO SITE ---
-echo [4/4] Enviando atualizacoes para o Portal...
+:: --- 4. PUBLICACAO ---
+echo [4/4] Enviando tudo para o Portal...
 python upload_manager.py
 
 echo.
