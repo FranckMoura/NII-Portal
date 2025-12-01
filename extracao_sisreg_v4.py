@@ -7,38 +7,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 from webdriver_manager.chrome import ChromeDriverManager
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
-print(f"--- Iniciando Script de Extração (V6 - Retroativo 90 Dias) ---")
-print(f"Hora atual do sistema: {datetime.now().strftime('%H:%M')}")
+print(f"--- Iniciando Script de Extração (V8 - Auto-Correção) ---")
+print(f"Hora atual: {datetime.now().strftime('%H:%M')}")
 
-# TRAVA DE HORÁRIO (COMENTADA PARA TESTES)
-# Se quiser ativar depois, tire o # das linhas abaixo
-# hora_atual = datetime.now().hour
-# if 7 <= hora_atual < 15:
-#     print("⛔ SISTEMA BLOQUEADO PELO SISREG (Horário proibido: 07h às 15h).")
-#     sys.exit()
-
-# --- 2. CREDENCIAIS E CAMINHOS ---
+# --- 2. CREDENCIAIS ---
 USUARIO = "046FRANCK"
 SENHA = "515462"
 PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export" 
 
-# Garante que a pasta existe
 os.makedirs(PASTA_DOWNLOAD, exist_ok=True)
 
-# --- 3. CONFIGURAÇÃO DE DATAS (Retroativo) ---
-hoje = datetime.now()
-data_fim = hoje.strftime("%d/%m/%Y")
-
-# Pega 90 dias para trás para garantir pendências antigas
-data_inicio = (hoje - timedelta(days=90)).strftime("%d/%m/%Y")
-
-print(f"Período de busca: {data_inicio} até {data_fim}")
-print(f"Salvando em: {PASTA_DOWNLOAD}")
-
-# --- 4. CONFIGURAÇÃO DO NAVEGADOR ---
+# --- 3. CONFIGURAÇÃO DO NAVEGADOR ---
 options = webdriver.ChromeOptions()
 prefs = {
     "download.default_directory": PASTA_DOWNLOAD,
@@ -48,15 +31,79 @@ prefs = {
 }
 options.add_experimental_option("prefs", prefs)
 
-# Inicializa o driver (Robô)
 try:
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 except Exception as e:
     print(f"❌ Erro ao abrir navegador: {e}")
     sys.exit()
 
+# --- FUNÇÃO DE DOWNLOAD BLINDADA ---
+def baixar_bloco(data_ini, data_fim):
+    print(f"\n   >>> Baixando bloco: {data_ini} até {data_fim}")
+    
+    # Garante foco no frame principal
+    driver.switch_to.default_content()
+    try:
+        wait.until(EC.frame_to_be_available_and_switch_to_it((By.ID, "f_main")))
+    except:
+        pass
+
+    # Preenche datas
+    wait.until(EC.presence_of_element_located((By.ID, "dtaIniSolic")))
+    c_ini = driver.find_element(By.ID, "dtaIniSolic")
+    driver.execute_script(f"arguments[0].value = '{data_ini}';", c_ini)
+    
+    c_fim = driver.find_element(By.ID, "dtaFimSolic")
+    driver.execute_script(f"arguments[0].value = '{data_fim}';", c_fim)
+    
+    # Rola para o fim
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(1)
+    
+    # Tenta Clicar no Exportar (Primeira Tentativa)
+    try:
+        # Tenta achar checkboxes para ter referência
+        checkboxes = driver.find_elements(By.XPATH, "//input[@type='checkbox']")
+        
+        # Clica no botão Exportar
+        botao_exportar = driver.find_element(By.XPATH, "//input[@value='Exportar']")
+        botao_exportar.click()
+        
+        # --- A MÁGICA DA CORREÇÃO DE ERRO ---
+        # Verifica imediatamente se apareceu o alerta de "Selecione um item"
+        try:
+            # Espera 1 segundo para ver se o alerta aparece
+            WebDriverWait(driver, 2).until(EC.alert_is_present())
+            alert = driver.switch_to.alert
+            texto_alerta = alert.text
+            
+            if "Informe pelo menos um item" in texto_alerta:
+                print("       ⚠️ Alerta detectado: Nenhum item selecionado.")
+                alert.accept() # Fecha o alerta
+                
+                print("       🔄 Corrigindo seleção...")
+                if len(checkboxes) > 0:
+                    checkboxes[0].click() # Clica para selecionar tudo
+                    time.sleep(1)
+                    botao_exportar.click() # Tenta exportar de novo
+                    print("       ✅ Reenviado com sucesso.")
+            else:
+                # Se for outro alerta, só aceita
+                alert.accept()
+                
+        except:
+            # Se não deu alerta nenhum, é porque deu certo de primeira!
+            pass
+
+    except Exception as e:
+        print(f"       ❌ Erro na interação: {e}")
+
+    print("       Aguardando download (15s)...")
+    time.sleep(15)
+
+# --- FLUXO PRINCIPAL ---
 try:
-    # 5. LOGIN
+    # Login
     print(">> Acessando página de login...")
     driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     driver.maximize_window()
@@ -68,63 +115,31 @@ try:
     driver.find_element(By.ID, "senha").send_keys(SENHA)
     driver.find_element(By.CSS_SELECTOR, "div.form-no-lbl > input").click()
     
-    # 6. NAVEGAÇÃO ATÉ O EXPORTADOR
+    # Navegação
     print(">> Navegando para o Exportador...")
-    # Clica em Consulta Hosp (Menu)
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/a"))).click()
-    # Clica em Exportador (Submenu)
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/ul/li[3]/a"))).click()
 
-    # 7. ENTRAR NO FRAME DO FORMULÁRIO
-    print(">> Entrando no formulário...")
-    wait.until(EC.frame_to_be_available_and_switch_to_it((By.ID, "f_main")))
+    # Loop de Datas
+    print(">> Iniciando Loop de Extração...")
     
-    # 8. PREENCHER DATAS (Via Javascript)
-    # Usamos JS porque o campo tem máscara e digitar direto costuma dar erro
-    print(f">> Preenchendo datas...")
-    wait.until(EC.presence_of_element_located((By.ID, "dtaIniSolic")))
+    hoje = datetime.now()
+    data_final_geral = hoje
+    data_atual_loop = hoje - timedelta(days=90)
     
-    campo_inicio = driver.find_element(By.ID, "dtaIniSolic")
-    driver.execute_script(f"arguments[0].value = '{data_inicio}';", campo_inicio)
-    
-    campo_fim = driver.find_element(By.ID, "dtaFimSolic")
-    driver.execute_script(f"arguments[0].value = '{data_fim}';", campo_fim)
-    
-    # 9. SELEÇÃO DE CHECKBOXES
-    print(">> Selecionando opções...")
-    # Rola a tela para garantir que os elementos carregaram
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1) 
-
-    # Clica na primeira caixa para desmarcar/marcar o padrão
-    checkboxes = driver.find_elements(By.XPATH, "//input[@type='checkbox']")
-    if len(checkboxes) > 0:
-        checkboxes[0].click()
-    
-    # 10. CLICAR EM EXPORTAR
-    print(">> Clicando em Exportar...")
-    time.sleep(1)
-    
-    # Tenta achar o botão pelo valor 'Exportar'
-    try:
-        driver.find_element(By.XPATH, "//input[@value='Exportar']").click()
-    except:
-        # Plano B: Procura qualquer botão do tipo submit/button no final
-        print("   (Botão padrão não achado, tentando alternativo...)")
-        botoes = driver.find_elements(By.TAG_NAME, "input")
-        for botao in reversed(botoes):
-            if botao.get_attribute("type") in ["button", "submit"]:
-                botao.click()
-                print("   Botão alternativo clicado.")
-                break
-
-    # 11. AGUARDAR DOWNLOAD
-    print(">> Aguardando download (30 segundos)...")
-    # Esse tempo é necessário para o arquivo terminar de baixar antes de fechar o navegador
-    time.sleep(30)
+    while data_atual_loop < data_final_geral:
+        fim_bloco = data_atual_loop + timedelta(days=29)
+        if fim_bloco > data_final_geral: fim_bloco = data_final_geral
+            
+        str_ini = data_atual_loop.strftime("%d/%m/%Y")
+        str_fim = fim_bloco.strftime("%d/%m/%Y")
+        
+        baixar_bloco(str_ini, str_fim)
+        
+        data_atual_loop = fim_bloco + timedelta(days=1)
 
 except Exception as e:
-    print(f"\n❌ ERRO FATAL DURANTE A EXECUÇÃO: {e}")
+    print(f"\n❌ ERRO FATAL: {e}")
 
 finally:
     print("\n--- Processo Finalizado ---")
