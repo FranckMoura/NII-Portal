@@ -1,99 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Institucional</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-    <style>
-        .data-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: 20px;
-            display: none; 
-        }
-        table.dataTable thead th { background-color: #0056b3; color: white; }
-        .btn-visualizar {
-            background-color: #28a745; color: white; border: none;
-            padding: 8px 12px; border-radius: 4px; cursor: pointer;
-            margin-top: 10px; font-size: 0.9rem; width: 100%;
-        }
-        .btn-visualizar:hover { background-color: #218838; }
-        .card h2 { font-size: 1.2rem; }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="navbar-brand-link">
-                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
-                <span class="navbar-brand-text">NII - HBSH</span>
-            </a>
-            <ul class="navbar-nav">
-                <li><a href="index.html">Início</a></li>
-                <li><a href="faturamento.html">Faturamento</a></li>
-                <li><a href="indicadores.html">Indicadores</a></li>
-                <li><a href="manuais.html">Manuais</a></li>
-                <li><a href="institucional.html">Institucional</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <header class="main-header">
-        <div class="container">
-            <h1>Dados Institucionais (CNES)</h1>
-            <p>Dados oficiais extraídos do Elasticnes (Ministério da Saúde).</p>
-        </div>
-    </header>
-
-    <main class="container">
-        
-        <div class="dashboard-grid">
-            <article class="card">
-                <h2>👨‍⚕️ Profissionais</h2>
-                <p>Corpo clínico e vínculos.</p>
-                <button onclick="carregarTabela('profissionais')" class="btn-visualizar">Visualizar</button>
-            </article>
-
-            <article class="card">
-                <h2>🛏️ Leitos</h2>
-                <p>Capacidade instalada.</p>
-                <button onclick="carregarTabela('leitos')" class="btn-visualizar">Visualizar</button>
-            </article>
-
-            <article class="card">
-                <h2>🏥 Habilitações</h2>
-                <p>Incentivos ativos.</p>
-                <button onclick="carregarTabela('habilitacoes')" class="btn-visualizar">Visualizar</button>
-            </article>
-
-            <article class="card">
-                <h2>🩺 Serviços</h2>
-                <p>Serviços especializados.</p>
-                <button onclick="carregarTabela('servicos')" class="btn-visualizar">Visualizar</button>
-            </article>
-        </div>
-
-        <div id="area-tabela" class="data-container">
-            <h2 id="titulo-tabela" style="color:#0056b3; margin-bottom:15px;">Dados</h2>
-            <table id="tabela-dados" class="display" style="width:100%"></table>
-        </div>
-
-    </main>
-
-    <footer class="main-footer">
-        <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
-    </footer>
-
-    <script>
+<script>
         let dataTable;
 
         // Configuração das Colunas
@@ -127,8 +32,7 @@
         async function carregarTabela(tipo) {
             const nomeArquivo = `elastic_${tipo}.csv`;
             
-            // --- AQUI ESTÁ A MUDANÇA (Cache Buster) ---
-            // Adicionamos ?v=(timestamp) para obrigar o navegador a baixar a versão nova
+            // Truque do Cache (Para forçar atualização)
             const url = `arquivos/${nomeArquivo}?v=${new Date().getTime()}`;
             
             document.getElementById('area-tabela').style.display = 'block';
@@ -137,17 +41,19 @@
             Papa.parse(url, {
                 download: true,
                 header: true,
-                delimiter: ";", 
+                delimiter: ",",  // <--- AQUI ESTAVA O ERRO! MUDAMOS PARA VÍRGULA
                 skipEmptyLines: true,
                 complete: function(results) {
+                    console.log("Dados carregados:", results.data); // Para debug no console
+                    
                     const colunas = CONFIG_COLUNAS[tipo] || results.meta.fields.map(c => ({title: c, data: c}));
                     
                     renderizarDataTables(results.data, colunas);
                     document.getElementById('titulo-tabela').innerText = `Visualizando: ${tipo.toUpperCase()}`;
                 },
-                error: function(err) {
+                error: function(err, file, inputElem, reason) {
                     console.log("Erro PapaParse:", err);
-                    alert("Erro ao ler arquivo. Verifique se o upload foi feito corretamente.");
+                    alert(`Erro ao ler arquivo: ${reason}. Verifique o Console (F12) para detalhes.`);
                 }
             });
         }
@@ -168,5 +74,3 @@
             });
         }
     </script>
-</body>
-</html>
