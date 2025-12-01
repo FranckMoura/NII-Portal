@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import webbrowser
 
 # --- CONFIGURAÇÕES ---
@@ -10,6 +10,9 @@ BANCO_DADOS = os.path.join(PASTA_PROJETO, "dados_sisreg.db")
 NOME_ARQUIVO_HTML = "painel_regulacao.html"
 CAMINHO_FINAL_HTML = os.path.join(PASTA_PROJETO, NOME_ARQUIVO_HTML)
 
+# Define quantos dias para trás você quer ver (Ex: 90 dias pega Out, Nov e Dez)
+DIAS_RETROATIVOS = 90 
+
 def formatar_numero(valor):
     if valor is None or valor == "": return "-"
     valor_str = str(valor)
@@ -17,16 +20,8 @@ def formatar_numero(valor):
     return valor_str
 
 def gerar_html():
-    print("--- GERANDO DASHBOARD (COM ORDENAÇÃO) ---")
+    print("--- GERANDO DASHBOARD (JANELA DE TEMPO) ---")
     
-    # Datas de hoje para o filtro
-    hoje = datetime.now()
-    mes_atual = hoje.month
-    ano_atual = hoje.year
-    
-    meses_pt = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho', 7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
-    nome_mes_pt = f"{meses_pt[mes_atual]}/{ano_atual}"
-
     conn = sqlite3.connect(BANCO_DADOS)
     
     try:
@@ -46,13 +41,16 @@ def gerar_html():
         df_full = pd.read_sql_query(query, conn)
         df_full['data_dt'] = pd.to_datetime(df_full['data_da_solicitacao'], dayfirst=True, errors='coerce')
         
-        # Filtra Mês Atual
-        df_mes = df_full[
-            (df_full['data_dt'].dt.month == mes_atual) & 
-            (df_full['data_dt'].dt.year == ano_atual)
-        ].copy()
+        # --- FILTRO INTELIGENTE (ÚLTIMOS X DIAS) ---
+        data_corte = datetime.now() - timedelta(days=DIAS_RETROATIVOS)
         
-        print(f"Registros do Mês ({nome_mes_pt}): {len(df_mes)}")
+        # Filtra tudo que for MAIOR (mais recente) que a data de corte
+        df_mes = df_full[df_full['data_dt'] >= data_corte].copy()
+        
+        # Formata a data de corte para mostrar no título
+        texto_periodo = f"Últimos {DIAS_RETROATIVOS} dias (Desde {data_corte.strftime('%d/%m/%Y')})"
+        
+        print(f"Registros encontrados ({texto_periodo}): {len(df_mes)}")
 
     except Exception as e:
         print(f"Erro: {e}")
@@ -73,7 +71,7 @@ def gerar_html():
     labels_top = top_procs.index.tolist()
     data_top = top_procs.values.tolist()
 
-    # Ordenação Inicial (Padrão)
+    # Ordenação (Pendentes primeiro, depois data mais recente)
     df_mes['prioridade'] = df_mes['status_da_solicitacao_de_internacao'].apply(lambda x: 1 if x and 'Pendente' in x else 2)
     df_mes = df_mes.sort_values(by=['prioridade', 'data_dt'], ascending=[True, False])
 
@@ -149,13 +147,13 @@ def gerar_html():
                 <p>Hospital Beneficente Santa Helena</p>
             </div>
             <div style="text-align: right;">
-                <span class="periodo-badge">📅 Período: {nome_mes_pt}</span>
+                <span class="periodo-badge">📅 {texto_periodo}</span>
                 <p style="font-size: 12px; color: #999; margin-top: 5px;">Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
             </div>
         </div>
 
         <div class="cards-container">
-            <div class="card blue"><h3>Total (Mês)</h3><div class="value">{total_solicitacoes}</div></div>
+            <div class="card blue"><h3>Total (Período)</h3><div class="value">{total_solicitacoes}</div></div>
             <div class="card green"><h3>Aprovados</h3><div class="value">{aprovados}</div></div>
             <div class="card yellow"><h3>Pendentes</h3><div class="value">{pendentes}</div></div>
             <div class="card red"><h3>Negados/Cancel</h3><div class="value">{negados}</div></div>
@@ -168,8 +166,8 @@ def gerar_html():
 
         <div class="table-container">
             <div class="table-header-title">
-                <span>Solicitações de <strong>{nome_mes_pt}</strong></span>
-                <span style="font-size: 12px; color: #666;">{len(df_mes)} registros encontrados</span>
+                <span>Solicitações Recentes</span>
+                <span style="font-size: 12px; color: #666;">{len(df_mes)} registros</span>
             </div>
             <table id="tabelaRegulacao">
                 <thead>
@@ -237,18 +235,16 @@ def gerar_html():
                 options: {{ responsive: true, cutout: '70%' }}
             }});
 
-            // FUNÇÃO DE ORDENAÇÃO (JAVASCRIPT)
+            // FUNÇÃO DE ORDENAÇÃO
             function sortTable(n) {{
                 var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
                 table = document.getElementById("tabelaRegulacao");
                 switching = true;
-                dir = "asc"; // Direção inicial
+                dir = "asc"; 
 
                 while (switching) {{
                     switching = false;
                     rows = table.rows;
-                    
-                    // Loop por todas as linhas (exceto cabeçalho)
                     for (i = 1; i < (rows.length - 1); i++) {{
                         shouldSwitch = false;
                         x = rows[i].getElementsByTagName("TD")[n];
@@ -257,13 +253,11 @@ def gerar_html():
                         var xContent = x.innerText.toLowerCase();
                         var yContent = y.innerText.toLowerCase();
 
-                        // Tratamento especial para datas (Coluna 0) formato dd/mm/aaaa
-                        if (n === 0) {{
-                            xContent = xContent.split('/').reverse().join(''); // vira aaaammdd
+                        if (n === 0) {{ // Data
+                            xContent = xContent.split('/').reverse().join(''); 
                             yContent = yContent.split('/').reverse().join('');
                         }}
-                        // Tratamento para números (tentar converter)
-                        else if (!isNaN(parseFloat(xContent)) && isFinite(xContent)) {{
+                        else if (!isNaN(parseFloat(xContent)) && isFinite(xContent)) {{ // Número
                             xContent = parseFloat(xContent);
                             yContent = parseFloat(yContent);
                         }}
@@ -294,7 +288,7 @@ def gerar_html():
     with open(CAMINHO_FINAL_HTML, "w", encoding="utf-8") as f:
         f.write(html_content)
     
-    print(f"Relatório gerado com sucesso! (Modo Tabela Dinâmica)")
+    print(f"Relatório gerado com sucesso! (Período: Últimos {DIAS_RETROATIVOS} dias)")
 
 if __name__ == "__main__":
     gerar_html()
