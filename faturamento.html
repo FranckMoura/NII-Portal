@@ -13,18 +13,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        .bi-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .bi-section { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
         .bi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
         
-        @media (max-width: 768px) { .bi-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .bi-section { grid-template-columns: 1fr; } }
         
-        .kpi-container { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .kpi-box { flex: 1; background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-width: 150px; }
-        .kpi-val { font-size: 1.5rem; font-weight: bold; margin-top: 5px; color: #333; }
-        .kpi-tit { font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; }
+        .kpi-row { display: flex; gap: 20px; margin-bottom: 20px; justify-content: space-between; }
+        .kpi-card { flex: 1; background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #ccc; }
+        .kpi-value { font-size: 1.8rem; font-weight: bold; margin-top: 5px; color: #333; }
+        .kpi-label { font-size: 0.85rem; color: #666; text-transform: uppercase; font-weight: bold; }
         
-        .table-area { background: white; padding: 20px; border-radius: 8px; }
+        .data-table-container { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
         table.dataTable thead th { background-color: #0056b3; color: white; }
     </style>
 </head>
@@ -45,7 +45,7 @@
         </div>
     </nav>
 
-    <header class="main-header">
+    <header class="page-header">
         <div class="container">
             <h1>Módulo Faturamento SUS</h1>
             <p>Monitoramento Consolidado da Produção (SIA e SIH) - 2025</p>
@@ -54,36 +54,40 @@
 
     <main class="container">
         
-        <div class="kpi-container">
-            <div class="kpi-box" style="border-left-color: #0056b3;">
-                <div class="kpi-tit">Faturamento SIH</div>
-                <div class="kpi-val" id="kpi-sih">R$ 0,00</div>
+        <div class="kpi-row">
+            <div class="kpi-card" style="border-left-color: #0056b3;">
+                <div class="kpi-label">Faturamento SIH (Internação)</div>
+                <div class="kpi-value" id="total-sih" style="color: #0056b3;">R$ 0,00</div>
             </div>
-            <div class="kpi-box" style="border-left-color: #17a2b8;">
-                <div class="kpi-tit">Faturamento SIA</div>
-                <div class="kpi-val" id="kpi-sia">R$ 0,00</div>
+            <div class="kpi-card" style="border-left-color: #17a2b8;">
+                <div class="kpi-label">Faturamento SIA (Ambulatorial)</div>
+                <div class="kpi-value" id="total-sia" style="color: #17a2b8;">R$ 0,00</div>
             </div>
-            <div class="kpi-box" style="border-left-color: #28a745;">
-                <div class="kpi-tit">Total de Procedimentos</div>
-                <div class="kpi-val" id="kpi-qtd">0</div>
+            <div class="kpi-card" style="border-left-color: #28a745;">
+                <div class="kpi-label">Produção Total (AIH + BPA)</div>
+                <div class="kpi-value" id="total-qtd" style="color: #28a745;">0</div>
             </div>
         </div>
 
-        <div class="bi-grid">
+        <section class="bi-section">
             <div class="bi-card">
                 <h3>💰 Evolução do Faturamento (Comparativo)</h3>
-                <div class="chart-container"><canvas id="chartEvolucao"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="chartEvolucao"></canvas>
+                </div>
             </div>
             <div class="bi-card">
                 <h3>🏥 Distribuição (Valor)</h3>
-                <div class="chart-container"><canvas id="chartPizza"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="chartPizza"></canvas>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="table-area">
+        <div class="data-table-container">
             <h3>📑 Histórico Mensal</h3>
-            <p id="msg-carga">Carregando dados...</p>
-            <table id="tabela-fat" class="display" style="width:100%"></table>
+            <p id="loading-msg">Carregando dados...</p>
+            <table id="tabela-producao" class="display" style="width:100%"></table>
         </div>
 
     </main>
@@ -93,119 +97,115 @@
     </footer>
 
     <script>
-        // Função para converter dinheiro brasileiro ("R$ 1.200,50") em número (1200.50)
-        function brlToFloat(str) {
-            if (!str) return 0;
-            // Remove R$, espaços e pontos de milhar
-            let limpo = str.toString().replace("R$", "").replace(/\./g, "").trim();
-            // Troca a vírgula decimal por ponto
-            limpo = limpo.replace(",", ".");
-            return parseFloat(limpo) || 0;
-        }
+        // Truque do cache para forçar atualização
+        const ARQUIVO_PRODUCAO = 'arquivos/elastic_producao.csv?v=' + new Date().getTime();
 
-        function qtdToFloat(str) {
-            if (!str) return 0;
-            // Remove pontos de milhar (ex: 1.000 -> 1000)
-            return parseFloat(str.toString().replace(/\./g, "").replace(",", ".")) || 0;
-        }
-
-        // Carrega o CSV
-        const arquivo = 'arquivos/elastic_producao.csv?v=' + new Date().getTime();
-
-        Papa.parse(arquivo, {
+        Papa.parse(ARQUIVO_PRODUCAO, {
             download: true,
             header: true,
             delimiter: ",", // Seu arquivo usa vírgula
             skipEmptyLines: true,
             complete: function(results) {
-                console.log("Dados carregados:", results.data); // Debug
-                
-                if (results.data.length > 0) {
-                    processarDados(results.data);
-                } else {
-                    document.getElementById('msg-carga').innerText = "Arquivo vazio ou não encontrado.";
-                }
+                processarDados(results.data);
             },
             error: function(err) {
-                console.error("Erro CSV:", err);
-                document.getElementById('msg-carga').innerText = "Erro ao carregar 'elastic_producao.csv'.";
+                document.getElementById('loading-msg').innerText = "Erro ao carregar arquivo. Verifique se ele está na pasta 'arquivos'.";
             }
         });
 
+        function parseCurrency(valorString) {
+            if (!valorString) return 0;
+            // Remove R$, pontos de milhar e troca virgula decimal por ponto
+            // Ex: "R$1.249.902" -> 1249902
+            // Ex: "R$58.551,6" -> 58551.6
+            let limpo = valorString.replace("R$", "").replace(/\./g, "").replace(",", ".");
+            return parseFloat(limpo) || 0;
+        }
+        
+        function parseQtd(qtdString) {
+            if (!qtdString) return 0;
+            // Ex: "3.011" -> 3011
+            let limpo = qtdString.replace(/\./g, "").replace(",", ".");
+            return parseFloat(limpo) || 0;
+        }
+
         function processarDados(dados) {
             let meses = [];
-            let valSIA = [];
-            let valSIH = [];
+            let valoresSIA = [];
+            let valoresSIH = [];
             
-            let totalSIA = 0;
-            let totalSIH = 0;
-            let totalQtd = 0;
+            let somaValorSIA = 0;
+            let somaValorSIH = 0;
+            let somaQtdTotal = 0;
 
-            // Ordena por competência (crescente)
-            dados.sort((a, b) => (a['COMPETÊNCIA'] || "").localeCompare(b['COMPETÊNCIA'] || ""));
+            // Ordena os dados por competência (crescente) antes de processar
+            dados.sort((a, b) => {
+                let compA = a['COMPETÊNCIA'] || "";
+                let compB = b['COMPETÊNCIA'] || "";
+                return compA.localeCompare(compB);
+            });
 
             dados.forEach(linha => {
                 let comp = linha['COMPETÊNCIA'];
                 if (!comp) return;
 
-                // Lê os valores usando as funções de conversão
-                let vSIA = brlToFloat(linha['SIA - VALOR']);
-                let vSIH = brlToFloat(linha['SIH - VALOR']);
-                let qSIA = qtdToFloat(linha['SIA - QTD.']);
-                let qSIH = qtdToFloat(linha['SIH - QTD.']);
+                let valSIA = parseCurrency(linha['SIA - VALOR']);
+                let valSIH = parseCurrency(linha['SIH - VALOR']);
+                let qtdSIA = parseQtd(linha['SIA - QTD.']);
+                let qtdSIH = parseQtd(linha['SIH - QTD.']);
 
                 meses.push(comp);
-                valSIA.push(vSIA);
-                valSIH.push(vSIH);
+                valoresSIA.push(valSIA);
+                valoresSIH.push(valSIH);
 
-                totalSIA += vSIA;
-                totalSIH += vSIH;
-                totalQtd += (qSIA + qSIH);
+                somaValorSIA += valSIA;
+                somaValorSIH += valSIH;
+                somaQtdTotal += (qtdSIA + qtdSIH);
             });
 
-            // 1. Atualiza KPIs
-            document.getElementById('kpi-sih').innerText = totalSIH.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('kpi-sia').innerText = totalSIA.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('kpi-qtd').innerText = totalQtd.toLocaleString('pt-BR');
-            document.getElementById('msg-carga').style.display = 'none';
+            // --- 1. ATUALIZA KPIs ---
+            document.getElementById('total-sih').innerText = somaValorSIH.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('total-sia').innerText = somaValorSIA.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('total-qtd').innerText = somaQtdTotal.toLocaleString('pt-BR');
+            document.getElementById('loading-msg').style.display = 'none';
 
-            // 2. Gráfico Linha
+            // --- 2. GRÁFICO LINHA ---
             new Chart(document.getElementById('chartEvolucao'), {
                 type: 'line',
                 data: {
                     labels: meses,
                     datasets: [
-                        { label: 'Internação (SIH)', data: valSIH, borderColor: '#0056b3', backgroundColor: '#0056b3', tension: 0.2 },
-                        { label: 'Ambulatorial (SIA)', data: valSIA, borderColor: '#17a2b8', backgroundColor: '#17a2b8', tension: 0.2 }
+                        { label: 'Internação (SIH)', data: valoresSIH, borderColor: '#0056b3', backgroundColor: '#0056b3', tension: 0.3 },
+                        { label: 'Ambulatorial (SIA)', data: valoresSIA, borderColor: '#17a2b8', backgroundColor: '#17a2b8', tension: 0.3 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 3. Gráfico Pizza
+            // --- 3. GRÁFICO PIZZA ---
             new Chart(document.getElementById('chartPizza'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['SIH (Internação)', 'SIA (Ambulatorial)'],
+                    labels: ['Faturamento SIH', 'Faturamento SIA'],
                     datasets: [{
-                        data: [totalSIH, totalSIA],
+                        data: [somaValorSIH, somaValorSIA],
                         backgroundColor: ['#0056b3', '#17a2b8']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 4. Tabela
-            $('#tabela-fat').DataTable({
+            // --- 4. TABELA ---
+            $('#tabela-producao').DataTable({
                 data: dados,
                 columns: [
                     { title: "Mês", data: "COMPETÊNCIA" },
-                    { title: "Qtd SIA", data: "SIA - QTD." },
+                    { title: "Qtd. SIA", data: "SIA - QTD." },
                     { title: "Valor SIA", data: "SIA - VALOR" },
-                    { title: "Qtd SIH", data: "SIH - QTD." },
+                    { title: "Qtd. SIH", data: "SIH - QTD." },
                     { title: "Valor SIH", data: "SIH - VALOR" }
                 ],
-                order: [[0, 'desc']], // Mês mais recente primeiro
+                order: [[0, 'desc']], // Ordena pelo mês mais recente
                 language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }
             });
         }
