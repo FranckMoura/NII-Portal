@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - Módulo Faturamento</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .bi-section { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .bi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        
+        @media (max-width: 768px) { .bi-section { grid-template-columns: 1fr; } }
+        
+        .kpi-row { display: flex; gap: 20px; margin-bottom: 20px; justify-content: space-between; }
+        .kpi-card { flex: 1; background: #0056b3; color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .kpi-value { font-size: 2rem; font-weight: bold; margin-top: 10px; }
+        .kpi-label { font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; }
+        
+        .data-table-container { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        table.dataTable thead th { background-color: #0056b3; color: white; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -18,6 +40,7 @@
                 <li><a href="faturamento.html">Faturamento</a></li>
                 <li><a href="indicadores.html">Indicadores</a></li>
                 <li><a href="manuais.html">Manuais</a></li>
+                <li><a href="institucional.html">Institucional</a></li>
             </ul>
         </div>
     </nav>
@@ -25,65 +48,47 @@
     <header class="page-header">
         <div class="container">
             <h1>Módulo Faturamento SUS</h1>
-            <p>Monitoramento da Produção Hospitalar (SIH) - Competência 2025</p>
+            <p>Monitoramento da Produção Hospitalar e Ambulatorial (2025)</p>
         </div>
     </header>
 
     <main class="container">
         
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Faturamento Total (Ano)</div>
+                <div class="kpi-value" id="total-faturado">R$ 0,00</div>
+            </div>
+            <div class="kpi-card" style="background-color: #28a745;">
+                <div class="kpi-label">Total de AIHs/BPAs</div>
+                <div class="kpi-value" id="total-qtd">0</div>
+            </div>
+            <div class="kpi-card" style="background-color: #ffc107; color: #333;">
+                <div class="kpi-label">Mês de Referência</div>
+                <div class="kpi-value" id="mes-ref">-</div>
+            </div>
+        </div>
+
         <section class="bi-section">
-            <h2>Painel de Indicadores</h2>
-            <p>Visualização baseada nos dados consolidados do SIH (Jan a Set/2025).</p>
-            
-            <div class="bi-grid">
-                
-                <div class="bi-card">
-                    <h3>💰 Evolução do Faturamento (R$)</h3>
-                    <p>Valor total aprovado por competência.</p>
-                    
-                    <div class="bi-placeholder">
-                        <p><em>O Gráfico de Colunas (Faturamento) aparecerá aqui...</em></p>
-                        </div>
+            <div class="bi-card">
+                <h3>💰 Evolução Mensal (Valor Aprovado)</h3>
+                <div class="chart-container">
+                    <canvas id="chartEvolucao"></canvas>
                 </div>
-
-<div class="bi-card">
-    <h3>💰 Evolução do Faturamento (R$)</h3>
-    <p>Valor total aprovado por competência.</p>
-    
-    <iframe width="100" height="74" src="https://lookerstudio.google.com/embed/reporting/7441190b-ba77-41f2-a7df-6d488e861744/page/G3WgF" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
-</div>
-
-                <div class="bi-card">
-    <h3>🐍 Análise Avançada (Python)</h3>
-    <p>Notebook com script para gerar indice das simuladas.</p>
-    
-    <div class="bi-placeholder" style="display: flex; flex-direction: column; gap: 15px; min-height: 200px;">
-        <p>Este notebook contém códigos Python para gerar indice para as simuladas.</p>
-        
-        <a href="https://colab.research.google.com/drive/1lR1JMf53bhINitjUhxYbL2f0O6QfAcaN?usp=sharing" 
-           target="_blank" 
-           class="button" 
-           style="background-color: #f9ab00; color: #000;">
-           🚀 Abrir no Google Colab
-        </a>
-    </div>
-</div>
-                
+            </div>
+            <div class="bi-card">
+                <h3>🏥 Top 5 Procedimentos (Valor)</h3>
+                <div class="chart-container">
+                    <canvas id="chartProcedimentos"></canvas>
+                </div>
+            </div>
         </section>
 
-        <section class="report-list">
-            <h2>Arquivos da Competência</h2>
-            <ul>
-                <li>
-                    Planilha Consolidada SIH (CSV Original)
-                    <a href="#" target="_blank" class="button-link">Visualizar</a>
-                </li>
-                <li>
-                    Relatório de Críticas e Rejeições (Exemplo)
-                    <a href="#" class="button-link">Baixar PDF</a>
-                </li>
-            </ul>
-        </section>
+        <div class="data-table-container">
+            <h3>📑 Detalhamento da Produção</h3>
+            <p id="loading-msg">Carregando dados do arquivo CSV...</p>
+            <table id="tabela-producao" class="display" style="width:100%"></table>
+        </div>
 
     </main>
 
@@ -91,9 +96,118 @@
         <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
     </footer>
 
+    <script>
+        // Configuração do Arquivo
+        const ARQUIVO_PRODUCAO = 'arquivos/elastic_producao.csv?v=' + new Date().getTime();
+
+        // Inicializa
+        Papa.parse(ARQUIVO_PRODUCAO, {
+            download: true,
+            header: true,
+            delimiter: ",", // Elasticnes usa virgula
+            skipEmptyLines: true,
+            complete: function(results) {
+                processarDados(results.data);
+            },
+            error: function(err) {
+                document.getElementById('loading-msg').innerText = "Erro ao carregar 'elastic_producao.csv'. Verifique se o arquivo está na pasta 'arquivos'.";
+            }
+        });
+
+        function processarDados(dados) {
+            // --- 1. PREPARAÇÃO DOS DADOS ---
+            // Vamos agrupar por Competência (Mês) e Procedimento
+            
+            let totaisPorMes = {};
+            let totaisPorProc = {};
+            let valorTotalGeral = 0;
+            let qtdTotalGeral = 0;
+            let ultimaCompetencia = "";
+
+            dados.forEach(linha => {
+                // Ajuste os nomes das colunas conforme o seu CSV (verifiquei no print que sao esses)
+                let comp = linha['COMPETÊNCIA'] || linha['dt_comp'];
+                let valor = parseFloat((linha['VALOR APROVADO'] || linha['vl_total'] || "0").replace(',', '.'));
+                let procNome = linha['PROCEDIMENTO'] || linha['no_procedimento'];
+                let qtd = parseInt(linha['QUANTIDADE APROVADA'] || linha['qt_aprovada'] || 1);
+
+                if (!comp) return; // Pula linha vazia
+
+                // Soma Mês
+                if (!totaisPorMes[comp]) totaisPorMes[comp] = 0;
+                totaisPorMes[comp] += valor;
+
+                // Soma Procedimento
+                if (!totaisPorProc[procNome]) totaisPorProc[procNome] = 0;
+                totaisPorProc[procNome] += valor;
+
+                valorTotalGeral += valor;
+                qtdTotalGeral += qtd;
+                
+                if (comp > ultimaCompetencia) ultimaCompetencia = comp;
+            });
+
+            // --- 2. ATUALIZA KPIs ---
+            document.getElementById('total-faturado').innerText = valorTotalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('total-qtd').innerText = qtdTotalGeral.toLocaleString('pt-BR');
+            document.getElementById('mes-ref').innerText = ultimaCompetencia;
+            document.getElementById('loading-msg').style.display = 'none';
+
+            // --- 3. GERA GRÁFICO EVOLUÇÃO ---
+            // Ordena os meses
+            const mesesOrdenados = Object.keys(totaisPorMes).sort();
+            const valoresMeses = mesesOrdenados.map(m => totaisPorMes[m]);
+
+            new Chart(document.getElementById('chartEvolucao'), {
+                type: 'line',
+                data: {
+                    labels: mesesOrdenados,
+                    datasets: [{
+                        label: 'Valor Aprovado (R$)',
+                        data: valoresMeses,
+                        borderColor: '#0056b3',
+                        backgroundColor: 'rgba(0, 86, 179, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // --- 4. GERA GRÁFICO TOP 5 ---
+            // Ordena procedimentos por valor
+            const top5 = Object.entries(totaisPorProc)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            new Chart(document.getElementById('chartProcedimentos'), {
+                type: 'doughnut',
+                data: {
+                    labels: top5.map(i => i[0].substring(0, 20) + '...'), // Abrevia nome
+                    datasets: [{
+                        data: top5.map(i => i[1]),
+                        backgroundColor: ['#0056b3', '#28a745', '#ffc107', '#dc3545', '#17a2b8']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // --- 5. TABELA DETALHADA ---
+            // Define colunas (ajuste os campos 'data' conforme seu CSV real)
+            $('#tabela-producao').DataTable({
+                data: dados,
+                columns: [
+                    { title: "Competência", data: "COMPETÊNCIA", defaultContent: "-" },
+                    { title: "Procedimento", data: "PROCEDIMENTO", defaultContent: "-" },
+                    { title: "Qtd", data: "QUANTIDADE APROVADA", defaultContent: "0" },
+                    { title: "Valor (R$)", data: "VALOR APROVADO", defaultContent: "0,00" },
+                    { title: "Especialidade", data: "ESPECIALIDADE", defaultContent: "-" }
+                ],
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+                pageLength: 10,
+                responsive: true
+            });
+        }
+    </script>
 </body>
 </html>
-
-
-
-
