@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import webbrowser
 
 # --- CONFIGURAÇÕES ---
@@ -17,12 +17,19 @@ def formatar_numero(valor):
     return valor_str
 
 def gerar_html():
-    print("--- GERANDO DASHBOARD (COM FILTRO DINÂMICO) ---")
+    print("--- GERANDO DASHBOARD (FILTRO FLEXÍVEL) ---")
     
     conn = sqlite3.connect(BANCO_DADOS)
     
+    # Datas para configurar o PADRÃO do filtro (Mês Vigente)
+    hoje = datetime.now()
+    # Primeiro dia do mês atual (ex: 2025-11-01)
+    data_inicio_padrao = hoje.replace(day=1).strftime('%Y-%m-%d')
+    # Dia de hoje (ex: 2025-11-30)
+    data_fim_padrao = hoje.strftime('%Y-%m-%d')
+    
     try:
-        # Carrega TUDO do banco (sem filtro de data no SQL)
+        # Carrega dados do Banco
         query = """
         SELECT 
             data_da_solicitacao,
@@ -35,38 +42,41 @@ def gerar_html():
             carater_internacao
         FROM solicitacoes
         """
-        df = pd.read_sql_query(query, conn)
-        df['data_dt'] = pd.to_datetime(df['data_da_solicitacao'], dayfirst=True, errors='coerce')
+        df_full = pd.read_sql_query(query, conn)
+        df_full['data_dt'] = pd.to_datetime(df_full['data_da_solicitacao'], dayfirst=True, errors='coerce')
         
-        # Opcional: Se o banco for MUITO gigante (anos), limite aqui ao ano atual para não pesar o site
-        # df = df[df['data_dt'].dt.year >= 2024] 
+        # ESTRATÉGIA: Carregamos o ANO INTEIRO para o HTML
+        # Assim você tem liberdade para filtrar qualquer periodo dentro do ano.
+        df_painel = df_full[df_full['data_dt'].dt.year == hoje.year].copy()
         
-        print(f"Total de registros carregados para o painel: {len(df)}")
+        print(f"Registros carregados (Ano {hoje.year}): {len(df_painel)}")
 
     except Exception as e:
-        print(f"Erro ao ler banco: {e}")
+        print(f"Erro: {e}")
         conn.close()
         return
 
     conn.close()
 
-    # Cálculos Gerais (Baseados em TODO o histórico carregado)
-    total_geral = len(df)
-    status_series = df['status_da_solicitacao_de_internacao'].fillna('Indefinido')
+    # Cálculos Gerais (Do Ano Todo) para os Cards Superiores
+    # (Se quiser que os cards mudem com o filtro, precisaria fazer tudo via JavaScript, 
+    #  mas aqui vamos deixar os cards mostrando o cenário do Ano e a tabela filtrável)
+    total_geral = len(df_painel)
+    status_series = df_painel['status_da_solicitacao_de_internacao'].fillna('Indefinido')
     aprovados = status_series[status_series.str.contains('Aprovado', case=False)].count()
     pendentes = status_series[status_series.str.contains('Pendente', case=False)].count()
     negados = status_series[status_series.str.contains('Negado|Cancelado', case=False)].count()
 
-    # Top 5 (Geral)
-    top_procs = df['nome_do_procedimento_solicitado'].value_counts().head(5)
+    # Top 5
+    top_procs = df_painel['nome_do_procedimento_solicitado'].value_counts().head(5)
     labels_top = top_procs.index.tolist()
     data_top = top_procs.values.tolist()
 
-    # Ordenação Inicial (Pendentes no topo, depois data mais recente)
-    df['prioridade'] = df['status_da_solicitacao_de_internacao'].apply(lambda x: 1 if x and 'Pendente' in x else 2)
-    df = df.sort_values(by=['prioridade', 'data_dt'], ascending=[True, False])
+    # Ordenação
+    df_painel['prioridade'] = df_painel['status_da_solicitacao_de_internacao'].apply(lambda x: 1 if x and 'Pendente' in x else 2)
+    df_painel = df_painel.sort_values(by=['prioridade', 'data_dt'], ascending=[True, False])
 
-    # HTML START
+    # HTML
     html_content = f"""
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -104,11 +114,12 @@ def gerar_html():
             
             .table-container {{ background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }}
             
-            /* ESTILO DOS FILTROS DE DATA */
-            .filter-box {{ display: flex; gap: 15px; margin-bottom: 15px; align-items: center; background: #e9ecef; padding: 10px; border-radius: 8px; }}
-            .filter-box label {{ font-weight: bold; color: #555; }}
-            .filter-box input {{ padding: 5px; border: 1px solid #ccc; border-radius: 4px; }}
-            
+            /* ÁREA DE FILTRO */
+            .filter-box {{ display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #90caf9; }}
+            .filter-box label {{ font-weight: bold; color: #0056b3; }}
+            .filter-box input {{ padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }}
+            .filter-info {{ margin-left: auto; font-size: 13px; color: #555; font-style: italic; }}
+
             table.dataTable thead th {{ background-color: #f8f9fa; color: var(--dark); }}
             
             .status-badge {{ padding: 5px 10px; border-radius: 15px; font-size: 11px; color: white; font-weight: bold; display: inline-block; min-width: 80px; text-align: center; }}
@@ -129,39 +140,49 @@ def gerar_html():
                 <p>Hospital Beneficente Santa Helena</p>
             </div>
             <div style="text-align: right;">
-                <p style="font-size: 12px; color: #999;">Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+                <span style="background: #eee; padding: 5px 10px; border-radius: 10px; font-size: 12px;">Dados: Ano {hoje.year} Completo</span>
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
                 <a href="index.html" style="text-decoration:none; background:#6c757d; color:white; padding:5px 10px; border-radius:5px; font-size:12px;">Voltar</a>
             </div>
         </div>
 
         <div class="cards-container">
-            <div class="card blue"><h3>Total Histórico</h3><div class="value">{total_geral}</div></div>
+            <div class="card blue"><h3>Total (Ano)</h3><div class="value">{total_geral}</div></div>
             <div class="card green"><h3>Aprovados</h3><div class="value">{aprovados}</div></div>
             <div class="card yellow"><h3>Pendentes</h3><div class="value">{pendentes}</div></div>
             <div class="card red"><h3>Negados/Cancel</h3><div class="value">{negados}</div></div>
         </div>
 
         <div class="charts-row">
-            <div class="chart-container"><h3>Top 5 Procedimentos (Geral)</h3><canvas id="chartProcedimentos"></canvas></div>
-            <div class="chart-container"><h3>Status da Regulação</h3><canvas id="chartStatus"></canvas></div>
+            <div class="chart-container"><h3>Top 5 Procedimentos</h3><canvas id="chartProcedimentos"></canvas></div>
+            <div class="chart-container"><h3>Status Geral</h3><canvas id="chartStatus"></canvas></div>
         </div>
 
         <div class="table-container">
-            <h3 style="margin-top:0;">Pesquisa Detalhada</h3>
+            <h3 style="margin-top:0; color:#333;">Pesquisa e Filtragem</h3>
             
             <div class="filter-box">
-                <i class="fas fa-filter" style="color:#0056b3"></i>
-                <label>De:</label>
-                <input type="date" id="minDate" name="minDate">
-                <label>Até:</label>
-                <input type="date" id="maxDate" name="maxDate">
-                <span style="font-size:12px; color:#666; margin-left:10px;">(Selecione as datas para filtrar a tabela)</span>
+                <i class="fas fa-calendar-alt" style="font-size:20px; color:#0056b3;"></i>
+                
+                <div>
+                    <label>Início:</label>
+                    <input type="date" id="minDate" value="{data_inicio_padrao}">
+                </div>
+                
+                <div>
+                    <label>Fim:</label>
+                    <input type="date" id="maxDate" value="{data_fim_padrao}">
+                </div>
+
+                <div class="filter-info">
+                    *Altere as datas para ver períodos anteriores (Ex: últimos 40 dias).
+                </div>
             </div>
 
             <table id="tabelaRegulacao" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Data</th>
+                        <th onclick="sortTable(0)" style="min-width:90px">Data</th>
                         <th>Paciente</th>
                         <th>CNS</th>
                         <th>Nº Solicit.</th>
@@ -174,7 +195,7 @@ def gerar_html():
                 <tbody>
     """
     
-    for index, row in df.iterrows():
+    for index, row in df_painel.iterrows():
         status = row['status_da_solicitacao_de_internacao']
         if status is None: status = "Indefinido"
         
@@ -211,7 +232,7 @@ def gerar_html():
         </div>
 
         <script>
-            // GRÁFICOS (Estaticos do histórico)
+            // GRÁFICOS
             new Chart(document.getElementById('chartProcedimentos'), {{
                 type: 'bar',
                 data: {{ labels: {labels_top}, datasets: [{{ label: 'Qtd', data: {data_top}, backgroundColor: '#0056b3', borderRadius: 5 }}] }},
@@ -224,24 +245,31 @@ def gerar_html():
                 options: {{ responsive: true, cutout: '70%' }}
             }});
 
-            // --- LÓGICA DE FILTRO DE DATA (DataTables) ---
-            
-            // Função personalizada de busca
+            // --- FILTRO DE DATA AVANÇADO ---
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {{
                     var min = $('#minDate').val();
                     var max = $('#maxDate').val();
                     
-                    // A data está na coluna 0 no formato dd/mm/aaaa
+                    // A data na tabela está em dd/mm/aaaa
                     var dateParts = data[0].split("/");
-                    // Cria objeto Data (Ano, Mês-1, Dia)
+                    // Converte para objeto Data do JS (ano, mes-1, dia)
                     var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+
+                    // Zera as horas para comparar apenas datas
+                    date.setHours(0,0,0,0);
+
+                    var minDate = min ? new Date(min) : null;
+                    if(minDate) minDate.setHours(0,0,0,0);
+
+                    var maxDate = max ? new Date(max) : null;
+                    if(maxDate) maxDate.setHours(0,0,0,0);
 
                     if (
                         (min === "" && max === "") ||
-                        (min === "" && date <= new Date(max)) ||
-                        (new Date(min) <= date && max === "") ||
-                        (new Date(min) <= date && date <= new Date(max))
+                        (min === "" && date <= maxDate) ||
+                        (minDate <= date && max === "") ||
+                        (minDate <= date && date <= maxDate)
                     ) {{
                         return true;
                     }}
@@ -251,12 +279,15 @@ def gerar_html():
 
             $(document).ready(function() {{
                 var table = $('#tabelaRegulacao').DataTable({{
-                    "order": [], // Mantém ordenação do Python
+                    "order": [],
                     "language": {{ "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
                     "pageLength": 10
                 }});
 
-                // Event listener para refazer o filtro quando mudar a data
+                // Aplica filtro automaticamente ao carregar (usando as datas padrão)
+                table.draw();
+
+                // Refaz o filtro sempre que mudar a data
                 $('#minDate, #maxDate').on('change', function() {{
                     table.draw();
                 }});
@@ -269,7 +300,7 @@ def gerar_html():
     with open(CAMINHO_FINAL_HTML, "w", encoding="utf-8") as f:
         f.write(html_content)
     
-    print(f"Relatório gerado! Filtro de data disponível na tela.")
+    print(f"Relatório gerado! Filtro padrão: {data_inicio_padrao} até {data_fim_padrao}")
 
 if __name__ == "__main__":
     gerar_html()
