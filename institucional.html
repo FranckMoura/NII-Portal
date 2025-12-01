@@ -13,12 +13,8 @@
 
     <style>
         .data-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: 20px;
-            display: none; 
+            background: white; padding: 20px; border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px; display: none; 
         }
         table.dataTable thead th { background-color: #0056b3; color: white; }
         .btn-visualizar {
@@ -28,6 +24,10 @@
         }
         .btn-visualizar:hover { background-color: #218838; }
         .card h2 { font-size: 1.2rem; }
+        .badge-comp {
+            background-color: #ffc107; color: #333; padding: 5px 10px;
+            border-radius: 15px; font-size: 0.8rem; font-weight: bold; margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +83,10 @@
         </div>
 
         <div id="area-tabela" class="data-container">
-            <h2 id="titulo-tabela" style="color:#0056b3; margin-bottom:15px;">Dados</h2>
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <h2 id="titulo-tabela" style="color:#0056b3; margin:0;">Dados</h2>
+                <span id="badge-competencia" class="badge-comp" style="display:none"></span>
+            </div>
             <table id="tabela-dados" class="display" style="width:100%"></table>
         </div>
 
@@ -96,7 +99,6 @@
     <script>
         let dataTable;
 
-        // Configuração das Colunas
         const CONFIG_COLUNAS = {
             'profissionais': [
                 { title: "Nome", data: "profissional_nome" },
@@ -126,31 +128,59 @@
 
         async function carregarTabela(tipo) {
             const nomeArquivo = `elastic_${tipo}.csv`;
-            
-            // Correção para forçar atualização (evitar cache)
             const url = `arquivos/${nomeArquivo}?v=${new Date().getTime()}`;
             
             document.getElementById('area-tabela').style.display = 'block';
             document.getElementById('titulo-tabela').innerText = `Carregando ${tipo}...`;
+            document.getElementById('badge-competencia').style.display = 'none';
 
             Papa.parse(url, {
                 download: true,
                 header: true,
-                delimiter: ",",  // <--- CORREÇÃO APLICADA: VÍRGULA
+                delimiter: ",", 
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log("Dados carregados:", results.data);
-                    
                     const colunas = CONFIG_COLUNAS[tipo] || results.meta.fields.map(c => ({title: c, data: c}));
                     
-                    renderizarDataTables(results.data, colunas);
+                    // --- FILTRO AUTOMÁTICO DE COMPETÊNCIA ---
+                    const dadosFiltrados = filtrarUltimaCompetencia(results.data, tipo);
+                    
+                    renderizarDataTables(dadosFiltrados, colunas);
                     document.getElementById('titulo-tabela').innerText = `Visualizando: ${tipo.toUpperCase()}`;
                 },
                 error: function(err, file, inputElem, reason) {
                     console.log("Erro PapaParse:", err);
-                    alert(`Erro ao ler arquivo: ${reason}. Verifique o Console (F12) para detalhes.`);
+                    alert(`Erro ao ler arquivo: ${reason}`);
                 }
             });
+        }
+
+        // Função inteligente para pegar só o mês mais recente
+        function filtrarUltimaCompetencia(dados, tipo) {
+            if (!dados || dados.length === 0) return [];
+
+            // Descobre o nome da coluna de data (varia entre os arquivos)
+            // Profissionais = 'dt_comp', Outros = 'COMPETÊNCIA'
+            let colData = null;
+            if (dados[0].hasOwnProperty('dt_comp')) colData = 'dt_comp';
+            else if (dados[0].hasOwnProperty('COMPETÊNCIA')) colData = 'COMPETÊNCIA';
+
+            if (!colData) return dados; // Se não achar data, retorna tudo
+
+            // Encontra qual é a data mais recente na lista
+            // Ex: "2025/11", "2025/10" -> O maior é "2025/11"
+            const competencias = dados.map(d => d[colData]).filter(d => d); // Pega lista de datas
+            if (competencias.length === 0) return dados;
+
+            const ultimaComp = competencias.sort().reverse()[0]; // Ordena descrescente e pega a 1ª
+
+            // Atualiza o Badge visual
+            const badge = document.getElementById('badge-competencia');
+            badge.innerText = `Referência: ${ultimaComp}`;
+            badge.style.display = 'inline-block';
+
+            // Retorna apenas as linhas que batem com a data mais recente
+            return dados.filter(d => d[colData] === ultimaComp);
         }
 
         function renderizarDataTables(dados, colunas) {
