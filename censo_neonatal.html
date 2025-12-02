@@ -12,22 +12,22 @@
         /* Cabeçalho */
         header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         h1 { margin: 0; color: #005f73; font-size: 24px; }
-        .voltar-btn { text-decoration: none; color: #666; font-size: 14px; }
-        .voltar-btn:hover { color: #005f73; }
+        .voltar-btn { text-decoration: none; color: #666; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 5px;}
+        .voltar-btn:hover { background: #ddd; }
 
         /* Dashboard Cards */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #0a9396; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card h3 { margin: 0 0 5px 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .card .value { font-size: 26px; font-weight: bold; color: #005f73; }
 
         /* Controles */
         .controls { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 120px; }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-add { background-color: #0a9396; } .btn-add:hover { background-color: #005f73; }
-        .btn-export { background-color: #ee9b00; margin-top: 10px; width: 100%; } .btn-export:hover { background-color: #ca6702; }
-        .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; }
+        .btn-export { background-color: #ee9b00; margin-top: 10px; width: 100%; padding: 12px; } .btn-export:hover { background-color: #ca6702; }
+        .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; color: white; border:none; border-radius: 4px; cursor:pointer;}
 
         /* Tabela */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
@@ -39,6 +39,7 @@
         .bg-internado { background-color: #0a9396; }
         .bg-alta { background-color: #94d2bd; color: #004b23; }
         .bg-obito { background-color: #ae2012; }
+        .bg-erro { background-color: #6c757d; }
     </style>
 </head>
 <body>
@@ -46,11 +47,11 @@
 <div class="container">
     <header>
         <div>
-            <a href="index.html" class="voltar-btn">⬅ Voltar ao Portal NII</a>
-            <h1>Censo Diário - UTI Neonatal</h1>
+            <a href="index.html" class="voltar-btn">⬅ Voltar</a>
+            <span style="margin-left: 10px; font-weight: bold; color: #005f73; font-size: 18px;">Censo Neonatal</span>
         </div>
-        <div>
-            <label style="font-size: 12px; font-weight: bold;">MÊS DE REFERÊNCIA:</label>
+        <div style="text-align: right;">
+            <label style="font-size: 12px; font-weight: bold; display:block;">MÊS DE REFERÊNCIA:</label>
             <input type="month" id="mesReferencia" style="padding: 5px;" onchange="renderizarTabela()">
         </div>
     </header>
@@ -63,17 +64,23 @@
     </div>
 
     <div class="controls">
-        <input type="text" id="nomePaciente" placeholder="Nome Completo do Paciente" style="flex: 2;">
+        <input type="text" id="nomePaciente" placeholder="Nome Completo" style="flex: 2;">
         <select id="setor" style="flex: 1;">
             <option value="UTIN">UTIN (18)</option>
             <option value="UCINCO">UCINCO (4)</option>
             <option value="UCINCA">UCINCA (3)</option>
         </select>
-        <input type="date" id="dataAdmissao" title="Data de Admissão">
-        <input type="date" id="dataSaida" title="Data de Saída (Opcional)">
+        <div style="display:flex; flex-direction:column; flex:1;">
+            <label style="font-size:10px;">Admissão:</label>
+            <input type="date" id="dataAdmissao">
+        </div>
+        <div style="display:flex; flex-direction:column; flex:1;">
+            <label style="font-size:10px;">Saída (Opcional):</label>
+            <input type="date" id="dataSaida">
+        </div>
         <select id="motivoSaida" style="flex: 1;">
-            <option value="">Internado</option>
-            <option value="ALTA">Alta</option>
+            <option value="">(Em Internação)</option>
+            <option value="ALTA">Alta Médica</option>
             <option value="TRANSF">Transferência</option>
             <option value="OBITO">Óbito</option>
         </select>
@@ -87,157 +94,143 @@
                 <th>Setor</th>
                 <th>Admissão</th>
                 <th>Saída</th>
-                <th>Dias (Mês)</th>
+                <th style="text-align: center;">Dias no Mês</th>
                 <th>Status</th>
-                <th>Ações</th>
+                <th>Excluir</th>
             </tr>
         </thead>
         <tbody id="tabelaPacientes"></tbody>
     </table>
 
-    <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Relatório Mensal (CSV)</button>
-    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
-        * Os dados ficam salvos neste computador automaticamente. Não limpe o cache do navegador.
-    </p>
+    <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Relatório (CSV)</button>
 </div>
 
 <script>
-    const LEITOS = { 'UTIN': 18, 'UCINCO': 4, 'UCINCA': 3 };
     let pacientes = [];
 
-    // --- INICIALIZAÇÃO E CARREGAMENTO DE DADOS ---
+    // --- CARREGAMENTO ---
     window.onload = function() {
-        // Define mês atual automaticamente
+        // Define o mês atual automaticamente
         const hoje = new Date();
-        const mesStr = hoje.toISOString().slice(0, 7); // YYYY-MM
-        document.getElementById('mesReferencia').value = mesStr;
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
-        // Carrega dados salvos
-        carregarDadosLocais();
+        // Carrega do banco de dados local
+        const dadosSalvos = localStorage.getItem('censo_uti_v2');
+        if (dadosSalvos) {
+            pacientes = JSON.parse(dadosSalvos);
+        }
         renderizarTabela();
     };
 
-    function carregarDadosLocais() {
-        const dadosSalvos = localStorage.getItem('censo_uti_db');
-        if (dadosSalvos) {
-            pacientes = JSON.parse(dadosSalvos);
-        } else {
-            // Dados iniciais de exemplo se estiver vazio
-            pacientes = [];
-        }
+    function salvarDados() {
+        localStorage.setItem('censo_uti_v2', JSON.stringify(pacientes));
+        renderizarTabela();
     }
 
-    function salvarDadosLocais() {
-        localStorage.setItem('censo_uti_db', JSON.stringify(pacientes));
-        renderizarTabela(); // Atualiza a tela sempre que salvar
+    // --- LÓGICA DE DATAS (CORRIGIDA PARA FUSO CUIABÁ) ---
+    function criarData(dataString) {
+        // Converte string "2025-06-15" direto para data local sem fuso
+        if (!dataString) return null;
+        const [ano, mes, dia] = dataString.split('-').map(Number);
+        return new Date(ano, mes - 1, dia, 12, 0, 0); // Força meio-dia para evitar bug de fuso
     }
 
-    // --- LÓGICA DO CENSO ---
     function renderizarTabela() {
         const tbody = document.getElementById('tabelaPacientes');
         tbody.innerHTML = '';
-        const mesRef = new Date(document.getElementById('mesReferencia').value + '-01');
-        const fimMesRef = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 0);
+        
+        const refInput = document.getElementById('mesReferencia').value; // "2025-06"
+        if (!refInput) return;
 
-        let totalDiasOcupados = 0;
+        const [refAno, refMes] = refInput.split('-').map(Number);
+        
+        // Define inicio e fim do mês selecionado
+        const inicioMes = new Date(refAno, refMes - 1, 1, 12, 0, 0); 
+        const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); // Último dia do mês
+
+        let totalDias = 0;
         let totalSaidas = 0;
         let totalObitos = 0;
-        
-        // Ordenar: Internados primeiro, depois por data
-        pacientes.sort((a,b) => (a.saida === '' ? -1 : 1));
 
         pacientes.forEach((p, index) => {
-            let dias = calcularDiasNoMes(p.admissao, p.saida, mesRef, fimMesRef);
+            const dtAdm = criarData(p.admissao);
+            const dtSaida = p.saida ? criarData(p.saida) : null;
             
-            // Filtro visual: Mostrar todos, mas destacar o cálculo do mês
-            // Se dias > 0 significa que o paciente passou pelo mês selecionado
+            // Lógica de Dias no Mês
+            let diasCalc = 0;
             
-            let classeBadge = p.motivo === 'OBITO' ? 'bg-obito' : (p.saida ? 'bg-alta' : 'bg-internado');
-            let textoStatus = p.motivo ? p.motivo : 'INTERNADO';
-            
-            // Só conta indicadores se o paciente gerou dias neste mês
-            if (dias > 0) {
-                totalDiasOcupados += dias;
-                if (p.saida && dataPertenceAoMes(p.saida, mesRef, fimMesRef)) {
-                    totalSaidas++;
-                    if(p.motivo === 'OBITO') totalObitos++;
+            // Só calcula se a admissão for válida e anterior/igual ao fim do mês
+            if (dtAdm && dtAdm <= fimMes) {
+                // O inicio da contagem é a maior data entre: (Inicio Mês) OU (Data Admissão)
+                const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
+                
+                // O fim da contagem é a menor data entre: (Fim Mês) OU (Data Saída, se houver)
+                let fimContagem = fimMes;
+                if (dtSaida && dtSaida < fimMes) {
+                    fimContagem = dtSaida;
+                }
+
+                // Se o paciente já saiu antes do mês começar, ignora
+                if (dtSaida && dtSaida < inicioMes) {
+                    diasCalc = 0;
+                } else {
+                    // Cálculo da diferença em dias
+                    const diffTempo = fimContagem - inicioContagem;
+                    const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
+                    
+                    // Se o resultado for >= 0, soma 1 (dia inclusivo)
+                    if (diffDias >= 0) diasCalc = diffDias + 1;
                 }
             }
 
-            // Renderiza Linha
-            let row = `<tr>
-                <td><strong>${p.nome}</strong></td>
-                <td>${p.setor}</td>
-                <td>${formatarData(p.admissao)}</td>
-                <td>${formatarData(p.saida)}</td>
-                <td style="text-align:center; font-weight:bold; color:${dias > 0 ? '#000' : '#ccc'}">${dias}</td>
-                <td><span class="badge ${classeBadge}">${textoStatus}</span></td>
-                <td><button class="btn-del" onclick="removerPaciente(${index})">Excluir</button></td>
-            </tr>`;
+            // Atualiza totais apenas se houver dias no mês
+            if (diasCalc > 0) {
+                totalDias += diasCalc;
+                
+                // Verifica se saiu NESTE mês
+                if (dtSaida && dtSaida >= inicioMes && dtSaida <= fimMes) {
+                    totalSaidas++;
+                    if (p.motivo === 'OBITO') totalObitos++;
+                }
+            }
+
+            // Renderiza Visual
+            let corDias = diasCalc > 0 ? '#000' : '#ccc';
+            let bgBadge = p.motivo === 'OBITO' ? 'bg-obito' : (p.saida ? 'bg-alta' : 'bg-internado');
             
-            // Mostra na tabela se tiver dias no mês OU se estiver internado atualmente
-            if(dias > 0 || (!p.saida)) {
-                tbody.innerHTML += row;
+            // Só mostra na tabela se teve dia no mês ou se ainda está internado
+            if (diasCalc > 0 || !p.saida || (dtSaida && dtSaida >= inicioMes)) {
+                let html = `
+                <tr>
+                    <td><strong>${p.nome}</strong></td>
+                    <td>${p.setor}</td>
+                    <td>${formatarDataBR(p.admissao)}</td>
+                    <td>${formatarDataBR(p.saida)}</td>
+                    <td style="text-align:center; font-weight:bold; color:${corDias}">${diasCalc}</td>
+                    <td><span class="badge ${bgBadge}">${p.motivo || 'INTERNADO'}</span></td>
+                    <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
+                </tr>`;
+                tbody.innerHTML += html;
             }
         });
 
-        atualizarCards(totalDiasOcupados, totalSaidas, totalObitos, fimMesRef.getDate());
+        atualizarCards(totalDias, totalSaidas, totalObitos, fimMes.getDate());
     }
 
-    function adicionarPaciente() {
-        let nome = document.getElementById('nomePaciente').value.toUpperCase();
-        let setor = document.getElementById('setor').value;
-        let adm = document.getElementById('dataAdmissao').value;
-        let saida = document.getElementById('dataSaida').value;
-        let motivo = document.getElementById('motivoSaida').value;
+    function formatarDataBR(dataIso) {
+        if (!dataIso) return '-';
+        const [a, m, d] = dataIso.split('-');
+        return `${d}/${m}/${a}`;
+    }
 
-        if(!nome || !adm) { alert("Preencha o Nome e a Data de Admissão!"); return; }
-
-        pacientes.push({ nome, setor, admissao: adm, saida, motivo });
+    function atualizarCards(dias, saidas, obitos, qtdDiasMes) {
+        const totalLeitos = 25; // 18 UTIN + 4 UCINCO + 3 UCINCA
+        const capacidade = totalLeitos * qtdDiasMes;
         
-        // Limpa campos
-        document.getElementById('nomePaciente').value = '';
-        document.getElementById('dataSaida').value = '';
-        document.getElementById('motivoSaida').value = '';
-        
-        salvarDadosLocais();
-    }
-
-    function removerPaciente(index) {
-        if(confirm("Tem certeza que deseja excluir este registro?")) {
-            pacientes.splice(index, 1);
-            salvarDadosLocais();
-        }
-    }
-
-    // --- CÁLCULOS E UTILITÁRIOS ---
-    function calcularDiasNoMes(inicioStr, fimStr, inicioMes, fimMes) {
-        let inicio = new Date(inicioStr);
-        let fim = fimStr ? new Date(fimStr) : fimMes;
-        inicio.setMinutes(inicio.getMinutes() + inicio.getTimezoneOffset());
-        if(fimStr) fim.setMinutes(fim.getMinutes() + fim.getTimezoneOffset());
-
-        let dataInicioContagem = inicio > inicioMes ? inicio : inicioMes;
-        let dataFimContagem = fim < fimMes ? fim : fimMes;
-
-        if (dataInicioContagem > dataFimContagem) return 0;
-        let diffTime = Math.abs(dataFimContagem - dataInicioContagem);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-    }
-
-    function dataPertenceAoMes(dataStr, inicioMes, fimMes) {
-        let d = new Date(dataStr);
-        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
-        return d >= inicioMes && d <= fimMes;
-    }
-
-    function atualizarCards(diasOcupados, saidas, obitos, diasNoMes) {
-        // Total leitos fixo para calculo geral (soma de todos)
-        let totalLeitos = 25; // 18+4+3
-        let capacidade = totalLeitos * diasNoMes;
-        
-        let taxa = (diasOcupados / capacidade) * 100;
-        let media = saidas > 0 ? (diasOcupados / saidas) : 0;
+        const taxa = (dias / capacidade) * 100;
+        const media = saidas > 0 ? (dias / saidas) : 0;
 
         document.getElementById('indOcupacao').innerText = taxa.toFixed(1) + '%';
         document.getElementById('indMedia').innerText = media.toFixed(1);
@@ -245,21 +238,52 @@
         document.getElementById('indObitos').innerText = obitos;
     }
 
-    function formatarData(dataISO) {
-        if(!dataISO) return "-";
-        let [y, m, d] = dataISO.split('-');
-        return `${d}/${m}`;
+    function adicionarPaciente() {
+        const nome = document.getElementById('nomePaciente').value.toUpperCase();
+        const setor = document.getElementById('setor').value;
+        const adm = document.getElementById('dataAdmissao').value;
+        const saida = document.getElementById('dataSaida').value;
+        const motivo = document.getElementById('motivoSaida').value;
+
+        if (!nome || !adm) {
+            alert('Por favor, preencha o Nome e a Data de Admissão.');
+            return;
+        }
+
+        // Validação básica de datas
+        if (saida && adm > saida) {
+            alert('Atenção: A data de saída não pode ser anterior à admissão!');
+            return;
+        }
+
+        pacientes.push({ nome, setor, admissao: adm, saida, motivo });
+        
+        // Limpar campos
+        document.getElementById('nomePaciente').value = '';
+        document.getElementById('dataSaida').value = '';
+        document.getElementById('motivoSaida').value = '';
+        
+        salvarDados();
+    }
+
+    function removerPaciente(index) {
+        if(confirm('Tem certeza que deseja excluir este registro?')) {
+            pacientes.splice(index, 1);
+            salvarDados();
+        }
     }
 
     function exportarParaExcel() {
-        let csvContent = "data:text/csv;charset=utf-8,Nome,Setor,Admissao,Saida,Motivo\n";
+        let csv = "Nome;Setor;Admissao;Saida;Motivo\n";
         pacientes.forEach(p => {
-            csvContent += `${p.nome},${p.setor},${p.admissao},${p.saida},${p.motivo}\n`;
+            csv += `${p.nome};${p.setor};${formatarDataBR(p.admissao)};${formatarDataBR(p.saida)};${p.motivo}\n`;
         });
-        const encodedUri = encodeURI(csvContent);
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Censo_UTI_${document.getElementById('mesReferencia').value}.csv`);
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Censo_UTI.csv");
         document.body.appendChild(link);
         link.click();
     }
