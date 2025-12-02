@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Censo UTI Neonatal - Santa Helena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* Cabeçalho */
+        header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; color: #005f73; font-size: 24px; }
+        .voltar-btn { text-decoration: none; color: #666; font-size: 14px; }
+        .voltar-btn:hover { color: #005f73; }
+
+        /* Dashboard Cards */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #0a9396; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0 0 5px 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .card .value { font-size: 26px; font-weight: bold; color: #005f73; }
+
+        /* Controles */
+        .controls { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-add { background-color: #0a9396; } .btn-add:hover { background-color: #005f73; }
+        .btn-export { background-color: #ee9b00; margin-top: 10px; width: 100%; } .btn-export:hover { background-color: #ca6702; }
+        .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; }
+
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th { background-color: #005f73; color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; }
+        .bg-internado { background-color: #0a9396; }
+        .bg-alta { background-color: #94d2bd; color: #004b23; }
+        .bg-obito { background-color: #ae2012; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <a href="index.html" class="voltar-btn">⬅ Voltar ao Portal NII</a>
+            <h1>Censo Diário - UTI Neonatal</h1>
+        </div>
+        <div>
+            <label style="font-size: 12px; font-weight: bold;">MÊS DE REFERÊNCIA:</label>
+            <input type="month" id="mesReferencia" style="padding: 5px;" onchange="renderizarTabela()">
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <div class="card"><h3>Ocupação</h3><div class="value" id="indOcupacao">0%</div></div>
+        <div class="card"><h3>Média Dias</h3><div class="value" id="indMedia">0</div></div>
+        <div class="card"><h3>Saídas</h3><div class="value" id="indSaidas">0</div></div>
+        <div class="card"><h3>Óbitos</h3><div class="value" id="indObitos" style="color:#ae2012">0</div></div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="nomePaciente" placeholder="Nome Completo do Paciente" style="flex: 2;">
+        <select id="setor" style="flex: 1;">
+            <option value="UTIN">UTIN (18)</option>
+            <option value="UCINCO">UCINCO (4)</option>
+            <option value="UCINCA">UCINCA (3)</option>
+        </select>
+        <input type="date" id="dataAdmissao" title="Data de Admissão">
+        <input type="date" id="dataSaida" title="Data de Saída (Opcional)">
+        <select id="motivoSaida" style="flex: 1;">
+            <option value="">Internado</option>
+            <option value="ALTA">Alta</option>
+            <option value="TRANSF">Transferência</option>
+            <option value="OBITO">Óbito</option>
+        </select>
+        <button class="btn-add" onclick="adicionarPaciente()">Salvar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Setor</th>
+                <th>Admissão</th>
+                <th>Saída</th>
+                <th>Dias (Mês)</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaPacientes"></tbody>
+    </table>
+
+    <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Relatório Mensal (CSV)</button>
+    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
+        * Os dados ficam salvos neste computador automaticamente. Não limpe o cache do navegador.
+    </p>
+</div>
+
+<script>
+    const LEITOS = { 'UTIN': 18, 'UCINCO': 4, 'UCINCA': 3 };
+    let pacientes = [];
+
+    // --- INICIALIZAÇÃO E CARREGAMENTO DE DADOS ---
+    window.onload = function() {
+        // Define mês atual automaticamente
+        const hoje = new Date();
+        const mesStr = hoje.toISOString().slice(0, 7); // YYYY-MM
+        document.getElementById('mesReferencia').value = mesStr;
+
+        // Carrega dados salvos
+        carregarDadosLocais();
+        renderizarTabela();
+    };
+
+    function carregarDadosLocais() {
+        const dadosSalvos = localStorage.getItem('censo_uti_db');
+        if (dadosSalvos) {
+            pacientes = JSON.parse(dadosSalvos);
+        } else {
+            // Dados iniciais de exemplo se estiver vazio
+            pacientes = [];
+        }
+    }
+
+    function salvarDadosLocais() {
+        localStorage.setItem('censo_uti_db', JSON.stringify(pacientes));
+        renderizarTabela(); // Atualiza a tela sempre que salvar
+    }
+
+    // --- LÓGICA DO CENSO ---
+    function renderizarTabela() {
+        const tbody = document.getElementById('tabelaPacientes');
+        tbody.innerHTML = '';
+        const mesRef = new Date(document.getElementById('mesReferencia').value + '-01');
+        const fimMesRef = new Date(mesRef.getFullYear(), mesRef.getMonth() + 1, 0);
+
+        let totalDiasOcupados = 0;
+        let totalSaidas = 0;
+        let totalObitos = 0;
+        
+        // Ordenar: Internados primeiro, depois por data
+        pacientes.sort((a,b) => (a.saida === '' ? -1 : 1));
+
+        pacientes.forEach((p, index) => {
+            let dias = calcularDiasNoMes(p.admissao, p.saida, mesRef, fimMesRef);
+            
+            // Filtro visual: Mostrar todos, mas destacar o cálculo do mês
+            // Se dias > 0 significa que o paciente passou pelo mês selecionado
+            
+            let classeBadge = p.motivo === 'OBITO' ? 'bg-obito' : (p.saida ? 'bg-alta' : 'bg-internado');
+            let textoStatus = p.motivo ? p.motivo : 'INTERNADO';
+            
+            // Só conta indicadores se o paciente gerou dias neste mês
+            if (dias > 0) {
+                totalDiasOcupados += dias;
+                if (p.saida && dataPertenceAoMes(p.saida, mesRef, fimMesRef)) {
+                    totalSaidas++;
+                    if(p.motivo === 'OBITO') totalObitos++;
+                }
+            }
+
+            // Renderiza Linha
+            let row = `<tr>
+                <td><strong>${p.nome}</strong></td>
+                <td>${p.setor}</td>
+                <td>${formatarData(p.admissao)}</td>
+                <td>${formatarData(p.saida)}</td>
+                <td style="text-align:center; font-weight:bold; color:${dias > 0 ? '#000' : '#ccc'}">${dias}</td>
+                <td><span class="badge ${classeBadge}">${textoStatus}</span></td>
+                <td><button class="btn-del" onclick="removerPaciente(${index})">Excluir</button></td>
+            </tr>`;
+            
+            // Mostra na tabela se tiver dias no mês OU se estiver internado atualmente
+            if(dias > 0 || (!p.saida)) {
+                tbody.innerHTML += row;
+            }
+        });
+
+        atualizarCards(totalDiasOcupados, totalSaidas, totalObitos, fimMesRef.getDate());
+    }
+
+    function adicionarPaciente() {
+        let nome = document.getElementById('nomePaciente').value.toUpperCase();
+        let setor = document.getElementById('setor').value;
+        let adm = document.getElementById('dataAdmissao').value;
+        let saida = document.getElementById('dataSaida').value;
+        let motivo = document.getElementById('motivoSaida').value;
+
+        if(!nome || !adm) { alert("Preencha o Nome e a Data de Admissão!"); return; }
+
+        pacientes.push({ nome, setor, admissao: adm, saida, motivo });
+        
+        // Limpa campos
+        document.getElementById('nomePaciente').value = '';
+        document.getElementById('dataSaida').value = '';
+        document.getElementById('motivoSaida').value = '';
+        
+        salvarDadosLocais();
+    }
+
+    function removerPaciente(index) {
+        if(confirm("Tem certeza que deseja excluir este registro?")) {
+            pacientes.splice(index, 1);
+            salvarDadosLocais();
+        }
+    }
+
+    // --- CÁLCULOS E UTILITÁRIOS ---
+    function calcularDiasNoMes(inicioStr, fimStr, inicioMes, fimMes) {
+        let inicio = new Date(inicioStr);
+        let fim = fimStr ? new Date(fimStr) : fimMes;
+        inicio.setMinutes(inicio.getMinutes() + inicio.getTimezoneOffset());
+        if(fimStr) fim.setMinutes(fim.getMinutes() + fim.getTimezoneOffset());
+
+        let dataInicioContagem = inicio > inicioMes ? inicio : inicioMes;
+        let dataFimContagem = fim < fimMes ? fim : fimMes;
+
+        if (dataInicioContagem > dataFimContagem) return 0;
+        let diffTime = Math.abs(dataFimContagem - dataInicioContagem);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+    }
+
+    function dataPertenceAoMes(dataStr, inicioMes, fimMes) {
+        let d = new Date(dataStr);
+        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+        return d >= inicioMes && d <= fimMes;
+    }
+
+    function atualizarCards(diasOcupados, saidas, obitos, diasNoMes) {
+        // Total leitos fixo para calculo geral (soma de todos)
+        let totalLeitos = 25; // 18+4+3
+        let capacidade = totalLeitos * diasNoMes;
+        
+        let taxa = (diasOcupados / capacidade) * 100;
+        let media = saidas > 0 ? (diasOcupados / saidas) : 0;
+
+        document.getElementById('indOcupacao').innerText = taxa.toFixed(1) + '%';
+        document.getElementById('indMedia').innerText = media.toFixed(1);
+        document.getElementById('indSaidas').innerText = saidas;
+        document.getElementById('indObitos').innerText = obitos;
+    }
+
+    function formatarData(dataISO) {
+        if(!dataISO) return "-";
+        let [y, m, d] = dataISO.split('-');
+        return `${d}/${m}`;
+    }
+
+    function exportarParaExcel() {
+        let csvContent = "data:text/csv;charset=utf-8,Nome,Setor,Admissao,Saida,Motivo\n";
+        pacientes.forEach(p => {
+            csvContent += `${p.nome},${p.setor},${p.admissao},${p.saida},${p.motivo}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Censo_UTI_${document.getElementById('mesReferencia').value}.csv`);
+        document.body.appendChild(link);
+        link.click();
+    }
+</script>
+
+</body>
+</html>
