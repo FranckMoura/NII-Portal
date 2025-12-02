@@ -48,7 +48,7 @@
     <header class="main-header">
         <div class="container">
             <h1>Módulo Faturamento SUS</h1>
-            <p>Monitoramento Consolidado da Produção (SIA e SIH) - 2025</p>
+            <p>Monitoramento Consolidado da Produção (SIA e SIH)</p>
         </div>
     </header>
 
@@ -64,7 +64,7 @@
                 <div class="kpi-val" id="kpi-sia">R$ 0,00</div>
             </div>
             <div class="kpi-box" style="border-left-color: #28a745;">
-                <div class="kpi-tit">Total de Procedimentos</div>
+                <div class="kpi-tit">Total AIH + BPA (Qtd)</div>
                 <div class="kpi-val" id="kpi-qtd">0</div>
             </div>
         </div>
@@ -93,60 +93,76 @@
     </footer>
 
     <script>
-        // Funções de conversão seguras
-        function brlToFloat(str) {
-            if (!str) return 0;
-            let limpo = str.toString().replace("R$", "").replace(/\./g, "").trim().replace(",", ".");
+        // --- FUNÇÕES DE LIMPEZA DE DADOS ---
+        function limparDinheiro(val) {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            // Remove R$, espaços e troca virgula por ponto
+            let limpo = val.toString().replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
             return parseFloat(limpo) || 0;
         }
 
-        function qtdToFloat(str) {
-            if (!str) return 0;
-            return parseFloat(str.toString().replace(/\./g, "").replace(",", ".")) || 0;
+        function limparQtd(val) {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            // Remove pontos de milhar (3.011 -> 3011)
+            // Se tiver virgula decimal (3,5), troca por ponto
+            let limpo = val.toString().replace(/\./g, "").replace(",", ".").trim();
+            return parseFloat(limpo) || 0;
         }
 
-        // Carrega o CSV
+        // Função para achar o nome real da coluna no arquivo (evita erro de digitação)
+        function acharColuna(headers, keywords) {
+            return headers.find(h => keywords.every(k => h.toUpperCase().includes(k))) || "";
+        }
+
+        // --- CARREGAMENTO ---
         const arquivo = 'arquivos/elastic_producao.csv?v=' + new Date().getTime();
 
         Papa.parse(arquivo, {
             download: true,
             header: true,
-            delimiter: ",", 
+            delimiter: ",",
             skipEmptyLines: true,
-            // Adicionado: Limpa espaços nos nomes das colunas ("SIA - QTD. " vira "SIA - QTD.")
-            transformHeader: function(h) { return h.trim(); },
             complete: function(results) {
                 if (results.data.length > 0) {
-                    processarDados(results.data);
+                    processarDados(results.data, results.meta.fields);
                 } else {
                     document.getElementById('msg-carga').innerText = "Arquivo vazio.";
                 }
             },
             error: function(err) {
-                console.error("Erro CSV:", err);
+                console.error(err);
                 document.getElementById('msg-carga').innerText = "Erro ao carregar CSV.";
             }
         });
 
-        function processarDados(dados) {
+        function processarDados(dados, headers) {
+            // Descobre os nomes exatos das colunas no arquivo
+            const colComp = acharColuna(headers, ["COMPET"]);
+            const colSiaQtd = acharColuna(headers, ["SIA", "QTD"]);
+            const colSiaVal = acharColuna(headers, ["SIA", "VALOR"]);
+            const colSihQtd = acharColuna(headers, ["SIH", "QTD"]);
+            const colSihVal = acharColuna(headers, ["SIH", "VALOR"]);
+
+            console.log("Colunas detectadas:", {colComp, colSiaQtd, colSiaVal, colSihQtd, colSihVal});
+
             let meses = [];
             let valSIA = [];
             let valSIH = [];
-            
-            let totalSIA = 0;
-            let totalSIH = 0;
-            let totalQtd = 0;
+            let totalSIA = 0, totalSIH = 0, totalQtd = 0;
 
-            dados.sort((a, b) => (a['COMPETÊNCIA'] || "").localeCompare(b['COMPETÊNCIA'] || ""));
+            // Ordena por competência
+            dados.sort((a, b) => (a[colComp] || "").localeCompare(b[colComp] || ""));
 
             dados.forEach(linha => {
-                let comp = linha['COMPETÊNCIA'];
+                let comp = linha[colComp];
                 if (!comp) return;
 
-                let vSIA = brlToFloat(linha['SIA - VALOR']);
-                let vSIH = brlToFloat(linha['SIH - VALOR']);
-                let qSIA = qtdToFloat(linha['SIA - QTD.']);
-                let qSIH = qtdToFloat(linha['SIH - QTD.']);
+                let vSIA = limparDinheiro(linha[colSiaVal]);
+                let vSIH = limparDinheiro(linha[colSihVal]);
+                let qSIA = limparQtd(linha[colSiaQtd]);
+                let qSIH = limparQtd(linha[colSihQtd]);
 
                 meses.push(comp);
                 valSIA.push(vSIA);
@@ -157,7 +173,7 @@
                 totalQtd += (qSIA + qSIH);
             });
 
-            // 1. Atualiza KPIs
+            // 1. KPIs
             document.getElementById('kpi-sih').innerText = totalSIH.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('kpi-sia').innerText = totalSIA.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('kpi-qtd').innerText = totalQtd.toLocaleString('pt-BR');
@@ -189,7 +205,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 4. Tabela (COM CORREÇÃO DE ERRO)
+            // 4. Tabela (Com nomes de colunas dinâmicos)
             if ($.fn.DataTable.isDataTable('#tabela-fat')) {
                 $('#tabela-fat').DataTable().destroy();
             }
@@ -197,12 +213,11 @@
             $('#tabela-fat').DataTable({
                 data: dados,
                 columns: [
-                    { title: "Mês", data: "COMPETÊNCIA", defaultContent: "-" },
-                    // defaultContent: "0" evita o erro de DataTables warning
-                    { title: "Qtd SIA", data: "SIA - QTD.", defaultContent: "0" },
-                    { title: "Valor SIA", data: "SIA - VALOR", defaultContent: "R$ 0,00" },
-                    { title: "Qtd SIH", data: "SIH - QTD.", defaultContent: "0" },
-                    { title: "Valor SIH", data: "SIH - VALOR", defaultContent: "R$ 0,00" }
+                    { title: "Mês", data: colComp, defaultContent: "-" },
+                    { title: "Qtd SIA", data: colSiaQtd, defaultContent: "0" },
+                    { title: "Valor SIA", data: colSiaVal, defaultContent: "R$ 0,00" },
+                    { title: "Qtd SIH", data: colSihQtd, defaultContent: "0" },
+                    { title: "Valor SIH", data: colSihVal, defaultContent: "R$ 0,00" }
                 ],
                 order: [[0, 'desc']], 
                 language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }
