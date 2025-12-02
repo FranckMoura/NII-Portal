@@ -7,32 +7,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1280px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .voltar-btn { text-decoration: none; color: #666; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 5px;}
         
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #0a9396; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card .value { font-size: 26px; font-weight: bold; color: #005f73; }
-        .card h3 { font-size: 12px; color: #666; text-transform: uppercase; margin: 0 0 5px 0;}
+        /* PAINEL DE INDICADORES (TABELA DE GESTÃO) */
+        .panel-container { margin-bottom: 30px; overflow-x: auto; }
+        .panel-table { width: 100%; border-collapse: collapse; text-align: center; border: 1px solid #ddd; }
+        .panel-table th { background-color: #005f73; color: white; padding: 10px; font-size: 13px; text-transform: uppercase; }
+        .panel-table td { padding: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
+        .panel-total { background-color: #e9ecef; }
+        .row-utin { border-left: 5px solid #0a9396; }
+        .row-ucinco { border-left: 5px solid #94d2bd; }
+        .row-ucinca { border-left: 5px solid #ee9b00; }
 
+        /* Controles e Formulário */
         .controls { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 120px; }
         button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-add { background-color: #0a9396; } .btn-add:hover { background-color: #005f73; }
         .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; color: white; }
         
-        /* Botões de Importar/Exportar no Rodapé */
         .footer-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; }
         .btn-export { background-color: #ee9b00; }
-        .btn-import { background-color: #6c757d; } .btn-import:hover { background-color: #5a6268; }
+        .btn-import { background-color: #6c757d; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th { background-color: #005f73; color: white; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
+        /* Tabela de Pacientes */
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .main-table th { background-color: #457b9d; color: white; padding: 10px; text-align: left; }
+        .main-table td { padding: 8px; border-bottom: 1px solid #eee; }
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; }
-        .bg-internado { background-color: #0a9396; } .bg-alta { background-color: #94d2bd; color: #004b23; } .bg-obito { background-color: #ae2012; }
+        .bg-internado { background-color: #0a9396; } 
+        .bg-alta { background-color: #94d2bd; color: #004b23; } 
+        .bg-obito { background-color: #ae2012; }
     </style>
 </head>
 <body>
@@ -49,19 +57,34 @@
         </div>
     </header>
 
-    <div class="dashboard">
-        <div class="card"><h3>Ocupação</h3><div class="value" id="indOcupacao">0%</div></div>
-        <div class="card"><h3>Média Dias</h3><div class="value" id="indMedia">0</div></div>
-        <div class="card"><h3>Saídas</h3><div class="value" id="indSaidas">0</div></div>
-        <div class="card"><h3>Óbitos</h3><div class="value" id="indObitos" style="color:#ae2012">0</div></div>
+    <div class="panel-container">
+        <h3 style="margin: 0 0 10px 0; color: #005f73; font-size: 16px;">📊 Painel de Indicadores Mensais</h3>
+        <table class="panel-table">
+            <thead>
+                <tr>
+                    <th>Setor</th>
+                    <th>Leitos</th>
+                    <th>Capac.<br>(Dias)</th>
+                    <th>Pacientes<br>Dia</th>
+                    <th>Ocupação<br>(%)</th>
+                    <th>Média<br>Perm.(Dias)</th>
+                    <th>Saídas<br>(Altas/Transf)</th>
+                    <th>Óbitos<br>(Total)</th>
+                    <th>Óbito<br>&lt; 24h</th>
+                    <th>Óbito<br>&gt; 24h</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaIndicadores">
+                </tbody>
+        </table>
     </div>
 
     <div class="controls">
         <input type="text" id="nomePaciente" placeholder="Nome Completo" style="flex: 2;">
         <select id="setor" style="flex: 1;">
-            <option value="UTIN">UTIN (18)</option>
-            <option value="UCINCO">UCINCO (4)</option>
-            <option value="UCINCA">UCINCA (3)</option>
+            <option value="UTIN">UTIN</option>
+            <option value="UCINCO">UCINCO</option>
+            <option value="UCINCA">UCINCA</option>
         </select>
         <div style="display:flex; flex-direction:column; flex:1;">
             <label style="font-size:10px;">Admissão:</label>
@@ -75,12 +98,13 @@
             <option value="">(Em Internação)</option>
             <option value="ALTA">Alta Médica</option>
             <option value="TRANSF">Transferência</option>
-            <option value="OBITO">Óbito</option>
+            <option value="OBITO > 24H">Óbito > 24h</option>
+            <option value="OBITO < 24H">Óbito < 24h</option>
         </select>
         <button class="btn-add" onclick="adicionarPaciente()">Salvar</button>
     </div>
 
-    <table>
+    <table class="main-table">
         <thead>
             <tr>
                 <th>Paciente</th>
@@ -97,24 +121,28 @@
 
     <div class="footer-actions">
         <input type="file" id="inputImport" style="display: none;" accept=".json" onchange="processarImportacao(this)">
-        
         <button class="btn-import" onclick="document.getElementById('inputImport').click()">📂 Importar Backup / JSON</button>
         <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Relatório (CSV)</button>
     </div>
 </div>
 
 <script>
+    // --- CONFIGURAÇÃO DE LEITOS ---
+    const CONFIG_LEITOS = {
+        'UTIN': 18,
+        'UCINCO': 4,
+        'UCINCA': 3
+    };
+
     let pacientes = [];
 
     window.onload = function() {
-        // Define o mês atual (ex: 2025-06)
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
-        // Carrega dados salvos
-        const dadosSalvos = localStorage.getItem('censo_uti_v2');
+        const dadosSalvos = localStorage.getItem('censo_uti_v3');
         if (dadosSalvos) {
             pacientes = JSON.parse(dadosSalvos);
         }
@@ -122,42 +150,34 @@
     };
 
     function salvarDados() {
-        localStorage.setItem('censo_uti_v2', JSON.stringify(pacientes));
+        localStorage.setItem('censo_uti_v3', JSON.stringify(pacientes));
         renderizarTabela();
     }
 
     function processarImportacao(input) {
         const arquivo = input.files[0];
         if (!arquivo) return;
-
         const leitor = new FileReader();
         leitor.onload = function(e) {
             try {
                 const dadosImportados = JSON.parse(e.target.result);
                 if (Array.isArray(dadosImportados)) {
-                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nOK = SUBSTITUIR TUDO (Limpa o atual)\nCancelar = ADICIONAR aos existentes`)) {
+                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nOK para SUBSTITUIR TUDO.`)) {
                         pacientes = dadosImportados;
-                    } else {
-                        pacientes = pacientes.concat(dadosImportados);
+                        salvarDados();
+                        alert("Importado com sucesso!");
                     }
-                    salvarDados();
-                    alert("Dados importados e corrigidos!");
-                } else {
-                    alert("Arquivo inválido.");
                 }
-            } catch (erro) {
-                alert("Erro ao ler JSON.");
-            }
+            } catch (erro) { alert("Erro ao ler JSON."); }
             input.value = '';
         };
         leitor.readAsText(arquivo);
     }
 
-    // --- MANIPULAÇÃO DE DATAS ---
+    // --- UTILITÁRIOS DATA ---
     function criarData(dataString) {
         if (!dataString) return null;
         const [ano, mes, dia] = dataString.split('-').map(Number);
-        // Define horário 12:00 para evitar problemas de fuso horário
         return new Date(ano, mes - 1, dia, 12, 0, 0); 
     }
 
@@ -167,25 +187,27 @@
         return `${d}/${m}/${a}`;
     }
 
-    // --- CORAÇÃO DO SISTEMA (RENDERIZAÇÃO) ---
+    // --- CÁLCULOS PRINCIPAIS ---
     function renderizarTabela() {
-        const tbody = document.getElementById('tabelaPacientes');
-        tbody.innerHTML = '';
+        const tbodyList = document.getElementById('tabelaPacientes');
+        tbodyList.innerHTML = '';
         
         const refInput = document.getElementById('mesReferencia').value; 
         if (!refInput) return;
 
         const [refAno, refMes] = refInput.split('-').map(Number);
-        
-        // Define intervalo do Mês Selecionado
         const inicioMes = new Date(refAno, refMes - 1, 1, 12, 0, 0); 
         const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); 
+        const qtdDiasNoMes = fimMes.getDate();
 
-        let totalDias = 0;
-        let totalSaidas = 0;
-        let totalObitos = 0;
+        // Estrutura para contar indicadores por setor
+        let stats = {
+            'UTIN':   { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
+            'UCINCO': { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
+            'UCINCA': { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 }
+        };
 
-        // Ordena: Internados primeiro, depois mais recentes
+        // Ordenação
         pacientes.sort((a,b) => {
             if (a.saida === '' && b.saida !== '') return -1;
             if (a.saida !== '' && b.saida === '') return 1;
@@ -193,96 +215,133 @@
         });
 
         pacientes.forEach((p, index) => {
+            // Normaliza setor (se vier vazio ou estranho, joga pra UTIN)
+            let setor = p.setor ? p.setor.toUpperCase().trim() : 'UTIN';
+            if (!stats[setor]) setor = 'UTIN'; // Fallback
+
             const dtAdm = criarData(p.admissao);
             const dtSaida = p.saida ? criarData(p.saida) : null;
             
-            // --- FILTRO DE EXIBIÇÃO ---
-            // 1. Se saiu ANTES deste mês começar -> NÃO MOSTRA
+            // Filtros de tempo
             if (dtSaida && dtSaida < inicioMes) return;
-
-            // 2. Se foi admitido DEPOIS deste mês acabar -> NÃO MOSTRA
             if (dtAdm > fimMes) return;
 
-            // --- CÁLCULO DE DIAS ---
+            // Cálculo Dias
             let diasCalc = 0;
-            
-            // Início da contagem: O que for maior (Inicio do Mês ou Data de Admissão)
             const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
-            
-            // Fim da contagem: O que for menor (Fim do Mês ou Data de Saída)
-            // Se não tiver saída, considera que ficou até o fim do mês
             let fimContagem = fimMes;
-            if (dtSaida && dtSaida < fimMes) {
-                fimContagem = dtSaida;
-            }
+            if (dtSaida && dtSaida < fimMes) fimContagem = dtSaida;
 
-            // Cálculo matemático
             const diffTempo = fimContagem - inicioContagem;
             const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
             
-            // Soma +1 (inclusivo) se o cálculo for válido
-            if (diffDias >= 0) {
-                diasCalc = diffDias + 1;
-            } else {
-                // Caso raro de erro de lógica (data saída < data entrada no mês)
-                diasCalc = 0;
-            }
+            if (diffDias >= 0) diasCalc = diffDias + 1;
 
-            // --- CÁLCULO DE INDICADORES ---
+            // Acumula Estatísticas
             if (diasCalc > 0) {
-                totalDias += diasCalc;
-                
-                // Verifica se a saída foi NESTE mês exato
+                stats[setor].p_dia += diasCalc;
+
+                // Se saiu neste mês
                 if (dtSaida && dtSaida >= inicioMes && dtSaida <= fimMes) {
-                    totalSaidas++;
+                    const motivo = (p.motivo || '').toUpperCase();
                     
-                    // --- CORREÇÃO DO ÓBITO (COM E SEM ACENTO) ---
-                    let motivoStr = (p.motivo || '').toUpperCase();
-                    // Procura por "BITO" (pega OBITO, ÓBITO, OBITO > 24H) ou "FALEC"
-                    if (motivoStr.includes('BITO') || motivoStr.includes('FALEC')) {
-                        totalObitos++;
+                    if (motivo.includes('BITO') || motivo.includes('FALEC')) {
+                        stats[setor].obitos++;
+                        if (motivo.includes('<') || motivo.includes('MENOR')) stats[setor].obito_menor++;
+                        else stats[setor].obito_maior++; // Assume maior se não especificado ou explícito
+                    } else {
+                        stats[setor].saidas++; // Alta ou Transf
                     }
                 }
-            }
 
-            // Renderiza na Tabela
-            let corDias = diasCalc > 0 ? '#000' : '#ccc';
-            let bgBadge = 'bg-internado';
-            
-            // Define cor do status
-            let motivoStr = (p.motivo || '').toUpperCase();
-            if (motivoStr.includes('BITO')) bgBadge = 'bg-obito';
-            else if (p.saida) bgBadge = 'bg-alta';
+                // Renderiza Lista
+                let corDias = '#000';
+                let bgBadge = 'bg-internado';
+                if ((p.motivo||'').toUpperCase().includes('BITO')) bgBadge = 'bg-obito';
+                else if (p.saida) bgBadge = 'bg-alta';
 
-            // Só imprime se tiver dias calculados neste mês
-            if (diasCalc > 0) {
                 let html = `
                 <tr>
                     <td><strong>${p.nome}</strong></td>
-                    <td>${p.setor}</td>
+                    <td>${setor}</td>
                     <td>${formatarDataBR(p.admissao)}</td>
                     <td>${formatarDataBR(p.saida)}</td>
                     <td style="text-align:center; font-weight:bold; color:${corDias}">${diasCalc}</td>
                     <td><span class="badge ${bgBadge}">${p.motivo || 'INTERNADO'}</span></td>
                     <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
                 </tr>`;
-                tbody.innerHTML += html;
+                tbodyList.innerHTML += html;
             }
         });
 
-        atualizarCards(totalDias, totalSaidas, totalObitos, fimMes.getDate());
+        atualizarPainelIndicadores(stats, qtdDiasNoMes);
     }
 
-    function atualizarCards(dias, saidas, obitos, qtdDiasMes) {
-        const totalLeitos = 25; 
-        const capacidade = totalLeitos * qtdDiasMes;
-        const taxa = (dias / capacidade) * 100;
-        const media = saidas > 0 ? (dias / saidas) : 0;
+    function atualizarPainelIndicadores(stats, diasNoMes) {
+        const tbodyInd = document.getElementById('tabelaIndicadores');
+        tbodyInd.innerHTML = '';
 
-        document.getElementById('indOcupacao').innerText = taxa.toFixed(1) + '%';
-        document.getElementById('indMedia').innerText = media.toFixed(1);
-        document.getElementById('indSaidas').innerText = saidas;
-        document.getElementById('indObitos').innerText = obitos;
+        let totalLeitos = 0;
+        let totalCapac = 0;
+        let totalPDia = 0;
+        let totalSaidas = 0;
+        let totalObitos = 0;
+        let totalObMenor = 0;
+        let totalObMaior = 0;
+
+        // Loop pelos setores fixos para manter ordem
+        ['UTIN', 'UCINCO', 'UCINCA'].forEach(setor => {
+            const dados = stats[setor];
+            const leitos = CONFIG_LEITOS[setor];
+            const capacidade = leitos * diasNoMes;
+            const ocupacao = capacidade > 0 ? (dados.p_dia / capacidade) * 100 : 0;
+            const totalSaidasSetor = dados.saidas + dados.obitos;
+            const mediaPerm = totalSaidasSetor > 0 ? (dados.p_dia / totalSaidasSetor) : 0;
+
+            // Acumula Totais Gerais
+            totalLeitos += leitos;
+            totalCapac += capacidade;
+            totalPDia += dados.p_dia;
+            totalSaidas += dados.saidas;
+            totalObitos += dados.obitos;
+            totalObMenor += dados.obito_menor;
+            totalObMaior += dados.obito_maior;
+
+            let rowClass = `row-${setor.toLowerCase()}`;
+            
+            tbodyInd.innerHTML += `
+            <tr class="${rowClass}">
+                <td style="text-align:left;">${setor}</td>
+                <td>${leitos}</td>
+                <td>${capacidade}</td>
+                <td>${dados.p_dia}</td>
+                <td style="${ocupacao > 100 ? 'color:red' : 'color:blue'}">${ocupacao.toFixed(1)}%</td>
+                <td>${mediaPerm.toFixed(1)}</td>
+                <td>${dados.saidas}</td>
+                <td style="color:${dados.obitos > 0 ? 'red' : 'inherit'}">${dados.obitos}</td>
+                <td>${dados.obito_menor}</td>
+                <td>${dados.obito_maior}</td>
+            </tr>`;
+        });
+
+        // Linha TOTAL GERAL
+        const ocupacaoGeral = totalCapac > 0 ? (totalPDia / totalCapac) * 100 : 0;
+        const totalSaidasGeral = totalSaidas + totalObitos;
+        const mediaPermGeral = totalSaidasGeral > 0 ? (totalPDia / totalSaidasGeral) : 0;
+
+        tbodyInd.innerHTML += `
+        <tr class="panel-total">
+            <td style="text-align:left;">TOTAL</td>
+            <td>${totalLeitos}</td>
+            <td>${totalCapac}</td>
+            <td>${totalPDia}</td>
+            <td>${ocupacaoGeral.toFixed(1)}%</td>
+            <td>${mediaPermGeral.toFixed(1)}</td>
+            <td>${totalSaidas}</td>
+            <td style="color:red; font-weight:bold;">${totalObitos}</td>
+            <td>${totalObMenor}</td>
+            <td>${totalObMaior}</td>
+        </tr>`;
     }
 
     function adicionarPaciente() {
@@ -293,7 +352,10 @@
         const motivo = document.getElementById('motivoSaida').value;
 
         if (!nome || !adm) { alert('Preencha Nome e Admissão.'); return; }
-        if (saida && adm > saida) { alert('Saída anterior à admissão!'); return; }
+        // Validação simples de ano
+        if (adm.startsWith('2026') || adm.startsWith('2027')) {
+            if(!confirm("Tem certeza que o ano é " + adm.split('-')[0] + "? Isso parece estar no futuro.")) return;
+        }
 
         pacientes.push({ nome, setor, admissao: adm, saida, motivo });
         
@@ -317,9 +379,8 @@
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "Censo_UTI.csv");
+        link.setAttribute("href", URL.createObjectURL(blob));
+        link.setAttribute("download", "Censo_UTI_Atualizado.csv");
         document.body.appendChild(link);
         link.click();
     }
