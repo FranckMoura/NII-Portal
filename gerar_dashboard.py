@@ -11,7 +11,7 @@ NOME_ARQUIVO_HTML = "painel_regulacao.html"
 CAMINHO_FINAL_HTML = os.path.join(PASTA_PROJETO, NOME_ARQUIVO_HTML)
 
 def gerar_html():
-    print("--- GERANDO DASHBOARD (PAINEL VIVO 100% DINÂMICO) ---")
+    print("--- GERANDO DASHBOARD (COM LIMPEZA DE DADOS .0) ---")
     
     conn = sqlite3.connect(BANCO_DADOS)
     
@@ -21,7 +21,7 @@ def gerar_html():
     data_fim_padrao = hoje.strftime('%Y-%m-%d')
     
     try:
-        # Carrega TUDO do ano atual
+        # Carrega TUDO
         query = """
         SELECT 
             data_da_solicitacao,
@@ -37,17 +37,31 @@ def gerar_html():
         df = pd.read_sql_query(query, conn)
         df['data_dt'] = pd.to_datetime(df['data_da_solicitacao'], dayfirst=True, errors='coerce')
         
-        # Filtra apenas o ano atual para não pesar o navegador
+        # Filtra ano atual
         df = df[df['data_dt'].dt.year == hoje.year].copy()
         
-        # Converte datas para string ISO (yyyy-mm-dd) para facilitar o JS
+        # Converte data para ISO (para o filtro funcionar)
         df['data_iso'] = df['data_dt'].dt.strftime('%Y-%m-%d')
         
-        # Prepara os dados para o JavaScript (JSON)
-        # Vamos passar a lista de dicionários para o front-end
+        # --- AQUI ESTÁ A CORREÇÃO DO ".0" ---
+        # Função para limpar números que viraram decimais
+        def limpar_numero(valor):
+            if pd.isna(valor) or str(valor).strip() == "":
+                return "-"
+            s = str(valor)
+            if s.endswith('.0'):
+                return s[:-2] # Remove os dois ultimos caracteres (.0)
+            return s
+
+        # Aplica a limpeza nas colunas numéricas
+        colunas_para_limpar = ['cns_do_paciente', 'n_da_solicitacao', 'n_aih']
+        for col in colunas_para_limpar:
+            df[col] = df[col].apply(limpar_numero)
+
+        # Transforma em JSON para o HTML ler
         dados_json = df.to_json(orient='records')
         
-        print(f"Registros processados: {len(df)}")
+        print(f"Registros processados e limpos: {len(df)}")
 
     except Exception as e:
         print(f"Erro: {e}")
@@ -120,19 +134,13 @@ def gerar_html():
 
         <div class="filter-box">
             <i class="fas fa-calendar-alt" style="font-size:20px; color:#0056b3;"></i>
-            <div>
-                <label>Início:</label>
-                <input type="date" id="minDate" value="{data_inicio_padrao}">
-            </div>
-            <div>
-                <label>Fim:</label>
-                <input type="date" id="maxDate" value="{data_fim_padrao}">
-            </div>
+            <div><label>Início:</label><input type="date" id="minDate" value="{data_inicio_padrao}"></div>
+            <div><label>Fim:</label><input type="date" id="maxDate" value="{data_fim_padrao}"></div>
             <button onclick="atualizarDashboard()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
         </div>
 
         <div class="cards-container">
-            <div class="card blue"><h3>Total (Período)</h3><div class="value" id="valTotal">-</div></div>
+            <div class="card blue"><h3>Total</h3><div class="value" id="valTotal">-</div></div>
             <div class="card green"><h3>Aprovados</h3><div class="value" id="valAprovados">-</div></div>
             <div class="card yellow"><h3>Pendentes</h3><div class="value" id="valPendentes">-</div></div>
             <div class="card red"><h3>Negados/Cancel</h3><div class="value" id="valNegados">-</div></div>
@@ -140,7 +148,7 @@ def gerar_html():
 
         <div class="charts-row">
             <div class="chart-container"><h3>Top 5 Procedimentos</h3><canvas id="chartProcedimentos"></canvas></div>
-            <div class="chart-container"><h3>Status da Regulação</h3><canvas id="chartStatus"></canvas></div>
+            <div class="chart-container"><h3>Status</h3><canvas id="chartStatus"></canvas></div>
         </div>
 
         <div class="table-container">
@@ -148,13 +156,7 @@ def gerar_html():
             <table id="tabelaRegulacao" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Data</th>
-                        <th>Paciente</th>
-                        <th>CNS</th>
-                        <th>Nº Solicit.</th>
-                        <th>Nº AIH</th>
-                        <th>Procedimento</th>
-                        <th>Status</th>
+                        <th>Data</th><th>Paciente</th><th>CNS</th><th>Nº Solicit.</th><th>Nº AIH</th><th>Procedimento</th><th>Status</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -162,18 +164,19 @@ def gerar_html():
         </div>
 
         <script>
-            // --- DADOS DO PYTHON PARA O JS ---
-            const todosDados = {dados_json}; // Lista completa de objetos
-            
+            const todosDados = {dados_json};
             let chartStatus = null;
             let chartProc = null;
             let table = null;
 
-            // Inicializa a tabela vazia (mas configurada)
             $(document).ready(function() {{
                 table = $('#tabelaRegulacao').DataTable({{
                     "language": {{ "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
                     "pageLength": 10,
+                    "order": [[0, "desc"]], // Ordena por Data (coluna 0) descrescente
+                    "columnDefs": [
+                        {{ "type": "date-eu", "targets": 0 }} // Ajuda na ordenação de data BR
+                    ],
                     "columns": [
                         {{ "data": "data_da_solicitacao" }},
                         {{ "data": "nome_do_paciente" }},
@@ -193,8 +196,6 @@ def gerar_html():
                         }}
                     ]
                 }});
-
-                // Carrega primeira vez
                 atualizarDashboard();
             }});
 
@@ -202,13 +203,11 @@ def gerar_html():
                 const dInicio = document.getElementById('minDate').value;
                 const dFim = document.getElementById('maxDate').value;
 
-                // 1. FILTRAR DADOS
                 const dadosFiltrados = todosDados.filter(item => {{
                     if (!item.data_iso) return false;
                     return item.data_iso >= dInicio && item.data_iso <= dFim;
                 }});
 
-                // 2. CALCULAR TOTAIS
                 let total = dadosFiltrados.length;
                 let aprovados = 0, pendentes = 0, negados = 0;
                 let contagemProc = {{}};
@@ -219,29 +218,22 @@ def gerar_html():
                     else if(st.includes("Pendente")) pendentes++;
                     else if(st.includes("Negado") || st.includes("Cancelado")) negados++;
 
-                    // Contagem Top 5
                     const proc = item.nome_do_procedimento_solicitado || "Indefinido";
                     contagemProc[proc] = (contagemProc[proc] || 0) + 1;
                 }});
 
-                // 3. ATUALIZAR CARDS
                 document.getElementById('valTotal').innerText = total;
                 document.getElementById('valAprovados').innerText = aprovados;
                 document.getElementById('valPendentes').innerText = pendentes;
                 document.getElementById('valNegados').innerText = negados;
 
-                // 4. ATUALIZAR GRÁFICOS
                 atualizarGraficos(aprovados, pendentes, negados, contagemProc);
-
-                // 5. ATUALIZAR TABELA
                 table.clear().rows.add(dadosFiltrados).draw();
             }}
 
             function atualizarGraficos(aprovados, pendentes, negados, contagemProc) {{
-                // Gráfico Pizza
                 const ctxStatus = document.getElementById('chartStatus');
                 if (chartStatus) chartStatus.destroy();
-                
                 chartStatus = new Chart(ctxStatus, {{
                     type: 'doughnut',
                     data: {{
@@ -251,27 +243,19 @@ def gerar_html():
                     options: {{ responsive: true, maintainAspectRatio: false, cutout: '65%' }}
                 }});
 
-                // Gráfico Barras (Top 5)
-                // Ordena o objeto de contagem e pega os 5 primeiros
                 const top5 = Object.entries(contagemProc).sort((a, b) => b[1] - a[1]).slice(0, 5);
                 const labelsTop = top5.map(x => x[0].substring(0, 25) + '...');
                 const dataTop = top5.map(x => x[1]);
 
                 const ctxProc = document.getElementById('chartProcedimentos');
                 if (chartProc) chartProc.destroy();
-
                 chartProc = new Chart(ctxProc, {{
                     type: 'bar',
                     data: {{
                         labels: labelsTop,
                         datasets: [{{ label: 'Qtd', data: dataTop, backgroundColor: '#0056b3', borderRadius: 5 }}]
                     }},
-                    options: {{ 
-                        indexAxis: 'y', 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        plugins: {{ legend: {{ display: false }} }}
-                    }}
+                    options: {{ indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }} }}
                 }});
             }}
         </script>
@@ -282,7 +266,7 @@ def gerar_html():
     with open(CAMINHO_FINAL_HTML, "w", encoding="utf-8") as f:
         f.write(html_content)
     
-    print(f"Painel Dinâmico gerado! Registros inclusos: {len(df)}")
+    print(f"Relatório gerado e limpo! Total: {len(df)}")
 
 if __name__ == "__main__":
     gerar_html()
