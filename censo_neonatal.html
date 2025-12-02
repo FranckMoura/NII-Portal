@@ -107,13 +107,13 @@
     let pacientes = [];
 
     window.onload = function() {
-        // Define data atual
+        // Define o mês atual (ex: 2025-06)
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
-        // Carrega do navegador
+        // Carrega dados salvos
         const dadosSalvos = localStorage.getItem('censo_uti_v2');
         if (dadosSalvos) {
             pacientes = JSON.parse(dadosSalvos);
@@ -126,7 +126,6 @@
         renderizarTabela();
     }
 
-    // --- FUNÇÃO DE IMPORTAR (QUE ESTAVA FALTANDO) ---
     function processarImportacao(input) {
         const arquivo = input.files[0];
         if (!arquivo) return;
@@ -136,29 +135,29 @@
             try {
                 const dadosImportados = JSON.parse(e.target.result);
                 if (Array.isArray(dadosImportados)) {
-                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nDeseja SUBSTITUIR tudo (OK) ou ADICIONAR (Cancelar)?`)) {
+                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nOK = SUBSTITUIR TUDO (Limpa o atual)\nCancelar = ADICIONAR aos existentes`)) {
                         pacientes = dadosImportados;
                     } else {
                         pacientes = pacientes.concat(dadosImportados);
                     }
                     salvarDados();
-                    alert("Importação realizada com sucesso!");
+                    alert("Dados importados e corrigidos!");
                 } else {
                     alert("Arquivo inválido.");
                 }
             } catch (erro) {
-                alert("Erro ao ler o arquivo.");
+                alert("Erro ao ler JSON.");
             }
-            input.value = ''; // Limpa para permitir reimportar
+            input.value = '';
         };
         leitor.readAsText(arquivo);
     }
 
-    // --- Lógica de Datas ---
+    // --- MANIPULAÇÃO DE DATAS ---
     function criarData(dataString) {
         if (!dataString) return null;
         const [ano, mes, dia] = dataString.split('-').map(Number);
-        // Força meio-dia para evitar bug de fuso horário
+        // Define horário 12:00 para evitar problemas de fuso horário
         return new Date(ano, mes - 1, dia, 12, 0, 0); 
     }
 
@@ -168,6 +167,7 @@
         return `${d}/${m}/${a}`;
     }
 
+    // --- CORAÇÃO DO SISTEMA (RENDERIZAÇÃO) ---
     function renderizarTabela() {
         const tbody = document.getElementById('tabelaPacientes');
         tbody.innerHTML = '';
@@ -176,6 +176,8 @@
         if (!refInput) return;
 
         const [refAno, refMes] = refInput.split('-').map(Number);
+        
+        // Define intervalo do Mês Selecionado
         const inicioMes = new Date(refAno, refMes - 1, 1, 12, 0, 0); 
         const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); 
 
@@ -183,44 +185,77 @@
         let totalSaidas = 0;
         let totalObitos = 0;
 
+        // Ordena: Internados primeiro, depois mais recentes
+        pacientes.sort((a,b) => {
+            if (a.saida === '' && b.saida !== '') return -1;
+            if (a.saida !== '' && b.saida === '') return 1;
+            return a.nome.localeCompare(b.nome);
+        });
+
         pacientes.forEach((p, index) => {
             const dtAdm = criarData(p.admissao);
             const dtSaida = p.saida ? criarData(p.saida) : null;
             
-            let diasCalc = 0;
-            if (dtAdm && dtAdm <= fimMes) {
-                const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
-                let fimContagem = fimMes;
-                if (dtSaida && dtSaida < fimMes) {
-                    fimContagem = dtSaida;
-                }
+            // --- FILTRO DE EXIBIÇÃO ---
+            // 1. Se saiu ANTES deste mês começar -> NÃO MOSTRA
+            if (dtSaida && dtSaida < inicioMes) return;
 
-                // Se saiu antes do mês começar, dias = 0
-                if (dtSaida && dtSaida < inicioMes) {
-                    diasCalc = 0;
-                } else {
-                    const diffTempo = fimContagem - inicioContagem;
-                    const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
-                    if (diffDias >= 0) diasCalc = diffDias + 1;
-                }
+            // 2. Se foi admitido DEPOIS deste mês acabar -> NÃO MOSTRA
+            if (dtAdm > fimMes) return;
+
+            // --- CÁLCULO DE DIAS ---
+            let diasCalc = 0;
+            
+            // Início da contagem: O que for maior (Inicio do Mês ou Data de Admissão)
+            const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
+            
+            // Fim da contagem: O que for menor (Fim do Mês ou Data de Saída)
+            // Se não tiver saída, considera que ficou até o fim do mês
+            let fimContagem = fimMes;
+            if (dtSaida && dtSaida < fimMes) {
+                fimContagem = dtSaida;
             }
 
+            // Cálculo matemático
+            const diffTempo = fimContagem - inicioContagem;
+            const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
+            
+            // Soma +1 (inclusivo) se o cálculo for válido
+            if (diffDias >= 0) {
+                diasCalc = diffDias + 1;
+            } else {
+                // Caso raro de erro de lógica (data saída < data entrada no mês)
+                diasCalc = 0;
+            }
+
+            // --- CÁLCULO DE INDICADORES ---
             if (diasCalc > 0) {
                 totalDias += diasCalc;
+                
+                // Verifica se a saída foi NESTE mês exato
                 if (dtSaida && dtSaida >= inicioMes && dtSaida <= fimMes) {
                     totalSaidas++;
-                    if (p.motivo === 'OBITO') totalObitos++;
+                    
+                    // --- CORREÇÃO DO ÓBITO (COM E SEM ACENTO) ---
+                    let motivoStr = (p.motivo || '').toUpperCase();
+                    // Procura por "BITO" (pega OBITO, ÓBITO, OBITO > 24H) ou "FALEC"
+                    if (motivoStr.includes('BITO') || motivoStr.includes('FALEC')) {
+                        totalObitos++;
+                    }
                 }
             }
 
-            // Exibir na tabela: Se teve dias no mês OU se ainda está internado (sem data saida) e entrou antes/durante este mês
-            const mostrarNaTabela = diasCalc > 0 || (!p.saida && dtAdm <= fimMes);
+            // Renderiza na Tabela
+            let corDias = diasCalc > 0 ? '#000' : '#ccc';
+            let bgBadge = 'bg-internado';
+            
+            // Define cor do status
+            let motivoStr = (p.motivo || '').toUpperCase();
+            if (motivoStr.includes('BITO')) bgBadge = 'bg-obito';
+            else if (p.saida) bgBadge = 'bg-alta';
 
-            if (mostrarNaTabela) {
-                let corDias = diasCalc > 0 ? '#000' : '#ccc';
-                let bgBadge = p.motivo === 'OBITO' ? 'bg-obito' : (p.saida ? 'bg-alta' : 'bg-internado');
-                let textoStatus = p.saida ? (p.motivo || 'ALTA') : 'INTERNADO';
-
+            // Só imprime se tiver dias calculados neste mês
+            if (diasCalc > 0) {
                 let html = `
                 <tr>
                     <td><strong>${p.nome}</strong></td>
@@ -228,7 +263,7 @@
                     <td>${formatarDataBR(p.admissao)}</td>
                     <td>${formatarDataBR(p.saida)}</td>
                     <td style="text-align:center; font-weight:bold; color:${corDias}">${diasCalc}</td>
-                    <td><span class="badge ${bgBadge}">${textoStatus}</span></td>
+                    <td><span class="badge ${bgBadge}">${p.motivo || 'INTERNADO'}</span></td>
                     <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
                 </tr>`;
                 tbody.innerHTML += html;
