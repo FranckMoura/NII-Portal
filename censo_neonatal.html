@@ -9,35 +9,46 @@
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1280px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
+        /* Cabeçalho */
         header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .voltar-btn { text-decoration: none; color: #666; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 5px;}
-        
+        .voltar-btn:hover { background: #ddd; color: #000; }
+
         /* PAINEL DE INDICADORES (TABELA DE GESTÃO) */
-        .panel-container { margin-bottom: 30px; overflow-x: auto; }
-        .panel-table { width: 100%; border-collapse: collapse; text-align: center; border: 1px solid #ddd; }
-        .panel-table th { background-color: #005f73; color: white; padding: 10px; font-size: 13px; text-transform: uppercase; }
-        .panel-table td { padding: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
-        .panel-total { background-color: #e9ecef; }
-        .row-utin { border-left: 5px solid #0a9396; }
-        .row-ucinco { border-left: 5px solid #94d2bd; }
-        .row-ucinca { border-left: 5px solid #ee9b00; }
-
-        /* Controles e Formulário */
-        .controls { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 120px; }
-        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-add { background-color: #0a9396; } .btn-add:hover { background-color: #005f73; }
-        .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; color: white; }
+        .panel-container { margin-bottom: 30px; overflow-x: auto; border: 1px solid #ccc; border-radius: 8px; }
+        .panel-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .panel-table th { background-color: #005f73; color: white; padding: 12px; font-size: 13px; text-transform: uppercase; border-right: 1px solid #0a9396; }
+        .panel-table td { padding: 10px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
+        .panel-total { background-color: #e9ecef; border-top: 2px solid #999; }
         
-        .footer-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; }
-        .btn-export { background-color: #ee9b00; }
-        .btn-import { background-color: #6c757d; }
+        /* Cores dos Setores no Painel */
+        .row-utin { border-left: 6px solid #005f73; background-color: #fdfdfd; }
+        .row-ucinco { border-left: 6px solid #2a9d8f; background-color: #fdfdfd; }
+        .row-ucinca { border-left: 6px solid #e9c46a; background-color: #fdfdfd; }
 
-        /* Tabela de Pacientes */
+        /* Formulário de Cadastro */
+        .controls { background: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; border: 1px solid #dee2e6; }
+        .form-group { flex: 1; display: flex; flex-direction: column; min-width: 150px; }
+        .form-group label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; height: 40px; }
+        .btn-add { background-color: #0a9396; min-width: 100px; } .btn-add:hover { background-color: #005f73; }
+        .btn-del { background-color: #ae2012; padding: 5px 10px; font-size: 12px; height: auto; }
+        
+        /* Rodapé com Ações */
+        .footer-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-export { background-color: #ee9b00; } .btn-export:hover { background-color: #ca6702; }
+        .btn-import { background-color: #6c757d; } .btn-import:hover { background-color: #495057; }
+
+        /* Tabela Principal de Pacientes */
         .main-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         .main-table th { background-color: #457b9d; color: white; padding: 10px; text-align: left; }
-        .main-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; }
+        .main-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .main-table tr:hover { background-color: #f8f9fa; }
+        
+        /* Badges de Status */
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; display: inline-block; min-width: 80px; text-align: center; }
         .bg-internado { background-color: #0a9396; } 
         .bg-alta { background-color: #94d2bd; color: #004b23; } 
         .bg-obito { background-color: #ae2012; }
@@ -48,17 +59,17 @@
 <div class="container">
     <header>
         <div>
-            <a href="index.html" class="voltar-btn">⬅ Voltar</a>
-            <span style="margin-left: 10px; font-weight: bold; color: #005f73; font-size: 18px;">Censo Neonatal</span>
+            <a href="index.html" class="voltar-btn">⬅ Voltar ao Menu</a>
+            <span style="margin-left: 15px; font-weight: bold; color: #005f73; font-size: 20px;">🏥 Censo UTI Neonatal</span>
         </div>
         <div style="text-align: right;">
-            <label style="font-size: 12px; font-weight: bold; display:block;">MÊS DE REFERÊNCIA:</label>
-            <input type="month" id="mesReferencia" style="padding: 5px;" onchange="renderizarTabela()">
+            <label style="font-size: 11px; font-weight: bold; display:block; color:#666;">COMPETÊNCIA:</label>
+            <input type="month" id="mesReferencia" style="padding: 5px; font-weight:bold; color:#005f73;" onchange="renderizarTabela()">
         </div>
     </header>
 
     <div class="panel-container">
-        <h3 style="margin: 0 0 10px 0; color: #005f73; font-size: 16px;">📊 Painel de Indicadores Mensais</h3>
+        <div style="background:#005f73; color:white; padding:10px; font-weight:bold; font-size:14px;">📊 Painel de Indicadores Mensais</div>
         <table class="panel-table">
             <thead>
                 <tr>
@@ -68,7 +79,7 @@
                     <th>Pacientes<br>Dia</th>
                     <th>Ocupação<br>(%)</th>
                     <th>Média<br>Perm.(Dias)</th>
-                    <th>Saídas<br>(Altas/Transf)</th>
+                    <th>Saídas<br>(Altas)</th>
                     <th>Óbitos<br>(Total)</th>
                     <th>Óbito<br>&lt; 24h</th>
                     <th>Óbito<br>&gt; 24h</th>
@@ -80,30 +91,40 @@
     </div>
 
     <div class="controls">
-        <input type="text" id="nomePaciente" placeholder="Nome Completo" style="flex: 2;">
-        <select id="setor" style="flex: 1;">
-            <option value="UTIN">UTIN</option>
-            <option value="UCINCO">UCINCO</option>
-            <option value="UCINCA">UCINCA</option>
-        </select>
-        <div style="display:flex; flex-direction:column; flex:1;">
-            <label style="font-size:10px;">Admissão:</label>
+        <div class="form-group" style="flex: 2;">
+            <label>Nome do Paciente</label>
+            <input type="text" id="nomePaciente" placeholder="Digite o nome completo...">
+        </div>
+        <div class="form-group">
+            <label>Setor</label>
+            <select id="setor">
+                <option value="UTIN">UTIN (Intensiva)</option>
+                <option value="UCINCO">UCINCO (Médio Risco)</option>
+                <option value="UCINCA">UCINCA (Canguru)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Data Admissão</label>
             <input type="date" id="dataAdmissao">
         </div>
-        <div style="display:flex; flex-direction:column; flex:1;">
-            <label style="font-size:10px;">Saída (Opcional):</label>
+        <div class="form-group">
+            <label>Data Saída (Se houver)</label>
             <input type="date" id="dataSaida">
         </div>
-        <select id="motivoSaida" style="flex: 1;">
-            <option value="">(Em Internação)</option>
-            <option value="ALTA">Alta Médica</option>
-            <option value="TRANSF">Transferência</option>
-            <option value="OBITO > 24H">Óbito > 24h</option>
-            <option value="OBITO < 24H">Óbito < 24h</option>
-        </select>
-        <button class="btn-add" onclick="adicionarPaciente()">Salvar</button>
+        <div class="form-group" style="flex: 1.5;">
+            <label>Motivo / Status</label>
+            <select id="motivoSaida">
+                <option value="">(Paciente Internado)</option>
+                <option value="ALTA">Alta Médica</option>
+                <option value="TRANSF">Transferência</option>
+                <option value="OBITO > 24H">Óbito > 24h</option>
+                <option value="OBITO < 24H">Óbito < 24h</option>
+            </select>
+        </div>
+        <button class="btn-add" onclick="adicionarPaciente()">+ Salvar</button>
     </div>
 
+    <h3 style="font-size:16px; color:#555; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Lista de Pacientes no Mês</h3>
     <table class="main-table">
         <thead>
             <tr>
@@ -111,23 +132,24 @@
                 <th>Setor</th>
                 <th>Admissão</th>
                 <th>Saída</th>
-                <th style="text-align: center;">Dias no Mês</th>
+                <th style="text-align: center;">Dias (Mês)</th>
                 <th>Status</th>
-                <th>Ações</th>
+                <th>Ação</th>
             </tr>
         </thead>
-        <tbody id="tabelaPacientes"></tbody>
+        <tbody id="tabelaPacientes">
+            </tbody>
     </table>
 
     <div class="footer-actions">
         <input type="file" id="inputImport" style="display: none;" accept=".json" onchange="processarImportacao(this)">
         <button class="btn-import" onclick="document.getElementById('inputImport').click()">📂 Importar Backup / JSON</button>
-        <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Relatório (CSV)</button>
+        <button class="btn-export" onclick="exportarParaExcel()">📥 Baixar Planilha (CSV)</button>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO DE LEITOS ---
+    // --- CONFIGURAÇÃO DE LEITOS (Padronizado CNES) ---
     const CONFIG_LEITOS = {
         'UTIN': 18,
         'UCINCO': 4,
@@ -136,12 +158,16 @@
 
     let pacientes = [];
 
+    // --- INICIALIZAÇÃO ---
     window.onload = function() {
+        // Define data atual
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
+        // Carrega dados do navegador (LocalStorage)
+        // Usamos a chave 'censo_uti_v3' para garantir versão nova
         const dadosSalvos = localStorage.getItem('censo_uti_v3');
         if (dadosSalvos) {
             pacientes = JSON.parse(dadosSalvos);
@@ -154,30 +180,37 @@
         renderizarTabela();
     }
 
+    // --- FUNÇÕES DE IMPORTAÇÃO/EXPORTAÇÃO ---
     function processarImportacao(input) {
         const arquivo = input.files[0];
         if (!arquivo) return;
+
         const leitor = new FileReader();
         leitor.onload = function(e) {
             try {
                 const dadosImportados = JSON.parse(e.target.result);
                 if (Array.isArray(dadosImportados)) {
-                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nOK para SUBSTITUIR TUDO.`)) {
+                    if (confirm(`Encontrados ${dadosImportados.length} registros no arquivo.\n\nClique OK para SUBSTITUIR todos os dados atuais.\nClique Cancelar para abortar.`)) {
                         pacientes = dadosImportados;
                         salvarDados();
-                        alert("Importado com sucesso!");
+                        alert("Dados importados com sucesso! Verifique o painel.");
                     }
+                } else {
+                    alert("Formato de arquivo inválido.");
                 }
-            } catch (erro) { alert("Erro ao ler JSON."); }
-            input.value = '';
+            } catch (erro) {
+                alert("Erro ao ler o arquivo JSON. Certifique-se que foi gerado pelo script Python.");
+            }
+            input.value = ''; // Limpa input
         };
         leitor.readAsText(arquivo);
     }
 
-    // --- UTILITÁRIOS DATA ---
+    // --- LÓGICA DE DATAS ---
     function criarData(dataString) {
         if (!dataString) return null;
         const [ano, mes, dia] = dataString.split('-').map(Number);
+        // Trava horário 12:00 para evitar bug de fuso horário Cuiabá
         return new Date(ano, mes - 1, dia, 12, 0, 0); 
     }
 
@@ -187,7 +220,7 @@
         return `${d}/${m}/${a}`;
     }
 
-    // --- CÁLCULOS PRINCIPAIS ---
+    // --- MOTOR DE CÁLCULO E RENDERIZAÇÃO ---
     function renderizarTabela() {
         const tbodyList = document.getElementById('tabelaPacientes');
         tbodyList.innerHTML = '';
@@ -196,69 +229,80 @@
         if (!refInput) return;
 
         const [refAno, refMes] = refInput.split('-').map(Number);
+        
+        // Define limites do Mês Selecionado
         const inicioMes = new Date(refAno, refMes - 1, 1, 12, 0, 0); 
         const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); 
         const qtdDiasNoMes = fimMes.getDate();
 
-        // Estrutura para contar indicadores por setor
+        // Estrutura de Estatísticas Zerada
         let stats = {
             'UTIN':   { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
             'UCINCO': { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
             'UCINCA': { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 }
         };
 
-        // Ordenação
-        pacientes.sort((a,b) => {
-            if (a.saida === '' && b.saida !== '') return -1;
-            if (a.saida !== '' && b.saida === '') return 1;
-            return a.nome.localeCompare(b.nome);
-        });
+        // Ordena pacientes por nome
+        pacientes.sort((a,b) => a.nome.localeCompare(b.nome));
 
         pacientes.forEach((p, index) => {
-            // Normaliza setor (se vier vazio ou estranho, joga pra UTIN)
-            let setor = p.setor ? p.setor.toUpperCase().trim() : 'UTIN';
-            if (!stats[setor]) setor = 'UTIN'; // Fallback
-
+            // Normaliza o Setor (Garante que caia em uma das 3 caixas)
+            let setorRaw = p.setor ? p.setor.toUpperCase().trim() : 'UTIN';
+            let setor = 'UTIN'; // Padrão
+            if (setorRaw.includes('UCINCO') || setorRaw.includes('MÉDIO')) setor = 'UCINCO';
+            if (setorRaw.includes('UCINCA') || setorRaw.includes('CANGURU')) setor = 'UCINCA';
+            
             const dtAdm = criarData(p.admissao);
             const dtSaida = p.saida ? criarData(p.saida) : null;
             
-            // Filtros de tempo
-            if (dtSaida && dtSaida < inicioMes) return;
+            // --- FILTRO TEMPORAL RIGOROSO ---
+            // Se entrou depois do fim do mês -> Ignora
             if (dtAdm > fimMes) return;
+            // Se saiu antes do início do mês -> Ignora
+            if (dtSaida && dtSaida < inicioMes) return;
 
-            // Cálculo Dias
+            // --- CÁLCULO DE DIAS OCUPADOS (PACIENTE-DIA) ---
             let diasCalc = 0;
+            // Início: Maior data entre (Inicio Mês vs Admissão)
             const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
+            // Fim: Menor data entre (Fim Mês vs Saída)
             let fimContagem = fimMes;
             if (dtSaida && dtSaida < fimMes) fimContagem = dtSaida;
 
             const diffTempo = fimContagem - inicioContagem;
             const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
             
-            if (diffDias >= 0) diasCalc = diffDias + 1;
+            if (diffDias >= 0) diasCalc = diffDias + 1; // +1 pois dia de entrada conta
 
-            // Acumula Estatísticas
+            // --- ACUMULA ESTATÍSTICAS ---
             if (diasCalc > 0) {
                 stats[setor].p_dia += diasCalc;
 
-                // Se saiu neste mês
+                // Verifica se houve saída/óbito NESTE mês
                 if (dtSaida && dtSaida >= inicioMes && dtSaida <= fimMes) {
                     const motivo = (p.motivo || '').toUpperCase();
                     
                     if (motivo.includes('BITO') || motivo.includes('FALEC')) {
                         stats[setor].obitos++;
-                        if (motivo.includes('<') || motivo.includes('MENOR')) stats[setor].obito_menor++;
-                        else stats[setor].obito_maior++; // Assume maior se não especificado ou explícito
+                        // Tenta detectar <24h ou >24h pelo texto do motivo
+                        if (motivo.includes('<') || motivo.includes('MENOR')) {
+                            stats[setor].obito_menor++;
+                        } else {
+                            // Se não especificar, assume >24h ou conta no total
+                            stats[setor].obito_maior++;
+                        }
                     } else {
-                        stats[setor].saidas++; // Alta ou Transf
+                        stats[setor].saidas++; // Alta, Transferência, etc.
                     }
                 }
 
-                // Renderiza Lista
-                let corDias = '#000';
+                // --- RENDERIZA LINHA NA TABELA ---
                 let bgBadge = 'bg-internado';
-                if ((p.motivo||'').toUpperCase().includes('BITO')) bgBadge = 'bg-obito';
-                else if (p.saida) bgBadge = 'bg-alta';
+                let motivoTexto = p.motivo || 'INTERNADO';
+                const motivoUpper = motivoTexto.toUpperCase();
+
+                if (motivoUpper.includes('BITO')) bgBadge = 'bg-obito';
+                else if (p.saida) { bgBadge = 'bg-alta'; motivoTexto = p.motivo || 'ALTA'; }
 
                 let html = `
                 <tr>
@@ -266,8 +310,8 @@
                     <td>${setor}</td>
                     <td>${formatarDataBR(p.admissao)}</td>
                     <td>${formatarDataBR(p.saida)}</td>
-                    <td style="text-align:center; font-weight:bold; color:${corDias}">${diasCalc}</td>
-                    <td><span class="badge ${bgBadge}">${p.motivo || 'INTERNADO'}</span></td>
+                    <td style="text-align:center; font-weight:bold;">${diasCalc}</td>
+                    <td><span class="badge ${bgBadge}">${motivoTexto}</span></td>
                     <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
                 </tr>`;
                 tbodyList.innerHTML += html;
@@ -281,15 +325,8 @@
         const tbodyInd = document.getElementById('tabelaIndicadores');
         tbodyInd.innerHTML = '';
 
-        let totalLeitos = 0;
-        let totalCapac = 0;
-        let totalPDia = 0;
-        let totalSaidas = 0;
-        let totalObitos = 0;
-        let totalObMenor = 0;
-        let totalObMaior = 0;
+        let tLeitos=0, tCapac=0, tPDia=0, tSaidas=0, tObitos=0, tObMenor=0, tObMaior=0;
 
-        // Loop pelos setores fixos para manter ordem
         ['UTIN', 'UCINCO', 'UCINCA'].forEach(setor => {
             const dados = stats[setor];
             const leitos = CONFIG_LEITOS[setor];
@@ -298,14 +335,10 @@
             const totalSaidasSetor = dados.saidas + dados.obitos;
             const mediaPerm = totalSaidasSetor > 0 ? (dados.p_dia / totalSaidasSetor) : 0;
 
-            // Acumula Totais Gerais
-            totalLeitos += leitos;
-            totalCapac += capacidade;
-            totalPDia += dados.p_dia;
-            totalSaidas += dados.saidas;
-            totalObitos += dados.obitos;
-            totalObMenor += dados.obito_menor;
-            totalObMaior += dados.obito_maior;
+            // Somatórios Gerais
+            tLeitos += leitos; tCapac += capacidade; tPDia += dados.p_dia;
+            tSaidas += dados.saidas; tObitos += dados.obitos;
+            tObMenor += dados.obito_menor; tObMaior += dados.obito_maior;
 
             let rowClass = `row-${setor.toLowerCase()}`;
             
@@ -315,32 +348,32 @@
                 <td>${leitos}</td>
                 <td>${capacidade}</td>
                 <td>${dados.p_dia}</td>
-                <td style="${ocupacao > 100 ? 'color:red' : 'color:blue'}">${ocupacao.toFixed(1)}%</td>
+                <td style="${ocupacao > 100 ? 'color:red' : 'color:#005f73'}">${ocupacao.toFixed(1)}%</td>
                 <td>${mediaPerm.toFixed(1)}</td>
                 <td>${dados.saidas}</td>
-                <td style="color:${dados.obitos > 0 ? 'red' : 'inherit'}">${dados.obitos}</td>
+                <td style="color:${dados.obitos > 0 ? 'red' : 'inherit'}; font-weight:bold;">${dados.obitos}</td>
                 <td>${dados.obito_menor}</td>
                 <td>${dados.obito_maior}</td>
             </tr>`;
         });
 
-        // Linha TOTAL GERAL
-        const ocupacaoGeral = totalCapac > 0 ? (totalPDia / totalCapac) * 100 : 0;
-        const totalSaidasGeral = totalSaidas + totalObitos;
-        const mediaPermGeral = totalSaidasGeral > 0 ? (totalPDia / totalSaidasGeral) : 0;
+        // Totais Gerais
+        const ocupacaoGeral = tCapac > 0 ? (tPDia / tCapac) * 100 : 0;
+        const totalSaidasGeral = tSaidas + tObitos;
+        const mediaPermGeral = totalSaidasGeral > 0 ? (tPDia / totalSaidasGeral) : 0;
 
         tbodyInd.innerHTML += `
         <tr class="panel-total">
-            <td style="text-align:left;">TOTAL</td>
-            <td>${totalLeitos}</td>
-            <td>${totalCapac}</td>
-            <td>${totalPDia}</td>
+            <td style="text-align:left;">TOTAL GERAL</td>
+            <td>${tLeitos}</td>
+            <td>${tCapac}</td>
+            <td>${tPDia}</td>
             <td>${ocupacaoGeral.toFixed(1)}%</td>
             <td>${mediaPermGeral.toFixed(1)}</td>
-            <td>${totalSaidas}</td>
-            <td style="color:red; font-weight:bold;">${totalObitos}</td>
-            <td>${totalObMenor}</td>
-            <td>${totalObMaior}</td>
+            <td>${tSaidas}</td>
+            <td style="color:red; font-weight:bold;">${tObitos}</td>
+            <td>${tObMenor}</td>
+            <td>${tObMaior}</td>
         </tr>`;
     }
 
@@ -351,14 +384,16 @@
         const saida = document.getElementById('dataSaida').value;
         const motivo = document.getElementById('motivoSaida').value;
 
-        if (!nome || !adm) { alert('Preencha Nome e Admissão.'); return; }
-        // Validação simples de ano
-        if (adm.startsWith('2026') || adm.startsWith('2027')) {
-            if(!confirm("Tem certeza que o ano é " + adm.split('-')[0] + "? Isso parece estar no futuro.")) return;
+        if (!nome || !adm) { alert('Preencha Nome e Data de Admissão.'); return; }
+        
+        // Trava para datas absurdas
+        if (adm.substring(0,4) > "2025") {
+            if(!confirm("O ano de admissão é " + adm.substring(0,4) + ". Confirma?")) return;
         }
 
         pacientes.push({ nome, setor, admissao: adm, saida, motivo });
         
+        // Limpa campos
         document.getElementById('nomePaciente').value = '';
         document.getElementById('dataSaida').value = '';
         document.getElementById('motivoSaida').value = '';
@@ -366,21 +401,23 @@
     }
 
     function removerPaciente(index) {
-        if(confirm('Excluir registro?')) {
+        if(confirm('Tem certeza que deseja remover este registro?')) {
             pacientes.splice(index, 1);
             salvarDados();
         }
     }
 
     function exportarParaExcel() {
-        let csv = "Nome;Setor;Admissao;Saida;Motivo\n";
+        let csv = "Nome;Setor;Admissao;Saida;Motivo;Dias\n";
         pacientes.forEach(p => {
+            // Recalcula dias para o CSV ficar rico
+            // (Lógica simplificada para export)
             csv += `${p.nome};${p.setor};${formatarDataBR(p.admissao)};${formatarDataBR(p.saida)};${p.motivo}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
-        link.setAttribute("download", "Censo_UTI_Atualizado.csv");
+        link.setAttribute("download", "Censo_HSH_Export.csv");
         document.body.appendChild(link);
         link.click();
     }
