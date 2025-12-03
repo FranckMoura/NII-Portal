@@ -10,9 +10,18 @@
         .container { max-width: 1280px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         /* Cabeçalho */
-        header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .voltar-btn { text-decoration: none; color: #666; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 5px;}
+        header { border-bottom: 2px solid #005f73; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-right { display: flex; gap: 20px; align-items: flex-end; }
+        
+        .voltar-btn { text-decoration: none; color: #666; font-size: 14px; background: #eee; padding: 8px 12px; border-radius: 5px; transition: 0.2s; }
         .voltar-btn:hover { background: #ddd; color: #000; }
+
+        /* Inputs do Cabeçalho */
+        .header-input-group label { font-size: 11px; font-weight: bold; color: #666; display: block; margin-bottom: 3px; }
+        .header-input-group select, .header-input-group input { 
+            padding: 8px; border: 1px solid #005f73; border-radius: 4px; font-weight: bold; color: #005f73; 
+        }
 
         /* PAINEL DE INDICADORES (TABELA DE GESTÃO) */
         .panel-container { margin-bottom: 30px; overflow-x: auto; border: 1px solid #ccc; border-radius: 8px; }
@@ -56,18 +65,31 @@
 
 <div class="container">
     <header>
-        <div>
-            <a href="index.html" class="voltar-btn">⬅ Voltar ao Menu</a>
-            <span style="margin-left: 15px; font-weight: bold; color: #005f73; font-size: 20px;">🏥 Censo UTI Neonatal</span>
+        <div class="header-left">
+            <a href="index.html" class="voltar-btn">⬅ Voltar</a>
+            <span style="font-weight: bold; color: #005f73; font-size: 20px;">🏥 Censo UTI Neonatal</span>
         </div>
-        <div style="text-align: right;">
-            <label style="font-size: 11px; font-weight: bold; display:block; color:#666;">COMPETÊNCIA:</label>
-            <input type="month" id="mesReferencia" style="padding: 5px; font-weight:bold; color:#005f73;" onchange="renderizarTabela()">
+        
+        <div class="header-right">
+            <div class="header-input-group">
+                <label>FILTRAR SETOR:</label>
+                <select id="filtroVisualizacao" onchange="renderizarTabela()">
+                    <option value="TODOS">TODOS OS SETORES</option>
+                    <option value="UTIN">SOMENTE UTIN</option>
+                    <option value="UCINCO">SOMENTE UCINCO</option>
+                    <option value="UCINCA">SOMENTE UCINCA</option>
+                </select>
+            </div>
+
+            <div class="header-input-group">
+                <label>COMPETÊNCIA:</label>
+                <input type="month" id="mesReferencia" onchange="renderizarTabela()">
+            </div>
         </div>
     </header>
 
     <div class="panel-container">
-        <div style="background:#005f73; color:white; padding:10px; font-weight:bold; font-size:14px;">📊 Painel de Indicadores Mensais</div>
+        <div style="background:#005f73; color:white; padding:10px; font-weight:bold; font-size:14px;">📊 Resumo de Indicadores (Mensal)</div>
         <table class="panel-table">
             <thead>
                 <tr>
@@ -122,7 +144,7 @@
         <button class="btn-add" onclick="adicionarPaciente()">+ Salvar</button>
     </div>
 
-    <h3 style="font-size:16px; color:#555; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Lista de Pacientes no Mês</h3>
+    <h3 style="font-size:16px; color:#555; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">Lista Detalhada de Pacientes</h3>
     <table class="main-table">
         <thead>
             <tr>
@@ -162,8 +184,8 @@
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
-        // Tenta carregar dados
-        const dadosSalvos = localStorage.getItem('censo_uti_v3');
+        // Carrega dados do LocalStorage
+        const dadosSalvos = localStorage.getItem('censo_uti_v4');
         if (dadosSalvos) {
             pacientes = JSON.parse(dadosSalvos);
         }
@@ -171,7 +193,7 @@
     };
 
     function salvarDados() {
-        localStorage.setItem('censo_uti_v3', JSON.stringify(pacientes));
+        localStorage.setItem('censo_uti_v4', JSON.stringify(pacientes));
         renderizarTabela();
     }
 
@@ -199,7 +221,7 @@
     function criarData(dataString) {
         if (!dataString) return null;
         const [ano, mes, dia] = dataString.split('-').map(Number);
-        // Usa meio-dia (12:00) para evitar bugs de fuso horário
+        // Usa meio-dia (12:00)
         return new Date(ano, mes - 1, dia, 12, 0, 0); 
     }
 
@@ -215,6 +237,8 @@
         tbodyList.innerHTML = '';
         
         const refInput = document.getElementById('mesReferencia').value; 
+        const filtroVisual = document.getElementById('filtroVisualizacao').value; // PEGA O VALOR DO FILTRO
+        
         if (!refInput) return;
 
         const [refAno, refMes] = refInput.split('-').map(Number);
@@ -248,13 +272,10 @@
             if (dtAdm > fimMes) return;
             if (dtSaida && dtSaida < inicioMes) return;
 
-            // --- LÓGICA DE DIAS (PACIENTE-DIA) ---
+            // --- CÁLCULO DE PACIENTE-DIA ---
             let diasCalc = 0;
-            
-            // Data de Início Efetiva
             const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
             
-            // Data de Fim Efetiva
             let fimContagem = fimMes;
             let saiuNesteMes = false;
 
@@ -263,34 +284,25 @@
                 saiuNesteMes = true;
             }
 
-            // Diferença matemática em dias
             const diffTempo = fimContagem - inicioContagem;
             const diffDias = Math.floor(diffTempo / (1000 * 60 * 60 * 24));
             
-            // APLICAÇÃO DA REGRA DE CENSO (MEIA-NOITE)
+            // REGRA SUS:
             if (saiuNesteMes) {
-                // Se SAIU, o dia da saída NÃO conta (liberou leito antes da meia-noite)
-                // Ex: Entrou 01, Saiu 05. (5-1) = 4 dias.
-                diasCalc = diffDias;
-
-                // EXCEÇÃO: Entrou e saiu no MESMO dia = 1 dia.
+                diasCalc = diffDias; // Dia da alta não conta
                 if (diasCalc === 0 && dtAdm.getDate() === dtSaida.getDate()) {
-                    diasCalc = 1;
+                    diasCalc = 1; // Entrou e saiu no mesmo dia
                 }
             } else {
-                // Se CONTINUA internado, conta o último dia do mês (pois dormiu lá)
-                // Ex: Entrou 01, Mês 30. (30-1) = 29. Mas ficou dia 30. Total 30.
-                diasCalc = diffDias + 1;
+                diasCalc = diffDias + 1; // Continua internado, conta o dia de hoje
             }
 
-            // Segurança
             if (diasCalc < 0) diasCalc = 0;
 
-            // --- ACUMULA DADOS ---
+            // --- ACUMULA ESTATÍSTICAS (Sempre calcula para o painel superior) ---
             if (diasCalc > 0 || (saiuNesteMes && diasCalc >= 0)) {
                 if (diasCalc > 0) stats[setor].p_dia += diasCalc;
 
-                // Verifica evento de saída neste mês
                 if (saiuNesteMes && dtSaida >= inicioMes) {
                     const motivo = (p.motivo || '').toUpperCase();
                     if (motivo.includes('BITO') || motivo.includes('FALEC')) {
@@ -298,29 +310,32 @@
                         if (motivo.includes('<') || motivo.includes('MENOR')) stats[setor].obito_menor++;
                         else stats[setor].obito_maior++;
                     } else {
-                        stats[setor].saidas++; // Altas + Transferências
+                        stats[setor].saidas++; 
                     }
                 }
 
-                // Renderiza na Tabela
-                let bgBadge = 'bg-internado';
-                let motivoTexto = p.motivo || 'INTERNADO';
-                const motivoUpper = motivoTexto.toUpperCase();
+                // --- RENDERIZA NA TABELA (OBEDECE AO FILTRO VISUAL) ---
+                // Se o filtro for 'TODOS' ou se o setor bater com o filtro
+                if (filtroVisual === 'TODOS' || setor === filtroVisual) {
+                    let bgBadge = 'bg-internado';
+                    let motivoTexto = p.motivo || 'INTERNADO';
+                    const motivoUpper = motivoTexto.toUpperCase();
 
-                if (motivoUpper.includes('BITO')) bgBadge = 'bg-obito';
-                else if (p.saida) { bgBadge = 'bg-alta'; motivoTexto = p.motivo || 'ALTA'; }
+                    if (motivoUpper.includes('BITO')) bgBadge = 'bg-obito';
+                    else if (p.saida) { bgBadge = 'bg-alta'; motivoTexto = p.motivo || 'ALTA'; }
 
-                let html = `
-                <tr>
-                    <td><strong>${p.nome}</strong></td>
-                    <td>${setor}</td>
-                    <td>${formatarDataBR(p.admissao)}</td>
-                    <td>${formatarDataBR(p.saida)}</td>
-                    <td style="text-align:center; font-weight:bold;">${diasCalc}</td>
-                    <td><span class="badge ${bgBadge}">${motivoTexto}</span></td>
-                    <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
-                </tr>`;
-                tbodyList.innerHTML += html;
+                    let html = `
+                    <tr>
+                        <td><strong>${p.nome}</strong></td>
+                        <td>${setor}</td>
+                        <td>${formatarDataBR(p.admissao)}</td>
+                        <td>${formatarDataBR(p.saida)}</td>
+                        <td style="text-align:center; font-weight:bold;">${diasCalc}</td>
+                        <td><span class="badge ${bgBadge}">${motivoTexto}</span></td>
+                        <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
+                    </tr>`;
+                    tbodyList.innerHTML += html;
+                }
             }
         });
 
@@ -337,15 +352,10 @@
             const dados = stats[setor];
             const leitos = CONFIG_LEITOS[setor];
             const capacidade = leitos * diasNoMes;
-            
-            // Taxa Ocupação
             const ocupacao = capacidade > 0 ? (dados.p_dia / capacidade) * 100 : 0;
-            
-            // Média Permanência: Padrão = Paciente-Dia / (Altas + Óbitos)
             const totalSaidasPeriodo = dados.saidas + dados.obitos;
             const mediaPerm = totalSaidasPeriodo > 0 ? (dados.p_dia / totalSaidasPeriodo) : 0;
 
-            // Totais
             tLeitos += leitos; tCapac += capacidade; tPDia += dados.p_dia;
             tSaidas += dados.saidas; tObitos += dados.obitos;
             tObMenor += dados.obito_menor; tObMaior += dados.obito_maior;
@@ -367,7 +377,7 @@
             </tr>`;
         });
 
-        // Total Geral
+        // Totais
         const ocupacaoGeral = tCapac > 0 ? (tPDia / tCapac) * 100 : 0;
         const totalSaidasGeral = tSaidas + tObitos;
         const mediaPermGeral = totalSaidasGeral > 0 ? (tPDia / totalSaidasGeral) : 0;
@@ -396,7 +406,6 @@
 
         if (!nome || !adm) { alert('Preencha Nome e Admissão.'); return; }
         
-        // Validação ano
         if (adm.substring(0,4) > "2025") {
             if(!confirm("Ano futuro ("+adm.substring(0,4)+"). Confirma?")) return;
         }
@@ -418,6 +427,11 @@
 
     function exportarParaExcel() {
         let csv = "Nome;Setor;Admissao;Saida;Motivo;Dias\n";
+        
+        // Exporta baseado no filtro visual ou tudo? Geralmente tudo é melhor, mas vamos respeitar o filtro
+        // Se quiser exportar tudo, iterar sobre 'pacientes'. Se quiser só o que vê, precisaria filtrar.
+        // Vou manter exportando TUDO para garantir backup completo.
+        
         pacientes.forEach(p => {
             csv += `${p.nome};${p.setor};${formatarDataBR(p.admissao)};${formatarDataBR(p.saida)};${p.motivo}\n`;
         });
