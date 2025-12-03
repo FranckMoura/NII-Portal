@@ -1,6 +1,7 @@
 import time
 import os
 import shutil
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -12,163 +13,143 @@ from webdriver_manager.chrome import ChromeDriverManager
 # --- CONFIGURAÇÕES ---
 URL_TABNET = "http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sih/cnv/qgmt.def"
 MEU_CNES = "2311682"
-PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1\Tabnet_Export"
+PASTA_TEMP = r"C:\Users\DELL\OneDrive\NII-Portal-1\Tabnet_Temp"
 PASTA_FINAL = "arquivos"
 ARQUIVO_FINAL = "tabnet_producao_detalhada.csv"
-PASTA_DOWNLOADS_WIN = os.path.join(os.path.expanduser("~"), "Downloads")
+# Lista de meses para baixar (Ajuste conforme necessário)
+MESES_ALVO = ["Jan/2025", "Fev/2025", "Mar/2025", "Abr/2025", "Mai/2025", "Jun/2025", "Jul/2025", "Ago/2025", "Set/2025", "Out/2025", "Nov/2025"]
 
-print("--- ROBÔ TABNET V9 (MUDANÇA DE ABA) ---")
+print("--- ROBÔ TABNET V10 (LOOP MENSAL) ---")
 
-# Prepara pasta temporária
-if os.path.exists(PASTA_PROJETO):
-    try: shutil.rmtree(PASTA_PROJETO)
-    except: pass
-os.makedirs(PASTA_PROJETO, exist_ok=True)
+# Prepara pastas
+if os.path.exists(PASTA_TEMP): shutil.rmtree(PASTA_TEMP)
+os.makedirs(PASTA_TEMP, exist_ok=True)
+if not os.path.exists(PASTA_FINAL): os.makedirs(PASTA_FINAL)
 
 options = webdriver.ChromeOptions()
-prefs = {"download.default_directory": PASTA_PROJETO}
+prefs = {"download.default_directory": PASTA_TEMP}
 options.add_experimental_option("prefs", prefs)
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
-try:
-    print(">> Acessando TabNet...")
+# Função para processar um mês
+def baixar_mes(mes_texto):
+    print(f"\n>> Iniciando extração: {mes_texto}...")
     driver.get(URL_TABNET)
-    driver.maximize_window()
-    
-    # Salva a janela original (formulário) para referência
-    janela_original = driver.current_window_handle
     
     wait.until(EC.presence_of_element_located((By.NAME, "Linha")))
 
-    # --- 1. CONFIGURAÇÕES DO FORMULÁRIO ---
-    print(">> Configurando Tabela...")
-    
-    # Linha e Coluna (Seleção segura por texto parcial)
-    driver.execute_script("""
-        var selects = document.getElementsByTagName('select');
-        for(var i=0; i<selects.length; i++) {
-            if(selects[i].name == 'Linha') {
-                for(var j=0; j<selects[i].options.length; j++) {
-                    if(selects[i].options[j].text.includes('Compet')) selects[i].options[j].selected = true;
-                }
-            }
-            if(selects[i].name == 'Coluna') {
-                for(var j=0; j<selects[i].options.length; j++) {
-                    if(selects[i].options[j].text.includes('Procedimento realizado')) selects[i].options[j].selected = true;
-                }
-            }
-        }
-    """)
+    # 1. CONFIGURAÇÃO (Linha=Procedimento, Coluna=Não Ativa)
+    # Isso garante a tabela detalhada igual ao seu arquivo manual
+    try:
+        Select(driver.find_element(By.NAME, "Linha")).select_by_visible_text("Procedimento realizado")
+    except:
+        Select(driver.find_element(By.NAME, "Linha")).select_by_index(1) # Tenta o segundo item
+        
+    Select(driver.find_element(By.NAME, "Coluna")).select_by_visible_text("Não ativa")
 
-    # Valores
-    driver.execute_script("""
-        var opcoes = document.getElementsByName('Incremento')[0].options;
-        for (var i = 0; i < opcoes.length; i++) {
-            var t = opcoes[i].text.toLowerCase();
-            if (t.includes('val') && (t.includes('hosp') || t.includes('prof'))) {
-                opcoes[i].selected = true;
-            }
-        }
-    """)
+    # 2. VALORES (SH, SP, Qtd)
+    select_conteudo = driver.find_element(By.NAME, "Incremento")
+    opcoes = select_conteudo.find_elements(By.TAG_NAME, "option")
+    for opt in opcoes:
+        txt = opt.text.lower()
+        # Seleciona Valor Hosp, Valor Prof e Quantidade (AIH)
+        if ("val" in txt and ("hosp" in txt or "prof" in txt)) or "aih aprov" in txt:
+            if not opt.is_selected(): opt.click()
 
-    # Selecionar Hospital
-    print(f">> Selecionando CNES {MEU_CNES}...")
-    nome_encontrado = driver.execute_script(f"""
+    # 3. SELECIONAR MÊS ESPECÍFICO
+    select_arquivos = Select(driver.find_element(By.NAME, "Arquivos"))
+    select_arquivos.deselect_all() # Limpa seleção padrão
+    try:
+        select_arquivos.select_by_visible_text(mes_texto)
+    except:
+        print(f"   ⚠️ Mês {mes_texto} não disponível no site. Pulando.")
+        return False
+
+    # 4. FILTRAR HOSPITAL
+    # Script JS para achar e clicar no Santa Helena (Mais rápido e seguro)
+    hospital_ok = driver.execute_script(f"""
         var sel = document.getElementsByName('SEstabelecimento')[0];
         sel.selectedIndex = -1;
         for (var i = 0; i < sel.options.length; i++) {{
             if (sel.options[i].text.includes('{MEU_CNES}')) {{
                 sel.options[i].selected = true;
-                return sel.options[i].text;
+                return true;
             }}
         }}
-        return null;
+        return false;
     """)
     
-    if not nome_encontrado:
-        print("⚠️ Selecione MANUALMENTE o hospital agora (15s)...")
-        time.sleep(15)
+    if not hospital_ok:
+        print("   ❌ Hospital não encontrado na lista.")
+        return False
 
-    # --- 2. GERAR TABELA (CLIQUE NO MOSTRA) ---
-    print(">> Clicando em 'Mostra'...")
+    # 5. BAIXAR
     driver.find_element(By.CLASS_NAME, "mostra").click()
     
-    # --- 3. MUDANÇA DE ABA (O PULO DO GATO) ---
-    print(">> Aguardando nova aba abrir...")
-    time.sleep(3) # Dá tempo da nova janela abrir
-    
-    # Lista todas as janelas abertas
-    todas_janelas = driver.window_handles
-    
-    # Troca para a nova janela (a que não é a original)
-    for janela in todas_janelas:
-        if janela != janela_original:
-            driver.switch_to.window(janela)
-            print("✅ Robô mudou o foco para a nova aba (Resultados).")
-            break
-            
-    # --- 4. BAIXAR O CSV NA NOVA ABA ---
-    print(">> Procurando botão CSV na nova aba...")
-    
-    # Tenta rolar até o fim, pois o botão fica lá embaixo
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
+    # Muda para a nova aba
+    janela_original = driver.window_handles[0]
+    driver.switch_to.window(driver.window_handles[-1])
     
     try:
-        # Procura link que tenha .csv ou texto "Cópia como .CSV"
-        link_csv = driver.find_element(By.XPATH, "//a[contains(@href, '.csv') or contains(text(), 'CSV')]")
-        link_csv.click()
-        print("   ✅ Botão CSV clicado!")
+        # Clica no CSV
+        driver.find_element(By.XPATH, "//a[contains(@href, '.csv') or contains(text(), 'CSV')]").click()
+        time.sleep(3)
         
-        print("   ⏳ Aguardando 10 segundos para download...")
-        time.sleep(10)
+        # Renomeia o arquivo baixado
+        nome_final = f"producao_{mes_texto.replace('/', '_')}.csv"
+        arquivos = [f for f in os.listdir(PASTA_TEMP) if f.endswith('.csv') and "producao_" not in f]
         
-        # --- 5. RECUPERAR O ARQUIVO ---
-        arquivo_encontrado = None
-        origem_final = ""
-
-        # Verifica Pasta do Projeto
-        local_files = [f for f in os.listdir(PASTA_PROJETO) if f.endswith('.csv')]
-        if local_files:
-            arquivo_encontrado = local_files[0]
-            origem_final = os.path.join(PASTA_PROJETO, arquivo_encontrado)
-        
-        # Verifica Pasta Downloads (caso o Chrome ignore a config em nova aba)
-        else:
-            print("   ⚠️ Verificando pasta Downloads do Windows...")
-            dl_files = [f for f in os.listdir(PASTA_DOWNLOADS_WIN) if f.endswith('.csv')]
-            dl_files.sort(key=lambda x: os.path.getmtime(os.path.join(PASTA_DOWNLOADS_WIN, x)), reverse=True)
+        if arquivos:
+            os.rename(os.path.join(PASTA_TEMP, arquivos[0]), os.path.join(PASTA_TEMP, nome_final))
+            print(f"   ✅ Download concluído: {nome_final}")
             
-            if dl_files:
-                arquivo_encontrado = dl_files[0]
-                origem_final = os.path.join(PASTA_DOWNLOADS_WIN, arquivo_encontrado)
-
-        # Move e Renomeia
-        if arquivo_encontrado and os.path.exists(origem_final):
-            if not os.path.exists(PASTA_FINAL): os.makedirs(PASTA_FINAL)
-            destino = os.path.join(PASTA_FINAL, ARQUIVO_FINAL)
+            driver.close() # Fecha a aba do relatório
+            driver.switch_to.window(janela_original) # Volta pro formulário
+            return True
             
-            if os.path.exists(destino): os.remove(destino)
-            shutil.copy2(origem_final, destino)
-            
-            # Limpeza
-            if "Downloads" in origem_final:
-                try: os.remove(origem_final)
-                except: pass
-                
-            print(f"\n🏆 VITÓRIA! Arquivo salvo em: arquivos/{ARQUIVO_FINAL}")
-        else:
-            print("❌ ERRO: O arquivo não foi encontrado após o clique.")
-
     except Exception as e:
-        print(f"❌ Erro ao tentar baixar: {e}")
-        driver.save_screenshot("erro_aba_nova.png")
+        print(f"   ❌ Erro ao baixar: {e}")
+        driver.close()
+        driver.switch_to.window(janela_original)
+        return False
+
+# --- EXECUÇÃO DO LOOP ---
+try:
+    for mes in MESES_ALVO:
+        baixar_mes(mes)
+
+    print("\n>> Consolidando arquivos...")
+    # Junta todos os CSVs em um só
+    lista_dfs = []
+    for arquivo in os.listdir(PASTA_TEMP):
+        if arquivo.endswith(".csv"):
+            caminho = os.path.join(PASTA_TEMP, arquivo)
+            try:
+                # O TabNet usa ponto e virgula e encoding latin1
+                df = pd.read_csv(caminho, sep=';', encoding='latin1', skiprows=3, skipfooter=1, engine='python')
+                
+                # Adiciona a coluna de competência baseada no nome do arquivo
+                comp = arquivo.replace("producao_", "").replace(".csv", "").replace("_", "/")
+                df['Competência'] = comp
+                
+                lista_dfs.append(df)
+            except Exception as e:
+                print(f"   ⚠️ Erro ao ler {arquivo}: {e}")
+
+    if lista_dfs:
+        df_final = pd.concat(lista_dfs)
+        caminho_final = os.path.join(PASTA_FINAL, ARQUIVO_FINAL)
+        df_final.to_csv(caminho_final, index=False, sep=';', encoding='utf-8-sig')
+        print(f"🏆 SUCESSO! Arquivo consolidado salvo em: {caminho_final}")
+        print(f"   Total de registros: {len(df_final)}")
+    else:
+        print("❌ Nenhum dado foi baixado.")
 
 except Exception as e:
     print(f"❌ Erro Geral: {e}")
 
 finally:
-    # driver.quit()
-    pass
+    try: driver.quit()
+    except: pass
