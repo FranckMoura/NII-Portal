@@ -15,10 +15,9 @@ MEU_CNES = "2311682"
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1\Tabnet_Export"
 PASTA_FINAL = "arquivos"
 ARQUIVO_FINAL = "tabnet_producao_detalhada.csv"
-# Caminho padrão de Downloads do Windows (Fallback)
 PASTA_DOWNLOADS_WIN = os.path.join(os.path.expanduser("~"), "Downloads")
 
-print("--- ROBÔ TABNET V8 (DOWNLOAD BLINDADO) ---")
+print("--- ROBÔ TABNET V9 (MUDANÇA DE ABA) ---")
 
 # Prepara pasta temporária
 if os.path.exists(PASTA_PROJETO):
@@ -37,11 +36,16 @@ try:
     print(">> Acessando TabNet...")
     driver.get(URL_TABNET)
     driver.maximize_window()
+    
+    # Salva a janela original (formulário) para referência
+    janela_original = driver.current_window_handle
+    
     wait.until(EC.presence_of_element_located((By.NAME, "Linha")))
 
-    # --- 1. CONFIGURAÇÕES ---
+    # --- 1. CONFIGURAÇÕES DO FORMULÁRIO ---
     print(">> Configurando Tabela...")
-    # JS para selecionar sem erro de acentuação
+    
+    # Linha e Coluna (Seleção segura por texto parcial)
     driver.execute_script("""
         var selects = document.getElementsByTagName('select');
         for(var i=0; i<selects.length; i++) {
@@ -58,7 +62,7 @@ try:
         }
     """)
 
-    print(">> Selecionando Valores...")
+    # Valores
     driver.execute_script("""
         var opcoes = document.getElementsByName('Incremento')[0].options;
         for (var i = 0; i < opcoes.length; i++) {
@@ -69,7 +73,7 @@ try:
         }
     """)
 
-    # --- 2. SELECIONAR HOSPITAL ---
+    # Selecionar Hospital
     print(f">> Selecionando CNES {MEU_CNES}...")
     nome_encontrado = driver.execute_script(f"""
         var sel = document.getElementsByName('SEstabelecimento')[0];
@@ -82,87 +86,89 @@ try:
         }}
         return null;
     """)
-
-    if nome_encontrado:
-        print(f"   ✅ Selecionado: {nome_encontrado}")
-    else:
-        print("⚠️ AVISO: Hospital não encontrado via script. Selecione MANUALMENTE agora (15s)!")
+    
+    if not nome_encontrado:
+        print("⚠️ Selecione MANUALMENTE o hospital agora (15s)...")
         time.sleep(15)
 
-    # --- 3. GERAR E BAIXAR ---
-    print(">> Gerando dados...")
+    # --- 2. GERAR TABELA (CLIQUE NO MOSTRA) ---
+    print(">> Clicando em 'Mostra'...")
     driver.find_element(By.CLASS_NAME, "mostra").click()
     
-    print(">> Aguardando tabela...")
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "table")))
+    # --- 3. MUDANÇA DE ABA (O PULO DO GATO) ---
+    print(">> Aguardando nova aba abrir...")
+    time.sleep(3) # Dá tempo da nova janela abrir
     
-    print(">> Tentando baixar CSV...")
-    # Tenta clicar e retorna se achou o botão
-    clicou = driver.execute_script("""
-        var links = document.getElementsByTagName('a');
-        for (var i = 0; i < links.length; i++) {
-            if (links[i].href.toLowerCase().includes('.csv') || links[i].innerText.includes('CSV')) {
-                links[i].click();
-                return true;
-            }
-        }
-        return false;
-    """)
+    # Lista todas as janelas abertas
+    todas_janelas = driver.window_handles
     
-    if clicou:
-        print("   ✅ Botão CSV encontrado e clicado!")
+    # Troca para a nova janela (a que não é a original)
+    for janela in todas_janelas:
+        if janela != janela_original:
+            driver.switch_to.window(janela)
+            print("✅ Robô mudou o foco para a nova aba (Resultados).")
+            break
+            
+    # --- 4. BAIXAR O CSV NA NOVA ABA ---
+    print(">> Procurando botão CSV na nova aba...")
+    
+    # Tenta rolar até o fim, pois o botão fica lá embaixo
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(1)
+    
+    try:
+        # Procura link que tenha .csv ou texto "Cópia como .CSV"
+        link_csv = driver.find_element(By.XPATH, "//a[contains(@href, '.csv') or contains(text(), 'CSV')]")
+        link_csv.click()
+        print("   ✅ Botão CSV clicado!")
+        
         print("   ⏳ Aguardando 10 segundos para download...")
         time.sleep(10)
         
-        # --- 4. CAÇA AO ARQUIVO PERDIDO ---
+        # --- 5. RECUPERAR O ARQUIVO ---
         arquivo_encontrado = None
         origem_final = ""
 
-        # Verifica na pasta do projeto
+        # Verifica Pasta do Projeto
         local_files = [f for f in os.listdir(PASTA_PROJETO) if f.endswith('.csv')]
         if local_files:
             arquivo_encontrado = local_files[0]
             origem_final = os.path.join(PASTA_PROJETO, arquivo_encontrado)
-            print(f"   📂 Arquivo encontrado na pasta do projeto: {arquivo_encontrado}")
         
-        # Se não achou, verifica na pasta Downloads do Windows
+        # Verifica Pasta Downloads (caso o Chrome ignore a config em nova aba)
         else:
-            print("   ⚠️ Não estava na pasta do projeto. Verificando Downloads...")
+            print("   ⚠️ Verificando pasta Downloads do Windows...")
             dl_files = [f for f in os.listdir(PASTA_DOWNLOADS_WIN) if f.endswith('.csv')]
-            # Ordena por data modificação (pega o mais recente)
             dl_files.sort(key=lambda x: os.path.getmtime(os.path.join(PASTA_DOWNLOADS_WIN, x)), reverse=True)
             
             if dl_files:
-                # Pega o mais recente (provavelmente o que acabamos de baixar)
                 arquivo_encontrado = dl_files[0]
                 origem_final = os.path.join(PASTA_DOWNLOADS_WIN, arquivo_encontrado)
-                print(f"   📂 Arquivo encontrado em Downloads: {arquivo_encontrado}")
 
-        # Move para o destino final
+        # Move e Renomeia
         if arquivo_encontrado and os.path.exists(origem_final):
             if not os.path.exists(PASTA_FINAL): os.makedirs(PASTA_FINAL)
             destino = os.path.join(PASTA_FINAL, ARQUIVO_FINAL)
             
             if os.path.exists(destino): os.remove(destino)
-            shutil.copy2(origem_final, destino) # Copy2 preserva metadados
+            shutil.copy2(origem_final, destino)
             
-            # Se estava no Downloads, podemos deletar o original pra não acumular lixo (opcional)
+            # Limpeza
             if "Downloads" in origem_final:
                 try: os.remove(origem_final)
                 except: pass
                 
             print(f"\n🏆 VITÓRIA! Arquivo salvo em: arquivos/{ARQUIVO_FINAL}")
-            print("Agora podemos atualizar o faturamento.html!")
         else:
-            print("❌ ERRO CRÍTICO: O arquivo não foi encontrado em lugar nenhum.")
+            print("❌ ERRO: O arquivo não foi encontrado após o clique.")
 
-    else:
-        print("❌ ERRO: Botão de download CSV não foi encontrado na página de resultados.")
-        print("   Dica: Verifique se a tabela apareceu na tela do navegador.")
+    except Exception as e:
+        print(f"❌ Erro ao tentar baixar: {e}")
+        driver.save_screenshot("erro_aba_nova.png")
 
 except Exception as e:
     print(f"❌ Erro Geral: {e}")
 
 finally:
-    # driver.quit() 
+    # driver.quit()
     pass
