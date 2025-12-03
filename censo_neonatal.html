@@ -149,7 +149,7 @@
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO DE LEITOS (CNES) ---
+    // --- CONFIGURAÇÃO DE LEITOS ---
     const CONFIG_LEITOS = {
         'UTIN': 18,
         'UCINCO': 4,
@@ -159,11 +159,13 @@
     let pacientes = [];
 
     window.onload = function() {
+        // Define Mês Atual
         const hoje = new Date();
         const ano = hoje.getFullYear();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         document.getElementById('mesReferencia').value = `${ano}-${mes}`;
 
+        // Carrega Banco de Dados
         const dadosSalvos = localStorage.getItem('censo_uti_v3');
         if (dadosSalvos) {
             pacientes = JSON.parse(dadosSalvos);
@@ -184,23 +186,23 @@
             try {
                 const dadosImportados = JSON.parse(e.target.result);
                 if (Array.isArray(dadosImportados)) {
-                    if (confirm(`Encontrados ${dadosImportados.length} registros.\nOK para SUBSTITUIR TUDO.`)) {
+                    if (confirm(`Importar ${dadosImportados.length} registros?\nISSO SUBSTITUIRÁ OS DADOS ATUAIS.`)) {
                         pacientes = dadosImportados;
                         salvarDados();
-                        alert("Importado com sucesso!");
+                        alert("Dados carregados!");
                     }
                 }
-            } catch (erro) { alert("Erro ao ler JSON."); }
+            } catch (erro) { alert("Erro no arquivo."); }
             input.value = '';
         };
         leitor.readAsText(arquivo);
     }
 
-    // --- UTILITÁRIOS DATA ---
+    // --- MANIPULAÇÃO DE DATAS ---
     function criarData(dataString) {
         if (!dataString) return null;
         const [ano, mes, dia] = dataString.split('-').map(Number);
-        // Define meio-dia para evitar problemas de fuso horário
+        // Define horário MEIO-DIA (12:00) para evitar problemas de fuso
         return new Date(ano, mes - 1, dia, 12, 0, 0); 
     }
 
@@ -210,7 +212,7 @@
         return `${d}/${m}/${a}`;
     }
 
-    // --- CÁLCULOS OFICIAIS HOSPITALARES ---
+    // --- CÁLCULO BLINDADO DE PACIENTE-DIA ---
     function renderizarTabela() {
         const tbodyList = document.getElementById('tabelaPacientes');
         tbodyList.innerHTML = '';
@@ -220,12 +222,13 @@
 
         const [refAno, refMes] = refInput.split('-').map(Number);
         
-        // Define o intervalo do mês (01 a 30/31)
+        // Intervalo do Mês Selecionado (Ex: 01/10 a 31/10)
+        // Usamos 12:00 para garantir que a conta de dias funcione em qualquer fuso
         const inicioMes = new Date(refAno, refMes - 1, 1, 12, 0, 0); 
-        const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); 
+        const fimMes = new Date(refAno, refMes, 0, 12, 0, 0); // Último dia do mês
         const qtdDiasNoMes = fimMes.getDate();
 
-        // Estrutura de Estatísticas
+        // Zera estatísticas
         let stats = {
             'UTIN':   { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
             'UCINCO': { p_dia: 0, saidas: 0, obitos: 0, obito_menor: 0, obito_maior: 0 },
@@ -235,7 +238,7 @@
         pacientes.sort((a,b) => a.nome.localeCompare(b.nome));
 
         pacientes.forEach((p, index) => {
-            // Normalização de Setor
+            // Normaliza Setor
             let setorRaw = p.setor ? p.setor.toUpperCase().trim() : 'UTIN';
             let setor = 'UTIN';
             if (setorRaw.includes('UCINCO') || setorRaw.includes('MÉDIO')) setor = 'UCINCO';
@@ -244,67 +247,58 @@
             const dtAdm = criarData(p.admissao);
             const dtSaida = p.saida ? criarData(p.saida) : null;
             
-            // --- FILTROS DE PERÍODO ---
-            // Se foi admitido DEPOIS do fim do mês, não entra.
+            // --- FILTRO 1: O Paciente passou por este mês? ---
+            // Se foi admitido DEPOIS do último dia do mês -> FORA
             if (dtAdm > fimMes) return;
-            // Se saiu ANTES do mês começar, não entra.
+            // Se saiu ANTES do primeiro dia do mês -> FORA
             if (dtSaida && dtSaida < inicioMes) return;
 
-            // --- CÁLCULO DE PACIENTE-DIA (Lógica Padrão SUS/ANS) ---
-            let diasCalc = 0;
+
+            // --- CÁLCULO DE DIAS (REGRA DE FATURAMENTO) ---
             
-            // Data efetiva de contagem no mês
-            const inicioContagem = dtAdm > inicioMes ? dtAdm : inicioMes;
-            let fimContagem = fimMes;
-            
-            // Se o paciente saiu neste mês, a contagem para na data de saída
+            // 1. Data de Início da Contagem:
+            // Se admitido antes deste mês, conta a partir do dia 01.
+            // Se admitido neste mês, conta a partir da admissão.
+            let dataInicioContagem = (dtAdm < inicioMes) ? inicioMes : dtAdm;
+
+            // 2. Data de Fim da Contagem:
+            // Se ainda internado ou saiu depois, conta até o último dia do mês.
+            // Se saiu neste mês, conta até a data de saída.
+            let dataFimContagem = fimMes;
+            let saiuNesteMes = false;
+
             if (dtSaida && dtSaida <= fimMes) {
-                fimContagem = dtSaida;
+                dataFimContagem = dtSaida;
+                saiuNesteMes = true;
             }
 
-            // Diferença em milissegundos
-            const diffTempo = fimContagem - inicioContagem;
-            // Converte para dias (Arredonda para baixo, pois contamos noites)
-            const diffDias = Math.floor(diffTempo / (1000 * 60 * 60 * 24));
-            
-            // REGRA: Data Saída - Data Entrada.
-            // Se entrou dia 1 e saiu dia 5 = 4 dias.
-            // EXCEÇÃO: Se entrou e saiu no MESMO DIA (Day Clinic) = 1 dia.
-            
-            if (diffDias === 0 && (dtAdm.getTime() === (dtSaida ? dtSaida.getTime() : 0))) {
-                 // Entrou e saiu no mesmo dia (e este dia está no mês atual)
-                 if (dtAdm >= inicioMes && dtAdm <= fimMes) {
-                     diasCalc = 1;
-                 }
+            // 3. Diferença Matemática
+            const diffTempo = dataFimContagem - dataInicioContagem;
+            let diasCalc = Math.floor(diffTempo / (1000 * 60 * 60 * 24));
+
+            // 4. Ajustes Finais (Regra de Ouro)
+            if (saiuNesteMes) {
+                // Se SAIU, o dia da saída NÃO conta (liberou o leito).
+                // Ex: 01 a 05 = 4 dias. (A conta já dá 4).
+                // EXCEÇÃO: Entrou e saiu no mesmo dia = 1 dia.
+                if (diasCalc === 0) diasCalc = 1;
             } else {
-                // Soma os dias calculados. 
-                // Se o paciente ainda está internado, 'fimContagem' é o fim do mês.
-                // A lógica (FimMes - Inicio) dá a quantidade correta de noites.
-                // Ex: Dia 1 a 30 = 29 noites? Não, se ele dormiu dia 30, conta.
-                
-                if (!dtSaida || dtSaida > fimMes) {
-                    // Se continua internado, conta o dia 30/31 também
-                    diasCalc = diffDias + 1; 
-                } else {
-                    // Se saiu, o dia da saída não conta como pernoite (cobrança padrão)
-                    diasCalc = diffDias;
-                }
+                // Se CONTINUA internado, o último dia do mês CONTA (dormiu no hospital).
+                // Ex: 01 a 31 = 30 dias na subtração, mas deve ser 31.
+                diasCalc = diasCalc + 1;
             }
             
-            // Correção para não dar negativo ou zero se for só trânsito de mês
+            // Segurança contra negativos
             if (diasCalc < 0) diasCalc = 0;
 
 
-            // --- ACUMULA DADOS ---
-            if (diasCalc >= 0) { // Aceita 0 se for só alta pela manhã do dia 1 (depende da regra, mas vamos manter >0 para visual)
-                if(diasCalc > 0) stats[setor].p_dia += diasCalc;
+            // --- ACUMULAR ESTATÍSTICAS ---
+            if (diasCalc > 0) {
+                stats[setor].p_dia += diasCalc;
 
-                // Verifica se houve SAÍDA neste mês
-                let ehSaidaDoMes = false;
-                if (dtSaida && dtSaida >= inicioMes && dtSaida <= fimMes) {
-                    ehSaidaDoMes = true;
+                // Checa saída/óbito
+                if (saiuNesteMes && dtSaida >= inicioMes) {
                     const motivo = (p.motivo || '').toUpperCase();
-                    
                     if (motivo.includes('BITO') || motivo.includes('FALEC')) {
                         stats[setor].obitos++;
                         if (motivo.includes('<') || motivo.includes('MENOR')) stats[setor].obito_menor++;
@@ -314,27 +308,24 @@
                     }
                 }
 
-                // Renderiza Tabela (Só mostra se consumiu dias ou se saiu no mês)
-                if (diasCalc > 0 || ehSaidaDoMes) {
-                    let bgBadge = 'bg-internado';
-                    let motivoTexto = p.motivo || 'INTERNADO';
-                    const motivoUpper = motivoTexto.toUpperCase();
+                // Renderiza Tabela
+                let bgBadge = 'bg-internado';
+                let motivoTexto = p.motivo || 'INTERNADO';
+                
+                if ((p.motivo||'').toUpperCase().includes('BITO')) bgBadge = 'bg-obito';
+                else if (p.saida) { bgBadge = 'bg-alta'; motivoTexto = p.motivo || 'ALTA'; }
 
-                    if (motivoUpper.includes('BITO')) bgBadge = 'bg-obito';
-                    else if (p.saida) { bgBadge = 'bg-alta'; motivoTexto = p.motivo || 'ALTA'; }
-
-                    let html = `
-                    <tr>
-                        <td><strong>${p.nome}</strong></td>
-                        <td>${setor}</td>
-                        <td>${formatarDataBR(p.admissao)}</td>
-                        <td>${formatarDataBR(p.saida)}</td>
-                        <td style="text-align:center; font-weight:bold;">${diasCalc}</td>
-                        <td><span class="badge ${bgBadge}">${motivoTexto}</span></td>
-                        <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
-                    </tr>`;
-                    tbodyList.innerHTML += html;
-                }
+                let html = `
+                <tr>
+                    <td><strong>${p.nome}</strong></td>
+                    <td>${setor}</td>
+                    <td>${formatarDataBR(p.admissao)}</td>
+                    <td>${formatarDataBR(p.saida)}</td>
+                    <td style="text-align:center; font-weight:bold;">${diasCalc}</td>
+                    <td><span class="badge ${bgBadge}">${motivoTexto}</span></td>
+                    <td><button class="btn-del" onclick="removerPaciente(${index})">X</button></td>
+                </tr>`;
+                tbodyList.innerHTML += html;
             }
         });
 
@@ -351,20 +342,15 @@
             const dados = stats[setor];
             const leitos = CONFIG_LEITOS[setor];
             
-            // Capacidade = Leitos x Dias do Mês
+            // Cálculos
             const capacidade = leitos * diasNoMes;
-            
-            // Taxa de Ocupação = (Paciente-Dia / Capacidade) * 100
             const ocupacao = capacidade > 0 ? (dados.p_dia / capacidade) * 100 : 0;
-            
-            // Total de Saídas do Período (Altas + Óbitos)
             const totalSaidasPeriodo = dados.saidas + dados.obitos;
             
-            // Média de Permanência = Paciente-Dia / Total de Saídas
-            // ATENÇÃO: Se não houve saídas, o indicador é matematicamente indefinido, mas usamos 0 ou traço.
+            // Média de Permanência (Oficial: Paciente-Dia / Saídas)
             const mediaPerm = totalSaidasPeriodo > 0 ? (dados.p_dia / totalSaidasPeriodo) : 0;
 
-            // Acumula Totais
+            // Acumula
             tLeitos += leitos; tCapac += capacidade; tPDia += dados.p_dia;
             tSaidas += dados.saidas; tObitos += dados.obitos;
             tObMenor += dados.obito_menor; tObMaior += dados.obito_maior;
@@ -386,7 +372,7 @@
             </tr>`;
         });
 
-        // Totais Gerais
+        // Totais
         const ocupacaoGeral = tCapac > 0 ? (tPDia / tCapac) * 100 : 0;
         const totalSaidasGeral = tSaidas + tObitos;
         const mediaPermGeral = totalSaidasGeral > 0 ? (tPDia / totalSaidasGeral) : 0;
@@ -415,10 +401,6 @@
 
         if (!nome || !adm) { alert('Preencha Nome e Admissão.'); return; }
         
-        if (adm.substring(0,4) > "2025") {
-            if(!confirm("O ano de admissão é " + adm.substring(0,4) + ". Confirma?")) return;
-        }
-
         pacientes.push({ nome, setor, admissao: adm, saida, motivo });
         
         document.getElementById('nomePaciente').value = '';
@@ -428,7 +410,7 @@
     }
 
     function removerPaciente(index) {
-        if(confirm('Remover registro?')) {
+        if(confirm('Tem certeza?')) {
             pacientes.splice(index, 1);
             salvarDados();
         }
