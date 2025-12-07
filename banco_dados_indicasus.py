@@ -5,27 +5,28 @@ import glob
 from unidecode import unidecode 
 
 # --- CONFIGURAÇÕES ---
-PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1" # Caminho absoluto para garantir
+PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
 ARQUIVO_DB = os.path.join(PASTA_PROJETO, "dados_sisreg.db")
 
-print("--- ATUALIZANDO BANCO DE DADOS (INDICASUS V2) ---")
+print("--- ATUALIZANDO BANCO DE DADOS (INDICASUS V4 - FINAL) ---")
 
-# Procura o arquivo CSV do Indicasus automaticamente
-padrao_arquivo = os.path.join(PASTA_PROJETO, "*Indicasus*.csv")
-arquivos_encontrados = glob.glob(padrao_arquivo)
+# 1. Localizar o arquivo CSV do IndicaSUS
+padrao = os.path.join(PASTA_PROJETO, "*Indicasus*.csv")
+arquivos = glob.glob(padrao)
 
-if not arquivos_encontrados:
-    print(f"❌ ERRO: Nenhum arquivo CSV com 'Indicasus' no nome foi encontrado na pasta.")
+if not arquivos:
+    print("❌ ERRO: Nenhum arquivo CSV do IndicaSUS encontrado.")
+    print("   Dica: Salve o arquivo na pasta do projeto como 'Indicasus.csv'.")
     exit()
 
-# Pega o arquivo mais recente se tiver mais de um
-arquivo_csv = max(arquivos_encontrados, key=os.path.getmtime)
-print(f"   -> Processando arquivo: {os.path.basename(arquivo_csv)}")
+# Pega o mais recente
+arquivo_alvo = max(arquivos, key=os.path.getmtime)
+print(f"   -> Lendo arquivo: {os.path.basename(arquivo_alvo)}")
 
 conn = sqlite3.connect(ARQUIVO_DB)
 cursor = conn.cursor()
 
-# Recria a tabela
+# 2. Recriar Tabela
 cursor.execute("DROP TABLE IF EXISTS indicasus")
 cursor.execute('''
     CREATE TABLE indicasus (
@@ -43,46 +44,47 @@ cursor.execute('''
 conn.commit()
 
 try:
-    # Tenta ler com diferentes codificações (UTF-8 ou Latin-1)
+    # 3. Leitura Blindada (Codificação do Excel)
     try:
-        df = pd.read_csv(arquivo_csv, sep=',', encoding='utf-8', dtype=str)
-    except UnicodeDecodeError:
-        print("   ⚠️ Codificação UTF-8 falhou. Tentando Latin-1 (Excel)...")
-        df = pd.read_csv(arquivo_csv, sep=',', encoding='latin-1', dtype=str)
-    
-    # Normaliza nomes das colunas (remove acentos, espaços e deixa minúsculo)
-    df.columns = [unidecode(c.strip().lower()) for c in df.columns]
-    
-    # Debug: Mostra colunas encontradas para conferência
-    # print(f"Colunas no arquivo: {list(df.columns)}")
+        # Tenta o padrão do Windows/Excel Brasil
+        df = pd.read_csv(arquivo_alvo, sep=',', encoding='latin-1', dtype=str, on_bad_lines='skip')
+    except:
+        # Se falhar, tenta UTF-8
+        df = pd.read_csv(arquivo_alvo, sep=',', encoding='utf-8', dtype=str, on_bad_lines='skip')
 
+    # Normaliza nomes das colunas para evitar erro de maiúscula/minúscula
+    # Ex: "Nome do Paciente" vira "nomedopaciente"
+    df.columns = [unidecode(c.strip().lower().replace(' ', '')) for c in df.columns]
+    
+    # 4. Mapeamento Direto (Baseado no seu arquivo)
     df_final = pd.DataFrame()
     
-    # Mapeamento Seguro (Usa .get para não quebrar se a coluna mudar de nome)
-    # Ajustei os nomes baseado no padrão comum do Indicasus
-    df_final['paciente'] = df.get('nome do paciente', df.get('paciente', '-'))
-    df_final['cns'] = df.get('cartao nacional do sus', df.get('cns', '-'))
-    df_final['data_internacao'] = df.get('data da internacao', '-')
-    df_final['data_evolucao'] = df.get('data da evolucao', df.get('data evolucao', '-'))
-    df_final['municipio'] = df.get('municipio de residencia', df.get('municipio', '-'))
-    df_final['tipo_leito'] = df.get('tipo de leito', '-')
-    df_final['nome_leito'] = df.get('identificacao dos leitos', df.get('leito', '-'))
-    df_final['evolucao'] = df.get('evolucao do quadro clinico', df.get('evolucao', 'Internado'))
-    df_final['aih'] = df.get('numero aih', df.get('aih', '-'))
+    # Busca colunas flexíveis
+    def get_col(termos):
+        for col in df.columns:
+            if all(t in col for t in termos): return df[col]
+        return "-"
 
-    # Tratamento de Datas (Converte para YYYY-MM-DD para o banco e ordenação)
-    # Se der erro na conversão, deixa vazio
+    df_final['paciente'] = get_col(['nome', 'paciente'])
+    df_final['cns'] = get_col(['cartao', 'nacional']) # Cartão Nacional do SUS
+    df_final['data_internacao'] = get_col(['data', 'internacao'])
+    df_final['data_evolucao'] = get_col(['data', 'evolucao'])
+    df_final['municipio'] = get_col(['municipio'])
+    df_final['tipo_leito'] = get_col(['tipo', 'leito'])
+    df_final['nome_leito'] = get_col(['identificacao', 'leito'])
+    df_final['evolucao'] = get_col(['evolucao', 'quadro'])
+    df_final['aih'] = get_col(['numero', 'aih']) # Número AIH
+
+    # 5. Tratamento de Dados
+    # Converte Data (DD/MM/AAAA -> YYYY-MM-DD) para ordenação
     df_final['data_internacao'] = pd.to_datetime(df_final['data_internacao'], dayfirst=True, errors='coerce').dt.strftime('%d/%m/%Y')
-    
-    # Preenche nulos
     df_final = df_final.fillna("-")
-    
+
     # Salva
     df_final.to_sql('indicasus', conn, if_exists='append', index=False)
-    
-    print(f"✅ Sucesso! {len(df_final)} internações importadas.")
+    print(f"✅ Sucesso! {len(df_final)} registros importados para o banco.")
 
 except Exception as e:
-    print(f"❌ Erro grave ao processar CSV: {e}")
+    print(f"❌ Erro ao ler CSV: {e}")
 
 conn.close()

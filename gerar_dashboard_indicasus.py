@@ -16,30 +16,42 @@ CAMINHO_HTML = os.path.join(PASTA_PROJETO, NOME_HTML)
 CAMINHO_JSON = os.path.join(PASTA_ARQUIVOS, NOME_JSON)
 
 def gerar_painel():
-    print("--- GERANDO DASHBOARD INDICASUS ---")
+    print("--- GERANDO DASHBOARD INDICASUS (V3 - CARGA TOTAL) ---")
     
     if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
 
     conn = sqlite3.connect(BANCO_DADOS)
     
     try:
+        # Carrega dados
         df = pd.read_sql_query("SELECT * FROM indicasus", conn)
         
         if df.empty:
-            print("❌ Tabela Indicasus vazia.")
+            print("❌ Tabela Indicasus vazia no banco.")
             return
 
-        # Cria coluna de data ISO para filtro (YYYY-MM-DD)
-        df['data_iso'] = pd.to_datetime(df['data_internacao'], dayfirst=True, errors='coerce').dt.strftime('%Y-%m-%d')
-        
-        # Ordena por data
-        df = df.sort_values(by='data_iso', ascending=False)
-        
-        # Salva JSON
-        df.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
-        print(f"   💾 JSON salvo: {len(df)} registros.")
+        # Diagnóstico de Data
+        print(f"   Exemplo de data no banco: {df['data_internacao'].iloc[0]}")
 
-        # HTML
+        # Tenta converter Data para ordenação (sem filtrar/cortar nada)
+        df['data_obj'] = pd.to_datetime(df['data_internacao'], dayfirst=True, errors='coerce')
+        
+        # Ordena (Mais recente primeiro) e cria string ISO
+        df = df.sort_values(by='data_obj', ascending=False)
+        df['data_internacao'] = df['data_obj'].dt.strftime('%d/%m/%Y').fillna("-") # Garante formato BR visual
+        
+        # Remove a coluna temporária de objeto para não bugar o JSON
+        df = df.drop(columns=['data_obj'])
+        
+        # Preenche vazios
+        df = df.fillna("-")
+        
+        # Salva JSON COMPLETO (Sem cortes de data)
+        df.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
+        
+        print(f"   💾 JSON gerado com SUCESSO: {len(df)} registros.")
+
+        # HTML (Visual)
         html_template = f"""
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -70,16 +82,16 @@ def gerar_painel():
     <div class="header">
         <div>
             <h1 style="color:var(--primary)">Monitoramento IndicaSUS</h1>
-            <p>Controle de Leitos e Cofinanciamento Estadual</p>
+            <p>Histórico Completo ({len(df)} registros)</p>
         </div>
         <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
     </div>
 
     <div class="cards-container">
-        <div class="card" style="border-color: var(--primary)"><h3>Total Internações</h3><div class="value" id="vTotal">-</div></div>
-        <div class="card" style="border-color: #28a745"><h3>Altas / Curas</h3><div class="value" id="vAlta">-</div></div>
+        <div class="card" style="border-color: var(--primary)"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
+        <div class="card" style="border-color: #28a745"><h3>Altas</h3><div class="value" id="vAlta">-</div></div>
         <div class="card" style="border-color: #dc3545"><h3>Óbitos</h3><div class="value" id="vObito">-</div></div>
-        <div class="card" style="border-color: #ffc107"><h3>Internados Agora</h3><div class="value" id="vInternado">-</div></div>
+        <div class="card" style="border-color: #ffc107"><h3>Internados</h3><div class="value" id="vInternado">-</div></div>
     </div>
 
     <div class="charts-row">
@@ -90,23 +102,22 @@ def gerar_painel():
     <div class="table-box">
         <table id="tabelaIndica" class="display" style="width:100%">
             <thead>
-                <tr><th>Data Int.</th><th>Paciente</th><th>CNS</th><th>Município</th><th>Leito</th><th>Evolução</th><th>AIH</th></tr>
+                <tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Município</th><th>Leito</th><th>Evolução</th><th>AIH</th></tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
     <script>
-        let chartL = null, chartE = null;
-
+        // Cache Buster para garantir dados novos
         fetch('arquivos/{NOME_JSON}?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {{
                 processar(dados);
-            }});
+            }})
+            .catch(err => console.error("Erro ao carregar JSON:", err));
 
         function processar(dados) {{
-            // 1. Cards
             let total = dados.length;
             let alta = 0, obito = 0, internado = 0;
             let tiposLeito = {{}};
@@ -114,20 +125,18 @@ def gerar_painel():
 
             dados.forEach(d => {{
                 let ev = (d.evolucao || "").toLowerCase();
-                let leito = d.tipo_leito || "Indefinido";
+                let leito = d.tipo_leito || "Não Informado";
 
                 if(ev.includes("alta") || ev.includes("cura")) alta++;
-                else if(ev.includes("obito") || ev.includes("óbito")) obito++;
-                else if(ev == "-" || ev == "" || ev.includes("internado")) internado++;
+                else if(ev.includes("obito") || ev.includes("óbito") || ev.includes("falecimento")) obito++;
+                else internado++;
 
-                // Contagens para gráficos
+                // Contagens
                 tiposLeito[leito] = (tiposLeito[leito] || 0) + 1;
                 
-                // Simplifica evolução para o gráfico
-                let evSimples = "Internado";
+                let evSimples = "Internado/Outros";
                 if(ev.includes("alta")) evSimples = "Alta";
                 if(ev.includes("obito")) evSimples = "Óbito";
-                if(ev.includes("transferencia")) evSimples = "Transferência";
                 evolucoes[evSimples] = (evolucoes[evSimples] || 0) + 1;
             }});
 
@@ -136,11 +145,11 @@ def gerar_painel():
             document.getElementById('vObito').innerText = obito;
             document.getElementById('vInternado').innerText = internado;
 
-            // 2. Tabela
             $('#tabelaIndica').DataTable({{
                 data: dados,
                 language: {{ url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
-                order: [],
+                order: [], // Mantem ordem do Python
+                pageLength: 10,
                 columns: [
                     {{ data: "data_internacao" }},
                     {{ data: "paciente" }},
@@ -152,29 +161,26 @@ def gerar_painel():
                 ]
             }});
 
-            // 3. Gráficos
             gerarGraficos(tiposLeito, evolucoes);
         }}
 
         function gerarGraficos(leitos, evolucoes) {{
-            // Leitos (Pizza)
             const ctxL = document.getElementById('cLeito');
             new Chart(ctxL, {{
                 type: 'doughnut',
                 data: {{
                     labels: Object.keys(leitos),
-                    datasets: [{{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd'] }}]
+                    datasets: [{{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd', '#6610f2'] }}]
                 }},
                 options: {{ responsive: true, maintainAspectRatio: false }}
             }});
 
-            // Evolução (Barras)
             const ctxE = document.getElementById('cEvolucao');
             new Chart(ctxE, {{
                 type: 'bar',
                 data: {{
                     labels: Object.keys(evolucoes),
-                    datasets: [{{ label:'Qtd', data: Object.values(evolucoes), backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#17a2b8'] }}]
+                    datasets: [{{ label:'Qtd', data: Object.values(evolucoes), backgroundColor: ['#28a745', '#dc3545', '#ffc107'] }}]
                 }},
                 options: {{ responsive: true, maintainAspectRatio: false }}
             }});
@@ -186,7 +192,7 @@ def gerar_painel():
         with open(CAMINHO_HTML, "w", encoding="utf-8") as f:
             f.write(html_template)
             
-        print("✅ Dashboard Indicasus gerado com sucesso!")
+        print("✅ Dashboard IndicaSUS gerado com SUCESSO!")
 
     except Exception as e:
         print(f"❌ Erro: {e}")
