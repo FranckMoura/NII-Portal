@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - IndicaSUS</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -13,91 +13,60 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #6f42c1; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --info: #0dcaf0; }
+        :root { --primary: #6f42c1; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
         body { font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }
-        
         .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .header h1 { margin: 0; color: var(--primary); font-size: 24px; }
         
-        /* ÁREA DE FILTRO IGUAL AO SISREG */
         .filter-box { background: #e0daef; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #d6cce5; flex-wrap: wrap; }
         .filter-box label { font-weight: bold; color: var(--primary); }
         .filter-box input { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
-        .btn-filter { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .btn-filter:hover { opacity: 0.9; }
-        .btn-clear { background: #fff; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-filter { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .btn-reset { background: #fff; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
 
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
         .card .value { font-size: 32px; font-weight: bold; margin-top: 10px; color: #333; }
-        .card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
-
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .chart-box { background: white; padding: 20px; border-radius: 8px; height: 350px; }
-        
         .table-box { background: white; padding: 20px; border-radius: 8px; }
         
-        /* Badges de Status */
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; color: white; font-weight: bold; }
         .bg-alta { background: var(--success); }
         .bg-obito { background: var(--danger); }
         .bg-inter { background: var(--warning); color: #333; }
-        
-        @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
     <div class="header">
-        <div>
-            <h1>Monitoramento IndicaSUS</h1>
-            <p>Controle de Leitos e Internações</p>
-        </div>
-        <div style="text-align: right;">
-            <p style="font-size: 12px; color: #999;">Atualizado Hoje</p>
-            <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:5px 10px; border-radius:4px; font-size:12px;">Voltar</a>
-        </div>
+        <div><h1 style="color:var(--primary)">Monitoramento IndicaSUS</h1><p>Histórico Completo</p></div>
+        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
     </div>
 
     <div class="filter-box">
         <i class="fas fa-filter" style="font-size:20px; color:var(--primary);"></i>
-        <div>
-            <label>De:</label>
-            <input type="date" id="minDate">
-        </div>
-        <div>
-            <label>Até:</label>
-            <input type="date" id="maxDate">
-        </div>
+        <div><label>De:</label> <input type="date" id="minDate"></div>
+        <div><label>Até:</label> <input type="date" id="maxDate"></div>
         <button onclick="aplicarFiltro()" class="btn-filter">Filtrar</button>
-        <button onclick="limparFiltro()" class="btn-clear">Limpar (Ver Tudo)</button>
-        <span id="loading" style="margin-left:auto; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando dados...</span>
+        <button onclick="resetarFiltro()" class="btn-reset">Mês Atual</button>
+        <span id="loading" style="margin-left:auto; color:#666;">Carregando...</span>
     </div>
 
     <div class="cards-container">
         <div class="card" style="border-color: var(--primary)"><h3>Total Período</h3><div class="value" id="vTotal">-</div></div>
-        <div class="card" style="border-color: var(--success)"><h3>Altas / Curas</h3><div class="value" id="vAlta">-</div></div>
-        <div class="card" style="border-color: var(--danger)"><h3>Óbitos</h3><div class="value" id="vObito">-</div></div>
-        <div class="card" style="border-color: var(--warning)"><h3>Internados</h3><div class="value" id="vInternado">-</div></div>
+        <div class="card" style="border-color: #28a745"><h3>Altas / Curas</h3><div class="value" id="vAlta">-</div></div>
+        <div class="card" style="border-color: #dc3545"><h3>Óbitos</h3><div class="value" id="vObito">-</div></div>
+        <div class="card" style="border-color: #ffc107"><h3>Internados</h3><div class="value" id="vInternado">-</div></div>
     </div>
 
     <div class="charts-row">
-        <div class="chart-box"><canvas id="cLeito"></canvas></div>
-        <div class="chart-box"><canvas id="cEvolucao"></canvas></div>
+        <div class="chart-box"><h3>Tipo de Leito</h3><canvas id="cLeito"></canvas></div>
+        <div class="chart-box"><h3>Desfecho Clínico</h3><canvas id="cEvolucao"></canvas></div>
     </div>
 
     <div class="table-box">
-        <h3 style="margin-top:0; color:#333;">Detalhamento</h3>
         <table id="tabelaIndica" class="display" style="width:100%">
             <thead>
-                <tr>
-                    <th>Data Int.</th>
-                    <th>Paciente</th>
-                    <th>CNS</th>
-                    <th>Leito</th>
-                    <th>Evolução</th>
-                    <th>AIH</th>
-                </tr>
+                <tr><th>Data Int.</th><th>Paciente</th><th>CNS</th><th>Leito</th><th>Evolução</th><th>AIH</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -108,12 +77,18 @@
         let table = null;
         let chartL = null, chartE = null;
 
-        // Datas padrão (Mês atual) para o filtro inicial
+        // Datas Iniciais (Mês Atual)
         const hoje = new Date();
         const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        
-        document.getElementById('minDate').valueAsDate = inicioMes;
-        document.getElementById('maxDate').valueAsDate = hoje;
+        const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+        // Preenche inputs
+        function setInputsData(dInicio, dFim) {
+            document.getElementById('minDate').valueAsDate = dInicio;
+            document.getElementById('maxDate').valueAsDate = dFim;
+        }
+
+        setInputsData(inicioMes, hoje); // Define padrão visual
 
         // Carrega JSON
         fetch('arquivos/dados_indicasus.json?v=' + new Date().getTime())
@@ -121,30 +96,22 @@
             .then(dados => {
                 dadosGlobais = dados;
                 document.getElementById('loading').style.display = 'none';
-                
-                // Inicia tabela vazia
                 inicializarTabela();
-                
-                // Aplica filtro inicial (Mês atual) para não travar com 30k linhas
-                aplicarFiltro();
+                aplicarFiltro(); // Aplica o filtro do mês atual ao carregar
             })
-            .catch(err => {
-                console.error("Erro:", err);
-                document.getElementById('loading').innerText = "Erro ao carregar dados.";
-            });
+            .catch(err => console.error(err));
 
         function inicializarTabela() {
             table = $('#tabelaIndica').DataTable({
                 data: [],
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 pageLength: 10,
-                order: [[0, "desc"]],
-                columnDefs: [{ type: "date-eu", targets: 0 }], // Ordenação de data BR
+                order: [], // Mantém ordem do Python
                 columns: [
-                    { data: "data_internacao" }, // A data já vem formatada do Python (dd/mm/aaaa)
+                    { data: "data_internacao" },
                     { data: "paciente" },
                     { data: "cns" },
-                    { data: "nome_leito" }, // Tirei município para limpar
+                    { data: "nome_leito" },
                     { 
                         data: "evolucao",
                         render: function(d) {
@@ -164,10 +131,9 @@
             const d1 = document.getElementById('minDate').value;
             const d2 = document.getElementById('maxDate').value;
 
-            // Filtra os dados no JavaScript (Rápido)
+            // Filtra usando a coluna data_iso (que agora existe!)
             const filtrados = dadosGlobais.filter(item => {
                 if (!item.data_iso) return false;
-                // Compara strings ISO (YYYY-MM-DD)
                 if (d1 && item.data_iso < d1) return false;
                 if (d2 && item.data_iso > d2) return false;
                 return true;
@@ -176,14 +142,13 @@
             processarDashboard(filtrados);
         }
 
-        function limparFiltro() {
-            document.getElementById('minDate').value = "";
-            document.getElementById('maxDate').value = "";
-            processarDashboard(dadosGlobais); // Mostra tudo (Cuidado, pode demorar)
+        function resetarFiltro() {
+            // Volta para o mês atual em vez de mostrar tudo
+            setInputsData(inicioMes, hoje);
+            aplicarFiltro();
         }
 
         function processarDashboard(dados) {
-            // 1. Cards
             let total = dados.length;
             let alta = 0, obito = 0, internado = 0;
             let tiposLeito = {};
@@ -194,28 +159,23 @@
                 let leito = d.tipo_leito || "Outros";
 
                 if(ev.includes("alta") || ev.includes("cura")) alta++;
-                else if(ev.includes("obito") || ev.includes("óbito") || ev.includes("falec")) obito++;
+                else if(ev.includes("obito") || ev.includes("óbito")) obito++;
                 else internado++;
 
-                // Gráficos
                 tiposLeito[leito] = (tiposLeito[leito] || 0) + 1;
                 
                 let evSimples = "Internado";
-                if(ev.includes("alta")) evSimples = "Alta/Cura";
+                if(ev.includes("alta")) evSimples = "Alta";
                 if(ev.includes("obito")) evSimples = "Óbito";
                 evolucoes[evSimples] = (evolucoes[evSimples] || 0) + 1;
             });
 
-            // Atualiza DOM
             document.getElementById('vTotal').innerText = total;
             document.getElementById('vAlta').innerText = alta;
             document.getElementById('vObito').innerText = obito;
             document.getElementById('vInternado').innerText = internado;
 
-            // Atualiza Tabela
             table.clear().rows.add(dados).draw();
-
-            // Atualiza Gráficos
             gerarGraficos(tiposLeito, evolucoes);
         }
 
@@ -226,9 +186,9 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(leitos),
-                    datasets: [{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd', '#6610f2'] }]
+                    datasets: [{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: {legend: {position:'bottom'}} }
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
             const ctxE = document.getElementById('cEvolucao');
