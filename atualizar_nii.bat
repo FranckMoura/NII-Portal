@@ -15,6 +15,12 @@ python banco_dados_sisreg.py
 python gerar_dashboard.py
 
 echo.
+:: --- 1.5 ROTINA INDICASUS ---
+echo [Extra] Atualizando IndicaSUS...
+python banco_dados_indicasus.py
+python gerar_dashboard_indicasus.py
+
+echo.
 echo ---------------------------------------------------
 echo [2/4] ROTINA SIMULADAS (PDF)
 echo.
