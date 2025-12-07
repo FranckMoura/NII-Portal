@@ -21,16 +21,16 @@
         .filter-box label { font-weight: bold; color: var(--primary); }
         .filter-box input { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
         .btn-filter { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .btn-reset { background: #fff; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-
+        
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
         .card .value { font-size: 32px; font-weight: bold; margin-top: 10px; color: #333; }
+        
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .chart-box { background: white; padding: 20px; border-radius: 8px; height: 350px; }
         .table-box { background: white; padding: 20px; border-radius: 8px; }
         
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; color: white; font-weight: bold; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }
         .bg-alta { background: var(--success); }
         .bg-obito { background: var(--danger); }
         .bg-inter { background: var(--warning); color: #333; }
@@ -38,16 +38,22 @@
 </head>
 <body>
     <div class="header">
-        <div><h1 style="color:var(--primary)">Monitoramento IndicaSUS</h1><p>Histórico Completo</p></div>
-        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
+        <div>
+            <h1 style="color:var(--primary)">Monitoramento IndicaSUS</h1>
+            <p>Dados de 2025</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="font-size: 12px; color: #999;">Atualizado: 07/12/2025 15:52</p>
+            <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:5px 10px; border-radius:4px; font-size:12px;">Voltar</a>
+        </div>
     </div>
 
     <div class="filter-box">
         <i class="fas fa-filter" style="font-size:20px; color:var(--primary);"></i>
-        <div><label>De:</label> <input type="date" id="minDate"></div>
-        <div><label>Até:</label> <input type="date" id="maxDate"></div>
+        <div><label>De:</label> <input type="date" id="minDate" value="2025-12-01"></div>
+        <div><label>Até:</label> <input type="date" id="maxDate" value="2025-12-07"></div>
         <button onclick="aplicarFiltro()" class="btn-filter">Filtrar</button>
-        <button onclick="resetarFiltro()" class="btn-reset">Mês Atual</button>
+        <button onclick="limparFiltro()" style="background:#fff; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo (2025)</button>
         <span id="loading" style="margin-left:auto; color:#666;">Carregando...</span>
     </div>
 
@@ -77,19 +83,6 @@
         let table = null;
         let chartL = null, chartE = null;
 
-        // Datas Iniciais (Mês Atual)
-        const hoje = new Date();
-        const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-
-        // Preenche inputs
-        function setInputsData(dInicio, dFim) {
-            document.getElementById('minDate').valueAsDate = dInicio;
-            document.getElementById('maxDate').valueAsDate = dFim;
-        }
-
-        setInputsData(inicioMes, hoje); // Define padrão visual
-
         // Carrega JSON
         fetch('arquivos/dados_indicasus.json?v=' + new Date().getTime())
             .then(res => res.json())
@@ -97,18 +90,18 @@
                 dadosGlobais = dados;
                 document.getElementById('loading').style.display = 'none';
                 inicializarTabela();
-                aplicarFiltro(); // Aplica o filtro do mês atual ao carregar
+                aplicarFiltro(); // Aplica o filtro inicial
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error("Erro:", err));
 
         function inicializarTabela() {
             table = $('#tabelaIndica').DataTable({
                 data: [],
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 pageLength: 10,
-                order: [], // Mantém ordem do Python
+                order: [],
                 columns: [
-                    { data: "data_internacao" },
+                    { data: "data_visual" }, // Usa a data formatada DD/MM/AAAA
                     { data: "paciente" },
                     { data: "cns" },
                     { data: "nome_leito" },
@@ -131,7 +124,7 @@
             const d1 = document.getElementById('minDate').value;
             const d2 = document.getElementById('maxDate').value;
 
-            // Filtra usando a coluna data_iso (que agora existe!)
+            // Filtra os dados no JavaScript usando a coluna data_iso (YYYY-MM-DD)
             const filtrados = dadosGlobais.filter(item => {
                 if (!item.data_iso) return false;
                 if (d1 && item.data_iso < d1) return false;
@@ -142,10 +135,10 @@
             processarDashboard(filtrados);
         }
 
-        function resetarFiltro() {
-            // Volta para o mês atual em vez de mostrar tudo
-            setInputsData(inicioMes, hoje);
-            aplicarFiltro();
+        function limparFiltro() {
+            document.getElementById('minDate').value = "";
+            document.getElementById('maxDate').value = "";
+            processarDashboard(dadosGlobais);
         }
 
         function processarDashboard(dados) {
@@ -159,13 +152,13 @@
                 let leito = d.tipo_leito || "Outros";
 
                 if(ev.includes("alta") || ev.includes("cura")) alta++;
-                else if(ev.includes("obito") || ev.includes("óbito")) obito++;
+                else if(ev.includes("obito") || ev.includes("óbito") || ev.includes("falec")) obito++;
                 else internado++;
 
                 tiposLeito[leito] = (tiposLeito[leito] || 0) + 1;
                 
                 let evSimples = "Internado";
-                if(ev.includes("alta")) evSimples = "Alta";
+                if(ev.includes("alta")) evSimples = "Alta/Cura";
                 if(ev.includes("obito")) evSimples = "Óbito";
                 evolucoes[evSimples] = (evolucoes[evSimples] || 0) + 1;
             });
@@ -186,9 +179,9 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(leitos),
-                    datasets: [{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd'] }]
+                    datasets: [{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd', '#6610f2'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { responsive: true, maintainAspectRatio: false, plugins: {legend: {position:'bottom'}} }
             });
 
             const ctxE = document.getElementById('cEvolucao');
