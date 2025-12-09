@@ -1,9 +1,25 @@
 [
     {
+        "nome": "base_sisreg.parquet",
+        "caminho": "arquivos/base_sisreg.parquet",
+        "tamanho": "64.1 KB",
+        "data": "08/12/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
         "nome": "dados_indicasus.json",
         "caminho": "arquivos/dados_indicasus.json",
         "tamanho": "10359.5 KB",
         "data": "07/12/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
+        "nome": "dados_sisreg.json",
+        "caminho": "arquivos/dados_sisreg.json",
+        "tamanho": "1257.97 KB",
+        "data": "08/12/2025",
         "tipo": "outro",
         "icone": "📄"
     },
