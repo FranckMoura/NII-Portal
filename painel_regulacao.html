@@ -18,7 +18,7 @@
         .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .filter-box { background: #e3f2fd; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #90caf9; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
         .card .value { font-size: 32px; font-weight: bold; margin-top: 10px; }
         .chart-box { background: white; padding: 20px; border-radius: 8px; height: 300px; }
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -39,7 +39,7 @@
 
     <div class="filter-box">
         <i class="fas fa-filter" style="color:#0056b3"></i>
-        <div><label>De:</label> <input type="date" id="minDate" value="2025-10-09"></div>
+        <div><label>De:</label> <input type="date" id="minDate" value="2025-12-01"></div>
         <div><label>Até:</label> <input type="date" id="maxDate" value="2025-12-08"></div>
         <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
         <button onclick="limparFiltros()" style="background:#fff; color:#333; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo</button>
@@ -47,10 +47,10 @@
     </div>
 
     <div class="cards-container">
-        <div class="card" style="border-top: 4px solid #0056b3;"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
-        <div class="card" style="border-top: 4px solid #28a745;"><h3>Aprovados</h3><div class="value" id="vAprov">-</div></div>
-        <div class="card" style="border-top: 4px solid #ffc107;"><h3>Pendentes</h3><div class="value" id="vPend">-</div></div>
-        <div class="card" style="border-top: 4px solid #dc3545;"><h3>Negados</h3><div class="value" id="vNeg">-</div></div>
+        <div class="card" style="border-top-color: #0056b3;"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
+        <div class="card" style="border-top-color: #28a745;"><h3>Aprovados</h3><div class="value" id="vAprov">-</div></div>
+        <div class="card" style="border-top-color: #ffc107;"><h3>Pendentes</h3><div class="value" id="vPend">-</div></div>
+        <div class="card" style="border-top-color: #dc3545;"><h3>Negados</h3><div class="value" id="vNeg">-</div></div>
     </div>
 
     <div class="charts-row">
@@ -70,14 +70,12 @@
         let table = null;
         let chartS = null, chartP = null;
 
-        // Carrega os dados
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
                 dadosGlobais = dados;
                 document.getElementById('loading').style.display = 'none';
                 
-                // Inicia tabela vazia
                 table = $('#tabelaReg').DataTable({
                     data: [],
                     pageLength: 10,
@@ -89,7 +87,7 @@
                         { data: "cns" },
                         { data: "num_sol" },
                         { data: "aih" },
-                        { data: "procedimento" },
+                        { data: "proc" },
                         { 
                             data: "status",
                             render: function(d) {
@@ -104,7 +102,6 @@
                     ]
                 });
                 
-                // Aplica filtro inicial (Datas dos inputs)
                 aplicarFiltro();
             })
             .catch(err => console.error(err));
@@ -116,13 +113,18 @@
         }
 
         function aplicarFiltro() {
-            const d1 = document.getElementById('minDate').value;
-            const d2 = document.getElementById('maxDate').value;
+            let d1 = document.getElementById('minDate').value;
+            let d2 = document.getElementById('maxDate').value;
             
+            // --- FILTRO DE DATA PRECISO (JAVASCRIPT) ---
             const filtrados = dadosGlobais.filter(item => {
                 if (!item.data_iso) return false;
+                
+                // Compara strings ISO (YYYY-MM-DD) que funcionam perfeitamente
+                // Ex: "2025-11-15" >= "2025-11-01"
                 if (d1 && item.data_iso < d1) return false;
                 if (d2 && item.data_iso > d2) return false;
+                
                 return true;
             });
             
@@ -139,7 +141,7 @@
                 else if(s.includes("pendente")||s.includes("aguardando")) pen++;
                 else if(s.includes("negado")||s.includes("cancelado")) neg++;
 
-                let p = i.procedimento || "Outros";
+                let p = i.proc || "Outros";
                 procs[p] = (procs[p] || 0) + 1;
             });
 
