@@ -7,9 +7,10 @@ from datetime import datetime
 PASTA_ARQUIVOS = 'arquivos'
 ARQUIVO_DB_JSON = 'dados.json'
 
-print("--- INICIANDO GERENCIADOR DE UPLOAD NII (V4 - ESPECÍFICO) ---")
+print("--- INICIANDO GERENCIADOR DE UPLOAD NII (V5 - FINANCEIRO) ---")
 
-# 1. Atualiza lista de downloads (Mantido da versão anterior)
+# 1. Atualiza lista de downloads GERAIS (Mantido da versão anterior)
+# (Isso gerencia os arquivos soltos da pasta 'arquivos', não mexe no financeiro)
 lista_arquivos = []
 if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
 
@@ -42,12 +43,14 @@ for nome_arquivo in os.listdir(PASTA_ARQUIVOS):
 with open(ARQUIVO_DB_JSON, 'w', encoding='utf-8') as f:
     json.dump(lista_arquivos, f, indent=4, ensure_ascii=False)
 
-# 2. UPLOAD CIRÚRGICO
+# 2. UPLOAD CIRÚRGICO (ATUALIZADO PARA FINANCEIRO)
 print("\nEnviando para o Portal...")
 try:
     # Lista de arquivos OBRIGATÓRIOS para o site funcionar
     arquivos_vitais = [
         "index.html",
+        "financeiro.html",       # [NOVO] Módulo Financeiro
+        "dados_financeiro.json", # [NOVO] Base de dados Financeira
         "painel_regulacao.html",
         "indicasus.html",
         "faturamento.html",
@@ -57,21 +60,23 @@ try:
         "css/",
         "js/",
         "img/",
-        "arquivos/dados_sisreg.json",    # Vital para o painel SISREG
-        "arquivos/dados_indicasus.json", # Vital para o painel IndicaSUS
-        "arquivos/base_sisreg.parquet"   # Backup seguro
+        "arquivos/",             # Pasta de arquivos gerais
+        "faturamento/"           # [NOVO] Pasta onde ficam os relatórios mensais gerados
     ]
 
-    # Adiciona cada um explicitamente
+    # Adiciona cada item vital (Arquivos e Pastas)
     for item in arquivos_vitais:
         if os.path.exists(item):
+            print(f" -> Preparando: {item}")
             subprocess.run(["git", "add", item], check=False)
     
-    # Força adicionar scripts Python (para manter backup do código)
+    # Força adicionar scripts Python (backup) em TODAS as pastas (recursivo)
+    # Isso garante que o 'calculo_rateio_equipe.py' que está lá na pasta do mês seja salvo
     subprocess.run(["git", "add", "*.py"], check=False)
+    subprocess.run(["git", "add", "**/*.py"], check=False) # Tenta pegar em subpastas
 
     # Commit e Push
-    msg = f"Atualização Auto: {datetime.now().strftime('%d/%m %H:%M')}"
+    msg = f"Atualização Financeiro: {datetime.now().strftime('%d/%m %H:%M')}"
     
     # Verifica se tem algo para commitar
     status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout
@@ -80,7 +85,7 @@ try:
         subprocess.run(["git", "commit", "-m", msg], check=True)
         print("   -> Commit realizado.")
         subprocess.run(["git", "push"], check=True)
-        print("\n✅ [SUCESSO] Site atualizado e arquivos enviados!")
+        print("\n✅ [SUCESSO] Site atualizado! O módulo financeiro já deve estar no ar.")
     else:
         print("\nℹ️ [INFO] Nada mudou desde o último envio.")
 

@@ -1,0 +1,376 @@
+
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NII - Rateio de Equipe</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+            body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; color: #1f2937; }
+            .nii-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 1.5rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            .metric-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; }
+        </style>
+    </head>
+    <body>
+        <header class="nii-header">
+            <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg"><i class="fa-solid fa-users-gear"></i></div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">Cálculo de Rateio (Pool)</h1>
+                        <p class="text-xs text-gray-500">Núcleo Interno de Informação - HBSH</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-600">10/12/2025</div>
+                    <div class="text-xs text-green-600 font-bold">Cálculo Automático</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Cards de Métricas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Card 1: O Bolo -->
+                <div class="metric-card border-l-4 border-blue-500 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Montante Total (SP)</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-1">R$ 99,887.60</h3>
+                        </div>
+                        <div class="p-2 bg-blue-100 rounded-full text-blue-600"><i class="fa-solid fa-sack-dollar"></i></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Soma extraída do PDF de Receita</p>
+                </div>
+
+                <!-- Card 2: Os Pesos -->
+                <div class="metric-card border-l-4 border-orange-500 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total de Vínculos</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-1">21.00</h3>
+                        </div>
+                        <div class="p-2 bg-orange-100 rounded-full text-orange-600"><i class="fa-solid fa-scale-balanced"></i></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Soma dos pesos da equipe</p>
+                </div>
+
+                <!-- Card 3: O Ponto -->
+                <div class="metric-card border-l-4 border-green-500 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Valor do Ponto (1.0)</p>
+                            <h3 class="text-3xl font-bold text-green-600 mt-1">R$ 4,756.55</h3>
+                        </div>
+                        <div class="p-2 bg-green-100 rounded-full text-green-600"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Montante / Vínculos</p>
+                </div>
+            </div>
+
+            <!-- Tabela de Repasse -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800">Distribuição por Profissional</h3>
+                    <button onclick="window.print()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-print mr-1"></i> Imprimir</button>
+                </div>
+                
+                <div class="p-0">
+                    <table id="tabela-rateio" class="w-full text-left border-collapse">
+                        <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="p-4 border-b">Profissional / Prestador</th>
+                                <th class="p-4 border-b text-center">Peso (Vínculo)</th>
+                                <th class="p-4 border-b text-right">Valor a Receber (R$)</th>
+                                <th class="p-4 border-b text-right text-gray-400">% do Bolo</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-700">
+    
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ADILSON JOAO MASSONI</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ALLAN JOSE CAMPOS SOARES</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ANA CLAUDIA ALMEIDA DE SOUZA</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 5,945.69</td>
+                                <td class="p-4 text-right text-xs text-gray-400">6.0%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ANA FLAVIA SCHAVETOCK VIEIRA</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ANA PAULA LAVOYER ARAUJO</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ANGELICA RODRIGUEZ TORRES DE LUCENA</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ARIANE VELASCO</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CAMILA COELHO MIRANDA</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CAMILA RODRIGUES PINTO LIMA</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CAROLINE WARPPECHOWSKI LAZAROTO</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CESAR TAUJI TAKANO</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CLAUDIA MARIA GONCALVES PREZA</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.0</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 4,756.55</td>
+                                <td class="p-4 text-right text-xs text-gray-400">4.8%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">CRISTIANE CAROLINE</td>
+                                <td class="p-4 text-center text-gray-600">0.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 3,567.41</td>
+                                <td class="p-4 text-right text-xs text-gray-400">3.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">DAYVSON HILARIO DA SILVA</td>
+                                <td class="p-4 text-center text-gray-600">0.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 3,567.41</td>
+                                <td class="p-4 text-right text-xs text-gray-400">3.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">DEBORA FERNANDES COELHO</td>
+                                <td class="p-4 text-center text-gray-600">0.125</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 594.57</td>
+                                <td class="p-4 text-right text-xs text-gray-400">0.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ELINE MARIA NOGUEIRA DE FARIAS</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">ERICO DUARTE ISAIAS</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">FERNANDO CESAR PEREIRA CRUZ</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">GABRIELA PIRES BONFANTI</td>
+                                <td class="p-4 text-center text-gray-600">0.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 3,567.41</td>
+                                <td class="p-4 text-right text-xs text-gray-400">3.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">GABRIELA SELKE ALVES</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">GILBERTO RODRIGUES PINTO</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 8,323.97</td>
+                                <td class="p-4 text-right text-xs text-gray-400">8.3%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">HELIANA SOUZA MARTINHO</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.0</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 4,756.55</td>
+                                <td class="p-4 text-right text-xs text-gray-400">4.8%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">HOLANDO DE SOUZA CAMPOS JR</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.0</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 4,756.55</td>
+                                <td class="p-4 text-right text-xs text-gray-400">4.8%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">JULIA FERREIRA GUIMARAES DIAS</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 5,945.69</td>
+                                <td class="p-4 text-right text-xs text-gray-400">6.0%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">KAMILA BARBOSA BORGES</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">LARISSA FERNANDES BANDEIRA AMORIM</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">MARCO ANTONIO GONCALVES PREZA</td>
+                                <td class="p-4 text-center text-gray-600">0.25</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 1,189.14</td>
+                                <td class="p-4 text-right text-xs text-gray-400">1.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">MARCONDES PAIVA SERRA</td>
+                                <td class="p-4 text-center font-bold text-blue-600">1.0</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 4,756.55</td>
+                                <td class="p-4 text-right text-xs text-gray-400">4.8%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">MAURINA FREITAS TENUTA</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">MAURO PEREIRA PACHECO FILHO</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">MICHELLE KAGUIMOTO MARTINS PEREIRA</td>
+                                <td class="p-4 text-center text-gray-600">0.875</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 4,161.98</td>
+                                <td class="p-4 text-right text-xs text-gray-400">4.2%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">NATHALIA NEVES</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">RAFAELA CAMPOS ANDRADE</td>
+                                <td class="p-4 text-center text-gray-600">0.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 3,567.41</td>
+                                <td class="p-4 text-right text-xs text-gray-400">3.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">TAMIRES FRANCA BERTAO</td>
+                                <td class="p-4 text-center text-gray-600">0.75</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 3,567.41</td>
+                                <td class="p-4 text-right text-xs text-gray-400">3.6%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">THAINARA VICTORIA TONDORF DELBEN</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                            <tr class="hover:bg-gray-50 border-b last:border-0 transition-colors">
+                                <td class="p-4 font-medium">VICTOR HUGO DE ALMEIDA</td>
+                                <td class="p-4 text-center text-gray-600">0.5</td>
+                                <td class="p-4 text-right font-bold text-green-700 bg-green-50/50">R$ 2,378.28</td>
+                                <td class="p-4 text-right text-xs text-gray-400">2.4%</td>
+                            </tr>
+        
+                        </tbody>
+                        <tfoot class="bg-gray-100 font-bold text-gray-800">
+                            <tr>
+                                <td class="p-4">TOTAL GERAL</td>
+                                <td class="p-4 text-center">21.00</td>
+                                <td class="p-4 text-right text-green-800">R$ 99,887.60</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#tabela-rateio').DataTable({
+                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+                    dom: 't', // Apenas a tabela, sem pesquisa/paginação (lista completa é melhor para rateio)
+                    paging: false,
+                    order: [[ 0, 'asc' ]] // Ordenar por Profissional (A-Z)
+                });
+            });
+        </script>
+    </body>
+    </html>
+    
