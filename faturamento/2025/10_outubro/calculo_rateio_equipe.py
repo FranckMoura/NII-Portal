@@ -2,9 +2,9 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.3 (Correção de Duplicidade - Filtro de Linhas de Total)
-# Descrição: Processa Rateio + Individual com lógica robusta para PDFs quebrados
-#            e ignora linhas de totalização do sistema para evitar duplicidade.
+# Versão: 2.4 (Filtro de Diárias Hospitalares e Totais)
+# Descrição: Processa Rateio + Individual. Exclui linhas de "DIÁRIA" que são
+#            faturamento hospitalar e não médico.
 # ==============================================================================
 
 import pdfplumber
@@ -152,15 +152,13 @@ def processar_rateio():
     return total_bolo_sp, codigos_rateio, df_vinculos
 
 def processar_individual(codigos_blacklist):
-    print(f"2. Processando Produção Individual (com filtro de Totais)...")
+    print(f"2. Processando Produção Individual (com filtros avançados)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print(f"[ERRO] Arquivo não encontrado: {os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA)}")
         return pd.DataFrame(), pd.DataFrame()
 
     dados = []
     prestador_atual = "DESCONHECIDO"
-    
-    # Memória de contexto para PDFs quebrados
     codigo_em_espera = None 
     
     regex_prestador = re.compile(r'^([A-Z\s\.]+)\s+\(\d+\)$')
@@ -171,26 +169,30 @@ def processar_individual(codigos_blacklist):
             text = page.extract_text() or ""
             for line in text.split('\n'):
                 line = line.strip()
-                
-                # --- CORREÇÃO V2.3: IGNORAR LINHAS DE TOTALIZAÇÃO ---
-                # Evita capturar "Total do Prestador: 1.000,00" como um item "N/D"
                 linha_upper = line.upper()
+                
+                # --- CORREÇÃO V2.3: FILTRO DE TOTAIS ---
                 if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper or "GRUPO" in linha_upper):
                     continue
+
+                # --- CORREÇÃO V2.4: FILTRO DE DIÁRIAS (HOSPITALAR) ---
+                # Remove itens como "DIARIA DE UTI", "DIARIA DE ACOMPANHANTE", etc.
+                if "DIARIA" in linha_upper or "DIÁRIA" in linha_upper:
+                    continue
                 
-                # 1. Troca de Prestador (Reseta memória)
+                # 1. Identifica Prestador
                 match_prest = regex_prestador.match(line)
                 if match_prest and "HOSPITAL" not in line:
                     prestador_atual = match_prest.group(1).strip()
-                    codigo_em_espera = None # Novo médico, limpa memória
+                    codigo_em_espera = None 
                     continue
                 
-                # 2. Captura Código (Guarda na memória)
+                # 2. Captura Código (Contexto)
                 match_c = regex_cod.search(line)
                 if match_c:
                     codigo_em_espera = match_c.group(1)
                 
-                # 3. Captura Valor (Usa a memória para validar)
+                # 3. Captura Valor
                 if re.search(r'\d+,\d{2}$', line):
                     try:
                         val_str = line.split()[-1]
@@ -199,6 +201,7 @@ def processar_individual(codigos_blacklist):
                         if valor > 0 and prestador_atual != "DESCONHECIDO":
                             codigo_final = match_c.group(1) if match_c else codigo_em_espera
                             
+                            # Verifica se já foi pago no rateio
                             eh_rateio = codigo_final and codigo_final in codigos_blacklist
                             
                             if not eh_rateio:
@@ -361,7 +364,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
             <!-- ABA INDIVIDUAL -->
             <div id='tab-indiv' class='view-tab hidden tab-container'>
                 <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-100">
-                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio foram excluídos desta lista.
+                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio (e Diárias Hospitalares) foram excluídos desta lista.
                 </div>
                 <table id='tbl-indiv' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador</th><th>Procedimento / Cód.</th><th class='text-right'>Valor</th></tr></thead>
