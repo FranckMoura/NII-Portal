@@ -2,8 +2,9 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.2 (Correção de Duplicidade - Memória de Contexto)
-# Descrição: Processa Rateio + Individual com lógica robusta para PDFs quebrados.
+# Versão: 2.3 (Correção de Duplicidade - Filtro de Linhas de Total)
+# Descrição: Processa Rateio + Individual com lógica robusta para PDFs quebrados
+#            e ignora linhas de totalização do sistema para evitar duplicidade.
 # ==============================================================================
 
 import pdfplumber
@@ -151,7 +152,7 @@ def processar_rateio():
     return total_bolo_sp, codigos_rateio, df_vinculos
 
 def processar_individual(codigos_blacklist):
-    print(f"2. Processando Produção Individual (com memória de contexto)...")
+    print(f"2. Processando Produção Individual (com filtro de Totais)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print(f"[ERRO] Arquivo não encontrado: {os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA)}")
         return pd.DataFrame(), pd.DataFrame()
@@ -171,6 +172,12 @@ def processar_individual(codigos_blacklist):
             for line in text.split('\n'):
                 line = line.strip()
                 
+                # --- CORREÇÃO V2.3: IGNORAR LINHAS DE TOTALIZAÇÃO ---
+                # Evita capturar "Total do Prestador: 1.000,00" como um item "N/D"
+                linha_upper = line.upper()
+                if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper or "GRUPO" in linha_upper):
+                    continue
+                
                 # 1. Troca de Prestador (Reseta memória)
                 match_prest = regex_prestador.match(line)
                 if match_prest and "HOSPITAL" not in line:
@@ -179,7 +186,6 @@ def processar_individual(codigos_blacklist):
                     continue
                 
                 # 2. Captura Código (Guarda na memória)
-                # Mesmo que o valor não esteja nesta linha, guardamos o código
                 match_c = regex_cod.search(line)
                 if match_c:
                     codigo_em_espera = match_c.group(1)
@@ -191,10 +197,8 @@ def processar_individual(codigos_blacklist):
                         valor = limpar_valor_monetario(val_str)
                         
                         if valor > 0 and prestador_atual != "DESCONHECIDO":
-                            # O código é o que está na linha OU o que estava esperando na memória
                             codigo_final = match_c.group(1) if match_c else codigo_em_espera
                             
-                            # VERIFICAÇÃO CRÍTICA: Se o código final estiver na Blacklist, IGNORA
                             eh_rateio = codigo_final and codigo_final in codigos_blacklist
                             
                             if not eh_rateio:
@@ -205,9 +209,7 @@ def processar_individual(codigos_blacklist):
                                     'Detalhes': line[:60]
                                 })
                             
-                            # Consome a memória após usar (evita arrastar código antigo)
                             codigo_em_espera = None 
-                            
                     except: pass
     
     df = pd.DataFrame(dados)
