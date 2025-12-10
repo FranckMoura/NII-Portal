@@ -16,42 +16,40 @@ CAMINHO_HTML = os.path.join(PASTA_PROJETO, NOME_HTML)
 CAMINHO_JSON = os.path.join(PASTA_ARQUIVOS, NOME_JSON)
 
 def gerar_painel():
-    print("--- GERANDO DASHBOARD INDICASUS (V3 - CARGA TOTAL) ---")
+    print("--- GERANDO DASHBOARD INDICASUS (V6 - BARRAS) ---")
     
     if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
 
     conn = sqlite3.connect(BANCO_DADOS)
     
     try:
-        # Carrega dados
         df = pd.read_sql_query("SELECT * FROM indicasus", conn)
         
         if df.empty:
-            print("❌ Tabela Indicasus vazia no banco.")
+            print("❌ Tabela Indicasus vazia.")
             return
 
-        # Diagnóstico de Data
-        print(f"   Exemplo de data no banco: {df['data_internacao'].iloc[0]}")
-
-        # Tenta converter Data para ordenação (sem filtrar/cortar nada)
+        # Tratamento de Data e Ordenação
         df['data_obj'] = pd.to_datetime(df['data_internacao'], dayfirst=True, errors='coerce')
         
-        # Ordena (Mais recente primeiro) e cria string ISO
-        df = df.sort_values(by='data_obj', ascending=False)
-        df['data_internacao'] = df['data_obj'].dt.strftime('%d/%m/%Y').fillna("-") # Garante formato BR visual
+        # Filtro de Segurança (Últimos 5 anos para garantir que pegue 2025 e anteriores se precisar)
+        # Se quiser ver TUDO sem corte, comente as duas linhas abaixo
+        # df_rec = df[df['data_obj'].dt.year >= 2020].copy()
+        # df = df_rec
         
-        # Remove a coluna temporária de objeto para não bugar o JSON
+        # Formatação
+        df['data_iso'] = df['data_obj'].dt.strftime('%Y-%m-%d').fillna("")
+        df['data_visual'] = df['data_obj'].dt.strftime('%d/%m/%Y').fillna("-")
+        
+        df = df.sort_values(by='data_iso', ascending=False)
         df = df.drop(columns=['data_obj'])
-        
-        # Preenche vazios
         df = df.fillna("-")
         
-        # Salva JSON COMPLETO (Sem cortes de data)
+        # Salva JSON
         df.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
-        
-        print(f"   💾 JSON gerado com SUCESSO: {len(df)} registros.")
+        print(f"   💾 JSON salvo: {len(df)} registros.")
 
-        # HTML (Visual)
+        # HTML
         html_template = f"""
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -65,59 +63,182 @@ def gerar_painel():
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
     
     <style>
-        :root {{ --primary: #6f42c1; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }}
-        body {{ font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }}
-        .header {{ background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
-        .cards-container {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }}
-        .card {{ background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }}
-        .card .value {{ font-size: 32px; font-weight: bold; margin-top: 10px; color: #333; }}
-        .charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }}
-        .chart-box {{ background: white; padding: 20px; border-radius: 8px; height: 350px; }}
-        .table-box {{ background: white; padding: 20px; border-radius: 8px; }}
+        /* CSS Específico do Módulo */
+        .filter-box {{ background: #e0daef; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #d6cce5; flex-wrap: wrap; }}
+        .filter-box label {{ font-weight: bold; color: #6f42c1; }}
+        .filter-box input {{ padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }}
+        .btn-filter {{ background: #6f42c1; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }}
+        .btn-reset {{ background: #fff; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; cursor: pointer; }}
+        
+        .badge {{ padding: 4px 8px; border-radius: 12px; font-size: 11px; color: white; font-weight: bold; }}
+        .bg-alta {{ background: #28a745; }}
+        .bg-obito {{ background: #dc3545; }}
+        .bg-inter {{ background: #ffc107; color: #333; }}
+        .bg-transf {{ background: #17a2b8; }}
+        
+        .data-table-container {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <h1 style="color:var(--primary)">Monitoramento IndicaSUS</h1>
-            <p>Histórico Completo ({len(df)} registros)</p>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand-link">
+                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
+                <span class="navbar-brand-text">NII - HBSH</span>
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="faturamento.html">Faturamento</a></li>
+                <li><a href="indicadores.html">Indicadores</a></li>
+                <li><a href="manuais.html">Manuais</a></li>
+                <li><a href="institucional.html">Institucional</a></li>
+            </ul>
         </div>
-        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
+    </nav>
+
+    <div class="container" style="margin-top: 20px;">
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #6f42c1;">
+            <div>
+                <h1 style="color: #6f42c1; margin: 0;">Monitoramento IndicaSUS</h1>
+                <p style="margin: 5px 0 0; color: #666;">Controle de Leitos e Internações</p>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 12px; color: #999;">Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+            </div>
+        </div>
+
+        <div class="filter-box">
+            <i class="fas fa-filter" style="font-size:20px; color:#6f42c1;"></i>
+            <div><label>De:</label> <input type="date" id="minDate"></div>
+            <div><label>Até:</label> <input type="date" id="maxDate"></div>
+            <button onclick="aplicarFiltro()" class="btn-filter">Filtrar</button>
+            <button onclick="limparFiltro()" class="btn-reset">Limpar (Ver Tudo)</button>
+            <span id="loading" style="margin-left:auto; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando...</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; border-top:4px solid #6f42c1; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin:0; font-size:14px; color:#666;">TOTAL</h3>
+                <div id="vTotal" style="font-size:32px; font-weight:bold; color:#333; margin-top:10px;">-</div>
+            </div>
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; border-top:4px solid #28a745; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin:0; font-size:14px; color:#666;">ALTAS</h3>
+                <div id="vAlta" style="font-size:32px; font-weight:bold; color:#333; margin-top:10px;">-</div>
+            </div>
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; border-top:4px solid #dc3545; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin:0; font-size:14px; color:#666;">ÓBITOS</h3>
+                <div id="vObito" style="font-size:32px; font-weight:bold; color:#333; margin-top:10px;">-</div>
+            </div>
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; border-top:4px solid #ffc107; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin:0; font-size:14px; color:#666;">INTERNADOS</h3>
+                <div id="vInternado" style="font-size:32px; font-weight:bold; color:#333; margin-top:10px;">-</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="background:white; padding:20px; border-radius:8px; height:350px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0; color:#666; font-size:16px;">Tipo de Leito (Quantidade)</h3>
+                <canvas id="cLeito"></canvas>
+            </div>
+            <div style="background:white; padding:20px; border-radius:8px; height:350px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0; color:#666; font-size:16px;">Desfecho Clínico</h3>
+                <canvas id="cEvolucao"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table-container">
+            <h3 style="margin-top:0; color:#333;">Registros</h3>
+            <table id="tabelaIndica" class="display" style="width:100%">
+                <thead>
+                    <tr><th>Data Int.</th><th>Paciente</th><th>CNS</th><th>Leito</th><th>Evolução</th><th>AIH</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
     </div>
 
-    <div class="cards-container">
-        <div class="card" style="border-color: var(--primary)"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
-        <div class="card" style="border-color: #28a745"><h3>Altas</h3><div class="value" id="vAlta">-</div></div>
-        <div class="card" style="border-color: #dc3545"><h3>Óbitos</h3><div class="value" id="vObito">-</div></div>
-        <div class="card" style="border-color: #ffc107"><h3>Internados</h3><div class="value" id="vInternado">-</div></div>
-    </div>
-
-    <div class="charts-row">
-        <div class="chart-box"><h3>Tipo de Leito</h3><canvas id="cLeito"></canvas></div>
-        <div class="chart-box"><h3>Desfecho Clínico</h3><canvas id="cEvolucao"></canvas></div>
-    </div>
-
-    <div class="table-box">
-        <table id="tabelaIndica" class="display" style="width:100%">
-            <thead>
-                <tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Município</th><th>Leito</th><th>Evolução</th><th>AIH</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <footer class="main-footer">
+        <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
+        <p style="margin-top: 5px; font-size: 0.9em;">Desenvolvido por: <strong>Franck Moura</strong></p>
+    </footer>
 
     <script>
-        // Cache Buster para garantir dados novos
+        let dadosGlobais = [];
+        let table = null;
+        let chartL = null, chartE = null;
+
+        const hoje = new Date();
+        const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        document.getElementById('minDate').valueAsDate = inicioMes;
+        document.getElementById('maxDate').valueAsDate = hoje;
+
         fetch('arquivos/{NOME_JSON}?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {{
-                processar(dados);
+                dadosGlobais = dados;
+                document.getElementById('loading').style.display = 'none';
+                inicializarTabela();
+                aplicarFiltro();
             }})
-            .catch(err => console.error("Erro ao carregar JSON:", err));
+            .catch(err => {{
+                console.error(err);
+                document.getElementById('loading').innerText = "Erro.";
+            }});
 
-        function processar(dados) {{
+        function inicializarTabela() {{
+            table = $('#tabelaIndica').DataTable({{
+                data: [],
+                language: {{ url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
+                pageLength: 10,
+                order: [[0, "desc"]],
+                columnDefs: [{{ type: "date-eu", targets: 0 }}],
+                columns: [
+                    {{ data: "data_visual" }},
+                    {{ data: "paciente" }},
+                    {{ data: "cns" }},
+                    {{ data: "nome_leito" }},
+                    {{ 
+                        data: "evolucao",
+                        render: function(d) {{
+                            let s = (d || "").toLowerCase();
+                            let c = "bg-inter";
+                            if(s.includes("alta") || s.includes("cura")) c = "bg-alta";
+                            else if(s.includes("obito") || s.includes("óbito")) c = "bg-obito";
+                            else if(s.includes("transf")) c = "bg-transf";
+                            return `<span class="badge ${{c}}">${{d}}</span>`;
+                        }}
+                    }},
+                    {{ data: "aih" }}
+                ]
+            }});
+        }}
+
+        function aplicarFiltro() {{
+            const d1 = document.getElementById('minDate').value;
+            const d2 = document.getElementById('maxDate').value;
+
+            const filtrados = dadosGlobais.filter(item => {{
+                if (!item.data_iso) return false;
+                if (d1 && item.data_iso < d1) return false;
+                if (d2 && item.data_iso > d2) return false;
+                return true;
+            }});
+            processarDashboard(filtrados);
+        }}
+
+        function limparFiltro() {{
+            document.getElementById('minDate').value = "";
+            document.getElementById('maxDate').value = "";
+            processarDashboard(dadosGlobais);
+        }}
+
+        function processarDashboard(dados) {{
             let total = dados.length;
             let alta = 0, obito = 0, internado = 0;
             let tiposLeito = {{}};
@@ -125,17 +246,16 @@ def gerar_painel():
 
             dados.forEach(d => {{
                 let ev = (d.evolucao || "").toLowerCase();
-                let leito = d.tipo_leito || "Não Informado";
+                let leito = d.tipo_leito || "Outros";
 
                 if(ev.includes("alta") || ev.includes("cura")) alta++;
-                else if(ev.includes("obito") || ev.includes("óbito") || ev.includes("falecimento")) obito++;
+                else if(ev.includes("obito") || ev.includes("óbito") || ev.includes("falec")) obito++;
                 else internado++;
 
-                // Contagens
                 tiposLeito[leito] = (tiposLeito[leito] || 0) + 1;
                 
-                let evSimples = "Internado/Outros";
-                if(ev.includes("alta")) evSimples = "Alta";
+                let evSimples = "Internado";
+                if(ev.includes("alta")) evSimples = "Alta/Cura";
                 if(ev.includes("obito")) evSimples = "Óbito";
                 evolucoes[evSimples] = (evolucoes[evSimples] || 0) + 1;
             }});
@@ -145,38 +265,35 @@ def gerar_painel():
             document.getElementById('vObito').innerText = obito;
             document.getElementById('vInternado').innerText = internado;
 
-            $('#tabelaIndica').DataTable({{
-                data: dados,
-                language: {{ url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
-                order: [], // Mantem ordem do Python
-                pageLength: 10,
-                columns: [
-                    {{ data: "data_internacao" }},
-                    {{ data: "paciente" }},
-                    {{ data: "cns" }},
-                    {{ data: "municipio" }},
-                    {{ data: "nome_leito" }},
-                    {{ data: "evolucao" }},
-                    {{ data: "aih" }}
-                ]
-            }});
-
+            table.clear().rows.add(dados).draw();
             gerarGraficos(tiposLeito, evolucoes);
         }}
 
         function gerarGraficos(leitos, evolucoes) {{
             const ctxL = document.getElementById('cLeito');
-            new Chart(ctxL, {{
-                type: 'doughnut',
+            if (chartL) chartL.destroy();
+            chartL = new Chart(ctxL, {{
+                type: 'bar', // MUDANÇA AQUI: Tipo BAR
                 data: {{
                     labels: Object.keys(leitos),
-                    datasets: [{{ data: Object.values(leitos), backgroundColor: ['#6f42c1', '#20c997', '#fd7e14', '#0d6efd', '#6610f2'] }}]
+                    datasets: [{{ 
+                        label: 'Pacientes',
+                        data: Object.values(leitos), 
+                        backgroundColor: '#6f42c1', // Roxo
+                        borderRadius: 5
+                    }}]
                 }},
-                options: {{ responsive: true, maintainAspectRatio: false }}
+                options: {{ 
+                    indexAxis: 'y', // Barra Horizontal
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {{ legend: {{ display: false }} }} // Sem legenda
+                }}
             }});
 
             const ctxE = document.getElementById('cEvolucao');
-            new Chart(ctxE, {{
+            if (chartE) chartE.destroy();
+            chartE = new Chart(ctxE, {{
                 type: 'bar',
                 data: {{
                     labels: Object.keys(evolucoes),
@@ -192,7 +309,7 @@ def gerar_painel():
         with open(CAMINHO_HTML, "w", encoding="utf-8") as f:
             f.write(html_template)
             
-        print("✅ Dashboard IndicaSUS gerado com SUCESSO!")
+        print("✅ Dashboard IndicaSUS gerado (Com Gráfico de Barras)!")
 
     except Exception as e:
         print(f"❌ Erro: {e}")

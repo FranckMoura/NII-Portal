@@ -5,65 +5,86 @@ from datetime import datetime
 
 # --- CONFIGURAÇÕES ---
 PASTA_ARQUIVOS = 'arquivos'
-ARQUIVO_DB = 'dados.json'
+ARQUIVO_DB_JSON = 'dados.json'
 
-print("--- INICIANDO GERENCIADOR DE UPLOAD NII ---")
+print("--- INICIANDO GERENCIADOR DE UPLOAD NII (V4 - ESPECÍFICO) ---")
 
-# 1. Escanear a pasta de arquivos
+# 1. Atualiza lista de downloads (Mantido da versão anterior)
 lista_arquivos = []
-
-# Verifica se a pasta existe
-if not os.path.exists(PASTA_ARQUIVOS):
-    os.makedirs(PASTA_ARQUIVOS)
-    print(f"Pasta '{PASTA_ARQUIVOS}' criada. Coloque seus arquivos lá!")
+if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
 
 print(f"Lendo arquivos em '{PASTA_ARQUIVOS}'...")
-
 for nome_arquivo in os.listdir(PASTA_ARQUIVOS):
-    # Ignora arquivos ocultos ou de sistema
     if nome_arquivo.startswith('.'): continue
-
     caminho_completo = os.path.join(PASTA_ARQUIVOS, nome_arquivo)
-    
-    # Pega informações do arquivo
-    stats = os.stat(caminho_completo)
-    tamanho_kb = round(stats.st_size / 1024, 2)
-    data_modificacao = datetime.fromtimestamp(stats.st_mtime).strftime('%d/%m/%Y')
-    
-    # Define o ícone baseado na extensão
-    tipo = "outro"
-    icone = "📄"
-    if nome_arquivo.lower().endswith('.pdf'):
-        tipo = "pdf"
-        icone = "📕" # Ícone de livro vermelho
-    elif nome_arquivo.lower().endswith('.html'):
-        tipo = "html"
-        icone = "🌐" # Ícone de globo
+    try:
+        stats = os.stat(caminho_completo)
+        tamanho_kb = round(stats.st_size / 1024, 2)
+        data_modificacao = datetime.fromtimestamp(stats.st_mtime).strftime('%d/%m/%Y')
+        tipo = "outro"
+        icone = "📄"
+        if nome_arquivo.lower().endswith('.pdf'): tipo, icone = "pdf", "📕"
+        elif nome_arquivo.lower().endswith('.html'): tipo, icone = "html", "🌐"
+        elif nome_arquivo.lower().endswith('.csv'): tipo, icone = "csv", "📊"
+        elif nome_arquivo.lower().endswith('.parquet'): tipo, icone = "parquet", "📦"
+        elif nome_arquivo.lower().endswith('.xls'): tipo, icone = "excel", "📗"
 
-    # Adiciona na lista
-    lista_arquivos.append({
-        "nome": nome_arquivo,
-        "caminho": f"{PASTA_ARQUIVOS}/{nome_arquivo}",
-        "tamanho": f"{tamanho_kb} KB",
-        "data": data_modificacao,
-        "tipo": tipo,
-        "icone": icone
-    })
+        lista_arquivos.append({
+            "nome": nome_arquivo,
+            "caminho": f"{PASTA_ARQUIVOS}/{nome_arquivo}",
+            "tamanho": f"{tamanho_kb} KB",
+            "data": data_modificacao,
+            "tipo": tipo,
+            "icone": icone
+        })
+    except: pass
 
-# 2. Salvar no "Banco de Dados" (JSON)
-with open(ARQUIVO_DB, 'w', encoding='utf-8') as f:
+with open(ARQUIVO_DB_JSON, 'w', encoding='utf-8') as f:
     json.dump(lista_arquivos, f, indent=4, ensure_ascii=False)
 
-print(f"Base de dados atualizada com {len(lista_arquivos)} arquivos.")
-
-# 3. Upload para o GitHub (Automação Git)
-# Nota: Você precisa ter o Git instalado e configurado nesta pasta
+# 2. UPLOAD CIRÚRGICO
 print("\nEnviando para o Portal...")
 try:
-    subprocess.run(["git", "add", "."], check=True)
-    subprocess.run(["git", "commit", "-m", f"Atualização automática: {datetime.now()}"], check=True)
-    subprocess.run(["git", "push"], check=True)
-    print("\n[SUCESSO] Arquivos enviados! O portal atualizará em alguns minutos.")
+    # Lista de arquivos OBRIGATÓRIOS para o site funcionar
+    arquivos_vitais = [
+        "index.html",
+        "painel_regulacao.html",
+        "indicasus.html",
+        "faturamento.html",
+        "manuais.html",
+        "indicadores.html",
+        "dados.json",
+        "css/",
+        "js/",
+        "img/",
+        "arquivos/dados_sisreg.json",    # Vital para o painel SISREG
+        "arquivos/dados_indicasus.json", # Vital para o painel IndicaSUS
+        "arquivos/base_sisreg.parquet"   # Backup seguro
+    ]
+
+    # Adiciona cada um explicitamente
+    for item in arquivos_vitais:
+        if os.path.exists(item):
+            subprocess.run(["git", "add", item], check=False)
+    
+    # Força adicionar scripts Python (para manter backup do código)
+    subprocess.run(["git", "add", "*.py"], check=False)
+
+    # Commit e Push
+    msg = f"Atualização Auto: {datetime.now().strftime('%d/%m %H:%M')}"
+    
+    # Verifica se tem algo para commitar
+    status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout
+    
+    if status:
+        subprocess.run(["git", "commit", "-m", msg], check=True)
+        print("   -> Commit realizado.")
+        subprocess.run(["git", "push"], check=True)
+        print("\n✅ [SUCESSO] Site atualizado e arquivos enviados!")
+    else:
+        print("\nℹ️ [INFO] Nada mudou desde o último envio.")
+
+except subprocess.CalledProcessError as e:
+    print(f"\n❌ [ERRO NO GIT] {e}")
 except Exception as e:
-    print(f"\n[ERRO NO GIT] {e}")
-    print("Verifique se você configurou o git init e o remote corretamente.")
+    print(f"\n❌ [ERRO GERAL] {e}")

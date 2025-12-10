@@ -4,8 +4,8 @@
         "caminho": "arquivos/base_sisreg.parquet",
         "tamanho": "74.64 KB",
         "data": "09/12/2025",
-        "tipo": "outro",
-        "icone": "📄"
+        "tipo": "parquet",
+        "icone": "📦"
     },
     {
         "nome": "dados_indicasus.json",
@@ -76,8 +76,8 @@
         "caminho": "arquivos/Indicasus.xls",
         "tamanho": "4316.68 KB",
         "data": "07/12/2025",
-        "tipo": "outro",
-        "icone": "📄"
+        "tipo": "excel",
+        "icone": "📗"
     },
     {
         "nome": "indice_pacientes.html",

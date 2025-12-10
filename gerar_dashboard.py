@@ -1,272 +1,225 @@
-import sqlite3
-import pandas as pd
+import duckdb
 import os
-from datetime import datetime
 import json
+from datetime import datetime
 
 # --- CONFIGURAÇÕES ---
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
-BANCO_DADOS = os.path.join(PASTA_PROJETO, "dados_sisreg.db")
-NOME_ARQUIVO_HTML = "painel_regulacao.html"
-CAMINHO_FINAL_HTML = os.path.join(PASTA_PROJETO, NOME_ARQUIVO_HTML)
+ARQUIVO_PARQUET = os.path.join(PASTA_PROJETO, "arquivos", "base_sisreg.parquet")
+CAMINHO_JSON = os.path.join(PASTA_PROJETO, "arquivos", "dados_sisreg.json")
+CAMINHO_HTML = os.path.join(PASTA_PROJETO, "painel_regulacao.html")
 
 def gerar_html():
-    print("--- GERANDO DASHBOARD (COM LIMPEZA DE DADOS .0) ---")
+    print("--- GERANDO DASHBOARD (V15 - FILTRO PRECISO) ---")
     
-    conn = sqlite3.connect(BANCO_DADOS)
-    
-    # Datas padrão (Mês atual)
-    hoje = datetime.now()
-    data_inicio_padrao = hoje.replace(day=1).strftime('%Y-%m-%d')
-    data_fim_padrao = hoje.strftime('%Y-%m-%d')
-    
-    try:
-        # Carrega TUDO
-        query = """
-        SELECT 
-            data_da_solicitacao,
-            nome_do_paciente,
-            cns_do_paciente,
-            n_da_solicitacao,
-            n_aih,
-            nome_do_procedimento_solicitado,
-            status_da_solicitacao_de_internacao,
-            carater_internacao
-        FROM solicitacoes
-        """
-        df = pd.read_sql_query(query, conn)
-        df['data_dt'] = pd.to_datetime(df['data_da_solicitacao'], dayfirst=True, errors='coerce')
-        
-        # Filtra ano atual
-        df = df[df['data_dt'].dt.year == hoje.year].copy()
-        
-        # Converte data para ISO (para o filtro funcionar)
-        df['data_iso'] = df['data_dt'].dt.strftime('%Y-%m-%d')
-        
-        # --- AQUI ESTÁ A CORREÇÃO DO ".0" ---
-        # Função para limpar números que viraram decimais
-        def limpar_numero(valor):
-            if pd.isna(valor) or str(valor).strip() == "":
-                return "-"
-            s = str(valor)
-            if s.endswith('.0'):
-                return s[:-2] # Remove os dois ultimos caracteres (.0)
-            return s
-
-        # Aplica a limpeza nas colunas numéricas
-        colunas_para_limpar = ['cns_do_paciente', 'n_da_solicitacao', 'n_aih']
-        for col in colunas_para_limpar:
-            df[col] = df[col].apply(limpar_numero)
-
-        # Transforma em JSON para o HTML ler
-        dados_json = df.to_json(orient='records')
-        
-        print(f"Registros processados e limpos: {len(df)}")
-
-    except Exception as e:
-        print(f"Erro: {e}")
-        conn.close()
+    if not os.path.exists(ARQUIVO_PARQUET):
+        print("❌ Parquet não encontrado. Rode o banco_dados_sisreg.py")
         return
 
-    conn.close()
-
-    # HTML
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Painel NII - Regulação HBSH</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    try:
+        con = duckdb.connect()
+        df = con.execute(f"SELECT * FROM '{ARQUIVO_PARQUET}' ORDER BY data_iso DESC").df()
         
-        <style>
-            :root {{ --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --dark: #343a40; }}
-            body {{ font-family: 'Roboto', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }}
-            
-            .header {{ background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
-            .header h1 {{ margin: 0; color: var(--primary); font-size: 24px; }}
-            
-            .filter-box {{ display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #90caf9; }}
-            .filter-box label {{ font-weight: bold; color: #0056b3; }}
-            .filter-box input {{ padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }}
-            
-            .cards-container {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }}
-            .card {{ background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }}
-            .card h3 {{ margin: 0 0 10px 0; color: #6c757d; font-size: 14px; text-transform: uppercase; }}
-            .card .value {{ font-size: 36px; font-weight: bold; color: var(--dark); }}
-            .card.blue .value {{ color: var(--primary); }}
-            .card.green .value {{ color: var(--success); }}
-            .card.yellow .value {{ color: var(--warning); }}
-            .card.red .value {{ color: var(--danger); }}
+        # Salva JSON
+        df.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
+        print(f"   💾 JSON gerado: {len(df)} linhas.")
 
-            .charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }}
-            .chart-container {{ background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; height: 350px; }}
-            
-            .table-container {{ background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }}
-            
-            .status-badge {{ padding: 5px 10px; border-radius: 15px; font-size: 11px; color: white; font-weight: bold; display: inline-block; min-width: 80px; text-align: center; }}
-            .bg-aprovado {{ background-color: var(--success); }}
-            .bg-pendente {{ background-color: var(--warning); color: #333; }}
-            .bg-negado {{ background-color: var(--danger); }}
-            .bg-outro {{ background-color: var(--primary); }}
-            
-            @media (max-width: 768px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
-        </style>
-    </head>
-    <body>
+        # Datas Padrão (Mês Atual)
+        hoje = datetime.now()
+        inicio_padrao = hoje.replace(day=1).strftime('%Y-%m-%d')
+        fim_padrao = hoje.strftime('%Y-%m-%d')
 
-        <div class="header">
-            <div>
-                <h1>Portal NII - Monitoramento de Regulação</h1>
-                <p>Hospital Beneficente Santa Helena</p>
-            </div>
-            <div style="text-align: right;">
-                <p style="font-size: 12px; color: #999;">Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
-                <a href="index.html" style="text-decoration:none; background:#6c757d; color:white; padding:5px 10px; border-radius:5px; font-size:12px;">Voltar</a>
-            </div>
-        </div>
+        html_template = f"""
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel NII - Regulação</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {{ --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }}
+        body {{ font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }}
+        .header {{ background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
+        .filter-box {{ background: #e3f2fd; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #90caf9; }}
+        .cards-container {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }}
+        .card {{ background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }}
+        .card .value {{ font-size: 32px; font-weight: bold; margin-top: 10px; }}
+        .chart-box {{ background: white; padding: 20px; border-radius: 8px; height: 300px; }}
+        .charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }}
+        .table-box {{ background: white; padding: 20px; border-radius: 8px; }}
+        .status-badge {{ padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }}
+        .bg-aprovado {{ background: var(--success); }}
+        .bg-pendente {{ background: var(--warning); color: #333; }}
+        .bg-negado {{ background: var(--danger); }}
+        .bg-outro {{ background: var(--primary); }}
+        @media (max-width: 768px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><h1>Monitoramento SISREG</h1><p>Visão Geral</p></div>
+        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
+    </div>
 
-        <div class="filter-box">
-            <i class="fas fa-calendar-alt" style="font-size:20px; color:#0056b3;"></i>
-            <div><label>Início:</label><input type="date" id="minDate" value="{data_inicio_padrao}"></div>
-            <div><label>Fim:</label><input type="date" id="maxDate" value="{data_fim_padrao}"></div>
-            <button onclick="atualizarDashboard()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
-        </div>
+    <div class="filter-box">
+        <i class="fas fa-filter" style="color:#0056b3"></i>
+        <div><label>De:</label> <input type="date" id="minDate" value="{inicio_padrao}"></div>
+        <div><label>Até:</label> <input type="date" id="maxDate" value="{fim_padrao}"></div>
+        <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
+        <button onclick="limparFiltros()" style="background:#fff; color:#333; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo</button>
+        <span id="loading" style="margin-left:10px; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando...</span>
+    </div>
 
-        <div class="cards-container">
-            <div class="card blue"><h3>Total</h3><div class="value" id="valTotal">-</div></div>
-            <div class="card green"><h3>Aprovados</h3><div class="value" id="valAprovados">-</div></div>
-            <div class="card yellow"><h3>Pendentes</h3><div class="value" id="valPendentes">-</div></div>
-            <div class="card red"><h3>Negados/Cancel</h3><div class="value" id="valNegados">-</div></div>
-        </div>
+    <div class="cards-container">
+        <div class="card" style="border-top-color: #0056b3;"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
+        <div class="card" style="border-top-color: #28a745;"><h3>Aprovados</h3><div class="value" id="vAprov">-</div></div>
+        <div class="card" style="border-top-color: #ffc107;"><h3>Pendentes</h3><div class="value" id="vPend">-</div></div>
+        <div class="card" style="border-top-color: #dc3545;"><h3>Negados</h3><div class="value" id="vNeg">-</div></div>
+    </div>
 
-        <div class="charts-row">
-            <div class="chart-container"><h3>Top 5 Procedimentos</h3><canvas id="chartProcedimentos"></canvas></div>
-            <div class="chart-container"><h3>Status</h3><canvas id="chartStatus"></canvas></div>
-        </div>
+    <div class="charts-row">
+        <div class="chart-box"><canvas id="cProc"></canvas></div>
+        <div class="chart-box"><canvas id="cStatus"></canvas></div>
+    </div>
 
-        <div class="table-container">
-            <h3 style="margin-top:0;">Pesquisa Detalhada</h3>
-            <table id="tabelaRegulacao" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Data</th><th>Paciente</th><th>CNS</th><th>Nº Solicit.</th><th>Nº AIH</th><th>Procedimento</th><th>Status</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <div class="table-box">
+        <table id="tabelaReg" class="display" style="width:100%">
+            <thead><tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Procedimento</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-        <script>
-            const todosDados = {dados_json};
-            let chartStatus = null;
-            let chartProc = null;
-            let table = null;
+    <script>
+        let dadosGlobais = [];
+        let table = null;
+        let chartS = null, chartP = null;
 
-            $(document).ready(function() {{
-                table = $('#tabelaRegulacao').DataTable({{
-                    "language": {{ "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
-                    "pageLength": 10,
-                    "order": [[0, "desc"]], // Ordena por Data (coluna 0) descrescente
-                    "columnDefs": [
-                        {{ "type": "date-eu", "targets": 0 }} // Ajuda na ordenação de data BR
-                    ],
-                    "columns": [
-                        {{ "data": "data_da_solicitacao" }},
-                        {{ "data": "nome_do_paciente" }},
-                        {{ "data": "cns_do_paciente" }},
-                        {{ "data": "n_da_solicitacao" }},
-                        {{ "data": "n_aih" }},
-                        {{ "data": "nome_do_procedimento_solicitado" }},
+        fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {{
+                dadosGlobais = dados;
+                document.getElementById('loading').style.display = 'none';
+                
+                table = $('#tabelaReg').DataTable({{
+                    data: [],
+                    pageLength: 10,
+                    order: [], 
+                    language: {{ url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
+                    columns: [
+                        {{ data: "data_visual" }},
+                        {{ data: "paciente" }},
+                        {{ data: "cns" }},
+                        {{ data: "num_sol" }},
+                        {{ data: "aih" }},
+                        {{ data: "proc" }},
                         {{ 
-                            "data": "status_da_solicitacao_de_internacao",
-                            "render": function(data, type, row) {{
-                                let css = "bg-outro";
-                                if(data && data.includes("Aprovado")) css = "bg-aprovado";
-                                else if(data && data.includes("Pendente")) css = "bg-pendente";
-                                else if(data && (data.includes("Negado") || data.includes("Cancelado"))) css = "bg-negado";
-                                return `<span class="status-badge ${{css}}">${{data || '-'}}</span>`;
+                            data: "status",
+                            render: function(d) {{
+                                let s = (d || "").toLowerCase();
+                                let c = "bg-outro";
+                                if(s.includes("aprovado")||s.includes("autorizado")) c = "bg-aprovado";
+                                else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
+                                else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
+                                return `<span class="status-badge ${{c}}">${{d}}</span>`;
                             }}
                         }}
                     ]
                 }});
-                atualizarDashboard();
+                
+                aplicarFiltro();
+            }})
+            .catch(err => console.error(err));
+
+        function limparFiltros() {{
+            document.getElementById('minDate').value = "";
+            document.getElementById('maxDate').value = "";
+            processarDados(dadosGlobais);
+        }}
+
+        function aplicarFiltro() {{
+            let d1 = document.getElementById('minDate').value;
+            let d2 = document.getElementById('maxDate').value;
+            
+            // --- FILTRO DE DATA PRECISO (JAVASCRIPT) ---
+            const filtrados = dadosGlobais.filter(item => {{
+                if (!item.data_iso) return false;
+                
+                // Compara strings ISO (YYYY-MM-DD) que funcionam perfeitamente
+                // Ex: "2025-11-15" >= "2025-11-01"
+                if (d1 && item.data_iso < d1) return false;
+                if (d2 && item.data_iso > d2) return false;
+                
+                return true;
+            }});
+            
+            processarDados(filtrados);
+        }}
+
+        function processarDados(dados) {{
+            let tot=dados.length, apr=0, pen=0, neg=0;
+            let procs = {{}};
+
+            dados.forEach(i => {{
+                let s = (i.status || "").toLowerCase();
+                if(s.includes("aprovado")||s.includes("autorizado")) apr++;
+                else if(s.includes("pendente")||s.includes("aguardando")) pen++;
+                else if(s.includes("negado")||s.includes("cancelado")) neg++;
+
+                let p = i.proc || "Outros";
+                procs[p] = (procs[p] || 0) + 1;
             }});
 
-            function atualizarDashboard() {{
-                const dInicio = document.getElementById('minDate').value;
-                const dFim = document.getElementById('maxDate').value;
+            document.getElementById('vTotal').innerText = tot;
+            document.getElementById('vAprov').innerText = apr;
+            document.getElementById('vPend').innerText = pen;
+            document.getElementById('vNeg').innerText = neg;
 
-                const dadosFiltrados = todosDados.filter(item => {{
-                    if (!item.data_iso) return false;
-                    return item.data_iso >= dInicio && item.data_iso <= dFim;
-                }});
+            table.clear().rows.add(dados).draw();
+            atualizarGraficos(apr, pen, neg, procs);
+        }}
 
-                let total = dadosFiltrados.length;
-                let aprovados = 0, pendentes = 0, negados = 0;
-                let contagemProc = {{}};
+        function atualizarGraficos(a, p, n, procs) {{
+            const ctxS = document.getElementById('cStatus');
+            if (chartS) chartS.destroy();
+            chartS = new Chart(ctxS, {{
+                type: 'doughnut',
+                data: {{
+                    labels: ['Aprovados', 'Pendentes', 'Negados'],
+                    datasets: [{{ data: [a, p, n], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }}]
+                }},
+                options: {{ responsive: true, maintainAspectRatio: false, cutout: '70%' }}
+            }});
 
-                dadosFiltrados.forEach(item => {{
-                    const st = item.status_da_solicitacao_de_internacao || "";
-                    if(st.includes("Aprovado")) aprovados++;
-                    else if(st.includes("Pendente")) pendentes++;
-                    else if(st.includes("Negado") || st.includes("Cancelado")) negados++;
+            const top5 = Object.entries(procs).sort((x,y)=>y[1]-x[1]).slice(0,5);
+            const ctxP = document.getElementById('cProc');
+            if (chartP) chartP.destroy();
+            chartP = new Chart(ctxP, {{
+                type: 'bar',
+                data: {{
+                    labels: top5.map(x=>x[0].substring(0,15)+'...'),
+                    datasets: [{{ label: 'Qtd', data: top5.map(x=>x[1]), backgroundColor: '#0056b3' }}]
+                }},
+                options: {{ indexAxis: 'y', responsive: true, maintainAspectRatio: false }}
+            }});
+        }}
+    </script>
+</body>
+</html>
+"""
+        with open(CAMINHO_HTML, "w", encoding="utf-8") as f:
+            f.write(html_template)
+            
+        print(f"✅ HTML SISREG Gerado com Sucesso!")
 
-                    const proc = item.nome_do_procedimento_solicitado || "Indefinido";
-                    contagemProc[proc] = (contagemProc[proc] || 0) + 1;
-                }});
-
-                document.getElementById('valTotal').innerText = total;
-                document.getElementById('valAprovados').innerText = aprovados;
-                document.getElementById('valPendentes').innerText = pendentes;
-                document.getElementById('valNegados').innerText = negados;
-
-                atualizarGraficos(aprovados, pendentes, negados, contagemProc);
-                table.clear().rows.add(dadosFiltrados).draw();
-            }}
-
-            function atualizarGraficos(aprovados, pendentes, negados, contagemProc) {{
-                const ctxStatus = document.getElementById('chartStatus');
-                if (chartStatus) chartStatus.destroy();
-                chartStatus = new Chart(ctxStatus, {{
-                    type: 'doughnut',
-                    data: {{
-                        labels: ['Aprovados', 'Pendentes', 'Negados/Outros'],
-                        datasets: [{{ data: [aprovados, pendentes, negados], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }}]
-                    }},
-                    options: {{ responsive: true, maintainAspectRatio: false, cutout: '65%' }}
-                }});
-
-                const top5 = Object.entries(contagemProc).sort((a, b) => b[1] - a[1]).slice(0, 5);
-                const labelsTop = top5.map(x => x[0].substring(0, 25) + '...');
-                const dataTop = top5.map(x => x[1]);
-
-                const ctxProc = document.getElementById('chartProcedimentos');
-                if (chartProc) chartProc.destroy();
-                chartProc = new Chart(ctxProc, {{
-                    type: 'bar',
-                    data: {{
-                        labels: labelsTop,
-                        datasets: [{{ label: 'Qtd', data: dataTop, backgroundColor: '#0056b3', borderRadius: 5 }}]
-                    }},
-                    options: {{ indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }} }}
-                }});
-            }}
-        </script>
-    </body>
-    </html>
-    """
-
-    with open(CAMINHO_FINAL_HTML, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    
-    print(f"Relatório gerado e limpo! Total: {len(df)}")
+    except Exception as e:
+        print(f"❌ Erro: {e}")
 
 if __name__ == "__main__":
     gerar_html()
