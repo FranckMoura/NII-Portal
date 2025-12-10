@@ -183,9 +183,6 @@ def processar_csv_soulmv(caminho_arquivo):
         return pd.DataFrame()
 
     # --- PÓS-PROCESSAMENTO: CURA DE NOMES (Sincronização de AIH) ---
-    # Estratégia: Varrer todos os dados. Se acharmos uma AIH com nome válido (ex: LINHA 1),
-    # usamos esse nome para preencher as linhas que estão "N/D" (ex: LINHA 2, 3) mas tem a mesma AIH.
-    
     print("Iniciando unificação de nomes de pacientes por AIH...")
     mapa_aih_nomes = {}
     
@@ -193,10 +190,7 @@ def processar_csv_soulmv(caminho_arquivo):
     for registro in dados_limpos:
         aih = registro['AIH']
         paciente = registro['Paciente']
-        
-        # Se temos uma AIH válida e um nome válido (não N/D), guardamos no mapa
         if aih != "N/D" and paciente != "N/D":
-            # Se já tem nome, ficamos com o mais longo (geralmente o mais completo)
             nome_existente = mapa_aih_nomes.get(aih, "")
             if len(paciente) > len(nome_existente):
                 mapa_aih_nomes[aih] = paciente
@@ -210,7 +204,6 @@ def processar_csv_soulmv(caminho_arquivo):
                 registro['Paciente'] = mapa_aih_nomes[aih]
                 registros_corrigidos += 1
             else:
-                 # Se realmente não achou em lugar nenhum do arquivo
                  registro['Paciente'] = "PACIENTE NÃO IDENTIFICADO"
     
     print(f"Correção concluída: {registros_corrigidos} linhas 'N/D' foram preenchidas com nomes encontrados.")
@@ -226,10 +219,18 @@ def gerar_dashboard(df, caminho_saida):
         print("Nenhum dado válido foi extraído.")
         return
 
+    # Cálculos Gerais
     total_producao = df['Valor'].sum()
     total_procedimentos = len(df)
     total_prestadores = df['Prestador'].nunique()
     
+    # 1. Tabela Resumo (Agrupado apenas por Prestador) - NOVO
+    df_resumo = df.groupby(['Prestador']).agg(
+        Qtd_Total=('Codigo', 'count'),
+        Valor_Total=('Valor', 'sum')
+    ).reset_index().sort_values(by='Valor_Total', ascending=False)
+
+    # 2. Tabela Sintética (Agrupado por Prestador e Grupo)
     df_sintetico = df.groupby(['Prestador', 'Grupo']).agg(
         Qtd_Total=('Codigo', 'count'),
         Valor_Total=('Valor', 'sum')
@@ -243,78 +244,22 @@ def gerar_dashboard(df, caminho_saida):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>NII - Relatório de Faturamento</title>
-        
-        <!-- Tailwind CSS (Estilização Moderna) -->
         <script src="https://cdn.tailwindcss.com"></script>
-        
-        <!-- FontAwesome -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        
-        <!-- DataTables CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
         <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
         
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-            
-            body {{
-                font-family: 'Roboto', sans-serif;
-                background-color: #f8f9fa; /* Cor de fundo do Portal */
-                color: #333;
-            }}
-            
-            /* Header estilo NII Portal */
-            .nii-header {{
-                background-color: #ffffff;
-                border-bottom: 1px solid #e0e0e0;
-                padding: 1rem 0;
-                margin-bottom: 2rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            }}
-            
-            .nii-brand {{
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #2c3e50;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }}
-            
-            /* Cards de Métricas */
-            .metric-card {{
-                background: white;
-                border: 1px solid #dee2e6;
-                border-radius: 8px;
-                padding: 1.5rem;
-                transition: transform 0.2s;
-            }}
-            .metric-card:hover {{
-                transform: translateY(-2px);
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            }}
-            
-            /* Botões de Aba (Estilo Clean) */
-            .tab-btn {{
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-weight: 500;
-                transition: all 0.3s;
-            }}
-            .tab-btn.active {{
-                background-color: #3498db;
-                color: white;
-                box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
-            }}
-            .tab-btn.inactive {{
-                background-color: #e9ecef;
-                color: #495057;
-            }}
-            .tab-btn.inactive:hover {{
-                background-color: #dee2e6;
-            }}
-            
-            /* Tabela e Filtros */
+            body {{ font-family: 'Roboto', sans-serif; background-color: #f8f9fa; color: #333; }}
+            .nii-header {{ background-color: #ffffff; border-bottom: 1px solid #e0e0e0; padding: 1rem 0; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
+            .nii-brand {{ font-size: 1.5rem; font-weight: 700; color: #2c3e50; display: flex; align-items: center; gap: 10px; }}
+            .metric-card {{ background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 1.5rem; transition: transform 0.2s; }}
+            .metric-card:hover {{ transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+            .tab-btn {{ padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.3s; margin-right: 0.5rem; }}
+            .tab-btn.active {{ background-color: #3498db; color: white; box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3); }}
+            .tab-btn.inactive {{ background-color: #e9ecef; color: #495057; }}
+            .tab-btn.inactive:hover {{ background-color: #dee2e6; }}
             .dataTables_wrapper .dataTables_length select {{ border: 1px solid #ddd; padding: 4px; border-radius: 4px; }}
             .dataTables_wrapper .dataTables_filter input {{ border: 1px solid #ddd; padding: 5px; border-radius: 4px; margin-left: 5px; }}
             tfoot input, tfoot select {{ width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; }}
@@ -323,7 +268,6 @@ def gerar_dashboard(df, caminho_saida):
     </head>
     <body>
     
-        <!-- HEADER NII PORTAL -->
         <header class="nii-header">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 <div class="nii-brand">
@@ -339,7 +283,6 @@ def gerar_dashboard(df, caminho_saida):
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
             
-            <!-- Cards de Resumo -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="metric-card border-l-4 border-green-500">
                     <div class="text-sm text-gray-500 font-medium uppercase tracking-wide">Valor Total Produzido</div>
@@ -361,23 +304,39 @@ def gerar_dashboard(df, caminho_saida):
                 </div>
             </div>
 
-            <!-- Controles de Navegação -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="space-x-2">
-                    <button onclick="switchTab('sintetico')" id="btn-sintetico" class="tab-btn active">
-                        <i class="fa-solid fa-chart-pie mr-2"></i>Visão Sintética
-                    </button>
-                    <button onclick="switchTab('analitico')" id="btn-analitico" class="tab-btn inactive">
-                        <i class="fa-solid fa-table-list mr-2"></i>Visão Analítica
-                    </button>
-                </div>
-                <div class="text-xs text-gray-400">
-                    Gerado automaticamente via NII Automation
-                </div>
+            <div class="flex items-center justify-start mb-4">
+                <button onclick="switchTab('resumo')" id="btn-resumo" class="tab-btn active">
+                    <i class="fa-solid fa-clipboard-list mr-2"></i>Resumo Geral
+                </button>
+                <button onclick="switchTab('sintetico')" id="btn-sintetico" class="tab-btn inactive">
+                    <i class="fa-solid fa-chart-pie mr-2"></i>Detalhe por Grupo
+                </button>
+                <button onclick="switchTab('analitico')" id="btn-analitico" class="tab-btn inactive">
+                    <i class="fa-solid fa-table-list mr-2"></i>Visão Analítica
+                </button>
+            </div>
+            
+            <div class="text-xs text-gray-400 mb-2 text-right">
+                Gerado automaticamente via NII Automation
             </div>
 
+            <!-- TABELA RESUMO (NOVO) -->
+            <div id="view-resumo" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Ranking de Produção por Prestador</h3>
+                <table id="table-resumo" class="w-full text-sm text-left text-gray-600 hover stripe">
+                    <thead class="bg-gray-100 text-gray-700 uppercase font-bold">
+                        <tr><th>Prestador</th><th class="text-right">Qtd. Procedimentos</th><th class="text-right">Valor Total (R$)</th></tr>
+                    </thead>
+                    <tbody>
+    """)
+    
+    for _, row in df_resumo.iterrows():
+        html_parts.append(f"<tr><td class='font-bold text-gray-800'>{row['Prestador']}</td><td class='text-right'>{row['Qtd_Total']}</td><td class='text-right font-bold text-blue-600'>{row['Valor_Total']:,.2f}</td></tr>")
+
+    html_parts.append("""</tbody></table></div>
+
             <!-- TABELA SINTÉTICA -->
-            <div id="view-sintetico" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
+            <div id="view-sintetico" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
                 <table id="table-sintetico" class="w-full text-sm text-left text-gray-600 hover stripe">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-bold">
                         <tr><th>Prestador</th><th>Grupo</th><th class="text-right">Qtd</th><th class="text-right">Valor (R$)</th></tr>
@@ -391,20 +350,18 @@ def gerar_dashboard(df, caminho_saida):
         
     html_parts.append("""</tbody></table></div>
 
-        <!-- TABELA ANALÍTICA -->
-        <div id="view-analitico" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
-            <table id="table-analitico" class="w-full text-sm text-left text-gray-600 hover stripe">
-                <thead class="bg-gray-50 text-gray-700 uppercase font-bold">
-                    <tr><th>Data</th><th>AIH</th><th>Paciente</th><th>Prestador</th><th>Procedimento</th><th class="text-right">Valor (R$)</th></tr>
-                </thead>
-                <tfoot><tr><th>Data</th><th>AIH</th><th>Paciente</th><th>Prestador</th><th>Procedimento</th><th></th></tr></tfoot>
-                <tbody>
+            <!-- TABELA ANALÍTICA -->
+            <div id="view-analitico" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
+                <table id="table-analitico" class="w-full text-sm text-left text-gray-600 hover stripe">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold">
+                        <tr><th>Data</th><th>AIH</th><th>Paciente</th><th>Prestador</th><th>Procedimento</th><th class="text-right">Valor (R$)</th></tr>
+                    </thead>
+                    <tfoot><tr><th>Data</th><th>AIH</th><th>Paciente</th><th>Prestador</th><th>Procedimento</th><th></th></tr></tfoot>
+                    <tbody>
     """)
     
     for _, row in df.iterrows():
-        # Destaque visual se o paciente for "NÃO IDENTIFICADO"
         class_paciente = "text-red-500 font-bold" if "NÃO IDENTIFICADO" in str(row['Paciente']) else ""
-        
         html_parts.append(f"""
         <tr>
             <td>{row['Data']}</td>
@@ -426,7 +383,6 @@ def gerar_dashboard(df, caminho_saida):
 
     </main>
     
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -464,12 +420,13 @@ def gerar_dashboard(df, caminho_saida):
                 });
             }
 
+            initTable('#table-resumo');
             initTable('#table-sintetico');
             initTable('#table-analitico');
         });
 
         function switchTab(t) {
-            $('#view-sintetico, #view-analitico').addClass('hidden');
+            $('#view-resumo, #view-sintetico, #view-analitico').addClass('hidden');
             $('#view-'+t).removeClass('hidden');
             $('.tab-btn').removeClass('active').addClass('inactive');
             $('#btn-'+t).removeClass('inactive').addClass('active');
