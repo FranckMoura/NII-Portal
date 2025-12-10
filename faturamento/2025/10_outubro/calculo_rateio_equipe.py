@@ -2,8 +2,8 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.0 (Leitura Flexível de Vínculos)
-# Descrição: Processa Rateio + Individual e atualiza o Portal automaticamente.
+# Versão: 2.2 (Correção de Duplicidade - Memória de Contexto)
+# Descrição: Processa Rateio + Individual com lógica robusta para PDFs quebrados.
 # ==============================================================================
 
 import pdfplumber
@@ -59,46 +59,34 @@ def extrair_competencia_do_nome(nome_arquivo):
     return agora.strftime("%m/%Y"), agora.strftime("%m%Y")
 
 # ==============================================================================
-# 3. LEITURA INTELIGENTE DE VÍNCULOS (NOVO)
+# 3. LEITURA INTELIGENTE DE VÍNCULOS
 # ==============================================================================
 
 def encontrar_e_ler_vinculos_flexivel():
-    """
-    Procura qualquer CSV na pasta que tenha 'vinculo' no nome.
-    Lê ignorando linhas de cabeçalho inúteis e padroniza colunas.
-    """
-    # 1. Encontrar o arquivo
     padrao_busca = os.path.join(PASTA_SCRIPT, "*vinculo*.csv")
     arquivos_encontrados = glob.glob(padrao_busca) + glob.glob(os.path.join(PASTA_SCRIPT, "*VINCULO*.csv"))
     
     if not arquivos_encontrados:
-        print("[ERRO] Nenhum arquivo de vínculo encontrado (CSV com 'vinculo' no nome).")
+        print("[ERRO] Nenhum arquivo de vínculo encontrado.")
         return pd.DataFrame()
     
-    arquivo_alvo = arquivos_encontrados[0] # Pega o primeiro que achar
+    arquivo_alvo = arquivos_encontrados[0]
     print(f"   -> Arquivo de Vínculos detectado: {os.path.basename(arquivo_alvo)}")
     
     try:
-        # 2. Ler o arquivo (tenta detectar separador automaticamente)
-        # Lê as primeiras linhas para achar o cabeçalho real
         with open(arquivo_alvo, 'r', encoding='latin1') as f:
             linhas = f.readlines()
         
-        # Procura em qual linha começa a tabela (busca por palavras chave)
         linha_cabecalho = 0
         sep_detectado = ',' 
-        
         for i, linha in enumerate(linhas):
-            linha_upper = linha.upper()
-            if 'MEDICO' in linha_upper or 'PRESTADOR' in linha_upper:
+            if 'MEDICO' in linha.upper() or 'PRESTADOR' in linha.upper():
                 linha_cabecalho = i
                 if ';' in linha: sep_detectado = ';'
                 break
         
-        # Lê o DataFrame pulando as linhas inúteis iniciais
         df = pd.read_csv(arquivo_alvo, sep=sep_detectado, skiprows=linha_cabecalho, encoding='latin1')
         
-        # 3. Padronizar Colunas (Mapa de Sinônimos)
         colunas_normalizadas = {}
         for col in df.columns:
             c = col.upper().strip()
@@ -109,28 +97,20 @@ def encontrar_e_ler_vinculos_flexivel():
         
         df = df.rename(columns=colunas_normalizadas)
         
-        # Verifica se achou as colunas essenciais
         if 'prestador' not in df.columns or 'vinculo' not in df.columns:
-            print("[ERRO] Não foi possível identificar as colunas 'MEDICO' e 'QTDE' no arquivo.")
-            print(f"Colunas encontradas: {df.columns.tolist()}")
+            print("[ERRO] Colunas essenciais não encontradas no CSV.")
             return pd.DataFrame()
 
-        # 4. Limpeza de Dados
-        # Remove linhas onde prestador é vazio ou vínculo é NaN
         df = df.dropna(subset=['prestador'])
-        
-        # Garante que vínculo é número
         df['vinculo'] = df['vinculo'].astype(str).str.replace(',', '.').apply(pd.to_numeric, errors='coerce')
         df = df.fillna({'vinculo': 0})
-        
-        # Remove quem tem vínculo 0 (opcional, mas bom pra limpeza)
         df = df[df['vinculo'] > 0]
         
-        print(f"   -> Vínculos carregados: {len(df)} profissionais.")
+        print(f"   -> Vínculos carregados: {len(df)}")
         return df[['prestador', 'vinculo']]
 
     except Exception as e:
-        print(f"[ERRO CRÍTICO] Falha ao ler arquivo de vínculos: {e}")
+        print(f"[ERRO CRÍTICO] Falha ao ler CSV: {e}")
         return pd.DataFrame()
 
 # ==============================================================================
@@ -151,38 +131,37 @@ def processar_rateio():
             text = page.extract_text() or ""
             for line in text.split('\n'):
                 if re.match(r'^"?(\d{8,10})"?', line.strip()):
-                    # Extrai código e valor
                     cod = re.match(r'^"?(\d{8,10})"?', line.strip()).group(1)
                     codigos_rateio.add(cod)
                     valores = re.findall(r'"?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})"?', line)
                     if len(valores) >= 2:
                         total_bolo_sp += limpar_valor_monetario(valores[-2])
 
-    print(f"   -> Receita Total: R$ {total_bolo_sp:,.2f}")
+    print(f"   -> Receita Total Rateio: R$ {total_bolo_sp:,.2f}")
+    print(f"   -> Códigos no Rateio: {len(codigos_rateio)} procedimentos identificados.")
 
-    # --- AQUI ESTÁ A MUDANÇA: USA A NOVA FUNÇÃO FLEXÍVEL ---
     df_vinculos = encontrar_e_ler_vinculos_flexivel()
-    
     if not df_vinculos.empty:
         total_pesos = df_vinculos['vinculo'].sum()
         if total_pesos > 0:
             valor_ponto = total_bolo_sp / total_pesos
             df_vinculos['valor_rateio'] = df_vinculos['vinculo'] * valor_ponto
-            print(f"   -> Valor do Ponto (1.0): R$ {valor_ponto:,.2f}")
-        else:
-            df_vinculos['valor_rateio'] = 0.0
-            print("[AVISO] Soma dos vínculos é zero.")
+        else: df_vinculos['valor_rateio'] = 0.0
     
     return total_bolo_sp, codigos_rateio, df_vinculos
 
 def processar_individual(codigos_blacklist):
-    print(f"2. Processando Produção Individual...")
+    print(f"2. Processando Produção Individual (com memória de contexto)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print(f"[ERRO] Arquivo não encontrado: {os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA)}")
         return pd.DataFrame(), pd.DataFrame()
 
     dados = []
     prestador_atual = "DESCONHECIDO"
+    
+    # Memória de contexto para PDFs quebrados
+    codigo_em_espera = None 
+    
     regex_prestador = re.compile(r'^([A-Z\s\.]+)\s+\(\d+\)$')
     regex_cod = re.compile(r'\b(\d{10})\b')
 
@@ -191,32 +170,49 @@ def processar_individual(codigos_blacklist):
             text = page.extract_text() or ""
             for line in text.split('\n'):
                 line = line.strip()
+                
+                # 1. Troca de Prestador (Reseta memória)
                 match_prest = regex_prestador.match(line)
                 if match_prest and "HOSPITAL" not in line:
                     prestador_atual = match_prest.group(1).strip()
+                    codigo_em_espera = None # Novo médico, limpa memória
                     continue
                 
+                # 2. Captura Código (Guarda na memória)
+                # Mesmo que o valor não esteja nesta linha, guardamos o código
+                match_c = regex_cod.search(line)
+                if match_c:
+                    codigo_em_espera = match_c.group(1)
+                
+                # 3. Captura Valor (Usa a memória para validar)
                 if re.search(r'\d+,\d{2}$', line):
-                    match_c = regex_cod.search(line)
-                    cod_enc = match_c.group(1) if match_c else None
-                    
                     try:
                         val_str = line.split()[-1]
                         valor = limpar_valor_monetario(val_str)
+                        
                         if valor > 0 and prestador_atual != "DESCONHECIDO":
-                            if not (cod_enc and cod_enc in codigos_blacklist):
+                            # O código é o que está na linha OU o que estava esperando na memória
+                            codigo_final = match_c.group(1) if match_c else codigo_em_espera
+                            
+                            # VERIFICAÇÃO CRÍTICA: Se o código final estiver na Blacklist, IGNORA
+                            eh_rateio = codigo_final and codigo_final in codigos_blacklist
+                            
+                            if not eh_rateio:
                                 dados.append({
                                     'Prestador': prestador_atual,
-                                    'Procedimento': cod_enc or "N/D",
+                                    'Procedimento': codigo_final or "N/D",
                                     'Valor_Individual': valor,
                                     'Detalhes': line[:60]
                                 })
+                            
+                            # Consome a memória após usar (evita arrastar código antigo)
+                            codigo_em_espera = None 
+                            
                     except: pass
     
     df = pd.DataFrame(dados)
     if not df.empty:
         df_agrup = df.groupby('Prestador')['Valor_Individual'].sum().reset_index()
-        print(f"   -> Itens Individuais Válidos (Pós-Filtro): {len(df)}")
         return df_agrup, df
     return pd.DataFrame(), pd.DataFrame()
 
@@ -226,15 +222,10 @@ def processar_individual(codigos_blacklist):
 
 def atualizar_portal(novo_registro):
     caminho_json, pasta_raiz = encontrar_arquivo_json_portal()
-    
-    if not caminho_json:
-        print("[AVISO] Arquivo 'dados_financeiro.json' não encontrado nas pastas acima.")
-        return
+    if not caminho_json: return
 
     rel_path = os.path.relpath(os.path.join(PASTA_SCRIPT, novo_registro['arquivo']), os.path.dirname(caminho_json))
     novo_registro['arquivo'] = rel_path.replace(os.sep, '/')
-    
-    print(f"   -> Atualizando base de dados em: {caminho_json}")
     
     dados = []
     try:
@@ -247,7 +238,7 @@ def atualizar_portal(novo_registro):
     
     with open(caminho_json, 'w', encoding='utf-8') as f:
         json.dump(dados, f, indent=4, ensure_ascii=False)
-    print("   -> Portal atualizado com sucesso!")
+    print("   -> Portal atualizado!")
 
 # ==============================================================================
 # 6. GERAÇÃO HTML E MAIN
@@ -258,7 +249,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     nome_html = f"relatorio_repasse_{comp_sufixo}.html"
     caminho_html = os.path.join(PASTA_SCRIPT, nome_html)
     
-    # Merge de Dados (Padronização de Nomes)
+    # Merge de Dados
     df_rateio['chave'] = df_rateio['prestador'].str.upper().str.strip()
     df_geral = df_rateio.rename(columns={'valor_rateio': 'Vl_Rateio', 'prestador': 'Prestador'})
     
@@ -271,12 +262,15 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     df_geral['Valor_Individual'] = df_geral['Valor_Individual'].fillna(0)
     df_geral['Total_Final'] = df_geral['Vl_Rateio'] + df_geral['Valor_Individual']
     df_geral['Prestador'] = df_geral['Prestador'].fillna(df_geral['chave'])
+    df_geral = df_geral.dropna(subset=['Prestador']).sort_values('Prestador')
     
-    # Remove linhas onde Prestador é NaN ou vazio
-    df_geral = df_geral.dropna(subset=['Prestador'])
-    df_geral = df_geral.sort_values('Prestador')
+    # TOTAIS GERAIS
+    total_geral_rateio = df_geral['Vl_Rateio'].sum()
+    total_geral_indiv = df_geral['Valor_Individual'].sum()
+    total_geral_final = df_geral['Total_Final'].sum()
     
-    total_pagar = df_geral['Total_Final'].sum()
+    total_rateio_val = df_rateio['valor_rateio'].sum()
+    total_indiv_val = df_ind_det['Valor_Individual'].sum() if not df_ind_det.empty else 0.0
     
     html = f"""
     <!DOCTYPE html>
@@ -293,49 +287,113 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-        <style>body{{background-color:#f3f4f6;font-family:sans-serif}}.tab-btn{{padding:10px 20px;cursor:pointer;border-bottom:2px solid transparent}}.tab-btn.active{{border-color:#2563eb;color:#2563eb;font-weight:bold}}</style>
+        <style>
+            body{{background-color:#f8f9fa;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}}
+            .tab-btn{{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:600;color:#6c757d;transition:all 0.2s;}}
+            .tab-btn.active{{border-color:#0d6efd;color:#0d6efd;background-color:#fff;border-radius:5px 5px 0 0;}}
+            .tab-container{{background-color:#fff;border:1px solid #dee2e6;border-radius:0 0 5px 5px;padding:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05);}}
+            /* Estilo Tabela Clean */
+            table.dataTable thead th {{background-color: #f1f3f5; color: #495057; border-bottom: 2px solid #dee2e6;}}
+            table.dataTable tbody tr:nth-of-type(odd) {{background-color: #f8f9fa;}}
+            table.dataTable tfoot th {{background-color: #e9ecef; color: #212529; font-weight: bold; border-top: 2px solid #dee2e6;}}
+            .val-pos {{color: #198754; font-weight: 600;}}
+        </style>
     </head>
     <body>
-        <div class='bg-white shadow sticky top-0 z-50'>
-            <div class='max-w-7xl mx-auto px-4 py-4 flex justify-between items-center'>
-                <div><h1 class='text-xl font-bold text-gray-800'>Repasse {comp_label}</h1><p class='text-sm text-gray-500'>HBSH - Faturamento</p></div>
-                <div class='text-right'><div class='text-2xl font-bold text-green-600'>R$ {total_pagar:,.2f}</div><div class='text-xs text-gray-500'>Total Geral</div></div>
+        <div class='bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm'>
+            <div class='max-w-7xl mx-auto px-4 py-3 flex justify-between items-center'>
+                <div><h1 class='text-2xl font-bold text-gray-800'><i class="fa-solid fa-file-invoice-dollar mr-2 text-blue-600"></i>Repasse {comp_label}</h1><p class='text-sm text-gray-500'>Consolidado Financeiro - HBSH</p></div>
+                <div class='text-right bg-green-50 px-4 py-2 rounded border border-green-100'><div class='text-sm text-green-600 font-bold uppercase'>Total Geral</div><div class='text-2xl font-bold text-green-700'>R$ {total_geral_final:,.2f}</div></div>
             </div>
-            <div class='max-w-7xl mx-auto px-4 flex gap-4'>
-                <div onclick="verTab('geral')" id='btn-geral' class='tab-btn active'>Resumo Geral</div>
-                <div onclick="verTab('rateio')" id='btn-rateio' class='tab-btn'>Rateio</div>
-                <div onclick="verTab('indiv')" id='btn-indiv' class='tab-btn'>Individual</div>
+            <div class='max-w-7xl mx-auto px-4 flex gap-2 mt-2'>
+                <div onclick="verTab('geral')" id='btn-geral' class='tab-btn active'><i class="fa-solid fa-list mr-2"></i>Resumo Geral</div>
+                <div onclick="verTab('rateio')" id='btn-rateio' class='tab-btn'><i class="fa-solid fa-users mr-2"></i>Rateio (Pool)</div>
+                <div onclick="verTab('indiv')" id='btn-indiv' class='tab-btn'><i class="fa-solid fa-user-doctor mr-2"></i>Produção Individual</div>
             </div>
         </div>
-        <main class='max-w-7xl mx-auto px-4 py-8'>
-            <div id='tab-geral' class='view-tab'>
-                <div class='bg-white rounded shadow p-4'>
-                    <table id='tbl-geral' class='w-full text-sm text-left'>
-                        <thead class='bg-gray-100 uppercase text-xs font-bold'><tr><th>Prestador</th><th class='text-right'>Vl. Rateio</th><th class='text-right'>Vl. Individual</th><th class='text-right'>Total Final</th></tr></thead>
-                        <tbody>
+        <main class='max-w-7xl mx-auto px-4 py-6'>
+            
+            <!-- ABA GERAL -->
+            <div id='tab-geral' class='view-tab tab-container'>
+                <table id='tbl-geral' class='display w-full text-sm' style="width:100%">
+                    <thead><tr><th>Prestador / Médico</th><th class='text-right'>Vl. Rateio</th><th class='text-right'>Vl. Individual</th><th class='text-right'>Total Final</th></tr></thead>
+                    <tbody>
     """
     for _, r in df_geral.iterrows():
-        html += f"<tr class='border-b hover:bg-gray-50'><td class='py-3 font-medium'>{r['Prestador']}</td><td class='text-right'>R$ {r['Vl_Rateio']:,.2f}</td><td class='text-right'>R$ {r['Valor_Individual']:,.2f}</td><td class='text-right font-bold text-green-700'>R$ {r['Total_Final']:,.2f}</td></tr>"
+        html += f"<tr><td class='font-medium text-gray-700'>{r['Prestador']}</td><td class='text-right'>R$ {r['Vl_Rateio']:,.2f}</td><td class='text-right'>R$ {r['Valor_Individual']:,.2f}</td><td class='text-right val-pos'>R$ {r['Total_Final']:,.2f}</td></tr>"
     
-    html += """</tbody></table></div></div>
-            <div id='tab-rateio' class='view-tab hidden'><div class='bg-white rounded shadow p-4'><table id='tbl-rateio' class='w-full text-sm'><thead><tr><th>Prestador</th><th>Peso</th><th class='text-right'>Valor</th></tr></thead><tbody>"""
+    html += f"""</tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TOTAL GERAL</th>
+                            <th class="text-right">R$ {total_geral_rateio:,.2f}</th>
+                            <th class="text-right">R$ {total_geral_indiv:,.2f}</th>
+                            <th class="text-right text-green-800">R$ {total_geral_final:,.2f}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- ABA RATEIO -->
+            <div id='tab-rateio' class='view-tab hidden tab-container'>
+                <div class="mb-4 p-3 bg-blue-50 text-blue-800 rounded border border-blue-100 flex justify-between items-center">
+                    <span><i class="fa-solid fa-info-circle mr-2"></i>Receita Total do Grupo (PDF): <b>R$ {total_bolo:,.2f}</b></span>
+                </div>
+                <table id='tbl-rateio' class='display w-full text-sm' style="width:100%">
+                    <thead><tr><th>Prestador</th><th class="text-center">Peso/Vínculo</th><th class='text-right'>Valor Rateio</th></tr></thead>
+                    <tbody>"""
     for _, r in df_rateio.iterrows():
-        html += f"<tr><td>{r['prestador']}</td><td>{r['vinculo']}</td><td class='text-right'>R$ {r['valor_rateio']:,.2f}</td></tr>"
+        html += f"<tr><td>{r['prestador']}</td><td class='text-center'>{r['vinculo']}</td><td class='text-right font-bold text-gray-700'>R$ {r['valor_rateio']:,.2f}</td></tr>"
     
-    html += """</tbody></table></div></div>
-            <div id='tab-indiv' class='view-tab hidden'><div class='bg-white rounded shadow p-4'><table id='tbl-indiv' class='w-full text-sm'><thead><tr><th>Prestador</th><th>Procedimento</th><th class='text-right'>Valor</th></tr></thead><tbody>"""
+    html += f"""</tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TOTAL RATEIO</th>
+                            <th>-</th>
+                            <th class="text-right text-blue-800">R$ {total_rateio_val:,.2f}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- ABA INDIVIDUAL -->
+            <div id='tab-indiv' class='view-tab hidden tab-container'>
+                <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-100">
+                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio foram excluídos desta lista.
+                </div>
+                <table id='tbl-indiv' class='display w-full text-sm' style="width:100%">
+                    <thead><tr><th>Prestador</th><th>Procedimento / Cód.</th><th class='text-right'>Valor</th></tr></thead>
+                    <tbody>"""
     for _, r in df_ind_det.iterrows():
         html += f"<tr><td>{r['Prestador']}</td><td>{r['Procedimento']}</td><td class='text-right'>R$ {r['Valor_Individual']:,.2f}</td></tr>"
 
-    html += """</tbody></table></div></div>
+    html += f"""</tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TOTAL INDIVIDUAL</th>
+                            <th>-</th>
+                            <th class="text-right text-yellow-800">R$ {total_indiv_val:,.2f}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </main>
         <script>
-            $(document).ready(function() { 
-                var conf = { language: {url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}, dom: 'Bfrtip', buttons: ['excel', 'print'] };
+            $(document).ready(function() {{ 
+                var conf = {{ 
+                    language: {{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}}, 
+                    dom: 'Bfrtip', 
+                    buttons: ['excel', 'print'],
+                    pageLength: 50
+                }};
                 $('#tbl-geral, #tbl-rateio, #tbl-indiv').DataTable(conf); 
-            });
-            function verTab(id){ $('.view-tab').addClass('hidden'); $('#tab-'+id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-'+id).addClass('active'); }
+            }});
+            function verTab(id){{ 
+                $('.view-tab').addClass('hidden'); 
+                $('#tab-'+id).removeClass('hidden'); 
+                $('.tab-btn').removeClass('active'); 
+                $('#btn-'+id).addClass('active'); 
+            }}
         </script>
     </body></html>
     """
@@ -344,12 +402,11 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
         f.write(html)
     print(f"Sucesso! Relatório gerado: {nome_html}")
     
-    # Atualiza Portal
     reg = {
         "titulo": f"Repasse {comp_label}",
         "competencia": comp_label,
         "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
-        "valor_total": f"R$ {total_pagar:,.2f}",
+        "valor_total": f"R$ {total_geral_final:,.2f}",
         "arquivo": nome_html 
     }
     atualizar_portal(reg)
