@@ -2,6 +2,7 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
+# Versão: 2.0 (Leitura Flexível de Vínculos)
 # Descrição: Processa Rateio + Individual e atualiza o Portal automaticamente.
 # ==============================================================================
 
@@ -10,57 +11,44 @@ import pandas as pd
 import os
 import re
 import json
+import glob
 from datetime import datetime
 
 # ==============================================================================
 # 1. CONFIGURAÇÕES AUTOMÁTICAS
 # ==============================================================================
-# Pasta onde este script está salvo (ex: .../10_outubro)
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
 
-# Arquivos de Entrada (Devem estar na mesma pasta do script)
+# Arquivos PDF (Padrão do sistema)
 ARQUIVO_PDF_RATEIO_RECEITA = os.path.join(PASTA_SCRIPT, 'R_RECEITA_PROCEDIMENTO_RATEIO_1025.pdf')
 ARQUIVO_PDF_PRODUCAO_CONTA = os.path.join(PASTA_SCRIPT, 'R_PRODUCAO_MEDICA_CONTA_1025.pdf')
-ARQUIVO_CSV_VINCULOS = os.path.join(PASTA_SCRIPT, 'vinculos.csv')
 
 print(f"--- Iniciando Processamento na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
 
 # ==============================================================================
-# 2. FUNÇÕES DE BUSCA E UTILITÁRIOS
+# 2. FUNÇÕES UTILITÁRIAS
 # ==============================================================================
 
 def encontrar_arquivo_json_portal():
-    """
-    Procura o arquivo 'dados_financeiro.json' subindo os diretórios.
-    Retorna o caminho absoluto do JSON e o caminho relativo da pasta atual até ele.
-    """
     nome_json = 'dados_financeiro.json'
     diretorio_atual = PASTA_SCRIPT
-    
-    # Sobe até 5 níveis de pasta procurando o arquivo
     for _ in range(5):
         caminho_teste = os.path.join(diretorio_atual, nome_json)
         if os.path.exists(caminho_teste):
             return caminho_teste, diretorio_atual
-        
         pai = os.path.dirname(diretorio_atual)
-        if pai == diretorio_atual: # Chegou na raiz do disco
-            break
+        if pai == diretorio_atual: break
         diretorio_atual = pai
-            
     return None, None
 
 def limpar_valor_monetario(valor_str):
     if not valor_str: return 0.0
     v = valor_str.replace('"', '').replace("'", "").strip()
     try:
-        if ',' in v:
-            v = v.replace('.', '').replace(',', '.')
-        elif v.count('.') == 1:
-            pass
+        if ',' in v: v = v.replace('.', '').replace(',', '.')
+        elif v.count('.') == 1: pass
         return float(v)
-    except:
-        return 0.0
+    except: return 0.0
 
 def extrair_competencia_do_nome(nome_arquivo):
     match = re.search(r'_(\d{2})(\d{2})\.pdf', nome_arquivo, re.IGNORECASE)
@@ -71,7 +59,82 @@ def extrair_competencia_do_nome(nome_arquivo):
     return agora.strftime("%m/%Y"), agora.strftime("%m%Y")
 
 # ==============================================================================
-# 3. PROCESSAMENTO (MOTOR DE CÁLCULO)
+# 3. LEITURA INTELIGENTE DE VÍNCULOS (NOVO)
+# ==============================================================================
+
+def encontrar_e_ler_vinculos_flexivel():
+    """
+    Procura qualquer CSV na pasta que tenha 'vinculo' no nome.
+    Lê ignorando linhas de cabeçalho inúteis e padroniza colunas.
+    """
+    # 1. Encontrar o arquivo
+    padrao_busca = os.path.join(PASTA_SCRIPT, "*vinculo*.csv")
+    arquivos_encontrados = glob.glob(padrao_busca) + glob.glob(os.path.join(PASTA_SCRIPT, "*VINCULO*.csv"))
+    
+    if not arquivos_encontrados:
+        print("[ERRO] Nenhum arquivo de vínculo encontrado (CSV com 'vinculo' no nome).")
+        return pd.DataFrame()
+    
+    arquivo_alvo = arquivos_encontrados[0] # Pega o primeiro que achar
+    print(f"   -> Arquivo de Vínculos detectado: {os.path.basename(arquivo_alvo)}")
+    
+    try:
+        # 2. Ler o arquivo (tenta detectar separador automaticamente)
+        # Lê as primeiras linhas para achar o cabeçalho real
+        with open(arquivo_alvo, 'r', encoding='latin1') as f:
+            linhas = f.readlines()
+        
+        # Procura em qual linha começa a tabela (busca por palavras chave)
+        linha_cabecalho = 0
+        sep_detectado = ',' 
+        
+        for i, linha in enumerate(linhas):
+            linha_upper = linha.upper()
+            if 'MEDICO' in linha_upper or 'PRESTADOR' in linha_upper:
+                linha_cabecalho = i
+                if ';' in linha: sep_detectado = ';'
+                break
+        
+        # Lê o DataFrame pulando as linhas inúteis iniciais
+        df = pd.read_csv(arquivo_alvo, sep=sep_detectado, skiprows=linha_cabecalho, encoding='latin1')
+        
+        # 3. Padronizar Colunas (Mapa de Sinônimos)
+        colunas_normalizadas = {}
+        for col in df.columns:
+            c = col.upper().strip()
+            if c in ['MEDICO', 'MÉDICO', 'PRESTADOR', 'NOME', 'PROFISSIONAL']:
+                colunas_normalizadas[col] = 'prestador'
+            elif c in ['QTDE', 'QTD', 'VINCULO', 'VÍNCULO', 'PESO', 'VALOR']:
+                colunas_normalizadas[col] = 'vinculo'
+        
+        df = df.rename(columns=colunas_normalizadas)
+        
+        # Verifica se achou as colunas essenciais
+        if 'prestador' not in df.columns or 'vinculo' not in df.columns:
+            print("[ERRO] Não foi possível identificar as colunas 'MEDICO' e 'QTDE' no arquivo.")
+            print(f"Colunas encontradas: {df.columns.tolist()}")
+            return pd.DataFrame()
+
+        # 4. Limpeza de Dados
+        # Remove linhas onde prestador é vazio ou vínculo é NaN
+        df = df.dropna(subset=['prestador'])
+        
+        # Garante que vínculo é número
+        df['vinculo'] = df['vinculo'].astype(str).str.replace(',', '.').apply(pd.to_numeric, errors='coerce')
+        df = df.fillna({'vinculo': 0})
+        
+        # Remove quem tem vínculo 0 (opcional, mas bom pra limpeza)
+        df = df[df['vinculo'] > 0]
+        
+        print(f"   -> Vínculos carregados: {len(df)} profissionais.")
+        return df[['prestador', 'vinculo']]
+
+    except Exception as e:
+        print(f"[ERRO CRÍTICO] Falha ao ler arquivo de vínculos: {e}")
+        return pd.DataFrame()
+
+# ==============================================================================
+# 4. PROCESSAMENTO (MOTOR DE CÁLCULO)
 # ==============================================================================
 
 def processar_rateio():
@@ -97,23 +160,18 @@ def processar_rateio():
 
     print(f"   -> Receita Total: R$ {total_bolo_sp:,.2f}")
 
-    df_vinculos = pd.DataFrame()
-    if os.path.exists(ARQUIVO_CSV_VINCULOS):
-        try:
-            df_vinculos = pd.read_csv(ARQUIVO_CSV_VINCULOS, sep=';', encoding='latin1')
-            df_vinculos.columns = [c.lower().strip() for c in df_vinculos.columns]
-            # Limpeza de formato numérico brasileiro (vírgula)
-            if df_vinculos['vinculo'].dtype == object:
-                 df_vinculos['vinculo'] = df_vinculos['vinculo'].astype(str).str.replace(',', '.').astype(float)
-            
-            total_pesos = df_vinculos['vinculo'].sum()
-            if total_pesos > 0:
-                valor_ponto = total_bolo_sp / total_pesos
-                df_vinculos['valor_rateio'] = df_vinculos['vinculo'] * valor_ponto
-            else:
-                df_vinculos['valor_rateio'] = 0.0
-        except Exception as e:
-            print(f"[ERRO] CSV Vínculos: {e}")
+    # --- AQUI ESTÁ A MUDANÇA: USA A NOVA FUNÇÃO FLEXÍVEL ---
+    df_vinculos = encontrar_e_ler_vinculos_flexivel()
+    
+    if not df_vinculos.empty:
+        total_pesos = df_vinculos['vinculo'].sum()
+        if total_pesos > 0:
+            valor_ponto = total_bolo_sp / total_pesos
+            df_vinculos['valor_rateio'] = df_vinculos['vinculo'] * valor_ponto
+            print(f"   -> Valor do Ponto (1.0): R$ {valor_ponto:,.2f}")
+        else:
+            df_vinculos['valor_rateio'] = 0.0
+            print("[AVISO] Soma dos vínculos é zero.")
     
     return total_bolo_sp, codigos_rateio, df_vinculos
 
@@ -158,11 +216,12 @@ def processar_individual(codigos_blacklist):
     df = pd.DataFrame(dados)
     if not df.empty:
         df_agrup = df.groupby('Prestador')['Valor_Individual'].sum().reset_index()
+        print(f"   -> Itens Individuais Válidos (Pós-Filtro): {len(df)}")
         return df_agrup, df
     return pd.DataFrame(), pd.DataFrame()
 
 # ==============================================================================
-# 4. ATUALIZAÇÃO DO JSON DO PORTAL
+# 5. ATUALIZAÇÃO DO JSON DO PORTAL
 # ==============================================================================
 
 def atualizar_portal(novo_registro):
@@ -170,13 +229,9 @@ def atualizar_portal(novo_registro):
     
     if not caminho_json:
         print("[AVISO] Arquivo 'dados_financeiro.json' não encontrado nas pastas acima.")
-        print("Certifique-se de que ele existe na raiz do projeto NII-Portal.")
         return
 
-    # Calcular o caminho relativo para o link funcionar no HTML
-    # Ex: se o JSON está em /Portal e o HTML em /Portal/Fat/2025/10, o link é Fat/2025/10/relatorio.html
     rel_path = os.path.relpath(os.path.join(PASTA_SCRIPT, novo_registro['arquivo']), os.path.dirname(caminho_json))
-    # Corrige barras para funcionar na web (sempre /)
     novo_registro['arquivo'] = rel_path.replace(os.sep, '/')
     
     print(f"   -> Atualizando base de dados em: {caminho_json}")
@@ -185,9 +240,8 @@ def atualizar_portal(novo_registro):
     try:
         with open(caminho_json, 'r', encoding='utf-8') as f:
             dados = json.load(f)
-    except: pass # Se estiver vazio ou corrompido, começa do zero
+    except: pass
 
-    # Remove registro anterior desse mesmo arquivo para atualizar
     dados = [d for d in dados if d['arquivo'] != novo_registro['arquivo']]
     dados.append(novo_registro)
     
@@ -196,16 +250,15 @@ def atualizar_portal(novo_registro):
     print("   -> Portal atualizado com sucesso!")
 
 # ==============================================================================
-# 5. GERAÇÃO HTML E MAIN
+# 6. GERAÇÃO HTML E MAIN
 # ==============================================================================
 
 def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
-    # Setup de Nomes
     comp_label, comp_sufixo = extrair_competencia_do_nome(os.path.basename(ARQUIVO_PDF_RATEIO_RECEITA))
     nome_html = f"relatorio_repasse_{comp_sufixo}.html"
     caminho_html = os.path.join(PASTA_SCRIPT, nome_html)
     
-    # Merge de Dados
+    # Merge de Dados (Padronização de Nomes)
     df_rateio['chave'] = df_rateio['prestador'].str.upper().str.strip()
     df_geral = df_rateio.rename(columns={'valor_rateio': 'Vl_Rateio', 'prestador': 'Prestador'})
     
@@ -218,11 +271,13 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     df_geral['Valor_Individual'] = df_geral['Valor_Individual'].fillna(0)
     df_geral['Total_Final'] = df_geral['Vl_Rateio'] + df_geral['Valor_Individual']
     df_geral['Prestador'] = df_geral['Prestador'].fillna(df_geral['chave'])
+    
+    # Remove linhas onde Prestador é NaN ou vazio
+    df_geral = df_geral.dropna(subset=['Prestador'])
     df_geral = df_geral.sort_values('Prestador')
     
     total_pagar = df_geral['Total_Final'].sum()
     
-    # HTML Simplificado
     html = f"""
     <!DOCTYPE html>
     <html lang='pt-BR'>
@@ -295,7 +350,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
         "competencia": comp_label,
         "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "valor_total": f"R$ {total_pagar:,.2f}",
-        "arquivo": nome_html # O script já ajusta o caminho relativo
+        "arquivo": nome_html 
     }
     atualizar_portal(reg)
 
@@ -304,4 +359,4 @@ if __name__ == "__main__":
     if not df_r.empty:
         df_ind_res, df_ind_det = processar_individual(bl)
         gerar_html(df_r, df_ind_res, df_ind_det, bolo)
-    else: print("Erro: Não foi possível processar o rateio.")
+    else: print("Erro: Não foi possível processar o rateio. Verifique se o PDF e o CSV estão na pasta.")
