@@ -2,9 +2,10 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.4 (Filtro de Diárias Hospitalares e Totais)
-# Descrição: Processa Rateio + Individual. Exclui linhas de "DIÁRIA" que são
-#            faturamento hospitalar e não médico.
+# Versão: 2.5 (Filtro Aprimorado: Diárias, Consultas e Visitas)
+# Descrição: Processa Rateio + Individual.
+#            Exclui itens administrativos/hospitalares (Diárias, Taxas) e
+#            procedimentos de rotina (Consultas/Visitas) que não são produção extra.
 # ==============================================================================
 
 import pdfplumber
@@ -171,13 +172,17 @@ def processar_individual(codigos_blacklist):
                 line = line.strip()
                 linha_upper = line.upper()
                 
-                # --- CORREÇÃO V2.3: FILTRO DE TOTAIS ---
+                # --- [ATUALIZAÇÃO V2.5] BLOCO DE FILTROS ---
+                # 1. Filtro de Totais (Evita duplicação do valor cheio)
                 if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper or "GRUPO" in linha_upper):
                     continue
 
-                # --- CORREÇÃO V2.4: FILTRO DE DIÁRIAS (HOSPITALAR) ---
-                # Remove itens como "DIARIA DE UTI", "DIARIA DE ACOMPANHANTE", etc.
+                # 2. Filtro de Itens Hospitalares (Diárias) - Caso Dr. Holando
                 if "DIARIA" in linha_upper or "DIÁRIA" in linha_upper:
+                    continue
+                
+                # 3. Filtro de Procedimentos de Rotina (Consultas/Visitas) - Caso Dr. Wilson
+                if "CONSULTA" in linha_upper or "VISITA" in linha_upper or "ATENDIMENTO" in linha_upper:
                     continue
                 
                 # 1. Identifica Prestador
@@ -364,7 +369,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
             <!-- ABA INDIVIDUAL -->
             <div id='tab-indiv' class='view-tab hidden tab-container'>
                 <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-100">
-                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio (e Diárias Hospitalares) foram excluídos desta lista.
+                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio (e Diárias, Consultas, Visitas) foram excluídos desta lista.
                 </div>
                 <table id='tbl-indiv' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador</th><th>Procedimento / Cód.</th><th class='text-right'>Valor</th></tr></thead>
