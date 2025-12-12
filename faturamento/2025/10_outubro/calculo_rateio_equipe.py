@@ -2,10 +2,10 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.7 (Correção de Nomes Duplicados/Grafia Diferente)
+# Versão: 2.8 (Correção Avançada: Match Parcial/Início de Nome)
 # Descrição: Processa Rateio + Individual.
-#            Adiciona 'Fuzzy Matching' para unificar médicos com grafia diferente
-#            no PDF (ex: ALAN vs ALLAN) usando a lista de vínculos como gabarito.
+#            Inclui lógica para identificar médicos mesmo quando um cadastro
+#            tem o nome completo e o outro tem apenas o primeiro nome.
 # ==============================================================================
 
 import pdfplumber
@@ -63,8 +63,7 @@ def extrair_competencia_do_nome(nome_arquivo):
 def corrigir_nome_similar(nome_pdf, lista_nomes_oficiais, corte=0.80):
     """
     Compara o nome vindo do PDF com a lista oficial (CSV).
-    Se encontrar um nome muito parecido (>80%), retorna o oficial.
-    Caso contrário, retorna o original.
+    Tenta match exato, match parcial (inicio da string) e fuzzy match.
     """
     if not nome_pdf or not lista_nomes_oficiais:
         return nome_pdf
@@ -75,14 +74,20 @@ def corrigir_nome_similar(nome_pdf, lista_nomes_oficiais, corte=0.80):
     if nome_upper in lista_nomes_oficiais:
         return nome_upper
         
-    # 2. Busca aproximada (Fuzzy)
-    # Retorna o item mais parecido da lista
+    # 2. Busca por Contenção/Início (NOVO - Resolve caso Cristiane)
+    # Verifica se o nome oficial é o começo do nome do PDF (ou vice-versa)
+    for oficial in lista_nomes_oficiais:
+        # Ex: "CRISTIANE CAROLINE PEREIRA..." (PDF) começa com "CRISTIANE CAROLINE" (CSV)
+        if nome_upper.startswith(oficial) or oficial.startswith(nome_upper):
+             # Validação extra de tamanho para evitar falsos positivos muito curtos (ex: "ANA")
+             if len(oficial) > 4 and len(nome_upper) > 4:
+                 return oficial
+
+    # 3. Busca aproximada (Fuzzy) - Resolve erros de digitação (Allan vs Alan)
     matches = difflib.get_close_matches(nome_upper, lista_nomes_oficiais, n=1, cutoff=corte)
     
     if matches:
-        nome_corrigido = matches[0]
-        # print(f"   [INFO] Nome corrigido: '{nome_upper}' -> '{nome_corrigido}'")
-        return nome_corrigido
+        return matches[0]
     
     return nome_upper
 
@@ -183,7 +188,7 @@ def processar_rateio():
 def processar_individual(codigos_blacklist, lista_nomes_oficiais=None):
     """
     Processa o PDF individual.
-    Recebe 'lista_nomes_oficiais' para corrigir grafias erradas (Ex: ALAN -> ALLAN).
+    Recebe 'lista_nomes_oficiais' para corrigir grafias erradas.
     """
     print(f"2. Processando Produção Individual (com correção de nomes)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
