@@ -2,10 +2,9 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.8 (Correção Avançada: Match Parcial/Início de Nome)
+# Versão: 2.9 (Melhoria de Títulos e Impressão)
 # Descrição: Processa Rateio + Individual.
-#            Inclui lógica para identificar médicos mesmo quando um cadastro
-#            tem o nome completo e o outro tem apenas o primeiro nome.
+#            Gera relatórios com cabeçalhos formais para impressão ("Relatório de Repasse Médico").
 # ==============================================================================
 
 import pdfplumber
@@ -328,7 +327,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     <html lang='pt-BR'>
     <head>
         <meta charset='UTF-8'>
-        <title>Repasse {comp_label}</title>
+        <title>Relatório de Repasse Médico - {comp_label}</title>
         <script src='https://cdn.tailwindcss.com'></script>
         <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -352,7 +351,10 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     <body>
         <div class='bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm'>
             <div class='max-w-7xl mx-auto px-4 py-3 flex justify-between items-center'>
-                <div><h1 class='text-2xl font-bold text-gray-800'><i class="fa-solid fa-file-invoice-dollar mr-2 text-blue-600"></i>Repasse {comp_label}</h1><p class='text-sm text-gray-500'>Consolidado Financeiro - HBSH</p></div>
+                <div>
+                    <h1 class='text-2xl font-bold text-gray-800'><i class="fa-solid fa-file-invoice-dollar mr-2 text-blue-600"></i>Relatório de Repasse Médico</h1>
+                    <p class='text-sm text-gray-500'>Competência {comp_label} - HBSH</p>
+                </div>
                 <div class='text-right bg-green-50 px-4 py-2 rounded border border-green-100'><div class='text-sm text-green-600 font-bold uppercase'>Total Geral</div><div class='text-2xl font-bold text-green-700'>R$ {total_geral_final:,.2f}</div></div>
             </div>
             <div class='max-w-7xl mx-auto px-4 flex gap-2 mt-2'>
@@ -424,7 +426,21 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
         </main>
         <script>
             $(document).ready(function() {{ 
-                var conf = {{ language: {{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}}, dom: 'Bfrtip', buttons: ['excel', 'print'], pageLength: 50 }};
+                var conf = {{ 
+                    language: {{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}}, 
+                    dom: 'Bfrtip', 
+                    buttons: [
+                        'excel', 
+                        {{
+                            extend: 'print',
+                            title: 'Relatório de Repasse Médico - Competência {comp_label}',
+                            customize: function ( win ) {{
+                                $(win.document.body).find('h1').css('text-align', 'center');
+                            }}
+                        }}
+                    ],
+                    pageLength: 50 
+                }};
                 $('#tbl-geral, #tbl-rateio, #tbl-indiv').DataTable(conf); 
             }});
             function verTab(id){{ $('.view-tab').addClass('hidden'); $('#tab-'+id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-'+id).addClass('active'); }}
