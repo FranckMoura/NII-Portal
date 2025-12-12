@@ -2,10 +2,10 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.6 (Correção Definitiva: Validação por Data)
+# Versão: 2.7 (Correção de Nomes Duplicados/Grafia Diferente)
 # Descrição: Processa Rateio + Individual.
-#            Adiciona validação de DATA para diferenciar procedimentos reais
-#            de linhas de totalização que escaparam dos filtros de texto.
+#            Adiciona 'Fuzzy Matching' para unificar médicos com grafia diferente
+#            no PDF (ex: ALAN vs ALLAN) usando a lista de vínculos como gabarito.
 # ==============================================================================
 
 import pdfplumber
@@ -14,6 +14,7 @@ import os
 import re
 import json
 import glob
+import difflib  # Biblioteca para comparação de textos similares
 from datetime import datetime
 
 # ==============================================================================
@@ -27,7 +28,7 @@ ARQUIVO_PDF_PRODUCAO_CONTA = os.path.join(PASTA_SCRIPT, 'R_PRODUCAO_MEDICA_CONTA
 print(f"--- Iniciando Processamento na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
 
 # ==============================================================================
-# 2. FUNÇÕES UTILITÁRIAS
+# 2. FUNÇÕES UTILITÁRIAS E CORREÇÃO DE NOMES
 # ==============================================================================
 
 def encontrar_arquivo_json_portal():
@@ -58,6 +59,32 @@ def extrair_competencia_do_nome(nome_arquivo):
         return f"{mes}/20{ano_curto}", f"{mes}20{ano_curto}"
     agora = datetime.now()
     return agora.strftime("%m/%Y"), agora.strftime("%m%Y")
+
+def corrigir_nome_similar(nome_pdf, lista_nomes_oficiais, corte=0.80):
+    """
+    Compara o nome vindo do PDF com a lista oficial (CSV).
+    Se encontrar um nome muito parecido (>80%), retorna o oficial.
+    Caso contrário, retorna o original.
+    """
+    if not nome_pdf or not lista_nomes_oficiais:
+        return nome_pdf
+    
+    nome_upper = nome_pdf.upper().strip()
+    
+    # 1. Busca exata (rápida)
+    if nome_upper in lista_nomes_oficiais:
+        return nome_upper
+        
+    # 2. Busca aproximada (Fuzzy)
+    # Retorna o item mais parecido da lista
+    matches = difflib.get_close_matches(nome_upper, lista_nomes_oficiais, n=1, cutoff=corte)
+    
+    if matches:
+        nome_corrigido = matches[0]
+        # print(f"   [INFO] Nome corrigido: '{nome_upper}' -> '{nome_corrigido}'")
+        return nome_corrigido
+    
+    return nome_upper
 
 # ==============================================================================
 # 3. LEITURA INTELIGENTE DE VÍNCULOS
@@ -107,6 +134,9 @@ def encontrar_e_ler_vinculos_flexivel():
         df = df.fillna({'vinculo': 0})
         df = df[df['vinculo'] > 0]
         
+        # Padroniza nomes do CSV (sempre maiúsculos e sem espaços extras)
+        df['prestador'] = df['prestador'].str.upper().str.strip()
+        
         print(f"   -> Vínculos carregados: {len(df)}")
         return df[['prestador', 'vinculo']]
 
@@ -150,8 +180,12 @@ def processar_rateio():
     
     return total_bolo_sp, codigos_rateio, df_vinculos
 
-def processar_individual(codigos_blacklist):
-    print(f"2. Processando Produção Individual (com validação de DATA)...")
+def processar_individual(codigos_blacklist, lista_nomes_oficiais=None):
+    """
+    Processa o PDF individual.
+    Recebe 'lista_nomes_oficiais' para corrigir grafias erradas (Ex: ALAN -> ALLAN).
+    """
+    print(f"2. Processando Produção Individual (com correção de nomes)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print(f"[ERRO] Arquivo não encontrado: {os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA)}")
         return pd.DataFrame(), pd.DataFrame()
@@ -162,7 +196,6 @@ def processar_individual(codigos_blacklist):
     
     regex_prestador = re.compile(r'^([A-Z\s\.]+)\s+\(\d+\)$')
     regex_cod = re.compile(r'\b(\d{10})\b')
-    # Regex para Data (dd/mm) - ESSENCIAL PARA EVITAR TOTAIS
     regex_data = re.compile(r'\b\d{2}/\d{2}\b')
 
     with pdfplumber.open(ARQUIVO_PDF_PRODUCAO_CONTA) as pdf:
@@ -172,15 +205,22 @@ def processar_individual(codigos_blacklist):
                 line = line.strip()
                 linha_upper = line.upper()
                 
-                # --- FILTROS DE TEXTO (Camada 1) ---
-                if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper): continue
+                # --- FILTROS ---
+                if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper or "GRUPO" in linha_upper): continue
                 if "DIARIA" in linha_upper or "DIÁRIA" in linha_upper: continue
                 if "CONSULTA" in linha_upper or "VISITA" in linha_upper or "ATENDIMENTO" in linha_upper: continue
                 
-                # 1. Identifica Prestador
+                # 1. Identifica Prestador e CORRIGE O NOME
                 match_prest = regex_prestador.match(line)
                 if match_prest and "HOSPITAL" not in line:
-                    prestador_atual = match_prest.group(1).strip()
+                    nome_extraido = match_prest.group(1).strip()
+                    
+                    # A MÁGICA ACONTECE AQUI: Normaliza o nome com base no CSV
+                    if lista_nomes_oficiais:
+                        prestador_atual = corrigir_nome_similar(nome_extraido, lista_nomes_oficiais)
+                    else:
+                        prestador_atual = nome_extraido
+                        
                     codigo_em_espera = None 
                     continue
                 
@@ -188,7 +228,7 @@ def processar_individual(codigos_blacklist):
                 match_c = regex_cod.search(line)
                 if match_c: codigo_em_espera = match_c.group(1)
                 
-                # 3. Verifica Data (NOVO - Camada 2)
+                # 3. Verifica Data
                 tem_data = regex_data.search(line)
 
                 # 4. Captura Valor
@@ -199,13 +239,9 @@ def processar_individual(codigos_blacklist):
                         
                         if valor > 0 and prestador_atual != "DESCONHECIDO":
                             codigo_final = match_c.group(1) if match_c else codigo_em_espera
-                            
-                            # REGRA DE OURO: Para ser válido, precisa ter CÓDIGO ou DATA.
-                            # Linhas de total geral geralmente não têm nenhum dos dois.
                             eh_valido = codigo_final is not None or tem_data is not None
                             
                             if eh_valido:
-                                # Verifica Rateio
                                 eh_rateio = codigo_final and codigo_final in codigos_blacklist
                                 
                                 if not eh_rateio:
@@ -215,12 +251,12 @@ def processar_individual(codigos_blacklist):
                                         'Valor_Individual': valor,
                                         'Detalhes': line[:60]
                                     })
-                            
                             codigo_em_espera = None 
                     except: pass
     
     df = pd.DataFrame(dados)
     if not df.empty:
+        # Agrupa pelo nome CORRIGIDO, somando as duplicidades
         df_agrup = df.groupby('Prestador')['Valor_Individual'].sum().reset_index()
         return df_agrup, df
     return pd.DataFrame(), pd.DataFrame()
@@ -264,6 +300,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     
     if not df_ind_res.empty:
         df_ind_res['chave'] = df_ind_res['Prestador'].str.upper().str.strip()
+        # Full Outer Join garantido pela chave de nomes corrigidos
         df_geral = pd.merge(df_geral, df_ind_res[['chave', 'Valor_Individual']], on='chave', how='outer')
     else: df_geral['Valor_Individual'] = 0.0
     
@@ -301,7 +338,6 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
             .tab-btn{{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:600;color:#6c757d;transition:all 0.2s;}}
             .tab-btn.active{{border-color:#0d6efd;color:#0d6efd;background-color:#fff;border-radius:5px 5px 0 0;}}
             .tab-container{{background-color:#fff;border:1px solid #dee2e6;border-radius:0 0 5px 5px;padding:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05);}}
-            /* Estilo Tabela Clean */
             table.dataTable thead th {{background-color: #f1f3f5; color: #495057; border-bottom: 2px solid #dee2e6;}}
             table.dataTable tbody tr:nth-of-type(odd) {{background-color: #f8f9fa;}}
             table.dataTable tfoot th {{background-color: #e9ecef; color: #212529; font-weight: bold; border-top: 2px solid #dee2e6;}}
@@ -321,8 +357,6 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
             </div>
         </div>
         <main class='max-w-7xl mx-auto px-4 py-6'>
-            
-            <!-- ABA GERAL -->
             <div id='tab-geral' class='view-tab tab-container'>
                 <table id='tbl-geral' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador / Médico</th><th class='text-right'>Vl. Rateio</th><th class='text-right'>Vl. Individual</th><th class='text-right'>Total Final</th></tr></thead>
@@ -342,8 +376,6 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
                     </tfoot>
                 </table>
             </div>
-
-            <!-- ABA RATEIO -->
             <div id='tab-rateio' class='view-tab hidden tab-container'>
                 <div class="mb-4 p-3 bg-blue-50 text-blue-800 rounded border border-blue-100 flex justify-between items-center">
                     <span><i class="fa-solid fa-info-circle mr-2"></i>Receita Total do Grupo (PDF): <b>R$ {total_bolo:,.2f}</b></span>
@@ -364,11 +396,9 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
                     </tfoot>
                 </table>
             </div>
-
-            <!-- ABA INDIVIDUAL -->
             <div id='tab-indiv' class='view-tab hidden tab-container'>
                 <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-100">
-                    <i class="fa-solid fa-filter mr-2"></i>Itens que já foram pagos no Rateio (e Diárias, Consultas, Visitas) foram excluídos desta lista.
+                    <i class="fa-solid fa-filter mr-2"></i>Itens filtrados (Rateio, Diárias, Consultas).
                 </div>
                 <table id='tbl-indiv' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador</th><th>Procedimento / Cód.</th><th class='text-right'>Valor</th></tr></thead>
@@ -389,20 +419,10 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
         </main>
         <script>
             $(document).ready(function() {{ 
-                var conf = {{ 
-                    language: {{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}}, 
-                    dom: 'Bfrtip', 
-                    buttons: ['excel', 'print'],
-                    pageLength: 50
-                }};
+                var conf = {{ language: {{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}}, dom: 'Bfrtip', buttons: ['excel', 'print'], pageLength: 50 }};
                 $('#tbl-geral, #tbl-rateio, #tbl-indiv').DataTable(conf); 
             }});
-            function verTab(id){{ 
-                $('.view-tab').addClass('hidden'); 
-                $('#tab-'+id).removeClass('hidden'); 
-                $('.tab-btn').removeClass('active'); 
-                $('#btn-'+id).addClass('active'); 
-            }}
+            function verTab(id){{ $('.view-tab').addClass('hidden'); $('#tab-'+id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-'+id).addClass('active'); }}
         </script>
     </body></html>
     """
@@ -423,6 +443,9 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
 if __name__ == "__main__":
     bolo, bl, df_r = processar_rateio()
     if not df_r.empty:
-        df_ind_res, df_ind_det = processar_individual(bl)
+        # Extrai a lista oficial de nomes do CSV para usar na correção
+        lista_oficial_nomes = df_r['prestador'].unique().tolist()
+        df_ind_res, df_ind_det = processar_individual(bl, lista_oficial_nomes)
+        
         gerar_html(df_r, df_ind_res, df_ind_det, bolo)
-    else: print("Erro: Não foi possível processar o rateio. Verifique se o PDF e o CSV estão na pasta.")
+    else: print("Erro: Não foi possível processar o rateio.")
