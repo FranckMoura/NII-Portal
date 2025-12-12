@@ -2,10 +2,10 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.5 (Filtro Aprimorado: Diárias, Consultas e Visitas)
+# Versão: 2.6 (Correção Definitiva: Validação por Data)
 # Descrição: Processa Rateio + Individual.
-#            Exclui itens administrativos/hospitalares (Diárias, Taxas) e
-#            procedimentos de rotina (Consultas/Visitas) que não são produção extra.
+#            Adiciona validação de DATA para diferenciar procedimentos reais
+#            de linhas de totalização que escaparam dos filtros de texto.
 # ==============================================================================
 
 import pdfplumber
@@ -21,7 +21,6 @@ from datetime import datetime
 # ==============================================================================
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
 
-# Arquivos PDF (Padrão do sistema)
 ARQUIVO_PDF_RATEIO_RECEITA = os.path.join(PASTA_SCRIPT, 'R_RECEITA_PROCEDIMENTO_RATEIO_1025.pdf')
 ARQUIVO_PDF_PRODUCAO_CONTA = os.path.join(PASTA_SCRIPT, 'R_PRODUCAO_MEDICA_CONTA_1025.pdf')
 
@@ -140,7 +139,6 @@ def processar_rateio():
                         total_bolo_sp += limpar_valor_monetario(valores[-2])
 
     print(f"   -> Receita Total Rateio: R$ {total_bolo_sp:,.2f}")
-    print(f"   -> Códigos no Rateio: {len(codigos_rateio)} procedimentos identificados.")
 
     df_vinculos = encontrar_e_ler_vinculos_flexivel()
     if not df_vinculos.empty:
@@ -153,7 +151,7 @@ def processar_rateio():
     return total_bolo_sp, codigos_rateio, df_vinculos
 
 def processar_individual(codigos_blacklist):
-    print(f"2. Processando Produção Individual (com filtros avançados)...")
+    print(f"2. Processando Produção Individual (com validação de DATA)...")
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print(f"[ERRO] Arquivo não encontrado: {os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA)}")
         return pd.DataFrame(), pd.DataFrame()
@@ -164,6 +162,8 @@ def processar_individual(codigos_blacklist):
     
     regex_prestador = re.compile(r'^([A-Z\s\.]+)\s+\(\d+\)$')
     regex_cod = re.compile(r'\b(\d{10})\b')
+    # Regex para Data (dd/mm) - ESSENCIAL PARA EVITAR TOTAIS
+    regex_data = re.compile(r'\b\d{2}/\d{2}\b')
 
     with pdfplumber.open(ARQUIVO_PDF_PRODUCAO_CONTA) as pdf:
         for page in pdf.pages:
@@ -172,18 +172,10 @@ def processar_individual(codigos_blacklist):
                 line = line.strip()
                 linha_upper = line.upper()
                 
-                # --- [ATUALIZAÇÃO V2.5] BLOCO DE FILTROS ---
-                # 1. Filtro de Totais (Evita duplicação do valor cheio)
-                if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper or "GRUPO" in linha_upper):
-                    continue
-
-                # 2. Filtro de Itens Hospitalares (Diárias) - Caso Dr. Holando
-                if "DIARIA" in linha_upper or "DIÁRIA" in linha_upper:
-                    continue
-                
-                # 3. Filtro de Procedimentos de Rotina (Consultas/Visitas) - Caso Dr. Wilson
-                if "CONSULTA" in linha_upper or "VISITA" in linha_upper or "ATENDIMENTO" in linha_upper:
-                    continue
+                # --- FILTROS DE TEXTO (Camada 1) ---
+                if "TOTAL" in linha_upper and ("PRESTADOR" in linha_upper or "GERAL" in linha_upper): continue
+                if "DIARIA" in linha_upper or "DIÁRIA" in linha_upper: continue
+                if "CONSULTA" in linha_upper or "VISITA" in linha_upper or "ATENDIMENTO" in linha_upper: continue
                 
                 # 1. Identifica Prestador
                 match_prest = regex_prestador.match(line)
@@ -192,12 +184,14 @@ def processar_individual(codigos_blacklist):
                     codigo_em_espera = None 
                     continue
                 
-                # 2. Captura Código (Contexto)
+                # 2. Captura Código
                 match_c = regex_cod.search(line)
-                if match_c:
-                    codigo_em_espera = match_c.group(1)
+                if match_c: codigo_em_espera = match_c.group(1)
                 
-                # 3. Captura Valor
+                # 3. Verifica Data (NOVO - Camada 2)
+                tem_data = regex_data.search(line)
+
+                # 4. Captura Valor
                 if re.search(r'\d+,\d{2}$', line):
                     try:
                         val_str = line.split()[-1]
@@ -206,16 +200,21 @@ def processar_individual(codigos_blacklist):
                         if valor > 0 and prestador_atual != "DESCONHECIDO":
                             codigo_final = match_c.group(1) if match_c else codigo_em_espera
                             
-                            # Verifica se já foi pago no rateio
-                            eh_rateio = codigo_final and codigo_final in codigos_blacklist
+                            # REGRA DE OURO: Para ser válido, precisa ter CÓDIGO ou DATA.
+                            # Linhas de total geral geralmente não têm nenhum dos dois.
+                            eh_valido = codigo_final is not None or tem_data is not None
                             
-                            if not eh_rateio:
-                                dados.append({
-                                    'Prestador': prestador_atual,
-                                    'Procedimento': codigo_final or "N/D",
-                                    'Valor_Individual': valor,
-                                    'Detalhes': line[:60]
-                                })
+                            if eh_valido:
+                                # Verifica Rateio
+                                eh_rateio = codigo_final and codigo_final in codigos_blacklist
+                                
+                                if not eh_rateio:
+                                    dados.append({
+                                        'Prestador': prestador_atual,
+                                        'Procedimento': codigo_final or "N/D",
+                                        'Valor_Individual': valor,
+                                        'Detalhes': line[:60]
+                                    })
                             
                             codigo_em_espera = None 
                     except: pass
