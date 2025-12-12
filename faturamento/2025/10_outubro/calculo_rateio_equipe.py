@@ -2,9 +2,10 @@
 # SISTEMA INTEGRADO DE REPASSES MÉDICOS - NII PORTAL
 # Autor: Franck Moura (Via NII Automation)
 # Data: 2025-04-10
-# Versão: 2.9 (Melhoria de Títulos e Impressão)
+# Versão: 3.1 (Correção de KeyError e Robustez)
 # Descrição: Processa Rateio + Individual.
-#            Gera relatórios com cabeçalhos formais para impressão ("Relatório de Repasse Médico").
+#            Gera relatórios com cabeçalhos formais e força a impressão dos TOTAIS.
+#            Correção de erro 'KeyError: Prestador' ao gerar HTML.
 # ==============================================================================
 
 import pdfplumber
@@ -298,20 +299,46 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     nome_html = f"relatorio_repasse_{comp_sufixo}.html"
     caminho_html = os.path.join(PASTA_SCRIPT, nome_html)
     
-    # Merge de Dados
-    df_rateio['chave'] = df_rateio['prestador'].str.upper().str.strip()
-    df_geral = df_rateio.rename(columns={'valor_rateio': 'Vl_Rateio', 'prestador': 'Prestador'})
+    # --- PREPARAÇÃO DE DADOS RATEIO ---
+    # Garante que df_rateio tem as colunas corretas antes do merge
+    if df_rateio.empty:
+        # Cria DataFrame vazio com colunas esperadas se estiver vazio
+        df_rateio = pd.DataFrame(columns=['prestador', 'vinculo', 'valor_rateio'])
     
+    # Padroniza nomes e cria chave
+    if 'prestador' in df_rateio.columns:
+        df_rateio['chave'] = df_rateio['prestador'].str.upper().str.strip()
+        df_geral = df_rateio.rename(columns={'valor_rateio': 'Vl_Rateio', 'prestador': 'Prestador'})
+    else:
+        # Fallback se colunas não existirem
+        print("[AVISO] Coluna 'prestador' não encontrada em df_rateio")
+        df_geral = pd.DataFrame(columns=['Prestador', 'chave', 'Vl_Rateio'])
+
+    # --- PREPARAÇÃO DE DADOS INDIVIDUAL ---
     if not df_ind_res.empty:
-        df_ind_res['chave'] = df_ind_res['Prestador'].str.upper().str.strip()
-        # Full Outer Join garantido pela chave de nomes corrigidos
-        df_geral = pd.merge(df_geral, df_ind_res[['chave', 'Valor_Individual']], on='chave', how='outer')
-    else: df_geral['Valor_Individual'] = 0.0
+        if 'Prestador' in df_ind_res.columns:
+            df_ind_res['chave'] = df_ind_res['Prestador'].str.upper().str.strip()
+            # Full Outer Join garantido pela chave de nomes corrigidos
+            df_geral = pd.merge(df_geral, df_ind_res[['chave', 'Valor_Individual']], on='chave', how='outer')
+        else:
+             print("[AVISO] Coluna 'Prestador' não encontrada em df_ind_res")
+             df_geral['Valor_Individual'] = 0.0
+    else: 
+        df_geral['Valor_Individual'] = 0.0
+    
+    # Preenchimento de Nulos
+    if 'Vl_Rateio' not in df_geral.columns: df_geral['Vl_Rateio'] = 0.0
+    if 'Valor_Individual' not in df_geral.columns: df_geral['Valor_Individual'] = 0.0
     
     df_geral['Vl_Rateio'] = df_geral['Vl_Rateio'].fillna(0)
     df_geral['Valor_Individual'] = df_geral['Valor_Individual'].fillna(0)
     df_geral['Total_Final'] = df_geral['Vl_Rateio'] + df_geral['Valor_Individual']
+    
+    # Garante que a coluna Prestador exista e esteja preenchida
+    if 'Prestador' not in df_geral.columns: df_geral['Prestador'] = None
     df_geral['Prestador'] = df_geral['Prestador'].fillna(df_geral['chave'])
+    
+    # Remove linhas inválidas
     df_geral = df_geral.dropna(subset=['Prestador']).sort_values('Prestador')
     
     # TOTAIS GERAIS
@@ -319,7 +346,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
     total_geral_indiv = df_geral['Valor_Individual'].sum()
     total_geral_final = df_geral['Total_Final'].sum()
     
-    total_rateio_val = df_rateio['valor_rateio'].sum()
+    total_rateio_val = df_rateio['valor_rateio'].sum() if 'valor_rateio' in df_rateio.columns else 0.0
     total_indiv_val = df_ind_det['Valor_Individual'].sum() if not df_ind_det.empty else 0.0
     
     html = f"""
@@ -390,8 +417,9 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
                 <table id='tbl-rateio' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador</th><th class="text-center">Peso/Vínculo</th><th class='text-right'>Valor Rateio</th></tr></thead>
                     <tbody>"""
-    for _, r in df_rateio.iterrows():
-        html += f"<tr><td>{r['prestador']}</td><td class='text-center'>{r['vinculo']}</td><td class='text-right font-bold text-gray-700'>R$ {r['valor_rateio']:,.2f}</td></tr>"
+    if 'valor_rateio' in df_rateio.columns:
+        for _, r in df_rateio.iterrows():
+            html += f"<tr><td>{r['prestador']}</td><td class='text-center'>{r['vinculo']}</td><td class='text-right font-bold text-gray-700'>R$ {r['valor_rateio']:,.2f}</td></tr>"
     
     html += f"""</tbody>
                     <tfoot>
@@ -410,8 +438,9 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
                 <table id='tbl-indiv' class='display w-full text-sm' style="width:100%">
                     <thead><tr><th>Prestador</th><th>Procedimento / Cód.</th><th class='text-right'>Valor</th></tr></thead>
                     <tbody>"""
-    for _, r in df_ind_det.iterrows():
-        html += f"<tr><td>{r['Prestador']}</td><td>{r['Procedimento']}</td><td class='text-right'>R$ {r['Valor_Individual']:,.2f}</td></tr>"
+    if not df_ind_det.empty:
+        for _, r in df_ind_det.iterrows():
+            html += f"<tr><td>{r['Prestador']}</td><td>{r['Procedimento']}</td><td class='text-right'>R$ {r['Valor_Individual']:,.2f}</td></tr>"
 
     html += f"""</tbody>
                     <tfoot>
@@ -434,6 +463,7 @@ def gerar_html(df_rateio, df_ind_res, df_ind_det, total_bolo):
                         {{
                             extend: 'print',
                             title: 'Relatório de Repasse Médico - Competência {comp_label}',
+                            footer: true,
                             customize: function ( win ) {{
                                 $(win.document.body).find('h1').css('text-align', 'center');
                             }}
@@ -465,7 +495,7 @@ if __name__ == "__main__":
     bolo, bl, df_r = processar_rateio()
     if not df_r.empty:
         # Extrai a lista oficial de nomes do CSV para usar na correção
-        lista_oficial_nomes = df_r['prestador'].unique().tolist()
+        lista_oficial_nomes = df_r['prestador'].unique().tolist() if 'prestador' in df_r.columns else []
         df_ind_res, df_ind_det = processar_individual(bl, lista_oficial_nomes)
         
         gerar_html(df_r, df_ind_res, df_ind_det, bolo)
