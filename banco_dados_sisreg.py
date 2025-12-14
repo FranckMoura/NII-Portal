@@ -1,23 +1,46 @@
 import pandas as pd
-import duckdb
-import os
 import glob
-from unidecode import unidecode 
+import os
+import json
+from unidecode import unidecode
+from sqlalchemy import create_engine, text
 
-# --- CONFIGURAÇÕES ---
-print(f"--- 2. INICIANDO PROCESSAMENTO DE DADOS (V22) ---")
+print("--- PROCESSAMENTO SISREG -> POSTGRESQL ---")
+
+# --- CONFIGURAÇÕES DE BANCO ---
+USUARIO_DB = "postgres"
+SENHA_DB = "admin123"  # <--- COLOQUE SUA SENHA AQUI
+HOST_DB = "localhost"
+NOME_DB = "nii_portal"
+
+# --- CONFIGURAÇÕES DE ARQUIVOS ---
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export"
 PASTA_ARQUIVOS = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos"
-ARQUIVO_PARQUET = os.path.join(PASTA_ARQUIVOS, "base_sisreg.parquet")
+CAMINHO_JSON = os.path.join(PASTA_ARQUIVOS, "dados_sisreg.json")
 
-if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
+# 1. CRIAR CONEXÃO COM O BANCO
+# String de conexão: postgresql://usuario:senha@host/banco
+engine_url = f"postgresql://{USUARIO_DB}:{SENHA_DB}@{HOST_DB}/postgres" # Conecta no 'postgres' primeiro para criar o banco
+engine = create_engine(engine_url)
 
-# Pega CSVs
+# Cria o banco 'nii_portal' se não existir
+with engine.connect() as conn:
+    conn.execute(text("COMMIT")) # Postgres exige autocommit para criar DB
+    try:
+        conn.execute(text(f"CREATE DATABASE {NOME_DB}"))
+        print(f"✅ Banco de dados '{NOME_DB}' criado!")
+    except:
+        print(f"ℹ️ Banco de dados '{NOME_DB}' já existe.")
+
+# Reconecta agora no banco certo
+engine = create_engine(f"postgresql://{USUARIO_DB}:{SENHA_DB}@{HOST_DB}/{NOME_DB}")
+
+# 2. LER OS ARQUIVOS CSV (Mesma lógica robusta do V23)
 arquivos = glob.glob(os.path.join(PASTA_CSV, "*.csv"))
 arquivos_sisreg = [f for f in arquivos if "2311682" in f or "SISREG" in f]
 
 if not arquivos_sisreg:
-    print("❌ Nenhum arquivo CSV encontrado na pasta de Exportação.")
+    print("❌ Nenhum arquivo CSV encontrado.")
     exit()
 
 print(f"   -> Lendo {len(arquivos_sisreg)} arquivos CSV...")
@@ -25,52 +48,73 @@ dfs = []
 
 for arq in arquivos_sisreg:
     try:
-        # Tenta UTF-8 primeiro (Seu arquivo novo é UTF-8)
+        # Tenta ler (Lógica de codificação mantida)
         try:
             df = pd.read_csv(arq, sep=';', encoding='utf-8', dtype=str, on_bad_lines='skip')
         except:
             df = pd.read_csv(arq, sep=';', encoding='latin-1', dtype=str, on_bad_lines='skip')
-            
-        # Limpeza de cabeçalho
-        df.columns = [unidecode(str(c)).strip().upper().replace(' ', '_').replace('.', '').replace('/', '') for c in df.columns]
+        
+        # Limpeza de colunas
+        new_cols = []
+        for c in df.columns:
+            clean = unidecode(str(c)).strip().upper().replace(' ', '_').replace('.', '').replace('/', '')
+            # Correção para o bug de codificação específico
+            if "SOLICITAA" in clean: clean = clean.replace("SOLICITAA§A£O", "SOLICITACAO")
+            if "INTERNAA" in clean: clean = clean.replace("INTERNAA§A£O", "INTERNACAO")
+            new_cols.append(clean)
+        df.columns = new_cols
         dfs.append(df)
     except: pass
 
-if not dfs: 
-    print("❌ Erro ao ler arquivos.")
-    exit()
-
 df_total = pd.concat(dfs, ignore_index=True)
 
-# --- MAPEAMENTO (Baseado no seu arquivo 20251214) ---
-df_final = pd.DataFrame()
-def get_col(nome, df):
-    if nome in df.columns: return df[nome]
-    return "-"
+# 3. FILTRAR E RENOMEAR COLUNAS (Para o padrão SQL)
+# Mapeamento: Nome no CSV -> Nome no Banco de Dados
+mapa_colunas = {
+    'DATA_DA_SOLICITACAO': 'data_solicitacao',
+    'NOME_DO_PACIENTE': 'paciente',
+    'CNS_DO_PACIENTE': 'cns',
+    'N_DA_SOLICITACAO': 'numero_solicitacao',
+    'N_AIH': 'aih',
+    'NOME_DO_PROCEDIMENTO_SOLICITADO': 'procedimento',
+    'STATUS_DA_SOLICITACAO_DE_INTERNACAO': 'status',
+    'CARATER_INTERNACAO': 'carater'
+}
 
-df_final['data_visual'] = get_col('DATA_DA_SOLICITACAO', df_total)
-df_final['paciente'] = get_col('NOME_DO_PACIENTE', df_total)
-df_final['cns'] = get_col('CNS_DO_PACIENTE', df_total)
-df_final['num_sol'] = get_col('N_DA_SOLICITACAO', df_total) 
-df_final['aih'] = get_col('N_AIH', df_total)
-df_final['proc'] = get_col('NOME_DO_PROCEDIMENTO_SOLICITADO', df_total)
-df_final['status'] = get_col('STATUS_DA_SOLICITACAO_DE_INTERNACAO', df_total) # Campo vital
-df_final['carater'] = get_col('CARATER_INTERNACAO', df_total)
+# Seleciona apenas as colunas que existem
+colunas_existentes = [c for c in mapa_colunas.keys() if c in df_total.columns]
+df_db = df_total[colunas_existentes].rename(columns=mapa_colunas)
 
-# Remove Duplicatas de Solicitação
-df_final = df_final.drop_duplicates(subset=['num_sol'], keep='first')
+# Tratamentos finais
+df_db = df_db.drop_duplicates(subset=['numero_solicitacao'], keep='first')
+df_db['data_obj'] = pd.to_datetime(df_db['data_solicitacao'], dayfirst=True, errors='coerce')
+df_db['data_iso'] = df_db['data_obj'].dt.strftime('%Y-%m-%d').fillna("1900-01-01")
+df_db = df_db.drop(columns=['data_obj']) # Remove auxiliar
 
-# Formatação
-print("   -> Formatando datas e números...")
-df_final['data_obj'] = pd.to_datetime(df_final['data_visual'], dayfirst=True, errors='coerce')
-df_final['data_iso'] = df_final['data_obj'].dt.strftime('%Y-%m-%d').fillna("1900-01-01")
-df_final = df_final.sort_values(by='data_iso', ascending=False)
-df_final = df_final.drop(columns=['data_obj'])
+# Preenche nulos
+df_db = df_db.fillna("-")
 
-df_final = df_final.fillna("-")
-for col in ['cns', 'num_sol', 'aih']:
-    df_final[col] = df_final[col].astype(str).str.replace(r'\.0$', '', regex=True).replace('nan', '-')
+# 4. SALVAR NO POSTGRESQL
+print("   -> Salvando no PostgreSQL...")
+# if_exists='replace': Apaga a tabela antiga e cria uma nova (Ideal para carga total)
+# index=False: Não cria uma coluna de índice numérico extra
+df_db.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
+print(f"✅ Tabela 'sisreg_solicitacoes' atualizada com {len(df_db)} registros.")
 
-# Salvar
-duckdb.sql("COPY df_final TO '{}' (FORMAT PARQUET, CODEC 'ZSTD')".format(ARQUIVO_PARQUET.replace('\\', '/')))
-print(f"✅ Sucesso! Base de dados atualizada com {len(df_final)} registros.")
+# 5. GERAR JSON PARA O SITE
+# Agora lemos DO BANCO para garantir que o site mostre o que está no banco
+print("   -> Gerando JSON para o Portal...")
+df_site = pd.read_sql("SELECT * FROM sisreg_solicitacoes ORDER BY data_iso DESC", engine)
+
+# Mapeia de volta para os nomes que o seu HTML já usa (data_visual, num_sol, etc)
+df_site = df_site.rename(columns={
+    'data_solicitacao': 'data_visual',
+    'numero_solicitacao': 'num_sol',
+    # As outras colunas no banco já tem nomes simples, mas seu JSON usa chaves específicas?
+    # Vamos garantir que o JSON saia igual ao que você enviou:
+    'procedimento': 'proc' 
+    # paciente, cns, aih, status, carater já estão iguais
+})
+
+df_site.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
+print("✅ JSON gerado com sucesso!")
