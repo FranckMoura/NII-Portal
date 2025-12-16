@@ -1,5 +1,13 @@
 [
     {
+        "nome": "auditoria_financeira.xlsx",
+        "caminho": "arquivos/auditoria_financeira.xlsx",
+        "tamanho": "36.38 KB",
+        "data": "16/12/2025",
+        "tipo": "outro",
+        "icone": "📄"
+    },
+    {
         "nome": "base_sisreg.parquet",
         "caminho": "arquivos/base_sisreg.parquet",
         "tamanho": "155.16 KB",
