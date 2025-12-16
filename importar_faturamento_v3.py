@@ -141,4 +141,29 @@ with engine.connect() as conn:
     except Exception as e:
         print(f"⚠️ Erro ao configurar chaves (verifique se há AIHs duplicadas): {e}")
 
+# ... (código anterior) ...
+
+# --- 6. ENRIQUECIMENTO DE DADOS (Trazer Nome do Paciente) ---
+print(">> Buscando nomes dos pacientes no SISREG...")
+with engine.connect() as conn:
+    conn.execute(text("COMMIT"))
+    try:
+        # 1. Cria a coluna se não existir
+        conn.execute(text("ALTER TABLE faturamento_producao ADD COLUMN IF NOT EXISTS paciente VARCHAR(255);"))
+        
+        # 2. Atualiza os nomes
+        sql_update = """
+        UPDATE faturamento_producao f
+        SET paciente = s.paciente
+        FROM sisreg_solicitacoes s
+        WHERE f.aih = REPLACE(REPLACE(s.aih, '-', ''), '.', '')
+        AND f.paciente IS NULL; -- Só atualiza quem está sem nome
+        """
+        conn.execute(text(sql_update))
+        print("✅ Nomes dos pacientes atualizados no Faturamento!")
+    except Exception as e:
+        print(f"⚠️ Erro ao atualizar nomes: {e}")
+
+# ... (print final de sucesso) ...
+
 print(f"✅ FINALIZADO! {len(df_db)} registros importados com sucesso.")
