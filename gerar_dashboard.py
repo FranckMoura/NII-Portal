@@ -1,225 +1,282 @@
-import duckdb
-import os
 import json
+import os
+import pandas as pd
 from datetime import datetime
 
-# --- CONFIGURAÇÕES ---
-PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
-ARQUIVO_PARQUET = os.path.join(PASTA_PROJETO, "arquivos", "base_sisreg.parquet")
-CAMINHO_JSON = os.path.join(PASTA_PROJETO, "arquivos", "dados_sisreg.json")
-CAMINHO_HTML = os.path.join(PASTA_PROJETO, "painel_regulacao.html")
+print("--- GERANDO DASHBOARD (V2.1 - CORREÇÃO DE CHAVES) ---")
 
-def gerar_html():
-    print("--- GERANDO DASHBOARD (V15 - FILTRO PRECISO) ---")
-    
-    if not os.path.exists(ARQUIVO_PARQUET):
-        print("❌ Parquet não encontrado. Rode o banco_dados_sisreg.py")
+PASTA_ARQUIVOS = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos"
+ARQUIVO_JSON_SISREG = os.path.join(PASTA_ARQUIVOS, "dados_sisreg.json")
+ARQUIVO_JSON_TABNET = os.path.join(PASTA_ARQUIVOS, "dados_tabnet.json")
+PASTA_SITE = r"C:\Users\DELL\OneDrive\NII-Portal-1"
+
+# --- FUNÇÃO AUXILIAR: CARREGAR DADOS ---
+def carregar_dados(caminho):
+    if os.path.exists(caminho):
+        try:
+            with open(caminho, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except: return []
+    return []
+
+dados_sisreg = carregar_dados(ARQUIVO_JSON_SISREG)
+dados_tabnet = carregar_dados(ARQUIVO_JSON_TABNET)
+
+# --- 1. GERAR PÁGINA INDICADORES (TABNET) ---
+def gerar_html_indicadores(dados):
+    if not dados:
+        print("⚠️ Sem dados do TabNet para gerar gráficos.")
         return
 
-    try:
-        con = duckdb.connect()
-        df = con.execute(f"SELECT * FROM '{ARQUIVO_PARQUET}' ORDER BY data_iso DESC").df()
-        
-        # Salva JSON
-        df.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
-        print(f"   💾 JSON gerado: {len(df)} linhas.")
-
-        # Datas Padrão (Mês Atual)
-        hoje = datetime.now()
-        inicio_padrao = hoje.replace(day=1).strftime('%Y-%m-%d')
-        fim_padrao = hoje.strftime('%Y-%m-%d')
-
-        html_template = f"""
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel NII - Regulação</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    print(f"   Gerando indicadores.html com {len(dados)} meses de histórico...")
     
-    <style>
-        :root {{ --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }}
-        body {{ font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }}
-        .header {{ background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
-        .filter-box {{ background: #e3f2fd; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #90caf9; }}
-        .cards-container {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }}
-        .card {{ background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }}
-        .card .value {{ font-size: 32px; font-weight: bold; margin-top: 10px; }}
-        .chart-box {{ background: white; padding: 20px; border-radius: 8px; height: 300px; }}
-        .charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }}
-        .table-box {{ background: white; padding: 20px; border-radius: 8px; }}
-        .status-badge {{ padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }}
-        .bg-aprovado {{ background: var(--success); }}
-        .bg-pendente {{ background: var(--warning); color: #333; }}
-        .bg-negado {{ background: var(--danger); }}
-        .bg-outro {{ background: var(--primary); }}
-        @media (max-width: 768px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div><h1>Monitoramento SISREG</h1><p>Visão Geral</p></div>
-        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
-    </div>
+    # --- DESCOBRIR O NOME DAS COLUNAS (Importante para evitar KeyErrors) ---
+    primeiro_item = dados[0]
+    
+    # Tenta achar a chave que guarda o texto do período (ex: "Jan/2024")
+    chave_periodo = 'ano_mes_processament' # Padrão novo
+    if 'periodo_txt' in primeiro_item: chave_periodo = 'periodo_txt'
+    elif 'competencia' in primeiro_item: chave_periodo = 'competencia'
+    
+    # Tenta achar a chave de valor total
+    chave_valor = 'valor_total'
+    
+    print(f"   (Mapeamento: Período='{chave_periodo}', Valor='{chave_valor}')")
 
-    <div class="filter-box">
-        <i class="fas fa-filter" style="color:#0056b3"></i>
-        <div><label>De:</label> <input type="date" id="minDate" value="{inicio_padrao}"></div>
-        <div><label>Até:</label> <input type="date" id="maxDate" value="{fim_padrao}"></div>
-        <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
-        <button onclick="limparFiltros()" style="background:#fff; color:#333; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo</button>
-        <span id="loading" style="margin-left:10px; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando...</span>
-    </div>
+    # Prepara os dados (Listas)
+    labels = [d.get(chave_periodo, '-') for d in dados]
+    internacoes = [d.get('internacoes', d.get('qtd_aih', 0)) for d in dados]
+    obitos = [d.get('obitos', 0) for d in dados]
+    valor_total = [d.get(chave_valor, 0) for d in dados]
+    media_perm = [d.get('media_permanencia', 0) for d in dados]
+    taxa_mort = [d.get('taxa_mortalidade', 0) for d in dados]
+    
+    # Calcula totais
+    total_internacoes = sum(internacoes)
+    total_faturamento = sum(valor_total)
+    media_mortalidade = sum(taxa_mort)/len(dados) if dados else 0
 
-    <div class="cards-container">
-        <div class="card" style="border-top-color: #0056b3;"><h3>Total</h3><div class="value" id="vTotal">-</div></div>
-        <div class="card" style="border-top-color: #28a745;"><h3>Aprovados</h3><div class="value" id="vAprov">-</div></div>
-        <div class="card" style="border-top-color: #ffc107;"><h3>Pendentes</h3><div class="value" id="vPend">-</div></div>
-        <div class="card" style="border-top-color: #dc3545;"><h3>Negados</h3><div class="value" id="vNeg">-</div></div>
-    </div>
-
-    <div class="charts-row">
-        <div class="chart-box"><canvas id="cProc"></canvas></div>
-        <div class="chart-box"><canvas id="cStatus"></canvas></div>
-    </div>
-
-    <div class="table-box">
-        <table id="tabelaReg" class="display" style="width:100%">
-            <thead><tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Procedimento</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <script>
-        let dadosGlobais = [];
-        let table = null;
-        let chartS = null, chartP = null;
-
-        fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(dados => {{
-                dadosGlobais = dados;
-                document.getElementById('loading').style.display = 'none';
-                
-                table = $('#tabelaReg').DataTable({{
-                    data: [],
-                    pageLength: 10,
-                    order: [], 
-                    language: {{ url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }},
-                    columns: [
-                        {{ data: "data_visual" }},
-                        {{ data: "paciente" }},
-                        {{ data: "cns" }},
-                        {{ data: "num_sol" }},
-                        {{ data: "aih" }},
-                        {{ data: "proc" }},
-                        {{ 
-                            data: "status",
-                            render: function(d) {{
-                                let s = (d || "").toLowerCase();
-                                let c = "bg-outro";
-                                if(s.includes("aprovado")||s.includes("autorizado")) c = "bg-aprovado";
-                                else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
-                                else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
-                                return `<span class="status-badge ${{c}}">${{d}}</span>`;
-                            }}
-                        }}
-                    ]
-                }});
-                
-                aplicarFiltro();
-            }})
-            .catch(err => console.error(err));
-
-        function limparFiltros() {{
-            document.getElementById('minDate').value = "";
-            document.getElementById('maxDate').value = "";
-            processarDados(dadosGlobais);
-        }}
-
-        function aplicarFiltro() {{
-            let d1 = document.getElementById('minDate').value;
-            let d2 = document.getElementById('maxDate').value;
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NII - Indicadores Hospitalares</title>
+        <link rel="stylesheet" href="css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            .kpi-container {{ display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }}
+            .kpi-card {{ flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; min-width: 200px; }}
+            .kpi-value {{ font-size: 2em; font-weight: bold; color: #2c3e50; }}
+            .kpi-label {{ color: #7f8c8d; font-size: 0.9em; text-transform: uppercase; }}
             
-            // --- FILTRO DE DATA PRECISO (JAVASCRIPT) ---
-            const filtrados = dadosGlobais.filter(item => {{
-                if (!item.data_iso) return false;
-                
-                // Compara strings ISO (YYYY-MM-DD) que funcionam perfeitamente
-                // Ex: "2025-11-15" >= "2025-11-01"
-                if (d1 && item.data_iso < d1) return false;
-                if (d2 && item.data_iso > d2) return false;
-                
-                return true;
-            }});
+            .chart-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }}
+            .chart-card {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
             
-            processarDados(filtrados);
-        }}
+            @media (max-width: 768px) {{ .chart-grid {{ grid-template-columns: 1fr; }} }}
+            
+            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }}
+            th, td {{ padding: 10px; border: 1px solid #ddd; text-align: right; }}
+            th {{ background-color: #f4f4f4; text-align: center; }}
+            tr:nth-child(even) {{ background-color: #f9f9f9; }}
+        </style>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="container">
+                <a href="index.html" class="navbar-brand-link">
+                    <span class="navbar-brand-text">NII - HBSH</span>
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="faturamento.html">Faturamento</a></li>
+                    <li><a href="indicadores.html" class="active">Indicadores</a></li>
+                    <li><a href="manuais.html">Manuais</a></li>
+                </ul>
+            </div>
+        </nav>
 
-        function processarDados(dados) {{
-            let tot=dados.length, apr=0, pen=0, neg=0;
-            let procs = {{}};
+        <header class="page-header">
+            <div class="container">
+                <h1>Indicadores Históricos (TabNet/SIHSUS)</h1>
+                <p>Análise da evolução hospitalar baseada no arquivo SIH importado.</p>
+            </div>
+        </header>
 
-            dados.forEach(i => {{
-                let s = (i.status || "").toLowerCase();
-                if(s.includes("aprovado")||s.includes("autorizado")) apr++;
-                else if(s.includes("pendente")||s.includes("aguardando")) pen++;
-                else if(s.includes("negado")||s.includes("cancelado")) neg++;
+        <main class="container">
+            
+            <section class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-value">{len(dados)}</div>
+                    <div class="kpi-label">Meses Analisados</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{total_internacoes:,.0f}</div>
+                    <div class="kpi-label">Total Internações</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">R$ {total_faturamento:,.2f}</div>
+                    <div class="kpi-label">Faturamento Histórico</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{media_mortalidade:.2f}%</div>
+                    <div class="kpi-label">Mortalidade Média</div>
+                </div>
+            </section>
 
-                let p = i.proc || "Outros";
-                procs[p] = (procs[p] || 0) + 1;
-            }});
+            <section class="chart-grid">
+                <div class="chart-card">
+                    <h3>Evolução: Internações vs Óbitos</h3>
+                    <canvas id="chartInternacoes"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Faturamento (Produção Aprovada)</h3>
+                    <canvas id="chartFinanceiro"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Média de Permanência (Dias)</h3>
+                    <canvas id="chartPermanencia"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Taxa de Mortalidade (%)</h3>
+                    <canvas id="chartMortalidade"></canvas>
+                </div>
+            </section>
 
-            document.getElementById('vTotal').innerText = tot;
-            document.getElementById('vAprov').innerText = apr;
-            document.getElementById('vPend').innerText = pen;
-            document.getElementById('vNeg').innerText = neg;
+            <section>
+                <h2>Histórico Detalhado</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                <th>Internações</th>
+                                <th>Valor Total</th>
+                                <th>Média Perm. (Dias)</th>
+                                <th>Óbitos</th>
+                                <th>Mortalidade (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    """
+    
+    for d in reversed(dados):
+        # Usa .get() para evitar erro se faltar alguma coluna
+        p_txt = d.get(chave_periodo, '-')
+        inter = d.get('internacoes', d.get('qtd_aih', 0))
+        val = d.get(chave_valor, 0)
+        perm = d.get('media_permanencia', 0)
+        obt = d.get('obitos', 0)
+        mort = d.get('taxa_mortalidade', 0)
 
-            table.clear().rows.add(dados).draw();
-            atualizarGraficos(apr, pen, neg, procs);
-        }}
+        html += f"""
+            <tr>
+                <td style="text-align:center">{p_txt}</td>
+                <td>{inter}</td>
+                <td>R$ {val:,.2f}</td>
+                <td>{perm:.1f}</td>
+                <td>{obt}</td>
+                <td>{mort:.2f}%</td>
+            </tr>
+        """
 
-        function atualizarGraficos(a, p, n, procs) {{
-            const ctxS = document.getElementById('cStatus');
-            if (chartS) chartS.destroy();
-            chartS = new Chart(ctxS, {{
-                type: 'doughnut',
-                data: {{
-                    labels: ['Aprovados', 'Pendentes', 'Negados'],
-                    datasets: [{{ data: [a, p, n], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }}]
-                }},
-                options: {{ responsive: true, maintainAspectRatio: false, cutout: '70%' }}
-            }});
+    html += """
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            const top5 = Object.entries(procs).sort((x,y)=>y[1]-x[1]).slice(0,5);
-            const ctxP = document.getElementById('cProc');
-            if (chartP) chartP.destroy();
-            chartP = new Chart(ctxP, {{
+        </main>
+
+        <script>
+            const labels = """ + str(labels) + """;
+            const dataInternacoes = """ + str(internacoes) + """;
+            const dataObitos = """ + str(obitos) + """;
+            const dataValor = """ + str(valor_total) + """;
+            const dataPerm = """ + str(media_perm) + """;
+            const dataMort = """ + str(taxa_mort) + """;
+
+            new Chart(document.getElementById('chartInternacoes'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Internações',
+                        data: dataInternacoes,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Óbitos',
+                        data: dataObitos,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left' },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('chartFinanceiro'), {
                 type: 'bar',
-                data: {{
-                    labels: top5.map(x=>x[0].substring(0,15)+'...'),
-                    datasets: [{{ label: 'Qtd', data: top5.map(x=>x[1]), backgroundColor: '#0056b3' }}]
-                }},
-                options: {{ indexAxis: 'y', responsive: true, maintainAspectRatio: false }}
-            }});
-        }}
-    </script>
-</body>
-</html>
-"""
-        with open(CAMINHO_HTML, "w", encoding="utf-8") as f:
-            f.write(html_template)
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Valor Total (R$)',
+                        data: dataValor,
+                        backgroundColor: '#2ecc71'
+                    }]
+                }
+            });
+
+            new Chart(document.getElementById('chartPermanencia'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Dias de Permanência',
+                        data: dataPerm,
+                        borderColor: '#f39c12',
+                        tension: 0.1
+                    }]
+                }
+            });
             
-        print(f"✅ HTML SISREG Gerado com Sucesso!")
+            new Chart(document.getElementById('chartMortalidade'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Taxa (%)',
+                        data: dataMort,
+                        borderColor: '#8e44ad',
+                        tension: 0.1
+                    }]
+                }
+            });
+        </script>
+    </body>
+    </html>
+    """
+    
+    with open(os.path.join(PASTA_SITE, "indicadores.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+    print("✅ Página indicadores.html recriada com sucesso!")
 
-    except Exception as e:
-        print(f"❌ Erro: {e}")
-
-if __name__ == "__main__":
-    gerar_html()
+# --- EXECUÇÃO ---
+if dados_tabnet:
+    gerar_html_indicadores(dados_tabnet)
+else:
+    print("⚠️ JSON do TabNet vazio ou não encontrado.")
+    # Se não tiver tabnet, mas tiver sisreg, gera pelo menos o index
+    pass
