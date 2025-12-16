@@ -1,0 +1,818 @@
+--- HTML PRINCIPAL ---
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt-br"><head>
+	<title>SISREG III - Servidor de Producao</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="robots" content="noindex,follow">
+	<link rel="shortcut icon" href="/imagens/datasus-icone.ico">
+	<link rel="icon" type="image/x-icon" href="/imagens/datasus-icone.ico">
+	<link rel="stylesheet" href="/css/reset.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="/css/layout.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="/css/barra-governo.css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="/css/form.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="/css/menu.css" type="text/css" media="all" charset="utf-8">
+	<script src="/javascript/jquery.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+	<script src="/javascript/jquery-ui.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+	<script src="/javascript/menu.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+	<script language="javascript">
+
+var cookie = "04ac35de19a32640c6ac3e75794550b4fd16d77c42fed0dd8aacbb14276c3843";
+
+$(function() {
+	$( '#f_main' ).css( 'min-height', $(window).height() - 240 );
+
+	$('#ifrm-barra-brasil').load(function() {
+		$(this).height( $(this).contents().find('html')[0].scrollHeight + 'px' );
+	});
+
+});
+
+function enviar()
+{
+	var frm = document.formLogin;
+
+	if((frm.senha.value != '') && (frm.usuario.value != ''))
+	{
+		frm.senha_256.value = hex_sha256(frm.senha.value.toUpperCase());
+		frm.senha.value = '';
+		frm.submit();
+	}
+}
+
+function logout()
+{
+	var frm = document.formLogin;
+
+	frm.logout.value = "1";
+	frm.submit();
+}
+
+	</script>
+</head>
+<body>
+    <div align="center">
+
+    <div id="geral">
+       <iframe id="ifrm-barra-brasil" width="100%" height="0px" src="/barra-brasil.html" security="restricted" sandbox=""></iframe>
+
+        <div id="barraSistemaSup">
+            <span class="sigla" onclick="window.open('/cgi-bin/index', '_top');">SISREG</span>
+            <div id="menuRapido">
+                <a class="item" href="/">
+            		<div class="icone">
+            			<img src="/imagens/home.png">
+            		</div>
+            		<div class="texto">
+            			<p>Principal</p>
+            		</div>
+                </a>
+                <a class="item" href="/cgi-bin/config_perfil" target="f_principal">
+            		<div class="icone">
+            			<img src="/imagens/perfil.png">
+            		</div>
+            		<div class="texto">
+            			<p>Perfil</p>
+            		</div>
+                </a>
+                <a class="item" href="mailto:?Subject=Suporte Técnico SISREG III">
+            		<div class="icone">
+            			<img src="/imagens/contato.png">
+            		</div>
+            		<div class="texto">
+            			<p>Contato</p>
+            		</div>
+                </a>
+                <a class="item" target="_blank" href="https://wiki.saude.gov.br/SISREG/index.php/Página_principal#Acesso_a_API-_Application_Programming_Interface">
+            		<div class="icone">
+            			<img src="/imagens/api.png">
+            		</div>
+            		<div class="texto">
+            			<p>Acesso a Api</p>
+            		</div>
+                </a>
+                <a class="item" href="?logout=1">
+            		<div class="icone">
+            			<img src="/imagens/sair.png">
+            		</div>
+            		<div class="texto">
+            			<p>Sair</p>
+            		</div>
+                </a>
+            </div>
+        </div>
+        <div id="barraSistemaInf">
+            <span class="descricao">SISTEMA DE REGULAÇÃO</span>
+            <div id="detalheUsuario">
+<b>Operador:</b><font color="yellow">&nbsp;046FRANCK&nbsp;</font><b>Perfil:</b><font color="yellow">&nbsp;SOLICITANTE&nbsp;</font><b>Unidade:</b><font color="yellow">&nbsp;HOSPITAL SANTA HELENA (2311682) </font>		V&nbsp;-&nbsp;3.4.2025.12            </div>
+        </div>
+<div id="barraMenu">
+	<ul class="sf-menu sf-js-enabled sf-shadow">
+		<li class="current"><a href="#" title="" onmouseover="window.status=''; return true;" class="sf-with-ul">solicitar&nbsp;&nbsp;<span class="sf-sub-indicator"> »</span></a>
+		<ul class="sf-menu sf-js-enabled sf-shadow" style="float: none; width: 12em; display: none; visibility: hidden;">
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cadweb50?url=/cgi-bin/marcar" title="Antigo Ambulatorial (Solicitar)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Ambulatorial</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cadweb50?url=/cgi-bin/marcar_ih" title="Antigo Internação (Solicitar)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Internação</a>
+			</li>
+		</ul>
+		</li>
+		<li><a href="/cgi-bin/cons_verificar" title="" onmouseover="window.status=''; return true;" target="f_principal">Cancelar Solicitações</a>
+		</li>
+		<li class="current"><a href="#" title="" onmouseover="window.status=''; return true;" class="sf-with-ul">consulta geral&nbsp;&nbsp;<span class="sf-sub-indicator"> »</span></a>
+		<ul class="sf-menu sf-js-enabled sf-shadow" style="float: none; width: 12em; display: none; visibility: hidden;">
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cadweb50?standalone=1" title="Consulta de CNS diretamente no CadWeb" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">CNS</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_unidade" title="Antigo Unidades (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Unidades</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_procedimento.pl" title="Novo!" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Tabela SIGTAP</a>
+			</li>
+		</ul>
+		</li>
+		<li class="current"><a href="#" title="" onmouseover="window.status=''; return true;" class="sf-with-ul">consulta amb&nbsp;&nbsp;<span class="sf-sub-indicator"> »</span></a>
+		<ul class="sf-menu sf-js-enabled sf-shadow" style="float: none; width: 23.6364em; display: none; visibility: hidden;">
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/gerenciador_solicitacao" title="Gerenciador de Solicitações Ambulatorial" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Solicitações</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_fila_espera" title="Antigo Marcados pela Fila de Espera (AMB) (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Agendados pela Fila de Espera</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_marcados_reg" title="Antigo Marcados pelo Regulador (AMB) (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Agendados pela Regulação</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_negados_reg" title="Antigo Devolvidos pelo Regulador (AMB) (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Devolvidos pela Regulação</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_ppi_cotas" title="Antigo Cotas (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">PPI/Cotas</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/rellst.pl" title="Antigo Ranking (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Agendamentos/Data Solicitação</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_escalas" title="Antigo Escalas (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Escalas</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_pa" title="Antigo Procedimentos (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Grupos/Procedimentos</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_prontuario_enviar" title="Novo!" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Prontuários a Enviar</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_pendente_fila_" title="Solicitações Pendentes na Fila de Espera" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Solicitações Pendentes na Fila de Espera</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/rel_amb_faltas_sol.pl" title="Antigo Faltas por Unidade (Relatórios - Administrativos)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Solicitações não confirmadas/Unidade</a>
+			</li>
+		</ul>
+		</li>
+		<li class="current"><a href="#" title="" onmouseover="window.status=''; return true;" class="sf-with-ul">consulta hosp&nbsp;&nbsp;<span class="sf-sub-indicator"> »</span></a>
+		<ul class="sf-menu sf-js-enabled sf-shadow" style="float: none; width: 17.1818em; display: none; visibility: hidden;">
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_aih" title="Antigo Autorização Inter (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Solicitações</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;"><a href="/cgi-bin/cons_aih_devolvidas" title="Antigo Solicitação Int Devolvidas (Consultas)" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Solicitações Devolvidas</a>
+			</li>
+			<li style="white-space: normal; float: left; width: 100%;" class=""><a href="/cgi-bin/expo_solicitacoes_aih" title="" onmouseover="window.status=''; return true;" target="f_principal" style="float: none; width: auto;">Exportador de Internações</a>
+			</li>
+		</ul>
+		</li>
+	</ul>
+</div>
+               <script type="text/javascript">
+                    $(document).ready(function(){
+                        $("ul.sf-menu").supersubs({
+                            minWidth:    12, 
+                            maxWidth:    27, 
+                            extraWidth:  1 
+                        }).superfish(); 
+                    });
+                </script>
+        <div id="conteudoImage">
+            <div id="conteudoFull">
+                <iframe id="f_main" style="z-index: -1; min-height: 341px;" marginheight="0" marginwidth="1" src="/cgi-bin/avisos" name="f_principal" width="100%" height="100%" frameborder="0" onload="">
+</iframe>
+            </div>
+<div></div>
+
+        </div>
+        <div id="barraLaranja"></div>
+        <div id="rodape">
+            <span class="R_esquerda">Departamento de Regulação, Avaliação e Controle de Sistemas</span>
+            <span class="R_direita"></span>
+        </div>
+        <form name="formLogin" method="post" action="/">
+<input type="hidden" name="logout" value="">
+<input type="hidden" name="msg" value="">
+        </form>
+
+
+</div></div></body></html>
+
+--- CONTEÚDO DO IFRAME 0 ---
+<html lang="pt-br"><head>
+	<meta charset="utf-8">
+	<title>SISREG III</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<base target="_parent">
+</head>
+
+<body>
+	<div id="barra-brasil">
+		<div id="wrapper-barra-brasil">
+			<div class="brasil-flag">
+				<a href="http://brasil.gov.br" class="link-barra">Brasil</a>
+			</div>
+			<span class="acesso-info">
+				<a href="http://brasil.gov.br/barra#acesso-informacao" class="link-barra">Acesso à informação</a>
+			</span>
+			<ul class="list">
+				<li class="list-item first">
+					<a href="http://brasil.gov.br/barra#participe" class="link-barra">Participe</a>
+				</li>
+				<li class="list-item">
+					<a href="http://www.servicos.gov.br/" class="link-barra">Serviços</a>
+				</li>
+				<li class="list-item">
+					<a href="http://www.planalto.gov.br/legislacao" class="link-barra">Legislação</a>
+				</li>
+				<li class="list-item last last-item">
+					<a href="http://brasil.gov.br/barra#orgaos-atuacao-canais" class="link-barra">Canais</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<style type="text/css">
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#barra-brasil {
+		height: 32px;
+		background: #f1f1f1;
+		font-weight: bold;
+		font-size: 12px;
+		width: 100%;
+		line-height: 32px;
+		font-family: "Open Sans",Arial,Helvetica,sans-serif;
+		border-bottom: 1px solid #dfdfdf;
+	}
+	#wrapper-barra-brasil {
+		position: relative;
+		overflow: hidden;
+		margin: 0 auto;
+		width: 1140px !important;
+		max-width: 960px;
+	}
+	#barra-brasil div
+	, #barra-brasil a
+	, #barra-brasil ul
+	, #barra-brasil li {
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font-family: inherit;
+		vertical-align: baseline;
+	}
+	#barra-brasil .brasil-flag {
+		float: left;
+		padding: 7px 0 6px;
+		width: 115px;
+		height: 19px;
+		border-right: 2px solid #dfdfdf;
+	}
+	#barra-brasil .brasil-flag .link-barra {
+		display: block;
+		padding-left: 42px;
+		width: 43px;
+		background: url("/imagens/bandeira_brasil.png") 8px center no-repeat;
+		text-transform: uppercase;
+		line-height: 19px;
+	}
+	#barra-brasil .link-barra {
+		color: #606060;
+	}
+	#barra-brasil a {
+		text-decoration: none;
+	}
+	#barra-brasil .acesso-info {
+		position: absolute;
+		left: 130px;
+	}
+	#barra-brasil .link-barra {
+		color: #606060;
+	}
+	#barra-brasil .list {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	#barra-brasil ul {
+		list-style: none;
+	}
+	#barra-brasil .list .first {
+		border-left: 2px solid #dfdfdf;
+	}
+	#barra-brasil .list-item {
+		display: inline-block;
+		padding: 0 15px 0 13px;
+		height: 32px;
+		border-right: 2px solid #dfdfdf;
+	}
+	</style>
+
+
+
+
+
+
+</body></html>
+
+--- CONTEÚDO DO IFRAME 1 ---
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Language" content="pt-BR">
+<link rel="stylesheet" type="text/css" href="/css/estilo.css">
+<link rel="stylesheet" href="/css/layout.css" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="/css/form.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="/javascript/jquery.js" charset="utf-8"></script>
+<script type="text/javascript" src="/javascript/jquery-ui.js"></script>
+<script type="text/javascript" src="/javascript/datepicker.js"></script>
+<script language="JavaScript" src="/javascript/ajax.js"></script>
+<script language="JavaScript" src="/javascript/CheckDate.js"></script>
+<script language="JavaScript">
+
+function exportar(){
+	var form = document.formulario;
+	form.desc_solic.value = form.desc_solic.value.toUpperCase();
+	// Validar data de solicitacao, campo de preenchimento obrigatorio
+	if(form.dtaIniSolic.value.length == 0){
+		alert('Informe a data inicial da solicitacao!');
+		form.dtaIniSolic.focus();
+		return false;
+	}
+	else {
+		if(form.dtaFimSolic.value.length == 0){
+			alert('Informe a data final da solicitacao!');
+			form.dtaFimSolic.focus();
+			return false;
+		}
+		if(!ValidateDateRange(form.dtaIniSolic.value,form.dtaFimSolic.value,31)){
+			alert('Periodo invalido!');
+			return false;
+		}
+	}
+	// Validar data de reserva
+	if(form.dtaIniReserva.value.length != 0){
+		if(form.dtaFimReserva.value.length == 0){
+			alert('Informe a data final da reserva!');
+			form.dtaFimReserva.focus();
+			return false;
+		}
+		if(!ValidateDateRange(form.dtaIniReserva.value,form.dtaFimReserva.value,31)){
+			alert('Periodo invalido!');
+			return false;
+		}
+	}
+	// Validar data de internacao
+	if(form.dtaIniInternacao.value.length != 0){
+		if(form.dtaFimInternacao.value.length == 0){
+			alert('Informe a data final da internacao!');
+			form.dtaFimInternacao.focus();
+			return false;
+		}
+		if(!ValidateDateRange(form.dtaIniInternacao.value,form.dtaFimInternacao.value,31)){
+			alert('Periodo de internacao invalido!');
+			return false;
+		}
+	}
+	// Tratamento p/ qdo nao houver nada marcado para exportacao
+	form.contador.value = getQtdItensSelecionados();
+	if(getQtdItensSelecionados() == 0) {
+		alert('Informe pelo menos um item para exportacao!');
+		return false;
+	}
+	form.submit();
+}
+function checkNumericKeyEvent(evt){
+       var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+               return false;
+        return true;
+}
+function selecionarTudo() {
+	var val = document.formulario.marcarTudo.checked;
+ 	dml = document.formulario;
+ 	len = dml.elements.length;
+ 	var i=0;
+	for( i=0 ; i<len ; i++){
+		dml.elements[i].checked=val;
+	}
+  }
+function getQtdItensSelecionados()
+{
+    var frm = document.formulario;
+    var len = frm.elements.length;
+    var i = 0;
+    var count = 0;
+
+    for( i = 0 ; i < len ; i++ )
+    {
+        if( frm.elements[i].type == 'checkbox' )
+        {
+            if( frm.elements[i].checked )
+            {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+</script></head>
+
+
+<body marginwidth="1" marginheight="0">
+<h1><center>Exportar Solicitações Hospitalares</center></h1>
+<form name="formulario" method="post">
+<table class="table_listagem" width="60%" align="center">
+<tbody><tr><td class="td_titulo_tabela" colspan="3">Dados da Solicitação</td></tr>
+<tr><td align="right">Período da Solicitação:</td><td><input type="text" name="dtaIniSolic" size="10" maxlength="10" id="dtaIniSolic" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">&nbsp;&nbsp;&nbsp;&nbsp; a &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="dtaFimSolic" size="10" maxlength="10" id="dtaFimSolic" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data"></td></tr>
+<tr><td align="right">Período de Reserva:</td><td><input type="text" name="dtaIniReserva" size="10" maxlength="10" id="dtaIniReserva" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">&nbsp;&nbsp;&nbsp;&nbsp; a &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="dtaFimReserva" size="10" maxlength="10" id="dtaFimReserva" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data"></td></tr>
+<tr><td align="right">Período de Internação:</td><td><input type="text" name="dtaIniInternacao" size="10" maxlength="10" id="dtaIniInternacao" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">&nbsp;&nbsp;&nbsp;&nbsp; a &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="dtaFimInternacao" size="10" maxlength="10" id="dtaFimInternacao" class="datepicker hasDatepicker" value="" onkeydown="return mascara(this, '99+/99+/9999', event)"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data"></td></tr>
+<tr><td align="right">Unidade Solicitante:</td><td><select name="cnes_solic" onchange="ajax_populaProfUps(formulario.cnes_solic.value,formulario.cpf_solic);"><option value="0" selected="selected">Selecione a Unidade</option>
+<option value="3276635">CAPS AD ADOLESCER</option>
+<option value="2659123">CAPS CPA IV</option>
+<option value="5449758">CAPS II VERDAO</option>
+<option value="7427204">CASAI CUIABA</option>
+<option value="2471086">CEM COXIPO</option>
+<option value="2534339">CENTRO DE ESPECIALIDADES MEDICAS</option>
+<option value="3450457">CENTRO DE RESSOCIALIZACAO DE CUIABA</option>
+<option value="5413095">CENTRO REGIONAL DE REFERENCIA EM SAUDE DO TRABALHADOR</option>
+<option value="3897265">CENTRO SOCIO EDUCATIVO POMERI</option>
+<option value="2900661">CER II CENTRO ESPECIALIZADO EM REABILITACAO DA REGIAO SUL</option>
+<option value="6420125">CIAPS ADAUTO BOTELHO UNIDADE II</option>
+<option value="2393433">CLINEMAT</option>
+<option value="9016643">CLINICA DA FAMILIA CPA I</option>
+<option value="2534363">CLINICA DE DOENCAS RENAIS</option>
+<option value="2393727">CLINICA DE TRATAMENTO RENAL</option>
+<option value="2655020">CLINICA ODONTOLOGICA CPA III</option>
+<option value="2653001">CLINICA ODONTOLOGICA DO COXIPO</option>
+<option value="2604299">CLINICA ODONTOLOGICA DOM AQUINO</option>
+<option value="2393468">CLINICA ODONTOLOGICA DO PASCOAL RAMOS</option>
+<option value="3388182">CLINICA ODONTOLOGICA DO PLANALTO</option>
+<option value="3388158">CLINICA ODONTOLOGICA DO TIJUCAL</option>
+<option value="2655012">CLINICA ODONTOLOGICA JARDIM LEBLON</option>
+<option value="3391922">CLINICA ODONTOLOGICA JARDIM VITORIA</option>
+<option value="3225267">CLINICA ODONTOLOGICA OSMAR CABRAL</option>
+<option value="2655055">CLINICA ODONTOLOGICA VERDAO</option>
+<option value="7299516">COMPLEXO REGULADOR DE CUIABA</option>
+<option value="0460877">CONSULTORIO NA RUA LUZ</option>
+<option value="9323813">CONSULTORIO NA RUA NOVO AMANHECER</option>
+<option value="2767392">DAVITA</option>
+<option value="7017650">DSEI CUIABA</option>
+<option value="0901873">EMAD EMAP EQUIPES MULTIPROFISSIONAIS</option>
+<option value="6500072">HIPERBARICA SANTA ROSA</option>
+<option value="2495015">HOSPITAL E PRONTO SOCORRO MUNICIPAL DE CUIABA</option>
+<option value="9209352">HOSPITAL MUNICIPAL DE CUIABA E P S DR LEONY PALMA CARVALHO</option>
+<option value="7349270">HOSPITAL MUNICIPAL SAO BENEDITO DE CUIABA</option>
+<option value="6923089">HOSPITAL OTORRINO</option>
+<option value="2311682">HOSPITAL SANTA HELENA</option>
+<option value="2655411">HOSPITAL UNIVERSITARIO JULIO MULLER EBSERH</option>
+<option value="2534436">INSTITUTO LIONS DA VISAO</option>
+<option value="2393700">ITC</option>
+<option value="3148319">PENITENCIARIA CENTRAL DO ESTADO</option>
+<option value="3269272">PENITENCIARIA FEMININA ANA MARIA DO COUTO MAY</option>
+<option value="2470950">POLICLINICA DO CPA I</option>
+<option value="6296858">POLICLINICA DO PEDRA 90</option>
+<option value="2655004">POLICLINICA PASCOAL RAMOS</option>
+<option value="2471019">POLICLINICA VERDAO</option>
+<option value="2655470">PSF JARDIM VITORIA IV</option>
+<option value="3453898">PSF NOVO COLORADO</option>
+<option value="0281514">SAE CTA REGIONAL NORTE</option>
+<option value="2534266">SAE LIXEIRA</option>
+<option value="4069463">SECRETARIA DE ESTADO DE SAUDE DE MATO GROSSO</option>
+<option value="2393735">SECRETARIA MUNICIPAL DE SAUDE DE CUIABA</option>
+<option value="3529401">UNIDADE AMBULATORIAL SALGADEIRA</option>
+<option value="7926804">UNIDADE DE PRONTO ATENDIMENTO JARDIM LEBLON</option>
+<option value="7263813">UNIDADE DE PRONTO ATENDIMENTO MORADA DO OURO</option>
+<option value="7869312">UNIDADE DE PRONTO ATENDIMENTO PASCOAL RAMOS</option>
+<option value="7861826">UNIDADE DE PRONTO ATENDIMENTO VERDAO</option>
+<option value="3068293">UNIDADE RURAL COIVARAS</option>
+<option value="3009289">USF 1 DE MARCO</option>
+<option value="2534290">USF AGUACU</option>
+<option value="3094901">USF ALTOS DA SERRA I</option>
+<option value="3959430">USF ALTOS DA SERRA II</option>
+<option value="2534355">USF ALVORADA</option>
+<option value="2604302">USF ANA POUPINA</option>
+<option value="2470985">USF AREAO</option>
+<option value="2655144">USF BELA VISTA</option>
+<option value="2655039">USF CAIC</option>
+<option value="2604248">USF CAMPO VELHO</option>
+<option value="2534282">USF CIDADE ALTA</option>
+<option value="2494817">USF CIDADE VERDE</option>
+<option value="6225845">USF CINTURAO VERDE</option>
+<option value="2470969">USF COHAB SAO GONCALO</option>
+<option value="4712072">USF COXIPO DO OURO</option>
+<option value="2494825">USF CPA III</option>
+<option value="2659093">USF CPA IV</option>
+<option value="2393441">USF DA GUIA</option>
+<option value="2494868">USF DOM AQUINO</option>
+<option value="3078167">USF DR FABIO I</option>
+<option value="3078183">USF DR FABIO II</option>
+<option value="2470977">USF DR JOSE EDUARDO FARIA</option>
+<option value="2471078">USF ELDORADO</option>
+<option value="2655489">USF GRANDE TERCEIRO</option>
+<option value="0311537">USF ILZA TEREZINHA PICOLLI</option>
+<option value="2655098">USF JARDIM ARACA</option>
+<option value="2655152">USF JARDIM FLORIANOPOLIS</option>
+<option value="6225861">USF JARDIM FORTALEZA</option>
+<option value="2534320">USF JARDIM IMPERIAL</option>
+<option value="2534304">USF JARDIM INDEPENDENCIA</option>
+<option value="6226159">USF JARDIM INDUSTRIARIO</option>
+<option value="2655497">USF JARDIM LEBLON</option>
+<option value="5520096">USF JARDIM SANTA AMALIA</option>
+<option value="3023087">USF JARDIM UMUARAMA ALTOS DA GLORIA</option>
+<option value="5520088">USF JARDIM UNIAO</option>
+<option value="2655500">USF JARDIM VITORIA I</option>
+<option value="2655462">USF JARDIM VITORIA II</option>
+<option value="2393484">USF JARDIM VITORIA III</option>
+<option value="3393909">USF JOAO BORRALHO</option>
+<option value="3012816">USF JOAO BOSCO PINHEIRO</option>
+<option value="9903046">USF JOCKEY CLUB</option>
+<option value="2655128">USF LIXEIRA</option>
+<option value="2820978">USF NICO BARACAT ENF MIRIAM PINHEIRO</option>
+<option value="6225888">USF NOVA ESPERANCA</option>
+<option value="3244938">USF NOVO COLORADO I</option>
+<option value="3901076">USF NOVO COLORADO II</option>
+<option value="3313220">USF NOVO HORIZONTE</option>
+<option value="3310094">USF NOVO MATO GROSSO</option>
+<option value="6225659">USF NOVO MILLENIUM</option>
+<option value="2534371">USF NOVO PARAISO I</option>
+<option value="2471043">USF NOVO PARAISO II</option>
+<option value="2494884">USF NOVO TERCEIRO</option>
+<option value="2604345">USF OURO FINO</option>
+<option value="2604310">USF PAIAGUAS</option>
+<option value="6226124">USF PARQUE ATALAIA</option>
+<option value="2393476">USF PARQUE CUIABA</option>
+<option value="0179655">USF PARQUE OHARA</option>
+<option value="2655047">USF PEDRA 90</option>
+<option value="6225926">USF PEDREGAL</option>
+<option value="2471051">USF PICO DO AMOR</option>
+<option value="2494841">USF PLANALTO</option>
+<option value="2659131">USF PRAEIRO</option>
+<option value="2604337">USF QUILOMBO</option>
+<option value="6226132">USF RENASCER ADELAIDE ALVES DA SILVA</option>
+<option value="8002487">USF RESIDENCIAL COXIPO I</option>
+<option value="2659158">USF RESIDENCIAL COXIPO II</option>
+<option value="2654296">USF RESIDENCIAL COXIPO III</option>
+<option value="2674920">USF RIBEIRAO DA PONTE</option>
+<option value="3040240">USF RIO DOS PEIXES</option>
+<option value="2604256">USF ROLAND GERALD TRECHAUD E CURVO</option>
+<option value="2393492">USF SANTA ISABEL</option>
+<option value="2604329">USF SANTA ISABEL II</option>
+<option value="2494876">USF SANTA ISABEL III</option>
+<option value="9998063">USF SANTA TEREZINHA</option>
+<option value="6225853">USF SERRA DOURADA</option>
+<option value="2471027">USF SUCURI</option>
+<option value="6225896">USF TERRA NOVA</option>
+<option value="2534398">USF TIJUCAL</option>
+<option value="3019853">USF TRES BARRAS</option>
+</select>
+</td></tr>
+<tr><td align="right">Profissional Solicitante:</td><td align="left"><select name="cpf_solic">
+<option value="0" selected="selected">Selecione o Profissional</option>
+</select>
+</td></tr>
+<tr><td align="right">Unidade Executante:</td><td align="left"><select name="cnes_exec" onchange="ajax_populaProfUps(formulario.cnes_exec.value,formulario.cpf_exec);">
+<option value="0">Selecione a unidade</option>
+<option value="5352711">AFIP</option>
+<option value="2471086">CEM COXIPO</option>
+<option value="2534339">CENTRO DE ESPECIALIDADES MEDICAS</option>
+<option value="5413095">CENTRO REGIONAL DE REFERENCIA EM SAUDE DO TRABALHADOR</option>
+<option value="2900661">CER II CENTRO ESPECIALIZADO EM REABILITACAO DA REGIAO SUL</option>
+<option value="2393433">CLINEMAT</option>
+<option value="2534363">CLINICA DE DOENCAS RENAIS</option>
+<option value="2393727">CLINICA DE TRATAMENTO RENAL</option>
+<option value="2655012">CLINICA ODONTOLOGICA JARDIM LEBLON</option>
+<option value="7299516">COMPLEXO REGULADOR DE CUIABA</option>
+<option value="2767392">DAVITA</option>
+<option value="6500072">HIPERBARICA SANTA ROSA</option>
+<option value="2495015">HOSPITAL E PRONTO SOCORRO MUNICIPAL DE CUIABA</option>
+<option value="9209352">HOSPITAL MUNICIPAL DE CUIABA E P S DR LEONY PALMA CARVALHO</option>
+<option value="7349270">HOSPITAL MUNICIPAL SAO BENEDITO DE CUIABA</option>
+<option value="6923089">HOSPITAL OTORRINO</option>
+<option value="2311682">HOSPITAL SANTA HELENA</option>
+<option value="2655411">HOSPITAL UNIVERSITARIO JULIO MULLER EBSERH</option>
+<option value="2534436">INSTITUTO LIONS DA VISAO</option>
+<option value="2393700">ITC</option>
+<option value="2655063">LITOCENTER CENTRO DE DIAGNOSTICO E TRATAMENTO UROLOGICO</option>
+<option value="5283132">MARCO ANTONIO DE ARRUDA FIGUEIREDO</option>
+<option value="2534274">MEDCLIN</option>
+<option value="2393581">MEDICINA NUCLEAR</option>
+<option value="2470950">POLICLINICA DO CPA I</option>
+<option value="6296858">POLICLINICA DO PEDRA 90</option>
+<option value="2655004">POLICLINICA PASCOAL RAMOS</option>
+<option value="2471019">POLICLINICA VERDAO</option>
+<option value="4069463">SECRETARIA DE ESTADO DE SAUDE DE MATO GROSSO</option>
+<option value="2393735">SECRETARIA MUNICIPAL DE SAUDE DE CUIABA</option>
+<option value="7263813">UNIDADE DE PRONTO ATENDIMENTO MORADA DO OURO</option>
+<option value="7869312">UNIDADE DE PRONTO ATENDIMENTO PASCOAL RAMOS</option>
+<option value="7861826">UNIDADE DE PRONTO ATENDIMENTO VERDAO</option>
+<option value="2393425">UROCENTRO</option>
+</select>
+</td></tr>
+<tr><td align="right">Profissional Executante:</td><td align="left"><select name="cpf_exec">
+<option value="0" selected="selected">Selecione o Profissional</option>
+</select>
+</td></tr>
+<tr><td align="right">Código do Procedimento:</td><td colspan="4">
+      <input type="text" name="cod_solic" value="" size="13" maxlength="10" onkeypress="return checkNumericKeyEvent(event);">
+</td>
+</tr>
+<tr><td align="right">Descrição do Procedimento: </td><td><input type="text" style="text-transform:uppercase;" name="desc_solic" size="60" value=""></td></tr>
+<tr><td align="right">Clínica:</td><td align="left"><select name="codClinica">
+<option value="0" selected="selected">Selecione a clinica</option>
+<option value="96">COMPLEMENTAR - SUPORTE VENTILATÓRIO PULMONAR - COVID-19 </option>
+<option value="95">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS ADULTO</option>
+<option value="93">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS NEONATAL CANGURU</option>
+<option value="92">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS NEONATAL CONVENCIONAL</option>
+<option value="94">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS PEDIATRICO</option>
+<option value="64">COMPLEMENTAR - UNIDADE INTERMEDIARIA</option>
+<option value="65">COMPLEMENTAR - UNIDADE INTERMEDIARIA NEONATAL</option>
+<option value="66">COMPLEMENTAR - UNIDADE ISOLAMENTO</option>
+<option value="74">COMPLEMENTAR - UTI ADULTO - TIPO I</option>
+<option value="75">COMPLEMENTAR - UTI ADULTO - TIPO II</option>
+<option value="76">COMPLEMENTAR - UTI ADULTO - TIPO III</option>
+<option value="86">COMPLEMENTAR - UTI CORONARIANA TIPO III - UCO TIPO III</option>
+<option value="85">COMPLEMENTAR - UTI CORONARIANA TIPO II - UCO TIPO II</option>
+<option value="83">COMPLEMENTAR - UTI DE QUEIMADOS</option>
+<option value="51">COMPLEMENTAR - UTI II ADULTO - COVID-19 </option>
+<option value="52">COMPLEMENTAR - UTI II PEDIÁTRICA - COVID-19 </option>
+<option value="80">COMPLEMENTAR - UTI NEONATAL - TIPO I</option>
+<option value="81">COMPLEMENTAR - UTI NEONATAL - TIPO II</option>
+<option value="82">COMPLEMENTAR - UTI NEONATAL - TIPO III</option>
+<option value="77">COMPLEMENTAR - UTI PEDIATRICA - TIPO I</option>
+<option value="78">COMPLEMENTAR - UTI PEDIATRICA - TIPO II</option>
+<option value="79">COMPLEMENTAR - UTI PEDIATRICA - TIPO III</option>
+<option value="01">ESPEC - CIRURGICO - BUCO MAXILO FACIAL</option>
+<option value="02">ESPEC - CIRURGICO - CARDIOLOGIA</option>
+<option value="03">ESPEC - CIRURGICO - CIRURGIA GERAL</option>
+<option value="04">ESPEC - CIRURGICO - ENDOCRINOLOGIA</option>
+<option value="05">ESPEC - CIRURGICO - GASTROENTEROLOGIA</option>
+<option value="06">ESPEC - CIRURGICO - GINECOLOGIA</option>
+<option value="08">ESPEC - CIRURGICO - NEFROLOGIAUROLOGIA</option>
+<option value="09">ESPEC - CIRURGICO - NEUROCIRURGIA</option>
+<option value="11">ESPEC - CIRURGICO - OFTALMOLOGIA</option>
+<option value="12">ESPEC - CIRURGICO - ONCOLOGIA</option>
+<option value="13">ESPEC - CIRURGICO - ORTOPEDIATRAUMATOLOGIA</option>
+<option value="14">ESPEC - CIRURGICO - OTORRINOLARINGOLOGIA</option>
+<option value="15">ESPEC - CIRURGICO - PLASTICA</option>
+<option value="90">ESPEC - CIRURGICO - QUEIMADO ADULTO</option>
+<option value="91">ESPEC - CIRURGICO - QUEIMADO PEDIATRICO</option>
+<option value="16">ESPEC - CIRURGICO - TORAXICA</option>
+<option value="67">ESPEC - CIRURGICO - TRANSPLANTE</option>
+<option value="31">ESPEC - CLINICO - AIDS</option>
+<option value="32">ESPEC - CLINICO - CARDIOLOGIA</option>
+<option value="33">ESPEC - CLINICO - CLINICA GERAL</option>
+<option value="35">ESPEC - CLINICO - DERMATOLOGIA</option>
+<option value="36">ESPEC - CLINICO - GERIATRIA</option>
+<option value="37">ESPEC - CLINICO - HANSENOLOGIA</option>
+<option value="38">ESPEC - CLINICO - HEMATOLOGIA</option>
+<option value="40">ESPEC - CLINICO - NEFROUROLOGIA</option>
+<option value="41">ESPEC - CLINICO - NEONATOLOGIA</option>
+<option value="42">ESPEC - CLINICO - NEUROLOGIA</option>
+<option value="44">ESPEC - CLINICO - ONCOLOGIA</option>
+<option value="46">ESPEC - CLINICO - PNEUMOLOGIA</option>
+<option value="88">ESPEC - CLINICO - QUEIMADO ADULTO</option>
+<option value="89">ESPEC - CLINICO - QUEIMADO PEDIATRICO</option>
+<option value="87">ESPEC - CLINICO - SAUDE MENTAL</option>
+<option value="69">HOSPITAL DIA - AIDS</option>
+<option value="07">HOSPITAL DIA - CIRURGICO/DIAGNOSTICO/TERAPEUTICO</option>
+<option value="70">HOSPITAL DIA - FIBROSE CISTICA</option>
+<option value="72">HOSPITAL DIA - GERIATRIA</option>
+<option value="71">HOSPITAL DIA - INTERCORRENCIA POS-TRANSPLANTE</option>
+<option value="73">HOSPITAL DIA - SAUDE MENTAL</option>
+<option value="10">OBSTETRICO - OBSTETRICIA CIRURGICA</option>
+<option value="43">OBSTETRICO - OBSTETRICIA CLINICA</option>
+<option value="84">OUTRAS ESPECIALIDADES - ACOLHIMENTO NOTURNO</option>
+<option value="34">OUTRAS ESPECIALIDADES - CRONICOS</option>
+<option value="49">OUTRAS ESPECIALIDADES - PNEUMOLOGIA SANITARIA (ANTIGA DESCRIÇÃO DE TISIOLOGIA)</option>
+<option value="47">OUTRAS ESPECIALIDADES - PSIQUIATRIA</option>
+<option value="48">OUTRAS ESPECIALIDADES - REABILITACAO</option>
+<option value="68">PEDIATRICO - PEDIATRIA CIRURGICA</option>
+<option value="45">PEDIATRICO - PEDIATRIA CLINICA</option>
+</select>
+</td></tr>
+<tr><td align="right">Prioridade:</td><td align="left"><select name="prioridade_ih">
+<option value="" selected="selected">Selecione a Prioridade</option>
+<option value="E">Eletiva</option>
+<option value="U">Urgente</option>
+</select>
+</td></tr>
+<tr><td align="right">Status da Solicitação:</td><td align="left"><select name="status_solic">
+<option value="" selected="selected">Selecione o Status da Solicitação</option>
+<option value="A">Aprovada</option>
+<option value="D">Devolvido</option>
+<option value="N">Negado</option>
+<option value="P">Pendente</option>
+</select>
+</td></tr>
+</tbody></table>
+<br>
+<br>
+<center><table class="table_listagem" width="90%" align="center">
+<tbody><tr><td colspan="3" class="td_titulo_tabela">Opções para Exportação:</td></tr>
+<tr><td colspan="3"><input type="checkbox" name="marcarTudo" onclick="selecionarTudo()"><font size="2" color="blue"><b>(Des)Marcar todas as opções</b></font></td></tr>
+<tr>
+<td><input type="checkbox" name="loginOpSolic" unchecked="">1 - Login do operador solicitante</td>
+<td><input type="checkbox" name="nomePaciente" unchecked="">19 - Nome do paciente</td>
+<td><input type="checkbox" name="procEspeciais" unchecked="">36 -Procedimentos especiais</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="numSolic" unchecked="">2 - Número de solicitação</td>
+<td><input type="checkbox" name="bairroPaciente" unchecked="">20 - Bairro</td>
+<td><input type="checkbox" name="qtdProcEspeciais" unchecked="">37 - Quantidade de procedimentos especiais</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="aih" unchecked="">3 - Número de AIH</td>
+<td><input type="checkbox" name="ufPaciente" unchecked="">21 - UF</td>
+<td><input type="checkbox" name="dtaExec" unchecked="">38 - Data da execução</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="cnesSolic" unchecked="">4 - Código CNES da unidade solicitante</td>
+<td><input type="checkbox" name="municResPaciente" unchecked="">22 - Município de residência do paciente</td>
+<td><input type="checkbox" name="vlrProcEspeciais" unchecked="">39 - Valor dos procedimentos especiais</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="nomeUnidadeSolic" unchecked="">5 - Nome da unidade solicitante</td>
+<td><input type="checkbox" name="cepPaciente" unchecked="">23 - CEP</td>
+<td><input type="checkbox" name="statusSolicProcEspec" unchecked="">40 - Status da solicitação de procedimentos especiais</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="cnesExec" unchecked="">6 - Código da unidade executante</td>
+<td><input type="checkbox" name="cpfMedSolic" unchecked="">24 - CPF do médico solicitante</td>
+<td><input type="checkbox" name="loginOperAutorProcEspec" unchecked="">41 - Login do operador autorizador dos procedimentos especiais</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="nomeUnidadeExec" unchecked="">7 - Nome da unidade executante</td>
+<td><input type="checkbox" name="cpfMedExec" unchecked="">25 - CPF do médico executante</td>
+<td><input type="checkbox" name="cancelReserva" unchecked="">42 - Cancelamento de reserva</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="nomeMunicReg" unchecked="">8 - Nome do município regulador</td>
+<td><input type="checkbox" name="cid" unchecked="">26 - Código CID</td>
+<td><input type="checkbox" name="cancelInter" unchecked="">43 - Cancelamento de Internação</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="dtaSolic" unchecked="">9 - Data da solicitação</td>
+<td><input type="checkbox" name="classRisco" unchecked="">27 - Classificação de risco</td>
+<td><input type="checkbox" name="status" unchecked="">44 - Status da Solicitação</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="loginOperExec" unchecked="">10 - Login do operador executante</td>
+<td><input type="checkbox" name="caraterInter" unchecked="">28 - Caráter internação</td>
+<td><input type="checkbox" name="justificativa" unchecked="">45 - Justificativa</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="dtaAutor" unchecked="">11 - Data da autorização</td>
+<td><input type="checkbox" name="nomeClinica" unchecked="">29 - Nome da clínica</td>
+<td><input type="checkbox" name="vlrTotalAih" unchecked="">46 - Valor total da AIH</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="loginOperAutor" unchecked="">12 - Login do operador autorizador</td>
+<td><input type="checkbox" name="nomeClinicaCompl" unchecked="">30 - Nome da clínica complementar</td>
+<td><input type="checkbox" name="unidadeDesejada" unchecked="">47 - Unidade Desejada</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="dtaAlta" unchecked="">13 - Data da alta</td>
+<td><input type="checkbox" name="nomeProcSolic" unchecked="">31 - Nome do procedimento solicitado</td>
+<td><input type="checkbox" name="noMedicoSolic" unchecked="">48 - Nome do médico solicitante</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="loginOperAlta" unchecked="">14 - Login do operador alta</td>
+<td><input type="checkbox" name="vlrProcSolic" unchecked="">32 - Valor do procedimento solicitado</td>
+<td><input type="checkbox" name="horaSolicitacao" unchecked="">49 - Hora da solicitação</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="motivoAlta" unchecked="">15 - Motivo da alta</td>
+<td><input type="checkbox" name="procTrocado" unchecked="">33 - Troca procedimento principal</td>
+<td><input type="checkbox" name="horaRegulacao" unchecked="">50 - Hora da regulação</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="cnesUnidRef" unchecked="">16 - Código do CNES da unidade de referência</td>
+<td><input type="checkbox" name="vlrProcTrocado" unchecked="">34 - Valor do procedimento trocado</td>
+<td><input type="checkbox" name="dtInternacao" unchecked="">51 - Data da internação</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="nomeUnidadeRefer" unchecked="">17 - Nome da unidade de referência</td>
+<td><input type="checkbox" name="statusTroca" unchecked="">35 - Status da solicitação de troca do procedimento</td>
+<td>&nbsp;&nbsp;</td>
+</tr>
+<tr>
+<td><input type="checkbox" name="cnsPaciente" unchecked="">18 - Código CNS do paciente</td>
+<td></td>
+<td>&nbsp;&nbsp;</td>
+</tr>
+</tbody></table>
+<br>
+<input type="button" class="leve_input" name="exp" value="Exportar" onclick="exportar();">
+
+<input type="hidden" name="etapa" value="exportar">
+<input type="hidden" name="contador" value="0">
+
+
+
+</center></form><div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible"></div></body></html>
+

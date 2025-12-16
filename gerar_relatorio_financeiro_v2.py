@@ -7,7 +7,7 @@ print("--- RELATÓRIO DE AUDITORIA FINANCEIRA V2 (COM LIMPEZA DE CHAVE) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO_DB = "postgres"
-SENHA_DB = "admin123" # <--- SUA SENHA
+SENHA_DB = "admin123" 
 HOST_DB = "localhost"
 NOME_DB = "nii_portal"
 
@@ -30,23 +30,17 @@ except Exception as e:
     print(f"❌ Erro ao ler banco: {e}")
     exit()
 
-# --- HIGIENIZAÇÃO DAS CHAVES (O SEGREDO) ---
-print("\n>> Higienizando colunas AIH (Removendo traços e pontos)...")
+# --- HIGIENIZAÇÃO DAS CHAVES ---
+print("\n>> Higienizando colunas AIH...")
 
-# Função para deixar só números
 def limpar_apenas_numeros(serie):
     return serie.astype(str).str.replace(r'[^0-9]', '', regex=True)
 
-# Aplica a limpeza
 df_sisreg['aih_limpa'] = limpar_apenas_numeros(df_sisreg['aih'])
 df_fat['aih_limpa'] = limpar_apenas_numeros(df_fat['aih'])
 
-# Mostra exemplo para você ver a diferença
-print(f"   Exemplo SISREG (Original): '{df_sisreg['aih'].iloc[0]}' -> (Limpo): '{df_sisreg['aih_limpa'].iloc[0]}'")
-print(f"   Exemplo FATURAMENTO (Original): '{df_fat['aih'].iloc[0]}' -> (Limpo): '{df_fat['aih_limpa'].iloc[0]}'")
-
 # --- CRUZAMENTO ---
-print(">> Cruzando dados pela chave 'aih_limpa'...")
+print(">> Cruzando dados...")
 
 # Filtra SISREG (Apenas Aprovados e com AIH válida)
 df_sisreg_validas = df_sisreg[
@@ -54,7 +48,6 @@ df_sisreg_validas = df_sisreg[
     (df_sisreg['aih_limpa'].str.len() > 5)
 ].copy()
 
-# O LEFT JOIN agora usa a chave limpa
 df_merge = pd.merge(
     df_sisreg_validas, 
     df_fat, 
@@ -64,30 +57,20 @@ df_merge = pd.merge(
     indicator=True
 )
 
-# --- ANÁLISE ---
 df_encontrados = df_merge[df_merge['_merge'] == 'both']
 df_nao_faturado = df_merge[df_merge['_merge'] == 'left_only'].copy()
 
-print(f"\n📊 RESUMO DA AUDITORIA V2:")
+print(f"\n📊 RESUMO DA AUDITORIA:")
 print(f"   Total Aprovado Sisreg: {len(df_sisreg_validas)}")
-print(f"   ✅ FATURADO (SUCESSO): {len(df_encontrados)}")
-print(f"   ⚠️ NÃO FATURADO (PERDA POTENCIAL): {len(df_nao_faturado)}")
+print(f"   ✅ FATURADO: {len(df_encontrados)}")
+print(f"   ⚠️ PERDA POTENCIAL: {len(df_nao_faturado)}")
 
 # --- EXPORTAR RELATÓRIO ---
 arquivo_saida = r"C:\Users\DELL\OneDrive\NII-Portal-1\RELATORIO_NAO_FATURADOS.xlsx"
 print(f"\n>> Gerando Excel: {arquivo_saida} ...")
 
-# Descobre nome da coluna data
 coluna_data = next((c for c in df_sisreg.columns if 'data' in c and 'iso' not in c), 'data_solicitacao')
-
-# Colunas para o Excel
-cols_export = [
-    'aih_limpa', 
-    'paciente', 
-    coluna_data, 
-    'proc', # Procedimento Sisreg
-    'status'
-]
+cols_export = ['aih_limpa', 'paciente', coluna_data, 'proc', 'status']
 cols_finais = [c for c in cols_export if c in df_nao_faturado.columns]
 
 df_export = df_nao_faturado[cols_finais].sort_values(by=coluna_data, ascending=False)
@@ -95,6 +78,6 @@ df_export.rename(columns={'aih_limpa': 'AIH'}, inplace=True)
 
 try:
     df_export.to_excel(arquivo_saida, index=False)
-    print("✅ Relatório gerado com sucesso!")
+    print("✅ Relatório Excel gerado com sucesso!")
 except Exception as e:
     print(f"⚠️ Erro ao salvar Excel: {e}")

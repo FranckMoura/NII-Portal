@@ -1,0 +1,456 @@
+{
+    "title": "indicasus",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1351,
+            "height": 453,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "https://sistemas.saude.mt.gov.br/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sistemas.saude.mt.gov.br/",
+                    "title": "Sistemas SES"
+                }
+            ]
+        },
+        {
+            "type": "change",
+            "value": "046.941.841-99",
+            "selectors": [
+                [
+                    "aria/CPF"
+                ],
+                [
+                    "#CPF"
+                ],
+                [
+                    "xpath///*[@id=\"CPF\"]"
+                ],
+                [
+                    "pierce/#CPF"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "@ntoniO22",
+            "selectors": [
+                [
+                    "aria/Senha"
+                ],
+                [
+                    "#Senha"
+                ],
+                [
+                    "xpath///*[@id=\"Senha\"]"
+                ],
+                [
+                    "pierce/#Senha"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/CPF"
+                ],
+                [
+                    "#CPF"
+                ],
+                [
+                    "xpath///*[@id=\"CPF\"]"
+                ],
+                [
+                    "pierce/#CPF"
+                ],
+                [
+                    "text/046.941.841-99"
+                ]
+            ],
+            "offsetY": 15.046875,
+            "offsetX": 191.5
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/CPF"
+                ],
+                [
+                    "#CPF"
+                ],
+                [
+                    "xpath///*[@id=\"CPF\"]"
+                ],
+                [
+                    "pierce/#CPF"
+                ],
+                [
+                    "text/046.941.841-99"
+                ]
+            ],
+            "offsetY": 15.046875,
+            "offsetX": 191.5
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/CPF"
+                ],
+                [
+                    "#CPF"
+                ],
+                [
+                    "xpath///*[@id=\"CPF\"]"
+                ],
+                [
+                    "pierce/#CPF"
+                ],
+                [
+                    "text/046.941.841-99"
+                ]
+            ],
+            "offsetY": 15.046875,
+            "offsetX": 191.5
+        },
+        {
+            "type": "change",
+            "value": "046.941.841-99",
+            "selectors": [
+                [
+                    "aria/CPF"
+                ],
+                [
+                    "#CPF"
+                ],
+                [
+                    "xpath///*[@id=\"CPF\"]"
+                ],
+                [
+                    "pierce/#CPF"
+                ],
+                [
+                    "text/046.941.841-99"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Tab"
+        },
+        {
+            "type": "keyUp",
+            "key": "Tab",
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyUp",
+            "key": "Shift",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "@ntoni",
+            "selectors": [
+                [
+                    "aria/Senha"
+                ],
+                [
+                    "#Senha"
+                ],
+                [
+                    "xpath///*[@id=\"Senha\"]"
+                ],
+                [
+                    "pierce/#Senha"
+                ],
+                [
+                    "text/@ntoniO22"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Shift"
+        },
+        {
+            "type": "keyUp",
+            "key": "I",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "@ntoniO",
+            "selectors": [
+                [
+                    "aria/Senha"
+                ],
+                [
+                    "#Senha"
+                ],
+                [
+                    "xpath///*[@id=\"Senha\"]"
+                ],
+                [
+                    "pierce/#Senha"
+                ],
+                [
+                    "text/@ntoniO22"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyUp",
+            "key": "Shift",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "@ntoniO22",
+            "selectors": [
+                [
+                    "aria/Senha"
+                ],
+                [
+                    "#Senha"
+                ],
+                [
+                    "xpath///*[@id=\"Senha\"]"
+                ],
+                [
+                    "pierce/#Senha"
+                ],
+                [
+                    "text/@ntoniO22"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Entrar"
+                ],
+                [
+                    "#btnEntrar"
+                ],
+                [
+                    "xpath///*[@id=\"btnEntrar\"]"
+                ],
+                [
+                    "pierce/#btnEntrar"
+                ],
+                [
+                    "text/Entrar"
+                ]
+            ],
+            "offsetY": 30.640625,
+            "offsetX": 59.5,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sistemas.saude.mt.gov.br/Administracao",
+                    "title": "IndicaSUS - Sistema INDICASUS/SVS"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/ Internação "
+                ],
+                [
+                    "#Internação"
+                ],
+                [
+                    "xpath///*[@id=\"Internação\"]"
+                ],
+                [
+                    "pierce/#Internação"
+                ]
+            ],
+            "offsetY": 11.5,
+            "offsetX": 101
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "li.menu-open > ul > li:nth-of-type(2) span"
+                ],
+                [
+                    "xpath///*[@id=\"InternacaoGeral_Index\"]/span"
+                ],
+                [
+                    "pierce/li.menu-open > ul > li:nth-of-type(2) span"
+                ],
+                [
+                    "text/Internação Geral"
+                ]
+            ],
+            "offsetY": 11.5,
+            "offsetX": 97.109375,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sistemas.saude.mt.gov.br/Administracao/InternacaoGeral?limpar=1",
+                    "title": "IndicaSUS - Internação Geral"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/file_download",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#divUsuario span"
+                ],
+                [
+                    "xpath///*[@id=\"exportFormInternacaoGeral\"]/span"
+                ],
+                [
+                    "pierce/#divUsuario span"
+                ],
+                [
+                    "text/file_download"
+                ]
+            ],
+            "offsetY": 4.796875,
+            "offsetX": 7,
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        }
+    ]
+}
