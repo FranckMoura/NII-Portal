@@ -8,11 +8,11 @@ def imprimir_titulo(texto):
     print(f"   🚀 {texto}")
     print("="*60)
 
-imprimir_titulo("ATUALIZADOR AUTOMÁTICO NII (V18 FINAL + POSTGRES)")
+imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V20 - FINANCEIRO)")
 python_cmd = sys.executable 
 
-def rodar(script):
-    print(f"\n[AGUARDE] Iniciando: {script}...")
+def rodar(script, obrigatorio=True):
+    print(f"\n[AGUARDE] Executando: {script}...")
     if not os.path.exists(script):
         print(f"❌ ARQUIVO NÃO ENCONTRADO: {script}")
         return False
@@ -29,23 +29,37 @@ def rodar(script):
         return True
     else:
         print(f"❌ FALHA NA EXECUÇÃO.")
+        if obrigatorio:
+            print("   (Processo interrompido por segurança)")
+            exit()
         return False
 
-# 1. Extração (V18 - A Perfeita)
-if not rodar("extracao_sisreg_v18.py"):
-    print("⚠️ Extração falhou. Continuando com dados antigos...")
+# --- 1. EXTRAÇÃO SISREG (Robô V18) ---
+# Baixa os dados novos do site do governo
+rodar("extracao_sisreg_v18.py", obrigatorio=False)
 
-# 2. Banco de Dados (PostgreSQL)
-if not rodar("banco_dados_sisreg_postgres.py"):
-    print("❌ Falha crítica no banco de dados. O processo será interrompido.")
-    exit()
+# --- 2. CARGA SISREG -> POSTGRES (Banco de Dados) ---
+# Salva o que baixou no banco
+rodar("banco_dados_sisreg_postgres.py")
 
-# 3. Dashboard (Gera HTML)
+# --- 3. IMPORTAÇÃO FINANCEIRA (Se houver arquivo novo) ---
+# Atualiza a tabela de faturamento se você tiver colocado csv novo
+if os.path.exists("pDetAIH.csv"):
+    print("\n[INFO] Arquivo de faturamento detectado. Atualizando banco...")
+    rodar("importar_faturamento_v3.py", obrigatorio=False)
+else:
+    print("\n[INFO] Nenhum arquivo 'pDetAIH.csv' novo. Mantendo faturamento anterior.")
+
+# --- 4. AUDITORIA FINANCEIRA (O Pulo do Gato) ---
+# Gera o Excel com as perdas
+rodar("gerar_relatorio_financeiro_v2.py", obrigatorio=False)
+
+# --- 5. GERAÇÃO DO SITE (Dashboard) ---
+# Cria o HTML bonito
 rodar("gerar_dashboard.py")
 
-# 4. Upload (Git)
+# --- 6. UPLOAD (Sobe pra nuvem) ---
 rodar("upload_manager.py")
 
-imprimir_titulo("PROCESSO FINALIZADO")
-print("   O site deve estar atualizado em 1 ou 2 minutos.")
-time.sleep(5)
+imprimir_titulo("PROCESSO FINALIZADO! VERIFIQUE O EXCEL GERADO.")
+time.sleep(10)
