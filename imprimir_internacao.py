@@ -10,16 +10,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V6 - BOTÃO ENVIAR) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V11 - CLIQUE NA CÉLULA) ---")
 
 # --- SUAS CREDENCIAIS ---
 USUARIO = "046FRANCK"
-SENHA = "515462" # <--- COLOQUE SUA SENHA
+SENHA = "515462" # <--- ATUALIZE
 PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-1\Fichas_Internacao"
 
 if not os.path.exists(PASTA_DOWNLOAD): os.makedirs(PASTA_DOWNLOAD)
 
-# --- CONFIGURAÇÃO KIOSK PRINTING ---
+# --- CONFIGURAÇÃO CHROME ---
 print_settings = {
     "recentDestinations": [{"id": "Save as PDF", "origin": "local", "account": ""}],
     "selectedDestinationId": "Save as PDF",
@@ -38,9 +38,20 @@ options.add_argument("--disable-print-preview")
 
 def get_datas_mes_atual():
     hoje = datetime.now()
-    primeiro_dia = hoje.replace(day=1).strftime("%d/%m/%Y")
-    dia_atual = hoje.strftime("%d/%m/%Y")
-    return primeiro_dia, dia_atual
+    return hoje.replace(day=1).strftime("%d/%m/%Y"), hoje.strftime("%d/%m/%Y")
+
+def focar_frame_principal(driver):
+    driver.switch_to.default_content()
+    frames = driver.find_elements(By.TAG_NAME, "iframe")
+    for i in range(len(frames)):
+        driver.switch_to.default_content()
+        try:
+            driver.switch_to.frame(i)
+            if "Período" in driver.page_source or "Solicitacao" in driver.page_source: return True
+        except: pass
+    driver.switch_to.default_content()
+    try: driver.switch_to.frame(1); return True
+    except: return False
 
 try:
     print(">> Abrindo navegador...")
@@ -58,176 +69,144 @@ try:
 
     # --- NAVEGAÇÃO ---
     print(">> Navegando...")
-    # Menu 5
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/a"))).click()
     time.sleep(1)
-    # Submenu 1
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/ul/li[1]/a"))).click()
     time.sleep(5)
 
-    # --- FRAME ---
-    print(">> Localizando Frame...")
-    driver.switch_to.default_content()
-    frames = driver.find_elements(By.TAG_NAME, "iframe")
-    iframe_target = None
-    
-    for i in range(len(frames)):
-        driver.switch_to.default_content()
-        try:
-            driver.switch_to.frame(i)
-            # Busca visual pelo texto
-            if "Período da Solicitação" in driver.page_source or "Periodo da Solicitacao" in driver.page_source:
-                iframe_target = i
-                print(f"   ✅ Frame encontrado: {i}")
-                break
-        except: pass
-    
-    if iframe_target is None: iframe_target = 1 # Fallback
-    driver.switch_to.default_content()
-    driver.switch_to.frame(iframe_target)
+    focar_frame_principal(driver)
 
-    # --- PREENCHER DATAS ---
+    # --- FILTROS ---
     dt_ini, dt_fim = get_datas_mes_atual()
-    print(f">> Datas: {dt_ini} a {dt_fim}")
-    
+    print(f">> Filtrando: {dt_ini} a {dt_fim}")
     try:
-        # Tenta pegar os inputs que estão na mesma linha (tr) do texto "Período..."
-        inputs_data = driver.find_elements(By.XPATH, "//*[contains(text(),'Período')]/ancestor::tr//input[@type='text']")
-        if len(inputs_data) >= 2:
-            inputs_data[0].clear(); inputs_data[0].send_keys(dt_ini)
-            inputs_data[1].clear(); inputs_data[1].send_keys(dt_fim)
-            print("   ✅ Datas preenchidas via âncora.")
-        else:
-            # Fallback manual se a âncora falhar (mas o log disse que funcionou)
-            driver.find_element(By.NAME, "dtaIniSolic").send_keys(dt_ini)
-            driver.find_element(By.NAME, "dtaFimSolic").send_keys(dt_fim)
-    except Exception as e:
-        print(f"   ❌ Erro Data: {e}")
+        inputs = driver.find_elements(By.XPATH, "//*[contains(text(),'Período')]/ancestor::tr//input[@type='text']")
+        if len(inputs) >= 2: inputs[0].clear(); inputs[0].send_keys(dt_ini); inputs[1].clear(); inputs[1].send_keys(dt_fim)
+    except: pass
 
-    # --- PREENCHER STATUS (Melhoria) ---
-    print(">> Status...")
-    try:
-        # Tenta achar QUALQUER select na página, já que o nome varia
-        selects = driver.find_elements(By.TAG_NAME, "select")
-        status_selecionado = False
-        
-        for sel in selects:
-            try:
-                s = Select(sel)
-                # Verifica se este select tem a opção 'AUTORIZADO'
-                for opt in s.options:
-                    if "AUTORIZADO" in opt.text.upper() or "APROVADO" in opt.text.upper():
-                        s.select_by_visible_text(opt.text)
-                        print(f"   ✅ Filtro aplicado: {opt.text} (no combo '{sel.get_attribute('name')}')")
-                        status_selecionado = True
-                        break
-                if status_selecionado: break
-            except: pass
+    print(">> Clicando em Pesquisar...")
+    try: driver.find_element(By.NAME, "enviar").click()
+    except: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
+
+    time.sleep(5) 
+    print(">> Rolando página...")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
+
+    # --- LOCALIZAR TABELA ---
+    print(">> Analisando tabela...")
+    tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
+    if not tabelas:
+        print("❌ Tabela não encontrada.")
+        driver.quit(); exit()
+    
+    tabela_dados = tabelas[-1]
+    
+    # Pega todas as linhas
+    linhas_totais = tabela_dados.find_elements(By.TAG_NAME, "tr")
+    qtd_total = len(linhas_totais)
+    print(f">> Tabela tem {qtd_total} linhas (incluindo cabeçalhos).")
+
+    # --- LOOP INTELIGENTE ---
+    pacientes_processados = 0
+    
+    for i in range(qtd_total):
+        try:
+            # Re-localiza a tabela e linhas para evitar StaleElement
+            tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
+            tabela_dados = tabelas[-1]
+            linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
             
-        if not status_selecionado: print("   ⚠️ Filtro 'Autorizado' não encontrado. Buscando tudo.")
-    except:
-        print("   ⚠️ Erro ao buscar selects.")
-
-    # --- CLICAR EM PESQUISAR (CORREÇÃO FINAL) ---
-    print(">> Clicando em PESQUISAR...")
-    try:
-        # Busca EXATA baseada no seu log de erro: name='enviar'
-        btn_pesquisar = driver.find_element(By.NAME, "enviar")
-        
-        # Garante que está visível
-        driver.execute_script("arguments[0].scrollIntoView(true);", btn_pesquisar)
-        time.sleep(1)
-        
-        # Clica via JS para garantir
-        driver.execute_script("arguments[0].click();", btn_pesquisar)
-        print("   ✅ Botão 'enviar' clicado com sucesso!")
-        
-    except Exception as e:
-        print(f"   ❌ Erro ao clicar no botão 'enviar': {e}")
-        # Tentativa desesperada: clicar no input com value='PESQUISAR'
-        try:
-            driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
-            print("   ✅ Botão 'PESQUISAR' (Value) clicado.")
-        except:
-            raise Exception("Botão irrecuperável.")
-
-    time.sleep(5) # Espera a tabela carregar
-
-    # --- IMPRESSÃO ---
-    print(">> Listando resultados...")
-    
-    # Tenta achar a tabela
-    linhas = driver.find_elements(By.CSS_SELECTOR, "table.listagem tr")
-    # Se não achou listagem, tenta tabela genérica com borda (comum no sisreg)
-    if len(linhas) <= 1: 
-        linhas = driver.find_elements(By.CSS_SELECTOR, "table[border='1'] tr")
-
-    print(f">> Encontrados {len(linhas)-1} registros.")
-    
-    janela_principal = driver.current_window_handle
-    count = 0
-
-    for i in range(1, len(linhas)): # Pula cabeçalho
-        try:
+            if i >= len(linhas): break
             linha = linhas[i]
+
+            # 1. VERIFICA SE É CABEÇALHO (PULA SE FOR)
+            # O log mostrou que o cabeçalho tem class="td_titulo_campo"
+            if "td_titulo_campo" in linha.get_attribute("innerHTML"):
+                # print(f"   (Linha {i} é cabeçalho - Pulando)")
+                continue
+
+            # 2. PROCURA CÉLULA CLICÁVEL
+            colunas = linha.find_elements(By.TAG_NAME, "td")
             
-            # Procura ícone de imprimir
-            # 1. Tenta input image
-            btns = linha.find_elements(By.CSS_SELECTOR, "input[src*='print']")
-            # 2. Tenta imagem dentro de link
-            if not btns: btns = linha.find_elements(By.CSS_SELECTOR, "a img[src*='print']")
-            # 3. Tenta input com name='imprimir'
-            if not btns: btns = linha.find_elements(By.CSS_SELECTOR, "input[name*='imprimir']")
+            # Se tiver poucas colunas, provavelmente não é um paciente
+            if len(colunas) < 4: continue
 
-            if btns:
-                el = btns[0]
-                # Se pegou a imagem dentro do link, sobe para o link
-                if el.tag_name == 'img': 
-                    try: el = el.find_element(By.XPATH, "./..")
-                    except: pass
-                
-                print(f"   -> Imprimindo item {i}...")
-                
-                # Scroll e Click JS
-                driver.execute_script("arguments[0].scrollIntoView(true);", el)
-                try: el.click()
-                except: driver.execute_script("arguments[0].click();", el)
-                
-                time.sleep(3) # Espera popup
+            pacientes_processados += 1
+            print(f"\n--- Processando Paciente #{pacientes_processados} (Linha {i}) ---")
 
-                # Gerencia Popup
+            # Tenta clicar na coluna do PACIENTE ou PROCEDIMENTO ou AIH
+            # Geralmente colunas do meio têm texto mais relevante. Vamos tentar a 3ª ou 4ª coluna.
+            alvo_clique = None
+            
+            # Estratégia: Clica na primeira coluna que tenha texto grande (evita checkbox vazio)
+            for col in colunas:
+                texto = col.text.strip()
+                if len(texto) > 3: # Se tem texto visível (Nome, AIH, etc)
+                    alvo_clique = col
+                    print(f"   -> Alvo identificado: '{texto[:20]}...'")
+                    break
+            
+            if not alvo_clique:
+                # Fallback: clica na segunda coluna
+                alvo_clique = colunas[1]
+
+            # CLIQUE
+            driver.execute_script("arguments[0].scrollIntoView(true);", alvo_clique)
+            time.sleep(1)
+            # Força o clique no elemento
+            try: alvo_clique.click()
+            except: driver.execute_script("arguments[0].click();", alvo_clique)
+            
+            time.sleep(4) # Carrega ficha
+
+            # --- DENTRO DA FICHA (ROTINA DE IMPRESSÃO) ---
+            print("   -> Buscando botão imprimir...")
+            btn_print = None
+            seletores = ["input[value='Imprimir']", "input[src*='print']", "img[src*='print']", "a[href*='print']", "input[name='bt_imprimir']"]
+            
+            for sel in seletores:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    if elems:
+                        btn_print = elems[0]; break
+                except: pass
+            
+            if btn_print:
+                print("   -> Imprimindo...")
+                driver.execute_script("arguments[0].click();", btn_print)
+                time.sleep(3)
+                
                 if len(driver.window_handles) > 1:
                     driver.switch_to.window(driver.window_handles[-1])
-                    
-                    # Comando de impressão Kiosk
                     driver.execute_script("window.print();")
-                    time.sleep(3) # Tempo para salvar
-                    
-                    driver.close() # Fecha popup
-                    driver.switch_to.window(janela_principal)
-                    
-                    # Re-entra no frame
-                    driver.switch_to.default_content()
-                    driver.switch_to.frame(iframe_target)
-                    count += 1
+                    time.sleep(3)
+                    driver.close()
+                    driver.switch_to.window(driver.current_window_handle)
                 else:
-                    print("      ⚠️ Popup não abriu.")
+                    driver.execute_script("window.print();")
+                    time.sleep(3)
+                print("   ✅ Arquivo Salvo.")
             else:
-                # Debug: mostra o que tem na linha se não achar botão
-                # print(f"      [Debug] Linha {i} sem botão de print.") 
-                pass
+                print("   ⚠️ Botão imprimir não encontrado nesta tela.")
+            
+            # VOLTAR
+            print("   -> Voltando...")
+            driver.back()
+            try: WebDriverWait(driver, 3).until(EC.alert_is_present()).accept()
+            except: pass
+            time.sleep(3)
+            focar_frame_principal(driver)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         except Exception as e:
-            print(f"      ❌ Erro na linha {i}: {e}")
-            # Recuperação de janela
-            if len(driver.window_handles) > 1:
-                driver.close()
-                driver.switch_to.window(janela_principal)
-                driver.switch_to.default_content()
-                driver.switch_to.frame(iframe_target)
+            # Erros na iteração não param o script
+            # print(f"   (Pulo de linha: {e})")
+            # Se perdeu o foco, tenta voltar
+            if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
+            focar_frame_principal(driver)
 
-    print(f"✅ FIM! {count} impressões realizadas.")
-    time.sleep(2)
+    print(f"✅ FIM! {pacientes_processados} pacientes verificados.")
     driver.quit()
 
 except Exception as e:
