@@ -3,7 +3,6 @@ import os
 import re
 import json
 import pyautogui
-import pandas as pd
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V21 - PAGINAÇÃO NUMÉRICA) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V27 - BUSCA RIGOROSA DE DADOS) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
@@ -40,15 +39,26 @@ def get_datas_mes_atual():
     hoje = datetime.now()
     return hoje.replace(day=1).strftime("%d/%m/%Y"), hoje.strftime("%d/%m/%Y")
 
-def focar_frame_principal(driver):
+def focar_no_frame_de_dados(driver):
+    """
+    Entra em cada frame e verifica se contém DADOS REAIS (Texto 'AIH' ou 'Paciente').
+    Não aceita frames vazios ou só com menus.
+    """
     driver.switch_to.default_content()
     frames = driver.find_elements(By.TAG_NAME, "iframe")
+    
+    # 1. Varre frames procurando palavras-chave
     for i in range(len(frames)):
         driver.switch_to.default_content()
         try:
             driver.switch_to.frame(i)
-            if "Período" in driver.page_source or "Solicitacao" in driver.page_source: return True
+            src = driver.page_source
+            # Só aceita se tiver indicio de ser a lista de dados
+            if "table_listagem" in src and ("AIH" in src or "Paciente" in src or "Solicitação" in src):
+                return True
         except: pass
+    
+    # 2. Tenta frame 1 padrão (Fallback)
     driver.switch_to.default_content()
     try: driver.switch_to.frame(1); return True
     except: return False
@@ -80,7 +90,7 @@ try:
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/ul/li[1]/a"))).click()
     time.sleep(5)
 
-    focar_frame_principal(driver)
+    focar_no_frame_de_dados(driver)
 
     dt_ini, dt_fim = get_datas_mes_atual()
     try:
@@ -97,42 +107,63 @@ try:
     
     while True:
         print(f"\n>>> PROCESSANDO PÁGINA {pagina_atual} <<<")
+        
+        # Garante foco no frame certo
+        focar_no_frame_de_dados(driver)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
 
-        # 1. PROCESSA TABELA
         tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
-        if not tabelas: break
         
-        qtd_total = len(tabelas[-1].find_elements(By.TAG_NAME, "tr"))
+        # Se não achou tabela, tenta recarregar o foco uma vez
+        if not tabelas:
+            print(">> Tabela não visível. Tentando refocar...")
+            focar_no_frame_de_dados(driver)
+            tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
         
+        if not tabelas:
+            print(">> Erro crítico: Tabela de dados sumiu.")
+            break
+        
+        # Pega sempre a última tabela (a de dados)
+        tabela_dados = tabelas[-1]
+        linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
+        qtd_total = len(linhas)
+        registros_pagina = 0
+
+        # --- PROCESSAMENTO ---
         for i in range(qtd_total):
             try:
-                # Re-foca
+                # Re-foca (Crucial para não perder referência)
+                focar_no_frame_de_dados(driver)
                 tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
                 tabela_dados = tabelas[-1]
                 linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
+                
                 if i >= len(linhas): break
                 linha = linhas[i]
 
+                # Filtros
                 if "td_titulo_campo" in linha.get_attribute("innerHTML"): continue
                 colunas = linha.find_elements(By.TAG_NAME, "td")
                 if len(colunas) < 6: continue 
-
-                # Identifica AIH
-                match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', linha.text)
                 
+                registros_pagina += 1
+
+                # Busca AIH
+                match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', linha.text)
                 if match_aih:
                     aih_encontrada = match_aih.group(0)
                     print(f"--- Pág {pagina_atual} | Linha {i}: AIH {aih_encontrada}", end=" ")
                 else:
+                    # print(".") # Debug silencioso
                     continue
 
                 if aih_encontrada in aihs_processadas:
                     print(f"-> [JÁ IMPRESSA]")
                     continue
                 
-                print(f"-> [NOVA! IMPRIMINDO...]")
+                print(f"-> [NOVA!]")
 
                 # Nome Arquivo
                 nome_arquivo = f"AIH_{aih_encontrada}"
@@ -140,6 +171,12 @@ try:
                     txt = col.text.strip()
                     if len(txt) > 5 and not txt[0].isdigit():
                         nome_arquivo = limpar_nome_arquivo(txt); break
+                
+                # Highlight Amarelo
+                for col in colunas:
+                    if aih_encontrada in col.text:
+                        driver.execute_script("arguments[0].style.backgroundColor = 'yellow';", col)
+                        break
 
                 # Clica
                 coluna_clique = colunas[1] 
@@ -153,10 +190,11 @@ try:
                 
                 time.sleep(5)
 
-                # Simula Ctrl+P
+                # Impressão Manual
                 width, height = pyautogui.size()
                 pyautogui.click(width/2, height/2)
                 time.sleep(0.5)
+
                 pyautogui.hotkey('ctrl', 'a'); time.sleep(0.5)
                 pyautogui.hotkey('ctrl', 'p'); time.sleep(4)
                 pyautogui.press('enter'); time.sleep(3)
@@ -174,73 +212,52 @@ try:
                 try: WebDriverWait(driver, 3).until(EC.alert_is_present()).accept()
                 except: pass
                 time.sleep(3)
-                focar_frame_principal(driver)
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
             except Exception as e:
                 print(f"❌ Erro registro {i}: {e}")
                 if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
-                focar_frame_principal(driver)
 
-        # 2. TENTATIVA ROBUESTA DE VIRAR A PÁGINA
-        print(">> Procurando próxima página...")
+        if registros_pagina == 0:
+            print(">> Página vazia detectada (nenhum registro válido).")
+            # Não dá break aqui, tenta achar paginação mesmo assim, 
+            # as vezes a tabela tá vazia mas tem links embaixo
+
+        # --- PAGINAÇÃO VISUAL (V27) ---
+        print(f">> Procurando página {pagina_atual + 1}...")
+        focar_no_frame_de_dados(driver)
         
-        proxima_pag_num = pagina_atual + 1
         paginou = False
+        prox_num = str(pagina_atual + 1)
         
-        # Estratégia A: Buscar TODOS os links da página e ver se algum é o número "2", "3", etc.
-        todos_links = driver.find_elements(By.TAG_NAME, "a")
-        
-        for link in todos_links:
-            try:
-                txt = link.text.strip()
-                # Se o texto do link for EXATAMENTE o número da próxima página
-                if txt == str(proxima_pag_num):
-                    print(f"   -> Link numérico '{txt}' encontrado! Clicando...")
-                    driver.execute_script("arguments[0].scrollIntoView(true);", link)
-                    driver.execute_script("arguments[0].click();", link)
-                    time.sleep(5)
-                    paginou = True
-                    pagina_atual += 1
-                    break
-                
-                # Se for seta ">" ou "Próxima"
-                if "Próxima" in txt or "Proxima" in txt or ">" in txt or "Pr&oacute;xima" in link.get_attribute("innerHTML"):
-                    print(f"   -> Link de texto '{txt}' encontrado! Clicando...")
-                    driver.execute_script("arguments[0].click();", link)
-                    time.sleep(5)
-                    paginou = True
-                    pagina_atual += 1
-                    break
-            except: pass
-        
+        # 1. Tenta achar link com o NÚMERO EXATO (Prioridade)
+        try:
+            # XPath poderoso: procura link que o texto seja "2" (e ignora espaços)
+            btn_num = driver.find_elements(By.XPATH, f"//a[normalize-space(text())='{prox_num}']")
+            if btn_num:
+                print(f"   -> Link numérico '{prox_num}' encontrado! Clicando...")
+                driver.execute_script("arguments[0].scrollIntoView(true);", btn_num[0])
+                time.sleep(1)
+                driver.execute_script("arguments[0].click();", btn_num[0])
+                time.sleep(6) # Mais tempo pra carregar
+                paginou = True
+                pagina_atual += 1
+        except: pass
+
+        # 2. Se não achou número, tenta "Próxima" ou Seta
         if not paginou:
-             # Estratégia B: Procurar imagens de seta dentro de links
-             try:
-                 imgs = driver.find_elements(By.XPATH, "//a/img")
-                 for img in imgs:
-                     src = img.get_attribute("src") or ""
-                     alt = img.get_attribute("alt") or ""
-                     if "prox" in src.lower() or "next" in src.lower() or "avancar" in src.lower() or "seta" in src.lower():
-                         print("   -> Imagem de seta encontrada! Clicando...")
-                         pai_link = img.find_element(By.XPATH, "./..")
-                         driver.execute_script("arguments[0].click();", pai_link)
-                         time.sleep(5)
-                         paginou = True
-                         pagina_atual += 1
-                         break
-             except: pass
+            try:
+                btns_prox = driver.find_elements(By.XPATH, "//a[contains(text(),'Próxima') or contains(text(),'>') or .//img[contains(@src,'prox')]]")
+                if btns_prox:
+                    print(f"   -> Link 'Próxima' encontrado! Clicando...")
+                    driver.execute_script("arguments[0].click();", btns_prox[0])
+                    time.sleep(6)
+                    paginou = True
+                    pagina_atual += 1
+            except: pass
 
         if not paginou:
-            print(">> Nenhuma outra página encontrada. FIM DO PROCESSO.")
-            # DEBUG: Mostra o que ele viu no rodapé para a gente corrigir se falhar
-            print("   (Links visíveis no rodapé para diagnóstico: ", end="")
-            try:
-                for l in todos_links[-10:]: # Mostra os ultimos 10 links da pagina
-                    print(f"[{l.text}] ", end="")
-            except: pass
-            print(")")
-            break 
+            print(f">> Não encontrei link para página {pagina_atual + 1}. FIM.")
+            break
 
     driver.quit()
 
