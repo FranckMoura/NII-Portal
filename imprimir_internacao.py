@@ -12,7 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V19 - CORREÇÃO AIH) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V21 - PAGINAÇÃO NUMÉRICA) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
@@ -26,14 +26,12 @@ if not os.path.exists(PASTA_DOWNLOAD): os.makedirs(PASTA_DOWNLOAD)
 def carregar_memoria():
     if os.path.exists(ARQUIVO_CONTROLE):
         try:
-            with open(ARQUIVO_CONTROLE, 'r') as f:
-                return json.load(f)
+            with open(ARQUIVO_CONTROLE, 'r') as f: return json.load(f)
         except: return []
     return []
 
 def salvar_memoria(lista_aihs):
-    with open(ARQUIVO_CONTROLE, 'w') as f:
-        json.dump(lista_aihs, f)
+    with open(ARQUIVO_CONTROLE, 'w') as f: json.dump(lista_aihs, f)
 
 def limpar_nome_arquivo(texto):
     return re.sub(r'[\\/*?:"<>|]', "", texto).strip()
@@ -55,13 +53,12 @@ def focar_frame_principal(driver):
     try: driver.switch_to.frame(1); return True
     except: return False
 
-# --- PREPARAÇÃO ---
+# --- SETUP ---
 aihs_processadas = carregar_memoria()
-print(f">> Memória carregada: {len(aihs_processadas)} AIHs já impressas.")
+print(f">> Memória: {len(aihs_processadas)} AIHs já salvas.")
 
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 1.0
-
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
 
@@ -70,8 +67,8 @@ try:
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     wait = WebDriverWait(driver, 20)
     
-    # --- LOGIN E NAVEGAÇÃO ---
-    print(">> Fazendo Login...")
+    # LOGIN
+    print(">> Login...")
     driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     wait.until(EC.presence_of_element_located((By.NAME, "usuario"))).send_keys(USUARIO)
     driver.find_element(By.NAME, "senha").send_keys(SENHA)
@@ -94,116 +91,157 @@ try:
     try: driver.find_element(By.NAME, "enviar").click()
     except: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
     time.sleep(5) 
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
 
-    # --- VARREDURA ---
-    tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
-    if not tabelas: print("❌ Tabela não encontrada."); driver.quit(); exit()
+    # --- LOOP DE PÁGINAS ---
+    pagina_atual = 1
     
-    qtd_total = len(tabelas[-1].find_elements(By.TAG_NAME, "tr"))
-    print(f">> Analisando {qtd_total} registros na lista...")
+    while True:
+        print(f"\n>>> PROCESSANDO PÁGINA {pagina_atual} <<<")
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
 
-    novos_processados = 0
-    
-    for i in range(qtd_total):
-        try:
-            tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
-            tabela_dados = tabelas[-1]
-            linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
-            
-            if i >= len(linhas): break
-            linha = linhas[i]
+        # 1. PROCESSA TABELA
+        tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
+        if not tabelas: break
+        
+        qtd_total = len(tabelas[-1].find_elements(By.TAG_NAME, "tr"))
+        
+        for i in range(qtd_total):
+            try:
+                # Re-foca
+                tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
+                tabela_dados = tabelas[-1]
+                linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
+                if i >= len(linhas): break
+                linha = linhas[i]
 
-            if "td_titulo_campo" in linha.get_attribute("innerHTML"): continue
-            colunas = linha.find_elements(By.TAG_NAME, "td")
-            if len(colunas) < 6: continue 
+                if "td_titulo_campo" in linha.get_attribute("innerHTML"): continue
+                colunas = linha.find_elements(By.TAG_NAME, "td")
+                if len(colunas) < 6: continue 
 
-            texto_linha = linha.text
-            
-            # --- CORREÇÃO DA BUSCA (HÍFEN) ---
-            # Regex agora procura: 12 numeros + hifen + 1 numero (Ex: 512510591849-3)
-            # OU procura 13 numeros juntos (caso algum não tenha hifen)
-            match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', texto_linha)
-            
-            aih_encontrada = ""
-            
-            if match_aih:
-                aih_encontrada = match_aih.group(0)
-                # Remove o hifen para padronizar a memória (opcional, mas bom pra comparar)
-                # aih_limpa = aih_encontrada.replace("-", "") 
-                print(f"\n--- Linha {i}: AIH encontrada: {aih_encontrada}")
-            else:
-                # Debug leve para você ver o que ele está lendo na linha
-                # print(f"--- Linha {i}: Pendente (Texto: {texto_linha[:30]}...)")
-                continue
+                # Identifica AIH
+                match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', linha.text)
+                
+                if match_aih:
+                    aih_encontrada = match_aih.group(0)
+                    print(f"--- Pág {pagina_atual} | Linha {i}: AIH {aih_encontrada}", end=" ")
+                else:
+                    continue
 
-            # VERIFICA MEMÓRIA
-            if aih_encontrada in aihs_processadas:
-                print(f"   -> Já impressa. Ignorando.")
-                continue
+                if aih_encontrada in aihs_processadas:
+                    print(f"-> [JÁ IMPRESSA]")
+                    continue
+                
+                print(f"-> [NOVA! IMPRIMINDO...]")
 
-            # PROCESSO DE IMPRESSÃO
-            print(f"   -> NOVA! Iniciando impressão...")
-            
-            # Nome Arquivo
-            nome_arquivo = f"AIH_{aih_encontrada}"
-            for col in colunas:
-                txt = col.text.strip()
-                if len(txt) > 5 and not txt[0].isdigit(): # Provavel nome
-                    nome_arquivo = limpar_nome_arquivo(txt)
+                # Nome Arquivo
+                nome_arquivo = f"AIH_{aih_encontrada}"
+                for col in colunas:
+                    txt = col.text.strip()
+                    if len(txt) > 5 and not txt[0].isdigit():
+                        nome_arquivo = limpar_nome_arquivo(txt); break
+
+                # Clica
+                coluna_clique = colunas[1] 
+                for col in colunas:
+                    if len(col.text) > 4: coluna_clique = col; break
+
+                driver.execute_script("arguments[0].scrollIntoView(true);", coluna_clique)
+                time.sleep(1)
+                try: coluna_clique.click()
+                except: driver.execute_script("arguments[0].click();", coluna_clique)
+                
+                time.sleep(5)
+
+                # Simula Ctrl+P
+                width, height = pyautogui.size()
+                pyautogui.click(width/2, height/2)
+                time.sleep(0.5)
+                pyautogui.hotkey('ctrl', 'a'); time.sleep(0.5)
+                pyautogui.hotkey('ctrl', 'p'); time.sleep(4)
+                pyautogui.press('enter'); time.sleep(3)
+                
+                caminho = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}.pdf")
+                if os.path.exists(caminho): caminho = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}_{int(time.time())}.pdf")
+                
+                pyautogui.write(caminho); time.sleep(1)
+                pyautogui.press('enter'); time.sleep(3)
+
+                aihs_processadas.append(aih_encontrada)
+                salvar_memoria(aihs_processadas)
+
+                driver.back()
+                try: WebDriverWait(driver, 3).until(EC.alert_is_present()).accept()
+                except: pass
+                time.sleep(3)
+                focar_frame_principal(driver)
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            except Exception as e:
+                print(f"❌ Erro registro {i}: {e}")
+                if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
+                focar_frame_principal(driver)
+
+        # 2. TENTATIVA ROBUESTA DE VIRAR A PÁGINA
+        print(">> Procurando próxima página...")
+        
+        proxima_pag_num = pagina_atual + 1
+        paginou = False
+        
+        # Estratégia A: Buscar TODOS os links da página e ver se algum é o número "2", "3", etc.
+        todos_links = driver.find_elements(By.TAG_NAME, "a")
+        
+        for link in todos_links:
+            try:
+                txt = link.text.strip()
+                # Se o texto do link for EXATAMENTE o número da próxima página
+                if txt == str(proxima_pag_num):
+                    print(f"   -> Link numérico '{txt}' encontrado! Clicando...")
+                    driver.execute_script("arguments[0].scrollIntoView(true);", link)
+                    driver.execute_script("arguments[0].click();", link)
+                    time.sleep(5)
+                    paginou = True
+                    pagina_atual += 1
                     break
-
-            # Clica (Tentativa em coluna do Nome ou Procedimento)
-            coluna_clique = colunas[1] 
-            for col in colunas:
-                if len(col.text) > 4: coluna_clique = col; break
-
-            driver.execute_script("arguments[0].scrollIntoView(true);", coluna_clique)
-            time.sleep(1)
-            try: coluna_clique.click()
-            except: driver.execute_script("arguments[0].click();", coluna_clique)
-            
-            time.sleep(5)
-
-            # --- SIMULAÇÃO ---
-            width, height = pyautogui.size()
-            pyautogui.click(width/2, height/2)
-            time.sleep(0.5)
-
-            pyautogui.hotkey('ctrl', 'a')
-            time.sleep(0.5)
-            pyautogui.hotkey('ctrl', 'p')
-            time.sleep(4) 
-            pyautogui.press('enter')
-            time.sleep(3) 
-
-            caminho_completo = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}.pdf")
-            if os.path.exists(caminho_completo): caminho_completo = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}_{int(time.time())}.pdf")
-            
-            pyautogui.write(caminho_completo)
-            time.sleep(1)
-            pyautogui.press('enter')
-            time.sleep(3)
-
-            aihs_processadas.append(aih_encontrada)
-            salvar_memoria(aihs_processadas)
-            novos_processados += 1
-            print("   ✅ Impresso e Registrado.")
-
-            driver.back()
-            try: WebDriverWait(driver, 3).until(EC.alert_is_present()).accept()
+                
+                # Se for seta ">" ou "Próxima"
+                if "Próxima" in txt or "Proxima" in txt or ">" in txt or "Pr&oacute;xima" in link.get_attribute("innerHTML"):
+                    print(f"   -> Link de texto '{txt}' encontrado! Clicando...")
+                    driver.execute_script("arguments[0].click();", link)
+                    time.sleep(5)
+                    paginou = True
+                    pagina_atual += 1
+                    break
             except: pass
-            time.sleep(3)
-            focar_frame_principal(driver)
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        
+        if not paginou:
+             # Estratégia B: Procurar imagens de seta dentro de links
+             try:
+                 imgs = driver.find_elements(By.XPATH, "//a/img")
+                 for img in imgs:
+                     src = img.get_attribute("src") or ""
+                     alt = img.get_attribute("alt") or ""
+                     if "prox" in src.lower() or "next" in src.lower() or "avancar" in src.lower() or "seta" in src.lower():
+                         print("   -> Imagem de seta encontrada! Clicando...")
+                         pai_link = img.find_element(By.XPATH, "./..")
+                         driver.execute_script("arguments[0].click();", pai_link)
+                         time.sleep(5)
+                         paginou = True
+                         pagina_atual += 1
+                         break
+             except: pass
 
-        except Exception as e:
-            print(f"❌ Erro Loop {i}: {e}")
-            if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
-            focar_frame_principal(driver)
+        if not paginou:
+            print(">> Nenhuma outra página encontrada. FIM DO PROCESSO.")
+            # DEBUG: Mostra o que ele viu no rodapé para a gente corrigir se falhar
+            print("   (Links visíveis no rodapé para diagnóstico: ", end="")
+            try:
+                for l in todos_links[-10:]: # Mostra os ultimos 10 links da pagina
+                    print(f"[{l.text}] ", end="")
+            except: pass
+            print(")")
+            break 
 
-    print(f"✅ FIM! {novos_processados} novas fichas impressas.")
     driver.quit()
 
 except Exception as e:
