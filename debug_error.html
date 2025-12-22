@@ -1,0 +1,299 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt-br"><head>
+<title>SISREG III - Sistema de Regulacao</title>
+<link rel="stylesheet" type="text/css" href="/css/estilo.css">
+<link rel="stylesheet" href="/css/layout.css" type="text/css" media="screen" charset="utf-8">
+<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css" media="screen" charset="utf-8">
+<link rel="stylesheet" href="/css/form.css" type="text/css" media="screen" charset="utf-8">
+<script type="text/javascript" src="/javascript/jquery.js" charset="utf-8"></script>
+<script type="text/javascript" src="/javascript/jquery-ui.js"></script>
+<script type="text/javascript" src="/javascript/datepicker.js"></script>
+<script type="text/javascript" src="/javascript/CheckDate.js"></script>
+<script type="text/javascript" src="/javascript/sisreg_ajax_popup.js"></script>
+<script type="text/javascript" src="/javascript/jquery.PrintArea.js"></script>
+<script type="text/javascript" src="/javascript/sisreg_print_container.js"></script>
+<script language="JavaScript">
+
+function pesquisar()
+{
+	var frm = document.formulario;
+
+	frm.pagina.value = 0;
+	frm.etapa.value = 'LISTAR_SOLICITACOES';
+	frm.submit();
+}
+function mostrarFicha(solicitacao){
+	var frm = document.formulario;
+
+	frm.cod_solicitacao_ficha.value = solicitacao;
+	frm.etapa.value = 'VISUALIZAR_FICHA';
+	frm.submit();
+}
+function cancelaInt(solicitacao){
+	var frm = document.formulario;
+
+	frm.cod_solicitacao_ficha.value = solicitacao;
+	frm.etapa.value = 'FRM_CANCELAMENTO';
+	frm.submit();
+}
+function limpar()
+{
+	var frm = document.formulario;
+
+	frm.co_solicitacao.value = '';
+	frm.cns.value = '';
+	frm.no_usuario.value = '';
+	frm.dt_inicial_sol.value = '';
+	frm.dt_final_sol.value = '';
+	frm.dt_inicial_res.value = '';
+	frm.dt_final_res.value = '';
+	frm.co_procedimento.value = '';
+	frm.co_ups_exec.value = ''; 
+	frm.co_clinica.value = '';
+	frm.co_prioridade.value = '';
+	frm.extra_ppi.checked = false;
+}
+function cancelar(){
+	var frm = document.formulario;
+
+	if (ValidaCampos()){
+		if (Confirmacao()){
+			frm.etapa.value = 'SALVAR_CANCELAMENTO';
+			frm.submit();
+		}
+	}
+}
+function ValidaCampos(){
+	var frm = document.formulario;
+
+	if (frm.ds_justificativa.value == ''){
+		alert('A Justificativa deve ser preenchida.');
+		frm.ds_justificativa.focus();
+		return false;
+	}
+	return true;
+}
+function Confirmacao(){
+	var operacao=confirm('Confirma Operacao?');
+	if ( operacao )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+function exibirPagina( index, maxcount )
+{
+	var frm = document.formulario;
+
+	if( index < 0 )
+		index = 0;
+
+	if( index > maxcount - 1 )
+		index = maxcount - 1;
+
+	frm.pagina.value = index;
+
+	frm.etapa.value = 'LISTAR_SOLICITACOES';
+	frm.submit();
+}
+
+function ordena(ordem)
+{
+	var frm = document.formulario;
+
+	frm.pagina.value = 0;
+	frm.etapa.value = 'LISTAR_SOLICITACOES';
+	frm.ordenacao.value = ordem;
+	frm.submit();
+}
+function exibirEtapa()
+{
+	document.getElementById( 'status_page' ).style.display = 'none';
+	document.getElementById( 'main_page' ).style.display = '';
+}
+
+function checkNumericKeyEvent(evt)
+{
+	var charCode = (evt.which) ? evt.which : evt.keyCode;
+
+	if (charCode > 31 && (charCode < 48 || charCode > 57))
+		return false;
+
+	return true;
+}
+
+function initialize()
+{
+}
+
+</script>
+</head>
+
+<body onload="initialize();" marginwidth="1" marginheight="0">
+<center><h1><center>CONSULTA DE SOLICITAÇÕES DE INTERNAÇÃO</center></h1>
+
+<div id="status_page" style="display: none;">
+	<center><img src="/imagens/loading.gif"></center>
+	<center><span style="font-size: 80%">Processando...</span></center>
+</div>
+
+<div id="main_page" style="">
+<form name="formulario" method="POST">
+<input type="hidden" name="etapa" value="">
+<center>
+<table class="table_listagem"> 
+	<tbody><tr>
+		<td colspan="4" class="td_titulo_tabela">Pesquisa  de Solicitações</td>
+	</tr>
+	<tr>
+		<td colspan="1">Código da Solicitação:</td>
+		<td colspan="3"><input type="text" name="co_solicitacao" onkeypress="return checkNumericKeyEvent(event);" value="" maxlength="11"></td>
+	</tr>
+	<tr>
+		<td colspan="1">CNS:</td>
+		<td colspan="3"><input type="text" name="cns" onkeypress="return checkNumericKeyEvent(event);" value="" maxlength="15"></td>
+	</tr>
+	<tr>
+		<td colspan="1">Paciente:</td>
+		<td colspan="3"><input type="text" name="no_usuario" value="" size="50"></td>
+	</tr>
+	<tr align="left">
+		<td td="" colspan="1">Período da Solicitação: </td> 
+		<td td="" colspan="3">
+			<input type="text" name="dt_inicial_sol" size="10" value="" class="datepicker hasDatepicker" onkeydown="return mascara(this, '99+/99+/9999', event)" id="dp1766341598476"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">
+			 &nbsp;&nbsp;à&nbsp;&nbsp;<input type="text" name="dt_final_sol" size="10" value="" class="datepicker hasDatepicker" onkeydown="return mascara(this, '99+/99+/9999', event)" id="dp1766341598477"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">
+		</td> 
+	</tr>
+	<tr align="left">
+		<td td="" colspan="1">Período de Reserva Leito: </td> 
+		<td td="" colspan="3">
+			<input type="text" name="dt_inicial_res" size="10" value="" class="datepicker hasDatepicker" onkeydown="return mascara(this, '99+/99+/9999', event)" id="dp1766341598478"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">
+			 &nbsp;&nbsp;à&nbsp;&nbsp;<input type="text" name="dt_final_res" size="10" value="" class="datepicker hasDatepicker" onkeydown="return mascara(this, '99+/99+/9999', event)" id="dp1766341598479"><img class="ui-datepicker-trigger" src="/imagens/icon_datepicker.png" alt="Escolha uma data" title="Escolha uma data">
+		</td> 
+	</tr>
+	<tr>
+		<td colspan="1">Código do Procedimento:</td>
+		<td colspan="3"><input type="text" name="co_procedimento" onkeypress="return checkNumericKeyEvent(event);" value="" maxlength="10"></td>
+	</tr>
+<tr>
+	<td colspan="1">Unidade Executante</td>
+	<td colspan="3">
+		<select name="co_ups_exec">
+			<option value="">Selecione a Unidade</option>
+<option value="2495015">HOSPITAL E PRONTO SOCORRO MUNICIPAL DE CUIABA</option>
+<option value="9209352">HOSPITAL MUNICIPAL DE CUIABA E P S DR LEONY PALMA CARVALHO</option>
+<option value="7349270">HOSPITAL MUNICIPAL SAO BENEDITO DE CUIABA</option>
+<option value="6923089">HOSPITAL OTORRINO</option>
+<option value="2311682">HOSPITAL SANTA HELENA</option>
+<option value="2655411">HOSPITAL UNIVERSITARIO JULIO MULLER EBSERH</option>
+<option value="2393581">MEDICINA NUCLEAR</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td colspan="1">Clínica</td>
+	<td colspan="3">
+		<select name="co_clinica">
+			<option value="">Selecione a Clinica</option>
+<option value="96">COMPLEMENTAR - SUPORTE VENTILATÓRIO PULMONAR - COVID-19 </option>
+<option value="95">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS ADULTO</option>
+<option value="93">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS NEONATAL CANGURU</option>
+<option value="92">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS NEONATAL CONVENCIONAL</option>
+<option value="94">COMPLEMENTAR - UNIDADE DE CUIDADOS INTERMEDIARIOS PEDIATRICO</option>
+<option value="64">COMPLEMENTAR - UNIDADE INTERMEDIARIA</option>
+<option value="65">COMPLEMENTAR - UNIDADE INTERMEDIARIA NEONATAL</option>
+<option value="66">COMPLEMENTAR - UNIDADE ISOLAMENTO</option>
+<option value="74">COMPLEMENTAR - UTI ADULTO - TIPO I</option>
+<option value="75">COMPLEMENTAR - UTI ADULTO - TIPO II</option>
+<option value="76">COMPLEMENTAR - UTI ADULTO - TIPO III</option>
+<option value="86">COMPLEMENTAR - UTI CORONARIANA TIPO III - UCO TIPO III</option>
+<option value="85">COMPLEMENTAR - UTI CORONARIANA TIPO II - UCO TIPO II</option>
+<option value="83">COMPLEMENTAR - UTI DE QUEIMADOS</option>
+<option value="51">COMPLEMENTAR - UTI II ADULTO - COVID-19 </option>
+<option value="52">COMPLEMENTAR - UTI II PEDIÁTRICA - COVID-19 </option>
+<option value="80">COMPLEMENTAR - UTI NEONATAL - TIPO I</option>
+<option value="81">COMPLEMENTAR - UTI NEONATAL - TIPO II</option>
+<option value="82">COMPLEMENTAR - UTI NEONATAL - TIPO III</option>
+<option value="77">COMPLEMENTAR - UTI PEDIATRICA - TIPO I</option>
+<option value="78">COMPLEMENTAR - UTI PEDIATRICA - TIPO II</option>
+<option value="79">COMPLEMENTAR - UTI PEDIATRICA - TIPO III</option>
+<option value="01">ESPEC - CIRURGICO - BUCO MAXILO FACIAL</option>
+<option value="02">ESPEC - CIRURGICO - CARDIOLOGIA</option>
+<option value="03">ESPEC - CIRURGICO - CIRURGIA GERAL</option>
+<option value="04">ESPEC - CIRURGICO - ENDOCRINOLOGIA</option>
+<option value="05">ESPEC - CIRURGICO - GASTROENTEROLOGIA</option>
+<option value="06">ESPEC - CIRURGICO - GINECOLOGIA</option>
+<option value="08">ESPEC - CIRURGICO - NEFROLOGIAUROLOGIA</option>
+<option value="09">ESPEC - CIRURGICO - NEUROCIRURGIA</option>
+<option value="11">ESPEC - CIRURGICO - OFTALMOLOGIA</option>
+<option value="12">ESPEC - CIRURGICO - ONCOLOGIA</option>
+<option value="13">ESPEC - CIRURGICO - ORTOPEDIATRAUMATOLOGIA</option>
+<option value="14">ESPEC - CIRURGICO - OTORRINOLARINGOLOGIA</option>
+<option value="15">ESPEC - CIRURGICO - PLASTICA</option>
+<option value="90">ESPEC - CIRURGICO - QUEIMADO ADULTO</option>
+<option value="91">ESPEC - CIRURGICO - QUEIMADO PEDIATRICO</option>
+<option value="16">ESPEC - CIRURGICO - TORAXICA</option>
+<option value="67">ESPEC - CIRURGICO - TRANSPLANTE</option>
+<option value="31">ESPEC - CLINICO - AIDS</option>
+<option value="32">ESPEC - CLINICO - CARDIOLOGIA</option>
+<option value="33">ESPEC - CLINICO - CLINICA GERAL</option>
+<option value="35">ESPEC - CLINICO - DERMATOLOGIA</option>
+<option value="36">ESPEC - CLINICO - GERIATRIA</option>
+<option value="37">ESPEC - CLINICO - HANSENOLOGIA</option>
+<option value="38">ESPEC - CLINICO - HEMATOLOGIA</option>
+<option value="40">ESPEC - CLINICO - NEFROUROLOGIA</option>
+<option value="41">ESPEC - CLINICO - NEONATOLOGIA</option>
+<option value="42">ESPEC - CLINICO - NEUROLOGIA</option>
+<option value="44">ESPEC - CLINICO - ONCOLOGIA</option>
+<option value="46">ESPEC - CLINICO - PNEUMOLOGIA</option>
+<option value="88">ESPEC - CLINICO - QUEIMADO ADULTO</option>
+<option value="89">ESPEC - CLINICO - QUEIMADO PEDIATRICO</option>
+<option value="87">ESPEC - CLINICO - SAUDE MENTAL</option>
+<option value="69">HOSPITAL DIA - AIDS</option>
+<option value="07">HOSPITAL DIA - CIRURGICO/DIAGNOSTICO/TERAPEUTICO</option>
+<option value="70">HOSPITAL DIA - FIBROSE CISTICA</option>
+<option value="72">HOSPITAL DIA - GERIATRIA</option>
+<option value="71">HOSPITAL DIA - INTERCORRENCIA POS-TRANSPLANTE</option>
+<option value="73">HOSPITAL DIA - SAUDE MENTAL</option>
+<option value="10">OBSTETRICO - OBSTETRICIA CIRURGICA</option>
+<option value="43">OBSTETRICO - OBSTETRICIA CLINICA</option>
+<option value="84">OUTRAS ESPECIALIDADES - ACOLHIMENTO NOTURNO</option>
+<option value="34">OUTRAS ESPECIALIDADES - CRONICOS</option>
+<option value="49">OUTRAS ESPECIALIDADES - PNEUMOLOGIA SANITARIA (ANTIGA DESCRIÇÃO DE TISIOLOGIA)</option>
+<option value="47">OUTRAS ESPECIALIDADES - PSIQUIATRIA</option>
+<option value="48">OUTRAS ESPECIALIDADES - REABILITACAO</option>
+<option value="68">PEDIATRICO - PEDIATRIA CIRURGICA</option>
+<option value="45">PEDIATRICO - PEDIATRIA CLINICA</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td colspan="1">Prioridade</td>
+	<td colspan="3">
+		<select name="co_prioridade">
+			<option value="">Selecione a Prioridade</option>
+			<option value="E">Eletiva</option>
+			<option value="U">Urgente</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td colspan="1">Extra PPI</td>
+	<td colspan="3"><input type="checkbox" name="extra_ppi" value="1"></td>
+</tr>
+	<tr><td colspan="4" align="center"> 
+		<input class="leve_input" style="cursor:pointer;" type="button" name="enviar" value="PESQUISAR" onclick="pesquisar()">
+		<input class="leve_input" style="cursor:pointer;" type="button" name="clean" value="LIMPAR" onclick="limpar()"></td>
+	</tr>
+</tbody></table>
+</center><br><input type="hidden" name="cod_solicitacao_ficha" value="">
+<input type="hidden" name="ordenacao" value="">
+<input type="hidden" name="pagina" value="">
+</form>
+</div>
+<script>javascript:exibirEtapa();</script>
+<br>
+
+</center><div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible"><div class="ui-datepicker-header ui-widget-header ui-helper-clearfix ui-corner-all"><a class="ui-datepicker-prev ui-corner-all" onclick="DP_jQuery_1766341598475.datepicker._adjustDate('#dp1766341598477', -1, 'M');" title="&lt;Anterior"><span class="ui-icon ui-icon-circle-triangle-w">&lt;Anterior</span></a><a class="ui-datepicker-next ui-corner-all" onclick="DP_jQuery_1766341598475.datepicker._adjustDate('#dp1766341598477', +1, 'M');" title="Próximo&gt;"><span class="ui-icon ui-icon-circle-triangle-e">Próximo&gt;</span></a><div class="ui-datepicker-title"><select class="ui-datepicker-month" onchange="DP_jQuery_1766341598475.datepicker._selectMonthYear('#dp1766341598477', this, 'M');" onclick="DP_jQuery_1766341598475.datepicker._clickMonthYear('#dp1766341598477');"><option value="0">Jan</option><option value="1">Fev</option><option value="2">Mar</option><option value="3">Abr</option><option value="4">Mai</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Ago</option><option value="8">Set</option><option value="9">Out</option><option value="10">Nov</option><option value="11" selected="selected">Dez</option></select><select class="ui-datepicker-year" onchange="DP_jQuery_1766341598475.datepicker._selectMonthYear('#dp1766341598477', this, 'Y');" onclick="DP_jQuery_1766341598475.datepicker._clickMonthYear('#dp1766341598477');"><option value="2015">2015</option><option value="2016">2016</option><option value="2017">2017</option><option value="2018">2018</option><option value="2019">2019</option><option value="2020">2020</option><option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025" selected="selected">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option><option value="2032">2032</option><option value="2033">2033</option><option value="2034">2034</option><option value="2035">2035</option></select></div></div><table class="ui-datepicker-calendar"><thead><tr><th class="ui-datepicker-week-end"><span title="Domingo">D</span></th><th><span title="Segunda-feira">S</span></th><th><span title="Terça-feira">T</span></th><th><span title="Quarta-feira">Q</span></th><th><span title="Quinta-feira">Q</span></th><th><span title="Sexta-feira">S</span></th><th class="ui-datepicker-week-end"><span title="Sabado">S</span></th></tr></thead><tbody><tr><td class=" ui-datepicker-week-end ui-datepicker-other-month ui-datepicker-unselectable ui-state-disabled">&nbsp;</td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">1</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">2</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">3</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">4</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">5</a></td><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">6</a></td></tr><tr><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">7</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">8</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">9</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">10</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">11</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">12</a></td><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">13</a></td></tr><tr><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">14</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">15</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">16</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">17</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">18</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">19</a></td><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">20</a></td></tr><tr><td class=" ui-datepicker-week-end ui-datepicker-days-cell-over  ui-datepicker-current-day ui-datepicker-today" onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default ui-state-highlight ui-state-active ui-state-hover" href="#">21</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">22</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">23</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">24</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">25</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">26</a></td><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">27</a></td></tr><tr><td class=" ui-datepicker-week-end " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">28</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">29</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">30</a></td><td class=" " onclick="DP_jQuery_1766341598475.datepicker._selectDay('#dp1766341598477',11,2025, this);return false;"><a class="ui-state-default" href="#">31</a></td><td class=" ui-datepicker-other-month ui-datepicker-unselectable ui-state-disabled">&nbsp;</td><td class=" ui-datepicker-other-month ui-datepicker-unselectable ui-state-disabled">&nbsp;</td><td class=" ui-datepicker-week-end ui-datepicker-other-month ui-datepicker-unselectable ui-state-disabled">&nbsp;</td></tr></tbody></table></div></body></html>

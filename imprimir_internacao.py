@@ -1,7 +1,9 @@
 import time
 import os
 import re
-import pyautogui  # <--- Biblioteca nova para controlar teclado
+import json
+import pyautogui
+import pandas as pd
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,18 +12,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V17 - SIMULADOR HUMANO) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V19 - CORREÇÃO AIH) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
 SENHA = "515462" # <--- ATUALIZE
 PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-1\Fichas_Internacao"
+ARQUIVO_CONTROLE = r"C:\Users\DELL\OneDrive\NII-Portal-1\controle_aih.json"
 
 if not os.path.exists(PASTA_DOWNLOAD): os.makedirs(PASTA_DOWNLOAD)
 
-# Configuração do PyAutoGUI (Segurança)
-pyautogui.FAILSAFE = True # Se arrastar o mouse para o canto superior esquerdo, para tudo.
-pyautogui.PAUSE = 1.0 # Pausa de 1s entre comandos para dar tempo ao sistema
+# --- FUNÇÕES ---
+def carregar_memoria():
+    if os.path.exists(ARQUIVO_CONTROLE):
+        try:
+            with open(ARQUIVO_CONTROLE, 'r') as f:
+                return json.load(f)
+        except: return []
+    return []
+
+def salvar_memoria(lista_aihs):
+    with open(ARQUIVO_CONTROLE, 'w') as f:
+        json.dump(lista_aihs, f)
 
 def limpar_nome_arquivo(texto):
     return re.sub(r'[\\/*?:"<>|]', "", texto).strip()
@@ -43,7 +55,13 @@ def focar_frame_principal(driver):
     try: driver.switch_to.frame(1); return True
     except: return False
 
-# Opções Padrão (Sem Kiosk, pois vamos usar a janela do Windows)
+# --- PREPARAÇÃO ---
+aihs_processadas = carregar_memoria()
+print(f">> Memória carregada: {len(aihs_processadas)} AIHs já impressas.")
+
+pyautogui.FAILSAFE = True
+pyautogui.PAUSE = 1.0
+
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
 
@@ -52,7 +70,7 @@ try:
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     wait = WebDriverWait(driver, 20)
     
-    # --- LOGIN E NAVEGAÇÃO (Igual as versões anteriores) ---
+    # --- LOGIN E NAVEGAÇÃO ---
     print(">> Fazendo Login...")
     driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     wait.until(EC.presence_of_element_located((By.NAME, "usuario"))).send_keys(USUARIO)
@@ -79,14 +97,14 @@ try:
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(2)
 
-    # --- TABELA ---
+    # --- VARREDURA ---
     tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
     if not tabelas: print("❌ Tabela não encontrada."); driver.quit(); exit()
     
     qtd_total = len(tabelas[-1].find_elements(By.TAG_NAME, "tr"))
-    print(f">> Encontrados {qtd_total} registros.")
+    print(f">> Analisando {qtd_total} registros na lista...")
 
-    pacientes_processados = 0
+    novos_processados = 0
     
     for i in range(qtd_total):
         try:
@@ -99,72 +117,80 @@ try:
 
             if "td_titulo_campo" in linha.get_attribute("innerHTML"): continue
             colunas = linha.find_elements(By.TAG_NAME, "td")
-            if len(colunas) < 4: continue
+            if len(colunas) < 6: continue 
 
-            pacientes_processados += 1
+            texto_linha = linha.text
+            
+            # --- CORREÇÃO DA BUSCA (HÍFEN) ---
+            # Regex agora procura: 12 numeros + hifen + 1 numero (Ex: 512510591849-3)
+            # OU procura 13 numeros juntos (caso algum não tenha hifen)
+            match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', texto_linha)
+            
+            aih_encontrada = ""
+            
+            if match_aih:
+                aih_encontrada = match_aih.group(0)
+                # Remove o hifen para padronizar a memória (opcional, mas bom pra comparar)
+                # aih_limpa = aih_encontrada.replace("-", "") 
+                print(f"\n--- Linha {i}: AIH encontrada: {aih_encontrada}")
+            else:
+                # Debug leve para você ver o que ele está lendo na linha
+                # print(f"--- Linha {i}: Pendente (Texto: {texto_linha[:30]}...)")
+                continue
+
+            # VERIFICA MEMÓRIA
+            if aih_encontrada in aihs_processadas:
+                print(f"   -> Já impressa. Ignorando.")
+                continue
+
+            # PROCESSO DE IMPRESSÃO
+            print(f"   -> NOVA! Iniciando impressão...")
             
             # Nome Arquivo
-            nome_arquivo = f"Ficha_{pacientes_processados}"
-            alvo_clique = colunas[1]
+            nome_arquivo = f"AIH_{aih_encontrada}"
             for col in colunas:
                 txt = col.text.strip()
-                if len(txt) > 3:
-                    alvo_clique = col
-                    if not txt[0].isdigit(): nome_arquivo = limpar_nome_arquivo(txt)
+                if len(txt) > 5 and not txt[0].isdigit(): # Provavel nome
+                    nome_arquivo = limpar_nome_arquivo(txt)
                     break
-            
-            print(f"\n--- Paciente #{pacientes_processados}: {nome_arquivo} ---")
-            
-            driver.execute_script("arguments[0].scrollIntoView(true);", alvo_clique)
-            time.sleep(1)
-            try: alvo_clique.click()
-            except: driver.execute_script("arguments[0].click();", alvo_clique)
-            
-            time.sleep(5) # Espera carregar bem a ficha
 
-            # --- SIMULAÇÃO HUMANA ---
-            print("   -> Iniciando sequência de teclas...")
+            # Clica (Tentativa em coluna do Nome ou Procedimento)
+            coluna_clique = colunas[1] 
+            for col in colunas:
+                if len(col.text) > 4: coluna_clique = col; break
+
+            driver.execute_script("arguments[0].scrollIntoView(true);", coluna_clique)
+            time.sleep(1)
+            try: coluna_clique.click()
+            except: driver.execute_script("arguments[0].click();", coluna_clique)
             
-            # 1. Clica no meio da tela para garantir foco
-            # Pega o tamanho da tela e clica no centro
+            time.sleep(5)
+
+            # --- SIMULAÇÃO ---
             width, height = pyautogui.size()
             pyautogui.click(width/2, height/2)
             time.sleep(0.5)
 
-            # 2. Ctrl + A (Selecionar Tudo)
-            print("   -> Selecionando tudo (Ctrl+A)...")
             pyautogui.hotkey('ctrl', 'a')
-            time.sleep(1)
-
-            # 3. Ctrl + P (Imprimir)
-            print("   -> Abrindo impressão (Ctrl+P)...")
+            time.sleep(0.5)
             pyautogui.hotkey('ctrl', 'p')
-            time.sleep(4) # Espera a janela de impressão do Windows abrir
-
-            # 4. Enter (Confirmar Impressão/Salvar como PDF)
-            print("   -> Confirmando...")
+            time.sleep(4) 
             pyautogui.press('enter')
-            time.sleep(3) # Espera abrir a janela "Salvar Como"
+            time.sleep(3) 
 
-            # 5. Digitar Nome e Salvar
             caminho_completo = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}.pdf")
-            if os.path.exists(caminho_completo): 
-                caminho_completo = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}_{int(time.time())}.pdf")
+            if os.path.exists(caminho_completo): caminho_completo = os.path.join(PASTA_DOWNLOAD, f"{nome_arquivo}_{int(time.time())}.pdf")
             
-            print(f"   -> Salvando arquivo: {caminho_completo}")
             pyautogui.write(caminho_completo)
             time.sleep(1)
             pyautogui.press('enter')
-            
-            time.sleep(3) # Tempo para salvar o arquivo
+            time.sleep(3)
 
-            # Se por acaso abrir aquela telinha de "Substituir arquivo?", damos Enter de novo
-            # pyautogui.press('enter') 
+            aihs_processadas.append(aih_encontrada)
+            salvar_memoria(aihs_processadas)
+            novos_processados += 1
+            print("   ✅ Impresso e Registrado.")
 
-            print("   ✅ Arquivo salvo (Via Teclado).")
-
-            # VOLTAR
-            print("   -> Voltando...")
             driver.back()
             try: WebDriverWait(driver, 3).until(EC.alert_is_present()).accept()
             except: pass
@@ -177,7 +203,7 @@ try:
             if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
             focar_frame_principal(driver)
 
-    print(f"✅ FIM! Todos processados.")
+    print(f"✅ FIM! {novos_processados} novas fichas impressas.")
     driver.quit()
 
 except Exception as e:
