@@ -27,6 +27,21 @@
         .bg-pendente { background: var(--warning); color: #333; }
         .bg-negado { background: var(--danger); }
         .bg-outro { background: var(--primary); }
+        
+        /* Estilo para link de paciente */
+        a.paciente-link {
+            color: #0056b3;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        a.paciente-link:hover {
+            text-decoration: underline;
+            color: #003d80;
+        }
+        
         @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -69,8 +84,7 @@
         let table = null;
         let chartS = null, chartP = null;
 
-        // URL para o JSON gerado pelo Python
-        // ATENÇÃO: O Python deve salvar em 'arquivos/dados_sisreg.json'
+        // Adicione um timestamp para evitar cache do navegador
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
@@ -83,24 +97,25 @@
                     order: [], 
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                     columns: [
-                        { data: "data_visual" },
+                        { data: "data_visual", defaultContent: "-" },
                         { 
-                            // COLUNA PACIENTE (AGORA COM LINK PDF)
                             data: "paciente",
                             render: function(data, type, row) {
-                                // Se tiver link PDF no JSON, cria o link azul com ícone
+                                // AQUI ESTÁ A MÁGICA:
+                                // Se tiver link de PDF, cria um link clicável com o nome do paciente
                                 if (row.arquivo_pdf) {
-                                    return `<a href="${row.arquivo_pdf}" target="_blank" style="color:#0056b3; font-weight:bold; text-decoration:none;">
+                                    return `<a href="${row.arquivo_pdf}" target="_blank" class="paciente-link" title="Abrir Ficha">
                                                 <i class="fas fa-file-pdf"></i> ${data}
                                             </a>`;
                                 }
-                                return data;
+                                // Se não tiver PDF, mostra só o nome normal
+                                return data || "-";
                             }
                         },
-                        { data: "cns" },
-                        { data: "num_sol" },
-                        { data: "aih" },
-                        { data: "proc" },
+                        { data: "cns", defaultContent: "-" },
+                        { data: "num_sol", defaultContent: "-" },
+                        { data: "aih", defaultContent: "-" },
+                        { data: "proc", defaultContent: "-" },
                         { 
                             data: "status",
                             render: function(d) {
@@ -109,7 +124,7 @@
                                 if(s.includes("aprovado")||s.includes("autorizado")) c = "bg-aprovado";
                                 else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
                                 else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
-                                return `<span class="status-badge ${c}">${d}</span>`;
+                                return `<span class="status-badge ${c}">${d || "Pendente"}</span>`;
                             }
                         }
                     ]
@@ -118,8 +133,8 @@
                 aplicarFiltro();
             })
             .catch(err => {
-                console.error("Erro ao carregar JSON:", err);
-                document.getElementById('loading').innerHTML = "<span style='color:red'>Erro ao carregar dados.</span>";
+                console.error("Erro:", err);
+                document.getElementById('loading').innerHTML = "Erro ao carregar dados.";
             });
 
         function limparFiltros() {

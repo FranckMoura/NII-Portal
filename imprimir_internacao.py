@@ -11,14 +11,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V39 - RESTAURAÇÃO FUNCIONAL + PORTAL) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V40 - PRESERVAÇÃO DE DADOS + LINK NO NOME) ---")
 
 # --- VERIFICAÇÃO DE BIBLIOTECAS ---
 try:
     import cv2
-    print(">> Biblioteca OpenCV detectada. O reconhecimento visual funcionará.")
+    print(">> Biblioteca OpenCV detectada.")
 except ImportError:
-    print("❌ AVISO: OpenCV não instalado. O modo visual pode falhar. (pip install opencv-python)")
+    print("❌ AVISO: OpenCV não instalado (pip install opencv-python)")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
@@ -26,10 +26,9 @@ SENHA = "515462" # <--- ATUALIZE
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
 PASTA_PDF = os.path.join(PASTA_PROJETO, "Fichas_Internacao")
 ARQUIVO_JSON_SITE = os.path.join(PASTA_PROJETO, "arquivos", "dados_sisreg.json")
-ARQUIVO_CONTROLE = os.path.join(PASTA_PROJETO, "controle_aih.json") # Volta a usar o nome original que funcionava
+ARQUIVO_CONTROLE = os.path.join(PASTA_PROJETO, "controle_aih.json")
 IMAGEM_SETA = os.path.join(PASTA_PROJETO, "seta_proxima.png")
 
-# Cria pastas se não existirem
 if not os.path.exists(PASTA_PDF): os.makedirs(PASTA_PDF)
 pasta_json_dir = os.path.dirname(ARQUIVO_JSON_SITE)
 if not os.path.exists(pasta_json_dir): os.makedirs(pasta_json_dir)
@@ -45,31 +44,52 @@ def carregar_memoria():
 def salvar_memoria(lista_aihs):
     with open(ARQUIVO_CONTROLE, 'w') as f: json.dump(lista_aihs, f)
 
-def atualizar_json_do_portal(novo_registro):
+def atualizar_json_do_portal(aih, nome_paciente, status, caminho_pdf_relativo):
+    """
+    Atualiza o JSON do site de forma inteligente:
+    - Se a AIH já existe, MATÉM os dados antigos (CNS, Solicitacao, etc) e só adiciona o PDF.
+    - Se não existe, cria um novo registro.
+    """
     dados_site = []
     try:
         if os.path.exists(ARQUIVO_JSON_SITE):
             with open(ARQUIVO_JSON_SITE, 'r', encoding='utf-8') as f:
                 dados_site = json.load(f)
-    except:
-        dados_site = []
+    except: dados_site = []
 
-    # Remove registro antigo para evitar duplicata
-    dados_site = [d for d in dados_site if d.get('aih') != novo_registro['aih']]
-    dados_site.insert(0, novo_registro)
+    # Procura se já existe registro para esta AIH
+    registro_existente = next((item for item in dados_site if item.get("aih") == aih), None)
+
+    if registro_existente:
+        # ATUALIZAÇÃO: Mantém tudo, só muda o link do PDF e Status
+        registro_existente["arquivo_pdf"] = caminho_pdf_relativo
+        # Opcional: atualizar status se mudou
+        if status: registro_existente["status"] = status
+        # print(f"   (JSON Atualizado: {aih})")
+    else:
+        # CRIAÇÃO: Novo registro (tenta preencher o básico)
+        novo_registro = {
+            "data_visual": datetime.now().strftime("%d/%m/%Y"),
+            "data_iso": datetime.now().strftime("%Y-%m-%d"),
+            "paciente": nome_paciente,
+            "cns": "-", # Será preenchido depois pelo banco de dados se rodar o script SQL
+            "num_sol": "-",
+            "aih": aih,
+            "proc": "Internação",
+            "status": status,
+            "arquivo_pdf": caminho_pdf_relativo
+        }
+        dados_site.insert(0, novo_registro)
+        # print(f"   (JSON Criado: {aih})")
     
+    # Salva de volta
     with open(ARQUIVO_JSON_SITE, 'w', encoding='utf-8') as f:
         json.dump(dados_site, f, indent=4, ensure_ascii=False)
 
 def limpar_nome_arquivo(texto):
     return re.sub(r'[\\/*?:"<>|]', "", texto).strip()
 
-def get_datas_mes_atual():
-    hoje = datetime.now()
-    return hoje.replace(day=1).strftime("%d/%m/%Y"), hoje.strftime("%d/%m/%Y")
-
 def focar_na_tabela_dados(driver):
-    # A VERSÃO SIMPLES DA V36 QUE FUNCIONOU
     driver.switch_to.default_content()
     frames = driver.find_elements(By.TAG_NAME, "iframe")
     for i in range(len(frames)):
@@ -84,7 +104,7 @@ def focar_na_tabela_dados(driver):
 
 # --- SETUP ---
 if not os.path.exists(IMAGEM_SETA):
-    print(f"⚠️ ATENÇÃO: Falta a imagem 'seta_proxima.png' na pasta {PASTA_PROJETO}!")
+    print(f"⚠️ ATENÇÃO: Falta 'seta_proxima.png'.")
 
 aihs_processadas_json = carregar_memoria()
 print(f">> Memória JSON carregada: {len(aihs_processadas_json)} registros.")
@@ -94,7 +114,7 @@ pyautogui.PAUSE = 1.0
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
 
-# Variáveis de Controle
+# Variáveis
 posicao_manual_backup = None 
 qtd_linhas_anterior = -1
 
@@ -118,14 +138,10 @@ try:
 
     focar_na_tabela_dados(driver)
 
-    dt_ini, dt_fim = get_datas_mes_atual()
-    try:
-        inputs = driver.find_elements(By.XPATH, "//*[contains(text(),'Período')]/ancestor::tr//input[@type='text']")
-        if len(inputs) >= 2: inputs[0].clear(); inputs[0].send_keys(dt_ini); inputs[1].clear(); inputs[1].send_keys(dt_fim)
-    except: pass
-
     try: driver.find_element(By.NAME, "enviar").click()
-    except: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
+    except: 
+        try: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
+        except: pass
     time.sleep(5) 
 
     pagina_atual = 1
@@ -133,7 +149,6 @@ try:
     while True:
         print(f"\n>>> PROCESSANDO PÁGINA {pagina_atual} <<<")
         
-        # 1. LER TABELA
         focar_na_tabela_dados(driver)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
@@ -155,7 +170,6 @@ try:
 
         print(f">> Linhas nesta página: {qtd_total}")
 
-        # --- PROCESSAMENTO ---
         for i in range(qtd_total):
             try:
                 focar_na_tabela_dados(driver)
@@ -175,12 +189,10 @@ try:
                     print(f"--- Pág {pagina_atual} | AIH {aih_encontrada}", end=" ")
                 else: continue
 
-                # Extração para o Portal (NOVO)
+                # Extração Básica
                 nome_paciente = "PACIENTE"
                 status_estimado = "Pendente"
-                cns_estimado = "-"
-                procedimento_estimado = "Internação"
-
+                
                 for col in colunas:
                     txt = col.text.strip()
                     if len(txt) > 5 and not txt[0].isdigit() and not "/" in txt:
@@ -188,34 +200,23 @@ try:
                     if "AUTORIZADO" in txt.upper() or "APROVADO" in txt.upper(): status_estimado = "Aprovado"
                     elif "NEGADO" in txt.upper() or "CANCELADO" in txt.upper(): status_estimado = "Negado"
 
-                # Validação Real
                 nome_arquivo_base = f"AIH_{aih_encontrada}_{nome_paciente}"
                 nome_arquivo_pdf = f"{nome_arquivo_base}.pdf"
                 caminho_completo_pdf = os.path.join(PASTA_PDF, nome_arquivo_pdf)
-                
-                # Checagem "burra": vê se tem algum arquivo começando com a AIH na pasta
+                caminho_relativo_site = f"Fichas_Internacao/{nome_arquivo_pdf}"
+
+                # Verifica existência
                 arquivo_existe = False
                 for f in os.listdir(PASTA_PDF):
                     if f.startswith(f"AIH_{aih_encontrada}") and f.endswith(".pdf"):
                         arquivo_existe = True
-                        nome_arquivo_pdf = f # Usa o nome real que está na pasta
+                        caminho_relativo_site = f"Fichas_Internacao/{f}" # Usa o nome real do arquivo existente
                         break
 
                 if aih_encontrada in aihs_processadas_json and arquivo_existe:
                     print(f"-> [OK - JÁ EXISTE]")
-                    # Atualiza o portal mesmo assim para garantir links
-                    dados_exportacao = {
-                        "data_visual": datetime.now().strftime("%d/%m/%Y"),
-                        "data_iso": datetime.now().strftime("%Y-%m-%d"),
-                        "paciente": nome_paciente,
-                        "cns": cns_estimado,
-                        "num_sol": "-",
-                        "aih": aih_encontrada,
-                        "proc": procedimento_estimado,
-                        "status": status_estimado,
-                        "arquivo_pdf": f"Fichas_Internacao/{nome_arquivo_pdf}"
-                    }
-                    atualizar_json_do_portal(dados_exportacao)
+                    # ATUALIZA JSON DO SITE (PRESERVANDO DADOS)
+                    atualizar_json_do_portal(aih_encontrada, nome_paciente, status_estimado, caminho_relativo_site)
                     continue
                 
                 print(f"-> [NOVA! IMPRIMINDO...]")
@@ -235,7 +236,6 @@ try:
                 coluna_clique.click()
                 time.sleep(5)
 
-                # Impressão
                 width, height = pyautogui.size()
                 pyautogui.click(width/2, height/2)
                 pyautogui.hotkey('ctrl', 'a'); time.sleep(0.5)
@@ -253,19 +253,8 @@ try:
                     aihs_processadas_json.append(aih_encontrada)
                     salvar_memoria(aihs_processadas_json)
                 
-                # Salva JSON Portal
-                dados_exportacao = {
-                    "data_visual": datetime.now().strftime("%d/%m/%Y"),
-                    "data_iso": datetime.now().strftime("%Y-%m-%d"),
-                    "paciente": nome_paciente,
-                    "cns": cns_estimado,
-                    "num_sol": "-",
-                    "aih": aih_encontrada,
-                    "proc": procedimento_estimado,
-                    "status": status_estimado,
-                    "arquivo_pdf": f"Fichas_Internacao/{nome_arquivo_pdf}"
-                }
-                atualizar_json_do_portal(dados_exportacao)
+                # ATUALIZA JSON DO SITE (COM CAMINHO PDF)
+                atualizar_json_do_portal(aih_encontrada, nome_paciente, status_estimado, caminho_relativo_site)
 
                 driver.back()
                 try: WebDriverWait(driver, 5).until(EC.alert_is_present()).accept()
@@ -280,50 +269,37 @@ try:
             print(">> Página vazia. Fim.")
             break
 
-        # VERIFICAÇÃO DE MUDANÇA DE LAYOUT (Reseta manual backup)
+        # --- PAGINAÇÃO ---
         if qtd_linhas_anterior != -1 and qtd_linhas_anterior != qtd_total:
-             print("⚠️ Layout mudou! Resetando posição manual se houver.")
+             print("⚠️ Layout mudou! Resetando posição manual.")
              posicao_manual_backup = None
         qtd_linhas_anterior = qtd_total
 
-        # 2. PAGINAÇÃO HÍBRIDA
         print(f">> Procurando PRÓXIMA página...")
-        
         driver.switch_to.default_content()
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
 
         paginou = False
 
-        # TENTATIVA 1: VISUAL (OpenCV)
         if os.path.exists(IMAGEM_SETA):
             try:
-                # Tenta achar com 90% de confiança
-                posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA, confidence=0.9)
-                if not posicao:
-                    # Tenta achar com 70% (mais flexível)
-                    posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA, confidence=0.7)
-                
+                posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA, confidence=0.85)
                 if posicao:
-                    print(f"   -> [VISUAL] Seta encontrada em {posicao}. Clicando...")
+                    print(f"   -> [VISUAL] Clicando em {posicao}...")
                     pyautogui.moveTo(posicao)
                     time.sleep(0.5)
                     pyautogui.click()
                     paginou = True
-            except Exception as e:
-                print(f"   -> Erro no visual: {e}")
+            except: pass
 
-        # TENTATIVA 2: MANUAL BACKUP (Se visual falhar)
         if not paginou:
-            print("⚠️ Visual falhou ou imagem não encontrada.")
-            
             if posicao_manual_backup:
-                print(f"   -> [MANUAL] Usando posição conhecida {posicao_manual_backup}...")
+                print(f"   -> [MANUAL] Usando backup {posicao_manual_backup}...")
                 pyautogui.moveTo(posicao_manual_backup)
                 pyautogui.click()
                 paginou = True
             else:
-                # PEDE AJUDA
                 print("\a")
                 res = pyautogui.confirm(
                     text=f'O robô não achou a imagem da seta.\n\n1. Ponha o mouse sobre o botão PRÓXIMA.\n2. Não mexa.\n3. Dê OK.', 
@@ -331,9 +307,7 @@ try:
                     buttons=['OK', 'Parar']
                 )
                 if res == 'Parar': break
-                
                 posicao_manual_backup = pyautogui.position()
-                print(f"   -> [MANUAL] Nova posição aprendida: {posicao_manual_backup}")
                 pyautogui.click()
                 paginou = True
         
@@ -341,7 +315,7 @@ try:
             time.sleep(8)
             pagina_atual += 1
         else:
-            print(">> Não foi possível avançar. Fim.")
+            print(">> Fim do processo.")
             break
 
     driver.quit()
