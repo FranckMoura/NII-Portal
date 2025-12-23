@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -70,6 +69,8 @@
         let table = null;
         let chartS = null, chartP = null;
 
+        // URL para o JSON gerado pelo Python
+        // ATENÇÃO: O Python deve salvar em 'arquivos/dados_sisreg.json'
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
@@ -83,7 +84,19 @@
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                     columns: [
                         { data: "data_visual" },
-                        { data: "paciente" },
+                        { 
+                            // COLUNA PACIENTE (AGORA COM LINK PDF)
+                            data: "paciente",
+                            render: function(data, type, row) {
+                                // Se tiver link PDF no JSON, cria o link azul com ícone
+                                if (row.arquivo_pdf) {
+                                    return `<a href="${row.arquivo_pdf}" target="_blank" style="color:#0056b3; font-weight:bold; text-decoration:none;">
+                                                <i class="fas fa-file-pdf"></i> ${data}
+                                            </a>`;
+                                }
+                                return data;
+                            }
+                        },
                         { data: "cns" },
                         { data: "num_sol" },
                         { data: "aih" },
@@ -104,7 +117,10 @@
                 
                 aplicarFiltro();
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error("Erro ao carregar JSON:", err);
+                document.getElementById('loading').innerHTML = "<span style='color:red'>Erro ao carregar dados.</span>";
+            });
 
         function limparFiltros() {
             document.getElementById('minDate').value = "";
@@ -116,15 +132,10 @@
             let d1 = document.getElementById('minDate').value;
             let d2 = document.getElementById('maxDate').value;
             
-            // --- FILTRO DE DATA PRECISO (JAVASCRIPT) ---
             const filtrados = dadosGlobais.filter(item => {
                 if (!item.data_iso) return false;
-                
-                // Compara strings ISO (YYYY-MM-DD) que funcionam perfeitamente
-                // Ex: "2025-11-15" >= "2025-11-01"
                 if (d1 && item.data_iso < d1) return false;
                 if (d2 && item.data_iso > d2) return false;
-                
                 return true;
             });
             

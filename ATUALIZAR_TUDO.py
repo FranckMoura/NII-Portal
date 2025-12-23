@@ -8,7 +8,7 @@ def imprimir_titulo(texto):
     print(f"   🚀 {texto}")
     print("="*60)
 
-imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V22 - FINAL)")
+imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V23 - ATUALIZADO)")
 python_cmd = sys.executable 
 
 def rodar(script, obrigatorio=True):
@@ -42,15 +42,20 @@ def rodar(script, obrigatorio=True):
         return False
 
 # --- 1. EXTRAÇÃO SISREG (Robô V18) ---
-# Baixa os dados do site (se falhar, o processo continua com dados antigos)
+# Baixa os dados brutos da lista de regulação
 rodar("extracao_sisreg_v18.py", obrigatorio=False)
+
+# --- 1.5. IMPRESSÃO DE FICHAS E ATUALIZAÇÃO DO PAINEL (NOVO) ---
+# Entra no Sisreg, baixa os PDFs das fichas e atualiza o JSON do painel_regulacao.html
+# Definido como 'obrigatorio=False' para que, se der erro no Sisreg, o resto continue.
+print("\n[INFO] Iniciando coleta de fichas de internação...")
+rodar("imprimir_internacao.py", obrigatorio=False)
 
 # --- 2. CARGA SISREG -> POSTGRES (Banco de Dados) ---
 # Atualiza a tabela do Sisreg no banco
 rodar("banco_dados_sisreg_postgres.py")
 
 # --- 3. IMPORTAÇÃO FINANCEIRA (Se houver arquivo novo) ---
-# Verifica se existe pDetAIH.csv para atualizar o faturamento
 if os.path.exists("pDetAIH.csv"):
     print("\n[INFO] Arquivo de faturamento detectado. Atualizando banco...")
     rodar("importar_faturamento_v3.py", obrigatorio=False)
@@ -58,7 +63,6 @@ else:
     print("\n[INFO] Nenhum arquivo 'pDetAIH.csv' novo. Mantendo faturamento anterior.")
 
 # --- 4. IMPORTAÇÃO HISTÓRICA TABNET (Se houver arquivo novo) ---
-# Verifica se existe algum CSV do TabNet (sih_cnv...)
 arquivos_tabnet = [f for f in os.listdir(".") if f.startswith("sih_cnv") and f.endswith(".csv")]
 if arquivos_tabnet:
     print(f"\n[INFO] Arquivo histórico TabNet detectado ({arquivos_tabnet[0]}). Importando...")
@@ -67,18 +71,17 @@ else:
     print("\n[INFO] Nenhum arquivo do TabNet encontrado. Mantendo histórico anterior.")
 
 # --- 5. AUDITORIA FINANCEIRA (Relatório Excel) ---
-# Gera o relatório de perdas (IMPORTANTE: Requer gerar_relatorio_financeiro_v2.py salvo)
 rodar("gerar_relatorio_financeiro_v2.py", obrigatorio=False)
 
 # --- 6. GERAÇÃO DO SITE (Dashboard HTML) ---
-# Cria as páginas web
+# Gera as páginas principais do site
 rodar("gerar_dashboard.py")
 
 # --- 7. UPLOAD (Sobe pra nuvem) ---
-# Usa a V6 que força a inclusão de arquivos novos
+# Sobe tudo: PDFs, JSONs, HTMLs e Relatórios
 rodar("upload_manager_v6.py")
 
 imprimir_titulo("PROCESSO FINALIZADO COM SUCESSO!")
-print("   Acesse: https://franckmoura.github.io/NII-Portal/")
+print("   Acesse: https://franckmoura.github.io/NII-Portal/painel_regulacao.html")
 print("   Fechando em 10 segundos...")
 time.sleep(10)
