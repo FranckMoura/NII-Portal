@@ -8,7 +8,7 @@ def imprimir_titulo(texto):
     print(f"   🚀 {texto}")
     print("="*60)
 
-imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V23 - ATUALIZADO)")
+imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V24 - PROTEGIDO)")
 python_cmd = sys.executable 
 
 def rodar(script, obrigatorio=True):
@@ -37,23 +37,25 @@ def rodar(script, obrigatorio=True):
     else:
         print(f"❌ FALHA NA EXECUÇÃO.")
         if obrigatorio:
-            print("   (Processo interrompido por segurança)")
+            print("   ⛔ ERRO CRÍTICO NA ETAPA OBRIGATÓRIA.")
+            print("   (O processo foi abortado para evitar dados corrompidos.)")
             exit()
         return False
 
 # --- 1. EXTRAÇÃO SISREG (Robô V18) ---
-# Baixa os dados brutos da lista de regulação
-rodar("extracao_sisreg_v18.py", obrigatorio=False)
+# MUDANÇA IMPORTANTE: Agora é OBRIGATÓRIO.
+# Se o SISREG bloquear (horário 08-16h) ou der erro, o processo PARA aqui.
+# Isso evita travar o banco de dados lá na frente.
+rodar("extracao_sisreg_v18.py", obrigatorio=True)
 
-# --- 1.5. IMPRESSÃO DE FICHAS E ATUALIZAÇÃO DO PAINEL (NOVO) ---
-# Entra no Sisreg, baixa os PDFs das fichas e atualiza o JSON do painel_regulacao.html
-# Definido como 'obrigatorio=False' para que, se der erro no Sisreg, o resto continue.
-print("\n[INFO] Iniciando coleta de fichas de internação...")
+# --- 1.5. IMPRESSÃO DE FICHAS E ATUALIZAÇÃO DO PAINEL ---
+# Baixa os PDFs e atualiza o JSON do site com os links
+print("\n[INFO] Verificando fichas de internação e atualizando links...")
 rodar("imprimir_internacao.py", obrigatorio=False)
 
 # --- 2. CARGA SISREG -> POSTGRES (Banco de Dados) ---
-# Atualiza a tabela do Sisreg no banco
-rodar("banco_dados_sisreg_postgres.py")
+# Só roda se a etapa 1 tiver funcionado.
+rodar("banco_dados_sisreg_postgres.py", obrigatorio=True)
 
 # --- 3. IMPORTAÇÃO FINANCEIRA (Se houver arquivo novo) ---
 if os.path.exists("pDetAIH.csv"):
@@ -74,12 +76,11 @@ else:
 rodar("gerar_relatorio_financeiro_v2.py", obrigatorio=False)
 
 # --- 6. GERAÇÃO DO SITE (Dashboard HTML) ---
-# Gera as páginas principais do site
-rodar("gerar_dashboard.py")
+rodar("gerar_dashboard.py", obrigatorio=True)
 
 # --- 7. UPLOAD (Sobe pra nuvem) ---
-# Sobe tudo: PDFs, JSONs, HTMLs e Relatórios
-rodar("upload_manager_v6.py")
+# Envia HTML, JSON e a pasta Fichas_Internacao para o GitHub
+rodar("upload_manager_v6.py", obrigatorio=True)
 
 imprimir_titulo("PROCESSO FINALIZADO COM SUCESSO!")
 print("   Acesse: https://franckmoura.github.io/NII-Portal/painel_regulacao.html")
