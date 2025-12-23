@@ -12,11 +12,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V41 - BLINDAGEM CONTRA BLOQUEIO) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V43 - PREENCHIMENTO DE DATA UNIVERSAL) ---")
+
+# --- VERIFICAÇÃO DE BIBLIOTECAS ---
+try:
+    import cv2
+except ImportError:
+    print("❌ AVISO: OpenCV não instalado.")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
-SENHA = "515462" # <--- ATUALIZE
+SENHA = "515462" # <--- ATUALIZE AQUI
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
 PASTA_PDF = os.path.join(PASTA_PROJETO, "Fichas_Internacao")
 ARQUIVO_JSON_SITE = os.path.join(PASTA_PROJETO, "arquivos", "dados_sisreg.json")
@@ -56,7 +62,7 @@ def atualizar_json_do_portal(aih, nome_paciente, status, caminho_pdf_relativo):
             "data_visual": datetime.now().strftime("%d/%m/%Y"),
             "data_iso": datetime.now().strftime("%Y-%m-%d"),
             "paciente": nome_paciente,
-            "cns": "-", 
+            "cns": "-",
             "num_sol": "-",
             "aih": aih,
             "proc": "Internação",
@@ -78,14 +84,18 @@ def focar_na_tabela_dados(driver):
         driver.switch_to.default_content()
         try:
             driver.switch_to.frame(i)
-            if driver.find_elements(By.CLASS_NAME, "table_listagem"):
+            # Procura inputs de data ou tabela
+            if driver.find_elements(By.CLASS_NAME, "table_listagem") or driver.find_elements(By.NAME, "data_inicio"):
                 return True
         except: pass
     driver.switch_to.default_content()
     return False
 
+def get_datas_mes_atual():
+    hoje = datetime.now()
+    return hoje.replace(day=1).strftime("%d/%m/%Y"), hoje.strftime("%d/%m/%Y")
+
 def verificar_bloqueio_horario(driver):
-    """Verifica se apareceu o alerta de bloqueio de horário."""
     try:
         alerta = driver.switch_to.alert
         texto = alerta.text
@@ -93,10 +103,48 @@ def verificar_bloqueio_horario(driver):
             print(f"⛔ BLOQUEIO DETECTADO: {texto}")
             alerta.accept()
             return True
-        alerta.accept() # Fecha outros alertas
+        alerta.accept() 
     except NoAlertPresentException:
         pass
     return False
+
+def preencher_datas_robustamente(driver, dt_ini, dt_fim):
+    """Tenta de tudo para preencher a data."""
+    print(f">> Tentando preencher datas: {dt_ini} a {dt_fim}...")
+    
+    sucesso = False
+    
+    # TENTATIVA 1: Pelo Name (Padrão do Sisreg)
+    try:
+        driver.find_element(By.NAME, "data_inicio").clear()
+        driver.find_element(By.NAME, "data_inicio").send_keys(dt_ini)
+        driver.find_element(By.NAME, "data_fim").clear()
+        driver.find_element(By.NAME, "data_fim").send_keys(dt_fim)
+        print("   -> Datas preenchidas via NAME.")
+        sucesso = True
+    except: pass
+
+    if not sucesso:
+        # TENTATIVA 2: Pelo Label 'Período'
+        try:
+            inputs = driver.find_elements(By.XPATH, "//*[contains(text(),'Período')]/ancestor::tr//input[@type='text']")
+            if len(inputs) >= 2:
+                inputs[0].clear(); inputs[0].send_keys(dt_ini)
+                inputs[1].clear(); inputs[1].send_keys(dt_fim)
+                print("   -> Datas preenchidas via XPATH (Período).")
+                sucesso = True
+        except: pass
+
+    if not sucesso:
+        # TENTATIVA 3: Força Bruta JavaScript
+        try:
+            driver.execute_script(f"document.getElementsByName('data_inicio')[0].value = '{dt_ini}'")
+            driver.execute_script(f"document.getElementsByName('data_fim')[0].value = '{dt_fim}'")
+            print("   -> Datas preenchidas via JAVASCRIPT.")
+            sucesso = True
+        except: pass
+    
+    return sucesso
 
 # --- SETUP ---
 aihs_processadas_json = carregar_memoria()
@@ -112,24 +160,16 @@ try:
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     wait = WebDriverWait(driver, 20)
     
-    # LOGIN
-    print(">> Login...")
     driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     
-    # Check de bloqueio imediato ao abrir
-    if verificar_bloqueio_horario(driver):
-        print(">> Encerrando script devido ao bloqueio de horário.")
-        driver.quit()
-        exit()
+    if verificar_bloqueio_horario(driver): driver.quit(); exit()
 
     wait.until(EC.presence_of_element_located((By.NAME, "usuario"))).send_keys(USUARIO)
     driver.find_element(By.NAME, "senha").send_keys(SENHA)
     try: driver.find_element(By.CSS_SELECTOR, "input[type='image']").click()
     except: driver.find_element(By.CSS_SELECTOR, "div.form-no-lbl > input").click()
 
-    # Check pós-login
-    if verificar_bloqueio_horario(driver):
-        driver.quit(); exit()
+    if verificar_bloqueio_horario(driver): driver.quit(); exit()
 
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/a"))).click()
     time.sleep(1)
@@ -138,16 +178,22 @@ try:
 
     focar_na_tabela_dados(driver)
 
+    # --- PREENCHIMENTO DE DATA ---
+    dt_ini, dt_fim = get_datas_mes_atual()
+    preencher_datas_robustamente(driver, dt_ini, dt_fim)
+
+    # Clica em Pesquisar
     try: driver.find_element(By.NAME, "enviar").click()
     except: 
         try: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
         except: pass
-    time.sleep(5) 
+    
+    print(">> Pesquisando...")
+    time.sleep(8) # Tempo maior para o site processar a busca
 
     pagina_atual = 1
     
     while True:
-        # Check a cada página
         if verificar_bloqueio_horario(driver): break
 
         print(f"\n>>> PROCESSANDO PÁGINA {pagina_atual} <<<")
@@ -158,7 +204,7 @@ try:
 
         tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
         if not tabelas:
-            print(">> Tabela não encontrada (Fim ou Bloqueio).")
+            print(">> Tabela não encontrada (ou busca sem resultados).")
             break
         
         tabela_dados = tabelas[-1]
@@ -167,6 +213,21 @@ try:
         registros_pagina = 0
 
         print(f">> Linhas nesta página: {qtd_total}")
+
+        # Se tiver poucas linhas (só cabeçalho), tenta re-preencher data e buscar de novo
+        if qtd_total < 5 and pagina_atual == 1:
+            print("⚠️ Parece vazio! Tentando preencher data novamente...")
+            preencher_datas_robustamente(driver, dt_ini, dt_fim)
+            try: driver.find_element(By.NAME, "enviar").click()
+            except: pass
+            time.sleep(8)
+            # Recarrega elementos
+            focar_na_tabela_dados(driver)
+            tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
+            if tabelas:
+                linhas = tabelas[-1].find_elements(By.TAG_NAME, "tr")
+                qtd_total = len(linhas)
+                print(f">> Nova contagem de linhas: {qtd_total}")
 
         for i in range(qtd_total):
             try:
@@ -273,7 +334,6 @@ try:
         paginou = False
         if os.path.exists(IMAGEM_SETA):
             try:
-                # Tenta sem OpenCV primeiro se der erro de import
                 try: posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA, confidence=0.85)
                 except: posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA)
                 
@@ -284,7 +344,7 @@ try:
             except: pass
 
         if not paginou:
-            print(">> Fim do processo (ou não achei a seta).")
+            print(">> Fim do processo.")
             break
         
         time.sleep(8)
