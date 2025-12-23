@@ -2,10 +2,11 @@ import pandas as pd
 import glob
 import os
 import time
+import json
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON ---")
+print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON (V44 - PRESERVAÇÃO DE LINKS) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO_DB = "postgres"
@@ -95,14 +96,46 @@ print("   -> Gerando arquivos para o Portal...")
 # Lê do banco para garantir integridade
 df_final = pd.read_sql("SELECT * FROM sisreg_solicitacoes ORDER BY data_iso DESC", engine)
 
-# Gera JSON (Vital para o site)
-df_final.to_json(CAMINHO_JSON, orient='records', force_ascii=False)
+# --- CORREÇÃO VITAL: PRESERVAR LINKS DOS PDFs ---
+# O script de impressão salva os links no JSON, mas o banco não tem essa coluna.
+# Aqui nós mesclamos os dados novos do banco com os links antigos do JSON.
 
-# Gera Parquet (Vital para o gerar_dashboard.py antigo funcionar sem erro)
-# Isso requer instalar pyarrow ou fastparquet: pip install pyarrow
+links_pdf_existentes = {}
+if os.path.exists(CAMINHO_JSON):
+    try:
+        with open(CAMINHO_JSON, 'r', encoding='utf-8') as f:
+            dados_antigos = json.load(f)
+            # Cria um mapa { "AIH": "caminho/do/pdf" }
+            for item in dados_antigos:
+                aih_key = str(item.get("aih", "")).strip()
+                pdf_link = item.get("arquivo_pdf")
+                if aih_key and pdf_link:
+                    links_pdf_existentes[aih_key] = pdf_link
+        print(f"   (Links de PDF recuperados: {len(links_pdf_existentes)})")
+    except Exception as e:
+        print(f"   ⚠️ Aviso: Erro ao ler JSON antigo: {e}")
+
+# Converte DataFrame para lista de dicionários para facilitar a mesclagem
+registros_finais = df_final.to_dict(orient='records')
+
+# Injeta os links de volta
+cont_links = 0
+for reg in registros_finais:
+    aih_atual = str(reg.get("aih", "")).strip()
+    if aih_atual in links_pdf_existentes:
+        reg["arquivo_pdf"] = links_pdf_existentes[aih_atual]
+        cont_links += 1
+
+print(f"   (Links aplicados no novo arquivo: {cont_links})")
+
+# Salva o JSON final mesclado (Com indentação para ficar legível)
+with open(CAMINHO_JSON, 'w', encoding='utf-8') as f:
+    json.dump(registros_finais, f, indent=4, ensure_ascii=False)
+
+# Gera Parquet (Backup)
 try:
     df_final.to_parquet(CAMINHO_PARQUET, index=False)
 except:
-    print("   (Aviso: Parquet não gerado - biblioteca pyarrow ausente, mas o JSON está ok)")
+    pass
 
-print(f"✅ SUCESSO! Base atualizada com {len(df_final)} registros.")
+print(f"✅ SUCESSO! Base atualizada com {len(registros_finais)} registros.")
