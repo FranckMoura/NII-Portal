@@ -33,9 +33,9 @@
             color: #0056b3;
             font-weight: bold;
             text-decoration: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
         a.paciente-link:hover {
             text-decoration: underline;
@@ -54,7 +54,7 @@
     <div class="filter-box">
         <i class="fas fa-filter" style="color:#0056b3"></i>
         <div><label>De:</label> <input type="date" id="minDate" value="2025-12-01"></div>
-        <div><label>Até:</label> <input type="date" id="maxDate" value="2025-12-16"></div>
+        <div><label>Até:</label> <input type="date" id="maxDate" value="2025-12-31"></div>
         <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
         <button onclick="limparFiltros()" style="background:#fff; color:#333; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo</button>
         <span id="loading" style="margin-left:10px; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando...</span>
@@ -84,7 +84,6 @@
         let table = null;
         let chartS = null, chartP = null;
 
-        // Adicione um timestamp para evitar cache do navegador
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
@@ -101,14 +100,15 @@
                         { 
                             data: "paciente",
                             render: function(data, type, row) {
-                                // AQUI ESTÁ A MÁGICA:
-                                // Se tiver link de PDF, cria um link clicável com o nome do paciente
-                                if (row.arquivo_pdf) {
-                                    return `<a href="${row.arquivo_pdf}" target="_blank" class="paciente-link" title="Abrir Ficha">
+                                // Se tiver link PDF, exibe ícone e link clicável
+                                if (row.arquivo_pdf && row.arquivo_pdf.length > 5) {
+                                    // Corrige barras invertidas do Windows para barras normais de URL
+                                    let linkSeguro = row.arquivo_pdf.replace(/\\/g, "/");
+                                    return `<a href="${linkSeguro}" target="_blank" class="paciente-link" title="Abrir Ficha">
                                                 <i class="fas fa-file-pdf"></i> ${data}
                                             </a>`;
                                 }
-                                // Se não tiver PDF, mostra só o nome normal
+                                // Senão, apenas o texto
                                 return data || "-";
                             }
                         },
