@@ -1,27 +1,5 @@
 [
     {
-        "data_visual": "24/12/2025",
-        "data_iso": "2025-12-24",
-        "paciente": "APROVADA",
-        "cns": "-",
-        "num_sol": "-",
-        "aih": "512510591111-2",
-        "proc": "Internação",
-        "status": "Pendente",
-        "arquivo_pdf": "Fichas_Internacao/AIH_512510591111-2_GII JHENEFER APARECIDA DO NASCIMENTO GII.pdf"
-    },
-    {
-        "data_visual": "24/12/2025",
-        "data_iso": "2025-12-24",
-        "paciente": "APROVADA",
-        "cns": "-",
-        "num_sol": "-",
-        "aih": "512510591114-5",
-        "proc": "Internação",
-        "status": "Pendente",
-        "arquivo_pdf": "Fichas_Internacao/AIH_512510591114-5_REBECA MANUELLA SOUSA MANO RODRIGUES.pdf"
-    },
-    {
         "data_visual": "23/12/2025",
         "paciente": "EMILLY RODRIGUES DAVID",
         "cns": "705007029964751",
@@ -1460,7 +1438,8 @@
         "proc": "HISTERECTOMIA TOTAL                                                                                                                                                                                                                                       ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-19"
+        "data_iso": "2025-12-19",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510592438-9_MIRLAINE AUXILIADORA DE SIQUEIRA RIBEIRO.pdf"
     },
     {
         "data_visual": "19/12/2025",
@@ -4375,7 +4354,8 @@
         "proc": "TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL                                                                                                                                                                                          ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-10"
+        "data_iso": "2025-12-10",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591470-9_RN DE LAURIANE RODRIGUES BATISTA.pdf"
     },
     {
         "data_visual": "10/12/2025",
@@ -4793,7 +4773,8 @@
         "proc": "TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-10"
+        "data_iso": "2025-12-10",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591258-6_LAURIANE RODRIGUES BATISTA.pdf"
     },
     {
         "data_visual": "10/12/2025",
@@ -4804,7 +4785,8 @@
         "proc": "TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL                                                                                                                                                                                          ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-10"
+        "data_iso": "2025-12-10",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591014-4_APROVADA.pdf"
     },
     {
         "data_visual": "10/12/2025",
@@ -4815,7 +4797,8 @@
         "proc": "TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-10"
+        "data_iso": "2025-12-10",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591257-5_APROVADA.pdf"
     },
     {
         "data_visual": "10/12/2025",
@@ -4848,7 +4831,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591246-5_APROVADA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4881,7 +4865,8 @@
         "proc": "PARTO NORMAL EM GESTAÇÃO DE ALTO RISCO                                                                                                                                                                                                                   ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591251-0_KAROLINE ALVES DA SILVA BARROS.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4892,7 +4877,8 @@
         "proc": "TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591245-4_ANIELI DE LURDES PINHO.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4903,7 +4889,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591256-4_JESSICA MATOS DE JESUS.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4914,7 +4901,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591247-6_LURIANNY ROXANA PAREJO MOHAMED.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4936,7 +4924,8 @@
         "proc": "COLECISTECTOMIA                                                                                                                                                                                                                                           ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510590893-4_CLEUSA APARECIDA SILVA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4947,7 +4936,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591249-8_JENIFFER DAIANE SILVA RODRIGUES.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -4991,7 +4981,8 @@
         "proc": "HISTERECTOMIA C/ ANEXECTOMIA (UNI / BILATERAL)                                                                                                                                                                                                            ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510590838-4_APROVADA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5035,7 +5026,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591252-0_LETICIA PEREIRA DA SILVA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5046,7 +5038,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591254-2_LORRAINY ALVES DOS SANTOS.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5057,7 +5050,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591243-2_RAFAELA STEFANY SILVA CINTRA FERREIRA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5068,7 +5062,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591244-3_APROVADA.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5112,7 +5107,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-09"
+        "data_iso": "2025-12-09",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591248-7_LARRISSA MARQUES DIAS.pdf"
     },
     {
         "data_visual": "09/12/2025",
@@ -5277,7 +5273,8 @@
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-08"
+        "data_iso": "2025-12-08",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591227-8_MICAELLY GOMES DE ALMEIDA E SILVA.pdf"
     },
     {
         "data_visual": "08/12/2025",
@@ -5363,7 +5360,7 @@
         "num_sol": "640517612",
         "aih": "512510591120-0",
         "proc": "TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL                                                                                                                                                                                          ",
-        "status": "Pendente",
+        "status": "Aprovado",
         "carater": "11",
         "data_iso": "2025-12-08",
         "arquivo_pdf": "Fichas_Internacao/AIH_512510591120-0_ISIS AURORA FERREIRA MOURA.pdf"
@@ -5432,7 +5429,8 @@
         "proc": "TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ                                                                                                                                                                                                        ",
         "status": "Aprovado",
         "carater": "11",
-        "data_iso": "2025-12-08"
+        "data_iso": "2025-12-08",
+        "arquivo_pdf": "Fichas_Internacao/AIH_512510591232-2_JULIANA DE SOUZA FERRAZ.pdf"
     },
     {
         "data_visual": "08/12/2025",
@@ -5606,7 +5604,7 @@
         "num_sol": "640467939",
         "aih": "512510591220-1",
         "proc": "PARTO NORMAL                                                                                                                                                                                                                                              ",
-        "status": "Pendente",
+        "status": "Aprovado",
         "carater": "11",
         "data_iso": "2025-12-08",
         "arquivo_pdf": "Fichas_Internacao/AIH_512510591220-1_APROVADA.pdf"
