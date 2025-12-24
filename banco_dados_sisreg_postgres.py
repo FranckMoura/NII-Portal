@@ -6,7 +6,7 @@ import json
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON (V45 - PRESERVAÇÃO ROBUSTA) ---")
+print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON (V46 - NORMALIZAÇÃO AGRESSIVA DE AIH) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO_DB = "postgres"
@@ -88,19 +88,23 @@ df_db.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
 print("   -> Gerando arquivos para o Portal...")
 df_final = pd.read_sql("SELECT * FROM sisreg_solicitacoes ORDER BY data_iso DESC", engine)
 
-# --- MESCLAGEM DE LINKS (CORREÇÃO V45) ---
+# --- MESCLAGEM DE LINKS (CORREÇÃO V46 - NORMALIZAÇÃO TOTAL) ---
+def normalizar_aih(valor):
+    """Remove tudo que não é dígito para garantir comparação exata."""
+    if not valor: return ""
+    return "".join(filter(str.isdigit, str(valor)))
+
 links_pdf_existentes = {}
 if os.path.exists(CAMINHO_JSON):
     try:
         with open(CAMINHO_JSON, 'r', encoding='utf-8') as f:
             dados_antigos = json.load(f)
             for item in dados_antigos:
-                # Normaliza a chave AIH (remove pontos, traços e espaços) para garantir o match
-                raw_aih = str(item.get("aih", ""))
-                aih_key = ''.join(filter(str.isdigit, raw_aih)) # Mantém só números
-                
+                aih_key = normalizar_aih(item.get("aih"))
                 pdf_link = item.get("arquivo_pdf")
-                if aih_key and pdf_link:
+                
+                # Só guarda se tiver AIH válida e link válido
+                if len(aih_key) > 5 and pdf_link:
                     links_pdf_existentes[aih_key] = pdf_link
         print(f"   (Links de PDF recuperados da memória: {len(links_pdf_existentes)})")
     except Exception as e:
@@ -112,8 +116,7 @@ registros_finais = df_final.to_dict(orient='records')
 # Injeta os links de volta
 cont_links = 0
 for reg in registros_finais:
-    raw_aih_db = str(reg.get("aih", ""))
-    aih_key_db = ''.join(filter(str.isdigit, raw_aih_db)) # Normaliza do mesmo jeito
+    aih_key_db = normalizar_aih(reg.get("aih"))
     
     if aih_key_db in links_pdf_existentes:
         reg["arquivo_pdf"] = links_pdf_existentes[aih_key_db]
