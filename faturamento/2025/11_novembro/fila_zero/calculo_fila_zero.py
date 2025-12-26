@@ -2,7 +2,7 @@
 # SISTEMA DE REPASSES - VERSÃO FILA ZERO (ADAPTADO)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Processa produção médica sem exigir arquivo de vínculo (rateio).
+# Descrição: Processa produção médica sem exigir arquivo de vínculos (rateio).
 # ==============================================================================
 
 import pdfplumber
