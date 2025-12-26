@@ -1,0 +1,134 @@
+# --- CONFIGURAÇÃO INICIAL ---
+# Define o caminho: Meus Documentos\Automacao_Faturamento
+$CaminhoPasta = "$HOME\Documents\Automacao_Faturamento"
+$NomeArquivo = "processar_relatorios.py"
+$CaminhoCompleto = Join-Path $CaminhoPasta $NomeArquivo
+
+# 1. CRIA A PASTA
+if (-not (Test-Path $CaminhoPasta)) {
+    New-Item -ItemType Directory -Path $CaminhoPasta | Out-Null
+    Write-Host "✅ Pasta criada: $CaminhoPasta" -ForegroundColor Green
+} else {
+    Write-Host "⚠️ A pasta já existe: $CaminhoPasta" -ForegroundColor Yellow
+}
+
+# 2. DEFINE O CONTEÚDO DO SCRIPT PYTHON (O Código Definitivo)
+# Usamos @' para garantir que o texto seja colado exatamente como é
+$CodigoPython = @'
+import pandas as pd
+import numpy as np
+import csv
+
+# --- 1. CONFIGURAÇÕES E FUNÇÕES ---
+
+def formatar_codigo_procedimento(valor):
+    """
+    Padroniza o código do procedimento para 10 dígitos com zeros à esquerda.
+    Ex: 80201003 -> 0080201003
+    """
+    if pd.isna(valor) or valor == '': return ''
+    texto = str(valor)
+    if texto.endswith('.0'): texto = texto.replace('.0', '')
+    texto = texto.strip()
+    return texto.zfill(10)
+
+def descobrir_prestador_correto(linha_atual):
+    """
+    MEMÓRIA DO SCRIPT: Define quem é o prestador baseado no nome do procedimento.
+    """
+    prestador_original = str(linha_atual.get('Prestador_Original', '')).strip()
+    descricao_proc = str(linha_atual.get('Desc_Procedimento', '')).upper()
+    grupo_proc = str(linha_atual.get('Grupo_Procedimento', '')).upper()
+    
+    # --- SUAS REGRAS DE PRESTADOR AQUI ---
+    if 'TOMOGRAFIA' in descricao_proc or 'TOMOGRAFIA' in grupo_proc:
+        return 'DIAG X'
+    elif 'ULTRASSONOGRAFIA' in descricao_proc or 'ECOGRAFIA' in descricao_proc:
+        return 'SANTA HELENA IMAGEM'
+    elif 'RAIO X' in descricao_proc or 'RADIOGRAFIA' in descricao_proc:
+        return 'RAIO X HOSPITAL'
+    
+    return prestador_original
+
+def limpar_valor_monetario(valor):
+    if pd.isna(valor) or valor == '': return 0.0
+    clean_val = str(valor).replace('R$', '').replace('.', '').replace(',', '.')
+    try: return float(clean_val)
+    except: return 0.0
+
+# --- 2. EXECUÇÃO ---
+
+print("Iniciando processamento inteligente...")
+
+try:
+    # Abre o arquivo CSV ignorando erros de formatação (modo leitura linha a linha)
+    with open('R_PROC_LANCAMENTOS.csv', 'r', encoding='latin1') as f:
+        linhas = f.readlines()
+    
+    lista_lancamentos = []
+    grupo_atual = "Indefinido"
+    
+    for linha in linhas:
+        reader = csv.reader([linha], delimiter=',')
+        cols = list(reader)[0]
+        
+        if not cols: continue 
+
+        texto_col0 = str(cols[0])
+        
+        # 1. Captura o GRUPO
+        if 'Grupo Procedimento:' in texto_col0:
+            partes = texto_col0.split(':')
+            if len(partes) > 1 and len(partes[1].strip()) > 1:
+                grupo_atual = partes[1].strip()
+            continue
+        
+        # 2. Identifica DADOS (Lógica baseada na posição das colunas)
+        if len(cols) > 15:
+            cod_proc_raw = cols[15]
+            if len(cod_proc_raw) > 3:
+                item = {
+                    'Grupo_Procedimento': grupo_atual,
+                    'Prestador_Original': cols[2] if len(cols) > 2 else '',
+                    'Atendimento': cols[4] if len(cols) > 4 else '',
+                    'AIH': cols[6] if len(cols) > 6 else '',
+                    'Paciente': cols[8] if len(cols) > 8 else '',
+                    'Data': cols[10] if len(cols) > 10 else '',
+                    'Cod_Procedimento': formatar_codigo_procedimento(cols[15]),
+                    'Desc_Procedimento': cols[16] if len(cols) > 16 else '',
+                    'Qtd': cols[20] if len(cols) > 20 else '0',
+                    'Valor': limpar_valor_monetario(cols[21]) if len(cols) > 21 else 0.0
+                }
+                
+                if str(item['AIH']).startswith('512') or str(item['AIH']).startswith('42'):
+                    item['Prestador_Final'] = descobrir_prestador_correto(item)
+                    lista_lancamentos.append(item)
+
+    # 3. Gera Excel Final
+    if lista_lancamentos:
+        df_final = pd.DataFrame(lista_lancamentos)
+        colunas_ordem = ['Grupo_Procedimento', 'Prestador_Final', 'AIH', 'Paciente', 
+                         'Cod_Procedimento', 'Desc_Procedimento', 'Qtd', 'Valor', 'Prestador_Original']
+        cols_existentes = [c for c in colunas_ordem if c in df_final.columns]
+        
+        df_final[cols_existentes].to_excel('Relatorio_Auditoria_Inteligente.xlsx', index=False)
+        print(f"Sucesso! {len(df_final)} linhas processadas.")
+        print("Arquivo salvo: Relatorio_Auditoria_Inteligente.xlsx")
+    else:
+        print("Aviso: Nenhuma linha de dados válida foi encontrada. Verifique se o arquivo R_PROC_LANCAMENTOS.csv está na pasta.")
+
+except Exception as e:
+    print(f"Ocorreu um erro: {e}")
+'@
+
+# 3. GRAVA O ARQUIVO NO DISCO
+Set-Content -Path $CaminhoCompleto -Value $CodigoPython -Encoding UTF8
+Write-Host "✅ Arquivo Python criado em: $CaminhoCompleto" -ForegroundColor Green
+
+# 4. ABRE O VS CODE (Tenta abrir direto na pasta)
+Write-Host "🔄 Tentando abrir o VS Code..." -ForegroundColor Cyan
+try {
+    code $CaminhoPasta
+} catch {
+    Write-Host "⚠️ VS Code não encontrado no atalho 'code'. Abra manualmente a pasta em Documentos." -ForegroundColor Red
+}
