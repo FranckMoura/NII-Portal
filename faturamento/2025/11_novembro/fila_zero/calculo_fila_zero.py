@@ -1,8 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - VERSÃO FILA ZERO (ADAPTADO)
+# SISTEMA DE REPASSES - VERSÃO FILA ZERO (COM DETALHAMENTO)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Processa produção médica sem exigir arquivo de vínculos (rateio).
+# Descrição: Processa produção médica e gera relatório com abas (Resumo/Detalhado).
 # ==============================================================================
 
 import pdfplumber
@@ -25,14 +25,13 @@ pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 ARQUIVO_PDF_RATEIO_RECEITA = pdf_receita[0] if pdf_receita else "NAO_ENCONTRADO"
 ARQUIVO_PDF_PRODUCAO_CONTA = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
-print(f"--- Processando Fila Zero na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
+print(f"--- Processando Fila Zero (Com Detalhes) na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
 
 # ==============================================================================
-# 2. FUNÇÕES DE EXTRAÇÃO (ADAPTADAS)
+# 2. FUNÇÕES DE EXTRAÇÃO
 # ==============================================================================
 
 def extrair_competencia(nome_arquivo):
-    """Tenta extrair mês/ano do nome do arquivo (ex: 1125 -> Novembro/2025)"""
     match = re.search(r'_(\d{2})(\d{2})\.pdf', nome_arquivo)
     if match:
         mes, ano = match.groups()
@@ -45,19 +44,15 @@ def extrair_competencia(nome_arquivo):
     return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
 
 def ler_valor_total_receita(caminho_pdf):
-    """Lê o valor total do PDF de Receita (apenas informativo no Fila Zero)"""
     if not os.path.exists(caminho_pdf): return 0.0
-    
     total = 0.0
     with pdfplumber.open(caminho_pdf) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
             for line in text.split('\n'):
                 if "Total" in line or "TOTAL" in line:
-                    # Procura valores monetários na linha de total
                     valores = re.findall(r'[\d\.]*[\d]\,\d{2}', line)
                     if valores:
-                        # Pega o último valor da linha (geralmente é o total geral)
                         v_str = valores[-1].replace('.', '').replace(',', '.')
                         try:
                             v = float(v_str)
@@ -65,60 +60,88 @@ def ler_valor_total_receita(caminho_pdf):
                         except: pass
     return total
 
-def processar_producao_individual():
-    """Lê o PDF de produção por conta e soma por médico"""
+def processar_producao_detalhada():
+    """
+    Lê o PDF e extrai linha a linha para criar o detalhamento.
+    Tenta capturar AIH e Procedimento do contexto.
+    """
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print("❌ Arquivo de Produção não encontrado.")
         return pd.DataFrame()
 
-    dados = []
-    medico_atual = "DESCONHECIDO"
+    dados_detalhados = []
     
+    # Variáveis de Estado (Memória do loop)
+    medico_atual = "DESCONHECIDO"
+    aih_atual = "-"
+    proc_atual = "-"
+    data_atual = "-"
+
     with pdfplumber.open(ARQUIVO_PDF_PRODUCAO_CONTA) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
+            if not text: continue
             lines = text.split('\n')
             
             for line in lines:
-                # Detecta nome do médico (geralmente linhas que não começam com data/número e têm nome)
-                # No padrão SoulMV, o nome do médico vem no cabeçalho ou antes da tabela
-                # Vamos tentar uma heurística simples: se a linha tem nome e (CRM ou código)
-                if re.search(r'\(\d+\)', line) and not "Competência" in line and not "Página" in line:
-                     # Remove números entre parênteses para limpar o nome
+                # 1. Detecta Médico (Nome seguido de CRM/Código entre parênteses)
+                # Ex: DEBORAH MARIA (306)
+                if re.search(r'\(\d+\)', line) and not "Competência" in line and not "Página" in line and not "Total" in line:
                      medico_atual = re.sub(r'\(\d+\)', '', line).strip()
+                
+                # 2. Detecta AIH (13 dígitos começando com 5, comum no MT)
+                match_aih = re.search(r'\b(5\d{12})\b', line)
+                if match_aih:
+                    aih_atual = match_aih.group(1)
+                    
+                    # Tenta pegar data na mesma linha (dd/mm)
+                    match_data = re.search(r'\d{2}/\d{2}', line)
+                    if match_data: data_atual = match_data.group(0)
 
-                # Detecta linha de procedimento com valor (ex: "484,42")
-                # Procura padrão de valor no fim da linha
+                # 3. Detecta Procedimento (Geralmente texto maiúsculo com código antes)
+                # Ex: 0408050160 RECONSTRUCAO...
+                match_proc = re.search(r'\d{10}\s+(.*)', line)
+                if match_proc:
+                    # Pega o texto do procedimento, limpando valores no final se houver
+                    proc_temp = match_proc.group(1)
+                    proc_atual = re.split(r'\d{1,3}[\.,]', proc_temp)[0].strip() # Corta antes do valor
+
+                # 4. Detecta Linha de Valor (Onde ocorre o pagamento)
+                # Procura valor monetário no final da linha
                 match_valor = re.search(r'(\d{1,3}(?:\.\d{3})*,\d{2})\s*$', line)
                 
-                # Para evitar pegar linhas de totalização parcial, verificamos se tem código de proc
-                # ou se parece uma linha de item.
-                if match_valor and ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line):
+                # Filtros para garantir que é linha de produção médica válida
+                eh_item_pagamento = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
+                
+                if match_valor and eh_item_pagamento:
                     valor_str = match_valor.group(1).replace('.', '').replace(',', '.')
                     valor = float(valor_str)
                     
-                    dados.append({
+                    # Adiciona ao relatório detalhado
+                    dados_detalhados.append({
                         'Prestador': medico_atual,
-                        'Valor_Producao': valor
+                        'Data': data_atual,
+                        'AIH': aih_atual,
+                        'Procedimento': proc_atual if len(proc_atual) > 3 else "PROCEDIMENTO PADRÃO",
+                        'Valor': valor
                     })
 
-    if not dados:
+    if not dados_detalhados:
         return pd.DataFrame()
 
-    df = pd.DataFrame(dados)
-    # Agrupa por médico e soma
-    df_agrupado = df.groupby('Prestador')['Valor_Producao'].sum().reset_index()
-    return df_agrupado
+    return pd.DataFrame(dados_detalhados)
 
 # ==============================================================================
-# 3. GERAÇÃO DO HTML
+# 3. GERAÇÃO DO HTML (COM ABAS)
 # ==============================================================================
 
-def gerar_html_fila_zero(df_indiv, nome_arquivo, competencia_label, total_receita):
-    total_repassar = df_indiv['Valor_Producao'].sum()
+def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_receita):
     
-    # Ordena por valor
-    df_indiv = df_indiv.sort_values(by='Valor_Producao', ascending=False)
+    # Cria o DataFrame de Resumo (Agrupado)
+    df_resumo = df_detalhado.groupby('Prestador')['Valor'].sum().reset_index()
+    df_resumo = df_resumo.sort_values(by='Valor', ascending=False)
+    
+    total_repassar = df_resumo['Valor'].sum()
 
     html = f"""
     <!DOCTYPE html>
@@ -126,70 +149,130 @@ def gerar_html_fila_zero(df_indiv, nome_arquivo, competencia_label, total_receit
     <head>
         <meta charset='UTF-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <title>Repasse Fila Zero - {competencia_label}</title>
+        <title>Fila Zero - {competencia_label}</title>
         <script src='https://cdn.tailwindcss.com'></script>
         <link rel='stylesheet' href='https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
             body {{ font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }}
             .header-bg {{ background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }}
-            .card {{ background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1.5rem; }}
+            .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 2rem; }}
+            .tab-btn {{ cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }}
+            .tab-btn:hover {{ color: #1d4ed8; }}
+            .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
+            .hidden {{ display: none; }}
         </style>
     </head>
     <body class='text-gray-800'>
         
-        <div class='header-bg p-6 shadow-lg mb-8'>
+        <div class='header-bg p-8 shadow-lg mb-8'>
             <div class='max-w-7xl mx-auto'>
-                <h1 class='text-3xl font-bold'>Relatório de Repasse - FILA ZERO</h1>
-                <p class='text-blue-100 mt-2'>Competência: {competencia_label} | Gerado em: {datetime.now().strftime("%d/%m/%Y")}</p>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-invoice-dollar text-3xl"></i></div>
+                    <div>
+                        <h1 class='text-3xl font-bold'>Relatório Fila Zero</h1>
+                        <p class='text-blue-100'>Competência: {competencia_label} | Gerado em: {datetime.now().strftime("%d/%m/%Y")}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class='max-w-7xl mx-auto px-4'>
             
-            <div class='grid grid-cols-1 md:grid-cols-2 gap-6 mb-8'>
-                <div class='card border-l-4 border-blue-500'>
-                    <h3 class='text-gray-500 text-sm font-medium'>Receita Total (Procedimentos)</h3>
-                    <p class='text-2xl font-bold text-gray-800'>R$ {total_receita:,.2f}</p>
+            <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
+                <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
+                    <div>
+                        <h3 class='text-gray-500 text-sm font-medium'>Receita Total (Procedimentos)</h3>
+                        <p class='text-2xl font-bold text-gray-800'>R$ {total_receita:,.2f}</p>
+                    </div>
+                    <i class="fa-solid fa-money-bill-wave text-blue-200 text-3xl"></i>
                 </div>
-                <div class='card border-l-4 border-green-500'>
-                    <h3 class='text-gray-500 text-sm font-medium'>Total a Repassar (Produção)</h3>
-                    <p class='text-2xl font-bold text-green-600'>R$ {total_repassar:,.2f}</p>
-                    <p class='text-xs text-gray-400'>Soma da produção individual identificada</p>
+                <div class='card border-l-4 border-green-500 flex items-center justify-between'>
+                    <div>
+                        <h3 class='text-gray-500 text-sm font-medium'>Total a Repassar (Produção)</h3>
+                        <p class='text-2xl font-bold text-green-600'>R$ {total_repassar:,.2f}</p>
+                    </div>
+                    <i class="fa-solid fa-hand-holding-dollar text-green-200 text-3xl"></i>
+                </div>
+                 <div class='card border-l-4 border-purple-500 flex items-center justify-between'>
+                    <div>
+                        <h3 class='text-gray-500 text-sm font-medium'>Total de Procedimentos</h3>
+                        <p class='text-2xl font-bold text-purple-600'>{len(df_detalhado)}</p>
+                    </div>
+                    <i class="fa-solid fa-notes-medical text-purple-200 text-3xl"></i>
                 </div>
             </div>
 
-            <div class='card mb-8'>
-                <h2 class='text-xl font-bold mb-4 text-gray-700 border-b pb-2'>Detalhamento por Profissional</h2>
-                <div class='overflow-x-auto'>
-                    <table id='tbl-fila-zero' class='display w-full text-sm text-left text-gray-500'>
+            <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4">
+                <button id="btn-resumo" class="tab-btn active" onclick="verTab('resumo')">
+                    <i class="fa-solid fa-list mr-2"></i> Visão Resumida
+                </button>
+                <button id="btn-detalhado" class="tab-btn" onclick="verTab('detalhado')">
+                    <i class="fa-solid fa-table-list mr-2"></i> Detalhamento dos Procedimentos
+                </button>
+            </div>
+
+            <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
+                
+                <div id="tab-resumo" class="view-tab">
+                    <h2 class='text-xl font-bold mb-4 text-gray-700'>Resumo por Profissional</h2>
+                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
                         <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
                             <tr>
                                 <th>Profissional</th>
-                                <th class='text-right'>Valor Produção (R$)</th>
+                                <th class='text-right'>Valor Total (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    """
+    for _, row in df_resumo.iterrows():
+        html += f"""
+            <tr>
+                <td class='font-medium text-gray-900'>{row['Prestador']}</td>
+                <td class='text-right font-bold text-blue-600'>{row['Valor']:,.2f}</td>
+            </tr>
+        """
+    
+    html += """
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-right">R$ """ + f"{total_repassar:,.2f}" + """</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div id="tab-detalhado" class="view-tab hidden">
+                    <h2 class='text-xl font-bold mb-4 text-gray-700'>Detalhamento Completo</h2>
+                    <table id='tbl-detalhado' class='display w-full text-sm text-left text-gray-500'>
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
+                            <tr>
+                                <th>Data</th>
+                                <th>AIH</th>
+                                <th>Profissional</th>
+                                <th>Procedimento</th>
+                                <th class='text-right'>Valor (R$)</th>
                             </tr>
                         </thead>
                         <tbody>
     """
     
-    for _, row in df_indiv.iterrows():
+    for _, row in df_detalhado.iterrows():
         html += f"""
-            <tr class='bg-white border-b hover:bg-gray-50'>
-                <td class='font-medium text-gray-900'>{row['Prestador']}</td>
-                <td class='text-right font-bold text-blue-600'>{row['Valor_Producao']:,.2f}</td>
+            <tr>
+                <td>{row['Data']}</td>
+                <td>{row['AIH']}</td>
+                <td class='font-medium'>{row['Prestador']}</td>
+                <td>{row['Procedimento']}</td>
+                <td class='text-right'>{row['Valor']:,.2f}</td>
             </tr>
         """
 
     html += """
                         </tbody>
-                        <tfoot>
-                            <tr class='font-bold bg-gray-100'>
-                                <td>TOTAL GERAL</td>
-                                <td class='text-right'>R$ """ + f"{total_repassar:,.2f}" + """</td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
+
             </div>
         </div>
 
@@ -201,17 +284,26 @@ def gerar_html_fila_zero(df_indiv, nome_arquivo, competencia_label, total_receit
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#tbl-fila-zero').DataTable({
+                var config = {
                     language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
                     dom: 'Bfrtip',
                     buttons: [
-                        { extend: 'excel', text: 'Exportar Excel', className: 'bg-green-500 text-white px-4 py-2 rounded' },
-                        { extend: 'print', text: 'Imprimir', className: 'bg-blue-500 text-white px-4 py-2 rounded' }
+                        { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700' },
+                        { extend: 'print', text: '<i class="fa-solid fa-print"></i> Imprimir', className: 'bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700' }
                     ],
-                    pageLength: 50,
-                    order: [[1, 'desc']]
-                });
+                    pageLength: 25
+                };
+                
+                $('#tbl-resumo').DataTable(config);
+                $('#tbl-detalhado').DataTable(config);
             });
+
+            function verTab(id) {
+                $('.view-tab').addClass('hidden');
+                $('#tab-' + id).removeClass('hidden');
+                $('.tab-btn').removeClass('active');
+                $('#btn-' + id).addClass('active');
+            }
         </script>
     </body>
     </html>
@@ -219,28 +311,23 @@ def gerar_html_fila_zero(df_indiv, nome_arquivo, competencia_label, total_receit
     
     with open(nome_arquivo, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✅ Relatório HTML gerado: {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado com abas: {os.path.basename(nome_arquivo)}")
 
 # ==============================================================================
 # 4. ATUALIZAÇÃO DO PORTAL (JSON)
 # ==============================================================================
 
 def atualizar_portal(novo_registro):
-    # Procura a pasta 'arquivos' subindo níveis
     caminho_atual = PASTA_SCRIPT
     caminho_json = None
-    
-    # Tenta subir até 4 níveis para achar a pasta "arquivos"
     for _ in range(4):
         teste = os.path.join(caminho_atual, 'arquivos', 'dados_financeiro.json')
         if os.path.exists(teste):
             caminho_json = teste
             break
-        caminho_atual = os.path.dirname(caminho_atual) # Sobe um nível
+        caminho_atual = os.path.dirname(caminho_atual)
     
     if not caminho_json:
-        # Tenta hardcoded se a busca falhar (baseado no seu padrão)
-        # c:/Users/DELL/OneDrive/NII-Portal-1/arquivos/dados_financeiro.json
         caminho_json = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos\dados_financeiro.json"
     
     print(f"   -> Atualizando JSON do portal em: {caminho_json}")
@@ -252,10 +339,7 @@ def atualizar_portal(novo_registro):
         else:
             dados = []
 
-        # Remove duplicatas se já existir (mesmo título)
         dados = [d for d in dados if d['titulo'] != novo_registro['titulo']]
-        
-        # Adiciona o novo no topo
         dados.insert(0, novo_registro)
 
         with open(caminho_json, 'w', encoding='utf-8') as f:
@@ -270,30 +354,21 @@ def atualizar_portal(novo_registro):
 # ==============================================================================
 
 if __name__ == "__main__":
-    # 1. Dados Básicos
     receita_total = ler_valor_total_receita(ARQUIVO_PDF_RATEIO_RECEITA)
     
-    # 2. Produção Individual
-    print("   -> Lendo produção individual...")
-    df_indiv = processar_producao_individual()
+    print("   -> Lendo produção detalhada (AIH, Procedimento, Valor)...")
+    df_detalhado = processar_producao_detalhada()
     
-    if not df_indiv.empty:
-        total_prod = df_indiv['Valor_Producao'].sum()
+    if not df_detalhado.empty:
+        total_prod = df_detalhado['Valor'].sum()
         print(f"   -> Produção identificada: R$ {total_prod:,.2f}")
         
-        # 3. Gerar Relatório
         comp_label, comp_sufixo = extrair_competencia(os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA))
         nome_html = os.path.join(PASTA_SCRIPT, f"relatorio_fila_zero_{comp_sufixo}.html")
         
-        gerar_html_fila_zero(df_indiv, nome_html, comp_label, receita_total)
+        gerar_html_com_abas(df_detalhado, nome_html, comp_label, receita_total)
         
-        # 4. Registrar no Portal
-        # O caminho do arquivo no JSON deve ser relativo à raiz do site
-        # Ex: faturamento/2025/11_novembro/fila zero/relatorio...
-        
-        # Pega o caminho relativo a partir da pasta raiz do projeto (NII-Portal-1)
         caminho_relativo = os.path.relpath(nome_html, r"C:\Users\DELL\OneDrive\NII-Portal-1")
-        # Corrige barras para web (/)
         caminho_web = caminho_relativo.replace("\\", "/")
         
         reg = {
