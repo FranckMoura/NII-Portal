@@ -2,16 +2,16 @@
     {
         "nome": "auditoria_financeira.xlsx",
         "caminho": "arquivos/auditoria_financeira.xlsx",
-        "tamanho": "36.33 KB",
-        "data": "24/12/2025",
+        "tamanho": "36.37 KB",
+        "data": "26/12/2025",
         "tipo": "outro",
         "icone": "📄"
     },
     {
         "nome": "base_sisreg.parquet",
         "caminho": "arquivos/base_sisreg.parquet",
-        "tamanho": "164.27 KB",
-        "data": "24/12/2025",
+        "tamanho": "166.23 KB",
+        "data": "26/12/2025",
         "tipo": "parquet",
         "icone": "📦"
     },
@@ -26,7 +26,7 @@
     {
         "nome": "dados_sisreg.json",
         "caminho": "arquivos/dados_sisreg.json",
-        "tamanho": "2007.64 KB",
+        "tamanho": "1621.42 KB",
         "data": "26/12/2025",
         "tipo": "outro",
         "icone": "📄"
@@ -35,7 +35,7 @@
         "nome": "dados_tabnet.json",
         "caminho": "arquivos/dados_tabnet.json",
         "tamanho": "19.54 KB",
-        "data": "24/12/2025",
+        "data": "26/12/2025",
         "tipo": "outro",
         "icone": "📄"
     },
