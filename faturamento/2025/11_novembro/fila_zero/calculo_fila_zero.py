@@ -1,8 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - VERSÃO FILA ZERO (COM DETALHAMENTO)
+# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V2.1 - CONTAGEM POR AIH)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Processa produção médica e gera relatório com abas (Resumo/Detalhado).
+# Descrição: Processa produção médica, gera abas e conta procedimentos por AIH única.
 # ==============================================================================
 
 import pdfplumber
@@ -25,7 +25,7 @@ pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 ARQUIVO_PDF_RATEIO_RECEITA = pdf_receita[0] if pdf_receita else "NAO_ENCONTRADO"
 ARQUIVO_PDF_PRODUCAO_CONTA = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
-print(f"--- Processando Fila Zero (Com Detalhes) na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
+print(f"--- Processando Fila Zero (V2.1) na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
 
 # ==============================================================================
 # 2. FUNÇÕES DE EXTRAÇÃO
@@ -49,6 +49,7 @@ def ler_valor_total_receita(caminho_pdf):
     with pdfplumber.open(caminho_pdf) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
+            if not text: continue
             for line in text.split('\n'):
                 if "Total" in line or "TOTAL" in line:
                     valores = re.findall(r'[\d\.]*[\d]\,\d{2}', line)
@@ -61,17 +62,13 @@ def ler_valor_total_receita(caminho_pdf):
     return total
 
 def processar_producao_detalhada():
-    """
-    Lê o PDF e extrai linha a linha para criar o detalhamento.
-    Tenta capturar AIH e Procedimento do contexto.
-    """
     if not os.path.exists(ARQUIVO_PDF_PRODUCAO_CONTA):
         print("❌ Arquivo de Produção não encontrado.")
         return pd.DataFrame()
 
     dados_detalhados = []
     
-    # Variáveis de Estado (Memória do loop)
+    # Memória do loop
     medico_atual = "DESCONHECIDO"
     aih_atual = "-"
     proc_atual = "-"
@@ -84,45 +81,40 @@ def processar_producao_detalhada():
             lines = text.split('\n')
             
             for line in lines:
-                # 1. Detecta Médico (Nome seguido de CRM/Código entre parênteses)
-                # Ex: DEBORAH MARIA (306)
+                # 1. Médico
                 if re.search(r'\(\d+\)', line) and not "Competência" in line and not "Página" in line and not "Total" in line:
                      medico_atual = re.sub(r'\(\d+\)', '', line).strip()
                 
-                # 2. Detecta AIH (13 dígitos começando com 5, comum no MT)
+                # 2. AIH (Prioridade para o padrão 5 + 12 dígitos)
                 match_aih = re.search(r'\b(5\d{12})\b', line)
                 if match_aih:
                     aih_atual = match_aih.group(1)
-                    
-                    # Tenta pegar data na mesma linha (dd/mm)
+                    # Data na mesma linha
                     match_data = re.search(r'\d{2}/\d{2}', line)
                     if match_data: data_atual = match_data.group(0)
 
-                # 3. Detecta Procedimento (Geralmente texto maiúsculo com código antes)
-                # Ex: 0408050160 RECONSTRUCAO...
+                # 3. Procedimento
                 match_proc = re.search(r'\d{10}\s+(.*)', line)
                 if match_proc:
-                    # Pega o texto do procedimento, limpando valores no final se houver
                     proc_temp = match_proc.group(1)
-                    proc_atual = re.split(r'\d{1,3}[\.,]', proc_temp)[0].strip() # Corta antes do valor
+                    # Remove valores do fim da string para pegar só o nome
+                    proc_atual = re.split(r'\d{1,3}[\.,]', proc_temp)[0].strip()
 
-                # 4. Detecta Linha de Valor (Onde ocorre o pagamento)
-                # Procura valor monetário no final da linha
+                # 4. Valores
                 match_valor = re.search(r'(\d{1,3}(?:\.\d{3})*,\d{2})\s*$', line)
                 
-                # Filtros para garantir que é linha de produção médica válida
+                # Filtros de item médico válido
                 eh_item_pagamento = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
                 
                 if match_valor and eh_item_pagamento:
                     valor_str = match_valor.group(1).replace('.', '').replace(',', '.')
                     valor = float(valor_str)
                     
-                    # Adiciona ao relatório detalhado
                     dados_detalhados.append({
                         'Prestador': medico_atual,
                         'Data': data_atual,
                         'AIH': aih_atual,
-                        'Procedimento': proc_atual if len(proc_atual) > 3 else "PROCEDIMENTO PADRÃO",
+                        'Procedimento': proc_atual if len(proc_atual) > 3 else "PROCEDIMENTO",
                         'Valor': valor
                     })
 
@@ -132,16 +124,26 @@ def processar_producao_detalhada():
     return pd.DataFrame(dados_detalhados)
 
 # ==============================================================================
-# 3. GERAÇÃO DO HTML (COM ABAS)
+# 3. GERAÇÃO DO HTML (CORRIGIDO)
 # ==============================================================================
 
 def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_receita):
     
-    # Cria o DataFrame de Resumo (Agrupado)
+    # Resumo financeiro por médico
     df_resumo = df_detalhado.groupby('Prestador')['Valor'].sum().reset_index()
     df_resumo = df_resumo.sort_values(by='Valor', ascending=False)
     
     total_repassar = df_resumo['Valor'].sum()
+    
+    # === CORREÇÃO DA CONTAGEM ===
+    # Conta apenas AIHs únicas (ignora duplicatas de equipe)
+    # Filtra AIHs inválidas ('-') para não contar 1 a mais se houver erro
+    aihs_validas = df_detalhado[df_detalhado['AIH'] != '-']['AIH'].unique()
+    qtd_procedimentos_reais = len(aihs_validas)
+    
+    # Se der 0 (erro de leitura), usa o count simples, mas o ideal é a AIH
+    if qtd_procedimentos_reais == 0: 
+        qtd_procedimentos_reais = len(df_detalhado)
 
     html = f"""
     <!DOCTYPE html>
@@ -198,7 +200,8 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                  <div class='card border-l-4 border-purple-500 flex items-center justify-between'>
                     <div>
                         <h3 class='text-gray-500 text-sm font-medium'>Total de Procedimentos</h3>
-                        <p class='text-2xl font-bold text-purple-600'>{len(df_detalhado)}</p>
+                        <p class='text-2xl font-bold text-purple-600'>{qtd_procedimentos_reais}</p>
+                        <p class='text-xs text-gray-400'>Baseado em AIHs únicas</p>
                     </div>
                     <i class="fa-solid fa-notes-medical text-purple-200 text-3xl"></i>
                 </div>
@@ -272,7 +275,6 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
 
@@ -293,11 +295,9 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                     ],
                     pageLength: 25
                 };
-                
                 $('#tbl-resumo').DataTable(config);
                 $('#tbl-detalhado').DataTable(config);
             });
-
             function verTab(id) {
                 $('.view-tab').addClass('hidden');
                 $('#tab-' + id).removeClass('hidden');
@@ -311,7 +311,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
     
     with open(nome_arquivo, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✅ Relatório HTML gerado com abas: {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado (Contagem: {qtd_procedimentos_reais} AIHs): {os.path.basename(nome_arquivo)}")
 
 # ==============================================================================
 # 4. ATUALIZAÇÃO DO PORTAL (JSON)
@@ -330,8 +330,6 @@ def atualizar_portal(novo_registro):
     if not caminho_json:
         caminho_json = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos\dados_financeiro.json"
     
-    print(f"   -> Atualizando JSON do portal em: {caminho_json}")
-
     try:
         if os.path.exists(caminho_json):
             with open(caminho_json, 'r', encoding='utf-8') as f:
@@ -356,12 +354,11 @@ def atualizar_portal(novo_registro):
 if __name__ == "__main__":
     receita_total = ler_valor_total_receita(ARQUIVO_PDF_RATEIO_RECEITA)
     
-    print("   -> Lendo produção detalhada (AIH, Procedimento, Valor)...")
+    print("   -> Lendo produção detalhada...")
     df_detalhado = processar_producao_detalhada()
     
     if not df_detalhado.empty:
         total_prod = df_detalhado['Valor'].sum()
-        print(f"   -> Produção identificada: R$ {total_prod:,.2f}")
         
         comp_label, comp_sufixo = extrair_competencia(os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA))
         nome_html = os.path.join(PASTA_SCRIPT, f"relatorio_fila_zero_{comp_sufixo}.html")
