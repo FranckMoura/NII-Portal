@@ -1,8 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V2.1 - CONTAGEM POR AIH)
+# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V3.0 - IMPRESSÃO FIDEDIGNA)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Processa produção médica, gera abas e conta procedimentos por AIH única.
+# Descrição: Layout de impressão ajustado para ser idêntico à tela (WYSIWYG).
 # ==============================================================================
 
 import pdfplumber
@@ -25,7 +25,7 @@ pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 ARQUIVO_PDF_RATEIO_RECEITA = pdf_receita[0] if pdf_receita else "NAO_ENCONTRADO"
 ARQUIVO_PDF_PRODUCAO_CONTA = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
-print(f"--- Processando Fila Zero (V2.1) na pasta: {os.path.basename(PASTA_SCRIPT)} ---")
+print(f"--- Processando Fila Zero (V3.0 - Impressão Visual) ---")
 
 # ==============================================================================
 # 2. FUNÇÕES DE EXTRAÇÃO
@@ -68,7 +68,6 @@ def processar_producao_detalhada():
 
     dados_detalhados = []
     
-    # Memória do loop
     medico_atual = "DESCONHECIDO"
     aih_atual = "-"
     proc_atual = "-"
@@ -81,29 +80,21 @@ def processar_producao_detalhada():
             lines = text.split('\n')
             
             for line in lines:
-                # 1. Médico
-                if re.search(r'\(\d+\)', line) and not "Competência" in line and not "Página" in line and not "Total" in line:
+                if re.search(r'\(\d+\)', line) and not "Competência" in line:
                      medico_atual = re.sub(r'\(\d+\)', '', line).strip()
                 
-                # 2. AIH (Prioridade para o padrão 5 + 12 dígitos)
                 match_aih = re.search(r'\b(5\d{12})\b', line)
                 if match_aih:
                     aih_atual = match_aih.group(1)
-                    # Data na mesma linha
                     match_data = re.search(r'\d{2}/\d{2}', line)
                     if match_data: data_atual = match_data.group(0)
 
-                # 3. Procedimento
                 match_proc = re.search(r'\d{10}\s+(.*)', line)
                 if match_proc:
                     proc_temp = match_proc.group(1)
-                    # Remove valores do fim da string para pegar só o nome
                     proc_atual = re.split(r'\d{1,3}[\.,]', proc_temp)[0].strip()
 
-                # 4. Valores
                 match_valor = re.search(r'(\d{1,3}(?:\.\d{3})*,\d{2})\s*$', line)
-                
-                # Filtros de item médico válido
                 eh_item_pagamento = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
                 
                 if match_valor and eh_item_pagamento:
@@ -118,32 +109,23 @@ def processar_producao_detalhada():
                         'Valor': valor
                     })
 
-    if not dados_detalhados:
-        return pd.DataFrame()
-
+    if not dados_detalhados: return pd.DataFrame()
     return pd.DataFrame(dados_detalhados)
 
 # ==============================================================================
-# 3. GERAÇÃO DO HTML (CORRIGIDO)
+# 3. GERAÇÃO DO HTML (IMPRESSÃO PERFEITA)
 # ==============================================================================
 
 def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_receita):
     
-    # Resumo financeiro por médico
     df_resumo = df_detalhado.groupby('Prestador')['Valor'].sum().reset_index()
     df_resumo = df_resumo.sort_values(by='Valor', ascending=False)
     
     total_repassar = df_resumo['Valor'].sum()
     
-    # === CORREÇÃO DA CONTAGEM ===
-    # Conta apenas AIHs únicas (ignora duplicatas de equipe)
-    # Filtra AIHs inválidas ('-') para não contar 1 a mais se houver erro
     aihs_validas = df_detalhado[df_detalhado['AIH'] != '-']['AIH'].unique()
     qtd_procedimentos_reais = len(aihs_validas)
-    
-    # Se der 0 (erro de leitura), usa o count simples, mas o ideal é a AIH
-    if qtd_procedimentos_reais == 0: 
-        qtd_procedimentos_reais = len(df_detalhado)
+    if qtd_procedimentos_reais == 0: qtd_procedimentos_reais = len(df_detalhado)
 
     html = f"""
     <!DOCTYPE html>
@@ -158,12 +140,27 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
             body {{ font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }}
-            .header-bg {{ background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }}
-            .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 2rem; }}
+            
+            /* Estilo dos Cards e Header */
+            .header-bg {{ background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; color: white !important; }}
+            .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e5e7eb; }}
             .tab-btn {{ cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }}
-            .tab-btn:hover {{ color: #1d4ed8; }}
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
-            .hidden {{ display: none; }}
+            .hidden {{ display: none !important; }}
+
+            /* === CONFIGURAÇÃO DE IMPRESSÃO (O SEGREDO) === */
+            @media print {{
+                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; }}
+                .no-print {{ display: none !important; }} /* Esconde botões na impressão */
+                .header-bg {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+                .card {{ break-inside: avoid; border: 1px solid #ddd !important; box-shadow: none !important; }}
+                .dataTables_wrapper .dataTables_length, 
+                .dataTables_wrapper .dataTables_filter, 
+                .dataTables_wrapper .dataTables_info, 
+                .dataTables_wrapper .dataTables_paginate {{ display: none !important; }} /* Esconde controles da tabela */
+                table {{ width: 100% !important; }}
+                th {{ background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact !important; }}
+            }}
         </style>
     </head>
     <body class='text-gray-800'>
@@ -185,34 +182,33 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
             <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
                 <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
                     <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Receita Total (Procedimentos)</h3>
+                        <h3 class='text-gray-500 text-sm font-medium'>Receita Total</h3>
                         <p class='text-2xl font-bold text-gray-800'>R$ {total_receita:,.2f}</p>
                     </div>
                     <i class="fa-solid fa-money-bill-wave text-blue-200 text-3xl"></i>
                 </div>
                 <div class='card border-l-4 border-green-500 flex items-center justify-between'>
                     <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Total a Repassar (Produção)</h3>
+                        <h3 class='text-gray-500 text-sm font-medium'>Total a Repassar</h3>
                         <p class='text-2xl font-bold text-green-600'>R$ {total_repassar:,.2f}</p>
                     </div>
                     <i class="fa-solid fa-hand-holding-dollar text-green-200 text-3xl"></i>
                 </div>
                  <div class='card border-l-4 border-purple-500 flex items-center justify-between'>
                     <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Total de Procedimentos</h3>
+                        <h3 class='text-gray-500 text-sm font-medium'>Procedimentos (AIH)</h3>
                         <p class='text-2xl font-bold text-purple-600'>{qtd_procedimentos_reais}</p>
-                        <p class='text-xs text-gray-400'>Baseado em AIHs únicas</p>
                     </div>
                     <i class="fa-solid fa-notes-medical text-purple-200 text-3xl"></i>
                 </div>
             </div>
 
-            <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4">
+            <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4 no-print">
                 <button id="btn-resumo" class="tab-btn active" onclick="verTab('resumo')">
                     <i class="fa-solid fa-list mr-2"></i> Visão Resumida
                 </button>
                 <button id="btn-detalhado" class="tab-btn" onclick="verTab('detalhado')">
-                    <i class="fa-solid fa-table-list mr-2"></i> Detalhamento dos Procedimentos
+                    <i class="fa-solid fa-table-list mr-2"></i> Detalhamento
                 </button>
             </div>
 
@@ -290,10 +286,17 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                     language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
                     dom: 'Bfrtip',
                     buttons: [
-                        { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700' },
-                        { extend: 'print', text: '<i class="fa-solid fa-print"></i> Imprimir', className: 'bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700' }
+                        { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2' },
+                        // MUDANÇA IMPORTANTE: Botão personalizado que imprime a PÁGINA, não só a tabela
+                        { 
+                            text: '<i class="fa-solid fa-print"></i> Imprimir Página', 
+                            className: 'bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700',
+                            action: function ( e, dt, node, config ) {
+                                window.print();
+                            }
+                        }
                     ],
-                    pageLength: 25
+                    pageLength: 50
                 };
                 $('#tbl-resumo').DataTable(config);
                 $('#tbl-detalhado').DataTable(config);
@@ -311,7 +314,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
     
     with open(nome_arquivo, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✅ Relatório HTML gerado (Contagem: {qtd_procedimentos_reais} AIHs): {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado (Impressão Otimizada): {os.path.basename(nome_arquivo)}")
 
 # ==============================================================================
 # 4. ATUALIZAÇÃO DO PORTAL (JSON)
@@ -322,20 +325,15 @@ def atualizar_portal(novo_registro):
     caminho_json = None
     for _ in range(4):
         teste = os.path.join(caminho_atual, 'arquivos', 'dados_financeiro.json')
-        if os.path.exists(teste):
-            caminho_json = teste
-            break
+        if os.path.exists(teste): caminho_json = teste; break
         caminho_atual = os.path.dirname(caminho_atual)
     
-    if not caminho_json:
-        caminho_json = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos\dados_financeiro.json"
+    if not caminho_json: caminho_json = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos\dados_financeiro.json"
     
     try:
         if os.path.exists(caminho_json):
-            with open(caminho_json, 'r', encoding='utf-8') as f:
-                dados = json.load(f)
-        else:
-            dados = []
+            with open(caminho_json, 'r', encoding='utf-8') as f: dados = json.load(f)
+        else: dados = []
 
         dados = [d for d in dados if d['titulo'] != novo_registro['titulo']]
         dados.insert(0, novo_registro)
@@ -343,31 +341,20 @@ def atualizar_portal(novo_registro):
         with open(caminho_json, 'w', encoding='utf-8') as f:
             json.dump(dados, f, indent=4, ensure_ascii=False)
         print("   -> JSON do Portal atualizado com sucesso!")
-        
-    except Exception as e:
-        print(f"❌ Erro ao atualizar JSON do portal: {e}")
-
-# ==============================================================================
-# 5. EXECUÇÃO PRINCIPAL
-# ==============================================================================
+    except Exception as e: print(f"❌ Erro JSON: {e}")
 
 if __name__ == "__main__":
     receita_total = ler_valor_total_receita(ARQUIVO_PDF_RATEIO_RECEITA)
-    
-    print("   -> Lendo produção detalhada...")
     df_detalhado = processar_producao_detalhada()
     
     if not df_detalhado.empty:
         total_prod = df_detalhado['Valor'].sum()
-        
         comp_label, comp_sufixo = extrair_competencia(os.path.basename(ARQUIVO_PDF_PRODUCAO_CONTA))
         nome_html = os.path.join(PASTA_SCRIPT, f"relatorio_fila_zero_{comp_sufixo}.html")
         
         gerar_html_com_abas(df_detalhado, nome_html, comp_label, receita_total)
         
-        caminho_relativo = os.path.relpath(nome_html, r"C:\Users\DELL\OneDrive\NII-Portal-1")
-        caminho_web = caminho_relativo.replace("\\", "/")
-        
+        caminho_web = os.path.relpath(nome_html, r"C:\Users\DELL\OneDrive\NII-Portal-1").replace("\\", "/")
         reg = {
             "titulo": f"Fila Zero - {comp_label}",
             "competencia": comp_label,
@@ -376,6 +363,4 @@ if __name__ == "__main__":
             "arquivo": caminho_web 
         }
         atualizar_portal(reg)
-        
-    else:
-        print("❌ Nenhuma produção encontrada nos PDFs.")
+    else: print("❌ Nenhuma produção encontrada.")
