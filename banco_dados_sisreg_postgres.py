@@ -1,16 +1,16 @@
 import pandas as pd
 import glob
 import os
-import time
 import json
+import time
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON (V46 - NORMALIZAÇÃO AGRESSIVA DE AIH) ---")
+print("--- 2. PROCESSAMENTO: CSV -> POSTGRESQL -> JSON (V47 - DIAGNÓSTICO E CORREÇÃO) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO_DB = "postgres"
-SENHA_DB = "admin123"  # <--- SUA SENHA AQUI
+SENHA_DB = "admin123"  # <--- SUA SENHA
 HOST_DB = "localhost"
 NOME_DB = "nii_portal"
 
@@ -30,7 +30,7 @@ try:
         if not res.fetchone():
             print(f"   Criando banco de dados '{NOME_DB}'...")
             conn.execute(text(f"CREATE DATABASE {NOME_DB}"))
-            
+    
     url_final = f"postgresql://{USUARIO_DB}:{SENHA_DB}@{HOST_DB}/{NOME_DB}"
     engine = create_engine(url_final)
 except Exception as e:
@@ -47,7 +47,6 @@ if not arquivos_sisreg:
 
 print(f"   -> Processando {len(arquivos_sisreg)} arquivos...")
 dfs = []
-
 for arq in arquivos_sisreg:
     try:
         try: df = pd.read_csv(arq, sep=';', encoding='utf-8', dtype=str, on_bad_lines='skip')
@@ -81,54 +80,72 @@ df_db['data_iso'] = df_db['data_obj'].dt.strftime('%Y-%m-%d').fillna("1900-01-01
 df_db = df_db.drop(columns=['data_obj'])
 df_db = df_db.fillna("-")
 
-# --- CARGA ---
+# --- CARGA NO BANCO ---
 print("   -> Salvando no PostgreSQL...")
 df_db.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
 
-print("   -> Gerando arquivos para o Portal...")
-df_final = pd.read_sql("SELECT * FROM sisreg_solicitacoes ORDER BY data_iso DESC", engine)
+# --- RESGATE E INTEGRAÇÃO DOS LINKS ---
+print("   -> Lendo JSON anterior para resgatar links...")
 
-# --- MESCLAGEM DE LINKS (CORREÇÃO V46 - NORMALIZAÇÃO TOTAL) ---
 def normalizar_aih(valor):
-    """Remove tudo que não é dígito para garantir comparação exata."""
+    """Remove tudo que não for número."""
     if not valor: return ""
     return "".join(filter(str.isdigit, str(valor)))
 
-links_pdf_existentes = {}
+links_map = {}
 if os.path.exists(CAMINHO_JSON):
     try:
         with open(CAMINHO_JSON, 'r', encoding='utf-8') as f:
             dados_antigos = json.load(f)
-            for item in dados_antigos:
-                aih_key = normalizar_aih(item.get("aih"))
-                pdf_link = item.get("arquivo_pdf")
-                
-                # Só guarda se tiver AIH válida e link válido
-                if len(aih_key) > 5 and pdf_link:
-                    links_pdf_existentes[aih_key] = pdf_link
-        print(f"   (Links de PDF recuperados da memória: {len(links_pdf_existentes)})")
+        
+        count_validos = 0
+        for item in dados_antigos:
+            aih_limpa = normalizar_aih(item.get('aih'))
+            link_pdf = item.get('arquivo_pdf')
+            
+            # Só guarda se tiver AIH e Link válidos
+            if aih_limpa and len(aih_limpa) > 5 and link_pdf:
+                links_map[aih_limpa] = link_pdf
+                count_validos += 1
+        
+        print(f"      Links recuperados da memória: {count_validos}")
+        if count_validos > 0:
+            exemplo_chave = list(links_map.keys())[0]
+            print(f"      [DEBUG] Exemplo de AIH no JSON: '{exemplo_chave}' -> '{links_map[exemplo_chave]}'")
+            
     except Exception as e:
-        print(f"   ⚠️ Aviso: Erro ao ler JSON antigo: {e}")
+        print(f"      ⚠️ Erro ao ler JSON antigo: {e}")
+else:
+    print("      ⚠️ Arquivo JSON antigo não encontrado (primeira execução?).")
 
-# Converte para lista de dicionários
-registros_finais = df_final.to_dict(orient='records')
+# Lê dados novos do banco
+df_final = pd.read_sql("SELECT * FROM sisreg_solicitacoes ORDER BY data_iso DESC", engine)
 
-# Injeta os links de volta
-cont_links = 0
-for reg in registros_finais:
-    aih_key_db = normalizar_aih(reg.get("aih"))
-    
-    if aih_key_db in links_pdf_existentes:
-        reg["arquivo_pdf"] = links_pdf_existentes[aih_key_db]
-        cont_links += 1
+# Aplica os links
+def aplicar_link(row):
+    aih_banco = normalizar_aih(row.get('aih'))
+    if aih_banco in links_map:
+        return links_map[aih_banco]
+    return None
 
-print(f"   (Links aplicados no novo arquivo: {cont_links})")
+df_final['arquivo_pdf'] = df_final.apply(aplicar_link, axis=1)
 
-# Salva JSON Final
-with open(CAMINHO_JSON, 'w', encoding='utf-8') as f:
-    json.dump(registros_finais, f, indent=4, ensure_ascii=False)
+# Estatísticas
+total_links = df_final['arquivo_pdf'].notna().sum()
+print(f"   -> Integração Final: {total_links} registros ficaram com PDF associado.")
 
-try: df_final.to_parquet(CAMINHO_PARQUET, index=False)
+# Diagnóstico se deu 0
+if total_links == 0 and len(links_map) > 0:
+    print("      [ALERTA] NENHUM LINK FOI APLICADO! Verificando divergência...")
+    aih_banco_exemplo = normalizar_aih(df_final.iloc[0]['aih'])
+    print(f"      [DEBUG] Exemplo AIH no Banco: '{aih_banco_exemplo}'")
+    print(f"      [DEBUG] Exemplo AIH no Mapa:  '{list(links_map.keys())[0]}'")
+
+# Salva
+df_final.to_json(CAMINHO_JSON, orient='records', indent=4, force_ascii=False)
+
+try:
+    df_final.to_parquet(CAMINHO_PARQUET, index=False)
 except: pass
 
-print(f"✅ SUCESSO! Base atualizada com {len(registros_finais)} registros.")
+print(f"✅ SUCESSO! Base atualizada com {len(df_final)} registros.")
