@@ -1,8 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V3.0 - IMPRESSÃO FIDEDIGNA)
+# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V3.1 - COMPACTO A4)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Layout de impressão ajustado para ser idêntico à tela (WYSIWYG).
+# Descrição: Layout otimizado para caber em uma folha A4 Vertical (Compacto).
 # ==============================================================================
 
 import pdfplumber
@@ -25,7 +25,7 @@ pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 ARQUIVO_PDF_RATEIO_RECEITA = pdf_receita[0] if pdf_receita else "NAO_ENCONTRADO"
 ARQUIVO_PDF_PRODUCAO_CONTA = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
-print(f"--- Processando Fila Zero (V3.0 - Impressão Visual) ---")
+print(f"--- Processando Fila Zero (V3.1 - A4 Compacto) ---")
 
 # ==============================================================================
 # 2. FUNÇÕES DE EXTRAÇÃO
@@ -113,7 +113,7 @@ def processar_producao_detalhada():
     return pd.DataFrame(dados_detalhados)
 
 # ==============================================================================
-# 3. GERAÇÃO DO HTML (IMPRESSÃO PERFEITA)
+# 3. GERAÇÃO DO HTML (LAYOUT COMPACTO A4)
 # ==============================================================================
 
 def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_receita):
@@ -141,25 +141,57 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
             body {{ font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }}
             
-            /* Estilo dos Cards e Header */
             .header-bg {{ background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; color: white !important; }}
-            .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e5e7eb; }}
+            .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; border: 1px solid #e5e7eb; }}
             .tab-btn {{ cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }}
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
-            /* === CONFIGURAÇÃO DE IMPRESSÃO (O SEGREDO) === */
+            /* === MODO DE IMPRESSÃO COMPACTO === */
             @media print {{
-                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; }}
-                .no-print {{ display: none !important; }} /* Esconde botões na impressão */
-                .header-bg {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
-                .card {{ break-inside: avoid; border: 1px solid #ddd !important; box-shadow: none !important; }}
-                .dataTables_wrapper .dataTables_length, 
-                .dataTables_wrapper .dataTables_filter, 
-                .dataTables_wrapper .dataTables_info, 
-                .dataTables_wrapper .dataTables_paginate {{ display: none !important; }} /* Esconde controles da tabela */
-                table {{ width: 100% !important; }}
-                th {{ background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact !important; }}
+                @page {{ margin: 5mm; size: A4 portrait; }} /* Margens mínimas */
+                
+                body {{ 
+                    -webkit-print-color-adjust: exact !important; 
+                    print-color-adjust: exact !important; 
+                    background-color: white !important; 
+                    font-size: 10px !important; /* Fonte menor geral */
+                }}
+                
+                /* Esconde elementos inúteis na impressão */
+                .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
+                
+                /* Cabeçalho Compacto */
+                .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
+                h1 {{ font-size: 16px !important; }}
+                .header-bg p {{ font-size: 10px !important; }}
+                
+                /* Cards em Linha Rígida (Grid de 3 colunas forçado) */
+                .grid-print-row {{ 
+                    display: grid !important; 
+                    grid-template-columns: 1fr 1fr 1fr !important; 
+                    gap: 10px !important; 
+                    margin-bottom: 10px !important;
+                }}
+                
+                .card {{ 
+                    padding: 8px !important; 
+                    box-shadow: none !important; 
+                    border: 1px solid #ccc !important; 
+                    break-inside: avoid !important;
+                }}
+                .card h3 {{ font-size: 8px !important; }}
+                .card p {{ font-size: 12px !important; }}
+                .card i {{ display: none !important; }} /* Remove ícones para economizar espaço */
+
+                /* Tabelas Compactas */
+                table {{ width: 100% !important; border-collapse: collapse !important; }}
+                th {{ background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }}
+                td {{ font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }}
+                
+                /* Container Principal */
+                .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
+                .bg-white {{ box-shadow: none !important; }}
             }}
         </style>
     </head>
@@ -179,7 +211,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
 
         <div class='max-w-7xl mx-auto px-4'>
             
-            <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
+            <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
                 <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
                     <div>
                         <h3 class='text-gray-500 text-sm font-medium'>Receita Total</h3>
@@ -215,7 +247,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
                 
                 <div id="tab-resumo" class="view-tab">
-                    <h2 class='text-xl font-bold mb-4 text-gray-700'>Resumo por Profissional</h2>
+                    <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo por Profissional</h2>
                     <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
                         <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
                             <tr>
@@ -242,7 +274,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                 </div>
 
                 <div id="tab-detalhado" class="view-tab hidden">
-                    <h2 class='text-xl font-bold mb-4 text-gray-700'>Detalhamento Completo</h2>
+                    <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento Completo</h2>
                     <table id='tbl-detalhado' class='display w-full text-sm text-left text-gray-500'>
                         <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
                             <tr>
@@ -287,7 +319,6 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                     dom: 'Bfrtip',
                     buttons: [
                         { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2' },
-                        // MUDANÇA IMPORTANTE: Botão personalizado que imprime a PÁGINA, não só a tabela
                         { 
                             text: '<i class="fa-solid fa-print"></i> Imprimir Página', 
                             className: 'bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700',
@@ -296,7 +327,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                             }
                         }
                     ],
-                    pageLength: 50
+                    paging: false // Desativa paginação na tela para ver tudo (facilita impressão)
                 };
                 $('#tbl-resumo').DataTable(config);
                 $('#tbl-detalhado').DataTable(config);
@@ -314,7 +345,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
     
     with open(nome_arquivo, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✅ Relatório HTML gerado (Impressão Otimizada): {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado (A4 Compacto): {os.path.basename(nome_arquivo)}")
 
 # ==============================================================================
 # 4. ATUALIZAÇÃO DO PORTAL (JSON)
