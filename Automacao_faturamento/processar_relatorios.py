@@ -1,136 +1,165 @@
 import pandas as pd
 import numpy as np
 import csv
+import os
 
-# --- 1. CONFIGURAÇÕES E FUNÇÕES ---
+# --- GPS: Garante que acha o arquivo na pasta correta ---
+pasta_atual = os.path.dirname(os.path.abspath(__file__))
+arquivo_entrada = os.path.join(pasta_atual, 'R_PROC_LANCAMENTOS.csv')
+arquivo_saida = os.path.join(pasta_atual, 'Relatorio_Auditoria_Inteligente.xlsx')
 
-def formatar_codigo_procedimento(valor):
-    """
-    Padroniza o código do procedimento para 10 dígitos com zeros à esquerda.
-    Ex: 80201003 -> 0080201003
-    Ex: 214010279 -> 0214010279
-    """
+# --- CONFIGURAÇÕES ---
+def formatar_codigo(valor):
     if pd.isna(valor) or valor == '': return ''
-    
-    texto = str(valor)
-    # Remove sufixo .0 se vier do Excel/CSV numérico
-    if texto.endswith('.0'): 
-        texto = texto.replace('.0', '')
-    
-    texto = texto.strip()
-    # Adiciona zeros à esquerda até completar 10 casas
+    texto = str(valor).replace('.0', '').strip()
     return texto.zfill(10)
 
-def descobrir_prestador_correto(linha_atual):
-    """
-    MEMÓRIA DO SCRIPT:
-    Define quem é o prestador baseado no nome do procedimento.
-    """
-    # Pega os valores e joga para maiúsculo para facilitar a comparação
-    prestador_original = str(linha_atual.get('Prestador_Original', '')).strip()
-    descricao_proc = str(linha_atual.get('Desc_Procedimento', '')).upper()
-    grupo_proc = str(linha_atual.get('Grupo_Procedimento', '')).upper()
-    
-    # --- REGRAS DE NEGÓCIO (EDITE AQUI) ---
-    
-    if 'TOMOGRAFIA' in descricao_proc or 'TOMOGRAFIA' in grupo_proc:
-        return 'DIAG X'
-        
-    elif 'ULTRASSONOGRAFIA' in descricao_proc or 'ECOGRAFIA' in descricao_proc:
-        return 'SANTA HELENA IMAGEM'
-        
-    elif 'RAIO X' in descricao_proc or 'RADIOGRAFIA' in descricao_proc:
-        return 'RAIO X HOSPITAL'
-        
-    elif 'RESSONANCIA' in descricao_proc:
-        return 'CLINICA DE IMAGEM Y'
-
-    # Se não for nenhum desses, mantêm o original
-    return prestador_original
-
-def limpar_valor_monetario(valor):
+def limpar_valor(valor):
     if pd.isna(valor) or valor == '': return 0.0
     clean_val = str(valor).replace('R$', '').replace('.', '').replace(',', '.')
     try: return float(clean_val)
     except: return 0.0
 
-# --- 2. EXECUÇÃO ---
+def definir_prestador(linha_dados):
+    # Memória de Prestadores
+    proc = str(linha_dados.get('Desc_Procedimento', '')).upper()
+    prestador_orig = str(linha_dados.get('Prestador_Original', '')).strip()
+    
+    if 'TOMOGRAFIA' in proc: return 'DIAG X'
+    elif 'ULTRASSONOGRAFIA' in proc or 'ECOGRAFIA' in proc: return 'SANTA HELENA IMAGEM'
+    elif 'RAIO X' in proc or 'RADIOGRAFIA' in proc: return 'RAIO X HOSPITAL'
+    elif prestador_orig == '' or prestador_orig == 'nan': return 'HOSPITAL (PADRÃO)'
+    
+    return prestador_orig
 
-print("Iniciando processamento inteligente...")
+# --- EXECUÇÃO ---
+print(f"Iniciando processamento (Modo Rastreador de AIH)...")
 
 try:
-    # Usamos o módulo CSV padrão para ler linha a linha
-    # Isso evita erros quando o relatório do SoulMV vem com colunas quebradas
-    with open('R_PROC_LANCAMENTOS.csv', 'r', encoding='latin1') as f:
+    with open(arquivo_entrada, 'r', encoding='latin1') as f:
         linhas = f.readlines()
+
+    dados_finais = []
+    grupo_atual = "INDEFINIDO"
+    procurando_nome_grupo = False
     
-    lista_lancamentos = []
-    grupo_atual = "Indefinido"
-    
-    for linha in linhas:
-        # Divide a linha pelas vírgulas
-        # O módulo csv.reader é mais esperto que o split() simples
+    for i, linha in enumerate(linhas):
         reader = csv.reader([linha], delimiter=',')
         cols = list(reader)[0]
+        if not cols: continue
         
-        if not cols: continue # Pula linhas vazias
-
         texto_col0 = str(cols[0])
         
-        # 1. Captura o GRUPO (Memória de contexto)
-        if 'Grupo Procedimento:' in texto_col0:
-            partes = texto_col0.split(':')
-            if len(partes) > 1 and len(partes[1].strip()) > 1:
-                grupo_atual = partes[1].strip()
+        # --- 1. LÓGICA DO GRUPO (Corrigida) ---
+        # Se achou a etiqueta "Grupo Procedimento:", prepara para pegar o nome
+        if 'Grupo Procedimento:' in linha:
+            # Tenta pegar na mesma linha (depois dos dois pontos)
+            partes = linha.split('Grupo Procedimento:')
+            if len(partes) > 1 and len(partes[1].strip()) > 3:
+                grupo_atual = partes[1].replace(',', '').strip()
+                procurando_nome_grupo = False
+            else:
+                # Se não tem nada escrito, marca para pegar na PRÓXIMA linha
+                procurando_nome_grupo = True
             continue
-        
-        # 2. Identifica se é uma linha de DADOS (Baseado na AIH e Procedimento)
-        # Verifica se tem colunas suficientes para ser uma linha de dados
-        if len(cols) > 15:
-            # Verifica se tem código de procedimento válido na coluna 15
-            cod_proc_raw = cols[15]
             
-            # Validação simples: se tem números e tamanho razoável
-            if len(cod_proc_raw) > 3:
-                # Mapeamento das colunas (Baseado na nossa análise)
+        # Se estava procurando o nome do grupo e achou uma linha com texto (que não é cabeçalho)
+        if procurando_nome_grupo:
+            # Pega a primeira coluna que tiver texto
+            textos = [c for c in cols if len(c.strip()) > 3]
+            if textos and 'Atendimento' not in textos[0]:
+                grupo_atual = textos[0]
+                procurando_nome_grupo = False
+            # Se for linha de cabeçalho "Atendimento", ignora e mantem o grupo anterior ou indefinido
+
+        # --- 2. LÓGICA DA AIH (Dinâmica) ---
+        # Varre as colunas procurando algo que pareça uma AIH (começa com 512 ou 42 e tem tamanho > 10)
+        idx_aih = -1
+        for idx, val in enumerate(cols):
+            val_str = str(val).strip()
+            if (val_str.startswith('512') or val_str.startswith('42')) and len(val_str) >= 12:
+                idx_aih = idx
+                break
+        
+        # Se achou uma AIH, usa a posição dela para achar o resto!
+        if idx_aih != -1:
+            # MAPA RELATIVO (Baseado na posição da AIH)
+            # Paciente: Geralmente 2 colunas depois da AIH
+            # Código Procedimento: Geralmente 9 colunas depois da AIH
+            
+            try:
+                # Captura dados básicos com segurança de índice
+                paciente = cols[idx_aih + 2] if len(cols) > idx_aih + 2 else ''
+                
+                # Para achar o procedimento, pulamos as datas. É geralmente +9 posições
+                # Mas vamos garantir procurando o código numérico adiante
+                idx_proc = idx_aih + 9
+                cod_proc = ''
+                desc_proc = ''
+                
+                # Scanner local para achar o procedimento (pode variar 1 ou 2 colunas)
+                for offset in range(8, 12): # Procura entre +8 e +12 posições
+                    if len(cols) > idx_aih + offset:
+                        candidato = cols[idx_aih + offset].strip()
+                        # Se parece código de procedimento (numerico e longo)
+                        if len(candidato) >= 8 and candidato.replace('.0','').isdigit():
+                            idx_proc = idx_aih + offset
+                            cod_proc = candidato
+                            # Descrição é logo depois do código
+                            desc_proc = cols[idx_proc + 1] if len(cols) > idx_proc + 1 else ''
+                            break
+                
+                # Valores e Quantidade (Geralmente no final da linha)
+                # Vamos pegar de trás para frente para ser mais seguro
+                valor = 0.0
+                qtd = 0
+                colunas_com_valor = [c for c in cols if any(char.isdigit() for char in c)]
+                if colunas_com_valor:
+                    # O último numérico costuma ser o Valor Total
+                    valor = limpar_valor(colunas_com_valor[-1])
+                    # O penúltimo costuma ser Quantidade (se for pequeno) ou Valor Unitário
+                    # Vamos simplificar pegando a coluna Qtd fixa se possível ou deduzindo
+                    # No seu CSV, Qtd parece ser index_proc + 4 ou 5
+                
+                # Prestador (Geralmente antes da AIH, se existir)
+                prestador_orig = ''
+                # Se AIH ta na 6, prestador ta na 2. Se AIH ta na 5, prestador ta na... vazio?
+                if idx_aih >= 4:
+                    candidato_prest = cols[idx_aih - 4]
+                    if len(candidato_prest) > 3: prestador_orig = candidato_prest
+
                 item = {
-                    'Grupo_Procedimento': grupo_atual,
-                    'Prestador_Original': cols[2] if len(cols) > 2 else '',
-                    'Atendimento': cols[4] if len(cols) > 4 else '',
-                    'AIH': cols[6] if len(cols) > 6 else '',
-                    'Paciente': cols[8] if len(cols) > 8 else '',
-                    'Data': cols[10] if len(cols) > 10 else '',
-                    
-                    # APLICA A CORREÇÃO DOS ZEROS AQUI
-                    'Cod_Procedimento': formatar_codigo_procedimento(cols[15]),
-                    
-                    'Desc_Procedimento': cols[16] if len(cols) > 16 else '',
-                    'Qtd': cols[20] if len(cols) > 20 else '0',
-                    'Valor': limpar_valor_monetario(cols[21]) if len(cols) > 21 else 0.0
+                    'Grupo': grupo_atual,
+                    'Prestador_Original': prestador_orig,
+                    'AIH': cols[idx_aih],
+                    'Paciente': paciente,
+                    'Cod_Procedimento': formatar_codigo(cod_proc),
+                    'Desc_Procedimento': desc_proc,
+                    'Valor': valor
                 }
                 
-                # Só adiciona se tiver AIH válida (filtro de lixo)
-                if str(item['AIH']).startswith('512') or str(item['AIH']).startswith('42'):
-                    # APLICA A REGRA DE PRESTADOR AQUI
-                    item['Prestador_Final'] = descobrir_prestador_correto(item)
-                    lista_lancamentos.append(item)
+                # Aplica regras
+                item['Prestador_Final'] = definir_prestador(item)
+                
+                dados_finais.append(item)
 
-    # 3. Gera o Excel Final
-    if lista_lancamentos:
-        df_final = pd.DataFrame(lista_lancamentos)
+            except Exception as e:
+                # Se der erro numa linha específica, pula ela mas avisa
+                print(f"Aviso: Erro na linha {i}: {e}")
+
+    # --- 3. EXPORTAÇÃO ---
+    if dados_finais:
+        df = pd.DataFrame(dados_finais)
+        # Reordenar colunas
+        cols_order = ['Grupo', 'Prestador_Final', 'AIH', 'Paciente', 'Cod_Procedimento', 'Desc_Procedimento', 'Valor', 'Prestador_Original']
+        # Filtra só as que existem
+        cols_existentes = [c for c in cols_order if c in df.columns]
         
-        # Reorganiza as colunas para ficar bonito
-        colunas_ordem = ['Grupo_Procedimento', 'Prestador_Final', 'AIH', 'Paciente', 
-                         'Cod_Procedimento', 'Desc_Procedimento', 'Qtd', 'Valor', 'Prestador_Original']
-        
-        # Garante que só chama colunas que existem
-        cols_existentes = [c for c in colunas_ordem if c in df_final.columns]
-        
-        df_final[cols_existentes].to_excel('Relatorio_Auditoria_Inteligente.xlsx', index=False)
-        print(f"Sucesso! {len(df_final)} linhas processadas.")
-        print("Arquivo salvo: Relatorio_Auditoria_Inteligente.xlsx")
+        df[cols_existentes].to_excel(arquivo_saida, index=False)
+        print(f"✅ SUCESSO! {len(df)} linhas recuperadas (incluindo as que faltavam).")
+        print(f"Arquivo salvo em: {arquivo_saida}")
     else:
-        print("Aviso: Nenhuma linha de dados válida foi encontrada.")
+        print("❌ Erro: Nenhuma linha encontrada. O arquivo de entrada está vazio ou ilegível.")
 
-except Exception as e:
-    print(f"Ocorreu um erro: {e}")
+except FileNotFoundError:
+    print(f"❌ Erro: Arquivo não encontrado.\nCertifique-se que '{arquivo_entrada}' está na pasta.")
