@@ -1,9 +1,16 @@
 [
     {
+        "titulo": "Repasse de Equipe - Novembro/2025",
+        "competencia": "Novembro/2025",
+        "data_geracao": "28/12/2025 15:30",
+        "valor_total": "R$ 308,423.80",
+        "arquivo": "faturamento/2025/11_novembro/relatorio_rateio_112025.html"
+    },
+    {
         "titulo": "Fila Zero - Novembro/2025",
         "competencia": "Novembro/2025",
-        "data_geracao": "26/12/2025 17:38",
-        "valor_total": "R$ 48,442.20",
+        "data_geracao": "27/12/2025 23:44",
+        "valor_total": "R$ 24,221.10",
         "arquivo": "faturamento/2025/11_novembro/fila_zero/relatorio_fila_zero_112025.html"
     }
 ]

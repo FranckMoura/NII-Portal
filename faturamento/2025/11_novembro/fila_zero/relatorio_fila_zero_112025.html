@@ -18,49 +18,21 @@
             .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
             .hidden { display: none !important; }
 
-            /* === MODO DE IMPRESSÃO COMPACTO === */
             @media print {
-                @page { margin: 5mm; size: A4 portrait; } /* Margens mínimas */
-                
-                body { 
-                    -webkit-print-color-adjust: exact !important; 
-                    print-color-adjust: exact !important; 
-                    background-color: white !important; 
-                    font-size: 10px !important; /* Fonte menor geral */
-                }
-                
-                /* Esconde elementos inúteis na impressão */
+                @page { margin: 5mm; size: A4 portrait; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
-                
-                /* Cabeçalho Compacto */
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
                 h1 { font-size: 16px !important; }
                 .header-bg p { font-size: 10px !important; }
-                
-                /* Cards em Linha Rígida (Grid de 3 colunas forçado) */
-                .grid-print-row { 
-                    display: grid !important; 
-                    grid-template-columns: 1fr 1fr 1fr !important; 
-                    gap: 10px !important; 
-                    margin-bottom: 10px !important;
-                }
-                
-                .card { 
-                    padding: 8px !important; 
-                    box-shadow: none !important; 
-                    border: 1px solid #ccc !important; 
-                    break-inside: avoid !important;
-                }
+                .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }
+                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }
                 .card h3 { font-size: 8px !important; }
                 .card p { font-size: 12px !important; }
-                .card i { display: none !important; } /* Remove ícones para economizar espaço */
-
-                /* Tabelas Compactas */
+                .card i { display: none !important; }
                 table { width: 100% !important; border-collapse: collapse !important; }
                 th { background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }
                 td { font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }
-                
-                /* Container Principal */
                 .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
                 .bg-white { box-shadow: none !important; }
             }
@@ -74,7 +46,7 @@
                     <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-invoice-dollar text-3xl"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold'>Relatório Fila Zero</h1>
-                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 26/12/2025</p>
+                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 27/12/2025</p>
                     </div>
                 </div>
             </div>
@@ -93,7 +65,7 @@
                 <div class='card border-l-4 border-green-500 flex items-center justify-between'>
                     <div>
                         <h3 class='text-gray-500 text-sm font-medium'>Total a Repassar</h3>
-                        <p class='text-2xl font-bold text-green-600'>R$ 48,442.20</p>
+                        <p class='text-2xl font-bold text-green-600'>R$ 24,221.10</p>
                     </div>
                     <i class="fa-solid fa-hand-holding-dollar text-green-200 text-3xl"></i>
                 </div>
@@ -130,37 +102,37 @@
     
             <tr>
                 <td class='font-medium text-gray-900'>JOSE PALMIRO DA SILVA NETO</td>
-                <td class='text-right font-bold text-blue-600'>33,909.60</td>
+                <td class='text-right font-bold text-blue-600'>16,954.80</td>
             </tr>
         
             <tr>
                 <td class='font-medium text-gray-900'>MARCIA REGINA NOBRES DA SILVA</td>
-                <td class='text-right font-bold text-blue-600'>6,781.88</td>
+                <td class='text-right font-bold text-blue-600'>3,390.94</td>
             </tr>
         
             <tr>
                 <td class='font-medium text-gray-900'>DEBORAH MARIA DE MOURA GONCALVES</td>
-                <td class='text-right font-bold text-blue-600'>2,906.52</td>
+                <td class='text-right font-bold text-blue-600'>1,453.26</td>
             </tr>
         
             <tr>
                 <td class='font-medium text-gray-900'>IGOR SEROR CUIABANO</td>
-                <td class='text-right font-bold text-blue-600'>1,937.68</td>
+                <td class='text-right font-bold text-blue-600'>968.84</td>
             </tr>
         
             <tr>
                 <td class='font-medium text-gray-900'>JOSE PINHEIRO COELHO FILHO</td>
-                <td class='text-right font-bold text-blue-600'>1,937.68</td>
+                <td class='text-right font-bold text-blue-600'>968.84</td>
             </tr>
         
             <tr>
                 <td class='font-medium text-gray-900'>KAREN MARIA PREZA NOGUEIRA</td>
-                <td class='text-right font-bold text-blue-600'>968.84</td>
+                <td class='text-right font-bold text-blue-600'>484.42</td>
             </tr>
         
                         </tbody>
                         <tfoot>
-                            <tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-right">R$ 48,442.20</td></tr>
+                            <tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-right">R$ 24,221.10</td></tr>
                         </tfoot>
                     </table>
                 </div>
@@ -204,14 +176,6 @@
             </tr>
         
             <tr>
-                <td>18/11</td>
-                <td>5125101914427</td>
-                <td class='font-medium'>DEBORAH MARIA DE MOURA GONCALVES</td>
-                <td>2956218/11 0408050160</td>
-                <td class='text-right'>1,453.26</td>
-            </tr>
-        
-            <tr>
                 <td>17/11</td>
                 <td>5125101914350</td>
                 <td class='font-medium'>IGOR SEROR CUIABANO</td>
@@ -225,14 +189,6 @@
                 <td class='font-medium'>IGOR SEROR CUIABANO</td>
                 <td>2867317/11 0408050160</td>
                 <td class='text-right'>484.42</td>
-            </tr>
-        
-            <tr>
-                <td>17/11</td>
-                <td>5125101914394</td>
-                <td class='font-medium'>IGOR SEROR CUIABANO</td>
-                <td>2867317/11 0408050160</td>
-                <td class='text-right'>968.84</td>
             </tr>
         
             <tr>
@@ -356,14 +312,6 @@
             </tr>
         
             <tr>
-                <td>18/11</td>
-                <td>5125101914427</td>
-                <td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td>
-                <td>2956218/11 0408050160</td>
-                <td class='text-right'>16,954.80</td>
-            </tr>
-        
-            <tr>
                 <td>10/11</td>
                 <td>5125101911545</td>
                 <td class='font-medium'>JOSE PINHEIRO COELHO FILHO</td>
@@ -376,22 +324,6 @@
                 <td>5125101911556</td>
                 <td class='font-medium'>JOSE PINHEIRO COELHO FILHO</td>
                 <td>2767810/11 0408050160</td>
-                <td class='text-right'>484.42</td>
-            </tr>
-        
-            <tr>
-                <td>10/11</td>
-                <td>5125101911556</td>
-                <td class='font-medium'>JOSE PINHEIRO COELHO FILHO</td>
-                <td>2767810/11 0408050160</td>
-                <td class='text-right'>968.84</td>
-            </tr>
-        
-            <tr>
-                <td>10/11</td>
-                <td>5125101911578</td>
-                <td class='font-medium'>KAREN MARIA PREZA NOGUEIRA</td>
-                <td>2766910/11 0408050160</td>
                 <td class='text-right'>484.42</td>
             </tr>
         
@@ -464,14 +396,6 @@
                 <td>5125101914372</td>
                 <td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td>
                 <td>2867217/11 0408050160</td>
-                <td class='text-right'>3,390.94</td>
-            </tr>
-        
-            <tr>
-                <td>17/11</td>
-                <td>5125101914372</td>
-                <td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td>
-                <td>2867217/11 0408050160</td>
                 <td class='text-right'>0.00</td>
             </tr>
         
@@ -502,7 +426,7 @@
                             }
                         }
                     ],
-                    paging: false // Desativa paginação na tela para ver tudo (facilita impressão)
+                    paging: false
                 };
                 $('#tbl-resumo').DataTable(config);
                 $('#tbl-detalhado').DataTable(config);

@@ -1,8 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V3.1 - COMPACTO A4)
+# SISTEMA DE REPASSES - VERSÃO FILA ZERO (V3.3 - CORREÇÃO DE VALORES ZERADOS)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: Layout otimizado para caber em uma folha A4 Vertical (Compacto).
+# Descrição: Layout A4 Compacto + Busca flexível de valores na linha (evita 0.00).
 # ==============================================================================
 
 import pdfplumber
@@ -25,7 +25,7 @@ pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 ARQUIVO_PDF_RATEIO_RECEITA = pdf_receita[0] if pdf_receita else "NAO_ENCONTRADO"
 ARQUIVO_PDF_PRODUCAO_CONTA = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
-print(f"--- Processando Fila Zero (V3.1 - A4 Compacto) ---")
+print(f"--- Processando Fila Zero (V3.3 - Correção Valores) ---")
 
 # ==============================================================================
 # 2. FUNÇÕES DE EXTRAÇÃO
@@ -80,6 +80,10 @@ def processar_producao_detalhada():
             lines = text.split('\n')
             
             for line in lines:
+                # Filtro de rodapé (ignora totais)
+                if "Total" in line or "TOTAL" in line or "Prestador:" in line or "Rateio:" in line:
+                    continue
+
                 if re.search(r'\(\d+\)', line) and not "Competência" in line:
                      medico_atual = re.sub(r'\(\d+\)', '', line).strip()
                 
@@ -94,11 +98,16 @@ def processar_producao_detalhada():
                     proc_temp = match_proc.group(1)
                     proc_atual = re.split(r'\d{1,3}[\.,]', proc_temp)[0].strip()
 
-                match_valor = re.search(r'(\d{1,3}(?:\.\d{3})*,\d{2})\s*$', line)
+                # === CORREÇÃO V3.3: BUSCA FLEXÍVEL DE VALORES ===
+                # Em vez de procurar só no fim da linha ($), procura todos os valores na linha
+                valores_encontrados = re.findall(r'(\d{1,3}(?:\.\d{3})*,\d{2})', line)
+                
                 eh_item_pagamento = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
                 
-                if match_valor and eh_item_pagamento:
-                    valor_str = match_valor.group(1).replace('.', '').replace(',', '.')
+                if valores_encontrados and eh_item_pagamento:
+                    # Pega o último valor encontrado na linha (geralmente é o valor líquido)
+                    # Se tiver mais de um valor (ex: valor bruto e liquido), pega o último.
+                    valor_str = valores_encontrados[-1].replace('.', '').replace(',', '.')
                     valor = float(valor_str)
                     
                     dados_detalhados.append({
@@ -147,49 +156,21 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
-            /* === MODO DE IMPRESSÃO COMPACTO === */
             @media print {{
-                @page {{ margin: 5mm; size: A4 portrait; }} /* Margens mínimas */
-                
-                body {{ 
-                    -webkit-print-color-adjust: exact !important; 
-                    print-color-adjust: exact !important; 
-                    background-color: white !important; 
-                    font-size: 10px !important; /* Fonte menor geral */
-                }}
-                
-                /* Esconde elementos inúteis na impressão */
+                @page {{ margin: 5mm; size: A4 portrait; }}
+                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
-                
-                /* Cabeçalho Compacto */
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
                 h1 {{ font-size: 16px !important; }}
                 .header-bg p {{ font-size: 10px !important; }}
-                
-                /* Cards em Linha Rígida (Grid de 3 colunas forçado) */
-                .grid-print-row {{ 
-                    display: grid !important; 
-                    grid-template-columns: 1fr 1fr 1fr !important; 
-                    gap: 10px !important; 
-                    margin-bottom: 10px !important;
-                }}
-                
-                .card {{ 
-                    padding: 8px !important; 
-                    box-shadow: none !important; 
-                    border: 1px solid #ccc !important; 
-                    break-inside: avoid !important;
-                }}
+                .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }}
+                .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }}
                 .card h3 {{ font-size: 8px !important; }}
                 .card p {{ font-size: 12px !important; }}
-                .card i {{ display: none !important; }} /* Remove ícones para economizar espaço */
-
-                /* Tabelas Compactas */
+                .card i {{ display: none !important; }}
                 table {{ width: 100% !important; border-collapse: collapse !important; }}
                 th {{ background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }}
                 td {{ font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }}
-                
-                /* Container Principal */
                 .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
                 .bg-white {{ box-shadow: none !important; }}
             }}
@@ -327,7 +308,7 @@ def gerar_html_com_abas(df_detalhado, nome_arquivo, competencia_label, total_rec
                             }
                         }
                     ],
-                    paging: false // Desativa paginação na tela para ver tudo (facilita impressão)
+                    paging: false
                 };
                 $('#tbl-resumo').DataTable(config);
                 $('#tbl-detalhado').DataTable(config);
