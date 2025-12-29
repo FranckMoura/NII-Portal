@@ -4,7 +4,7 @@
     <head>
         <meta charset='UTF-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <title>Fila Zero Terceiros - Novembro/2025</title>
+        <title>Fila Zero Terceiros - 11/2025</title>
         <script src='https://cdn.tailwindcss.com'></script>
         <link rel='stylesheet' href='https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,24 +17,28 @@
             .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
             .hidden { display: none !important; }
 
-            /* === ALTO CONTRASTE IMPRESSÃO === */
+            /* ESTILO TABELA EXECUTIVA */
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+            th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; text-transform: uppercase; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }
+            td { padding: 8px; border: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
+            tr:nth-child(even) { background-color: #f8fafc; }
+            .text-right { text-align: right; }
+            .text-center { text-align: center; }
+            .font-bold { font-weight: 700; }
+
             @media print {
-                @page { margin: 5mm; size: A4 portrait; }
+                @page { margin: 10mm; size: A4 portrait; }
                 body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
-                
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
                 .header-bg h1, .header-bg p, .header-bg i { color: white !important; -webkit-text-fill-color: white !important; }
-                
                 .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }
                 .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }
-                
                 .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 { color: #000 !important; font-weight: 800 !important; }
-                .text-gray-500, .text-gray-400 { color: #333 !important; font-weight: 600 !important; }
-                
-                table { width: 100% !important; border-collapse: collapse !important; }
-                th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }
-                td { border-bottom: 1px solid #000 !important; color: #000 !important; }
+                /* Bordas Pretas na Impressão */
+                th { background-color: #ddd !important; border: 1px solid #000 !important; color: #000 !important; }
+                td { border: 1px solid #000 !important; color: #000 !important; }
+                tr:nth-child(even) { background-color: #eee !important; }
                 .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
                 .bg-white { box-shadow: none !important; }
             }
@@ -45,7 +49,7 @@
             <div class='max-w-7xl mx-auto'>
                 <div class="flex items-center gap-4">
                     <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-truck-medical text-3xl"></i></div>
-                    <div><h1 class='text-3xl font-bold'>Fila Zero - Terceiros/SADT</h1><p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 29/12/2025</p></div>
+                    <div><h1 class='text-3xl font-bold'>Fila Zero - Terceiros/SADT</h1><p class='text-blue-100'>Competência: 11/2025 | Gerado em: 29/12/2025</p></div>
                 </div>
             </div>
         </div>
@@ -62,14 +66,14 @@
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
                 <div id="tab-resumo" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Consolidado por Grupo de Procedimento</h2>
-                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Grupo / Tipo de Exame</th><th class='text-center'>Quantidade</th><th class='text-right'>Valor Faturado (R$)</th></tr></thead>
-                        <tbody><tr><td class='font-medium text-gray-900'>04 - PROCEDIMENTOS CIRÚRGICOS (GERAL)</td><td class='text-center'>15</td><td class='text-right font-bold text-blue-600'>117,010.35</td></tr><tr><td class='font-medium text-gray-900'>07 - ÓRTESES, PRÓTESES E MATERIAIS (OPME)</td><td class='text-center'>30</td><td class='text-right font-bold text-blue-600'>14,588.70</td></tr></tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAL GERAL</td><td class="text-center">45</td><td class="text-right">R$ 131,599.05</td></tr></tfoot></table></div>
+                    <table id='tbl-resumo'>
+                        <thead><tr><th>Grupo / Tipo de Exame</th><th class='text-center'>Quantidade</th><th class='text-right'>Valor Faturado (R$)</th></tr></thead>
+                        <tbody><tr><td class='font-bold'>04 - PROCEDIMENTOS CIRÚRGICOS (GERAL)</td><td class='text-center'>15</td><td class='text-right font-bold text-blue-600'>117,010.35</td></tr><tr><td class='font-bold'>07 - ÓRTESES, PRÓTESES E MATERIAIS (OPME)</td><td class='text-center'>30</td><td class='text-right font-bold text-blue-600'>14,588.70</td></tr></tbody><tfoot><tr class="bg-gray-200 font-bold"><td>TOTAL GERAL</td><td class="text-center">45</td><td class="text-right">R$ 131,599.05</td></tr></tfoot></table></div>
                 <div id="tab-detalhe" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento de Itens</h2>
-                    <table id='tbl-detalhe' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Grupo</th><th>Código</th><th>Descrição</th><th class='text-center'>Qtd</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
-                        <tbody><tr><td class='text-xs'>04 - PROCEDIMENTOS CIRÚRGICOS (GERAL)</td><td>0408050160</td><td class='font-medium'>RECONSTRUÇÃOLIGAMENTAR INTRA-ARTICULAR</td><td class='text-center'>15</td><td class='text-right'>117,010.35</td></tr><tr><td class='text-xs'>07 - ÓRTESES, PRÓTESES E MATERIAIS (OPME)</td><td>0702030716</td><td class='font-medium'>PARAFUSO DE INTERFERÊNCIA DE TITÂNIO</td><td class='text-center'>30</td><td class='text-right'>14,588.70</td></tr></tbody></table></div></div></div>
+                    <table id='tbl-detalhe'>
+                        <thead><tr><th>Grupo</th><th>Código</th><th>Descrição</th><th class='text-center'>Qtd</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
+                        <tbody><tr><td class='text-xs'>04 - PROCEDIMENTOS CIRÚRGICOS (GERAL)</td><td>0408050160</td><td>RECONSTRUÇÃOLIGAMENTAR INTRA-ARTICULAR</td><td class='text-center'>15</td><td class='text-right'>117,010.35</td></tr><tr><td class='text-xs'>07 - ÓRTESES, PRÓTESES E MATERIAIS (OPME)</td><td>0702030716</td><td>PARAFUSO DE INTERFERÊNCIA DE TITÂNIO</td><td class='text-center'>30</td><td class='text-right'>14,588.70</td></tr></tbody></table></div></div></div>
         <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
         <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>

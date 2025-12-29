@@ -4,7 +4,7 @@
     <head>
         <meta charset='UTF-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <title>Fila Zero - Novembro/2025</title>
+        <title>Fila Zero - 11/2025</title>
         <script src='https://cdn.tailwindcss.com'></script>
         <link rel='stylesheet' href='https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,24 +17,28 @@
             .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
             .hidden { display: none !important; }
 
-            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
+            /* ESTILO TABELA EXECUTIVA */
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+            th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; text-transform: uppercase; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }
+            td { padding: 8px; border: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
+            tr:nth-child(even) { background-color: #f8fafc; }
+            .text-right { text-align: right; }
+            .text-center { text-align: center; }
+            .font-bold { font-weight: 700; }
+
             @media print {
-                @page { margin: 5mm; size: A4 portrait; }
+                @page { margin: 10mm; size: A4 portrait; }
                 body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
-                
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
                 .header-bg h1, .header-bg p, .header-bg i { color: white !important; -webkit-text-fill-color: white !important; }
-                
                 .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }
                 .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }
-                
-                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 { color: #000 !important; font-weight: 800 !important; }
-                .text-gray-500, .text-gray-400 { color: #333 !important; font-weight: 600 !important; }
-                
-                table { width: 100% !important; border-collapse: collapse !important; }
-                th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }
-                td { border-bottom: 1px solid #000 !important; color: #000 !important; }
+                .text-green-600, .text-blue-600, .text-purple-600 { color: #000 !important; font-weight: 800 !important; }
+                /* Bordas Pretas na Impressão */
+                th { background-color: #ddd !important; border: 1px solid #000 !important; color: #000 !important; }
+                td { border: 1px solid #000 !important; color: #000 !important; }
+                tr:nth-child(even) { background-color: #eee !important; }
                 .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
                 .bg-white { box-shadow: none !important; }
             }
@@ -45,7 +49,7 @@
             <div class='max-w-7xl mx-auto'>
                 <div class="flex items-center gap-4">
                     <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-invoice-dollar text-3xl"></i></div>
-                    <div><h1 class='text-3xl font-bold'>Relatório Fila Zero</h1><p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 29/12/2025</p></div>
+                    <div><h1 class='text-3xl font-bold'>Relatório Fila Zero</h1><p class='text-blue-100'>Competência: 11/2025 | Gerado em: 29/12/2025</p></div>
                 </div>
             </div>
         </div>
@@ -62,13 +66,13 @@
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
                 <div id="tab-resumo" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo por Profissional</h2>
-                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
-                        <tbody><tr><td class='font-medium text-gray-900'>JOSE PALMIRO DA SILVA NETO</td><td class='text-right font-bold text-blue-600'>16,954.80</td></tr><tr><td class='font-medium text-gray-900'>MARCIA REGINA NOBRES DA SILVA</td><td class='text-right font-bold text-blue-600'>3,390.94</td></tr><tr><td class='font-medium text-gray-900'>DEBORAH MARIA DE MOURA GONCALVES</td><td class='text-right font-bold text-blue-600'>1,453.26</td></tr><tr><td class='font-medium text-gray-900'>IGOR SEROR CUIABANO</td><td class='text-right font-bold text-blue-600'>968.84</td></tr><tr><td class='font-medium text-gray-900'>JOSE PINHEIRO COELHO FILHO</td><td class='text-right font-bold text-blue-600'>968.84</td></tr><tr><td class='font-medium text-gray-900'>KAREN MARIA PREZA NOGUEIRA</td><td class='text-right font-bold text-blue-600'>484.42</td></tr></tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-right">R$ 24,221.10</td></tr></tfoot></table></div>
+                    <table id='tbl-resumo'>
+                        <thead><tr><th>Profissional</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
+                        <tbody><tr><td class='font-bold'>JOSE PALMIRO DA SILVA NETO</td><td class='text-right font-bold text-blue-600'>16,954.80</td></tr><tr><td class='font-bold'>MARCIA REGINA NOBRES DA SILVA</td><td class='text-right font-bold text-blue-600'>3,390.94</td></tr><tr><td class='font-bold'>DEBORAH MARIA DE MOURA GONCALVES</td><td class='text-right font-bold text-blue-600'>1,453.26</td></tr><tr><td class='font-bold'>IGOR SEROR CUIABANO</td><td class='text-right font-bold text-blue-600'>968.84</td></tr><tr><td class='font-bold'>JOSE PINHEIRO COELHO FILHO</td><td class='text-right font-bold text-blue-600'>968.84</td></tr><tr><td class='font-bold'>KAREN MARIA PREZA NOGUEIRA</td><td class='text-right font-bold text-blue-600'>484.42</td></tr></tbody><tfoot><tr class="bg-gray-200 font-bold"><td>TOTAL</td><td class="text-right">R$ 24,221.10</td></tr></tfoot></table></div>
                 <div id="tab-detalhado" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento Completo</h2>
-                    <table id='tbl-detalhado' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Data</th><th>AIH</th><th>Profissional</th><th>Procedimento</th><th class='text-right'>Valor (R$)</th></tr></thead>
+                    <table id='tbl-detalhado'>
+                        <thead><tr><th>Data</th><th>AIH</th><th>Profissional</th><th>Procedimento</th><th class='text-right'>Valor (R$)</th></tr></thead>
                         <tbody><tr><td>18/11</td><td>5125101914405</td><td class='font-medium'>DEBORAH MARIA DE MOURA GONCALVES</td><td>2955318/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>18/11</td><td>5125101914416</td><td class='font-medium'>DEBORAH MARIA DE MOURA GONCALVES</td><td>2960518/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>18/11</td><td>5125101914427</td><td class='font-medium'>DEBORAH MARIA DE MOURA GONCALVES</td><td>2956218/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>17/11</td><td>5125101914350</td><td class='font-medium'>IGOR SEROR CUIABANO</td><td>1482217/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>17/11</td><td>5125101914394</td><td class='font-medium'>IGOR SEROR CUIABANO</td><td>2867317/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>10/11</td><td>5125101911545</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2768610/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>10/11</td><td>5125101911556</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2767810/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>03/11</td><td>5125101911567</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2767203/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>10/11</td><td>5125101911578</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2766910/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>03/11</td><td>5125101911589</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2767103/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>03/11</td><td>5125101911590</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2767003/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>03/11</td><td>5125101911600</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2767403/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>03/11</td><td>5125101911611</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2766703/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>17/11</td><td>5125101914340</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2867517/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>17/11</td><td>5125101914350</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>1482217/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>17/11</td><td>5125101914372</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2867217/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>17/11</td><td>5125101914394</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2867317/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>18/11</td><td>5125101914405</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2955318/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>18/11</td><td>5125101914416</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2960518/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>18/11</td><td>5125101914427</td><td class='font-medium'>JOSE PALMIRO DA SILVA NETO</td><td>2956218/11 0408050160</td><td class='text-right'>1,130.32</td></tr><tr><td>10/11</td><td>5125101911545</td><td class='font-medium'>JOSE PINHEIRO COELHO FILHO</td><td>2768610/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>10/11</td><td>5125101911556</td><td class='font-medium'>JOSE PINHEIRO COELHO FILHO</td><td>2767810/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>10/11</td><td>5125101911578</td><td class='font-medium'>KAREN MARIA PREZA NOGUEIRA</td><td>2766910/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>03/11</td><td>5125101911567</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2767203/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>03/11</td><td>5125101911589</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2767103/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>03/11</td><td>5125101911590</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2767003/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>03/11</td><td>5125101911600</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2767403/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>03/11</td><td>5125101911611</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2766703/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>17/11</td><td>5125101914340</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2867517/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>17/11</td><td>5125101914372</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2867217/11 0408050160</td><td class='text-right'>484.42</td></tr><tr><td>17/11</td><td>5125101914372</td><td class='font-medium'>MARCIA REGINA NOBRES DA SILVA</td><td>2867217/11 0408050160</td><td class='text-right'>0.00</td></tr></tbody></table></div></div></div>
         <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
         <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>

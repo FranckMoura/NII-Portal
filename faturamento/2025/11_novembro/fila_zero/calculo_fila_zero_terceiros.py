@@ -1,5 +1,5 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - FILA ZERO TERCEIROS (V2.7 - ALTO CONTRASTE IMPRESSÃO)
+# SISTEMA DE REPASSES - FILA ZERO TERCEIROS (V2.8 - TABELA FORMATADA)
 # ==============================================================================
 import pdfplumber
 import pandas as pd
@@ -10,12 +10,13 @@ import glob
 from datetime import datetime
 
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
-print(f"--- Processando Fila Zero - Terceiros/SADT (V2.7 - Alto Contraste) ---")
+print(f"--- Processando Fila Zero - Terceiros/SADT (V2.8 - Tabela Grid) ---")
 
 pdf_geral = glob.glob(os.path.join(PASTA_SCRIPT, 'R_RECEITA_PROCEDIMENTO_FILAZERO_1125.pdf'))
 if not pdf_geral: pdf_geral = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PROC_LANCAMENTOS*.pdf'))
 ARQUIVO_ENTRADA = pdf_geral[0] if pdf_geral else None
 
+# ... [MANTENHA A FUNÇÃO definir_grupo_macro IGUAL AO ANTERIOR - V2.7] ...
 def definir_grupo_macro(codigo, descricao):
     c = str(codigo).strip()
     d = str(descricao).upper().strip()
@@ -51,13 +52,11 @@ def definir_grupo_macro(codigo, descricao):
 def extrair_competencia(nome_arquivo):
     if not nome_arquivo: return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
     match = re.search(r'_(\d{2})(\d{2})\.pdf', nome_arquivo)
-    if match:
-        mes, ano = match.groups()
-        meses = {'01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril', '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto', '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'}
-        return f"{meses.get(mes, 'Mês')}/20{ano}", f"{mes}20{ano}"
+    if match: return f"{match.group(1)}/{'20'+match.group(2)}", f"{match.group(1)}{'20'+match.group(2)}"
     return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
 
 def ler_dados_terceiros(caminho):
+    # ... (Mesma lógica de leitura V2.7) ...
     if not caminho or not os.path.exists(caminho): return pd.DataFrame()
     dados = []
     with pdfplumber.open(caminho) as pdf:
@@ -77,10 +76,10 @@ def ler_dados_terceiros(caminho):
                             val_total_str = valores[-1].replace('.', '').replace(',', '.')
                             val_total = float(val_total_str)
                             qtd = 1
-                            numeros_inteiros = re.findall(r'\s(\d+)\s', line)
-                            if numeros_inteiros: qtd = int(numeros_inteiros[-1])
-                            grupo_macro = definir_grupo_macro(codigo, descricao)
-                            dados.append({'Grupo_Macro': grupo_macro, 'Codigo': codigo, 'Descricao': descricao, 'Qtd': qtd, 'Valor_Total': val_total})
+                            nums = re.findall(r'\s(\d+)\s', line)
+                            if nums: qtd = int(nums[-1])
+                            grupo = definir_grupo_macro(codigo, descricao)
+                            dados.append({'Grupo_Macro': grupo, 'Codigo': codigo, 'Descricao': descricao, 'Qtd': qtd, 'Valor_Total': val_total})
                         except: pass
     if not dados: return pd.DataFrame()
     return pd.DataFrame(dados)
@@ -116,24 +115,28 @@ def gerar_html_terceiros(df, nome_arquivo, competencia_label):
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
-            /* === ALTO CONTRASTE IMPRESSÃO === */
+            /* ESTILO TABELA EXECUTIVA */
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }}
+            th {{ background-color: #e2e8f0; color: #1e293b; font-weight: bold; text-transform: uppercase; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }}
+            td {{ padding: 8px; border: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }}
+            tr:nth-child(even) {{ background-color: #f8fafc; }}
+            .text-right {{ text-align: right; }}
+            .text-center {{ text-align: center; }}
+            .font-bold {{ font-weight: 700; }}
+
             @media print {{
-                @page {{ margin: 5mm; size: A4 portrait; }}
+                @page {{ margin: 10mm; size: A4 portrait; }}
                 body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
-                
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
                 .header-bg h1, .header-bg p, .header-bg i {{ color: white !important; -webkit-text-fill-color: white !important; }}
-                
                 .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }}
                 .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }}
-                
                 .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 {{ color: #000 !important; font-weight: 800 !important; }}
-                .text-gray-500, .text-gray-400 {{ color: #333 !important; font-weight: 600 !important; }}
-                
-                table {{ width: 100% !important; border-collapse: collapse !important; }}
-                th {{ background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }}
-                td {{ border-bottom: 1px solid #000 !important; color: #000 !important; }}
+                /* Bordas Pretas na Impressão */
+                th {{ background-color: #ddd !important; border: 1px solid #000 !important; color: #000 !important; }}
+                td {{ border: 1px solid #000 !important; color: #000 !important; }}
+                tr:nth-child(even) {{ background-color: #eee !important; }}
                 .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
                 .bg-white {{ box-shadow: none !important; }}
             }}
@@ -161,17 +164,17 @@ def gerar_html_terceiros(df, nome_arquivo, competencia_label):
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
                 <div id="tab-resumo" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Consolidado por Grupo de Procedimento</h2>
-                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Grupo / Tipo de Exame</th><th class='text-center'>Quantidade</th><th class='text-right'>Valor Faturado (R$)</th></tr></thead>
+                    <table id='tbl-resumo'>
+                        <thead><tr><th>Grupo / Tipo de Exame</th><th class='text-center'>Quantidade</th><th class='text-right'>Valor Faturado (R$)</th></tr></thead>
                         <tbody>"""
-    for _, row in df_macro.iterrows(): html += f"<tr><td class='font-medium text-gray-900'>{row['Grupo_Macro']}</td><td class='text-center'>{row['Qtd']}</td><td class='text-right font-bold text-blue-600'>{row['Valor_Total']:,.2f}</td></tr>"
-    html += f"""</tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAL GERAL</td><td class="text-center">{total_itens}</td><td class="text-right">R$ {total_geral:,.2f}</td></tr></tfoot></table></div>
+    for _, row in df_macro.iterrows(): html += f"<tr><td class='font-bold'>{row['Grupo_Macro']}</td><td class='text-center'>{row['Qtd']}</td><td class='text-right font-bold text-blue-600'>{row['Valor_Total']:,.2f}</td></tr>"
+    html += f"""</tbody><tfoot><tr class="bg-gray-200 font-bold"><td>TOTAL GERAL</td><td class="text-center">{total_itens}</td><td class="text-right">R$ {total_geral:,.2f}</td></tr></tfoot></table></div>
                 <div id="tab-detalhe" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento de Itens</h2>
-                    <table id='tbl-detalhe' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Grupo</th><th>Código</th><th>Descrição</th><th class='text-center'>Qtd</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
+                    <table id='tbl-detalhe'>
+                        <thead><tr><th>Grupo</th><th>Código</th><th>Descrição</th><th class='text-center'>Qtd</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
                         <tbody>"""
-    for _, row in df.iterrows(): html += f"<tr><td class='text-xs'>{row['Grupo_Macro']}</td><td>{row['Codigo']}</td><td class='font-medium'>{row['Descricao']}</td><td class='text-center'>{row['Qtd']}</td><td class='text-right'>{row['Valor_Total']:,.2f}</td></tr>"
+    for _, row in df.iterrows(): html += f"<tr><td class='text-xs'>{row['Grupo_Macro']}</td><td>{row['Codigo']}</td><td>{row['Descricao']}</td><td class='text-center'>{row['Qtd']}</td><td class='text-right'>{row['Valor_Total']:,.2f}</td></tr>"
     html += """</tbody></table></div></div></div>
         <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
         <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>
@@ -188,7 +191,7 @@ def gerar_html_terceiros(df, nome_arquivo, competencia_label):
         </script>
     </body></html>"""
     with open(nome_arquivo, 'w', encoding='utf-8') as f: f.write(html)
-    print(f"✅ Relatório HTML gerado (Fila Zero Terceiros): {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado: {os.path.basename(nome_arquivo)}")
     return total_geral
 
 def atualizar_portal(novo_registro):
@@ -220,4 +223,4 @@ if __name__ == "__main__":
             reg = { "titulo": f"Fila Zero Terceiros - {comp_label}", "competencia": comp_label, "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"), "valor_total": f"R$ {total_geral:,.2f}", "arquivo": caminho_web }
             atualizar_portal(reg)
         else: print("⚠️ Nenhum dado encontrado no PDF.")
-    else: print("❌ Erro: Nenhum arquivo 'R_RECEITA_PROCEDIMENTO_GERAL' ou 'LANCAMENTOS' encontrado.")
+    else: print("❌ Erro: Nenhum arquivo encontrado.")

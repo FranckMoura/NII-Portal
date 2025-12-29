@@ -1,0 +1,79 @@
+
+    <!DOCTYPE html>
+    <html lang='pt-BR'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Produção por Financiamento (Fila Zero) - Novembro/2025</title>
+        <script src='https://cdn.tailwindcss.com'></script>
+        <link rel='stylesheet' href='https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+            body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
+            .header-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; color: white !important; }
+            .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; border: 1px solid #e5e7eb; }
+            .tab-btn { cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }
+            .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+            .hidden { display: none !important; }
+            @media print {
+                @page { margin: 5mm; size: A4 portrait; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }
+                .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
+                .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
+                .header-bg h1, .header-bg p, .header-bg i { color: white !important; -webkit-text-fill-color: white !important; }
+                .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }
+                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }
+                .text-green-600, .text-blue-600, .text-purple-600 { color: #000 !important; font-weight: 800 !important; }
+                table { width: 100% !important; border-collapse: collapse !important; }
+                th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }
+                td { border-bottom: 1px solid #000 !important; color: #000 !important; }
+                .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
+                .bg-white { box-shadow: none !important; }
+            }
+        </style>
+    </head>
+    <body class='text-gray-800'>
+        <div class='header-bg p-8 shadow-lg mb-8'>
+            <div class='max-w-7xl mx-auto'>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-column text-3xl"></i></div>
+                    <div><h1 class='text-3xl font-bold'>Produção por Financiamento (Fila Zero)</h1><p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 29/12/2025</p></div>
+                </div>
+            </div>
+        </div>
+        <div class='max-w-7xl mx-auto px-4'>
+            <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+                <div class='card border-l-4 border-blue-500 flex items-center justify-between'><div><h3 class='text-gray-500 text-sm font-medium'>Produção Total</h3><p class='text-2xl font-bold text-gray-800'>R$ 131,599.05</p></div><i class="fa-solid fa-sack-dollar text-blue-200 text-3xl"></i></div>
+                <div class='card border-l-4 border-purple-500 flex items-center justify-between'><div><h3 class='text-gray-500 text-sm font-medium'>Qtd. Procedimentos</h3><p class='text-2xl font-bold text-purple-600'>6120752400</p></div><i class="fa-solid fa-layer-group text-purple-200 text-3xl"></i></div>
+                <div class='card border-l-4 border-green-500 flex items-center justify-between'><div><h3 class='text-gray-500 text-sm font-medium'>Principal Fonte</h3><p class='text-sm font-bold text-green-700 truncate w-32' title="GERAL">GERAL</p></div><i class="fa-solid fa-ranking-star text-green-200 text-3xl"></i></div>
+            </div>
+            <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4 no-print">
+                <button id="btn-resumo" class="tab-btn active" onclick="verTab('resumo')"><i class="fa-solid fa-pie-chart mr-2"></i> Por Fonte de Financiamento</button>
+                <button id="btn-detalhe" class="tab-btn" onclick="verTab('detalhe')"><i class="fa-solid fa-list mr-2"></i> Detalhado</button>
+            </div>
+            <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
+                <div id="tab-resumo" class="view-tab">
+                    <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo por Bloco de Financiamento</h2>
+                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Financiamento</th><th class='text-center'>Qtd</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
+                        <tbody><tr><td class='font-medium text-gray-900'>GERAL</td><td class='text-center'>6120752400</td><td class='text-right font-bold text-blue-600'>131,599.05</td></tr></tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-center">6120752400</td><td class="text-right">R$ 131,599.05</td></tr></tfoot></table></div>
+                <div id="tab-detalhe" class="view-tab hidden">
+                    <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento Completo</h2>
+                    <table id='tbl-detalhe' class='display w-full text-sm text-left text-gray-500'>
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Fonte</th><th>Código</th><th>Descrição</th><th class='text-center'>Qtd</th><th class='text-right'>Valor (R$)</th></tr></thead>
+                        <tbody><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>545 62819 27686ROSANA SOUSA LIMA DE OLIVEIRA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 10/11/25a 11/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>556 62828 27678MATHEUS HENRIQUE LISBOA PERE 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 10/11/25a 11/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>567 61036 27672WILLIAN GUEDES NOGUEIRA BRIO 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 03/11/25a 04/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>578 62823 27669MICHEL DUTRA PEREIRA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 10/11/25a 11/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>589 60996 27671RENATO SILVERIO DAVID 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 03/11/25a 04/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>590 61039 27670FABIANO OLIVEIRA DA SILVA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 03/11/25a 04/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>600 61030 27674ALEX APARECIDO DA SILVA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 03/11/25a 04/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101911</td><td class='font-medium'>611 61002 27667ALONSO CORREA NETO 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 03/11/25a 04/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>340 64296 28675THAIZA FERNANDA ANTUNES VIEIR 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 17/11/25a 18/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>350 64313 14822LUIZ CARLOS RODRIGUES DE MES 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 17/11/25a 18/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>372 64297 28672YASMIN TAYNARA BARBOZA SILVA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 17/11/25a 18/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>394 64301 28673LARISSA ROCHA DE SOUZA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 17/11/25a 18/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>405 64460 29553ROBSON VINICIUS AMARO BARROS 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 18/11/25a 19/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>416 64574 29605MARIA HELOISA POQUIVIQUI RIBEI 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 18/11/25a 19/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr><tr><td class='text-xs'>GERAL</td><td>5125101914</td><td class='font-medium'>427 64497 29562CHRISTIANE CAMILO TEIXEIRA 0408050160 RECONSTRUÇÃOLIGAMENTAR INTR 18/11/25a 19/11/25</td><td class='text-center'>408050160</td><td class='text-right'>8,773.27</td></tr></tbody></table></div></div></div>
+        <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+        <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                var config = { language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }, dom: 'Bfrtip', buttons: [ { extend: 'excel', text: 'Excel', className: 'bg-green-600 text-white px-3 py-1 rounded' }, { text: 'Imprimir Página', className: 'bg-blue-600 text-white px-3 py-1 rounded', action: function ( e, dt, node, config ) { window.print(); } } ], paging: false };
+                $('#tbl-resumo').DataTable(config); $('#tbl-detalhe').DataTable(config);
+            });
+            function verTab(id) { $('.view-tab').addClass('hidden'); $('#tab-' + id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-' + id).addClass('active'); }
+        </script>
+    </body></html>

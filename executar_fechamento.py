@@ -1,20 +1,19 @@
 # ==============================================================================
-# MASTER SCRIPT - FECHAMENTO DE COMPETÊNCIA
+# MASTER SCRIPT - FECHAMENTO DE COMPETÊNCIA (V2.0 - COMPLETO)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 29/12/2025
 # Descrição:
-#   1. Pergunta qual a pasta do mês (ex: faturamento/2025/11_novembro).
-#   2. Entra na pasta e executa TODOS os scripts de cálculo encontrados.
-#   3. Entra na subpasta 'fila_zero' (se existir) e executa os scripts de lá.
-#   4. Executa o Upload Manager para atualizar o site.
+#   1. Seleciona a pasta do mês.
+#   2. Executa TODOS os cálculos (Rateio, Terceiros, Financiamento, Fila Zero).
+#   3. Gera a Capa.
+#   4. Atualiza o Portal Web.
 # ==============================================================================
 
 import os
 import subprocess
-import glob
 import sys
 
-# Configuração de Cores para o Terminal
+# Cores para o Terminal
 VERDE = "\033[92m"
 AMARELO = "\033[93m"
 AZUL = "\033[94m"
@@ -23,27 +22,27 @@ RESET = "\033[0m"
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def executar_script(caminho_script):
-    """Executa um script Python em seu próprio diretório para não quebrar caminhos"""
+    """Executa um script Python em seu próprio diretório"""
     if os.path.exists(caminho_script):
         nome = os.path.basename(caminho_script)
         diretorio = os.path.dirname(caminho_script)
         
         print(f"   ... Rodando: {AMARELO}{nome}{RESET}")
         try:
-            # Executa o script usando o interpretador atual do sistema
             subprocess.run([sys.executable, caminho_script], cwd=diretorio, check=True)
             print(f"   {VERDE}✔ Sucesso: {nome}{RESET}")
         except subprocess.CalledProcessError:
             print(f"   ❌ Erro ao executar {nome}")
     else:
-        print(f"   ⚠️ Script não encontrado: {caminho_script}")
+        # Silencioso para scripts opcionais (ex: Fila Zero se não tiver)
+        pass
 
 def menu_selecao_pasta():
     print(f"\n{AZUL}=== GERENTE DE FECHAMENTO FINANCEIRO ==={RESET}")
     print("O script vai procurar pastas dentro de 'faturamento/2025/' (ou ano atual).")
     
-    # Tenta listar as pastas de meses automaticamente
-    ano_atual = "2025" # Pode automatizar com datetime se quiser
+    # Define ano base (pode ser dinâmico no futuro)
+    ano_atual = "2025" 
     base_path = os.path.join(ROOT_DIR, "faturamento", ano_atual)
     
     pastas_encontradas = []
@@ -68,7 +67,6 @@ def menu_selecao_pasta():
         if 0 <= idx < len(pastas_encontradas):
             pasta_escolhida = os.path.join(base_path, pastas_encontradas[idx])
     except:
-        # Se digitou texto, tenta achar o caminho
         if os.path.exists(opcao):
             pasta_escolhida = opcao
         elif os.path.exists(os.path.join(base_path, opcao)):
@@ -85,35 +83,39 @@ if __name__ == "__main__":
     target_dir = menu_selecao_pasta()
     
     if not target_dir or not os.path.exists(target_dir):
-        print(f"\n❌ Pasta inválida ou não encontrada. Verifique o caminho.")
+        print(f"\n❌ Pasta inválida ou não encontrada.")
         sys.exit()
         
     print(f"\n{AZUL}🚀 INICIANDO FECHAMENTO NA PASTA:{RESET} {target_dir}\n")
     
-    # 1. Scripts Principais (Rateio, Terceiros, Capa)
+    # 1. Scripts Principais (Pasta do Mês)
     scripts_principais = [
-        "calculo_rateio_equipe.py",
-        "calculo_repasse_terceiros.py",
-        "gerar_capa.py"
+        "calculo_rateio_equipe.py",       # Rateio Médico
+        "calculo_repasse_terceiros.py",   # SADT Fornecedores
+        "calculo_financiamento_geral.py", # Financiamento MAC/FAEC Geral
+        "gerar_capa.py"                   # Capa
     ]
     
     for script in scripts_principais:
         executar_script(os.path.join(target_dir, script))
         
-    # 2. Scripts Fila Zero (Geralmente em subpasta, mas verificamos os dois)
-    pasta_fila_zero = os.path.join(target_dir, "fila_zero")
+    # 2. Scripts Fila Zero (Subpasta ou Raiz)
+    # Lista de scripts do Fila Zero
     scripts_fz = [
-        "calculo_fila_zero.py",
-        "calculo_fila_zero_terceiros.py"
+        "calculo_fila_zero.py",           # Médico Extra
+        "calculo_fila_zero_terceiros.py", # SADT Extra
+        "calculo_financiamento_fz.py"     # Financiamento FZ
     ]
+    
+    pasta_fila_zero = os.path.join(target_dir, "fila_zero")
     
     if os.path.exists(pasta_fila_zero):
         print(f"\n{AZUL}>> Processando Fila Zero (Subpasta)...{RESET}")
         for script in scripts_fz:
             executar_script(os.path.join(pasta_fila_zero, script))
     else:
-        # Tenta achar na raiz mesmo se não tiver subpasta
-        print(f"\n{AZUL}>> Verificando Fila Zero na raiz...{RESET}")
+        # Caso o usuário tenha salvado tudo na mesma pasta raiz
+        print(f"\n{AZUL}>> Verificando scripts Fila Zero na raiz...{RESET}")
         for script in scripts_fz:
             full = os.path.join(target_dir, script)
             if os.path.exists(full):
@@ -126,4 +128,3 @@ if __name__ == "__main__":
     
     print(f"\n{VERDE}✅ FECHAMENTO CONCLUÍDO COM SUCESSO!{RESET}")
     print("Todos os relatórios foram gerados e o portal foi atualizado.")
-    print("Agora basta abrir a pasta, abrir os HTMLs e imprimir.")

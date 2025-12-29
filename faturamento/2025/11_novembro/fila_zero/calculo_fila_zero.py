@@ -1,5 +1,5 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - FILA ZERO (V4.1 - ALTO CONTRASTE IMPRESSÃO)
+# SISTEMA DE REPASSES - FILA ZERO (V5.0 - TABELA FORMATADA)
 # ==============================================================================
 import pdfplumber
 import pandas as pd
@@ -10,7 +10,7 @@ import glob
 from datetime import datetime
 
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
-print(f"--- Processando Fila Zero (V4.1 - Alto Contraste) ---")
+print(f"--- Processando Fila Zero (V5.0 - Tabela Grid) ---")
 
 pdf_receita = glob.glob(os.path.join(PASTA_SCRIPT, 'R_RECEITA*.pdf'))
 pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
@@ -19,10 +19,7 @@ ARQUIVO_PDF_PRODUCAO = pdf_producao[0] if pdf_producao else "NAO_ENCONTRADO"
 
 def extrair_competencia(nome_arquivo):
     match = re.search(r'_(\d{2})(\d{2})\.pdf', nome_arquivo)
-    if match:
-        mes, ano = match.groups()
-        meses = {'01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril', '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto', '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'}
-        return f"{meses.get(mes, 'Mês')}/20{ano}", f"{mes}20{ano}"
+    if match: return f"{match.group(1)}/{'20'+match.group(2)}", f"{match.group(1)}{'20'+match.group(2)}"
     return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
 
 def ler_valor_total_receita(caminho_pdf):
@@ -36,10 +33,7 @@ def ler_valor_total_receita(caminho_pdf):
                 if "Total" in line or "TOTAL" in line:
                     valores = re.findall(r'[\d\.]*[\d]\,\d{2}', line)
                     if valores:
-                        v_str = valores[-1].replace('.', '').replace(',', '.')
-                        try:
-                            v = float(v_str)
-                            if v > total: total = v
+                        try: total = max(total, float(valores[-1].replace('.', '').replace(',', '.')))
                         except: pass
     return total
 
@@ -71,8 +65,7 @@ def processar_producao_detalhada():
                 eh_item_pagamento = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
                 if valores_encontrados and eh_item_pagamento:
                     valor_str = valores_encontrados[-1].replace('.', '').replace(',', '.')
-                    valor = float(valor_str)
-                    dados_detalhados.append({'Prestador': medico_atual, 'Data': data_atual, 'AIH': aih_atual, 'Procedimento': proc_atual if len(proc_atual) > 3 else "PROCEDIMENTO", 'Valor': valor})
+                    dados_detalhados.append({'Prestador': medico_atual, 'Data': data_atual, 'AIH': aih_atual, 'Procedimento': proc_atual if len(proc_atual) > 3 else "PROCEDIMENTO", 'Valor': float(valor_str)})
     if not dados_detalhados: return pd.DataFrame()
     return pd.DataFrame(dados_detalhados)
 
@@ -81,8 +74,7 @@ def gerar_html_fila_zero(df_detalhado, nome_arquivo, competencia_label, total_re
     df_resumo = df_resumo.sort_values(by='Valor', ascending=False)
     total_repassar = df_resumo['Valor'].sum()
     aihs_validas = df_detalhado[df_detalhado['AIH'] != '-']['AIH'].unique()
-    qtd_procedimentos_reais = len(aihs_validas)
-    if qtd_procedimentos_reais == 0: qtd_procedimentos_reais = len(df_detalhado)
+    qtd_procedimentos_reais = len(aihs_validas) if len(aihs_validas) > 0 else len(df_detalhado)
 
     html = f"""
     <!DOCTYPE html>
@@ -103,24 +95,28 @@ def gerar_html_fila_zero(df_detalhado, nome_arquivo, competencia_label, total_re
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
-            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
+            /* ESTILO TABELA EXECUTIVA */
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }}
+            th {{ background-color: #e2e8f0; color: #1e293b; font-weight: bold; text-transform: uppercase; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }}
+            td {{ padding: 8px; border: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }}
+            tr:nth-child(even) {{ background-color: #f8fafc; }}
+            .text-right {{ text-align: right; }}
+            .text-center {{ text-align: center; }}
+            .font-bold {{ font-weight: 700; }}
+
             @media print {{
-                @page {{ margin: 5mm; size: A4 portrait; }}
+                @page {{ margin: 10mm; size: A4 portrait; }}
                 body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
-                
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
                 .header-bg h1, .header-bg p, .header-bg i {{ color: white !important; -webkit-text-fill-color: white !important; }}
-                
                 .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }}
                 .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }}
-                
-                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 {{ color: #000 !important; font-weight: 800 !important; }}
-                .text-gray-500, .text-gray-400 {{ color: #333 !important; font-weight: 600 !important; }}
-                
-                table {{ width: 100% !important; border-collapse: collapse !important; }}
-                th {{ background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }}
-                td {{ border-bottom: 1px solid #000 !important; color: #000 !important; }}
+                .text-green-600, .text-blue-600, .text-purple-600 {{ color: #000 !important; font-weight: 800 !important; }}
+                /* Bordas Pretas na Impressão */
+                th {{ background-color: #ddd !important; border: 1px solid #000 !important; color: #000 !important; }}
+                td {{ border: 1px solid #000 !important; color: #000 !important; }}
+                tr:nth-child(even) {{ background-color: #eee !important; }}
                 .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
                 .bg-white {{ box-shadow: none !important; }}
             }}
@@ -148,15 +144,15 @@ def gerar_html_fila_zero(df_detalhado, nome_arquivo, competencia_label, total_re
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
                 <div id="tab-resumo" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo por Profissional</h2>
-                    <table id='tbl-resumo' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
+                    <table id='tbl-resumo'>
+                        <thead><tr><th>Profissional</th><th class='text-right'>Valor Total (R$)</th></tr></thead>
                         <tbody>"""
-    for _, row in df_resumo.iterrows(): html += f"<tr><td class='font-medium text-gray-900'>{row['Prestador']}</td><td class='text-right font-bold text-blue-600'>{row['Valor']:,.2f}</td></tr>"
-    html += f"""</tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAL</td><td class="text-right">R$ {total_repassar:,.2f}</td></tr></tfoot></table></div>
+    for _, row in df_resumo.iterrows(): html += f"<tr><td class='font-bold'>{row['Prestador']}</td><td class='text-right font-bold text-blue-600'>{row['Valor']:,.2f}</td></tr>"
+    html += f"""</tbody><tfoot><tr class="bg-gray-200 font-bold"><td>TOTAL</td><td class="text-right">R$ {total_repassar:,.2f}</td></tr></tfoot></table></div>
                 <div id="tab-detalhado" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Detalhamento Completo</h2>
-                    <table id='tbl-detalhado' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Data</th><th>AIH</th><th>Profissional</th><th>Procedimento</th><th class='text-right'>Valor (R$)</th></tr></thead>
+                    <table id='tbl-detalhado'>
+                        <thead><tr><th>Data</th><th>AIH</th><th>Profissional</th><th>Procedimento</th><th class='text-right'>Valor (R$)</th></tr></thead>
                         <tbody>"""
     for _, row in df_detalhado.iterrows(): html += f"<tr><td>{row['Data']}</td><td>{row['AIH']}</td><td class='font-medium'>{row['Prestador']}</td><td>{row['Procedimento']}</td><td class='text-right'>{row['Valor']:,.2f}</td></tr>"
     html += """</tbody></table></div></div></div>
@@ -175,7 +171,7 @@ def gerar_html_fila_zero(df_detalhado, nome_arquivo, competencia_label, total_re
         </script>
     </body></html>"""
     with open(nome_arquivo, 'w', encoding='utf-8') as f: f.write(html)
-    print(f"✅ Relatório HTML gerado (Fila Zero V4.1): {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado: {os.path.basename(nome_arquivo)}")
 
 def atualizar_portal(novo_registro):
     caminho_atual = PASTA_SCRIPT
