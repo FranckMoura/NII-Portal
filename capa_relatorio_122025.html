@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capa - DEZEMBRO/2025</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap');
+        body { margin: 0; padding: 0; font-family: 'Roboto', sans-serif; background-color: white; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+        .top-bar { width: 100%; height: 15px; background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); }
+        .content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 85%; }
+        .logo-container { margin-bottom: 50px; height: 120px; display: flex; align-items: center; justify-content: center; }
+        .logo-img { max-height: 100%; max-width: 450px; object-fit: contain; }
+        h2 { font-size: 22px; font-weight: 400; letter-spacing: 3px; color: #555; margin: 0; text-transform: uppercase; }
+        h1 { font-size: 42px; font-weight: 900; color: #1e3a8a; margin: 30px 0; line-height: 1.2; text-transform: uppercase; }
+        .divider { width: 120px; height: 5px; background: #3b82f6; margin: 20px auto; border-radius: 3px; }
+        .subtitle { font-size: 24px; color: #3b82f6; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }
+        .competencia-box { margin-top: 50px; border: 2px solid #e5e7eb; padding: 25px 80px; border-radius: 8px; background-color: #f8fafc; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .competencia-label { font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-weight: bold; }
+        .competencia-value { font-size: 42px; font-weight: 900; color: #1e293b; }
+        .footer { width: 100%; background-color: #f1f5f9; padding: 40px 0; border-top: 4px solid #1e3a8a; }
+        .dept-title { font-weight: 900; color: #1e3a8a; font-size: 16px; margin-bottom: 15px; letter-spacing: 1px; }
+        .name { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0; }
+        .role { font-size: 14px; color: #64748b; margin: 2px 0 0 0; text-transform: uppercase; }
+        .location { margin-top: 30px; font-size: 12px; color: #94a3b8; }
+        @media print { @page { size: A4 portrait; margin: 0; } body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="top-bar"></div>
+    <div class="content">
+        <div class="logo-container"><img src="https://franckmoura.github.io/NII-Portal/img/logo.png" alt="Logo" class="logo-img"></div>
+        <h2>Hospital Beneficente Santa Helena</h2>
+        <h1>Relatório Gerencial<br>de Faturamento e Produção Hospitalar</h1>
+        <div class="divider"></div>
+        <div class="subtitle">Convênio SUS</div>
+        <div class="competencia-box">
+            <div class="competencia-label">Competência</div>
+            <div class="competencia-value">DEZEMBRO/2025</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="footer-content">
+            <div class="dept-title">DEPARTAMENTO DE FATURAMENTO</div>
+            <div class="signature-block">
+                <p class="name">Franck Moura</p>
+                <p class="role">Coordenador de Faturamento - SUS</p>
+            </div>
+            <div class="location">Cuiabá - Mato Grosso | Gerado em: 29/12/2025</div>
+        </div>
+    </div>
+    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px;">
+        <button onclick="window.print()" style="background: #2563eb; color: white; border: none; padding: 15px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(37,99,235,0.3); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-print"></i> IMPRIMIR CAPA
+        </button>
+    </div>
+</body>
+</html>

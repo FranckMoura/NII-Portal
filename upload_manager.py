@@ -1,95 +1,97 @@
+# ==============================================================================
+# GERENCIADOR DE UPLOAD NII PORTAL (V6.0 - GIT ROBUSTO)
+# Autor: Franck Moura (Via NII Automation)
+# Data: 29/12/2025
+# Descrição: Sincroniza arquivos locais com o GitHub Pages.
+#            Correção: Força 'git add --all' e detecta branch automaticamente.
+# ==============================================================================
+
 import os
-import json
 import subprocess
+import sys
 from datetime import datetime
 
-# --- CONFIGURAÇÕES ---
-PASTA_ARQUIVOS = 'arquivos'
-ARQUIVO_DB_JSON = 'dados.json'
+# Cores para o terminal
+VERDE = "\033[92m"
+AMARELO = "\033[93m"
+VERMELHO = "\033[91m"
+RESET = "\033[0m"
 
-print("--- INICIANDO GERENCIADOR DE UPLOAD NII (V5 - FINANCEIRO) ---")
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 1. Atualiza lista de downloads GERAIS (Mantido da versão anterior)
-# (Isso gerencia os arquivos soltos da pasta 'arquivos', não mexe no financeiro)
-lista_arquivos = []
-if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
-
-print(f"Lendo arquivos em '{PASTA_ARQUIVOS}'...")
-for nome_arquivo in os.listdir(PASTA_ARQUIVOS):
-    if nome_arquivo.startswith('.'): continue
-    caminho_completo = os.path.join(PASTA_ARQUIVOS, nome_arquivo)
+def run_command(command, description):
+    """Executa comando no terminal e trata erros"""
+    print(f" -> {description}...", end=" ", flush=True)
     try:
-        stats = os.stat(caminho_completo)
-        tamanho_kb = round(stats.st_size / 1024, 2)
-        data_modificacao = datetime.fromtimestamp(stats.st_mtime).strftime('%d/%m/%Y')
-        tipo = "outro"
-        icone = "📄"
-        if nome_arquivo.lower().endswith('.pdf'): tipo, icone = "pdf", "📕"
-        elif nome_arquivo.lower().endswith('.html'): tipo, icone = "html", "🌐"
-        elif nome_arquivo.lower().endswith('.csv'): tipo, icone = "csv", "📊"
-        elif nome_arquivo.lower().endswith('.parquet'): tipo, icone = "parquet", "📦"
-        elif nome_arquivo.lower().endswith('.xls'): tipo, icone = "excel", "📗"
+        # cwd=ROOT_DIR garante que o comando rode na pasta certa
+        result = subprocess.run(
+            command, 
+            cwd=ROOT_DIR, 
+            shell=True, 
+            check=True, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        print(f"{VERDE}OK{RESET}")
+        return True, result.stdout
+    except subprocess.CalledProcessError as e:
+        # Se for erro de "nothing to commit", ignoramos (não é erro crítico)
+        if "nothing to commit" in e.stdout or "nothing to commit" in e.stderr:
+            print(f"{AMARELO}Nada novo para enviar.{RESET}")
+            return True, "Nada novo"
+        
+        print(f"{VERMELHO}FALHOU{RESET}")
+        print(f"\n   ERRO DETALHADO:\n   {e.stderr}")
+        return False, e.stderr
 
-        lista_arquivos.append({
-            "nome": nome_arquivo,
-            "caminho": f"{PASTA_ARQUIVOS}/{nome_arquivo}",
-            "tamanho": f"{tamanho_kb} KB",
-            "data": data_modificacao,
-            "tipo": tipo,
-            "icone": icone
-        })
-    except: pass
+def get_current_branch():
+    """Descobre o nome da branch atual (ex: main ou main1)"""
+    try:
+        result = subprocess.run(
+            ['git', 'branch', '--show-current'], 
+            cwd=ROOT_DIR, 
+            capture_output=True, 
+            text=True
+        )
+        branch = result.stdout.strip()
+        if branch: return branch
+        return "main" # Fallback
+    except:
+        return "main"
 
-with open(ARQUIVO_DB_JSON, 'w', encoding='utf-8') as f:
-    json.dump(lista_arquivos, f, indent=4, ensure_ascii=False)
+# ==============================================================================
+# FLUXO PRINCIPAL
+# ==============================================================================
 
-# 2. UPLOAD CIRÚRGICO (ATUALIZADO PARA FINANCEIRO)
-print("\nEnviando para o Portal...")
-try:
-    # Lista de arquivos OBRIGATÓRIOS para o site funcionar
-    arquivos_vitais = [
-        "index.html",
-        "financeiro.html",       # [NOVO] Módulo Financeiro
-        "dados_financeiro.json", # [NOVO] Base de dados Financeira
-        "painel_regulacao.html",
-        "indicasus.html",
-        "faturamento.html",
-        "manuais.html",
-        "indicadores.html",
-        "dados.json",
-        "css/",
-        "js/",
-        "img/",
-        "arquivos/",             # Pasta de arquivos gerais
-        "faturamento/"           # [NOVO] Pasta onde ficam os relatórios mensais gerados
-    ]
+if __name__ == "__main__":
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f"{VERDE}--- SINCRONIZADOR NII PORTAL (V6.0) ---{RESET}")
+    print(f"Pasta Raiz: {ROOT_DIR}\n")
 
-    # Adiciona cada item vital (Arquivos e Pastas)
-    for item in arquivos_vitais:
-        if os.path.exists(item):
-            print(f" -> Preparando: {item}")
-            subprocess.run(["git", "add", item], check=False)
+    # 1. Identificar Branch
+    branch_atual = get_current_branch()
+    print(f"📡 Branch detectada: {AMARELO}{branch_atual}{RESET}\n")
+
+    # 2. Adicionar TUDO (A etapa que faltava/falhou)
+    # git add --all garante que novos arquivos, modificados e deletados sejam processados
+    sucesso_add, _ = run_command(['git', 'add', '--all'], "Adicionando arquivos (Staging)")
     
-    # Força adicionar scripts Python (backup) em TODAS as pastas (recursivo)
-    # Isso garante que o 'calculo_rateio_equipe.py' que está lá na pasta do mês seja salvo
-    subprocess.run(["git", "add", "*.py"], check=False)
-    subprocess.run(["git", "add", "**/*.py"], check=False) # Tenta pegar em subpastas
+    if sucesso_add:
+        # 3. Commit (Empacotar)
+        data_hora = datetime.now().strftime("%d/%m %H:%M")
+        msg_commit = f"Atualizacao Automatica: {data_hora}"
+        sucesso_commit, _ = run_command(['git', 'commit', '-m', msg_commit], "Criando pacote (Commit)")
 
-    # Commit e Push
-    msg = f"Atualização Financeiro: {datetime.now().strftime('%d/%m %H:%M')}"
+        # 4. Push (Enviar)
+        # Se o commit passou (ou se não tinha nada mas tem commits pendentes), tenta o push
+        print(f" -> Enviando para nuvem (Push)...", end=" ", flush=True)
+        try:
+            subprocess.run(['git', 'push', 'origin', branch_atual], cwd=ROOT_DIR, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"{VERDE}SUCESSO TOTAL! 🚀{RESET}")
+            print("\n✅ Seu portal foi atualizado. Aguarde 1 ou 2 minutos para refletir no site.")
+        except subprocess.CalledProcessError as e:
+            print(f"{VERMELHO}ERRO NO ENVIO{RESET}")
+            print("   Verifique sua conexão com a internet ou credenciais do Git.")
     
-    # Verifica se tem algo para commitar
-    status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout
-    
-    if status:
-        subprocess.run(["git", "commit", "-m", msg], check=True)
-        print("   -> Commit realizado.")
-        subprocess.run(["git", "push"], check=True)
-        print("\n✅ [SUCESSO] Site atualizado! O módulo financeiro já deve estar no ar.")
-    else:
-        print("\nℹ️ [INFO] Nada mudou desde o último envio.")
-
-except subprocess.CalledProcessError as e:
-    print(f"\n❌ [ERRO NO GIT] {e}")
-except Exception as e:
-    print(f"\n❌ [ERRO GERAL] {e}")
+    print("\n---------------------------------------------------")
