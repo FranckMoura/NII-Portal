@@ -1,129 +1,187 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - Módulo Financeiro</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; background-color: #f8f9fa; }
-        .nii-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 1.5rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .report-card { 
-            background: white; border-radius: 8px; padding: 20px; 
-            border: 1px solid #e5e7eb; transition: all 0.3s ease;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .report-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-color: #3b82f6; }
-        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .status-success { background-color: #dcfce7; color: #166534; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .folder-header { transition: all 0.3s ease; }
+        .folder-header:hover { background-color: #f8fafc; }
+        .rotate-icon { transform: rotate(180deg); }
     </style>
 </head>
-<body class="text-gray-700">
+<body class="text-slate-800">
 
-    <header class="nii-header mb-8">
-        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg">
-                    <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800">Painel Financeiro</h1>
+                        <p class="text-xs text-slate-500">Gestão de Repasses e Produção</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold text-gray-800">Painel Financeiro</h1>
-                    <p class="text-xs text-gray-500">Gestão de Repasses e Produção</p>
+                <div class="flex items-center">
+                    <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Voltar ao Portal
+                    </a>
                 </div>
             </div>
-            <a href="index.html" class="text-sm text-gray-500 hover:text-blue-600 transition">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Voltar ao Portal
-            </a>
         </div>
-    </header>
+    </nav>
 
-    <main class="max-w-6xl mx-auto px-4 pb-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
-        <div id="area-avisos" class="mb-6"></div>
-
-        <div id="lista-relatorios" class="grid grid-cols-1 gap-4">
-            <div class="text-center py-12 text-gray-400">
-                <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
-                <p>Carregando relatórios...</p>
+        <div id="container-pastas" class="space-y-6">
+            <div class="text-center py-10">
+                <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl"></i>
+                <p class="mt-2 text-gray-500">Carregando dados financeiros...</p>
             </div>
         </div>
 
     </main>
 
     <script>
-        // Função para criar o HTML de cada card
-        function criarCartaoRelatorio(rel) {
-            return `
-            <div class="report-card">
-                <div class="flex items-center gap-4">
-                    <div class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">
-                        <i class="fa-solid fa-file-contract"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-lg">${rel.titulo}</h3>
-                        <div class="flex items-center gap-3 text-sm text-gray-500 mt-1">
-                            <span><i class="fa-regular fa-calendar mr-1"></i> ${rel.competencia}</span>
-                            <span class="hidden sm:inline">|</span>
-                            <span class="hidden sm:inline"><i class="fa-solid fa-clock mr-1"></i> Gerado em: ${rel.data_geracao}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col items-end gap-2">
-                    <span class="text-xl font-bold text-gray-900">${rel.valor_total}</span>
-                    <a href="${rel.arquivo}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
-                        <i class="fa-solid fa-eye"></i> Visualizar
-                    </a>
-                </div>
-            </div>
-            `;
+        // Mapa para ordenar os meses corretamente
+        const mesesMap = {
+            'JANEIRO': 1, 'FEVEREIRO': 2, 'MARÇO': 3, 'ABRIL': 4, 'MAIO': 5, 'JUNHO': 6,
+            'JULHO': 7, 'AGOSTO': 8, 'SETEMBRO': 9, 'OUTUBRO': 10, 'NOVEMBRO': 11, 'DEZEMBRO': 12
+        };
+
+        // Função para converter valor string "R$ 1.000,00" em float
+        function parseValor(valorStr) {
+            if (!valorStr) return 0;
+            return parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.').trim());
         }
 
-        // Carrega o JSON
-        function carregarRelatorios() {
-            const container = document.getElementById('lista-relatorios');
-            const areaAvisos = document.getElementById('area-avisos');
+        // Função para ordenar competências (Mais recente primeiro)
+        function sortCompetencias(a, b) {
+            const [mesA, anoA] = a.split('/');
+            const [mesB, anoB] = b.split('/');
             
-            // ADICIONAMOS ?v=DATA PARA FORÇAR O NAVEGADOR A NÃO USAR O CACHE
-            const urlJson = 'arquivos/dados_financeiro.json?v=' + new Date().getTime();
+            if (anoA !== anoB) return parseInt(anoB) - parseInt(anoA);
+            return mesesMap[mesB.toUpperCase()] - mesesMap[mesA.toUpperCase()];
+        }
 
-            fetch(urlJson)
-                .then(response => {
-                    if (!response.ok) throw new Error("Arquivo JSON não encontrado");
-                    return response.json();
-                })
-                .then(data => {
-                    container.innerHTML = ''; // Limpa o loading
+        async function carregarFinanceiro() {
+            const container = document.getElementById('container-pastas');
+            
+            try {
+                // Busca o JSON (ajuste o caminho se necessário)
+                const response = await fetch('arquivos/dados_financeiro.json');
+                const dados = await response.json();
 
-                    if (data.length === 0) {
-                        container.innerHTML = `
-                            <div class="text-center py-8 text-gray-400">
-                                <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
-                                <p>Ainda não há relatórios gerados.</p>
-                            </div>`;
-                    } else {
-                        data.forEach(rel => {
-                            container.innerHTML += criarCartaoRelatorio(rel);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.warn("Erro ao carregar dados:", error);
-                    container.innerHTML = `
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-yellow-700">
-                            <p class="font-bold">Aviso:</p>
-                            <p>Não foi possível carregar a lista de relatórios automaticamente.</p>
-                            <p class="text-sm mt-1 opacity-75">Erro: ${error.message}</p>
+                // 1. Agrupar por Competência
+                const grupos = {};
+                dados.forEach(item => {
+                    const comp = item.competencia || "Outros";
+                    if (!grupos[comp]) grupos[comp] = [];
+                    grupos[comp].push(item);
+                });
+
+                // 2. Ordenar as chaves (meses)
+                const competenciasOrdenadas = Object.keys(grupos).sort(sortCompetencias);
+
+                container.innerHTML = ''; // Limpa loading
+
+                // 3. Gerar HTML para cada grupo
+                competenciasOrdenadas.forEach((comp, index) => {
+                    const itens = grupos[comp];
+                    
+                    // Calcula total do mês
+                    const totalMes = itens.reduce((acc, item) => acc + parseValor(item.valor_total), 0);
+                    
+                    // Define se a pasta começa aberta (apenas a primeira/mais recente)
+                    const isOpen = index === 0;
+                    const hiddenClass = isOpen ? '' : 'hidden';
+                    const rotateClass = isOpen ? 'rotate-180' : '';
+
+                    const pastaHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <button onclick="togglePasta('pasta-${index}', 'icon-${index}')" class="folder-header w-full flex items-center justify-between p-5 text-left bg-white border-b border-gray-100 cursor-pointer outline-none">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center border border-blue-100">
+                                        <i class="fa-regular fa-folder-open text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-lg font-bold text-slate-800">${comp}</h2>
+                                        <p class="text-sm text-slate-500">${itens.length} relatórios disponíveis</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <div class="text-right hidden sm:block">
+                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total da Competência</p>
+                                        <p class="text-lg font-bold text-green-600">R$ ${totalMes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                                    </div>
+                                    <i id="icon-${index}" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 ${rotateClass}"></i>
+                                </div>
+                            </button>
+
+                            <div id="pasta-${index}" class="bg-slate-50 p-5 ${hiddenClass}">
+                                <div class="grid grid-cols-1 gap-4">
+                                    ${itens.map(item => `
+                                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row items-center justify-between gap-4">
+                                            <div class="flex items-center gap-4 w-full sm:w-auto">
+                                                <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-file-contract"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="font-semibold text-slate-800">${item.titulo}</h3>
+                                                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                                                        <span><i class="fa-regular fa-calendar mr-1"></i> ${item.competencia}</span>
+                                                        <span><i class="fa-regular fa-clock mr-1"></i> Gerado em: ${item.data_geracao.split(' ')[0]}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between w-full sm:w-auto gap-6 pl-14 sm:pl-0">
+                                                <div class="text-right">
+                                                    <span class="block text-xs text-slate-400 font-medium">VALOR</span>
+                                                    <span class="block font-bold text-slate-700 text-lg">${item.valor_total}</span>
+                                                </div>
+                                                <a href="${item.arquivo}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                                    <i class="fa-solid fa-eye"></i> Visualizar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
                         </div>
                     `;
+                    container.innerHTML += pastaHTML;
                 });
+
+            } catch (error) {
+                console.error("Erro:", error);
+                container.innerHTML = `<div class="text-center text-red-500 py-10"><i class="fa-solid fa-triangle-exclamation text-4xl mb-2"></i><br>Erro ao carregar dados financeiros.<br>Verifique se o arquivo JSON existe.</div>`;
+            }
+        }
+
+        // Função para abrir/fechar pastas
+        function togglePasta(idPasta, idIcone) {
+            const conteudo = document.getElementById(idPasta);
+            const icone = document.getElementById(idIcone);
+            
+            if (conteudo.classList.contains('hidden')) {
+                conteudo.classList.remove('hidden');
+                icone.classList.add('rotate-180');
+            } else {
+                conteudo.classList.add('hidden');
+                icone.classList.remove('rotate-180');
+            }
         }
 
         // Inicia
-        carregarRelatorios();
+        document.addEventListener('DOMContentLoaded', carregarFinanceiro);
     </script>
 </body>
 </html>
