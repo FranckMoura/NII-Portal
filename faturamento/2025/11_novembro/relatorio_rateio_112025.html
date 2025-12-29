@@ -11,755 +11,84 @@
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
             body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
-            
             .header-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; color: white !important; }
             .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; border: 1px solid #e5e7eb; }
             .tab-btn { cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }
             .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
             .hidden { display: none !important; }
 
+            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
             @media print {
                 @page { margin: 5mm; size: A4 portrait; }
-                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
+                
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
-                h1 { font-size: 16px !important; }
-                .header-bg p { font-size: 10px !important; }
+                .header-bg h1, .header-bg p, .header-bg i { color: white !important; -webkit-text-fill-color: white !important; }
+                
                 .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }
-                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }
-                .card h3 { font-size: 8px !important; }
-                .card p { font-size: 12px !important; }
-                .card i { display: none !important; }
+                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }
+                
+                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 { color: #000 !important; font-weight: 800 !important; }
+                .text-gray-500, .text-gray-400 { color: #333 !important; font-weight: 600 !important; }
+                .text-blue-100 { color: #fff !important; }
+
                 table { width: 100% !important; border-collapse: collapse !important; }
-                th { background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }
-                td { font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }
+                th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }
+                td { border-bottom: 1px solid #000 !important; color: #000 !important; }
                 .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
                 .bg-white { box-shadow: none !important; }
             }
         </style>
     </head>
     <body class='text-gray-800'>
-        
         <div class='header-bg p-8 shadow-lg mb-8'>
             <div class='max-w-7xl mx-auto'>
                 <div class="flex items-center gap-4">
                     <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-users-between-lines text-3xl"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold'>Relatório de Repasse de Equipe</h1>
-                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 28/12/2025</p>
+                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 29/12/2025</p>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class='max-w-7xl mx-auto px-4'>
-            
             <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
                 <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Receita Rateio (SP)</h3>
-                        <p class='text-2xl font-bold text-gray-800'>R$ 102,034.76</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Receita Rateio (SP)</h3><p class='text-2xl font-bold text-gray-800'>R$ 24,221.10</p></div>
                     <i class="fa-solid fa-chart-pie text-blue-200 text-3xl"></i>
                 </div>
                 <div class='card border-l-4 border-orange-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Produção Extra (Individual)</h3>
-                        <p class='text-2xl font-bold text-orange-600'>R$ 206,389.04</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Produção Extra (Individual)</h3><p class='text-2xl font-bold text-orange-600'>R$ 303,579.58</p></div>
                     <i class="fa-solid fa-user-doctor text-orange-200 text-3xl"></i>
                 </div>
                  <div class='card border-l-4 border-green-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Total Geral a Repassar</h3>
-                        <p class='text-2xl font-bold text-green-600'>R$ 308,423.80</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Total Geral a Repassar</h3><p class='text-2xl font-bold text-green-600'>R$ 327,800.68</p></div>
                     <i class="fa-solid fa-money-check-dollar text-green-200 text-3xl"></i>
                 </div>
             </div>
-
             <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4 no-print">
-                <button id="btn-geral" class="tab-btn active" onclick="verTab('geral')">
-                    <i class="fa-solid fa-list-check mr-2"></i> Visão Geral (Final)
-                </button>
-                <button id="btn-rateio" class="tab-btn" onclick="verTab('rateio')">
-                    <i class="fa-solid fa-users mr-2"></i> Memória Rateio
-                </button>
-                 <button id="btn-prod" class="tab-btn" onclick="verTab('prod')">
-                    <i class="fa-solid fa-notes-medical mr-2"></i> Prod. Individual
-                </button>
+                <button id="btn-geral" class="tab-btn active" onclick="verTab('geral')"><i class="fa-solid fa-list-check mr-2"></i> Visão Geral</button>
+                <button id="btn-rateio" class="tab-btn" onclick="verTab('rateio')"><i class="fa-solid fa-users mr-2"></i> Memória Rateio</button>
+                 <button id="btn-prod" class="tab-btn" onclick="verTab('prod')"><i class="fa-solid fa-notes-medical mr-2"></i> Prod. Individual</button>
             </div>
-
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
-                
                 <div id="tab-geral" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo Final de Pagamento</h2>
                     <table id='tbl-geral' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-right'>V. Rateio</th>
-                                <th class='text-right'>V. Prod. Extra</th>
-                                <th class='text-right bg-gray-100 font-bold'>TOTAL (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    
-            <tr>
-                <td class='font-medium text-gray-900'>HOSPITAL BENEFICENTE SANTA HELENA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>108,960.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>108,960.00</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>EDUARDO CORREA DE COSTA PESENTI SANDRIN</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>14,767.23</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>14,767.23</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RENE DIAZ RODRIGUEZ</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>10,998.56</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>10,998.56</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>GILBERTO RODRIGUES PINTO</td>
-                <td class='text-right'>8,502.90</td>
-                <td class='text-right'>389.02</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>8,891.92</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JOSE PINHEIRO COELHO FILHO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>8,126.05</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>8,126.05</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MARCONDES PAIVA SERRA</td>
-                <td class='text-right'>4,858.80</td>
-                <td class='text-right'>2,615.21</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>7,474.01</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JULIA FERREIRA GUIMARAES DIAS</td>
-                <td class='text-right'>6,073.50</td>
-                <td class='text-right'>190.66</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>6,264.16</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ANA CLAUDIA ALMEIDA DE SOUZA</td>
-                <td class='text-right'>6,073.50</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>6,073.50</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>HOLANDO DE SOUZA CAMPOS JR</td>
-                <td class='text-right'>4,858.80</td>
-                <td class='text-right'>910.38</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>5,769.18</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>VICTOR HUGO DE ALMEIDA</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>3,290.40</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>5,719.80</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CLAUDIA MARIA GONCALVES PREZA</td>
-                <td class='text-right'>4,858.80</td>
-                <td class='text-right'>139.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>4,998.11</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>HELIANA SOUZA MARTINHO</td>
-                <td class='text-right'>4,858.80</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>4,858.80</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>KAREN MARIA PREZA NOGUEIRA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>3,996.18</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,996.18</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MICHELLE KAGUIMOTO MARTINS PEREIRA</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>278.62</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,922.72</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CRISTIANE CAROLINE</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>225.28</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,869.38</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RAFAELA CAMPOS ANDRADE</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>167.92</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,812.02</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>EMANUEL GONCALO LEITE DE ALMEIDA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>3,664.39</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,664.39</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DAYVSON HILARIO DA SILVA</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,644.10</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>GABRIELA PIRES BONFANTI</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,644.10</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>TAMIRES FRANCA BERTAO</td>
-                <td class='text-right'>3,644.10</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,644.10</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JOSE PALMIRO DA SILVA NETO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>3,390.96</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,390.96</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CLAUDIO CESAR ZANGALE DE MATTOS</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>3,293.98</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,293.98</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RENAN SOUZA MANCIO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>3,103.57</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,103.57</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MAURINA FREITAS TENUTA</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>631.76</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>3,061.16</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MARCIA REGINA NOBRES DA SILVA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>2,816.07</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,816.07</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MAURO PEREIRA PACHECO FILHO</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>278.62</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,708.02</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LUCAS DA CRUZ FARIAS</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>2,700.77</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,700.77</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LILIAN AUXILIADORA AUDI BERNARDINO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>2,608.93</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,608.93</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CESAR TAUJI TAKANO</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>95.37</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,524.77</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LUCIO DUARTE GUIMARAES</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>2,492.10</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,492.10</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CAROLINE WARPPECHOWSKI LAZAROTO</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ARIANE VELASCO</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LARISSA FERNANDES BANDEIRA AMORIM</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>NATHALIA NEVES</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>THAINARA VICTORIA TONDORF DELBEN</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ERICO DUARTE ISAIAS</td>
-                <td class='text-right'>2,429.40</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,429.40</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CARLA ESCOBAR DE OLIVEIRA GARRIO SANDRIN</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>2,304.42</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>2,304.42</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>IVONE NASCENTE GOMES E SILVA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,961.96</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,961.96</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DAIHANE CARVALHO TEIXEIRA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,845.67</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,845.67</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CELSO ANTUNES MACIEL</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,646.25</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,646.25</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DEBORAH MARIA DE MOURA GONCALVES</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,437.13</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,437.13</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JAIR GIMENES MARRA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,382.67</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,382.67</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CAMILA RODRIGUES PINTO LIMA</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>163.65</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,378.35</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ELINE MARIA NOGUEIRA DE FARIAS</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>139.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,354.01</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MARCO ANTONIO GONCALVES PREZA</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>139.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,354.01</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ADILSON JOAO MASSONI</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>35.83</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,250.53</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>GABRIELA SELKE ALVES</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ANA FLAVIA SCHAVETOCK VIEIRA</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ANA PAULA LAVOYER ARAUJO</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ALLAN JOSE CAMPOS SOARES</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>KAMILA BARBOSA BORGES</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DEBORA FERNANDES COELHO</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>FERNANDO CESAR PEREIRA CRUZ</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ANGELICA RODRIGUEZ TORRES DE LUCENA</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CAMILA COELHO MIRANDA</td>
-                <td class='text-right'>1,214.70</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,214.70</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MYKHAEL HANNA MADY</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,185.56</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,185.56</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RICARDO SAAD</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,128.45</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,128.45</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>BIANCA KUHNE ANDRADE CIDIN</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1,048.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1,048.00</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>EDUARDO REIMANN</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>946.49</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>946.49</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LEONARDO GODOES LOUREIRO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>923.21</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>923.21</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LETICIA NUNES TORRES</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>919.60</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>919.60</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ADIMAR PIRES DA SILVA JUNIOR</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>840.84</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>840.84</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DIOGO LEITE SAMPAIO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>755.42</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>755.42</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>THIAGO DE ASSIS SARTORI</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>689.56</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>689.56</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ANANDA CASTRO VIEIRA PASSOS</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>679.16</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>679.16</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RODOLFO NUNES CERCI</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>667.55</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>667.55</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>GABRIELLA SANDRI DOS SANTOS</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>601.60</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>601.60</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RAFAEL EDUARDO SOARES SIQUEIRA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>598.77</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>598.77</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>IGOR SEROR CUIABANO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>529.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>529.31</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JOSE ALFREDO LOUREIRO GRANJA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>448.56</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>448.56</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>JOSE ALBERTO KALIL</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>411.14</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>411.14</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>FRANCISCO CARLOS DE ALMEIDA FONSECA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>403.96</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>403.96</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>GLEN CARLO DE ARRUDA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>396.53</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>396.53</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>DANIEL MOCELIN NETO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>309.45</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>309.45</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>NICOLLY BARBOSA LUZ</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>283.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>283.31</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>ALEXANDRE MORAES XAVIER</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>280.28</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>280.28</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LUCAS RASO TAFURI</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>220.10</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>220.10</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>HILTON CORREA DA COSTA JUNIOR</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>197.86</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>197.86</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>PRISCILA ALBERNAZ COSTA ARRUDA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>160.75</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>160.75</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>NATHALIA SABOIA CAMPOS BORBON</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>139.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>139.31</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RAFAELLA OLIVEIRA ALMEIDA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>139.31</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>139.31</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>PATRICIA MARTINS SAAD</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>74.52</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>74.52</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>RAFAELA VERLANGIERI MENDES DE ARAUJO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>65.20</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>65.20</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>CASSIA RUFINO CUNHA</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>62.87</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>62.87</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>WILLIAN BENEDITO DE PROENCA JUNIOR</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>59.50</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>59.50</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>LHORRAINY BARBOZA NOGUEIRA BARROSO</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>34.00</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>34.00</td>
-            </tr>
-        
-            <tr>
-                <td class='font-medium text-gray-900'>MUNIL DA SILVA TAQUES</td>
-                <td class='text-right'>0.00</td>
-                <td class='text-right'>1.33</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>1.33</td>
-            </tr>
-        
-                        </tbody>
-                        <tfoot>
-                            <tr class="bg-gray-100 font-bold">
-                                <td>TOTAIS</td>
-                                <td class="text-right">102,034.76</td>
-                                <td class="text-right">206,389.04</td>
-                                <td class="text-right text-green-800">R$ 308,423.80</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>V. Rateio</th><th class='text-right'>V. Prod. Extra</th><th class='text-right bg-gray-100 font-bold'>TOTAL (R$)</th></tr></thead>
+                        <tbody><tr><td class='font-medium text-gray-900'>HOLANDO DE SOUZA CAMPOS JR</td><td class='text-right'>1,153.39</td><td class='text-right'>114,635.21</td><td class='text-right font-bold text-green-600 bg-gray-50'>115,788.60</td></tr><tr><td class='font-medium text-gray-900'>EDUARDO CORREA DE COSTA PESENTI SANDRIN</td><td class='text-right'>0.00</td><td class='text-right'>14,767.23</td><td class='text-right font-bold text-green-600 bg-gray-50'>14,767.23</td></tr><tr><td class='font-medium text-gray-900'>RENE DIAZ RODRIGUEZ</td><td class='text-right'>0.00</td><td class='text-right'>10,998.56</td><td class='text-right font-bold text-green-600 bg-gray-50'>10,998.56</td></tr><tr><td class='font-medium text-gray-900'>JOSE PINHEIRO COELHO FILHO</td><td class='text-right'>0.00</td><td class='text-right'>7,762.43</td><td class='text-right font-bold text-green-600 bg-gray-50'>7,762.43</td></tr><tr><td class='font-medium text-gray-900'>VICTOR HUGO DE ALMEIDA</td><td class='text-right'>576.69</td><td class='text-right'>7,109.28</td><td class='text-right font-bold text-green-600 bg-gray-50'>7,685.97</td></tr><tr><td class='font-medium text-gray-900'>MICHELLE KAGUIMOTO MARTINS PEREIRA</td><td class='text-right'>865.04</td><td class='text-right'>6,671.68</td><td class='text-right font-bold text-green-600 bg-gray-50'>7,536.72</td></tr><tr><td class='font-medium text-gray-900'>JULIA FERREIRA GUIMARAES DIAS</td><td class='text-right'>1,441.73</td><td class='text-right'>6,063.06</td><td class='text-right font-bold text-green-600 bg-gray-50'>7,504.79</td></tr><tr><td class='font-medium text-gray-900'>HELIANA SOUZA MARTINHO</td><td class='text-right'>1,153.39</td><td class='text-right'>6,247.48</td><td class='text-right font-bold text-green-600 bg-gray-50'>7,400.87</td></tr><tr><td class='font-medium text-gray-900'>CRISTIANE CAROLINE</td><td class='text-right'>865.04</td><td class='text-right'>5,987.59</td><td class='text-right font-bold text-green-600 bg-gray-50'>6,852.63</td></tr><tr><td class='font-medium text-gray-900'>RAFAELA CAMPOS ANDRADE</td><td class='text-right'>865.04</td><td class='text-right'>5,826.29</td><td class='text-right font-bold text-green-600 bg-gray-50'>6,691.33</td></tr><tr><td class='font-medium text-gray-900'>MAURINA FREITAS TENUTA</td><td class='text-right'>576.69</td><td class='text-right'>5,202.19</td><td class='text-right font-bold text-green-600 bg-gray-50'>5,778.88</td></tr><tr><td class='font-medium text-gray-900'>MARCONDES PAIVA SERRA</td><td class='text-right'>1,153.39</td><td class='text-right'>4,308.27</td><td class='text-right font-bold text-green-600 bg-gray-50'>5,461.66</td></tr><tr><td class='font-medium text-gray-900'>ELINE MARIA NOGUEIRA DE FARIAS</td><td class='text-right'>288.35</td><td class='text-right'>4,405.14</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,693.49</td></tr><tr><td class='font-medium text-gray-900'>THAINARA VICTORIA TONDORF DELBEN</td><td class='text-right'>576.69</td><td class='text-right'>4,105.93</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,682.62</td></tr><tr><td class='font-medium text-gray-900'>GILBERTO RODRIGUES PINTO</td><td class='text-right'>2,018.42</td><td class='text-right'>2,661.08</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,679.50</td></tr><tr><td class='font-medium text-gray-900'>ANA CLAUDIA ALMEIDA DE SOUZA</td><td class='text-right'>1,441.73</td><td class='text-right'>2,958.43</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,400.16</td></tr><tr><td class='font-medium text-gray-900'>ADILSON JOAO MASSONI</td><td class='text-right'>288.35</td><td class='text-right'>4,093.77</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,382.12</td></tr><tr><td class='font-medium text-gray-900'>KAREN MARIA PREZA NOGUEIRA</td><td class='text-right'>0.00</td><td class='text-right'>4,161.51</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,161.51</td></tr><tr><td class='font-medium text-gray-900'>CESAR TAUJI TAKANO</td><td class='text-right'>576.69</td><td class='text-right'>3,581.83</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,158.52</td></tr><tr><td class='font-medium text-gray-900'>ERICO DUARTE ISAIAS</td><td class='text-right'>576.69</td><td class='text-right'>3,506.46</td><td class='text-right font-bold text-green-600 bg-gray-50'>4,083.15</td></tr><tr><td class='font-medium text-gray-900'>EMANUEL GONCALO LEITE DE ALMEIDA</td><td class='text-right'>0.00</td><td class='text-right'>3,664.39</td><td class='text-right font-bold text-green-600 bg-gray-50'>3,664.39</td></tr><tr><td class='font-medium text-gray-900'>KAMILA BARBOSA BORGES</td><td class='text-right'>288.35</td><td class='text-right'>3,321.63</td><td class='text-right font-bold text-green-600 bg-gray-50'>3,609.98</td></tr><tr><td class='font-medium text-gray-900'>CLAUDIO CESAR ZANGALE DE MATTOS</td><td class='text-right'>0.00</td><td class='text-right'>3,293.98</td><td class='text-right font-bold text-green-600 bg-gray-50'>3,293.98</td></tr><tr><td class='font-medium text-gray-900'>DAYVSON HILARIO DA SILVA</td><td class='text-right'>865.04</td><td class='text-right'>2,254.26</td><td class='text-right font-bold text-green-600 bg-gray-50'>3,119.30</td></tr><tr><td class='font-medium text-gray-900'>RENAN SOUZA MANCIO</td><td class='text-right'>0.00</td><td class='text-right'>3,103.57</td><td class='text-right font-bold text-green-600 bg-gray-50'>3,103.57</td></tr><tr><td class='font-medium text-gray-900'>NATHALIA SABOIA CAMPOS BORBON</td><td class='text-right'>0.00</td><td class='text-right'>2,987.09</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,987.09</td></tr><tr><td class='font-medium text-gray-900'>MAURO PEREIRA PACHECO FILHO</td><td class='text-right'>576.69</td><td class='text-right'>2,331.63</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,908.32</td></tr><tr><td class='font-medium text-gray-900'>ALLAN JOSE CAMPOS SOARES</td><td class='text-right'>288.35</td><td class='text-right'>2,586.30</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,874.65</td></tr><tr><td class='font-medium text-gray-900'>LUCAS DA CRUZ FARIAS</td><td class='text-right'>0.00</td><td class='text-right'>2,700.77</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,700.77</td></tr><tr><td class='font-medium text-gray-900'>LILIAN AUXILIADORA AUDI BERNARDINO</td><td class='text-right'>0.00</td><td class='text-right'>2,672.29</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,672.29</td></tr><tr><td class='font-medium text-gray-900'>ANGELICA RODRIGUEZ TORRES DE LUCENA</td><td class='text-right'>288.35</td><td class='text-right'>2,256.99</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,545.34</td></tr><tr><td class='font-medium text-gray-900'>LUCIO DUARTE GUIMARAES</td><td class='text-right'>0.00</td><td class='text-right'>2,492.10</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,492.10</td></tr><tr><td class='font-medium text-gray-900'>MARCIA REGINA NOBRES DA SILVA</td><td class='text-right'>0.00</td><td class='text-right'>2,412.50</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,412.50</td></tr><tr><td class='font-medium text-gray-900'>ARIANE VELASCO</td><td class='text-right'>576.69</td><td class='text-right'>1,744.52</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,321.21</td></tr><tr><td class='font-medium text-gray-900'>CARLA ESCOBAR DE OLIVEIRA GARRIO SANDRIN</td><td class='text-right'>0.00</td><td class='text-right'>2,304.42</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,304.42</td></tr><tr><td class='font-medium text-gray-900'>FERNANDO CESAR PEREIRA CRUZ</td><td class='text-right'>288.35</td><td class='text-right'>2,010.50</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,298.85</td></tr><tr><td class='font-medium text-gray-900'>GABRIELA PIRES BONFANTI</td><td class='text-right'>865.04</td><td class='text-right'>1,431.25</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,296.29</td></tr><tr><td class='font-medium text-gray-900'>ANA FLAVIA SCHAVETOCK VIEIRA</td><td class='text-right'>288.35</td><td class='text-right'>1,931.39</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,219.74</td></tr><tr><td class='font-medium text-gray-900'>LARISSA FERNANDES BANDEIRA AMORIM</td><td class='text-right'>576.69</td><td class='text-right'>1,525.92</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,102.61</td></tr><tr><td class='font-medium text-gray-900'>DAIHANE CARVALHO TEIXEIRA</td><td class='text-right'>0.00</td><td class='text-right'>2,074.36</td><td class='text-right font-bold text-green-600 bg-gray-50'>2,074.36</td></tr><tr><td class='font-medium text-gray-900'>IVONE NASCENTE GOMES E SILVA</td><td class='text-right'>0.00</td><td class='text-right'>1,961.96</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,961.96</td></tr><tr><td class='font-medium text-gray-900'>RAFAELLA OLIVEIRA ALMEIDA</td><td class='text-right'>0.00</td><td class='text-right'>1,772.52</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,772.52</td></tr><tr><td class='font-medium text-gray-900'>CLAUDIA MARIA GONCALVES PREZA</td><td class='text-right'>1,153.39</td><td class='text-right'>564.82</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,718.21</td></tr><tr><td class='font-medium text-gray-900'>CELSO ANTUNES MACIEL</td><td class='text-right'>0.00</td><td class='text-right'>1,646.25</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,646.25</td></tr><tr><td class='font-medium text-gray-900'>TAMIRES FRANCA BERTAO</td><td class='text-right'>865.04</td><td class='text-right'>768.75</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,633.79</td></tr><tr><td class='font-medium text-gray-900'>DEBORAH MARIA DE MOURA GONCALVES</td><td class='text-right'>0.00</td><td class='text-right'>1,479.37</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,479.37</td></tr><tr><td class='font-medium text-gray-900'>MARCO ANTONIO GONCALVES PREZA</td><td class='text-right'>288.35</td><td class='text-right'>1,177.13</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,465.48</td></tr><tr><td class='font-medium text-gray-900'>GABRIELA SELKE ALVES</td><td class='text-right'>288.35</td><td class='text-right'>1,109.91</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,398.26</td></tr><tr><td class='font-medium text-gray-900'>JAIR GIMENES MARRA</td><td class='text-right'>0.00</td><td class='text-right'>1,382.67</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,382.67</td></tr><tr><td class='font-medium text-gray-900'>MYKHAEL HANNA MADY</td><td class='text-right'>0.00</td><td class='text-right'>1,185.56</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,185.56</td></tr><tr><td class='font-medium text-gray-900'>RICARDO SAAD</td><td class='text-right'>0.00</td><td class='text-right'>1,128.45</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,128.45</td></tr><tr><td class='font-medium text-gray-900'>LEONARDO GODOES LOUREIRO</td><td class='text-right'>0.00</td><td class='text-right'>1,092.17</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,092.17</td></tr><tr><td class='font-medium text-gray-900'>BIANCA KUHNE ANDRADE CIDIN</td><td class='text-right'>0.00</td><td class='text-right'>1,048.00</td><td class='text-right font-bold text-green-600 bg-gray-50'>1,048.00</td></tr><tr><td class='font-medium text-gray-900'>EDUARDO REIMANN</td><td class='text-right'>0.00</td><td class='text-right'>946.49</td><td class='text-right font-bold text-green-600 bg-gray-50'>946.49</td></tr><tr><td class='font-medium text-gray-900'>LETICIA NUNES TORRES</td><td class='text-right'>0.00</td><td class='text-right'>919.60</td><td class='text-right font-bold text-green-600 bg-gray-50'>919.60</td></tr><tr><td class='font-medium text-gray-900'>CAMILA RODRIGUES PINTO LIMA</td><td class='text-right'>288.35</td><td class='text-right'>591.15</td><td class='text-right font-bold text-green-600 bg-gray-50'>879.50</td></tr><tr><td class='font-medium text-gray-900'>ADIMAR PIRES DA SILVA JUNIOR</td><td class='text-right'>0.00</td><td class='text-right'>840.84</td><td class='text-right font-bold text-green-600 bg-gray-50'>840.84</td></tr><tr><td class='font-medium text-gray-900'>CAROLINE WARPPECHOWSKI LAZAROTO</td><td class='text-right'>576.69</td><td class='text-right'>234.54</td><td class='text-right font-bold text-green-600 bg-gray-50'>811.23</td></tr><tr><td class='font-medium text-gray-900'>DIOGO LEITE SAMPAIO</td><td class='text-right'>0.00</td><td class='text-right'>797.66</td><td class='text-right font-bold text-green-600 bg-gray-50'>797.66</td></tr><tr><td class='font-medium text-gray-900'>CAMILA COELHO MIRANDA</td><td class='text-right'>288.35</td><td class='text-right'>470.24</td><td class='text-right font-bold text-green-600 bg-gray-50'>758.59</td></tr><tr><td class='font-medium text-gray-900'>RAFAEL EDUARDO SOARES SIQUEIRA</td><td class='text-right'>0.00</td><td class='text-right'>718.23</td><td class='text-right font-bold text-green-600 bg-gray-50'>718.23</td></tr><tr><td class='font-medium text-gray-900'>THIAGO DE ASSIS SARTORI</td><td class='text-right'>0.00</td><td class='text-right'>689.56</td><td class='text-right font-bold text-green-600 bg-gray-50'>689.56</td></tr><tr><td class='font-medium text-gray-900'>ANANDA CASTRO VIEIRA PASSOS</td><td class='text-right'>0.00</td><td class='text-right'>679.16</td><td class='text-right font-bold text-green-600 bg-gray-50'>679.16</td></tr><tr><td class='font-medium text-gray-900'>RODOLFO NUNES CERCI</td><td class='text-right'>0.00</td><td class='text-right'>667.55</td><td class='text-right font-bold text-green-600 bg-gray-50'>667.55</td></tr><tr><td class='font-medium text-gray-900'>MARIA THAIS MIKUNI MENDONCA</td><td class='text-right'>0.00</td><td class='text-right'>646.67</td><td class='text-right font-bold text-green-600 bg-gray-50'>646.67</td></tr><tr><td class='font-medium text-gray-900'>GABRIELLA SANDRI DOS SANTOS</td><td class='text-right'>0.00</td><td class='text-right'>601.60</td><td class='text-right font-bold text-green-600 bg-gray-50'>601.60</td></tr><tr><td class='font-medium text-gray-900'>NATHALIA NEVES</td><td class='text-right'>576.69</td><td class='text-right'>0.00</td><td class='text-right font-bold text-green-600 bg-gray-50'>576.69</td></tr><tr><td class='font-medium text-gray-900'>IGOR SEROR CUIABANO</td><td class='text-right'>0.00</td><td class='text-right'>571.55</td><td class='text-right font-bold text-green-600 bg-gray-50'>571.55</td></tr><tr><td class='font-medium text-gray-900'>JOSE ALFREDO LOUREIRO GRANJA</td><td class='text-right'>0.00</td><td class='text-right'>448.56</td><td class='text-right font-bold text-green-600 bg-gray-50'>448.56</td></tr><tr><td class='font-medium text-gray-900'>JOSE ALBERTO KALIL</td><td class='text-right'>0.00</td><td class='text-right'>411.14</td><td class='text-right font-bold text-green-600 bg-gray-50'>411.14</td></tr><tr><td class='font-medium text-gray-900'>FRANCISCO CARLOS DE ALMEIDA FONSECA</td><td class='text-right'>0.00</td><td class='text-right'>403.96</td><td class='text-right font-bold text-green-600 bg-gray-50'>403.96</td></tr><tr><td class='font-medium text-gray-900'>GLEN CARLO DE ARRUDA</td><td class='text-right'>0.00</td><td class='text-right'>396.53</td><td class='text-right font-bold text-green-600 bg-gray-50'>396.53</td></tr><tr><td class='font-medium text-gray-900'>ANA PAULA LAVOYER ARAUJO</td><td class='text-right'>288.35</td><td class='text-right'>42.93</td><td class='text-right font-bold text-green-600 bg-gray-50'>331.28</td></tr><tr><td class='font-medium text-gray-900'>DANIEL MOCELIN NETO</td><td class='text-right'>0.00</td><td class='text-right'>309.45</td><td class='text-right font-bold text-green-600 bg-gray-50'>309.45</td></tr><tr><td class='font-medium text-gray-900'>DEBORA FERNANDES COELHO</td><td class='text-right'>288.35</td><td class='text-right'>0.00</td><td class='text-right font-bold text-green-600 bg-gray-50'>288.35</td></tr><tr><td class='font-medium text-gray-900'>NICOLLY BARBOSA LUZ</td><td class='text-right'>0.00</td><td class='text-right'>283.31</td><td class='text-right font-bold text-green-600 bg-gray-50'>283.31</td></tr><tr><td class='font-medium text-gray-900'>ALEXANDRE MORAES XAVIER</td><td class='text-right'>0.00</td><td class='text-right'>280.28</td><td class='text-right font-bold text-green-600 bg-gray-50'>280.28</td></tr><tr><td class='font-medium text-gray-900'>LUCAS RASO TAFURI</td><td class='text-right'>0.00</td><td class='text-right'>220.10</td><td class='text-right font-bold text-green-600 bg-gray-50'>220.10</td></tr><tr><td class='font-medium text-gray-900'>PRISCILA ALBERNAZ COSTA ARRUDA</td><td class='text-right'>0.00</td><td class='text-right'>202.33</td><td class='text-right font-bold text-green-600 bg-gray-50'>202.33</td></tr><tr><td class='font-medium text-gray-900'>HILTON CORREA DA COSTA JUNIOR</td><td class='text-right'>0.00</td><td class='text-right'>197.86</td><td class='text-right font-bold text-green-600 bg-gray-50'>197.86</td></tr><tr><td class='font-medium text-gray-900'>JULIO CESAR DE SOUZA FILHO</td><td class='text-right'>0.00</td><td class='text-right'>190.74</td><td class='text-right font-bold text-green-600 bg-gray-50'>190.74</td></tr><tr><td class='font-medium text-gray-900'>PATRICIA MARTINS SAAD</td><td class='text-right'>0.00</td><td class='text-right'>74.52</td><td class='text-right font-bold text-green-600 bg-gray-50'>74.52</td></tr><tr><td class='font-medium text-gray-900'>RAFAELA VERLANGIERI MENDES DE ARAUJO</td><td class='text-right'>0.00</td><td class='text-right'>65.20</td><td class='text-right font-bold text-green-600 bg-gray-50'>65.20</td></tr><tr><td class='font-medium text-gray-900'>CASSIA RUFINO CUNHA</td><td class='text-right'>0.00</td><td class='text-right'>62.87</td><td class='text-right font-bold text-green-600 bg-gray-50'>62.87</td></tr><tr><td class='font-medium text-gray-900'>WILLIAN BENEDITO DE PROENCA JUNIOR</td><td class='text-right'>0.00</td><td class='text-right'>59.50</td><td class='text-right font-bold text-green-600 bg-gray-50'>59.50</td></tr><tr><td class='font-medium text-gray-900'>RAFAELA CAVALCANTE DE ALMEIDA</td><td class='text-right'>0.00</td><td class='text-right'>49.29</td><td class='text-right font-bold text-green-600 bg-gray-50'>49.29</td></tr><tr><td class='font-medium text-gray-900'>LHORRAINY BARBOZA NOGUEIRA BARROSO</td><td class='text-right'>0.00</td><td class='text-right'>34.00</td><td class='text-right font-bold text-green-600 bg-gray-50'>34.00</td></tr><tr><td class='font-medium text-gray-900'>MUNIL DA SILVA TAQUES</td><td class='text-right'>0.00</td><td class='text-right'>1.33</td><td class='text-right font-bold text-green-600 bg-gray-50'>1.33</td></tr></tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAIS</td><td class="text-right">24,221.10</td><td class="text-right">303,579.58</td><td class="text-right text-green-800">R$ 327,800.68</td></tr></tfoot></table></div>
                 <div id="tab-rateio" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Memória de Cálculo do Rateio</h2>
                     <table id='tbl-rateio' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-center'>Peso/Cotas</th>
-                                <th class='text-right'>Valor Rateio (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    <tr><td>ADILSON JOAO MASSONI</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ALLAN JOSE CAMPOS SOARES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ANA CLAUDIA ALMEIDA DE SOUZA</td><td class='text-center'>1.25</td><td class='text-right font-bold'>6,073.50</td></tr><tr><td>ANA FLAVIA SCHAVETOCK VIEIRA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ANA PAULA LAVOYER ARAUJO</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ANGELICA RODRIGUEZ TORRES DE LUCENA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ARIANE VELASCO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>CAMILA COELHO MIRANDA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>CAMILA RODRIGUES PINTO LIMA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>CAROLINE WARPPECHOWSKI LAZAROTO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>CESAR TAUJI TAKANO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>CLAUDIA MARIA GONCALVES PREZA</td><td class='text-center'>1.0</td><td class='text-right font-bold'>4,858.80</td></tr><tr><td>CRISTIANE CAROLINE</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>DAYVSON HILARIO DA SILVA</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>DEBORA FERNANDES COELHO</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ELINE MARIA NOGUEIRA DE FARIAS</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>ERICO DUARTE ISAIAS</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>FERNANDO CESAR PEREIRA CRUZ</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>GABRIELA PIRES BONFANTI</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>GABRIELA SELKE ALVES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>GILBERTO RODRIGUES PINTO</td><td class='text-center'>1.75</td><td class='text-right font-bold'>8,502.90</td></tr><tr><td>HELIANA SOUZA MARTINHO</td><td class='text-center'>1.0</td><td class='text-right font-bold'>4,858.80</td></tr><tr><td>HOLANDO DE SOUZA CAMPOS JR</td><td class='text-center'>1.0</td><td class='text-right font-bold'>4,858.80</td></tr><tr><td>JULIA FERREIRA GUIMARAES DIAS</td><td class='text-center'>1.25</td><td class='text-right font-bold'>6,073.50</td></tr><tr><td>KAMILA BARBOSA BORGES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>LARISSA FERNANDES BANDEIRA AMORIM</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>MARCO ANTONIO GONCALVES PREZA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>1,214.70</td></tr><tr><td>MARCONDES PAIVA SERRA</td><td class='text-center'>1.0</td><td class='text-right font-bold'>4,858.80</td></tr><tr><td>MAURINA FREITAS TENUTA</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>MAURO PEREIRA PACHECO FILHO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>MICHELLE KAGUIMOTO MARTINS PEREIRA</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>NATHALIA NEVES</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>RAFAELA CAMPOS ANDRADE</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>TAMIRES FRANCA BERTAO</td><td class='text-center'>0.75</td><td class='text-right font-bold'>3,644.10</td></tr><tr><td>THAINARA VICTORIA TONDORF DELBEN</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr><tr><td>VICTOR HUGO DE ALMEIDA</td><td class='text-center'>0.5</td><td class='text-right font-bold'>2,429.40</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-center'>Peso/Cotas</th><th class='text-right'>Valor Rateio (R$)</th></tr></thead>
+                        <tbody><tr><td>ADILSON JOAO MASSONI</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ALLAN JOSE CAMPOS SOARES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ANA CLAUDIA ALMEIDA DE SOUZA</td><td class='text-center'>1.25</td><td class='text-right font-bold'>1,441.73</td></tr><tr><td>ANA FLAVIA SCHAVETOCK VIEIRA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ANA PAULA LAVOYER ARAUJO</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ANGELICA RODRIGUEZ TORRES DE LUCENA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ARIANE VELASCO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>CAMILA COELHO MIRANDA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>CAMILA RODRIGUES PINTO LIMA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>CAROLINE WARPPECHOWSKI LAZAROTO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>CESAR TAUJI TAKANO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>CLAUDIA MARIA GONCALVES PREZA</td><td class='text-center'>1.0</td><td class='text-right font-bold'>1,153.39</td></tr><tr><td>CRISTIANE CAROLINE</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>DAYVSON HILARIO DA SILVA</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>DEBORA FERNANDES COELHO</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ELINE MARIA NOGUEIRA DE FARIAS</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>ERICO DUARTE ISAIAS</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>FERNANDO CESAR PEREIRA CRUZ</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>GABRIELA PIRES BONFANTI</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>GABRIELA SELKE ALVES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>GILBERTO RODRIGUES PINTO</td><td class='text-center'>1.75</td><td class='text-right font-bold'>2,018.42</td></tr><tr><td>HELIANA SOUZA MARTINHO</td><td class='text-center'>1.0</td><td class='text-right font-bold'>1,153.39</td></tr><tr><td>HOLANDO DE SOUZA CAMPOS JR</td><td class='text-center'>1.0</td><td class='text-right font-bold'>1,153.39</td></tr><tr><td>JULIA FERREIRA GUIMARAES DIAS</td><td class='text-center'>1.25</td><td class='text-right font-bold'>1,441.73</td></tr><tr><td>KAMILA BARBOSA BORGES</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>LARISSA FERNANDES BANDEIRA AMORIM</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>MARCO ANTONIO GONCALVES PREZA</td><td class='text-center'>0.25</td><td class='text-right font-bold'>288.35</td></tr><tr><td>MARCONDES PAIVA SERRA</td><td class='text-center'>1.0</td><td class='text-right font-bold'>1,153.39</td></tr><tr><td>MAURINA FREITAS TENUTA</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>MAURO PEREIRA PACHECO FILHO</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>MICHELLE KAGUIMOTO MARTINS PEREIRA</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>NATHALIA NEVES</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>RAFAELA CAMPOS ANDRADE</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>TAMIRES FRANCA BERTAO</td><td class='text-center'>0.75</td><td class='text-right font-bold'>865.04</td></tr><tr><td>THAINARA VICTORIA TONDORF DELBEN</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr><tr><td>VICTOR HUGO DE ALMEIDA</td><td class='text-center'>0.5</td><td class='text-right font-bold'>576.69</td></tr></tbody></table></div>
                 <div id="tab-prod" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Produção Individual (Exceto Itens do Rateio)</h2>
                     <table id='tbl-prod' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-right'>Valor Produção (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    <tr><td>ADILSON JOAO MASSONI</td><td class='text-right'>35.83</td></tr><tr><td>ADIMAR PIRES DA SILVA JUNIOR</td><td class='text-right'>840.84</td></tr><tr><td>ALEXANDRE MORAES XAVIER</td><td class='text-right'>280.28</td></tr><tr><td>ANANDA CASTRO VIEIRA PASSOS</td><td class='text-right'>679.16</td></tr><tr><td>BIANCA KUHNE ANDRADE CIDIN</td><td class='text-right'>1,048.00</td></tr><tr><td>CAMILA RODRIGUES PINTO LIMA</td><td class='text-right'>163.65</td></tr><tr><td>CARLA ESCOBAR DE OLIVEIRA GARRIO SANDRIN</td><td class='text-right'>2,304.42</td></tr><tr><td>CASSIA RUFINO CUNHA</td><td class='text-right'>62.87</td></tr><tr><td>CELSO ANTUNES MACIEL</td><td class='text-right'>1,646.25</td></tr><tr><td>CESAR TAUJI TAKANO</td><td class='text-right'>95.37</td></tr><tr><td>CLAUDIA MARIA GONCALVES PREZA</td><td class='text-right'>139.31</td></tr><tr><td>CLAUDIO CESAR ZANGALE DE MATTOS</td><td class='text-right'>3,293.98</td></tr><tr><td>CRISTIANE CAROLINE</td><td class='text-right'>225.28</td></tr><tr><td>DAIHANE CARVALHO TEIXEIRA</td><td class='text-right'>1,845.67</td></tr><tr><td>DANIEL MOCELIN NETO</td><td class='text-right'>309.45</td></tr><tr><td>DEBORAH MARIA DE MOURA GONCALVES</td><td class='text-right'>1,437.13</td></tr><tr><td>DIOGO LEITE SAMPAIO</td><td class='text-right'>755.42</td></tr><tr><td>EDUARDO CORREA DE COSTA PESENTI SANDRIN</td><td class='text-right'>14,767.23</td></tr><tr><td>EDUARDO REIMANN</td><td class='text-right'>946.49</td></tr><tr><td>ELINE MARIA NOGUEIRA DE FARIAS</td><td class='text-right'>139.31</td></tr><tr><td>EMANUEL GONCALO LEITE DE ALMEIDA</td><td class='text-right'>3,664.39</td></tr><tr><td>FRANCISCO CARLOS DE ALMEIDA FONSECA</td><td class='text-right'>403.96</td></tr><tr><td>GABRIELLA SANDRI DOS SANTOS</td><td class='text-right'>601.60</td></tr><tr><td>GILBERTO RODRIGUES PINTO</td><td class='text-right'>389.02</td></tr><tr><td>GLEN CARLO DE ARRUDA</td><td class='text-right'>396.53</td></tr><tr><td>HILTON CORREA DA COSTA JUNIOR</td><td class='text-right'>197.86</td></tr><tr><td>HOLANDO DE SOUZA CAMPOS JR</td><td class='text-right'>910.38</td></tr><tr><td>HOSPITAL BENEFICENTE SANTA HELENA</td><td class='text-right'>108,960.00</td></tr><tr><td>IGOR SEROR CUIABANO</td><td class='text-right'>529.31</td></tr><tr><td>IVONE NASCENTE GOMES E SILVA</td><td class='text-right'>1,961.96</td></tr><tr><td>JAIR GIMENES MARRA</td><td class='text-right'>1,382.67</td></tr><tr><td>JOSE ALBERTO KALIL</td><td class='text-right'>411.14</td></tr><tr><td>JOSE ALFREDO LOUREIRO GRANJA</td><td class='text-right'>448.56</td></tr><tr><td>JOSE PALMIRO DA SILVA NETO</td><td class='text-right'>3,390.96</td></tr><tr><td>JOSE PINHEIRO COELHO FILHO</td><td class='text-right'>8,126.05</td></tr><tr><td>JULIA FERREIRA GUIMARAES DIAS</td><td class='text-right'>190.66</td></tr><tr><td>KAREN MARIA PREZA NOGUEIRA</td><td class='text-right'>3,996.18</td></tr><tr><td>LEONARDO GODOES LOUREIRO</td><td class='text-right'>923.21</td></tr><tr><td>LETICIA NUNES TORRES</td><td class='text-right'>919.60</td></tr><tr><td>LHORRAINY BARBOZA NOGUEIRA BARROSO</td><td class='text-right'>34.00</td></tr><tr><td>LILIAN AUXILIADORA AUDI BERNARDINO</td><td class='text-right'>2,608.93</td></tr><tr><td>LUCAS DA CRUZ FARIAS</td><td class='text-right'>2,700.77</td></tr><tr><td>LUCAS RASO TAFURI</td><td class='text-right'>220.10</td></tr><tr><td>LUCIO DUARTE GUIMARAES</td><td class='text-right'>2,492.10</td></tr><tr><td>MARCIA REGINA NOBRES DA SILVA</td><td class='text-right'>2,816.07</td></tr><tr><td>MARCO ANTONIO GONCALVES PREZA</td><td class='text-right'>139.31</td></tr><tr><td>MARCONDES PAIVA SERRA</td><td class='text-right'>2,615.21</td></tr><tr><td>MAURINA FREITAS TENUTA</td><td class='text-right'>631.76</td></tr><tr><td>MAURO PEREIRA PACHECO FILHO</td><td class='text-right'>278.62</td></tr><tr><td>MICHELLE KAGUIMOTO MARTINS PEREIRA</td><td class='text-right'>278.62</td></tr><tr><td>MUNIL DA SILVA TAQUES</td><td class='text-right'>1.33</td></tr><tr><td>MYKHAEL HANNA MADY</td><td class='text-right'>1,185.56</td></tr><tr><td>NATHALIA SABOIA CAMPOS BORBON</td><td class='text-right'>139.31</td></tr><tr><td>NICOLLY BARBOSA LUZ</td><td class='text-right'>283.31</td></tr><tr><td>PATRICIA MARTINS SAAD</td><td class='text-right'>74.52</td></tr><tr><td>PRISCILA ALBERNAZ COSTA ARRUDA</td><td class='text-right'>160.75</td></tr><tr><td>RAFAEL EDUARDO SOARES SIQUEIRA</td><td class='text-right'>598.77</td></tr><tr><td>RAFAELA CAMPOS ANDRADE</td><td class='text-right'>167.92</td></tr><tr><td>RAFAELA VERLANGIERI MENDES DE ARAUJO</td><td class='text-right'>65.20</td></tr><tr><td>RAFAELLA OLIVEIRA ALMEIDA</td><td class='text-right'>139.31</td></tr><tr><td>RENAN SOUZA MANCIO</td><td class='text-right'>3,103.57</td></tr><tr><td>RENE DIAZ RODRIGUEZ</td><td class='text-right'>10,998.56</td></tr><tr><td>RICARDO SAAD</td><td class='text-right'>1,128.45</td></tr><tr><td>RODOLFO NUNES CERCI</td><td class='text-right'>667.55</td></tr><tr><td>THIAGO DE ASSIS SARTORI</td><td class='text-right'>689.56</td></tr><tr><td>VICTOR HUGO DE ALMEIDA</td><td class='text-right'>3,290.40</td></tr><tr><td>WILLIAN BENEDITO DE PROENCA JUNIOR</td><td class='text-right'>59.50</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-        </div>
-
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>Valor Produção (R$)</th></tr></thead>
+                        <tbody><tr><td>ADILSON JOAO MASSONI</td><td class='text-right'>4,093.77</td></tr><tr><td>ADIMAR PIRES DA SILVA JUNIOR</td><td class='text-right'>840.84</td></tr><tr><td>ALEXANDRE MORAES XAVIER</td><td class='text-right'>280.28</td></tr><tr><td>ALLAN JOSE CAMPOS SOARES</td><td class='text-right'>2,586.30</td></tr><tr><td>ANA CLAUDIA ALMEIDA DE SOUZA</td><td class='text-right'>2,958.43</td></tr><tr><td>ANA FLAVIA SCHAVETOCK VIEIRA</td><td class='text-right'>1,931.39</td></tr><tr><td>ANA PAULA LAVOYER ARAUJO</td><td class='text-right'>42.93</td></tr><tr><td>ANANDA CASTRO VIEIRA PASSOS</td><td class='text-right'>679.16</td></tr><tr><td>ANGELICA RODRIGUEZ TORRES DE LUCENA</td><td class='text-right'>2,256.99</td></tr><tr><td>ARIANE VELASCO</td><td class='text-right'>1,744.52</td></tr><tr><td>BIANCA KUHNE ANDRADE CIDIN</td><td class='text-right'>1,048.00</td></tr><tr><td>CAMILA COELHO MIRANDA</td><td class='text-right'>470.24</td></tr><tr><td>CAMILA RODRIGUES PINTO LIMA</td><td class='text-right'>591.15</td></tr><tr><td>CARLA ESCOBAR DE OLIVEIRA GARRIO SANDRIN</td><td class='text-right'>2,304.42</td></tr><tr><td>CAROLINE WARPPECHOWSKI LAZAROTO</td><td class='text-right'>234.54</td></tr><tr><td>CASSIA RUFINO CUNHA</td><td class='text-right'>62.87</td></tr><tr><td>CELSO ANTUNES MACIEL</td><td class='text-right'>1,646.25</td></tr><tr><td>CESAR TAUJI TAKANO</td><td class='text-right'>3,581.83</td></tr><tr><td>CLAUDIA MARIA GONCALVES PREZA</td><td class='text-right'>564.82</td></tr><tr><td>CLAUDIO CESAR ZANGALE DE MATTOS</td><td class='text-right'>3,293.98</td></tr><tr><td>CRISTIANE CAROLINE</td><td class='text-right'>5,987.59</td></tr><tr><td>DAIHANE CARVALHO TEIXEIRA</td><td class='text-right'>2,074.36</td></tr><tr><td>DANIEL MOCELIN NETO</td><td class='text-right'>309.45</td></tr><tr><td>DAYVSON HILARIO DA SILVA</td><td class='text-right'>2,254.26</td></tr><tr><td>DEBORAH MARIA DE MOURA GONCALVES</td><td class='text-right'>1,479.37</td></tr><tr><td>DIOGO LEITE SAMPAIO</td><td class='text-right'>797.66</td></tr><tr><td>EDUARDO CORREA DE COSTA PESENTI SANDRIN</td><td class='text-right'>14,767.23</td></tr><tr><td>EDUARDO REIMANN</td><td class='text-right'>946.49</td></tr><tr><td>ELINE MARIA NOGUEIRA DE FARIAS</td><td class='text-right'>4,405.14</td></tr><tr><td>EMANUEL GONCALO LEITE DE ALMEIDA</td><td class='text-right'>3,664.39</td></tr><tr><td>ERICO DUARTE ISAIAS</td><td class='text-right'>3,506.46</td></tr><tr><td>FERNANDO CESAR PEREIRA CRUZ</td><td class='text-right'>2,010.50</td></tr><tr><td>FRANCISCO CARLOS DE ALMEIDA FONSECA</td><td class='text-right'>403.96</td></tr><tr><td>GABRIELA PIRES BONFANTI</td><td class='text-right'>1,431.25</td></tr><tr><td>GABRIELA SELKE ALVES</td><td class='text-right'>1,109.91</td></tr><tr><td>GABRIELLA SANDRI DOS SANTOS</td><td class='text-right'>601.60</td></tr><tr><td>GILBERTO RODRIGUES PINTO</td><td class='text-right'>2,661.08</td></tr><tr><td>GLEN CARLO DE ARRUDA</td><td class='text-right'>396.53</td></tr><tr><td>HELIANA SOUZA MARTINHO</td><td class='text-right'>6,247.48</td></tr><tr><td>HILTON CORREA DA COSTA JUNIOR</td><td class='text-right'>197.86</td></tr><tr><td>HOLANDO DE SOUZA CAMPOS JR</td><td class='text-right'>114,635.21</td></tr><tr><td>IGOR SEROR CUIABANO</td><td class='text-right'>571.55</td></tr><tr><td>IVONE NASCENTE GOMES E SILVA</td><td class='text-right'>1,961.96</td></tr><tr><td>JAIR GIMENES MARRA</td><td class='text-right'>1,382.67</td></tr><tr><td>JOSE ALBERTO KALIL</td><td class='text-right'>411.14</td></tr><tr><td>JOSE ALFREDO LOUREIRO GRANJA</td><td class='text-right'>448.56</td></tr><tr><td>JOSE PINHEIRO COELHO FILHO</td><td class='text-right'>7,762.43</td></tr><tr><td>JULIA FERREIRA GUIMARAES DIAS</td><td class='text-right'>6,063.06</td></tr><tr><td>JULIO CESAR DE SOUZA FILHO</td><td class='text-right'>190.74</td></tr><tr><td>KAMILA BARBOSA BORGES</td><td class='text-right'>3,321.63</td></tr><tr><td>KAREN MARIA PREZA NOGUEIRA</td><td class='text-right'>4,161.51</td></tr><tr><td>LARISSA FERNANDES BANDEIRA AMORIM</td><td class='text-right'>1,525.92</td></tr><tr><td>LEONARDO GODOES LOUREIRO</td><td class='text-right'>1,092.17</td></tr><tr><td>LETICIA NUNES TORRES</td><td class='text-right'>919.60</td></tr><tr><td>LHORRAINY BARBOZA NOGUEIRA BARROSO</td><td class='text-right'>34.00</td></tr><tr><td>LILIAN AUXILIADORA AUDI BERNARDINO</td><td class='text-right'>2,672.29</td></tr><tr><td>LUCAS DA CRUZ FARIAS</td><td class='text-right'>2,700.77</td></tr><tr><td>LUCAS RASO TAFURI</td><td class='text-right'>220.10</td></tr><tr><td>LUCIO DUARTE GUIMARAES</td><td class='text-right'>2,492.10</td></tr><tr><td>MARCIA REGINA NOBRES DA SILVA</td><td class='text-right'>2,412.50</td></tr><tr><td>MARCO ANTONIO GONCALVES PREZA</td><td class='text-right'>1,177.13</td></tr><tr><td>MARCONDES PAIVA SERRA</td><td class='text-right'>4,308.27</td></tr><tr><td>MARIA THAIS MIKUNI MENDONCA</td><td class='text-right'>646.67</td></tr><tr><td>MAURINA FREITAS TENUTA</td><td class='text-right'>5,202.19</td></tr><tr><td>MAURO PEREIRA PACHECO FILHO</td><td class='text-right'>2,331.63</td></tr><tr><td>MICHELLE KAGUIMOTO MARTINS PEREIRA</td><td class='text-right'>6,671.68</td></tr><tr><td>MUNIL DA SILVA TAQUES</td><td class='text-right'>1.33</td></tr><tr><td>MYKHAEL HANNA MADY</td><td class='text-right'>1,185.56</td></tr><tr><td>NATHALIA SABOIA CAMPOS BORBON</td><td class='text-right'>2,987.09</td></tr><tr><td>NICOLLY BARBOSA LUZ</td><td class='text-right'>283.31</td></tr><tr><td>PATRICIA MARTINS SAAD</td><td class='text-right'>74.52</td></tr><tr><td>PRISCILA ALBERNAZ COSTA ARRUDA</td><td class='text-right'>202.33</td></tr><tr><td>RAFAEL EDUARDO SOARES SIQUEIRA</td><td class='text-right'>718.23</td></tr><tr><td>RAFAELA CAMPOS ANDRADE</td><td class='text-right'>5,826.29</td></tr><tr><td>RAFAELA CAVALCANTE DE ALMEIDA</td><td class='text-right'>49.29</td></tr><tr><td>RAFAELA VERLANGIERI MENDES DE ARAUJO</td><td class='text-right'>65.20</td></tr><tr><td>RAFAELLA OLIVEIRA ALMEIDA</td><td class='text-right'>1,772.52</td></tr><tr><td>RENAN SOUZA MANCIO</td><td class='text-right'>3,103.57</td></tr><tr><td>RENE DIAZ RODRIGUEZ</td><td class='text-right'>10,998.56</td></tr><tr><td>RICARDO SAAD</td><td class='text-right'>1,128.45</td></tr><tr><td>RODOLFO NUNES CERCI</td><td class='text-right'>667.55</td></tr><tr><td>TAMIRES FRANCA BERTAO</td><td class='text-right'>768.75</td></tr><tr><td>THAINARA VICTORIA TONDORF DELBEN</td><td class='text-right'>4,105.93</td></tr><tr><td>THIAGO DE ASSIS SARTORI</td><td class='text-right'>689.56</td></tr><tr><td>VICTOR HUGO DE ALMEIDA</td><td class='text-right'>7,109.28</td></tr><tr><td>WILLIAN BENEDITO DE PROENCA JUNIOR</td><td class='text-right'>59.50</td></tr></tbody></table></div></div></div>
         <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
         <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -768,30 +97,9 @@
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
         <script>
             $(document).ready(function() {
-                var config = {
-                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
-                    dom: 'Bfrtip',
-                    buttons: [
-                        { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2' },
-                        { 
-                            text: '<i class="fa-solid fa-print"></i> Imprimir Página', 
-                            className: 'bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700',
-                            action: function ( e, dt, node, config ) { window.print(); }
-                        }
-                    ],
-                    paging: false
-                };
-                $('#tbl-geral').DataTable(config);
-                $('#tbl-rateio').DataTable(config);
-                $('#tbl-prod').DataTable(config);
+                var config = { language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }, dom: 'Bfrtip', buttons: [ { extend: 'excel', text: 'Excel', className: 'bg-green-600 text-white px-3 py-1 rounded' }, { text: 'Imprimir Página', className: 'bg-blue-600 text-white px-3 py-1 rounded', action: function ( e, dt, node, config ) { window.print(); } } ], paging: false };
+                $('#tbl-geral').DataTable(config); $('#tbl-rateio').DataTable(config); $('#tbl-prod').DataTable(config);
             });
-            function verTab(id) {
-                $('.view-tab').addClass('hidden');
-                $('#tab-' + id).removeClass('hidden');
-                $('.tab-btn').removeClass('active');
-                $('#btn-' + id).addClass('active');
-            }
+            function verTab(id) { $('.view-tab').addClass('hidden'); $('#tab-' + id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-' + id).addClass('active'); }
         </script>
-    </body>
-    </html>
-    
+    </body></html>

@@ -1,11 +1,8 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - RATEIO DE EQUIPE (V7.1 - CORREÇÃO VALOR SP)
+# SISTEMA DE REPASSES - RATEIO DE EQUIPE (V7.3 - REMOÇÃO DO PRESTADOR HOSPITAL)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
-# Descrição: 
-#   1. Soma apenas a coluna SP (Serviço Profissional) do PDF de Receita.
-#   2. Ignora procedimentos do Rateio na produção individual (Blacklist).
-#   3. Visual A4 Compacto Azul (Padrão Fila Zero).
+# Descrição: Lógica V7.2 + Filtro para excluir "HOSPITAL" da lista de pagamento.
 # ==============================================================================
 
 import pdfplumber
@@ -17,12 +14,8 @@ import glob
 import difflib
 from datetime import datetime
 
-# ==============================================================================
-# 1. CONFIGURAÇÕES
-# ==============================================================================
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
-
-print(f"--- Processando Rateio de Equipe (V7.1 - Valor SP Real) ---")
+print(f"--- Processando Rateio de Equipe (V7.3 - Filtro Hospital) ---")
 
 pdf_receita = glob.glob(os.path.join(PASTA_SCRIPT, 'R_RECEITA*.pdf'))
 pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
@@ -32,20 +25,12 @@ ARQUIVO_RECEITA = pdf_receita[0] if pdf_receita else None
 ARQUIVO_PRODUCAO = pdf_producao[0] if pdf_producao else None
 ARQUIVO_VINCULOS = csv_vinculos[0] if csv_vinculos else None
 
-# ==============================================================================
-# 2. FUNÇÕES DE EXTRAÇÃO INTELIGENTE
-# ==============================================================================
-
 def extrair_competencia(nome_arquivo):
     if not nome_arquivo: return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
     match = re.search(r'_(\d{2})(\d{2})\.pdf', nome_arquivo)
     if match:
         mes, ano = match.groups()
-        meses = {
-            '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
-            '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
-            '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
-        }
+        meses = {'01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril', '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto', '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'}
         return f"{meses.get(mes, 'Mês')}/20{ano}", f"{mes}20{ano}"
     return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
 
@@ -61,112 +46,77 @@ def corrigir_nome_similar(nome_pdf, lista_nomes_oficiais, corte=0.85):
     return nome_upper
 
 def processar_receita_rateio(caminho):
-    """
-    CORREÇÃO V7.1:
-    Em vez de pegar o 'Total' do rodapé (que soma Hospital + Médico),
-    esta função percorre cada item e soma a coluna 'VI. SP' (Valor Profissional).
-    """
     if not caminho or not os.path.exists(caminho): return 0.0, set()
-    
     total_sp_acumulado = 0.0
     codigos_rateio = set()
-    
     with pdfplumber.open(caminho) as pdf:
         for page in pdf.pages:
             text = page.extract_text() or ""
             for line in text.split('\n'):
-                
-                # 1. Verifica se é uma linha de procedimento (Começa com código)
                 match_cod = re.search(r'^"?(\d{8,10})"?', line.strip())
-                
                 if match_cod:
                     codigos_rateio.add(match_cod.group(1))
-                    
-                    # 2. Extrai valores monetários da linha
-                    # Padrão SoulMV: ... | Vl SH | Vl SP | Total
                     valores = re.findall(r'(\d{1,3}(?:\.\d{3})*,\d{2})', line)
-                    
                     if len(valores) >= 2:
                         try:
-                            # O Valor SP costuma ser o PENÚLTIMO valor (antes do Total)
-                            # Ex: ["2.000,00", "500,00", "2.500,00"] -> SP é 500,00 (índice -2)
                             val_sp_str = valores[-2]
-                            
                             val_limpo = val_sp_str.replace('.', '').replace(',', '.')
                             total_sp_acumulado += float(val_limpo)
                         except: pass
-                        
-    print(f"   -> Receita SP (Soma das Linhas): R$ {total_sp_acumulado:,.2f}")
-    print(f"   -> Itens no Rateio (Blacklist): {len(codigos_rateio)}")
-    
     return total_sp_acumulado, codigos_rateio
 
 def carregar_vinculos(caminho):
-    if not caminho or not os.path.exists(caminho):
-        print("❌ Arquivo de vínculos não encontrado!")
-        return pd.DataFrame()
-    
+    if not caminho or not os.path.exists(caminho): return pd.DataFrame()
     try:
         try: df = pd.read_csv(caminho, sep=';', encoding='latin-1')
         except: df = pd.read_csv(caminho, sep=',', encoding='utf-8')
-        
         mapa = {}
         for c in df.columns:
             if c.upper().strip() in ['PRESTADOR', 'NOME', 'MEDICO']: mapa[c] = 'Prestador'
             elif c.upper().strip() in ['VINCULO', 'PESO', 'QTD', 'COTAS']: mapa[c] = 'Vinculo'
-            
         df = df.rename(columns=mapa)
-        
         if 'Prestador' not in df.columns: return pd.DataFrame()
         if 'Vinculo' not in df.columns: df['Vinculo'] = 1
-        
         df['Prestador'] = df['Prestador'].astype(str).str.upper().str.strip()
+        # Remove Hospital dos vínculos se houver
+        df = df[~df['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
         df['Vinculo'] = pd.to_numeric(df['Vinculo'].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
         df = df[df['Vinculo'] > 0]
-        
         return df[['Prestador', 'Vinculo']]
-    except Exception as e:
-        print(f"❌ Erro CSV: {e}")
-        return pd.DataFrame()
+    except: return pd.DataFrame()
 
 def calcular_rateio(valor_total, df_vinculos):
     if df_vinculos.empty or valor_total <= 0: return pd.DataFrame()
-    
     total_cotas = df_vinculos['Vinculo'].sum()
     if total_cotas == 0: return pd.DataFrame()
-    
     valor_ponto = valor_total / total_cotas
     df_vinculos['Valor_Rateio'] = df_vinculos['Vinculo'] * valor_ponto
     return df_vinculos
 
 def ler_producao_individual(caminho, codigos_blacklist, lista_nomes_validos=None):
     if not caminho or not os.path.exists(caminho): return pd.DataFrame()
-    
     dados = []
     medico_atual = "DESCONHECIDO"
-    
     with pdfplumber.open(caminho) as pdf:
         for page in pdf.pages:
             text = page.extract_text() or ""
             for line in text.split('\n'):
-                
                 if re.search(r'\(\d+\)', line) and not "Competência" in line:
                     nome_cru = re.sub(r'\(\d+\)', '', line).strip()
+                    if "HOSPITAL" in nome_cru.upper(): continue # Pula se for Hospital
+                    
                     if len(nome_cru) > 3:
                         if lista_nomes_validos:
                             medico_atual = corrigir_nome_similar(nome_cru, lista_nomes_validos)
                         else:
                             medico_atual = nome_cru.upper()
-
+                
                 match_cod = re.search(r'\b(\d{8,10})\b', line)
                 if not match_cod: continue 
-                
                 codigo_encontrado = match_cod.group(1)
                 
-                # SE ESTIVER NO RATEIO, PULA!
-                if codigo_encontrado in codigos_blacklist:
-                    continue 
-
+                if codigo_encontrado in codigos_blacklist: continue 
+                
                 valores = re.findall(r'(\d{1,3}(?:\.\d{3})*,\d{2})', line)
                 eh_item_valido = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
                 
@@ -177,33 +127,30 @@ def ler_producao_individual(caminho, codigos_blacklist, lista_nomes_validos=None
                     
     if not dados: return pd.DataFrame()
     df = pd.DataFrame(dados)
+    # Filtro final de segurança para tirar HOSPITAL se sobrou
+    df = df[~df['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
     return df.groupby('Prestador')['Valor_Producao'].sum().reset_index()
 
-# ==============================================================================
-# 3. GERAÇÃO DO HTML (VISUAL FILA ZERO - SEM CARGO)
-# ==============================================================================
-
 def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
+    if not df_producao.empty: prod_agrupada = df_producao
+    else: prod_agrupada = pd.DataFrame(columns=['Prestador', 'Valor_Producao'])
     
-    if not df_producao.empty:
-        prod_agrupada = df_producao
-    else:
-        prod_agrupada = pd.DataFrame(columns=['Prestador', 'Valor_Producao'])
-
-    if not df_rateio.empty:
+    if not df_rateio.empty: 
         df_final = pd.merge(df_rateio, prod_agrupada, on='Prestador', how='outer').fillna(0)
     else:
         df_final = prod_agrupada.copy()
         df_final['Valor_Rateio'] = 0
         df_final['Vinculo'] = 0
-
+    
+    # Filtro Final de Segurança (Remove Hospital da tabela final)
+    df_final = df_final[~df_final['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
+    
     df_final['Total_Receber'] = df_final['Valor_Rateio'] + df_final['Valor_Producao']
     df_final = df_final.sort_values(by='Total_Receber', ascending=False)
     
     total_rateio_dist = df_final['Valor_Rateio'].sum()
     total_producao_dist = df_final['Valor_Producao'].sum()
     total_geral = df_final['Total_Receber'].sum()
-    
     comp_label, _ = extrair_competencia(ARQUIVO_PRODUCAO if ARQUIVO_PRODUCAO else ARQUIVO_RECEITA)
 
     html = f"""
@@ -219,35 +166,37 @@ def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
             body {{ font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }}
-            
             .header-bg {{ background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; color: white !important; }}
             .card {{ background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; border: 1px solid #e5e7eb; }}
             .tab-btn {{ cursor: pointer; padding: 10px 20px; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; transition: all 0.3s; }}
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
+            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
             @media print {{
                 @page {{ margin: 5mm; size: A4 portrait; }}
-                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }}
+                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
+                
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
-                h1 {{ font-size: 16px !important; }}
-                .header-bg p {{ font-size: 10px !important; }}
+                .header-bg h1, .header-bg p, .header-bg i {{ color: white !important; -webkit-text-fill-color: white !important; }}
+                
                 .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }}
-                .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }}
-                .card h3 {{ font-size: 8px !important; }}
-                .card p {{ font-size: 12px !important; }}
-                .card i {{ display: none !important; }}
+                .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }}
+                
+                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 {{ color: #000 !important; font-weight: 800 !important; }}
+                .text-gray-500, .text-gray-400 {{ color: #333 !important; font-weight: 600 !important; }}
+                .text-blue-100 {{ color: #fff !important; }}
+
                 table {{ width: 100% !important; border-collapse: collapse !important; }}
-                th {{ background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }}
-                td {{ font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }}
+                th {{ background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }}
+                td {{ border-bottom: 1px solid #000 !important; color: #000 !important; }}
                 .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
                 .bg-white {{ box-shadow: none !important; }}
             }}
         </style>
     </head>
     <body class='text-gray-800'>
-        
         <div class='header-bg p-8 shadow-lg mb-8'>
             <div class='max-w-7xl mx-auto'>
                 <div class="flex items-center gap-4">
@@ -259,131 +208,51 @@ def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
                 </div>
             </div>
         </div>
-
         <div class='max-w-7xl mx-auto px-4'>
-            
             <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
                 <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Receita Rateio (SP)</h3>
-                        <p class='text-2xl font-bold text-gray-800'>R$ {receita_total:,.2f}</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Receita Rateio (SP)</h3><p class='text-2xl font-bold text-gray-800'>R$ {receita_total:,.2f}</p></div>
                     <i class="fa-solid fa-chart-pie text-blue-200 text-3xl"></i>
                 </div>
                 <div class='card border-l-4 border-orange-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Produção Extra (Individual)</h3>
-                        <p class='text-2xl font-bold text-orange-600'>R$ {total_producao_dist:,.2f}</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Produção Extra (Individual)</h3><p class='text-2xl font-bold text-orange-600'>R$ {total_producao_dist:,.2f}</p></div>
                     <i class="fa-solid fa-user-doctor text-orange-200 text-3xl"></i>
                 </div>
                  <div class='card border-l-4 border-green-500 flex items-center justify-between'>
-                    <div>
-                        <h3 class='text-gray-500 text-sm font-medium'>Total Geral a Repassar</h3>
-                        <p class='text-2xl font-bold text-green-600'>R$ {total_geral:,.2f}</p>
-                    </div>
+                    <div><h3 class='text-gray-500 text-sm font-medium'>Total Geral a Repassar</h3><p class='text-2xl font-bold text-green-600'>R$ {total_geral:,.2f}</p></div>
                     <i class="fa-solid fa-money-check-dollar text-green-200 text-3xl"></i>
                 </div>
             </div>
-
             <div class="bg-white rounded-t-lg shadow-sm border-b px-6 pt-4 flex gap-4 no-print">
-                <button id="btn-geral" class="tab-btn active" onclick="verTab('geral')">
-                    <i class="fa-solid fa-list-check mr-2"></i> Visão Geral (Final)
-                </button>
-                <button id="btn-rateio" class="tab-btn" onclick="verTab('rateio')">
-                    <i class="fa-solid fa-users mr-2"></i> Memória Rateio
-                </button>
-                 <button id="btn-prod" class="tab-btn" onclick="verTab('prod')">
-                    <i class="fa-solid fa-notes-medical mr-2"></i> Prod. Individual
-                </button>
+                <button id="btn-geral" class="tab-btn active" onclick="verTab('geral')"><i class="fa-solid fa-list-check mr-2"></i> Visão Geral</button>
+                <button id="btn-rateio" class="tab-btn" onclick="verTab('rateio')"><i class="fa-solid fa-users mr-2"></i> Memória Rateio</button>
+                 <button id="btn-prod" class="tab-btn" onclick="verTab('prod')"><i class="fa-solid fa-notes-medical mr-2"></i> Prod. Individual</button>
             </div>
-
             <div class="bg-white rounded-b-lg shadow p-6 min-h-[500px]">
-                
                 <div id="tab-geral" class="view-tab">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Resumo Final de Pagamento</h2>
                     <table id='tbl-geral' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-right'>V. Rateio</th>
-                                <th class='text-right'>V. Prod. Extra</th>
-                                <th class='text-right bg-gray-100 font-bold'>TOTAL (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    """
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>V. Rateio</th><th class='text-right'>V. Prod. Extra</th><th class='text-right bg-gray-100 font-bold'>TOTAL (R$)</th></tr></thead>
+                        <tbody>"""
     for _, row in df_final.iterrows():
-        html += f"""
-            <tr>
-                <td class='font-medium text-gray-900'>{row['Prestador']}</td>
-                <td class='text-right'>{row['Valor_Rateio']:,.2f}</td>
-                <td class='text-right'>{row['Valor_Producao']:,.2f}</td>
-                <td class='text-right font-bold text-green-600 bg-gray-50'>{row['Total_Receber']:,.2f}</td>
-            </tr>
-        """
-    
-    html += """
-                        </tbody>
-                        <tfoot>
-                            <tr class="bg-gray-100 font-bold">
-                                <td>TOTAIS</td>
-                                <td class="text-right">""" + f"{total_rateio_dist:,.2f}" + """</td>
-                                <td class="text-right">""" + f"{total_producao_dist:,.2f}" + """</td>
-                                <td class="text-right text-green-800">R$ """ + f"{total_geral:,.2f}" + """</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
+        html += f"<tr><td class='font-medium text-gray-900'>{row['Prestador']}</td><td class='text-right'>{row['Valor_Rateio']:,.2f}</td><td class='text-right'>{row['Valor_Producao']:,.2f}</td><td class='text-right font-bold text-green-600 bg-gray-50'>{row['Total_Receber']:,.2f}</td></tr>"
+    html += f"""</tbody><tfoot><tr class="bg-gray-100 font-bold"><td>TOTAIS</td><td class="text-right">{total_rateio_dist:,.2f}</td><td class="text-right">{total_producao_dist:,.2f}</td><td class="text-right text-green-800">R$ {total_geral:,.2f}</td></tr></tfoot></table></div>
                 <div id="tab-rateio" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Memória de Cálculo do Rateio</h2>
                     <table id='tbl-rateio' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-center'>Peso/Cotas</th>
-                                <th class='text-right'>Valor Rateio (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    """
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-center'>Peso/Cotas</th><th class='text-right'>Valor Rateio (R$)</th></tr></thead>
+                        <tbody>"""
     if not df_rateio.empty:
-        for _, row in df_rateio.iterrows():
-            html += f"<tr><td>{row['Prestador']}</td><td class='text-center'>{row['Vinculo']}</td><td class='text-right font-bold'>{row['Valor_Rateio']:,.2f}</td></tr>"
-    else:
-        html += "<tr><td colspan='3' class='text-center py-4'>Sem dados de rateio.</td></tr>"
-
-    html += """
-                        </tbody>
-                    </table>
-                </div>
-                
+        for _, row in df_rateio.iterrows(): html += f"<tr><td>{row['Prestador']}</td><td class='text-center'>{row['Vinculo']}</td><td class='text-right font-bold'>{row['Valor_Rateio']:,.2f}</td></tr>"
+    html += """</tbody></table></div>
                 <div id="tab-prod" class="view-tab hidden">
                     <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'>Produção Individual (Exceto Itens do Rateio)</h2>
                     <table id='tbl-prod' class='display w-full text-sm text-left text-gray-500'>
-                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'>
-                            <tr>
-                                <th>Profissional</th>
-                                <th class='text-right'>Valor Produção (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    """
+                        <thead class='text-xs text-gray-700 uppercase bg-gray-50'><tr><th>Profissional</th><th class='text-right'>Valor Produção (R$)</th></tr></thead>
+                        <tbody>"""
     if not df_producao.empty:
-        for _, row in prod_agrupada.iterrows():
-             html += f"<tr><td>{row['Prestador']}</td><td class='text-right'>{row['Valor_Producao']:,.2f}</td></tr>"
-    else:
-         html += "<tr><td colspan='2' class='text-center py-4'>Nenhuma produção extra encontrada.</td></tr>"
-
-    html += """
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-        </div>
-
+        for _, row in prod_agrupada.iterrows(): html += f"<tr><td>{row['Prestador']}</td><td class='text-right'>{row['Valor_Producao']:,.2f}</td></tr>"
+    html += """</tbody></table></div></div></div>
         <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
         <script src='https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js'></script>
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -392,42 +261,15 @@ def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
         <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
         <script>
             $(document).ready(function() {
-                var config = {
-                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
-                    dom: 'Bfrtip',
-                    buttons: [
-                        { extend: 'excel', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2' },
-                        { 
-                            text: '<i class="fa-solid fa-print"></i> Imprimir Página', 
-                            className: 'bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700',
-                            action: function ( e, dt, node, config ) { window.print(); }
-                        }
-                    ],
-                    paging: false
-                };
-                $('#tbl-geral').DataTable(config);
-                $('#tbl-rateio').DataTable(config);
-                $('#tbl-prod').DataTable(config);
+                var config = { language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }, dom: 'Bfrtip', buttons: [ { extend: 'excel', text: 'Excel', className: 'bg-green-600 text-white px-3 py-1 rounded' }, { text: 'Imprimir Página', className: 'bg-blue-600 text-white px-3 py-1 rounded', action: function ( e, dt, node, config ) { window.print(); } } ], paging: false };
+                $('#tbl-geral').DataTable(config); $('#tbl-rateio').DataTable(config); $('#tbl-prod').DataTable(config);
             });
-            function verTab(id) {
-                $('.view-tab').addClass('hidden');
-                $('#tab-' + id).removeClass('hidden');
-                $('.tab-btn').removeClass('active');
-                $('#btn-' + id).addClass('active');
-            }
+            function verTab(id) { $('.view-tab').addClass('hidden'); $('#tab-' + id).removeClass('hidden'); $('.tab-btn').removeClass('active'); $('#btn-' + id).addClass('active'); }
         </script>
-    </body>
-    </html>
-    """
-    
-    with open(nome_arquivo, 'w', encoding='utf-8') as f:
-        f.write(html)
-    print(f"✅ Relatório HTML gerado (A4 Compacto - Sem Cargo): {os.path.basename(nome_arquivo)}")
+    </body></html>"""
+    with open(nome_arquivo, 'w', encoding='utf-8') as f: f.write(html)
+    print(f"✅ Relatório HTML gerado (Alto Contraste): {os.path.basename(nome_arquivo)}")
     return total_geral
-
-# ==============================================================================
-# 5. ATUALIZAÇÃO DO PORTAL
-# ==============================================================================
 
 def atualizar_portal(novo_registro):
     caminho_atual = PASTA_SCRIPT
@@ -436,54 +278,27 @@ def atualizar_portal(novo_registro):
         teste = os.path.join(caminho_atual, 'arquivos', 'dados_financeiro.json')
         if os.path.exists(teste): caminho_json = teste; break
         caminho_atual = os.path.dirname(caminho_atual)
-    
     if not caminho_json: caminho_json = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos\dados_financeiro.json"
-    
     try:
         if os.path.exists(caminho_json):
             with open(caminho_json, 'r', encoding='utf-8') as f: dados = json.load(f)
         else: dados = []
-
         dados = [d for d in dados if d['titulo'] != novo_registro['titulo']]
         dados.insert(0, novo_registro)
-
-        with open(caminho_json, 'w', encoding='utf-8') as f:
-            json.dump(dados, f, indent=4, ensure_ascii=False)
+        with open(caminho_json, 'w', encoding='utf-8') as f: json.dump(dados, f, indent=4, ensure_ascii=False)
         print("   -> JSON do Portal atualizado com sucesso!")
     except Exception as e: print(f"❌ Erro JSON: {e}")
 
-# ==============================================================================
-# 6. EXECUÇÃO
-# ==============================================================================
-
 if __name__ == "__main__":
-    # 1. Lê e extrai a LISTA NEGRA de códigos do Rateio (Soma SP)
     receita_total, codigos_blacklist = processar_receita_rateio(ARQUIVO_RECEITA)
-    
-    print("   -> Carregando vínculos e calculando rateio...")
     df_vinculos = carregar_vinculos(ARQUIVO_VINCULOS)
     df_rateio = calcular_rateio(receita_total, df_vinculos)
-    
     lista_oficial_nomes = []
-    if not df_vinculos.empty:
-        lista_oficial_nomes = df_vinculos['Prestador'].unique().tolist()
-
-    # 2. Lê produção individual IGNORANDO os códigos do Rateio
-    print("   -> Processando produção individual (com filtro de exclusão)...")
+    if not df_vinculos.empty: lista_oficial_nomes = df_vinculos['Prestador'].unique().tolist()
     df_producao = ler_producao_individual(ARQUIVO_PRODUCAO, codigos_blacklist, lista_oficial_nomes)
-    
     comp_label, comp_sufixo = extrair_competencia(ARQUIVO_PRODUCAO if ARQUIVO_PRODUCAO else ARQUIVO_RECEITA)
     nome_html = os.path.join(PASTA_SCRIPT, f"relatorio_rateio_{comp_sufixo}.html")
-    
     total_geral = gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_html)
-    
-    # Atualiza portal
     caminho_web = os.path.relpath(nome_html, r"C:\Users\DELL\OneDrive\NII-Portal-1").replace("\\", "/")
-    reg = {
-        "titulo": f"Repasse de Equipe - {comp_label}",
-        "competencia": comp_label,
-        "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
-        "valor_total": f"R$ {total_geral:,.2f}",
-        "arquivo": caminho_web 
-    }
+    reg = { "titulo": f"Repasse de Equipe - {comp_label}", "competencia": comp_label, "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"), "valor_total": f"R$ {total_geral:,.2f}", "arquivo": caminho_web }
     atualizar_portal(reg)

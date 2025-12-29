@@ -1,9 +1,10 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - TERCEIROS E FORNECEDORES (V2.6 - HEMODIÁLISE RESTRITA)
+# SISTEMA DE REPASSES - TERCEIROS E FORNECEDORES (V2.7 - ALTO CONTRASTE)
 # Autor: Franck Moura (Via NII Automation)
 # Data: 26/12/2025
 # Descrição: Processa receita SADT.
-#            AGRUPAMENTO: Hemodiálise restrita ao cód 0305010131.
+#            LÓGICA: V2.6 (Hemodiálise restrita + Regras UTI).
+#            VISUAL: Alto contraste para impressão P&B.
 # ==============================================================================
 
 import pdfplumber
@@ -19,7 +20,7 @@ from datetime import datetime
 # ==============================================================================
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
 
-print(f"--- Processando Repasse de Terceiros/SADT (V2.6 - Ajuste Fino) ---")
+print(f"--- Processando Repasse de Terceiros/SADT (V2.7 - Alto Contraste) ---")
 
 # Busca automática
 pdf_geral = glob.glob(os.path.join(PASTA_SCRIPT, 'R_RECEITA_PROCEDIMENTO_GERAL*.pdf'))
@@ -34,7 +35,6 @@ ARQUIVO_ENTRADA = pdf_geral[0] if pdf_geral else None
 def definir_grupo_macro(codigo, descricao):
     """
     Classifica o procedimento com base em CÓDIGOS ESPECÍFICOS ou PALAVRAS-CHAVE.
-    A ordem das verificações define a prioridade.
     """
     c = str(codigo).strip()
     d = str(descricao).upper().strip()
@@ -171,7 +171,7 @@ def ler_dados_terceiros(caminho):
     return pd.DataFrame(dados)
 
 # ==============================================================================
-# 4. GERAÇÃO DO HTML (VISUAL LIMPO - 3 CARDS)
+# 4. GERAÇÃO DO HTML (VISUAL 3 CARDS + ALTO CONTRASTE)
 # ==============================================================================
 
 def gerar_html_terceiros(df, nome_arquivo, competencia_label):
@@ -216,23 +216,28 @@ def gerar_html_terceiros(df, nome_arquivo, competencia_label):
             .tab-btn.active {{ border-bottom: 2px solid #2563eb; color: #2563eb; }}
             .hidden {{ display: none !important; }}
 
+            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
             @media print {{
                 @page {{ margin: 5mm; size: A4 portrait; }}
-                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }}
+                body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
+                
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
-                h1 {{ font-size: 16px !important; }}
-                .header-bg p {{ font-size: 10px !important; }}
+                .header-bg h1, .header-bg p, .header-bg i {{ color: white !important; -webkit-text-fill-color: white !important; }}
                 
                 .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }}
+                .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }}
                 
-                .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }}
-                .card h3 {{ font-size: 8px !important; }}
-                .card p {{ font-size: 12px !important; }}
-                .card i {{ display: none !important; }}
+                /* FORÇA PRETO E NEGRITO NOS VALORES */
+                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 {{ 
+                    color: #000 !important; 
+                    font-weight: 800 !important; 
+                }}
+                .text-gray-500, .text-gray-400 {{ color: #333 !important; font-weight: 600 !important; }}
+                
                 table {{ width: 100% !important; border-collapse: collapse !important; }}
-                th {{ background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }}
-                td {{ font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }}
+                th {{ background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }}
+                td {{ border-bottom: 1px solid #000 !important; color: #000 !important; }}
                 .max-w-7xl {{ max-width: 100% !important; padding: 0 !important; }}
                 .bg-white {{ box-shadow: none !important; }}
             }}
@@ -398,7 +403,7 @@ def gerar_html_terceiros(df, nome_arquivo, competencia_label):
     
     with open(nome_arquivo, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"✅ Relatório HTML gerado (V2.6 - Ajuste Fino): {os.path.basename(nome_arquivo)}")
+    print(f"✅ Relatório HTML gerado (V2.7 - Alto Contraste): {os.path.basename(nome_arquivo)}")
     return total_geral
 
 # ==============================================================================

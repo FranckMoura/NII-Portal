@@ -18,23 +18,28 @@
             .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
             .hidden { display: none !important; }
 
+            /* === CONFIGURAÇÃO DE ALTO CONTRASTE NA IMPRESSÃO === */
             @media print {
                 @page { margin: 5mm; size: A4 portrait; }
-                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; }
+                body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate { display: none !important; }
+                
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
-                h1 { font-size: 16px !important; }
-                .header-bg p { font-size: 10px !important; }
+                .header-bg h1, .header-bg p, .header-bg i { color: white !important; -webkit-text-fill-color: white !important; }
                 
                 .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }
+                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }
                 
-                .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }
-                .card h3 { font-size: 8px !important; }
-                .card p { font-size: 12px !important; }
-                .card i { display: none !important; }
+                /* FORÇA PRETO E NEGRITO NOS VALORES */
+                .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 { 
+                    color: #000 !important; 
+                    font-weight: 800 !important; 
+                }
+                .text-gray-500, .text-gray-400 { color: #333 !important; font-weight: 600 !important; }
+                
                 table { width: 100% !important; border-collapse: collapse !important; }
-                th { background-color: #eee !important; font-size: 9px !important; padding: 4px !important; border: 1px solid #ddd !important; }
-                td { font-size: 9px !important; padding: 4px !important; border-bottom: 1px solid #eee !important; }
+                th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }
+                td { border-bottom: 1px solid #000 !important; color: #000 !important; }
                 .max-w-7xl { max-width: 100% !important; padding: 0 !important; }
                 .bg-white { box-shadow: none !important; }
             }
