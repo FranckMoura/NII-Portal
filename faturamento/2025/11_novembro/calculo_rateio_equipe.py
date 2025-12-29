@@ -1,8 +1,12 @@
 # ==============================================================================
-# SISTEMA DE REPASSES - RATEIO DE EQUIPE (V7.3 - REMOÇÃO DO PRESTADOR HOSPITAL)
+# SISTEMA DE REPASSES - RATEIO DE EQUIPE (V7.5 - CORREÇÃO SELEÇÃO DE ARQUIVO)
 # Autor: Franck Moura (Via NII Automation)
-# Data: 26/12/2025
-# Descrição: Lógica V7.2 + Filtro para excluir "HOSPITAL" da lista de pagamento.
+# Data: 29/12/2025
+# Descrição:
+#   1. Busca estrita pelo PDF com nome "*RATEIO*" para evitar ler arquivo errado.
+#   2. Garante a Lista Negra correta (evita duplicidade).
+#   3. Remove Prestador Hospital.
+#   4. Alto Contraste para Impressão.
 # ==============================================================================
 
 import pdfplumber
@@ -15,15 +19,22 @@ import difflib
 from datetime import datetime
 
 PASTA_SCRIPT = os.path.dirname(os.path.abspath(__file__))
-print(f"--- Processando Rateio de Equipe (V7.3 - Filtro Hospital) ---")
+print(f"--- Processando Rateio de Equipe (V7.5 - Fix Arquivo) ---")
 
-pdf_receita = glob.glob(os.path.join(PASTA_SCRIPT, 'R_RECEITA*.pdf'))
+# --- CORREÇÃO AQUI: BUSCA ESPECÍFICA POR "RATEIO" ---
+# Antes buscava R_RECEITA*, agora obriga ter RATEIO no nome para não pegar o GERAL.
+pdf_receita = glob.glob(os.path.join(PASTA_SCRIPT, '*RATEIO*.pdf'))
 pdf_producao = glob.glob(os.path.join(PASTA_SCRIPT, 'R_PRODUCAO*.pdf'))
 csv_vinculos = glob.glob(os.path.join(PASTA_SCRIPT, '*vinculo*.csv')) + glob.glob(os.path.join(PASTA_SCRIPT, '*VINCULO*.csv'))
 
 ARQUIVO_RECEITA = pdf_receita[0] if pdf_receita else None
 ARQUIVO_PRODUCAO = pdf_producao[0] if pdf_producao else None
 ARQUIVO_VINCULOS = csv_vinculos[0] if csv_vinculos else None
+
+if ARQUIVO_RECEITA:
+    print(f"   -> Arquivo de Receita (Bolo) identificado: {os.path.basename(ARQUIVO_RECEITA)}")
+else:
+    print("   ❌ ERRO CRÍTICO: Nenhum PDF com 'RATEIO' no nome encontrado!")
 
 def extrair_competencia(nome_arquivo):
     if not nome_arquivo: return datetime.now().strftime("%B/%Y"), datetime.now().strftime("%m%Y")
@@ -46,23 +57,35 @@ def corrigir_nome_similar(nome_pdf, lista_nomes_oficiais, corte=0.85):
     return nome_upper
 
 def processar_receita_rateio(caminho):
+    """
+    Lê o PDF de Rateio.
+    Soma a coluna SP (Penúltima coluna) e cria a Blacklist de códigos.
+    """
     if not caminho or not os.path.exists(caminho): return 0.0, set()
     total_sp_acumulado = 0.0
     codigos_rateio = set()
+    
     with pdfplumber.open(caminho) as pdf:
         for page in pdf.pages:
             text = page.extract_text() or ""
             for line in text.split('\n'):
+                # Identifica código do procedimento
                 match_cod = re.search(r'^"?(\d{8,10})"?', line.strip())
                 if match_cod:
                     codigos_rateio.add(match_cod.group(1))
+                    
+                    # Extrai valores: ... | Vl SH | Vl SP | Total
                     valores = re.findall(r'(\d{1,3}(?:\.\d{3})*,\d{2})', line)
                     if len(valores) >= 2:
                         try:
+                            # Pega o PENÚLTIMO valor (Vl. SP)
                             val_sp_str = valores[-2]
                             val_limpo = val_sp_str.replace('.', '').replace(',', '.')
                             total_sp_acumulado += float(val_limpo)
                         except: pass
+                        
+    print(f"   -> Total SP Receita Calculado: R$ {total_sp_acumulado:,.2f}")
+    print(f"   -> Qtd Procedimentos na Blacklist: {len(codigos_rateio)}")
     return total_sp_acumulado, codigos_rateio
 
 def carregar_vinculos(caminho):
@@ -77,9 +100,11 @@ def carregar_vinculos(caminho):
         df = df.rename(columns=mapa)
         if 'Prestador' not in df.columns: return pd.DataFrame()
         if 'Vinculo' not in df.columns: df['Vinculo'] = 1
+        
         df['Prestador'] = df['Prestador'].astype(str).str.upper().str.strip()
-        # Remove Hospital dos vínculos se houver
+        # Filtra Hospital
         df = df[~df['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
+        
         df['Vinculo'] = pd.to_numeric(df['Vinculo'].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
         df = df[df['Vinculo'] > 0]
         return df[['Prestador', 'Vinculo']]
@@ -97,25 +122,36 @@ def ler_producao_individual(caminho, codigos_blacklist, lista_nomes_validos=None
     if not caminho or not os.path.exists(caminho): return pd.DataFrame()
     dados = []
     medico_atual = "DESCONHECIDO"
+    
     with pdfplumber.open(caminho) as pdf:
         for page in pdf.pages:
             text = page.extract_text() or ""
             for line in text.split('\n'):
+                
+                # 1. Identificação do Médico
                 if re.search(r'\(\d+\)', line) and not "Competência" in line:
                     nome_cru = re.sub(r'\(\d+\)', '', line).strip()
-                    if "HOSPITAL" in nome_cru.upper(): continue # Pula se for Hospital
-                    
+                    # Atualiza o médico atual sempre, para avançar o "cursor"
                     if len(nome_cru) > 3:
                         if lista_nomes_validos:
-                            medico_atual = corrigir_nome_similar(nome_cru, lista_nomes_validos)
+                            match_nome = corrigir_nome_similar(nome_cru, lista_nomes_validos)
+                            medico_atual = match_nome if match_nome else nome_cru.upper()
                         else:
                             medico_atual = nome_cru.upper()
                 
+                # 2. Leitura dos Procedimentos
                 match_cod = re.search(r'\b(\d{8,10})\b', line)
                 if not match_cod: continue 
+                
+                # SE O MÉDICO ATUAL FOR HOSPITAL, IGNORA (mas o cursor já andou)
+                if "HOSPITAL" in medico_atual.upper(): continue
+
                 codigo_encontrado = match_cod.group(1)
                 
+                # === AQUI ESTÁ A MÁGICA ===
+                # Se o código estiver na lista do Rateio (Blacklist), PULA (não paga dnv)
                 if codigo_encontrado in codigos_blacklist: continue 
+                # ==========================
                 
                 valores = re.findall(r'(\d{1,3}(?:\.\d{3})*,\d{2})', line)
                 eh_item_valido = ("Anestesista" in line or "Auxiliar" in line or "Cirurgião" in line or "Próprio" in line or "Clínico" in line)
@@ -127,7 +163,7 @@ def ler_producao_individual(caminho, codigos_blacklist, lista_nomes_validos=None
                     
     if not dados: return pd.DataFrame()
     df = pd.DataFrame(dados)
-    # Filtro final de segurança para tirar HOSPITAL se sobrou
+    # Filtro final de segurança
     df = df[~df['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
     return df.groupby('Prestador')['Valor_Producao'].sum().reset_index()
 
@@ -142,7 +178,6 @@ def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
         df_final['Valor_Rateio'] = 0
         df_final['Vinculo'] = 0
     
-    # Filtro Final de Segurança (Remove Hospital da tabela final)
     df_final = df_final[~df_final['Prestador'].str.contains('HOSPITAL', case=False, na=False)]
     
     df_final['Total_Receber'] = df_final['Valor_Rateio'] + df_final['Valor_Producao']
@@ -177,17 +212,13 @@ def gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_arquivo):
                 @page {{ margin: 5mm; size: A4 portrait; }}
                 body {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background-color: white !important; font-size: 10px !important; color: #000 !important; }}
                 .no-print, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {{ display: none !important; }}
-                
                 .header-bg {{ padding: 10px !important; margin-bottom: 10px !important; }}
                 .header-bg h1, .header-bg p, .header-bg i {{ color: white !important; -webkit-text-fill-color: white !important; }}
-                
                 .grid-print-row {{ display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }}
                 .card {{ padding: 8px !important; box-shadow: none !important; border: 1px solid #000 !important; break-inside: avoid !important; }}
-                
                 .text-green-600, .text-blue-600, .text-purple-600, .text-orange-600, .text-cyan-600, .text-pink-600 {{ color: #000 !important; font-weight: 800 !important; }}
                 .text-gray-500, .text-gray-400 {{ color: #333 !important; font-weight: 600 !important; }}
                 .text-blue-100 {{ color: #fff !important; }}
-
                 table {{ width: 100% !important; border-collapse: collapse !important; }}
                 th {{ background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; }}
                 td {{ border-bottom: 1px solid #000 !important; color: #000 !important; }}
@@ -290,15 +321,21 @@ def atualizar_portal(novo_registro):
     except Exception as e: print(f"❌ Erro JSON: {e}")
 
 if __name__ == "__main__":
+    # AQUI ESTAVA O PROBLEMA: AGORA BUSCA *RATEIO* E NÃO QUALQUER RECEITA
     receita_total, codigos_blacklist = processar_receita_rateio(ARQUIVO_RECEITA)
+    
     df_vinculos = carregar_vinculos(ARQUIVO_VINCULOS)
     df_rateio = calcular_rateio(receita_total, df_vinculos)
     lista_oficial_nomes = []
     if not df_vinculos.empty: lista_oficial_nomes = df_vinculos['Prestador'].unique().tolist()
+    
     df_producao = ler_producao_individual(ARQUIVO_PRODUCAO, codigos_blacklist, lista_oficial_nomes)
+    
     comp_label, comp_sufixo = extrair_competencia(ARQUIVO_PRODUCAO if ARQUIVO_PRODUCAO else ARQUIVO_RECEITA)
     nome_html = os.path.join(PASTA_SCRIPT, f"relatorio_rateio_{comp_sufixo}.html")
+    
     total_geral = gerar_relatorio_final(df_rateio, df_producao, receita_total, nome_html)
+    
     caminho_web = os.path.relpath(nome_html, r"C:\Users\DELL\OneDrive\NII-Portal-1").replace("\\", "/")
     reg = { "titulo": f"Repasse de Equipe - {comp_label}", "competencia": comp_label, "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"), "valor_total": f"R$ {total_geral:,.2f}", "arquivo": caminho_web }
     atualizar_portal(reg)
