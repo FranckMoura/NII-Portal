@@ -25,7 +25,9 @@
                 .header-bg { padding: 10px !important; margin-bottom: 10px !important; }
                 h1 { font-size: 16px !important; }
                 .header-bg p { font-size: 10px !important; }
-                .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }
+                
+                .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 20px !important; }
+                
                 .card { padding: 8px !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid !important; }
                 .card h3 { font-size: 8px !important; }
                 .card p { font-size: 12px !important; }
@@ -46,7 +48,7 @@
                     <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-invoice-dollar text-3xl"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold'>Relatório Fila Zero</h1>
-                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 27/12/2025</p>
+                        <p class='text-blue-100'>Competência: Novembro/2025 | Gerado em: 29/12/2025</p>
                     </div>
                 </div>
             </div>
@@ -421,9 +423,7 @@
                         { 
                             text: '<i class="fa-solid fa-print"></i> Imprimir Página', 
                             className: 'bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700',
-                            action: function ( e, dt, node, config ) {
-                                window.print();
-                            }
+                            action: function ( e, dt, node, config ) { window.print(); }
                         }
                     ],
                     paging: false
