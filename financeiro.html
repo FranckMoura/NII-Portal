@@ -17,7 +17,7 @@
 </head>
 <body class="text-slate-800">
 
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
@@ -56,13 +56,12 @@
             'JULHO': 7, 'AGOSTO': 8, 'SETEMBRO': 9, 'OUTUBRO': 10, 'NOVEMBRO': 11, 'DEZEMBRO': 12
         };
 
-        // Função para converter valor string "R$ 1.000,00" em float
         function parseValor(valorStr) {
-            if (!valorStr) return 0;
+            if (!valorStr || valorStr === '---') return 0;
             return parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.').trim());
         }
 
-        // Função para ordenar competências (Mais recente primeiro)
+        // Ordena competências (Dezembro antes de Novembro)
         function sortCompetencias(a, b) {
             const [mesA, anoA] = a.split('/');
             const [mesB, anoB] = b.split('/');
@@ -75,31 +74,41 @@
             const container = document.getElementById('container-pastas');
             
             try {
-                // Busca o JSON (ajuste o caminho se necessário)
-                const response = await fetch('arquivos/dados_financeiro.json');
+                // Força o navegador a não usar cache do JSON
+                const response = await fetch('arquivos/dados_financeiro.json?v=' + new Date().getTime());
                 const dados = await response.json();
 
-                // 1. Agrupar por Competência
+                // 1. Agrupar por Competência (NORMALIZADO PARA MAIÚSCULO)
                 const grupos = {};
                 dados.forEach(item => {
-                    const comp = item.competencia || "Outros";
+                    // Transforma "Novembro/2025" em "NOVEMBRO/2025" para agrupar junto
+                    let comp = (item.competencia || "Outros").toUpperCase();
                     if (!grupos[comp]) grupos[comp] = [];
                     grupos[comp].push(item);
                 });
 
-                // 2. Ordenar as chaves (meses)
+                // 2. Ordenar as pastas (Mês mais recente primeiro)
                 const competenciasOrdenadas = Object.keys(grupos).sort(sortCompetencias);
 
-                container.innerHTML = ''; // Limpa loading
+                container.innerHTML = '';
 
-                // 3. Gerar HTML para cada grupo
+                if (competenciasOrdenadas.length === 0) {
+                    container.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhum relatório encontrado.</div>`;
+                    return;
+                }
+
+                // 3. Gerar HTML
                 competenciasOrdenadas.forEach((comp, index) => {
-                    const itens = grupos[comp];
+                    let itens = grupos[comp];
                     
-                    // Calcula total do mês
+                    // ORDENAÇÃO INTERNA DOS CARDS
+                    // Capa (começa com "00") primeiro, depois alfabético
+                    itens.sort((a, b) => a.titulo.localeCompare(b.titulo));
+
+                    // Calcula total (excluindo a capa que não tem valor)
                     const totalMes = itens.reduce((acc, item) => acc + parseValor(item.valor_total), 0);
                     
-                    // Define se a pasta começa aberta (apenas a primeira/mais recente)
+                    // A primeira pasta já vem aberta
                     const isOpen = index === 0;
                     const hiddenClass = isOpen ? '' : 'hidden';
                     const rotateClass = isOpen ? 'rotate-180' : '';
@@ -108,17 +117,17 @@
                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                             <button onclick="togglePasta('pasta-${index}', 'icon-${index}')" class="folder-header w-full flex items-center justify-between p-5 text-left bg-white border-b border-gray-100 cursor-pointer outline-none">
                                 <div class="flex items-center gap-4">
-                                    <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center border border-blue-100">
+                                    <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center border border-blue-100 shadow-sm">
                                         <i class="fa-regular fa-folder-open text-xl"></i>
                                     </div>
                                     <div>
-                                        <h2 class="text-lg font-bold text-slate-800">${comp}</h2>
-                                        <p class="text-sm text-slate-500">${itens.length} relatórios disponíveis</p>
+                                        <h2 class="text-lg font-bold text-slate-800 capitalize">${comp.toLowerCase()}</h2>
+                                        <p class="text-sm text-slate-500">${itens.length} arquivos disponíveis</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-6">
                                     <div class="text-right hidden sm:block">
-                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total da Competência</p>
+                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Consolidado</p>
                                         <p class="text-lg font-bold text-green-600">R$ ${totalMes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
                                     </div>
                                     <i id="icon-${index}" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 ${rotateClass}"></i>
@@ -126,33 +135,39 @@
                             </button>
 
                             <div id="pasta-${index}" class="bg-slate-50 p-5 ${hiddenClass}">
-                                <div class="grid grid-cols-1 gap-4">
-                                    ${itens.map(item => `
-                                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="grid grid-cols-1 gap-3">
+                                    ${itens.map(item => {
+                                        // Destaque visual diferente para a CAPA
+                                        const isCapa = item.titulo.includes("CAPA");
+                                        const iconClass = isCapa ? "fa-solid fa-book text-white" : "fa-solid fa-file-contract text-white";
+                                        const bgClass = isCapa ? "bg-slate-800" : "bg-blue-600";
+                                        const borderClass = isCapa ? "border-slate-300" : "border-slate-200";
+                                        
+                                        return `
+                                        <div class="bg-white p-4 rounded-lg border ${borderClass} shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row items-center justify-between gap-4">
                                             <div class="flex items-center gap-4 w-full sm:w-auto">
-                                                <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-file-contract"></i>
+                                                <div class="${bgClass} w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                                                    <i class="${iconClass}"></i>
                                                 </div>
                                                 <div>
-                                                    <h3 class="font-semibold text-slate-800">${item.titulo}</h3>
+                                                    <h3 class="font-semibold text-slate-800 text-sm sm:text-base">${item.titulo}</h3>
                                                     <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                                                        <span><i class="fa-regular fa-calendar mr-1"></i> ${item.competencia}</span>
-                                                        <span><i class="fa-regular fa-clock mr-1"></i> Gerado em: ${item.data_geracao.split(' ')[0]}</span>
+                                                        <span><i class="fa-regular fa-clock mr-1"></i> ${item.data_geracao}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             
                                             <div class="flex items-center justify-between w-full sm:w-auto gap-6 pl-14 sm:pl-0">
-                                                <div class="text-right">
-                                                    <span class="block text-xs text-slate-400 font-medium">VALOR</span>
-                                                    <span class="block font-bold text-slate-700 text-lg">${item.valor_total}</span>
+                                                <div class="text-right ${isCapa ? 'hidden' : ''}">
+                                                    <span class="block text-[10px] text-slate-400 font-bold uppercase">VALOR</span>
+                                                    <span class="block font-bold text-slate-700">${item.valor_total}</span>
                                                 </div>
-                                                <a href="${item.arquivo}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-                                                    <i class="fa-solid fa-eye"></i> Visualizar
+                                                <a href="${item.arquivo}" target="_blank" class="bg-white border border-gray-300 hover:bg-gray-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm">
+                                                    <i class="fa-solid fa-eye text-blue-600"></i> Abrir
                                                 </a>
                                             </div>
                                         </div>
-                                    `).join('')}
+                                    `}).join('')}
                                 </div>
                             </div>
                         </div>
@@ -162,11 +177,10 @@
 
             } catch (error) {
                 console.error("Erro:", error);
-                container.innerHTML = `<div class="text-center text-red-500 py-10"><i class="fa-solid fa-triangle-exclamation text-4xl mb-2"></i><br>Erro ao carregar dados financeiros.<br>Verifique se o arquivo JSON existe.</div>`;
+                container.innerHTML = `<div class="text-center text-red-500 py-10"><i class="fa-solid fa-triangle-exclamation text-4xl mb-2"></i><br>Erro ao carregar.<br>Tente atualizar a página (F5).</div>`;
             }
         }
 
-        // Função para abrir/fechar pastas
         function togglePasta(idPasta, idIcone) {
             const conteudo = document.getElementById(idPasta);
             const icone = document.getElementById(idIcone);
@@ -180,7 +194,6 @@
             }
         }
 
-        // Inicia
         document.addEventListener('DOMContentLoaded', carregarFinanceiro);
     </script>
 </body>
