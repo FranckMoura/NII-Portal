@@ -1,0 +1,26 @@
+# 1. Define o caminho da pasta
+$pasta = "C:\Users\fatsus\OneDrive\NII-Portal-1\Merge_Relatorios"
+
+# 2. Busca todos os arquivos PDF na pasta
+$arquivos = Get-ChildItem -Path $pasta -Filter *.pdf
+
+# 3. Verifica se existem arquivos
+if ($arquivos.Count -eq 0) {
+    Write-Host "Nenhum arquivo PDF encontrado para imprimir." -ForegroundColor Yellow
+} else {
+    Write-Host "Iniciando a impressão de $($arquivos.Count) arquivos..." -ForegroundColor Cyan
+
+    # 4. Loop para imprimir cada arquivo um por um
+    foreach ($arquivo in $arquivos) {
+        Write-Host "Enviando para impressora: $($arquivo.Name)"
+        
+        # O comando 'Start-Process' com '-Verb Print' usa a impressora padrão do Windows
+        Start-Process -FilePath $arquivo.FullName -Verb Print
+        
+        # 5. PAUSA DE SEGURANÇA (Importante!)
+        # Espera 5 segundos entre um arquivo e outro para não travar o spooler da impressora
+        Start-Sleep -Seconds 5
+    }
+    
+    Write-Host "Processo finalizado!" -ForegroundColor Green
+}
