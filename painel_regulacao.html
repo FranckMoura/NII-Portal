@@ -41,6 +41,10 @@
             text-decoration: underline;
             color: #003d80;
         }
+
+        /* Destaque para Urgência */
+        .carater-urgencia { color: #dc3545; font-weight: bold; }
+        .carater-eletiva { color: #28a745; }
         
         @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
@@ -74,7 +78,7 @@
 
     <div class="table-box">
         <table id="tabelaReg" class="display" style="width:100%">
-            <thead><tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Procedimento</th><th>Status</th></tr></thead>
+            <thead><tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Procedimento</th><th>Status</th><th>Caráter</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -100,15 +104,12 @@
                         { 
                             data: "paciente",
                             render: function(data, type, row) {
-                                // Se tiver link PDF, exibe ícone e link clicável
                                 if (row.arquivo_pdf && row.arquivo_pdf.length > 5) {
-                                    // Corrige barras invertidas do Windows para barras normais de URL
                                     let linkSeguro = row.arquivo_pdf.replace(/\\/g, "/");
                                     return `<a href="${linkSeguro}" target="_blank" class="paciente-link" title="Abrir Ficha">
                                                 <i class="fas fa-file-pdf"></i> ${data}
                                             </a>`;
                                 }
-                                // Senão, apenas o texto
                                 return data || "-";
                             }
                         },
@@ -125,6 +126,17 @@
                                 else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
                                 else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
                                 return `<span class="status-badge ${c}">${d || "Pendente"}</span>`;
+                            }
+                        },
+                        // AQUI: Adicionei a configuração da coluna Caráter
+                        { 
+                            data: "carater", 
+                            defaultContent: "-",
+                            render: function(d) {
+                                let val = (d || "").toLowerCase();
+                                if(val.includes("urgencia") || val.includes("11")) return `<span class="carater-urgencia">Urgência</span>`;
+                                if(val.includes("eletiva") || val.includes("10")) return `<span class="carater-eletiva">Eletiva</span>`;
+                                return d;
                             }
                         }
                     ]
