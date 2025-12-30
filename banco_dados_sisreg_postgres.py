@@ -6,7 +6,7 @@ import time
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> BANCO LOCAL -> JSON (V51 - MAPA DE COLUNAS CORRIGIDO) ---")
+print("--- 2. PROCESSAMENTO: CSV -> BANCO LOCAL -> JSON (V52 - SUPER ROBUSTO) ---")
 
 # --- CONFIGURAÇÕES ---
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export"
@@ -17,115 +17,130 @@ CAMINHO_JSON = os.path.join(PASTA_ARQUIVOS, "dados_sisreg.json")
 if not os.path.exists(PASTA_ARQUIVOS): os.makedirs(PASTA_ARQUIVOS)
 
 # --- CONEXÃO SQLITE ---
-try:
-    engine = create_engine(f"sqlite:///{CAMINHO_DB}")
-    print("   -> Conexão SQLite OK.")
-except Exception as e:
-    print(f"❌ Erro ao criar banco: {e}")
-    exit()
+engine = create_engine(f"sqlite:///{CAMINHO_DB}")
 
 # --- LEITURA DOS ARQUIVOS ---
-print("   -> Lendo arquivos CSV exportados...")
+print("   -> Lendo arquivos CSV...")
 arquivos_csv = glob.glob(os.path.join(PASTA_CSV, "*.csv"))
 
 if not arquivos_csv:
-    print("      ⚠️ Nenhum arquivo CSV encontrado! Rode a extração primeiro.")
+    print("      ⚠️ ERRO: Nenhum arquivo CSV encontrado em SISREG_Export.")
     exit()
 
 dfs = []
 for arq in arquivos_csv:
-    try:
-        # Tenta ler com ; (padrão SISREG)
-        temp = pd.read_csv(arq, sep=';', encoding='latin-1', on_bad_lines='skip', low_memory=False)
-        dfs.append(temp)
-    except:
-        pass
+    # Tenta várias codificações até conseguir ler corretamente
+    for encoding in ['latin-1', 'utf-8', 'cp1252']:
+        try:
+            temp = pd.read_csv(arq, sep=';', encoding=encoding, on_bad_lines='skip', low_memory=False)
+            # Verifica se leu direito (se tem mais de 1 coluna)
+            if len(temp.columns) > 1:
+                # Normaliza colunas para verificar se achamos a chave
+                cols_norm = [unidecode(c.strip().lower()) for c in temp.columns]
+                # Verifica se tem alguma coluna de solicitação
+                if any("solicitacao" in c for c in cols_norm):
+                    print(f"      Lido com sucesso ({encoding}): {os.path.basename(arq)}")
+                    dfs.append(temp)
+                    break
+        except:
+            continue
 
 if dfs:
     df = pd.concat(dfs, ignore_index=True)
-    print(f"   -> Total bruto de linhas lidas: {len(df)}")
+    print(f"   -> Total bruto: {len(df)} linhas.")
     
-    # --- 1. NORMALIZAÇÃO DOS NOMES DAS COLUNAS ---
-    # Remove acentos, espaços e deixa minusculo. Ex: "N. da solicitação" vira "n._da_solicitacao"
+    # --- 1. NORMALIZAÇÃO INTELIGENTE ---
+    # Limpa nomes das colunas
     df.columns = [unidecode(c.strip().lower().replace(" ", "_").replace(".", "")) for c in df.columns]
     
-    # --- 2. MAPEAMENTO CORRETO (AQUI ESTAVA O ERRO) ---
-    # Mapeia o nome "feio" do CSV para o nome "bonito" do sistema
-    mapa_colunas = {
-        'n_da_solicitacao': 'cod_solicitacao',
-        'nome_do_paciente': 'nome_paciente',
-        'nome_do_procedimento_solicitado': 'procedimento',
-        'data_da_solicitacao': 'data_solicitacao',
-        'status_da_solicitacao_de_internacao': 'situacao',
-        'classificacao_de_risco': 'carater',
-        'cns_do_paciente': 'cns_paciente',
-        'n_aih': 'aih'
-    }
-    
-    df.rename(columns=mapa_colunas, inplace=True)
-    
-    # Fallback para "Procedimento" se não achar o nome completo
-    if 'nome_do_procedimento' in df.columns and 'procedimento' not in df.columns:
-        df.rename(columns={'nome_do_procedimento': 'procedimento'}, inplace=True)
+    # Debug: Mostra colunas encontradas para saber se deu certo
+    # print(f"      Colunas encontradas: {list(df.columns)}")
 
-    # Garante que colunas essenciais existam
-    for col in ['cod_solicitacao', 'nome_paciente', 'situacao', 'data_solicitacao']:
-        if col not in df.columns:
-            df[col] = "N/A"
+    # --- 2. LOCALIZADOR DE COLUNAS ---
+    # Em vez de um mapa fixo, procuramos a coluna correta dinamicamente
+    def achar_coluna(termos, obrigatorio=False):
+        for col in df.columns:
+            # Verifica se todos os termos estão no nome da coluna
+            if all(t in col for t in termos):
+                return col
+        return None
 
-    # --- 3. LIMPEZA E DEDUPLICAÇÃO ---
-    # Converte data
+    # Mapeia colunas críticas
+    col_id = achar_coluna(["n", "solicitacao"]) or achar_coluna(["cod", "solicitacao"])
+    col_paciente = achar_coluna(["nome", "paciente"])
+    col_data = achar_coluna(["data", "solicitacao"])
+    col_status = achar_coluna(["status"]) or achar_coluna(["situacao"])
+    col_procedimento = achar_coluna(["procedimento", "solicitado"]) or achar_coluna(["procedimento"])
+    col_aih = achar_coluna(["n", "aih"]) or "aih"
+    col_cns = achar_coluna(["cns", "paciente"]) or "cns"
+    col_carater = achar_coluna(["classificacao"]) or achar_coluna(["carater"])
+
+    # Se não achou o ID, não tem como continuar
+    if not col_id:
+        print("      ❌ ERRO: Não foi possível identificar a coluna 'N. da Solicitação'.")
+        print(f"      Colunas disponíveis: {list(df.columns)}")
+        exit()
+
+    # Renomeia para o padrão do sistema
+    df.rename(columns={
+        col_id: 'cod_solicitacao',
+        col_paciente: 'nome_paciente',
+        col_data: 'data_solicitacao',
+        col_status: 'situacao',
+        col_procedimento: 'procedimento',
+        col_aih: 'aih',
+        col_cns: 'cns_paciente',
+        col_carater: 'carater'
+    }, inplace=True)
+
+    # --- 3. LIMPEZA ---
+    # Preenche colunas faltantes não críticas
+    for col in ['aih', 'cns_paciente', 'carater']:
+        if col not in df.columns: df[col] = "---"
+
+    # Converte Data
     df['data_iso'] = pd.to_datetime(df['data_solicitacao'], dayfirst=True, errors='coerce')
     
-    # Remove linhas onde o código é nulo ou N/A
-    df = df[df['cod_solicitacao'] != "N/A"]
-    df = df[df['cod_solicitacao'].notna()]
-
-    # DEDUPLICAÇÃO REAL
-    # Ordena por data (mais recente primeiro) e mantem o primeiro
-    # Isso garante que se houver o mesmo código em arquivos diferentes, pega o mais novo
+    # Filtro de Duplicatas (Mantém o status mais recente)
     if 'data_iso' in df.columns:
         df.sort_values(by='data_iso', ascending=False, inplace=True)
     
+    # Remove linhas inválidas (sem código)
+    df = df[df['cod_solicitacao'].notna()]
+    # Remove se for só "N/A" string
+    df = df[df['cod_solicitacao'].astype(str).str.contains(r'\d')] # Tem que ter número
+
     total_antes = len(df)
     df.drop_duplicates(subset=['cod_solicitacao'], keep='first', inplace=True)
-    print(f"   -> Deduplicação: {total_antes} linhas -> {len(df)} linhas únicas.")
+    print(f"   -> Deduplicação: {len(df)} registros válidos.")
 
-    # --- 4. SALVAR NO BANCO ---
-    # Converte datas para string para o SQLite aceitar
+    # --- 4. SALVAR ---
+    # Banco
     df_save = df.copy()
     if 'data_iso' in df_save.columns:
         df_save['data_iso'] = df_save['data_iso'].astype(str)
-        
     df_save.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
-    print("      Banco atualizado com sucesso.")
 
-    # --- 5. GERAR JSON PARA O PORTAL ---
-    # Lógica de PDF mantida
+    # JSON
+    # Recupera Links de PDF antigos se existirem
     links_map = {}
     if os.path.exists(CAMINHO_JSON):
         try:
             with open(CAMINHO_JSON, 'r', encoding='utf-8') as f:
                 dados_antigos = json.load(f)
             for row in dados_antigos:
-                if 'aih' in row and row['aih'] and 'arquivo_pdf' in row:
-                    aih_limpa = str(row['aih']).replace(".", "").replace("-", "").strip()
-                    if aih_limpa: links_map[aih_limpa] = row['arquivo_pdf']
+                if row.get('aih') and row.get('arquivo_pdf'):
+                    k = str(row['aih']).replace(".", "").replace("-", "").strip()
+                    links_map[k] = row['arquivo_pdf']
         except: pass
 
-    def normalizar_aih(valor):
-        if not valor: return ""
-        return str(valor).replace(".", "").replace("-", "").strip()
+    def get_pdf(row):
+        k = str(row.get('aih', '')).replace(".", "").replace("-", "").strip()
+        return links_map.get(k, None)
 
-    def aplicar_link(row):
-        aih_banco = normalizar_aih(row.get('aih'))
-        if aih_banco in links_map: return links_map[aih_banco]
-        return None
+    df_save['arquivo_pdf'] = df_save.apply(get_pdf, axis=1)
 
-    df_save['arquivo_pdf'] = df_save.apply(aplicar_link, axis=1)
-    
-    # Preparar JSON final (Renomeia para as chaves que o HTML espera)
-    # HTML espera: data_visual, paciente, cns, num_sol, aih, proc, status, carater
+    # Renomeia para o HTML
     df_json = df_save.rename(columns={
         'data_solicitacao': 'data_visual',
         'nome_paciente': 'paciente',
@@ -134,13 +149,12 @@ if dfs:
         'procedimento': 'proc',
         'situacao': 'status'
     })
+
+    cols_export = ['data_visual', 'paciente', 'cns', 'num_sol', 'aih', 'proc', 'status', 'carater', 'data_iso', 'arquivo_pdf']
+    cols_finais = [c for c in cols_export if c in df_json.columns]
     
-    # Seleciona apenas colunas necessárias para o JSON ficar leve
-    cols_json = ['data_visual', 'paciente', 'cns', 'num_sol', 'aih', 'proc', 'status', 'carater', 'data_iso', 'arquivo_pdf']
-    cols_existentes = [c for c in cols_json if c in df_json.columns]
-    
-    df_json[cols_existentes].to_json(CAMINHO_JSON, orient='records', force_ascii=False, indent=4)
-    print("✅ JSON do Portal gerado corretamente.")
+    df_json[cols_finais].to_json(CAMINHO_JSON, orient='records', force_ascii=False, indent=4)
+    print("✅ JSON gerado com sucesso!")
 
 else:
-    print("❌ Nenhum dado processado.")
+    print("❌ Nenhum dado válido encontrado nos CSVs.")
