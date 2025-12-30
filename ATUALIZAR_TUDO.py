@@ -44,18 +44,7 @@ def rodar(script, obrigatorio=True):
 
 # --- 1. EXTRAÇÃO SISREG (Robô V18) ---
 # MUDANÇA IMPORTANTE: Agora é OBRIGATÓRIO.
-# Se o SISREG bloquear (horário 08-16h) ou der erro, o processo PARA aqui.
-# Isso evita travar o banco de dados lá na frente.
 rodar("extracao_sisreg_v18.py", obrigatorio=True)
-
-# --- 1.5. IMPRESSÃO DE FICHAS E ATUALIZAÇÃO DO PAINEL ---
-# Baixa os PDFs e atualiza o JSON do site com os links
-print("\n[INFO] Verificando fichas de internação e atualizando links...")
-rodar("imprimir_internacao.py", obrigatorio=False)
-
-# --- 2. CARGA SISREG -> POSTGRES (Banco de Dados) ---
-# Só roda se a etapa 1 tiver funcionado.
-rodar("banco_dados_sisreg_postgres.py", obrigatorio=True)
 
 # --- 3. IMPORTAÇÃO FINANCEIRA (Se houver arquivo novo) ---
 if os.path.exists("pDetAIH.csv"):
@@ -64,23 +53,16 @@ if os.path.exists("pDetAIH.csv"):
 else:
     print("\n[INFO] Nenhum arquivo 'pDetAIH.csv' novo. Mantendo faturamento anterior.")
 
-# --- 4. IMPORTAÇÃO HISTÓRICA TABNET (Se houver arquivo novo) ---
-arquivos_tabnet = [f for f in os.listdir(".") if f.startswith("sih_cnv") and f.endswith(".csv")]
-if arquivos_tabnet:
-    print(f"\n[INFO] Arquivo histórico TabNet detectado ({arquivos_tabnet[0]}). Importando...")
-    rodar("importar_tabnet.py", obrigatorio=False)
-else:
-    print("\n[INFO] Nenhum arquivo do TabNet encontrado. Mantendo histórico anterior.")
-
-# --- 5. AUDITORIA FINANCEIRA (Relatório Excel) ---
-rodar("gerar_relatorio_financeiro_v2.py", obrigatorio=False)
-
-# --- 6. GERAÇÃO DO SITE (Dashboard HTML) ---
-rodar("gerar_dashboard.py", obrigatorio=True)
-
 # --- 7. UPLOAD (Sobe pra nuvem) ---
 # Envia HTML, JSON e a pasta Fichas_Internacao para o GitHub
-rodar("upload_manager_v6.py", obrigatorio=True)
+# Nota: Verifique se o nome do seu arquivo é upload_manager.py ou upload_manager_v6.py
+# Se der erro de "Arquivo não encontrado", mude o nome abaixo.
+if os.path.exists("upload_manager_v6.py"):
+    rodar("upload_manager_v6.py", obrigatorio=True)
+elif os.path.exists("upload_manager.py"):
+    rodar("upload_manager.py", obrigatorio=True)
+else:
+    print("❌ Script de Upload não encontrado.")
 
 imprimir_titulo("PROCESSO FINALIZADO COM SUCESSO!")
 print("   Acesse: https://franckmoura.github.io/NII-Portal/painel_regulacao.html")
