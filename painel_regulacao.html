@@ -8,6 +8,9 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -28,30 +31,22 @@
         .bg-negado { background: var(--danger); }
         .bg-outro { background: var(--primary); }
         
-        /* Estilo para link de paciente */
-        a.paciente-link {
-            color: #0056b3;
-            font-weight: bold;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        a.paciente-link:hover {
-            text-decoration: underline;
-            color: #003d80;
-        }
+        a.paciente-link { color: #0056b3; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        a.paciente-link:hover { text-decoration: underline; color: #003d80; }
 
-        /* Destaque para Urgência */
         .carater-urgencia { color: #dc3545; font-weight: bold; }
         .carater-eletiva { color: #28a745; }
+        
+        /* Estilos dos Filtros de Coluna */
+        thead input { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+        thead select { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
         
         @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="header">
-        <div><h1>Monitoramento SISREG</h1><p>Visão Geral</p></div>
+        <div><h1>Monitoramento SISREG</h1><p>Visão Geral (Big Data)</p></div>
         <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
     </div>
 
@@ -59,7 +54,7 @@
         <i class="fas fa-filter" style="color:#0056b3"></i>
         <div><label>De:</label> <input type="date" id="minDate" value="2025-12-01"></div>
         <div><label>Até:</label> <input type="date" id="maxDate" value="2025-12-31"></div>
-        <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar</button>
+        <button onclick="aplicarFiltro()" style="background:#0056b3; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Filtrar Data</button>
         <button onclick="limparFiltros()" style="background:#fff; color:#333; border:1px solid #ccc; padding:8px 15px; border-radius:4px; cursor:pointer;">Mostrar Tudo</button>
         <span id="loading" style="margin-left:10px; color:#666;"><i class="fas fa-spinner fa-spin"></i> Carregando...</span>
     </div>
@@ -78,7 +73,18 @@
 
     <div class="table-box">
         <table id="tabelaReg" class="display" style="width:100%">
-            <thead><tr><th>Data</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Procedimento</th><th>Status</th><th>Caráter</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Paciente</th>
+                    <th>CNS</th>
+                    <th>Solicitação</th>
+                    <th>AIH</th>
+                    <th>Procedimento</th>
+                    <th>Status</th>
+                    <th>Caráter</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
@@ -94,11 +100,68 @@
                 dadosGlobais = dados;
                 document.getElementById('loading').style.display = 'none';
                 
+                // --- CONFIGURAÇÃO DOS FILTROS ---
+                // Cria uma segunda linha no cabeçalho para os inputs
+                $('#tabelaReg thead tr').clone(true).addClass('filters').appendTo('#tabelaReg thead');
+
                 table = $('#tabelaReg').DataTable({
                     data: [],
                     pageLength: 10,
                     order: [], 
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    // Configuração para colocar os inputs de filtro
+                    orderCellsTop: true,
+                    fixedHeader: true,
+                    initComplete: function () {
+                        var api = this.api();
+            
+                        // Para cada coluna na linha de filtros (a segunda linha)
+                        api.columns().eq(0).each(function (colIdx) {
+                            var cell = $('.filters th').eq(colIdx);
+                            var title = $(cell).text();
+                            
+                            // Se for Status (coluna 6) ou Caráter (coluna 7), cria Dropdown
+                            if (colIdx == 6 || colIdx == 7) {
+                                var select = $('<select><option value="">Todos</option></select>')
+                                    .appendTo(cell.empty())
+                                    .on('change', function () {
+                                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                        api.column(colIdx).search(val ? '^'+val+'$' : '', true, false).draw();
+                                    });
+            
+                                // Pega valores únicos para preencher o select
+                                api.column(colIdx).data().unique().sort().each(function (d, j) {
+                                    // Limpa tags HTML se tiver (para pegar só o texto "Urgência", não o span)
+                                    let textoPuro = d;
+                                    if(d && d.includes("<")) {
+                                        let div = document.createElement("div");
+                                        div.innerHTML = d;
+                                        textoPuro = div.textContent || div.innerText || "";
+                                        textoPuro = textoPuro.trim();
+                                    }
+                                    if(textoPuro) select.append('<option value="'+textoPuro+'">'+textoPuro+'</option>');
+                                });
+
+                            } else {
+                                // Para as outras colunas, cria Input de Texto
+                                $(cell).html('<input type="text" placeholder="Buscar..." />');
+                                $('input', $('.filters th').eq(colIdx))
+                                    .off('keyup change')
+                                    .on('keyup change', function (e) {
+                                        e.stopPropagation();
+                                        // Filtra ao digitar
+                                        $(this).attr('title', $(this).val());
+                                        var regexr = '({search})'; 
+                                        var cursorPosition = this.selectionStart;
+                                        api.column(colIdx).search(
+                                            this.value != '' ? regexr.replace('{search}', '(((' + this.value + ')))') : '',
+                                            this.value != '',
+                                            this.value == ''
+                                        ).draw();
+                                    });
+                            }
+                        });
+                    },
                     columns: [
                         { data: "data_visual", defaultContent: "-" },
                         { 
@@ -125,10 +188,10 @@
                                 if(s.includes("aprovado")||s.includes("autorizado")) c = "bg-aprovado";
                                 else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
                                 else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
+                                // O texto dentro do span é usado para filtro
                                 return `<span class="status-badge ${c}">${d || "Pendente"}</span>`;
                             }
                         },
-                        // AQUI: Adicionei a configuração da coluna Caráter
                         { 
                             data: "carater", 
                             defaultContent: "-",
