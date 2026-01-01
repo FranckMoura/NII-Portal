@@ -91,7 +91,7 @@
     <script>
         let dadosGlobais = [];
         let table = null;
-        let chartS = null, chartC = null; // Mudado chartP para chartC
+        let chartS = null, chartC = null;
 
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
@@ -181,7 +181,7 @@
                             defaultContent: "-",
                             render: function(d) {
                                 let val = (d || "").toLowerCase();
-                                if(val.includes("urgencia") || val.includes("11")) return `<span class="carater-urgencia">Urgência</span>`;
+                                if(val.includes("urgencia") || val.includes("urgência") || val.includes("11")) return `<span class="carater-urgencia">Urgência</span>`;
                                 if(val.includes("eletiva") || val.includes("10")) return `<span class="carater-eletiva">Eletiva</span>`;
                                 return d;
                             }
@@ -219,7 +219,6 @@
         function processarDados(dados) {
             let tot=dados.length, apr=0, pen=0, neg=0;
             
-            // Variáveis para o novo gráfico
             let caraterStats = {
                 'Urgência': { aprovado: 0, pendente: 0, negado: 0 },
                 'Eletiva': { aprovado: 0, pendente: 0, negado: 0 },
@@ -237,11 +236,19 @@
                 else if(isPen) pen++;
                 else if(isNeg) neg++;
 
-                // Contagem Por Caráter
+                // Contagem Por Caráter (CORREÇÃO DE ACENTUAÇÃO AQUI)
                 let cRaw = (i.carater || "").toLowerCase();
+                
+                // Normaliza para remover acentos (opcional, mas seguro) e verifica pedaços da palavra
                 let cat = 'Outros';
-                if(cRaw.includes('urgencia') || cRaw.includes('11')) cat = 'Urgência';
-                else if(cRaw.includes('eletiva') || cRaw.includes('10')) cat = 'Eletiva';
+                
+                // Agora procura por "urg" que pega tanto "urgencia" quanto "urgência"
+                if(cRaw.includes('urg') || cRaw.includes('emerg') || cRaw.includes('11')) {
+                    cat = 'Urgência';
+                } 
+                else if(cRaw.includes('eletiva') || cRaw.includes('10')) {
+                    cat = 'Eletiva';
+                }
 
                 if(isApr) caraterStats[cat].aprovado++;
                 if(isPen) caraterStats[cat].pendente++;
@@ -258,7 +265,6 @@
         }
 
         function atualizarGraficos(a, p, n, stats) {
-            // GRÁFICO 1: PIZZA (Status Geral)
             const ctxS = document.getElementById('cStatus');
             if (chartS) chartS.destroy();
             chartS = new Chart(ctxS, {
@@ -275,7 +281,6 @@
                 }
             });
 
-            // GRÁFICO 2: BARRAS EMPILHADAS (Caráter: Urgência x Eletiva)
             const ctxC = document.getElementById('cCarater');
             if (chartC) chartC.destroy();
             chartC = new Chart(ctxC, {
