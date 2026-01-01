@@ -37,7 +37,6 @@
         .carater-urgencia { color: #dc3545; font-weight: bold; }
         .carater-eletiva { color: #28a745; }
         
-        /* Estilos dos Filtros de Coluna */
         thead input { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
         thead select { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
         
@@ -67,7 +66,7 @@
     </div>
 
     <div class="charts-row">
-        <div class="chart-box"><canvas id="cProc"></canvas></div>
+        <div class="chart-box"><canvas id="cCarater"></canvas></div>
         <div class="chart-box"><canvas id="cStatus"></canvas></div>
     </div>
 
@@ -92,7 +91,7 @@
     <script>
         let dadosGlobais = [];
         let table = null;
-        let chartS = null, chartP = null;
+        let chartS = null, chartC = null; // Mudado chartP para chartC
 
         fetch('arquivos/dados_sisreg.json?v=' + new Date().getTime())
             .then(res => res.json())
@@ -100,8 +99,6 @@
                 dadosGlobais = dados;
                 document.getElementById('loading').style.display = 'none';
                 
-                // --- CONFIGURAÇÃO DOS FILTROS ---
-                // Cria uma segunda linha no cabeçalho para os inputs
                 $('#tabelaReg thead tr').clone(true).addClass('filters').appendTo('#tabelaReg thead');
 
                 table = $('#tabelaReg').DataTable({
@@ -109,18 +106,12 @@
                     pageLength: 10,
                     order: [], 
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                    // Configuração para colocar os inputs de filtro
                     orderCellsTop: true,
                     fixedHeader: true,
                     initComplete: function () {
                         var api = this.api();
-            
-                        // Para cada coluna na linha de filtros (a segunda linha)
                         api.columns().eq(0).each(function (colIdx) {
                             var cell = $('.filters th').eq(colIdx);
-                            var title = $(cell).text();
-                            
-                            // Se for Status (coluna 6) ou Caráter (coluna 7), cria Dropdown
                             if (colIdx == 6 || colIdx == 7) {
                                 var select = $('<select><option value="">Todos</option></select>')
                                     .appendTo(cell.empty())
@@ -128,10 +119,7 @@
                                         var val = $.fn.dataTable.util.escapeRegex($(this).val());
                                         api.column(colIdx).search(val ? '^'+val+'$' : '', true, false).draw();
                                     });
-            
-                                // Pega valores únicos para preencher o select
                                 api.column(colIdx).data().unique().sort().each(function (d, j) {
-                                    // Limpa tags HTML se tiver (para pegar só o texto "Urgência", não o span)
                                     let textoPuro = d;
                                     if(d && d.includes("<")) {
                                         let div = document.createElement("div");
@@ -141,15 +129,12 @@
                                     }
                                     if(textoPuro) select.append('<option value="'+textoPuro+'">'+textoPuro+'</option>');
                                 });
-
                             } else {
-                                // Para as outras colunas, cria Input de Texto
                                 $(cell).html('<input type="text" placeholder="Buscar..." />');
                                 $('input', $('.filters th').eq(colIdx))
                                     .off('keyup change')
                                     .on('keyup change', function (e) {
                                         e.stopPropagation();
-                                        // Filtra ao digitar
                                         $(this).attr('title', $(this).val());
                                         var regexr = '({search})'; 
                                         var cursorPosition = this.selectionStart;
@@ -188,7 +173,6 @@
                                 if(s.includes("aprovado")||s.includes("autorizado")) c = "bg-aprovado";
                                 else if(s.includes("pendente")||s.includes("aguardando")) c = "bg-pendente";
                                 else if(s.includes("negado")||s.includes("cancelado")) c = "bg-negado";
-                                // O texto dentro do span é usado para filtro
                                 return `<span class="status-badge ${c}">${d || "Pendente"}</span>`;
                             }
                         },
@@ -234,16 +218,34 @@
 
         function processarDados(dados) {
             let tot=dados.length, apr=0, pen=0, neg=0;
-            let procs = {};
+            
+            // Variáveis para o novo gráfico
+            let caraterStats = {
+                'Urgência': { aprovado: 0, pendente: 0, negado: 0 },
+                'Eletiva': { aprovado: 0, pendente: 0, negado: 0 },
+                'Outros': { aprovado: 0, pendente: 0, negado: 0 }
+            };
 
             dados.forEach(i => {
+                // Contagem Geral
                 let s = (i.status || "").toLowerCase();
-                if(s.includes("aprovado")||s.includes("autorizado")) apr++;
-                else if(s.includes("pendente")||s.includes("aguardando")) pen++;
-                else if(s.includes("negado")||s.includes("cancelado")) neg++;
+                let isApr = s.includes("aprovado")||s.includes("autorizado");
+                let isPen = s.includes("pendente")||s.includes("aguardando");
+                let isNeg = s.includes("negado")||s.includes("cancelado");
 
-                let p = i.proc || "Outros";
-                procs[p] = (procs[p] || 0) + 1;
+                if(isApr) apr++;
+                else if(isPen) pen++;
+                else if(isNeg) neg++;
+
+                // Contagem Por Caráter
+                let cRaw = (i.carater || "").toLowerCase();
+                let cat = 'Outros';
+                if(cRaw.includes('urgencia') || cRaw.includes('11')) cat = 'Urgência';
+                else if(cRaw.includes('eletiva') || cRaw.includes('10')) cat = 'Eletiva';
+
+                if(isApr) caraterStats[cat].aprovado++;
+                if(isPen) caraterStats[cat].pendente++;
+                if(isNeg) caraterStats[cat].negado++;
             });
 
             document.getElementById('vTotal').innerText = tot;
@@ -252,10 +254,11 @@
             document.getElementById('vNeg').innerText = neg;
 
             table.clear().rows.add(dados).draw();
-            atualizarGraficos(apr, pen, neg, procs);
+            atualizarGraficos(apr, pen, neg, caraterStats);
         }
 
-        function atualizarGraficos(a, p, n, procs) {
+        function atualizarGraficos(a, p, n, stats) {
+            // GRÁFICO 1: PIZZA (Status Geral)
             const ctxS = document.getElementById('cStatus');
             if (chartS) chartS.destroy();
             chartS = new Chart(ctxS, {
@@ -264,19 +267,51 @@
                     labels: ['Aprovados', 'Pendentes', 'Negados'],
                     datasets: [{ data: [a, p, n], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '60%',
+                    plugins: { title: { display: true, text: 'Visão Geral dos Status' } }
+                }
             });
 
-            const top5 = Object.entries(procs).sort((x,y)=>y[1]-x[1]).slice(0,5);
-            const ctxP = document.getElementById('cProc');
-            if (chartP) chartP.destroy();
-            chartP = new Chart(ctxP, {
+            // GRÁFICO 2: BARRAS EMPILHADAS (Caráter: Urgência x Eletiva)
+            const ctxC = document.getElementById('cCarater');
+            if (chartC) chartC.destroy();
+            chartC = new Chart(ctxC, {
                 type: 'bar',
                 data: {
-                    labels: top5.map(x=>x[0].substring(0,15)+'...'),
-                    datasets: [{ label: 'Qtd', data: top5.map(x=>x[1]), backgroundColor: '#0056b3' }]
+                    labels: ['Urgência', 'Eletiva'],
+                    datasets: [
+                        {
+                            label: 'Aprovados',
+                            data: [stats['Urgência'].aprovado, stats['Eletiva'].aprovado],
+                            backgroundColor: '#28a745'
+                        },
+                        {
+                            label: 'Pendentes',
+                            data: [stats['Urgência'].pendente, stats['Eletiva'].pendente],
+                            backgroundColor: '#ffc107'
+                        },
+                        {
+                            label: 'Negados',
+                            data: [stats['Urgência'].negado, stats['Eletiva'].negado],
+                            backgroundColor: '#dc3545'
+                        }
+                    ]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Status por Caráter de Internação' },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
             });
         }
     </script>
