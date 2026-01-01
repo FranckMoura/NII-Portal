@@ -6,7 +6,7 @@ import time
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> BANCO -> JSON (V54 - COM RELATÓRIOS AUTOMÁTICOS) ---")
+print("--- 2. PROCESSAMENTO: CSV -> BANCO -> JSON (V55 - CORREÇÃO CÓDIGO 12) ---")
 
 # --- CONFIGURAÇÕES ---
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export"
@@ -92,17 +92,19 @@ if dfs:
 
     # --- 2. TRADUÇÃO E LIMPEZA ---
     
-    # TRADUÇÃO DO CARÁTER (11 -> Urgência, 10 -> Eletiva)
+    # TRADUÇÃO DO CARÁTER (11 e 12 -> Urgência, 10 -> Eletiva)
     if 'carater' in df.columns:
         # Converte para string primeiro para garantir
-        df['carater'] = df['carater'].astype(str).str.replace(r'\.0$', '', regex=True) # Remove .0 se tiver
+        df['carater'] = df['carater'].astype(str).str.replace(r'\.0$', '', regex=True) 
+        
         mapeamento_carater = {
             '11': 'Urgência',
+            '12': 'Urgência', # <--- ADICIONADO AQUI
             '10': 'Eletiva',
             'nan': '---',
             'None': '---'
         }
-        df['carater'] = df['carater'].map(mapeamento_carater).fillna(df['carater']) # Se não for 10 ou 11, mantém o original
+        df['carater'] = df['carater'].map(mapeamento_carater).fillna(df['carater']) 
 
     # GARANTIA DE STATUS
     if 'situacao' not in df.columns:
@@ -136,7 +138,19 @@ if dfs:
     df_save = df.copy()
     if 'data_iso' in df_save.columns:
         df_save['data_iso'] = df_save['data_iso'].astype(str)
-    df_save.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
+    
+    # Tenta salvar no banco (com retry caso esteja bloqueado)
+    max_retries = 3
+    for i in range(max_retries):
+        try:
+            df_save.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
+            break
+        except Exception as e:
+            if "database is locked" in str(e) and i < max_retries - 1:
+                print(f"      ⚠️ Banco travado. Tentando novamente em 2s... (Tentativa {i+1})")
+                time.sleep(2)
+            else:
+                raise e
 
     # --- 5. CRIAR RELATÓRIOS SALVOS (VIEWS) NO BANCO ---
     print("   -> Criando atalhos de relatórios (Views)...")
@@ -172,7 +186,6 @@ if dfs:
                 ORDER BY qtd DESC
                 LIMIT 10
             """))
-            # Em versões novas do SQLAlchemy, precisa do commit para DDL
             try: conn.commit() 
             except: pass
             
@@ -211,7 +224,7 @@ if dfs:
     cols_finais = [c for c in cols_export if c in df_json.columns]
     
     df_json[cols_finais].to_json(CAMINHO_JSON, orient='records', force_ascii=False, indent=4)
-    print("✅ JSON atualizado com traduções e Relatórios SQL Criados!")
+    print("✅ JSON atualizado com correções (11, 12 -> Urgência)!")
 
 else:
     print("❌ Nenhum dado válido encontrado.")
