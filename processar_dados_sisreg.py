@@ -6,7 +6,7 @@ import time
 from unidecode import unidecode
 from sqlalchemy import create_engine, text
 
-print("--- 2. PROCESSAMENTO: CSV -> BANCO -> JSON (V53 - TRADUÇÃO STATUS/CARÁTER) ---")
+print("--- 2. PROCESSAMENTO: CSV -> BANCO -> JSON (V54 - COM RELATÓRIOS AUTOMÁTICOS) ---")
 
 # --- CONFIGURAÇÕES ---
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export"
@@ -64,7 +64,6 @@ if dfs:
     col_proc = achar(["procedimento", "solicitado"]) or achar(["procedimento"])
     
     # CORREÇÃO CRÍTICA: Procura status ESPECÍFICO de internação
-    # Evita pegar "status da troca" ou "status procedimentos especiais"
     col_status = achar(["status", "internacao"]) or achar(["situacao", "internacao"]) or achar(["status", "solicitacao"])
     
     # CORREÇÃO CRÍTICA: AIH
@@ -139,6 +138,47 @@ if dfs:
         df_save['data_iso'] = df_save['data_iso'].astype(str)
     df_save.to_sql('sisreg_solicitacoes', engine, if_exists='replace', index=False)
 
+    # --- 5. CRIAR RELATÓRIOS SALVOS (VIEWS) NO BANCO ---
+    print("   -> Criando atalhos de relatórios (Views)...")
+    try:
+        with engine.connect() as conn:
+            # View 1: Status
+            conn.execute(text("DROP VIEW IF EXISTS relatorio_status"))
+            conn.execute(text("""
+                CREATE VIEW relatorio_status AS
+                SELECT situacao, COUNT(*) as quantidade
+                FROM sisreg_solicitacoes
+                GROUP BY situacao
+                ORDER BY quantidade DESC
+            """))
+
+            # View 2: Urgência vs Eletiva
+            conn.execute(text("DROP VIEW IF EXISTS relatorio_urgencia"))
+            conn.execute(text("""
+                CREATE VIEW relatorio_urgencia AS
+                SELECT carater, COUNT(*) as quantidade
+                FROM sisreg_solicitacoes
+                GROUP BY carater
+                ORDER BY quantidade DESC
+            """))
+
+            # View 3: Top Procedimentos
+            conn.execute(text("DROP VIEW IF EXISTS relatorio_top_procedimentos"))
+            conn.execute(text("""
+                CREATE VIEW relatorio_top_procedimentos AS
+                SELECT procedimento, COUNT(*) as qtd
+                FROM sisreg_solicitacoes
+                GROUP BY procedimento
+                ORDER BY qtd DESC
+                LIMIT 10
+            """))
+            # Em versões novas do SQLAlchemy, precisa do commit para DDL
+            try: conn.commit() 
+            except: pass
+            
+    except Exception as e:
+        print(f"      ⚠️ Aviso: Não foi possível criar as Views: {e}")
+
     # JSON (Lógica de PDF mantida)
     links_map = {}
     if os.path.exists(CAMINHO_JSON):
@@ -171,7 +211,7 @@ if dfs:
     cols_finais = [c for c in cols_export if c in df_json.columns]
     
     df_json[cols_finais].to_json(CAMINHO_JSON, orient='records', force_ascii=False, indent=4)
-    print("✅ JSON atualizado com traduções (11->Urgência) e status correto!")
+    print("✅ JSON atualizado com traduções e Relatórios SQL Criados!")
 
 else:
     print("❌ Nenhum dado válido encontrado.")
