@@ -1,0 +1,755 @@
+const puppeteer = require('puppeteer'); // v23.0.0 or later
+
+(async () => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    const timeout = 5000;
+    page.setDefaultTimeout(timeout);
+
+    {
+        const targetPage = page;
+        await targetPage.setViewport({
+            width: 1688,
+            height: 342
+        })
+    }
+    {
+        const targetPage = page;
+        await targetPage.goto('http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sih/cnv/qgmt.def');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Linha)'),
+            targetPage.locator('#L'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"])'),
+            targetPage.locator(':scope >>> #L'),
+            targetPage.locator('::-p-text(Município_gestor)')
+        ])
+            .setTimeout(timeout)
+            .fill('Procedimento');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Procedimento)'),
+            targetPage.locator('div.linha option:nth-of-type(8)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"]/option[8])'),
+            targetPage.locator(':scope >>> div.linha option:nth-of-type(8)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 107.453125,
+                y: 10.08203125,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Coluna)'),
+            targetPage.locator('#C'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"C\\"])'),
+            targetPage.locator(':scope >>> #C'),
+            targetPage.locator('::-p-text(--Não-Ativa--)')
+        ])
+            .setTimeout(timeout)
+            .fill('Ano/mês_processamento');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Coluna) >>>> ::-p-aria(Ano/mês processamento)'),
+            targetPage.locator('div.coluna option:nth-of-type(2)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"C\\"]/option[2])'),
+            targetPage.locator(':scope >>> div.coluna option:nth-of-type(2)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 119.73046875,
+                y: 8.03515625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Linha)'),
+            targetPage.locator('#L'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"])'),
+            targetPage.locator(':scope >>> #L')
+        ])
+            .setTimeout(timeout)
+            .fill('Município_gestor');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Município gestor)'),
+            targetPage.locator('div.linha option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.linha option:nth-of-type(1)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 124.453125,
+                y: 6.02734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Linha)'),
+            targetPage.locator('#L'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"])'),
+            targetPage.locator(':scope >>> #L')
+        ])
+            .setTimeout(timeout)
+            .fill('Município_gestor');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Município gestor)'),
+            targetPage.locator('div.linha option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.linha option:nth-of-type(1)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              delay: 1567.8999999761581,
+              offset: {
+                x: 127.453125,
+                y: 4.02734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Município gestor)'),
+            targetPage.locator('div.linha option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.linha option:nth-of-type(1)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 129.453125,
+                y: 10.02734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Linha)'),
+            targetPage.locator('#L'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"L\\"])'),
+            targetPage.locator(':scope >>> #L')
+        ])
+            .setTimeout(timeout)
+            .fill('Gestão');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.coluna b'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[2]/div/div[2]/label/b)'),
+            targetPage.locator(':scope >>> div.coluna b')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 20.98046875,
+                y: 3.265625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Coluna)'),
+            targetPage.locator('#C'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"C\\"])'),
+            targetPage.locator(':scope >>> #C'),
+            targetPage.locator('::-p-text(Ano/mês_processamento)')
+        ])
+            .setTimeout(timeout)
+            .fill('--Não-Ativa--');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Não ativa)'),
+            targetPage.locator('div.coluna option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"C\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.coluna option:nth-of-type(1)'),
+            targetPage.locator('::-p-text(Não ativa)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 48.73046875,
+                y: 8.02734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Coluna)'),
+            targetPage.locator('#C'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"C\\"])'),
+            targetPage.locator(':scope >>> #C'),
+            targetPage.locator('::-p-text(Ano/mês_processamento)')
+        ])
+            .setTimeout(timeout)
+            .fill('Gestão');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(AIH aprovadas)'),
+            targetPage.locator('div.conteudo option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"I\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.conteudo option:nth-of-type(1)'),
+            targetPage.locator('::-p-text(AIH aprovadas)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 66.0078125,
+                y: 9.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Conteúdo)'),
+            targetPage.locator('#I'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"I\\"])'),
+            targetPage.locator(':scope >>> #I'),
+            targetPage.locator('::-p-text(AIH_aprovadas)')
+        ])
+            .setTimeout(timeout)
+            .fill('Taxa_mortalidade');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Out/2025)'),
+            targetPage.locator('div.periodo option:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"A\\"]/option[1])'),
+            targetPage.locator(':scope >>> div.periodo option:nth-of-type(1)'),
+            targetPage.locator('::-p-text(Out/2025)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 90.375,
+                y: 14.265625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(PERÍODOS DISPONÍVEIS[role=\\"listbox\\"])'),
+            targetPage.locator('#A'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"A\\"])'),
+            targetPage.locator(':scope >>> #A'),
+            targetPage.locator('::-p-text(qgmt2510.dbf)')
+        ])
+            .setTimeout(timeout)
+            .fill('qgmt2510.dbf');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(SELEÇÕES DISPONÍVEIS)'),
+            targetPage.locator('div.selecoes > h2'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/h2)'),
+            targetPage.locator(':scope >>> div.selecoes > h2'),
+            targetPage.locator('::-p-text(Seleções Disponíveis)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 0.625,
+                y: 26.015625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig1'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig1\\"])'),
+            targetPage.locator(':scope >>> #fig1')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 1.625,
+                y: 11.78515625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig1'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig1\\"])'),
+            targetPage.locator(':scope >>> #fig1')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 2.625,
+                y: 9.78515625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig1'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig1\\"])'),
+            targetPage.locator(':scope >>> #fig1')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 5.625,
+                y: 6.78515625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria( )'),
+            targetPage.locator('#pesqmes1'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"pesqmes1\\"])'),
+            targetPage.locator(':scope >>> #pesqmes1')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 58.6328125,
+                y: 13.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.corposelecoes > div'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/div[1]/div)'),
+            targetPage.locator(':scope >>> div.corposelecoes > div')
+        ])
+            .setTimeout(timeout)
+            .click({
+              delay: 2849.2999999821186,
+              offset: {
+                x: 231.625,
+                y: 226.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Município gestor[role=\\"listbox\\"])'),
+            targetPage.locator('#S1'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S1\\"])'),
+            targetPage.locator(':scope >>> #S1')
+        ])
+            .setTimeout(timeout)
+            .fill('TODAS_AS_CATEGORIAS__');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig2'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig2\\"])'),
+            targetPage.locator(':scope >>> #fig2')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 6.625,
+                y: 7.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Região de Saúde \\(CIR\\))'),
+            targetPage.locator('#S2'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S2\\"])'),
+            targetPage.locator(':scope >>> #S2')
+        ])
+            .setTimeout(timeout)
+            .fill('TODAS_AS_CATEGORIAS__');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Região de Saúde \\(CIR\\))'),
+            targetPage.locator('#S2'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S2\\"])'),
+            targetPage.locator(':scope >>> #S2')
+        ])
+            .setTimeout(timeout)
+            .click({
+              delay: 1696.199999988079,
+              offset: {
+                x: 135.6328125,
+                y: 134.28515625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Região de Saúde \\(CIR\\))'),
+            targetPage.locator('#S2'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S2\\"])'),
+            targetPage.locator(':scope >>> #S2')
+        ])
+            .setTimeout(timeout)
+            .fill('TODAS_AS_CATEGORIAS__');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.down('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await targetPage.keyboard.up('ArrowDown');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig2'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig2\\"])'),
+            targetPage.locator(':scope >>> #fig2')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 10.625,
+                y: 6.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig3'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig3\\"])'),
+            targetPage.locator(':scope >>> #fig3')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 8.625,
+                y: 4.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.corposelecoes > div'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/div[1]/div)'),
+            targetPage.locator(':scope >>> div.corposelecoes > div')
+        ])
+            .setTimeout(timeout)
+            .click({
+              delay: 682.9000000059605,
+              offset: {
+                x: 202.625,
+                y: 337.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Macrorregião de Saúde)'),
+            targetPage.locator('#S3'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S3\\"])'),
+            targetPage.locator(':scope >>> #S3')
+        ])
+            .setTimeout(timeout)
+            .fill('TODAS_AS_CATEGORIAS__');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig4'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig4\\"])'),
+            targetPage.locator(':scope >>> #fig4')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 7.625,
+                y: 2.34765625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.corposelecoes > div'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/div[1]/div)'),
+            targetPage.locator(':scope >>> div.corposelecoes > div')
+        ])
+            .setTimeout(timeout)
+            .click({
+              delay: 512.4000000059605,
+              offset: {
+                x: 152.625,
+                y: 343.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig7'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig7\\"])'),
+            targetPage.locator(':scope >>> #fig7')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 15.625,
+                y: 10.87890625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Estabelecimento[role=\\"listbox\\"])'),
+            targetPage.locator('#S7'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S7\\"])'),
+            targetPage.locator(':scope >>> #S7')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 68.6328125,
+                y: 115.88671875,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria( )'),
+            targetPage.locator('#pesqmes7'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"pesqmes7\\"])'),
+            targetPage.locator(':scope >>> #pesqmes7')
+        ])
+            .setTimeout(timeout)
+            .fill('2311682');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#listahidden7'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"listahidden7\\"])'),
+            targetPage.locator(':scope >>> #listahidden7')
+        ])
+            .setTimeout(timeout)
+            .fill('12');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#listahidden7 > option'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"listahidden7\\"]/option)'),
+            targetPage.locator(':scope >>> #listahidden7 > option')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 169.37890625,
+                y: 3.63671875,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.corposelecoes > div'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/div[1]/div)'),
+            targetPage.locator(':scope >>> div.corposelecoes > div')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 65.625,
+                y: 577.77734375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('#fig9'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"fig9\\"])'),
+            targetPage.locator(':scope >>> #fig9')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 5.625,
+                y: 6.96484375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Procedimento[role=\\"listbox\\"])'),
+            targetPage.locator('#S9'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S9\\"])'),
+            targetPage.locator(':scope >>> #S9')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 91.6328125,
+                y: 96.22265625,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Procedimento[role=\\"listbox\\"])'),
+            targetPage.locator('#S9'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"S9\\"])'),
+            targetPage.locator(':scope >>> #S9')
+        ])
+            .setTimeout(timeout)
+            .fill('TODAS_AS_CATEGORIAS__');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Mostra)'),
+            targetPage.locator("input[type='submit']"),
+            targetPage.locator('::-p-xpath(/html/body/div/div/center/div/form/div[4]/div[2]/div[2]/input[1])'),
+            targetPage.locator(":scope >>> input[type='submit']"),
+            targetPage.locator('::-p-text(Mostra)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 23.63671875,
+                y: 8.859375,
+              },
+            });
+    }
+    {
+        const target = await browser.waitForTarget(t => t.url() === 'http://tabnet.datasus.gov.br/cgi/tabcgi.exe?sih/cnv/qgmt.def', { timeout });
+        const targetPage = await target.page();
+        targetPage.setDefaultTimeout(timeout);
+        const promises = [];
+        const startWaitingForEvents = () => {
+            promises.push(targetPage.waitForNavigation());
+        }
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(COPIA COMO .CSV[role=\\"link\\"])'),
+            targetPage.locator('td:nth-of-type(1) > a'),
+            targetPage.locator('::-p-xpath(/html/body/div/div/div[3]/table/tbody/tr/td[1]/a)'),
+            targetPage.locator(':scope >>> td:nth-of-type(1) > a'),
+            targetPage.locator('::-p-text(Copia como .CSV)')
+        ])
+            .setTimeout(timeout)
+            .on('action', () => startWaitingForEvents())
+            .click({
+              offset: {
+                x: 94.92578125,
+                y: 13.06640625,
+              },
+            });
+        await Promise.all(promises);
+    }
+
+    await browser.close();
+
+})().catch(err => {
+    console.error(err);
+    process.exit(1);
+});

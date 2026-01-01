@@ -3,231 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Módulo Faturamento</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>NII - Faturamento Histórico</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css"> 
 
     <style>
-        .bi-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .bi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        /* Estilos específicos deste painel para complementar o style.css */
+        body { background-color: #f4f6f9; }
+        .dashboard-container { padding: 20px; max-width: 1400px; margin: 0 auto; }
         
-        @media (max-width: 768px) { .bi-grid { grid-template-columns: 1fr; } }
+        /* Cards de KPI */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .kpi-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; font-weight: bold; }
+        .kpi-card .value { font-size: 28px; font-weight: bold; color: #333; margin-top: 10px; }
+        .kpi-card i { position: absolute; right: 20px; top: 20px; font-size: 40px; opacity: 0.1; }
         
-        .kpi-container { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .kpi-box { flex: 1; background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-width: 150px; }
-        .kpi-val { font-size: 1.5rem; font-weight: bold; margin-top: 5px; color: #333; }
-        .kpi-tit { font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: bold; }
+        .border-blue { border-left-color: #0056b3; }
+        .border-green { border-left-color: #28a745; }
+        .border-red { border-left-color: #dc3545; }
+
+        /* Área do Gráfico */
+        .chart-box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 450px; }
         
-        .table-area { background: white; padding: 20px; border-radius: 8px; }
-        table.dataTable thead th { background-color: #0056b3; color: white; }
+        /* Tabela */
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
+
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="navbar-brand-link">
-                <img src="img/logo.png" alt="Logo HBSH" class="navbar-logo">
                 <span class="navbar-brand-text">NII - HBSH</span>
             </a>
             <ul class="navbar-nav">
                 <li><a href="index.html">Início</a></li>
                 <li><a href="faturamento.html">Faturamento</a></li>
-                <li><a href="indicadores.html">Indicadores</a></li>
-                <li><a href="manuais.html">Manuais</a></li>
-                <li><a href="institucional.html">Institucional</a></li>
+                <li><a href="painel_regulacao.html">Regulação</a></li> <li><a href="manuais.html">Manuais</a></li>
             </ul>
         </div>
     </nav>
 
-    <header class="main-header">
-        <div class="container">
-            <h1>Módulo Faturamento SUS</h1>
-            <p>Monitoramento Consolidado da Produção (SIA e SIH)</p>
-        </div>
-    </header>
+    <div class="dashboard-container">
+        <header style="margin-bottom: 20px;">
+            <h1 style="color: #333;"><i class="fas fa-file-invoice-dollar"></i> Faturamento Hospitalar (SIH/SUS)</h1>
+            <p style="color: #666;">Análise Histórica Consolidada (2008 a 2025) - Fonte: TabNet/Datasus</p>
+        </header>
 
-    <main class="container">
-        
-        <div class="kpi-container">
-            <div class="kpi-box" style="border-left-color: #0056b3;">
-                <div class="kpi-tit">Faturamento SIH</div>
-                <div class="kpi-val" id="kpi-sih">R$ 0,00</div>
+        <div class="kpi-row">
+            <div class="kpi-card border-green">
+                <h3>Faturamento Total (Período)</h3>
+                <div class="value" id="valTotal">R$ -</div>
+                <i class="fas fa-coins" style="color: #28a745;"></i>
             </div>
-            <div class="kpi-box" style="border-left-color: #17a2b8;">
-                <div class="kpi-tit">Faturamento SIA</div>
-                <div class="kpi-val" id="kpi-sia">R$ 0,00</div>
+            <div class="kpi-card border-blue">
+                <h3>Total AIH Aprovadas</h3>
+                <div class="value" id="qtdTotal">-</div>
+                <i class="fas fa-procrdure" style="color: #0056b3;"></i>
             </div>
-            <div class="kpi-box" style="border-left-color: #28a745;">
-                <div class="kpi-tit">Total Qtd (AIH+BPA)</div>
-                <div class="kpi-val" id="kpi-qtd">0</div>
-            </div>
-        </div>
-
-        <div class="bi-grid">
-            <div class="bi-card">
-                <h3>💰 Evolução do Faturamento (Comparativo)</h3>
-                <div class="chart-container"><canvas id="chartEvolucao"></canvas></div>
-            </div>
-            <div class="bi-card">
-                <h3>🏥 Distribuição (Valor)</h3>
-                <div class="chart-container"><canvas id="chartPizza"></canvas></div>
+            <div class="kpi-card border-red">
+                <h3>Óbitos Hospitalares</h3>
+                <div class="value" id="obitosTotal">-</div>
+                <i class="fas fa-heart-broken" style="color: #dc3545;"></i>
             </div>
         </div>
 
-        <div class="table-area">
-            <h3>📑 Histórico Mensal</h3>
-            <p id="msg-carga">Carregando dados...</p>
-            <table id="tabela-fat" class="display" style="width:100%"></table>
+        <div class="chart-box">
+            <h3 style="margin-bottom: 15px; color: #333;">Evolução: Produção Física x Financeira</h3>
+            <div style="position: relative; height: 380px; width: 100%;">
+                <canvas id="graficoEvolucao"></canvas>
+            </div>
         </div>
 
-    </main>
+        <div class="table-box">
+            <h3 style="margin-bottom: 15px;">Detalhamento da Produção</h3>
+            <table id="tabelaDados" class="display compact hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Competência</th>
+                        <th>Procedimento</th>
+                        <th>Qtd AIH</th>
+                        <th>Valor Aprovado</th>
+                        <th>Dias Internação</th>
+                        <th>Óbitos</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-    <footer class="main-footer">
-        <p>Hospital Beneficente Santa Helena - Cuiabá/MT | Setor de Faturamento SUS</p>
+    <footer class="main-footer" style="text-align: center; padding: 20px; color: #666; margin-top: 30px;">
+        <p>Hospital Beneficente Santa Helena - Núcleo de Informação e Inteligência</p>
     </footer>
 
     <script>
-        // --- FUNÇÕES DE LIMPEZA ---
-        function limparDinheiro(val) {
-            if (!val) return 0;
-            // Converte para string, tira R$, tira ponto de milhar, troca virgula por ponto
-            let s = String(val).toUpperCase().replace("R$", "").replace(/\s/g, ""); 
-            s = s.replace(/\./g, ""); // Remove ponto de milhar (1.000 -> 1000)
-            s = s.replace(",", ".");  // Troca virgula decimal (50,20 -> 50.20)
-            return parseFloat(s) || 0;
-        }
+        const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        function limparQtd(val) {
-            if (!val) return 0;
-            let s = String(val).replace(/\./g, "").replace(",", ".");
-            return parseFloat(s) || 0;
-        }
-
-        const arquivo = 'arquivos/elastic_producao.csv?v=' + new Date().getTime();
-
-        Papa.parse(arquivo, {
-            download: true,
-            header: false, // IMPORTANTE: Desligamos o cabeçalho para ler por POSIÇÃO (0,1,2,3)
-            delimiter: ",",
-            skipEmptyLines: true,
-            complete: function(results) {
-                // Remove a primeira linha (cabeçalho)
-                const linhasDados = results.data.slice(1);
+        // Carrega o JSON gerado pelo seu script Python
+        fetch('arquivos/dados_tabnet.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {
                 
-                if (linhasDados.length > 0) {
-                    processarDados(linhasDados);
-                } else {
-                    document.getElementById('msg-carga').innerText = "Arquivo vazio.";
-                }
-            },
-            error: function(err) {
-                console.error(err);
-                document.getElementById('msg-carga').innerText = "Erro ao carregar CSV.";
-            }
-        });
-
-        function processarDados(dadosBrutos) {
-            let dadosProcessados = [];
-            let meses = [];
-            let valSIA = [];
-            let valSIH = [];
-            
-            let totalSIA = 0, totalSIH = 0, totalQtd = 0;
-
-            // Ordena pelo mês (Coluna 0)
-            dadosBrutos.sort((a, b) => (a[0] || "").localeCompare(b[0] || ""));
-
-            dadosBrutos.forEach(coluna => {
-                // LEITURA POR POSIÇÃO FIXA:
-                // 0 = Competência
-                // 1 = SIA Qtd
-                // 2 = SIA Valor
-                // 3 = SIH Qtd
-                // 4 = SIH Valor
+                // --- 1. Processamento dos KPIs Globais ---
+                let totalValor = 0;
+                let totalAIH = 0;
+                let totalObitos = 0;
                 
-                let comp = coluna[0];
-                if (!comp) return; // Pula linha vazia
+                // Objeto para agrupar dados por Mês (para o gráfico)
+                let historico = {};
 
-                let qSIA = limparQtd(coluna[1]);
-                let vSIA = limparDinheiro(coluna[2]);
-                let qSIH = limparQtd(coluna[3]);
-                let vSIH = limparDinheiro(coluna[4]);
+                dados.forEach(item => {
+                    // Soma KPI
+                    totalValor += (item.valor || 0);
+                    totalAIH += (item.qtd_aih || 0);
+                    totalObitos += (item.obitos || 0);
 
-                // Adiciona na lista para a tabela
-                dadosProcessados.push({
-                    "MES": comp,
-                    "QTD_SIA": coluna[1], // Mantém texto original para exibir
-                    "VAL_SIA": coluna[2],
-                    "QTD_SIH": coluna[3],
-                    "VAL_SIH": coluna[4]
+                    // Agrupa por data para o gráfico (chave = data ISO YYYY-MM-DD)
+                    let dataChave = item.data; 
+                    if (dataChave) {
+                        if (!historico[dataChave]) {
+                            historico[dataChave] = { valor: 0, aih: 0, label: item.periodo };
+                        }
+                        historico[dataChave].valor += (item.valor || 0);
+                        historico[dataChave].aih += (item.qtd_aih || 0);
+                    }
                 });
 
-                // Dados para gráficos
-                meses.push(comp);
-                valSIA.push(vSIA);
-                valSIH.push(vSIH);
+                // Atualiza Cards na tela
+                document.getElementById('valTotal').innerText = brl.format(totalValor);
+                document.getElementById('qtdTotal').innerText = totalAIH.toLocaleString('pt-BR');
+                document.getElementById('obitosTotal').innerText = totalObitos.toLocaleString('pt-BR');
 
-                totalSIA += vSIA;
-                totalSIH += vSIH;
-                totalQtd += (qSIA + qSIH);
+                // --- 2. Configuração do Gráfico ---
+                // Ordena as datas (cronologicamente)
+                let datasOrdenadas = Object.keys(historico).sort();
+                
+                let labelsGrafico = datasOrdenadas.map(d => historico[d].label); // Ex: Jan-2008
+                let dadosValor = datasOrdenadas.map(d => historico[d].valor);
+                let dadosAIH = datasOrdenadas.map(d => historico[d].aih);
+
+                const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labelsGrafico,
+                        datasets: [
+                            {
+                                label: 'Faturamento (R$)',
+                                data: dadosValor,
+                                borderColor: '#28a745', // Verde dinheiro
+                                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                                yAxisID: 'yDinheiro',
+                                tension: 0.3,
+                                fill: true,
+                                pointRadius: 2
+                            },
+                            {
+                                label: 'Produção (AIH)',
+                                data: dadosAIH,
+                                borderColor: '#0056b3', // Azul hospital
+                                backgroundColor: 'rgba(0, 86, 179, 0.05)',
+                                yAxisID: 'yQtd',
+                                tension: 0.3,
+                                borderDash: [5, 5], // Linha tracejada para diferenciar
+                                pointRadius: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            yDinheiro: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Valor (R$)' },
+                                ticks: { callback: function(val) { return val.toLocaleString('pt-BR'); } }
+                            },
+                            yQtd: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Quantidade AIH' },
+                                grid: { drawOnChartArea: false } // Remove grade do eixo secundário para limpar visual
+                            }
+                        }
+                    }
+                });
+
+                // --- 3. Tabela DataTables ---
+                $('#tabelaDados').DataTable({
+                    data: dados,
+                    columns: [
+                        { data: 'periodo' },
+                        { data: 'procedimento', width: "40%" },
+                        { data: 'qtd_aih' },
+                        { 
+                            data: 'valor',
+                            render: function(d) { return d ? d.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : 'R$ 0,00'; }
+                        },
+                        { data: 'dias' },
+                        { data: 'obitos' }
+                    ],
+                    order: [[0, 'desc']], // Ordena por data (recente primeiro) mas DataTables ordena string, vamos confiar na ordem do JSON por enquanto
+                    pageLength: 10,
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+                    }
+                });
+
+            })
+            .catch(erro => {
+                console.error("Erro ao carregar dados:", erro);
+                alert("Erro ao carregar dados_tabnet.json. Verifique se o script Python rodou corretamente.");
             });
-
-            // 1. KPIs
-            document.getElementById('kpi-sih').innerText = totalSIH.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('kpi-sia').innerText = totalSIA.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('kpi-qtd').innerText = totalQtd.toLocaleString('pt-BR');
-            document.getElementById('msg-carga').style.display = 'none';
-
-            // 2. Gráfico Linha
-            new Chart(document.getElementById('chartEvolucao'), {
-                type: 'line',
-                data: {
-                    labels: meses,
-                    datasets: [
-                        { label: 'Internação (SIH)', data: valSIH, borderColor: '#0056b3', backgroundColor: '#0056b3', tension: 0.2 },
-                        { label: 'Ambulatorial (SIA)', data: valSIA, borderColor: '#17a2b8', backgroundColor: '#17a2b8', tension: 0.2 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // 3. Gráfico Pizza
-            new Chart(document.getElementById('chartPizza'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['SIH (Internação)', 'SIA (Ambulatorial)'],
-                    datasets: [{
-                        data: [totalSIH, totalSIA],
-                        backgroundColor: ['#0056b3', '#17a2b8']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // 4. Tabela
-            if ($.fn.DataTable.isDataTable('#tabela-fat')) {
-                $('#tabela-fat').DataTable().destroy();
-            }
-
-            $('#tabela-fat').DataTable({
-                data: dadosProcessados,
-                columns: [
-                    { title: "Mês", data: "MES" },
-                    { title: "Qtd SIA", data: "QTD_SIA" },
-                    { title: "Valor SIA", data: "VAL_SIA" },
-                    { title: "Qtd SIH", data: "QTD_SIH" },
-                    { title: "Valor SIH", data: "VAL_SIH" }
-                ],
-                order: [[0, 'desc']], 
-                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }
-            });
-        }
     </script>
 </body>
 </html>

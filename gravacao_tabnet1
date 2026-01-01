@@ -1,0 +1,1018 @@
+import url from 'url';
+import { createRunner } from '@puppeteer/replay';
+
+export async function run(extension) {
+    const runner = await createRunner(extension);
+
+    await runner.runBeforeAllSteps();
+
+    await runner.runStep({
+        type: 'setViewport',
+        width: 1688,
+        height: 342,
+        deviceScaleFactor: 1,
+        isMobile: false,
+        hasTouch: false,
+        isLandscape: false
+    });
+    await runner.runStep({
+        type: 'navigate',
+        url: 'http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sih/cnv/qgmt.def',
+        assertedEvents: [
+            {
+                type: 'navigation',
+                url: 'http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sih/cnv/qgmt.def',
+                title: 'TabNet Win32 3.3: Procedimentos hospitalares do SUS - por gestor - Mato Grosso'
+            }
+        ]
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Procedimento',
+        selectors: [
+            [
+                'aria/Linha'
+            ],
+            [
+                '#L'
+            ],
+            [
+                'xpath///*[@id="L"]'
+            ],
+            [
+                'pierce/#L'
+            ],
+            [
+                'text/Município_gestor'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Procedimento'
+            ],
+            [
+                'div.linha option:nth-of-type(8)'
+            ],
+            [
+                'xpath///*[@id="L"]/option[8]'
+            ],
+            [
+                'pierce/div.linha option:nth-of-type(8)'
+            ]
+        ],
+        offsetY: 10.08203125,
+        offsetX: 107.453125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Ano/mês_processamento',
+        selectors: [
+            [
+                'aria/Coluna'
+            ],
+            [
+                '#C'
+            ],
+            [
+                'xpath///*[@id="C"]'
+            ],
+            [
+                'pierce/#C'
+            ],
+            [
+                'text/--Não-Ativa--'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Coluna',
+                'aria/Ano/mês processamento'
+            ],
+            [
+                'div.coluna option:nth-of-type(2)'
+            ],
+            [
+                'xpath///*[@id="C"]/option[2]'
+            ],
+            [
+                'pierce/div.coluna option:nth-of-type(2)'
+            ]
+        ],
+        offsetY: 8.03515625,
+        offsetX: 119.73046875,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Município_gestor',
+        selectors: [
+            [
+                'aria/Linha'
+            ],
+            [
+                '#L'
+            ],
+            [
+                'xpath///*[@id="L"]'
+            ],
+            [
+                'pierce/#L'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Município gestor'
+            ],
+            [
+                'div.linha option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="L"]/option[1]'
+            ],
+            [
+                'pierce/div.linha option:nth-of-type(1)'
+            ]
+        ],
+        offsetY: 6.02734375,
+        offsetX: 124.453125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Município_gestor',
+        selectors: [
+            [
+                'aria/Linha'
+            ],
+            [
+                '#L'
+            ],
+            [
+                'xpath///*[@id="L"]'
+            ],
+            [
+                'pierce/#L'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Município gestor'
+            ],
+            [
+                'div.linha option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="L"]/option[1]'
+            ],
+            [
+                'pierce/div.linha option:nth-of-type(1)'
+            ]
+        ],
+        offsetY: 4.02734375,
+        offsetX: 127.453125,
+        duration: 1567.8999999761581,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Município gestor'
+            ],
+            [
+                'div.linha option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="L"]/option[1]'
+            ],
+            [
+                'pierce/div.linha option:nth-of-type(1)'
+            ]
+        ],
+        offsetY: 10.02734375,
+        offsetX: 129.453125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Gestão',
+        selectors: [
+            [
+                'aria/Linha'
+            ],
+            [
+                '#L'
+            ],
+            [
+                'xpath///*[@id="L"]'
+            ],
+            [
+                'pierce/#L'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'div.coluna b'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[2]/div/div[2]/label/b'
+            ],
+            [
+                'pierce/div.coluna b'
+            ]
+        ],
+        offsetY: 3.265625,
+        offsetX: 20.98046875,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: '--Não-Ativa--',
+        selectors: [
+            [
+                'aria/Coluna'
+            ],
+            [
+                '#C'
+            ],
+            [
+                'xpath///*[@id="C"]'
+            ],
+            [
+                'pierce/#C'
+            ],
+            [
+                'text/Ano/mês_processamento'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Não ativa'
+            ],
+            [
+                'div.coluna option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="C"]/option[1]'
+            ],
+            [
+                'pierce/div.coluna option:nth-of-type(1)'
+            ],
+            [
+                'text/Não ativa'
+            ]
+        ],
+        offsetY: 8.02734375,
+        offsetX: 48.73046875,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Gestão',
+        selectors: [
+            [
+                'aria/Coluna'
+            ],
+            [
+                '#C'
+            ],
+            [
+                'xpath///*[@id="C"]'
+            ],
+            [
+                'pierce/#C'
+            ],
+            [
+                'text/Ano/mês_processamento'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/AIH aprovadas'
+            ],
+            [
+                'div.conteudo option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="I"]/option[1]'
+            ],
+            [
+                'pierce/div.conteudo option:nth-of-type(1)'
+            ],
+            [
+                'text/AIH aprovadas'
+            ]
+        ],
+        offsetY: 9.77734375,
+        offsetX: 66.0078125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'Taxa_mortalidade',
+        selectors: [
+            [
+                'aria/Conteúdo'
+            ],
+            [
+                '#I'
+            ],
+            [
+                'xpath///*[@id="I"]'
+            ],
+            [
+                'pierce/#I'
+            ],
+            [
+                'text/AIH_aprovadas'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Out/2025'
+            ],
+            [
+                'div.periodo option:nth-of-type(1)'
+            ],
+            [
+                'xpath///*[@id="A"]/option[1]'
+            ],
+            [
+                'pierce/div.periodo option:nth-of-type(1)'
+            ],
+            [
+                'text/Out/2025'
+            ]
+        ],
+        offsetY: 14.265625,
+        offsetX: 90.375,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'qgmt2510.dbf',
+        selectors: [
+            [
+                'aria/PERÍODOS DISPONÍVEIS[role="listbox"]'
+            ],
+            [
+                '#A'
+            ],
+            [
+                'xpath///*[@id="A"]'
+            ],
+            [
+                'pierce/#A'
+            ],
+            [
+                'text/qgmt2510.dbf'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/SELEÇÕES DISPONÍVEIS'
+            ],
+            [
+                'div.selecoes > h2'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/h2'
+            ],
+            [
+                'pierce/div.selecoes > h2'
+            ],
+            [
+                'text/Seleções Disponíveis'
+            ]
+        ],
+        offsetY: 26.015625,
+        offsetX: 0.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig1'
+            ],
+            [
+                'xpath///*[@id="fig1"]'
+            ],
+            [
+                'pierce/#fig1'
+            ]
+        ],
+        offsetY: 11.78515625,
+        offsetX: 1.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig1'
+            ],
+            [
+                'xpath///*[@id="fig1"]'
+            ],
+            [
+                'pierce/#fig1'
+            ]
+        ],
+        offsetY: 9.78515625,
+        offsetX: 2.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig1'
+            ],
+            [
+                'xpath///*[@id="fig1"]'
+            ],
+            [
+                'pierce/#fig1'
+            ]
+        ],
+        offsetY: 6.78515625,
+        offsetX: 5.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/ '
+            ],
+            [
+                '#pesqmes1'
+            ],
+            [
+                'xpath///*[@id="pesqmes1"]'
+            ],
+            [
+                'pierce/#pesqmes1'
+            ]
+        ],
+        offsetY: 13.77734375,
+        offsetX: 58.6328125,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'div.corposelecoes > div'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/div[1]/div'
+            ],
+            [
+                'pierce/div.corposelecoes > div'
+            ]
+        ],
+        offsetY: 226.77734375,
+        offsetX: 231.625,
+        duration: 2849.2999999821186,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'TODAS_AS_CATEGORIAS__',
+        selectors: [
+            [
+                'aria/Município gestor[role="listbox"]'
+            ],
+            [
+                '#S1'
+            ],
+            [
+                'xpath///*[@id="S1"]'
+            ],
+            [
+                'pierce/#S1'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig2'
+            ],
+            [
+                'xpath///*[@id="fig2"]'
+            ],
+            [
+                'pierce/#fig2'
+            ]
+        ],
+        offsetY: 7.77734375,
+        offsetX: 6.625,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'TODAS_AS_CATEGORIAS__',
+        selectors: [
+            [
+                'aria/Região de Saúde (CIR)'
+            ],
+            [
+                '#S2'
+            ],
+            [
+                'xpath///*[@id="S2"]'
+            ],
+            [
+                'pierce/#S2'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Região de Saúde (CIR)'
+            ],
+            [
+                '#S2'
+            ],
+            [
+                'xpath///*[@id="S2"]'
+            ],
+            [
+                'pierce/#S2'
+            ]
+        ],
+        offsetY: 134.28515625,
+        offsetX: 135.6328125,
+        duration: 1696.199999988079,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'TODAS_AS_CATEGORIAS__',
+        selectors: [
+            [
+                'aria/Região de Saúde (CIR)'
+            ],
+            [
+                '#S2'
+            ],
+            [
+                'xpath///*[@id="S2"]'
+            ],
+            [
+                'pierce/#S2'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'keyDown',
+        target: 'main',
+        key: 'ArrowDown'
+    });
+    await runner.runStep({
+        type: 'keyUp',
+        key: 'ArrowDown',
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig2'
+            ],
+            [
+                'xpath///*[@id="fig2"]'
+            ],
+            [
+                'pierce/#fig2'
+            ]
+        ],
+        offsetY: 6.77734375,
+        offsetX: 10.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig3'
+            ],
+            [
+                'xpath///*[@id="fig3"]'
+            ],
+            [
+                'pierce/#fig3'
+            ]
+        ],
+        offsetY: 4.77734375,
+        offsetX: 8.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'div.corposelecoes > div'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/div[1]/div'
+            ],
+            [
+                'pierce/div.corposelecoes > div'
+            ]
+        ],
+        offsetY: 337.77734375,
+        offsetX: 202.625,
+        duration: 682.9000000059605,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'TODAS_AS_CATEGORIAS__',
+        selectors: [
+            [
+                'aria/Macrorregião de Saúde'
+            ],
+            [
+                '#S3'
+            ],
+            [
+                'xpath///*[@id="S3"]'
+            ],
+            [
+                'pierce/#S3'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig4'
+            ],
+            [
+                'xpath///*[@id="fig4"]'
+            ],
+            [
+                'pierce/#fig4'
+            ]
+        ],
+        offsetY: 2.34765625,
+        offsetX: 7.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'div.corposelecoes > div'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/div[1]/div'
+            ],
+            [
+                'pierce/div.corposelecoes > div'
+            ]
+        ],
+        offsetY: 343.77734375,
+        offsetX: 152.625,
+        duration: 512.4000000059605,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig7'
+            ],
+            [
+                'xpath///*[@id="fig7"]'
+            ],
+            [
+                'pierce/#fig7'
+            ]
+        ],
+        offsetY: 10.87890625,
+        offsetX: 15.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Estabelecimento[role="listbox"]'
+            ],
+            [
+                '#S7'
+            ],
+            [
+                'xpath///*[@id="S7"]'
+            ],
+            [
+                'pierce/#S7'
+            ]
+        ],
+        offsetY: 115.88671875,
+        offsetX: 68.6328125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: '2311682',
+        selectors: [
+            [
+                'aria/ '
+            ],
+            [
+                '#pesqmes7'
+            ],
+            [
+                'xpath///*[@id="pesqmes7"]'
+            ],
+            [
+                'pierce/#pesqmes7'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'change',
+        value: '12',
+        selectors: [
+            [
+                '#listahidden7'
+            ],
+            [
+                'xpath///*[@id="listahidden7"]'
+            ],
+            [
+                'pierce/#listahidden7'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#listahidden7 > option'
+            ],
+            [
+                'xpath///*[@id="listahidden7"]/option'
+            ],
+            [
+                'pierce/#listahidden7 > option'
+            ]
+        ],
+        offsetY: 3.63671875,
+        offsetX: 169.37890625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'div.corposelecoes > div'
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/div[1]/div'
+            ],
+            [
+                'pierce/div.corposelecoes > div'
+            ]
+        ],
+        offsetY: 577.77734375,
+        offsetX: 65.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                '#fig9'
+            ],
+            [
+                'xpath///*[@id="fig9"]'
+            ],
+            [
+                'pierce/#fig9'
+            ]
+        ],
+        offsetY: 6.96484375,
+        offsetX: 5.625,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Procedimento[role="listbox"]'
+            ],
+            [
+                '#S9'
+            ],
+            [
+                'xpath///*[@id="S9"]'
+            ],
+            [
+                'pierce/#S9'
+            ]
+        ],
+        offsetY: 96.22265625,
+        offsetX: 91.6328125,
+    });
+    await runner.runStep({
+        type: 'change',
+        value: 'TODAS_AS_CATEGORIAS__',
+        selectors: [
+            [
+                'aria/Procedimento[role="listbox"]'
+            ],
+            [
+                '#S9'
+            ],
+            [
+                'xpath///*[@id="S9"]'
+            ],
+            [
+                'pierce/#S9'
+            ]
+        ],
+        target: 'main'
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'main',
+        selectors: [
+            [
+                'aria/Mostra'
+            ],
+            [
+                "input[type='submit']"
+            ],
+            [
+                'xpath//html/body/div/div/center/div/form/div[4]/div[2]/div[2]/input[1]'
+            ],
+            [
+                "pierce/input[type='submit']"
+            ],
+            [
+                'text/Mostra'
+            ]
+        ],
+        offsetY: 8.859375,
+        offsetX: 23.63671875,
+    });
+    await runner.runStep({
+        type: 'click',
+        target: 'http://tabnet.datasus.gov.br/cgi/tabcgi.exe?sih/cnv/qgmt.def',
+        selectors: [
+            [
+                'aria/COPIA COMO .CSV[role="link"]'
+            ],
+            [
+                'td:nth-of-type(1) > a'
+            ],
+            [
+                'xpath//html/body/div/div/div[3]/table/tbody/tr/td[1]/a'
+            ],
+            [
+                'pierce/td:nth-of-type(1) > a'
+            ],
+            [
+                'text/Copia como .CSV'
+            ]
+        ],
+        offsetY: 13.06640625,
+        offsetX: 94.92578125,
+        assertedEvents: [
+            {
+                type: 'navigation'
+            }
+        ]
+    });
+
+    await runner.runAfterAllSteps();
+}
+
+if (process && import.meta.url === url.pathToFileURL(process.argv[1]).href) {
+    run()
+}
