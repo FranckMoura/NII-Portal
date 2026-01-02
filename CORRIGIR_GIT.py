@@ -1,34 +1,54 @@
 import os
 import subprocess
+import glob
 
-print("--- 🛠️ CORREÇÃO DEFINITIVA DO GIT (V2) ---")
+print("--- 🛠️ CORREÇÃO DE ERRO GIT (REMOÇÃO DE ARQUIVO GIGANTE) ---")
 
-# Seu branch atual (confirmei pelo seu log que é 'main1')
+# Configuração da Branch (baseado no seu log, você usa 'main1')
 BRANCH = "main1"
 
 def run_git(command):
     print(f"   > git {command}")
-    # shell=True no Windows funciona melhor com aspas duplas para mensagens
-    subprocess.run(f"git {command}", shell=True)
+    subprocess.run(f"git {command}", shell=True, check=False)
 
-# 1. Reset Misto (O segredo da limpeza)
-# Isso desfaz os commits locais E tira tudo da área de preparação (staging),
-# obrigando o Git a olhar para o que realmente tem na pasta agora.
-print("\n1. 🧹 Limpando a memória do Git (Reset)...")
-run_git("reset") 
+# 1. Desfazer o último commit (Soft Reset)
+# Isso mantém as alterações nos arquivos, mas cancela o 'pacote' de envio que estava com o arquivo gigante
+print("\n1. 🔙 Desfazendo o último commit problemático...")
+run_git("reset --soft HEAD~1")
 
-# 2. Adicionar apenas o que existe
-# Como você já deletou o arquivo gigante manualmente, o 'add .' vai ignorá-lo
-print("\n2. ➕ Re-adicionando arquivos válidos...")
+# 2. Localizar e Deletar o arquivo Gigante
+print("\n2. 🗑️ Procurando e apagando o arquivo 'Profile-*.json'...")
+arquivos_ruins = glob.glob("**/*Profile-*.json", recursive=True)
+
+if arquivos_ruins:
+    for arq in arquivos_ruins:
+        try:
+            # Remove do índice do Git
+            run_git(f"reset HEAD \"{arq}\"")
+            # Remove do computador
+            os.remove(arq)
+            print(f"   ✅ Arquivo DELETADO: {arq}")
+        except Exception as e:
+            print(f"   ⚠️ Erro ao deletar {arq}: {e}")
+else:
+    print("   (Nenhum arquivo 'Profile-*.json' encontrado na pasta atual. Talvez já tenha sido removido.)")
+
+# 3. Atualizar .gitignore para prevenir reincidência
+print("\n3. 🛡️ Blindando o .gitignore...")
+try:
+    with open(".gitignore", "a") as f:
+        f.write("\n# Ignorar perfis de navegador e arquivos temporarios\n")
+        f.write("Profile-*.json\n")
+        f.write("*.log\n")
+        f.write("**/*.db\n") # Ignora banco de dados local se houver
+    print("   ✅ .gitignore atualizado.")
+except Exception as e:
+    print(f"   ⚠️ Erro ao editar .gitignore: {e}")
+
+# 4. Tentar subir novamente
+print("\n4. 🚀 Tentando enviar novamente (sem o peso morto)...")
 run_git("add .")
-
-# 3. Commit com sintaxe segura para Windows
-print("\n3. 💾 Salvando alterações (Commit)...")
-# Usando aspas duplas internas para evitar erro de pathspec
-run_git('commit -m "Fix: Remocao de arquivos grandes e limpeza"')
-
-# 4. Enviar
-print("\n4. 🚀 Enviando para o GitHub (Push)...")
+run_git("commit -m 'Fix: Removendo arquivos temporarios grandes'")
 run_git(f"push origin {BRANCH}")
 
-print("\n🏁 Se apareceu 'Writing objects: 100%' sem erros vermelhos de 'remote rejected', DEU CERTO!")
+print("\n🏁 Processo de correção finalizado!")
