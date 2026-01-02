@@ -3,37 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Faturamento Histórico</title>
+    <title>NII - Inteligência Financeira</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css"> 
 
     <style>
-        /* Estilos específicos deste painel para complementar o style.css */
-        body { background-color: #f4f6f9; }
-        .dashboard-container { padding: 20px; max-width: 1400px; margin: 0 auto; }
+        body { background-color: #eef2f7; font-family: 'Roboto', sans-serif; }
+        .dashboard-container { padding: 20px; max-width: 1600px; margin: 0 auto; }
         
-        /* Cards de KPI */
-        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .kpi-card { background: white; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-        .kpi-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; font-weight: bold; }
-        .kpi-card .value { font-size: 28px; font-weight: bold; color: #333; margin-top: 10px; }
-        .kpi-card i { position: absolute; right: 20px; top: 20px; font-size: 40px; opacity: 0.1; }
-        
-        .border-blue { border-left-color: #0056b3; }
-        .border-green { border-left-color: #28a745; }
-        .border-red { border-left-color: #dc3545; }
+        /* Barra de Controle */
+        .control-bar { 
+            background: white; padding: 15px 25px; border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        .control-group label { font-weight: 500; color: #555; margin-right: 10px; }
+        .control-group select { 
+            padding: 8px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none;
+        }
 
-        /* Área do Gráfico */
-        .chart-box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 450px; }
-        
+        /* KPIs */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { 
+            background: white; padding: 20px; border-radius: 10px; position: relative; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: transform 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-icon { 
+            position: absolute; right: 20px; top: 20px; width: 50px; height: 50px; 
+            background: #f0f4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #0056b3;
+        }
+        .kpi-card h4 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; }
+        .kpi-card .value { font-size: 26px; font-weight: 700; color: #333; margin: 10px 0 5px 0; }
+        .kpi-card .subtext { font-size: 12px; color: #28a745; font-weight: 500; }
+
+        /* Gráficos */
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .chart-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: #444; }
+
         /* Tabela */
-        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .table-section { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+
+        /* Responsividade */
+        @media (max-width: 1000px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -46,187 +67,318 @@
             <ul class="navbar-nav">
                 <li><a href="index.html">Início</a></li>
                 <li><a href="faturamento.html">Faturamento</a></li>
-                <li><a href="painel_regulacao.html">Regulação</a></li> <li><a href="manuais.html">Manuais</a></li>
+                <li><a href="painel_regulacao.html">Regulação</a></li>
+                <li><a href="manuais.html">Manuais</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="dashboard-container">
-        <header style="margin-bottom: 20px;">
-            <h1 style="color: #333;"><i class="fas fa-file-invoice-dollar"></i> Faturamento Hospitalar (SIH/SUS)</h1>
-            <p style="color: #666;">Análise Histórica Consolidada (2008 a 2025) - Fonte: TabNet/Datasus</p>
-        </header>
-
-        <div class="kpi-row">
-            <div class="kpi-card border-green">
-                <h3>Faturamento Total (Período)</h3>
-                <div class="value" id="valTotal">R$ -</div>
-                <i class="fas fa-coins" style="color: #28a745;"></i>
+        
+        <div class="control-bar">
+            <div>
+                <h2 style="margin:0; font-size:22px; color:#333;"><i class="fas fa-chart-line"></i> Dashboard Faturamento SUS</h2>
+                <span style="font-size:13px; color:#777;">Base de Dados TabNet (SIH)</span>
             </div>
-            <div class="kpi-card border-blue">
-                <h3>Total AIH Aprovadas</h3>
-                <div class="value" id="qtdTotal">-</div>
-                <i class="fas fa-procrdure" style="color: #0056b3;"></i>
-            </div>
-            <div class="kpi-card border-red">
-                <h3>Óbitos Hospitalares</h3>
-                <div class="value" id="obitosTotal">-</div>
-                <i class="fas fa-heart-broken" style="color: #dc3545;"></i>
+            <div class="control-group">
+                <label for="anoFilter"><i class="far fa-calendar-alt"></i> Período:</label>
+                <select id="anoFilter" onchange="atualizarDashboard()">
+                    <option value="all">📅 Todos os Anos (Visão Histórica)</option>
+                    </select>
             </div>
         </div>
 
-        <div class="chart-box">
-            <h3 style="margin-bottom: 15px; color: #333;">Evolução: Produção Física x Financeira</h3>
-            <div style="position: relative; height: 380px; width: 100%;">
-                <canvas id="graficoEvolucao"></canvas>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <h4>Faturamento Aprovado</h4>
+                <div class="value" id="kpiValor">R$ 0,00</div>
+                <div class="subtext"><i class="fas fa-check-circle"></i> Total no período</div>
+                <div class="kpi-icon" style="color: #28a745; background: #e6f8eb;"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+            <div class="kpi-card">
+                <h4>Produção (AIH)</h4>
+                <div class="value" id="kpiAih">0</div>
+                <div class="subtext">Internações realizadas</div>
+                <div class="kpi-icon"><i class="fas fa-procedures"></i></div>
+            </div>
+            <div class="kpi-card">
+                <h4>Ticket Médio</h4>
+                <div class="value" id="kpiTicket">R$ 0,00</div>
+                <div class="subtext">Valor por internação</div>
+                <div class="kpi-icon" style="color: #ffc107; background: #fff8e1;"><i class="fas fa-tags"></i></div>
+            </div>
+            <div class="kpi-card">
+                <h4>Taxa de Óbitos</h4>
+                <div class="value" id="kpiTaxa">0%</div>
+                <div class="subtext" id="kpiObitosAbs">0 óbitos totais</div>
+                <div class="kpi-icon" style="color: #dc3545; background: #ffebee;"><i class="fas fa-heartbeat"></i></div>
             </div>
         </div>
 
-        <div class="table-box">
-            <h3 style="margin-bottom: 15px;">Detalhamento da Produção</h3>
+        <div class="charts-row">
+            <div class="chart-box">
+                <div class="chart-header">
+                    <span class="chart-title">Evolução Financeira e Física</span>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <span class="chart-title">Top 5 Procedimentos (Receita)</span>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h3 style="margin-top:0; font-size:16px; color:#555; margin-bottom:15px;">Detalhamento dos Dados</h3>
             <table id="tabelaDados" class="display compact hover" style="width:100%">
                 <thead>
                     <tr>
                         <th>Competência</th>
                         <th>Procedimento</th>
-                        <th>Qtd AIH</th>
-                        <th>Valor Aprovado</th>
-                        <th>Dias Internação</th>
+                        <th>AIH</th>
+                        <th>Valor Total</th>
+                        <th>Ticket Médio</th>
                         <th>Óbitos</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
+
     </div>
 
-    <footer class="main-footer" style="text-align: center; padding: 20px; color: #666; margin-top: 30px;">
-        <p>Hospital Beneficente Santa Helena - Núcleo de Informação e Inteligência</p>
-    </footer>
-
     <script>
+        let dadosGlobais = [];
+        let chartPrincipal = null;
+        let chartRanking = null;
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // Carrega o JSON gerado pelo seu script Python
-        fetch('arquivos/dados_tabnet.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(dados => {
-                
-                // --- 1. Processamento dos KPIs Globais ---
-                let totalValor = 0;
-                let totalAIH = 0;
-                let totalObitos = 0;
-                
-                // Objeto para agrupar dados por Mês (para o gráfico)
-                let historico = {};
+        // Inicialização
+        $(document).ready(function() {
+            carregarDados();
+        });
 
-                dados.forEach(item => {
-                    // Soma KPI
-                    totalValor += (item.valor || 0);
-                    totalAIH += (item.qtd_aih || 0);
-                    totalObitos += (item.obitos || 0);
+        function carregarDados() {
+            fetch('arquivos/dados_tabnet.json?v=' + new Date().getTime())
+                .then(res => res.json())
+                .then(dados => {
+                    dadosGlobais = dados;
+                    
+                    // Ordena cronologicamente
+                    dadosGlobais.sort((a, b) => (a.data > b.data) ? 1 : -1);
 
-                    // Agrupa por data para o gráfico (chave = data ISO YYYY-MM-DD)
-                    let dataChave = item.data; 
-                    if (dataChave) {
-                        if (!historico[dataChave]) {
-                            historico[dataChave] = { valor: 0, aih: 0, label: item.periodo };
-                        }
-                        historico[dataChave].valor += (item.valor || 0);
-                        historico[dataChave].aih += (item.qtd_aih || 0);
-                    }
+                    preencherFiltroAnos();
+                    atualizarDashboard();
+                })
+                .catch(err => {
+                    console.error("Erro:", err);
+                    alert("Erro ao carregar dados. Verifique o console.");
                 });
+        }
 
-                // Atualiza Cards na tela
-                document.getElementById('valTotal').innerText = brl.format(totalValor);
-                document.getElementById('qtdTotal').innerText = totalAIH.toLocaleString('pt-BR');
-                document.getElementById('obitosTotal').innerText = totalObitos.toLocaleString('pt-BR');
-
-                // --- 2. Configuração do Gráfico ---
-                // Ordena as datas (cronologicamente)
-                let datasOrdenadas = Object.keys(historico).sort();
-                
-                let labelsGrafico = datasOrdenadas.map(d => historico[d].label); // Ex: Jan-2008
-                let dadosValor = datasOrdenadas.map(d => historico[d].valor);
-                let dadosAIH = datasOrdenadas.map(d => historico[d].aih);
-
-                const ctx = document.getElementById('graficoEvolucao').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labelsGrafico,
-                        datasets: [
-                            {
-                                label: 'Faturamento (R$)',
-                                data: dadosValor,
-                                borderColor: '#28a745', // Verde dinheiro
-                                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                                yAxisID: 'yDinheiro',
-                                tension: 0.3,
-                                fill: true,
-                                pointRadius: 2
-                            },
-                            {
-                                label: 'Produção (AIH)',
-                                data: dadosAIH,
-                                borderColor: '#0056b3', // Azul hospital
-                                backgroundColor: 'rgba(0, 86, 179, 0.05)',
-                                yAxisID: 'yQtd',
-                                tension: 0.3,
-                                borderDash: [5, 5], // Linha tracejada para diferenciar
-                                pointRadius: 2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: { mode: 'index', intersect: false },
-                        scales: {
-                            yDinheiro: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: { display: true, text: 'Valor (R$)' },
-                                ticks: { callback: function(val) { return val.toLocaleString('pt-BR'); } }
-                            },
-                            yQtd: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: { display: true, text: 'Quantidade AIH' },
-                                grid: { drawOnChartArea: false } // Remove grade do eixo secundário para limpar visual
-                            }
-                        }
-                    }
-                });
-
-                // --- 3. Tabela DataTables ---
-                $('#tabelaDados').DataTable({
-                    data: dados,
-                    columns: [
-                        { data: 'periodo' },
-                        { data: 'procedimento', width: "40%" },
-                        { data: 'qtd_aih' },
-                        { 
-                            data: 'valor',
-                            render: function(d) { return d ? d.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : 'R$ 0,00'; }
-                        },
-                        { data: 'dias' },
-                        { data: 'obitos' }
-                    ],
-                    order: [[0, 'desc']], // Ordena por data (recente primeiro) mas DataTables ordena string, vamos confiar na ordem do JSON por enquanto
-                    pageLength: 10,
-                    language: {
-                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
-                    }
-                });
-
-            })
-            .catch(erro => {
-                console.error("Erro ao carregar dados:", erro);
-                alert("Erro ao carregar dados_tabnet.json. Verifique se o script Python rodou corretamente.");
+        function preencherFiltroAnos() {
+            const anos = new Set();
+            dadosGlobais.forEach(d => {
+                if(d.data) anos.add(d.data.substring(0, 4));
             });
+            
+            const select = document.getElementById('anoFilter');
+            Array.from(anos).sort().reverse().forEach(ano => {
+                const opt = document.createElement('option');
+                opt.value = ano;
+                opt.innerText = ano;
+                select.appendChild(opt);
+            });
+        }
+
+        function atualizarDashboard() {
+            const anoSelecionado = document.getElementById('anoFilter').value;
+            
+            // 1. Filtrar Dados
+            let dadosFiltrados = dadosGlobais;
+            if (anoSelecionado !== 'all') {
+                dadosFiltrados = dadosGlobais.filter(d => d.data && d.data.startsWith(anoSelecionado));
+            }
+
+            // 2. Calcular KPIs
+            let totalValor = 0, totalAIH = 0, totalObitos = 0;
+            dadosFiltrados.forEach(d => {
+                totalValor += (d.valor || 0);
+                totalAIH += (d.qtd_aih || 0);
+                totalObitos += (d.obitos || 0);
+            });
+
+            const ticketMedio = totalAIH > 0 ? (totalValor / totalAIH) : 0;
+            const taxaObito = totalAIH > 0 ? (totalObitos / totalAIH) * 100 : 0;
+
+            // Atualiza Cards
+            document.getElementById('kpiValor').innerText = brl.format(totalValor);
+            document.getElementById('kpiAih').innerText = totalAIH.toLocaleString('pt-BR');
+            document.getElementById('kpiTicket').innerText = brl.format(ticketMedio);
+            document.getElementById('kpiTaxa').innerText = taxaObito.toFixed(2) + "%";
+            document.getElementById('kpiObitosAbs').innerText = `${totalObitos} óbitos totais`;
+
+            // 3. Preparar Gráfico Principal (Evolução)
+            atualizarGraficoPrincipal(dadosFiltrados, anoSelecionado);
+
+            // 4. Preparar Ranking (Top 5)
+            atualizarRanking(dadosFiltrados);
+
+            // 5. Atualizar Tabela
+            atualizarTabela(dadosFiltrados);
+        }
+
+        function atualizarGraficoPrincipal(dados, ano) {
+            // Agrupamento
+            let agrupado = {};
+            
+            dados.forEach(d => {
+                // Se for "All", agrupa por ANO (2008, 2009...)
+                // Se for "Ano Específico", agrupa por MÊS (Jan, Fev...)
+                let chave = "";
+                if (ano === 'all') {
+                    chave = d.data.substring(0, 4); // Ano
+                } else {
+                    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                    let mesIndex = parseInt(d.data.substring(5, 7)) - 1;
+                    chave = meses[mesIndex];
+                }
+
+                if (!agrupado[chave]) agrupado[chave] = { valor: 0, aih: 0 };
+                agrupado[chave].valor += (d.valor || 0);
+                agrupado[chave].aih += (d.qtd_aih || 0);
+            });
+
+            // Converte para Arrays ordenados
+            let labels = Object.keys(agrupado);
+            // Se for meses, garante ordem correta
+            if (ano !== 'all') {
+                const ordem = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                labels.sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+            } else {
+                labels.sort();
+            }
+
+            let dataValor = labels.map(l => agrupado[l].valor);
+            let dataAIH = labels.map(l => agrupado[l].aih);
+
+            // Renderiza Chart.js
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (chartPrincipal) chartPrincipal.destroy();
+
+            chartPrincipal = new Chart(ctx, {
+                type: 'bar', // Combo Chart (Barra + Linha)
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Faturamento (R$)',
+                            data: dataValor,
+                            type: 'line',
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            borderWidth: 2,
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Qtd AIH',
+                            data: dataAIH,
+                            type: 'bar',
+                            backgroundColor: '#0056b3',
+                            yAxisID: 'y1',
+                            barThickness: ano === 'all' ? undefined : 20 // Barras mais finas na visão mensal
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { position: 'left', beginAtZero: true, grid: { borderDash: [2, 2] } },
+                        y1: { position: 'right', beginAtZero: true, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function atualizarRanking(dados) {
+            // Agrupa por procedimento
+            let procRanking = {};
+            dados.forEach(d => {
+                let nome = d.procedimento.substring(11); // Remove o código (ex: 0409...)
+                // Encurta nomes muito longos
+                if (nome.length > 25) nome = nome.substring(0, 25) + "...";
+                
+                if (!procRanking[nome]) procRanking[nome] = 0;
+                procRanking[nome] += (d.valor || 0);
+            });
+
+            // Ordena e pega Top 5
+            let sorted = Object.entries(procRanking).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            
+            let labels = sorted.map(i => i[0]);
+            let values = sorted.map(i => i[1]);
+
+            const ctx = document.getElementById('rankingChart').getContext('2d');
+            if (chartRanking) chartRanking.destroy();
+
+            chartRanking = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Receita Gerada',
+                        data: values,
+                        backgroundColor: '#17a2b8',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Barra Horizontal
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function atualizarTabela(dados) {
+            if ($.fn.DataTable.isDataTable('#tabelaDados')) {
+                $('#tabelaDados').DataTable().clear().destroy();
+            }
+
+            $('#tabelaDados').DataTable({
+                data: dados,
+                columns: [
+                    { data: 'periodo' },
+                    { data: 'procedimento', width: "35%" },
+                    { data: 'qtd_aih' },
+                    { 
+                        data: 'valor',
+                        render: function(d) { return d ? d.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '-'; }
+                    },
+                    { 
+                        data: null, // Ticket Médio
+                        render: function(data, type, row) {
+                            return (row.qtd_aih > 0) ? (row.valor / row.qtd_aih).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) : '-';
+                        }
+                    },
+                    { data: 'obitos' }
+                ],
+                order: [[3, 'desc']], // Ordena por Valor
+                pageLength: 5, // Tabela menor para caber no design
+                lengthMenu: [5, 10, 25],
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+            });
+        }
     </script>
 </body>
 </html>
