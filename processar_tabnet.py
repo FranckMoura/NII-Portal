@@ -6,7 +6,7 @@ import re
 import numpy as np
 from unidecode import unidecode
 
-print("--- ⚙️ PROCESSAMENTO V18 (MAPEAMENTO COMPLETO 15 COLUNAS) ---")
+print("--- ⚙️ PROCESSAMENTO V19 (CIRURGIÃO DE TEXTO - BASE RICA) ---")
 
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\TABNET_Export"
 PASTA_ARQUIVOS = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos"
@@ -16,17 +16,16 @@ MESES_PT = {'Jan':'01','Fev':'02','Mar':'03','Abr':'04','Mai':'05','Jun':'06',
             'Jul':'07','Ago':'08','Set':'09','Out':'10','Nov':'11','Dez':'12'}
 
 def limpar_num(v):
+    """Converte '1.234,56' ou '-' para float."""
     if pd.isna(v) or str(v).strip() in ['-', '', '...']: return 0.0
     try:
-        v_str = str(v).replace('R$', '').replace('"', '').replace("'", "").strip()
-        v_str = v_str.replace('.', '').replace(',', '.')
-        return float(v_str)
+        return float(str(v).replace('.', '').replace(',', '.'))
     except: return 0.0
 
-def encontrar_data_no_arquivo(caminho):
+def encontrar_data(caminho):
     try:
         with open(caminho, 'r', encoding='latin-1') as f:
-            for _ in range(30):
+            for _ in range(20):
                 line = f.readline()
                 match = re.search(r'Período:?\s*([A-Z][a-z]{2})/(\d{4})', line, re.IGNORECASE)
                 if match:
@@ -35,79 +34,66 @@ def encontrar_data_no_arquivo(caminho):
     except: pass
     return None
 
+def processar_linha_texto(linha):
+    """Quebra a linha de texto baseada na lógica: 1 Código + Nome + 15 Valores"""
+    partes = linha.strip().split()
+    
+    # Precisamos de: 1 Código + Pelo menos 1 palavra de nome + 15 Colunas de dados = 17 itens mín.
+    if len(partes) < 17: return None
+    
+    # Validação: O primeiro deve ser código numérico
+    if not partes[0].isdigit(): return None
+
+    # Extração de trás para frente (garante as colunas numéricas)
+    dados = {
+        'taxa_mort': partes[-1],
+        'obitos': partes[-2],
+        'media_perm': partes[-3],
+        'dias': partes[-4],
+        'val_medio_intern': partes[-5],
+        'val_medio_aih': partes[-6],
+        'val_prof_gest': partes[-7],
+        'val_prof_fed': partes[-8],
+        'val_prof': partes[-9],       # Valor Serv. Profissionais
+        'val_hosp_gest': partes[-10],
+        'val_hosp_fed': partes[-11],
+        'val_hosp': partes[-12],      # Valor Serv. Hospitalares
+        'valor': partes[-13],         # Valor Total
+        'internacoes': partes[-14],   # Ignorar depois
+        'qtd_aih': partes[-15],       # AIH Aprovadas
+    }
+    
+    # O que sobrou é o nome + código
+    codigo = partes[0]
+    nome = " ".join(partes[1:-15])
+    dados['procedimento'] = f"{codigo} {nome}"
+    
+    return dados
+
 buffer_meses = {}
 arquivos = glob.glob(os.path.join(PASTA_CSV, "*.csv"))
-print(f">> Processando {len(arquivos)} arquivos...")
+print(f">> Processando {len(arquivos)} arquivos formato TEXTO...")
 
 for arq in arquivos:
     try:
-        df = pd.DataFrame()
+        registros = []
+        with open(arq, 'r', encoding='latin-1') as f:
+            for linha in f:
+                dado = processar_linha_texto(linha)
+                if dado:
+                    registros.append(dado)
         
-        # LÊ CSV RICO (;)
-        try:
-            with open(arq, 'r', encoding='latin-1') as f: lines = f.readlines()
-            
-            # Procura a linha que tem "Procedimento" e "Valor" (Cabeçalho Real)
-            header_row = -1
-            for i, l in enumerate(lines[:30]): # Olha até linha 30
-                if "Procedimento" in l and "Valor" in l:
-                    header_row = i
-                    break
-            
-            if header_row != -1:
-                df = pd.read_csv(arq, sep=';', encoding='latin-1', header=header_row, on_bad_lines='skip', engine='python')
-        except: pass
-
-        if df.empty: continue
-
-        # --- PADRONIZAÇÃO DE NOMES ---
-        df.columns = [unidecode(str(c).strip().lower()).replace('"', '').replace("'", "").replace("_", " ").replace(".", "").replace("-", "") for c in df.columns]
-
-        # --- MAPEAMENTO DAS 15 COLUNAS ---
-        # Baseado na sua lista exata
-        mapa = {}
-        for c in df.columns:
-            if "procedimento" in c: mapa[c] = 'procedimento'
-            
-            # Quantidades
-            elif "aprov" in c: mapa[c] = 'qtd_aih'
-            # 'Internações' ignoramos para não duplicar (ou mapeamos para check)
-            
-            # Valores Totais
-            elif "valor total" in c: mapa[c] = 'valor'
-            
-            # Serviços Hospitalares
-            elif "hosp" in c and "compl" not in c: mapa[c] = 'val_hosp'
-            elif "hosp" in c and "federal" in c: mapa[c] = 'val_hosp_fed'
-            elif "hosp" in c and "gestor" in c: mapa[c] = 'val_hosp_gest'
-            
-            # Serviços Profissionais
-            elif "prof" in c and "compl" not in c: mapa[c] = 'val_prof'
-            elif "prof" in c and "federal" in c: mapa[c] = 'val_prof_fed'
-            elif "prof" in c and "gestor" in c: mapa[c] = 'val_prof_gest'
-            
-            # Médios
-            elif "medio aih" in c: mapa[c] = 'val_medio_aih'
-            elif "medio intern" in c: mapa[c] = 'val_medio_intern'
-            
-            # Dias e Óbitos
-            elif "dias permanencia" in c: mapa[c] = 'dias'
-            elif "media permanencia" in c: mapa[c] = 'media_perm_orig'
-            elif "obitos" in c: mapa[c] = 'obitos'
-            elif "taxa" in c: mapa[c] = 'taxa_mort'
-
-        df.rename(columns=mapa, inplace=True)
-
-        # --- FILTRO RAIO-X (Limpeza) ---
-        if 'procedimento' in df.columns:
-            # Mantém só se começar com número (ex: 0303...)
-            df = df[df['procedimento'].astype(str).str.match(r'^"?\d')]
-            df.drop_duplicates(subset=['procedimento'], keep='first', inplace=True)
-
-        if df.empty: continue
+        if not registros: continue
+        
+        df = pd.DataFrame(registros)
+        
+        # Limpeza Numérica
+        cols_num = ['qtd_aih', 'valor', 'val_hosp', 'val_prof', 'dias', 'obitos', 'media_perm', 'val_medio_aih']
+        for c in cols_num:
+            df[c] = df[c].apply(limpar_num)
 
         # Identifica Data
-        periodo = encontrar_data_no_arquivo(arq)
+        periodo = encontrar_data(arq)
         if not periodo:
             parts = os.path.basename(arq).replace(".csv", "").split("_")
             for p in parts:
@@ -117,16 +103,8 @@ for arq in arquivos:
                     break
         
         if periodo:
-            # Garante colunas numéricas (Preenche com 0 se não existir)
-            cols_desejadas = ['qtd_aih', 'valor', 'val_hosp', 'val_prof', 'val_hosp_fed', 'val_hosp_gest', 'val_prof_fed', 'val_prof_gest', 'dias', 'obitos', 'media_perm_orig', 'val_medio_aih', 'taxa_mort']
-            
-            for col in cols_desejadas:
-                if col not in df.columns: df[col] = 0.0
-                else: df[col] = df[col].apply(limpar_num)
-
-            # Score: Prefere arquivos mais completos (com val_hosp)
-            is_rich = df['val_hosp'].sum() > 0
-            score = len(df) + (10000 if is_rich else 0)
+            # Score: Prefere arquivos com dados > 0
+            score = len(df) + (5000 if df['val_hosp'].sum() > 0 else 0)
             
             if periodo not in buffer_meses or score > buffer_meses[periodo]['score']:
                 df['data'] = f"{periodo}-01"
@@ -134,30 +112,30 @@ for arq in arquivos:
                 df['periodo'] = f"{mes_str}-{periodo.split('-')[0]}"
                 buffer_meses[periodo] = {'df': df, 'score': score, 'arq': os.path.basename(arq)}
 
-    except Exception as e: print(f"Erro {arq}: {e}")
+    except Exception as e: print(f"Erro em {arq}: {e}")
 
-# Consolida
+# Consolidação
 dfs = [v['df'] for v in buffer_meses.values()]
 if dfs:
     df_final = pd.concat(dfs, ignore_index=True)
     df_final.sort_values('data', inplace=True)
     
-    # Salva JSON completo
-    cols_export = ['periodo', 'data', 'procedimento', 'qtd_aih', 'valor', 'val_hosp', 'val_prof', 'val_hosp_fed', 'val_hosp_gest', 'val_prof_fed', 'val_prof_gest', 'dias', 'obitos', 'media_perm_orig', 'val_medio_aih', 'taxa_mort']
+    # Recalcula Ticket Médio para garantir
+    df_final['ticket_medio'] = np.where(df_final['qtd_aih']>0, df_final['valor']/df_final['qtd_aih'], 0).round(2)
+
+    # Seleciona colunas finais para o JSON
+    cols_export = ['periodo', 'data', 'procedimento', 'qtd_aih', 'valor', 'val_hosp', 'val_prof', 'dias', 'media_perm', 'ticket_medio', 'obitos']
     
-    # Filtra colunas que realmente existem
-    cols_final = [c for c in cols_export if c in df_final.columns]
+    df_final[cols_export].to_json(CAMINHO_JSON, orient='records', indent=4)
+    print(f"\n✅ SUCESSO! Base RICA e FORMATADA gerada.")
+    print(f"   Total de Meses: {len(buffer_meses)}")
     
-    df_final[cols_final].to_json(CAMINHO_JSON, orient='records', indent=4)
-    print(f"\n✅ SUCESSO! Base RICA gerada.")
-    print(f"   Meses: {len(buffer_meses)}")
-    
-    # Check Agosto
-    if '2025-08' in buffer_meses:
-        d = buffer_meses['2025-08']['df']
-        print(f"\n🔎 CHECK AGOSTO/25 ({buffer_meses['2025-08']['arq']}):")
+    # Validação Setembro 2024 (Seu exemplo)
+    if '2024-09' in buffer_meses:
+        d = buffer_meses['2024-09']['df']
+        print(f"\n🔎 CHECK SETEMBRO/24 (Arquivo Texto):")
         print(f"   AIH: {int(d['qtd_aih'].sum())}")
         print(f"   V.Hosp: {d['val_hosp'].sum():,.2f}")
         print(f"   V.Prof: {d['val_prof'].sum():,.2f}")
 else:
-    print("❌ Erro.")
+    print("❌ Erro: Nenhum dado processado.")
