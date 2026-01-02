@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Painel Executivo</title>
+    <title>NII - Faturamento Mensal</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -21,7 +21,10 @@
             background: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+        .filter-group { display: flex; gap: 15px; align-items: center; }
+        .filter-group select { padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; }
+        .filter-group label { font-size: 13px; font-weight: 500; color: #555; }
+
         .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
         .kpi { 
             background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #ddd;
@@ -35,11 +38,10 @@
         .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .box-title { font-size: 14px; font-weight: 700; color: #444; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: block; }
 
-        /* Cores */
         .bl-green { border-left-color: #28a745; }
         .bl-blue { border-left-color: #007bff; }
-        .bl-teal { border-left-color: #20c997; } /* Hosp */
-        .bl-orange { border-left-color: #fd7e14; } /* Prof */
+        .bl-teal { border-left-color: #20c997; }
+        .bl-orange { border-left-color: #fd7e14; }
         .bl-purple { border-left-color: #6f42c1; }
     </style>
 </head>
@@ -61,34 +63,39 @@
         
         <div class="header-bar">
             <div>
-                <h2 style="margin:0; font-size:20px; color:#333;"><i class="fas fa-chart-pie"></i> Gestão de Faturamento (SIH)</h2>
-                <span style="font-size:12px; color:#777;">Visão consolidada da produção hospitalar</span>
+                <h2 style="margin:0; font-size:20px; color:#333;"><i class="fas fa-chart-pie"></i> Painel Mensal de Faturamento</h2>
+                <span style="font-size:12px; color:#777;">Visão detalhada por competência</span>
             </div>
-            <div>
-                <label style="font-size:13px; font-weight:500;">Ano:</label>
-                <select id="anoFilter" onchange="renderizar()" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-                    </select>
+            <div class="filter-group">
+                <div>
+                    <label>Ano:</label>
+                    <select id="anoFilter" onchange="aoMudarAno()"></select>
+                </div>
+                <div>
+                    <label>Mês:</label>
+                    <select id="mesFilter" onchange="renderizar()"></select>
+                </div>
             </div>
         </div>
 
         <div class="kpi-row">
             <div class="kpi bl-green">
-                <h5>Valor Aprovado</h5>
+                <h5>Valor Total (Mês)</h5>
                 <div class="val" id="kpValor">R$ 0,00</div>
                 <i class="fas fa-dollar-sign" style="color:#28a745"></i>
             </div>
             <div class="kpi bl-teal">
-                <h5>Serv. Hospitalar</h5>
+                <h5>V. Hospitalar (Mês)</h5>
                 <div class="val" id="kpHosp">R$ 0,00</div>
                 <i class="fas fa-hospital" style="color:#20c997"></i>
             </div>
             <div class="kpi bl-orange">
-                <h5>Serv. Profissional</h5>
+                <h5>V. Profissional (Mês)</h5>
                 <div class="val" id="kpProf">R$ 0,00</div>
                 <i class="fas fa-user-md" style="color:#fd7e14"></i>
             </div>
             <div class="kpi bl-blue">
-                <h5>Total AIH</h5>
+                <h5>AIH (Mês)</h5>
                 <div class="val" id="kpAIH">0</div>
                 <i class="fas fa-procedures" style="color:#007bff"></i>
             </div>
@@ -101,26 +108,26 @@
 
         <div class="charts-area">
             <div class="box">
-                <span class="box-title">Evolução Financeira (Mensal)</span>
+                <span class="box-title">Evolução Anual (Todos os meses do Ano Selecionado)</span>
                 <div style="height:300px;"><canvas id="chartEvo"></canvas></div>
             </div>
             <div class="box">
-                <span class="box-title">Repasse: Hospital vs Profissional</span>
+                <span class="box-title">Composição (Mês Selecionado)</span>
                 <div style="height:300px; display:flex; justify-content:center;"><canvas id="chartPie"></canvas></div>
             </div>
         </div>
 
         <div class="box">
-            <span class="box-title">Detalhamento da Produção</span>
+            <span class="box-title" id="tabelaTitulo">Detalhamento do Mês</span>
             <table id="tabela" class="display compact hover" style="width:100%; font-size:13px;">
                 <thead>
                     <tr>
-                        <th>Mês</th>
-                        <th>Procedimento</th>
-                        <th>AIH</th>
-                        <th>V. Hosp (SH)</th>
-                        <th>V. Prof (SP)</th>
+                        <th>Código/Procedimento</th>
+                        <th style="text-align:center;">AIH</th>
+                        <th>V. Hosp</th>
+                        <th>V. Prof</th>
                         <th>Valor Total</th>
+                        <th>Ticket</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -133,6 +140,7 @@
         let chartEvo = null;
         let chartPie = null;
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const mesesNome = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
         $(document).ready(() => loadData());
 
@@ -140,38 +148,62 @@
             fetch('arquivos/dados_tabnet.json?v=' + new Date().getTime())
                 .then(r => r.json())
                 .then(d => {
-                    dadosRaw = d.sort((a,b) => a.data > b.data ? 1 : -1);
-                    setupFilter();
+                    dadosRaw = d.sort((a,b) => a.data > b.data ? 1 : -1); // Mais recente primeiro
+                    setupAnoFilter();
                 });
         }
 
-        function setupFilter() {
+        function setupAnoFilter() {
             const anos = [...new Set(dadosRaw.map(d => d.data.substring(0,4)))].sort().reverse();
             const sel = document.getElementById('anoFilter');
-            
+            sel.innerHTML = "";
             anos.forEach(a => {
                 let opt = document.createElement('option');
                 opt.value = a; opt.innerText = a;
                 sel.appendChild(opt);
             });
-            
-            let optAll = document.createElement('option');
-            optAll.value = 'all'; optAll.innerText = 'Histórico Completo';
-            sel.appendChild(optAll);
-
-            // Seleciona 2025 se existir
             if(anos.includes('2025')) sel.value = '2025';
+            aoMudarAno();
+        }
+
+        function aoMudarAno() {
+            const ano = document.getElementById('anoFilter').value;
+            const selMes = document.getElementById('mesFilter');
+            selMes.innerHTML = ""; // Limpa meses
+
+            // Filtra dados do ano
+            const dadosAno = dadosRaw.filter(d => d.data.startsWith(ano));
+            
+            // Descobre meses disponíveis neste ano
+            const mesesDisponiveis = [...new Set(dadosAno.map(d => d.data.substring(5,7)))].sort().reverse();
+            
+            mesesDisponiveis.forEach(m => {
+                let nome = mesesNome[parseInt(m)-1];
+                let opt = document.createElement('option');
+                opt.value = m; // "09", "08"...
+                opt.innerText = nome;
+                selMes.appendChild(opt);
+            });
+
+            // Seleciona o primeiro (que é o mais recente pois invertemos a ordem)
+            if(mesesDisponiveis.length > 0) selMes.selectedIndex = 0;
             
             renderizar();
         }
 
         function renderizar() {
             const ano = document.getElementById('anoFilter').value;
-            const dados = ano === 'all' ? dadosRaw : dadosRaw.filter(d => d.data.startsWith(ano));
+            const mes = document.getElementById('mesFilter').value; // "09"
+            
+            // Dados para Tabela e KPIs (Só o Mês selecionado)
+            const dadosMes = dadosRaw.filter(d => d.data === `${ano}-${mes}-01`);
+            
+            // Dados para Gráfico de Linha (Todo o Ano selecionado)
+            const dadosAno = dadosRaw.filter(d => d.data.startsWith(ano));
 
-            // KPIs
+            // --- KPIs (Baseado no Mês) ---
             let t = { v:0, a:0, h:0, p:0 };
-            dados.forEach(d => {
+            dadosMes.forEach(d => {
                 t.v += d.valor||0; t.a += d.qtd_aih||0; t.h += d.val_hosp||0; t.p += d.val_prof||0;
             });
 
@@ -180,40 +212,41 @@
             $('#kpProf').text(brl.format(t.p));
             $('#kpAIH').text(t.a.toLocaleString('pt-BR'));
             $('#kpTicket').text(t.a ? brl.format(t.v/t.a) : 'R$ 0,00');
-
-            // GRÁFICOS
-            updateCharts(dados, ano, t);
             
-            // TABELA
+            $('#tabelaTitulo').text(`Detalhamento: ${mesesNome[parseInt(mes)-1]}/${ano}`);
+
+            // --- GRÁFICOS ---
+            updateCharts(dadosAno, dadosMes, t);
+            
+            // --- TABELA (Só mês) ---
             if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
             $('#tabela').DataTable({
-                data: dados,
+                data: dadosMes,
                 columns: [
-                    { data: 'periodo' },
-                    { data: 'procedimento', width:'35%' },
+                    { data: 'procedimento', width:'40%', render: d => d.substring(0,60) },
                     { data: 'qtd_aih', className:'dt-center' },
                     { data: 'val_hosp', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
                     { data: 'val_prof', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
-                    { data: 'valor', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-', className:'dt-body-right' }
+                    { data: 'valor', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-', className:'dt-body-right' },
+                    { data: 'ticket_medio', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' }
                 ],
-                order: [[5, 'desc']],
-                pageLength: 10,
+                order: [[4, 'desc']], // Ordena por Valor Total
+                pageLength: 5,
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
             });
         }
 
-        function updateCharts(dados, ano, t) {
-            // 1. Evolução
+        function updateCharts(dadosAno, dadosMes, tMes) {
+            // 1. Evolução (Baseado no Ano Inteiro)
             let grupos = {};
-            dados.forEach(d => {
-                let k = ano==='all' ? d.data.substring(0,4) : d.periodo.split('-')[0];
+            dadosAno.forEach(d => {
+                let k = d.periodo.split('-')[0]; // Nome do mês
                 grupos[k] = (grupos[k]||0) + d.valor;
             });
+            
             let lbls = Object.keys(grupos);
-            if(ano!=='all') { // Ordena meses
-                const ord = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-                lbls.sort((a,b) => ord.indexOf(a)-ord.indexOf(b));
-            } else lbls.sort();
+            const ord = mesesNome;
+            lbls.sort((a,b) => ord.indexOf(a)-ord.indexOf(b));
 
             const ctx1 = document.getElementById('chartEvo').getContext('2d');
             if(chartEvo) chartEvo.destroy();
@@ -222,30 +255,32 @@
                 data: {
                     labels: lbls,
                     datasets: [{
-                        label: 'Faturamento', data: lbls.map(l=>grupos[l]),
-                        borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', fill:true, tension:0.3
+                        label: 'Faturamento Mensal', data: lbls.map(l=>grupos[l]),
+                        borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', fill:true, tension:0.3, pointRadius:5
                     }]
                 },
                 options: { responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true}} }
             });
 
-            // 2. Pizza
+            // 2. Pizza (Baseado no Mês Selecionado)
             const ctx2 = document.getElementById('chartPie').getContext('2d');
             if(chartPie) chartPie.destroy();
             
-            // Verifica se tem dados detalhados
-            let pieData = [t.h, t.p];
+            let pieData = [tMes.h, tMes.p];
             let pieLbls = ['Hospitalar', 'Profissional'];
             let pieCols = ['#20c997', '#fd7e14'];
             
-            if(t.h === 0 && t.v > 0) { // Fallback para dados antigos sem detalhe
-                pieData = [t.v]; pieLbls=['Total (Sem detalhe)']; pieCols=['#ccc'];
+            if(tMes.h === 0 && tMes.v > 0) { // Fallback para mês pobre
+                pieData = [tMes.v]; pieLbls=['Total (Sem detalhe)']; pieCols=['#ccc'];
             }
 
             chartPie = new Chart(ctx2, {
                 type: 'doughnut',
                 data: { labels: pieLbls, datasets: [{ data: pieData, backgroundColor: pieCols }] },
-                options: { responsive:true, maintainAspectRatio:false, cutout:'65%' }
+                options: { 
+                    responsive:true, maintainAspectRatio:false, cutout:'60%',
+                    plugins: { title: { display: true, text: 'Distribuição da Receita' } }
+                }
             });
         }
     </script>
