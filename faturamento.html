@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Inteligência Financeira e Qualidade</title>
+    <title>NII - Faturamento Detalhado</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -28,7 +28,6 @@
             background: white; padding: 20px; border-radius: 10px; position: relative; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.04); border-bottom: 4px solid transparent;
         }
-        .kpi-card:hover { transform: translateY(-3px); transition: 0.3s; }
         .kpi-icon { 
             position: absolute; right: 20px; top: 20px; width: 45px; height: 45px; 
             background: #f0f4ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -39,9 +38,7 @@
         .kpi-card .subtext { font-size: 11px; color: #555; }
 
         .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .chart-full { margin-bottom: 25px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
         .chart-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-        
         .table-section { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
     </style>
 </head>
@@ -65,11 +62,11 @@
         
         <div class="control-bar">
             <div>
-                <h2 style="margin:0; font-size:22px; color:#333;"><i class="fas fa-chart-line"></i> Produção e Qualidade (SUS)</h2>
-                <span style="font-size:13px; color:#777;">Análise Financeira e Assistencial do TabNet</span>
+                <h2 style="margin:0; font-size:22px; color:#333;"><i class="fas fa-chart-line"></i> Faturamento e Produção (SIH/SUS)</h2>
+                <span style="font-size:13px; color:#777;">Dados validados e deduplicados do TabNet</span>
             </div>
             <div>
-                <label style="font-weight: 500; color: #555; margin-right: 10px;">Período:</label>
+                <label style="font-weight: 500; color: #555; margin-right: 10px;">Ano de Referência:</label>
                 <select id="anoFilter" onchange="atualizarDashboard()" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
                     </select>
             </div>
@@ -77,59 +74,58 @@
 
         <div class="kpi-grid">
             <div class="kpi-card" style="border-bottom-color: #28a745;">
-                <h4>Faturamento</h4>
+                <h4>Valor Total Aprovado</h4>
                 <div class="value" id="kpiValor">R$ 0,00</div>
-                <div class="subtext">Valor Aprovado Total</div>
                 <div class="kpi-icon" style="color:#28a745; background:#e6f8eb;"><i class="fas fa-dollar-sign"></i></div>
             </div>
             <div class="kpi-card" style="border-bottom-color: #0056b3;">
-                <h4>Produção AIH</h4>
+                <h4>Total Internações (AIH)</h4>
                 <div class="value" id="kpiAih">0</div>
-                <div class="subtext">Internações</div>
                 <div class="kpi-icon"><i class="fas fa-procedures"></i></div>
             </div>
-            <div class="kpi-card" style="border-bottom-color: #6610f2;">
-                <h4>Média Permanência</h4>
-                <div class="value" id="kpiMediaPerm">0.0</div>
-                <div class="subtext">Dias por paciente (Méd)</div>
-                <div class="kpi-icon" style="color:#6610f2; background:#f2e6ff;"><i class="fas fa-clock"></i></div>
+            <div class="kpi-card" style="border-bottom-color: #17a2b8;">
+                <h4>Serv. Hospitalares</h4>
+                <div class="value" id="kpiHosp">R$ 0,00</div>
+                <div class="subtext">Repasse Institucional</div>
+                <div class="kpi-icon" style="color:#17a2b8; background:#e0f7fa;"><i class="fas fa-hospital"></i></div>
             </div>
             <div class="kpi-card" style="border-bottom-color: #ffc107;">
+                <h4>Serv. Profissionais</h4>
+                <div class="value" id="kpiProf">R$ 0,00</div>
+                <div class="subtext">Repasse Médico/Prof</div>
+                <div class="kpi-icon" style="color:#ffc107; background:#fff8e1;"><i class="fas fa-user-md"></i></div>
+            </div>
+            <div class="kpi-card" style="border-bottom-color: #6610f2;">
                 <h4>Ticket Médio</h4>
                 <div class="value" id="kpiTicket">R$ 0,00</div>
-                <div class="subtext">Valor por AIH</div>
-                <div class="kpi-icon" style="color:#ffc107; background:#fff8e1;"><i class="fas fa-tags"></i></div>
-            </div>
-            <div class="kpi-card" style="border-bottom-color: #dc3545;">
-                <h4>Taxa Óbitos</h4>
-                <div class="value" id="kpiTaxa">0%</div>
-                <div class="subtext" id="kpiObitosAbs">0 óbitos</div>
-                <div class="kpi-icon" style="color:#dc3545; background:#ffebee;"><i class="fas fa-heartbeat"></i></div>
+                <div class="subtext">Por AIH</div>
+                <div class="kpi-icon" style="color:#6610f2; background:#f2e6ff;"><i class="fas fa-tags"></i></div>
             </div>
         </div>
 
         <div class="charts-row">
             <div class="chart-box">
-                <h3 style="font-size:16px; margin-bottom:15px; color:#444;">Evolução: Faturamento x Produção</h3>
-                <div style="height: 300px;"><canvas id="mainChart"></canvas></div>
+                <h3 style="font-size:16px; margin-bottom:15px; color:#444;">Evolução Mensal (Valor x Quantidade)</h3>
+                <div style="height: 320px;"><canvas id="mainChart"></canvas></div>
             </div>
             <div class="chart-box">
-                <h3 style="font-size:16px; margin-bottom:15px; color:#444;">Qualidade: Média de Permanência (Dias)</h3>
-                <div style="height: 300px;"><canvas id="qualityChart"></canvas></div>
+                <h3 style="font-size:16px; margin-bottom:15px; color:#444;">Top 5 Procedimentos (Valor)</h3>
+                <div style="height: 320px;"><canvas id="rankingChart"></canvas></div>
             </div>
         </div>
 
         <div class="table-section">
-            <h3 style="margin-top:0; font-size:16px; color:#555; margin-bottom:15px;">Detalhamento Completo</h3>
+            <h3 style="margin-top:0; font-size:16px; color:#555; margin-bottom:15px;">Detalhamento por Procedimento</h3>
             <table id="tabelaDados" class="display compact hover" style="width:100%">
                 <thead>
                     <tr>
                         <th>Competência</th>
                         <th>Procedimento</th>
-                        <th>AIH</th>
-                        <th>Média Perm. (Dias)</th>
+                        <th>Qtd AIH</th>
+                        <th>Média Dias</th>
                         <th>Valor Total</th>
-                        <th>Ticket Médio</th>
+                        <th>V. Hosp</th>
+                        <th>V. Prof</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -140,7 +136,7 @@
     <script>
         let dadosGlobais = [];
         let chartPrincipal = null;
-        let chartQuality = null;
+        let chartRanking = null;
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
         $(document).ready(function() {
@@ -186,26 +182,21 @@
             }
 
             // KPIs
-            let totalValor = 0, totalAIH = 0, totalObitos = 0, totalDias = 0;
+            let totalValor = 0, totalAIH = 0, totalHosp = 0, totalProf = 0;
             dadosFiltrados.forEach(d => {
                 totalValor += (d.valor || 0);
                 totalAIH += (d.qtd_aih || 0);
-                totalObitos += (d.obitos || 0);
-                totalDias += (d.dias || 0);
+                totalHosp += (d.val_hosp || 0);
+                totalProf += (d.val_prof || 0);
             });
 
             document.getElementById('kpiValor').innerText = brl.format(totalValor);
             document.getElementById('kpiAih').innerText = totalAIH.toLocaleString('pt-BR');
+            document.getElementById('kpiHosp').innerText = brl.format(totalHosp);
+            document.getElementById('kpiProf').innerText = brl.format(totalProf);
             
-            // Cálculos Médios Globais
-            const mediaPermGeral = totalAIH > 0 ? (totalDias / totalAIH) : 0;
-            const ticketMedioGeral = totalAIH > 0 ? (totalValor / totalAIH) : 0;
-            const taxaObito = totalAIH > 0 ? (totalObitos / totalAIH) * 100 : 0;
-
-            document.getElementById('kpiMediaPerm').innerText = mediaPermGeral.toFixed(1);
-            document.getElementById('kpiTicket').innerText = brl.format(ticketMedioGeral);
-            document.getElementById('kpiTaxa').innerText = taxaObito.toFixed(2) + "%";
-            document.getElementById('kpiObitosAbs').innerText = `${totalObitos} óbitos`;
+            const ticket = totalAIH > 0 ? totalValor / totalAIH : 0;
+            document.getElementById('kpiTicket').innerText = brl.format(ticket);
 
             atualizarGraficos(dadosFiltrados, anoSelecionado);
             atualizarTabela(dadosFiltrados);
@@ -216,20 +207,18 @@
             let agrupado = {};
             dados.forEach(d => {
                 let chave = ano === 'all' ? d.data.substring(0,4) : ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][parseInt(d.data.substring(5,7))-1];
-                if(!agrupado[chave]) agrupado[chave] = {v:0, a:0, d:0};
+                if(!agrupado[chave]) agrupado[chave] = {v:0, a:0};
                 agrupado[chave].v += d.valor;
                 agrupado[chave].a += d.qtd_aih;
-                agrupado[chave].d += d.dias;
             });
 
-            // Labels
             let labels = Object.keys(agrupado);
             if(ano !== 'all') {
                 const ordem = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
                 labels.sort((a,b) => ordem.indexOf(a) - ordem.indexOf(b));
             } else { labels.sort(); }
 
-            // Chart 1: Valor x AIH
+            // Main Chart
             const ctx1 = document.getElementById('mainChart').getContext('2d');
             if(chartPrincipal) chartPrincipal.destroy();
             
@@ -238,7 +227,7 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Faturamento', data: labels.map(l=>agrupado[l].v), type:'line', borderColor:'#28a745', yAxisID:'y', tension:0.3, pointRadius:2 },
+                        { label: 'Faturamento', data: labels.map(l=>agrupado[l].v), type:'line', borderColor:'#28a745', yAxisID:'y', tension:0.3 },
                         { label: 'AIH', data: labels.map(l=>agrupado[l].a), backgroundColor:'#0056b3', yAxisID:'y1' }
                     ]
                 },
@@ -248,30 +237,25 @@
                 }
             });
 
-            // Chart 2: Média Permanência (Novo)
-            // Calcula média para cada mês/ano agrupado
-            let dataMediaPerm = labels.map(l => (agrupado[l].a > 0) ? (agrupado[l].d / agrupado[l].a).toFixed(1) : 0);
-
-            const ctx2 = document.getElementById('qualityChart').getContext('2d');
-            if(chartQuality) chartQuality.destroy();
-
-            chartQuality = new Chart(ctx2, {
-                type: 'line',
+            // Ranking
+            let ranking = {};
+            dados.forEach(d => {
+                let n = d.procedimento.substring(11).substring(0,25);
+                ranking[n] = (ranking[n] || 0) + d.valor;
+            });
+            let sorted = Object.entries(ranking).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            
+            const ctx2 = document.getElementById('rankingChart').getContext('2d');
+            if(chartRanking) chartRanking.destroy();
+            
+            chartRanking = new Chart(ctx2, {
+                type: 'bar',
+                indexAxis: 'y',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Média de Permanência (Dias)',
-                        data: dataMediaPerm,
-                        borderColor: '#6610f2',
-                        backgroundColor: 'rgba(102, 16, 242, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    labels: sorted.map(i=>i[0]),
+                    datasets: [{ label:'Receita', data: sorted.map(i=>i[1]), backgroundColor:'#17a2b8' }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, title: {display:true, text:'Dias'} } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}} }
             });
         }
 
@@ -284,14 +268,12 @@
                     { data: 'periodo' },
                     { data: 'procedimento', width: "35%" },
                     { data: 'qtd_aih' },
-                    { 
-                        data: 'media_perm', // Agora pega do JSON calculado
-                        render: d => d ? `<span style="color:${d>5?'red':'green'}">${d}</span>` : '-' 
-                    },
+                    { data: 'media_perm', render: d => d ? d : '-' },
                     { data: 'valor', render: d => d.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) },
-                    { data: 'ticket_medio', render: d => d ? d.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '-' }
+                    { data: 'val_hosp', render: d => d ? d.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '-' },
+                    { data: 'val_prof', render: d => d ? d.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}) : '-' }
                 ],
-                order: [[4, 'desc']], // Ordena por Valor
+                order: [[4, 'desc']],
                 pageLength: 5,
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
             });
