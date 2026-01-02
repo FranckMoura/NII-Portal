@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Faturamento Executivo 2025</title>
+    <title>NII - Painel Executivo</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -14,40 +14,33 @@
     <link rel="stylesheet" href="css/style.css"> 
 
     <style>
-        body { background-color: #f0f2f5; font-family: 'Roboto', sans-serif; }
+        body { background-color: #f4f6f8; font-family: 'Roboto', sans-serif; }
         .dashboard-container { padding: 20px; max-width: 1600px; margin: 0 auto; }
         
-        /* Header Compacto */
-        .control-bar { 
+        .header-bar { 
             background: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        /* Grid de KPIs */
-        .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
-        .kpi-card { 
-            background: white; padding: 20px; border-radius: 8px; position: relative; 
-            border-left: 4px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+        .kpi { 
+            background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;
         }
-        .kpi-card h4 { margin: 0 0 5px 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600; }
-        .kpi-card .value { font-size: 20px; font-weight: 700; color: #333; }
-        .kpi-card .subtext { font-size: 11px; color: #888; margin-top: 5px; }
-        .kpi-icon { position: absolute; top: 15px; right: 15px; font-size: 24px; opacity: 0.2; }
+        .kpi h5 { margin: 0 0 5px 0; font-size: 11px; text-transform: uppercase; color: #666; font-weight: 600; }
+        .kpi .val { font-size: 20px; font-weight: 700; color: #333; }
+        .kpi i { position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.15; }
 
-        /* Gráficos e Tabelas */
-        .row-split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .panel { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .panel-title { font-size: 15px; font-weight: 700; color: #444; margin-bottom: 15px; display: block; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .charts-area { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .box-title { font-size: 14px; font-weight: 700; color: #444; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: block; }
 
-        /* Cores Específicas */
-        .border-green { border-left-color: #28a745; }
-        .border-blue { border-left-color: #007bff; }
-        .border-teal { border-left-color: #20c997; }
-        .border-orange { border-left-color: #fd7e14; }
-        .border-purple { border-left-color: #6f42c1; }
-
-        @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 800px) { .row-split { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: 1fr; } }
+        /* Cores */
+        .bl-green { border-left-color: #28a745; }
+        .bl-blue { border-left-color: #007bff; }
+        .bl-teal { border-left-color: #20c997; } /* Hosp */
+        .bl-orange { border-left-color: #fd7e14; } /* Prof */
+        .bl-purple { border-left-color: #6f42c1; }
     </style>
 </head>
 <body>
@@ -66,71 +59,65 @@
 
     <div class="dashboard-container">
         
-        <div class="control-bar">
+        <div class="header-bar">
             <div>
-                <h2 style="margin:0; font-size:18px; color:#333;"><i class="fas fa-chart-pie"></i> Painel Executivo de Faturamento</h2>
-                <span style="font-size:12px; color:#777;">Dados consolidados do SIH/SUS</span>
+                <h2 style="margin:0; font-size:20px; color:#333;"><i class="fas fa-chart-pie"></i> Gestão de Faturamento (SIH)</h2>
+                <span style="font-size:12px; color:#777;">Visão consolidada da produção hospitalar</span>
             </div>
             <div>
-                <label style="font-weight: 500; font-size:13px; margin-right: 5px;">Ano:</label>
-                <select id="anoFilter" onchange="atualizarDashboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
+                <label style="font-size:13px; font-weight:500;">Ano:</label>
+                <select id="anoFilter" onchange="renderizar()" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
                     </select>
             </div>
         </div>
 
-        <div class="kpi-grid">
-            <div class="kpi-card border-green">
-                <h4>Faturamento Total</h4>
-                <div class="value" id="kpiValor">R$ 0,00</div>
-                <div class="subtext">Valor Aprovado</div>
-                <i class="fas fa-money-bill-wave kpi-icon" style="color:#28a745"></i>
+        <div class="kpi-row">
+            <div class="kpi bl-green">
+                <h5>Valor Aprovado</h5>
+                <div class="val" id="kpValor">R$ 0,00</div>
+                <i class="fas fa-dollar-sign" style="color:#28a745"></i>
             </div>
-            <div class="kpi-card border-teal">
-                <h4>Serv. Hospitalares</h4>
-                <div class="value" id="kpiHosp">R$ 0,00</div>
-                <div class="subtext">Instituição (SH)</div>
-                <i class="fas fa-hospital kpi-icon" style="color:#20c997"></i>
+            <div class="kpi bl-teal">
+                <h5>Serv. Hospitalar</h5>
+                <div class="val" id="kpHosp">R$ 0,00</div>
+                <i class="fas fa-hospital" style="color:#20c997"></i>
             </div>
-            <div class="kpi-card border-orange">
-                <h4>Serv. Profissionais</h4>
-                <div class="value" id="kpiProf">R$ 0,00</div>
-                <div class="subtext">Honorários (SP)</div>
-                <i class="fas fa-user-md kpi-icon" style="color:#fd7e14"></i>
+            <div class="kpi bl-orange">
+                <h5>Serv. Profissional</h5>
+                <div class="val" id="kpProf">R$ 0,00</div>
+                <i class="fas fa-user-md" style="color:#fd7e14"></i>
             </div>
-            <div class="kpi-card border-blue">
-                <h4>Produção AIH</h4>
-                <div class="value" id="kpiAih">0</div>
-                <div class="subtext">Internações</div>
-                <i class="fas fa-procedures kpi-icon" style="color:#007bff"></i>
+            <div class="kpi bl-blue">
+                <h5>Total AIH</h5>
+                <div class="val" id="kpAIH">0</div>
+                <i class="fas fa-procedures" style="color:#007bff"></i>
             </div>
-            <div class="kpi-card border-purple">
-                <h4>Ticket Médio</h4>
-                <div class="value" id="kpiTicket">R$ 0,00</div>
-                <div class="subtext">Por Paciente</div>
-                <i class="fas fa-tag kpi-icon" style="color:#6f42c1"></i>
+            <div class="kpi bl-purple">
+                <h5>Ticket Médio</h5>
+                <div class="val" id="kpTicket">R$ 0,00</div>
+                <i class="fas fa-tags" style="color:#6f42c1"></i>
             </div>
         </div>
 
-        <div class="row-split">
-            <div class="panel">
-                <span class="panel-title">Evolução Mensal: Valor Total Aprovado</span>
-                <div style="height: 300px;"><canvas id="chartEvolucao"></canvas></div>
+        <div class="charts-area">
+            <div class="box">
+                <span class="box-title">Evolução Financeira (Mensal)</span>
+                <div style="height:300px;"><canvas id="chartEvo"></canvas></div>
             </div>
-            <div class="panel">
-                <span class="panel-title">Composição da Receita</span>
-                <div style="height: 300px; display:flex; justify-content:center;"><canvas id="chartPizza"></canvas></div>
+            <div class="box">
+                <span class="box-title">Repasse: Hospital vs Profissional</span>
+                <div style="height:300px; display:flex; justify-content:center;"><canvas id="chartPie"></canvas></div>
             </div>
         </div>
 
-        <div class="panel">
-            <span class="panel-title">Detalhamento por Procedimento</span>
-            <table id="tabelaDados" class="display compact hover" style="width:100%; font-size:13px;">
+        <div class="box">
+            <span class="box-title">Detalhamento da Produção</span>
+            <table id="tabela" class="display compact hover" style="width:100%; font-size:13px;">
                 <thead>
                     <tr>
                         <th>Mês</th>
                         <th>Procedimento</th>
-                        <th style="text-align:center;">AIH</th>
-                        <th>Média Dias</th>
+                        <th>AIH</th>
                         <th>V. Hosp (SH)</th>
                         <th>V. Prof (SP)</th>
                         <th>Valor Total</th>
@@ -142,157 +129,123 @@
     </div>
 
     <script>
-        let dadosGlobais = [];
-        let chartEvolucao = null;
-        let chartPizza = null;
+        let dadosRaw = [];
+        let chartEvo = null;
+        let chartPie = null;
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        $(document).ready(function() {
-            carregarDados();
-        });
+        $(document).ready(() => loadData());
 
-        function carregarDados() {
+        function loadData() {
             fetch('arquivos/dados_tabnet.json?v=' + new Date().getTime())
-                .then(res => res.json())
-                .then(dados => {
-                    dadosGlobais = dados;
-                    // Ordena: Mais recente primeiro
-                    dadosGlobais.sort((a, b) => (a.data > b.data) ? 1 : -1);
-                    preencherFiltroAnos();
+                .then(r => r.json())
+                .then(d => {
+                    dadosRaw = d.sort((a,b) => a.data > b.data ? 1 : -1);
+                    setupFilter();
                 });
         }
 
-        function preencherFiltroAnos() {
-            const anos = new Set();
-            dadosGlobais.forEach(d => { if(d.data) anos.add(d.data.substring(0, 4)); });
+        function setupFilter() {
+            const anos = [...new Set(dadosRaw.map(d => d.data.substring(0,4)))].sort().reverse();
+            const sel = document.getElementById('anoFilter');
             
-            const select = document.getElementById('anoFilter');
-            const anosArray = Array.from(anos).sort().reverse();
-            
-            anosArray.forEach(ano => {
-                const opt = document.createElement('option');
-                opt.value = ano; opt.innerText = ano;
-                select.appendChild(opt);
+            anos.forEach(a => {
+                let opt = document.createElement('option');
+                opt.value = a; opt.innerText = a;
+                sel.appendChild(opt);
             });
             
-            // Adiciona Histórico no final
-            const optAll = document.createElement('option');
-            optAll.value = "all"; optAll.innerText = "Histórico Completo";
-            select.appendChild(optAll);
+            let optAll = document.createElement('option');
+            optAll.value = 'all'; optAll.innerText = 'Histórico Completo';
+            sel.appendChild(optAll);
 
-            // Seleciona 2025 por padrão (ou o ano mais recente)
-            if (anosArray.length > 0) select.value = anosArray[0];
+            // Seleciona 2025 se existir
+            if(anos.includes('2025')) sel.value = '2025';
             
-            atualizarDashboard();
+            renderizar();
         }
 
-        function atualizarDashboard() {
+        function renderizar() {
             const ano = document.getElementById('anoFilter').value;
-            let dados = dadosGlobais;
-            
-            if (ano !== 'all') {
-                dados = dadosGlobais.filter(d => d.data && d.data.startsWith(ano));
-            }
+            const dados = ano === 'all' ? dadosRaw : dadosRaw.filter(d => d.data.startsWith(ano));
 
-            // --- CÁLCULO DE KPIS ---
-            let total = { valor:0, aih:0, hosp:0, prof:0 };
+            // KPIs
+            let t = { v:0, a:0, h:0, p:0 };
             dados.forEach(d => {
-                total.valor += d.valor || 0;
-                total.aih += d.qtd_aih || 0;
-                total.hosp += d.val_hosp || 0;
-                total.prof += d.val_prof || 0;
+                t.v += d.valor||0; t.a += d.qtd_aih||0; t.h += d.val_hosp||0; t.p += d.val_prof||0;
             });
 
-            document.getElementById('kpiValor').innerText = brl.format(total.valor);
-            document.getElementById('kpiHosp').innerText = brl.format(total.hosp);
-            document.getElementById('kpiProf').innerText = brl.format(total.prof);
-            document.getElementById('kpiAih').innerText = total.aih.toLocaleString('pt-BR');
-            document.getElementById('kpiTicket').innerText = total.aih ? brl.format(total.valor/total.aih) : "R$ 0,00";
+            $('#kpValor').text(brl.format(t.v));
+            $('#kpHosp').text(brl.format(t.h));
+            $('#kpProf').text(brl.format(t.p));
+            $('#kpAIH').text(t.a.toLocaleString('pt-BR'));
+            $('#kpTicket').text(t.a ? brl.format(t.v/t.a) : 'R$ 0,00');
 
-            // --- GRÁFICOS ---
-            atualizarGraficos(dados, ano, total);
+            // GRÁFICOS
+            updateCharts(dados, ano, t);
             
-            // --- TABELA ---
-            atualizarTabela(dados);
+            // TABELA
+            if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
+            $('#tabela').DataTable({
+                data: dados,
+                columns: [
+                    { data: 'periodo' },
+                    { data: 'procedimento', width:'35%' },
+                    { data: 'qtd_aih', className:'dt-center' },
+                    { data: 'val_hosp', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
+                    { data: 'val_prof', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
+                    { data: 'valor', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-', className:'dt-body-right' }
+                ],
+                order: [[5, 'desc']],
+                pageLength: 10,
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+            });
         }
 
-        function atualizarGraficos(dados, ano, total) {
-            // Agrupa por mês
-            let meses = {};
+        function updateCharts(dados, ano, t) {
+            // 1. Evolução
+            let grupos = {};
             dados.forEach(d => {
-                let chave = ano==='all' ? d.data.substring(0,4) : d.periodo.split('-')[0]; // Ano ou Nome do Mês
-                if(!meses[chave]) meses[chave] = 0;
-                meses[chave] += d.valor;
+                let k = ano==='all' ? d.data.substring(0,4) : d.periodo.split('-')[0];
+                grupos[k] = (grupos[k]||0) + d.valor;
             });
+            let lbls = Object.keys(grupos);
+            if(ano!=='all') { // Ordena meses
+                const ord = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+                lbls.sort((a,b) => ord.indexOf(a)-ord.indexOf(b));
+            } else lbls.sort();
 
-            // Ordenação
-            let labels = Object.keys(meses);
-            if(ano !== 'all') {
-                const ordem = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-                labels.sort((a,b) => ordem.indexOf(a) - ordem.indexOf(b));
-            } else { labels.sort(); }
-
-            // Chart Evolução
-            const ctx1 = document.getElementById('chartEvolucao').getContext('2d');
-            if(chartEvolucao) chartEvolucao.destroy();
-            chartEvolucao = new Chart(ctx1, {
+            const ctx1 = document.getElementById('chartEvo').getContext('2d');
+            if(chartEvo) chartEvo.destroy();
+            chartEvo = new Chart(ctx1, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: lbls,
                     datasets: [{
-                        label: 'Faturamento',
-                        data: labels.map(l => meses[l]),
-                        borderColor: '#28a745',
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        fill: true, tension: 0.3
+                        label: 'Faturamento', data: lbls.map(l=>grupos[l]),
+                        borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', fill:true, tension:0.3
                     }]
                 },
                 options: { responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true}} }
             });
 
-            // Chart Pizza (Hosp vs Prof)
-            const ctx2 = document.getElementById('chartPizza').getContext('2d');
-            if(chartPizza) chartPizza.destroy();
+            // 2. Pizza
+            const ctx2 = document.getElementById('chartPie').getContext('2d');
+            if(chartPie) chartPie.destroy();
             
-            // Se não tiver dados detalhados (ex: anos antigos), esconde ou mostra aviso?
-            // Vamos mostrar o que tem.
-            let resto = total.valor - (total.hosp + total.prof); // Para dados antigos sem detalhe
+            // Verifica se tem dados detalhados
+            let pieData = [t.h, t.p];
+            let pieLbls = ['Hospitalar', 'Profissional'];
+            let pieCols = ['#20c997', '#fd7e14'];
             
-            let pData = [total.hosp, total.prof];
-            let pLabels = ['Hospitalar', 'Profissional'];
-            let pColors = ['#20c997', '#fd7e14'];
-
-            if (total.hosp === 0 && total.valor > 0) {
-                pData = [total.valor]; pLabels=['Total (Sem detalhe)']; pColors=['#ccc'];
+            if(t.h === 0 && t.v > 0) { // Fallback para dados antigos sem detalhe
+                pieData = [t.v]; pieLbls=['Total (Sem detalhe)']; pieCols=['#ccc'];
             }
 
-            chartPizza = new Chart(ctx2, {
+            chartPie = new Chart(ctx2, {
                 type: 'doughnut',
-                data: {
-                    labels: pLabels,
-                    datasets: [{ data: pData, backgroundColor: pColors }]
-                },
-                options: { responsive:true, maintainAspectRatio:false, cutout:'60%' }
-            });
-        }
-
-        function atualizarTabela(dados) {
-            if ($.fn.DataTable.isDataTable('#tabelaDados')) $('#tabelaDados').DataTable().destroy();
-            
-            $('#tabelaDados').DataTable({
-                data: dados,
-                columns: [
-                    { data: 'periodo' },
-                    { data: 'procedimento', width: "30%" },
-                    { data: 'qtd_aih', className: "dt-center" },
-                    { data: 'media_perm', render: d=>d?d:'-', className: "dt-center" },
-                    { data: 'val_hosp', render: d => d ? d.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-' },
-                    { data: 'val_prof', render: d => d ? d.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-' },
-                    { data: 'valor', render: d => d.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}), className:"dt-body-right" }
-                ],
-                order: [[6, 'desc']], // Ordena por Valor Total
-                pageLength: 7,
-                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                data: { labels: pieLbls, datasets: [{ data: pieData, backgroundColor: pieCols }] },
+                options: { responsive:true, maintainAspectRatio:false, cutout:'65%' }
             });
         }
     </script>

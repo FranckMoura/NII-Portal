@@ -7,7 +7,7 @@ import numpy as np
 from sqlalchemy import create_engine
 from unidecode import unidecode
 
-print("--- ⚙️ PROCESSAMENTO V14 (CORREÇÃO AGOSTO + COLUNAS RICAS) ---")
+print("--- ⚙️ PROCESSAMENTO V17 (FAXINA DE DUPLICATAS + DIAGNÓSTICO) ---")
 
 PASTA_CSV = r"C:\Users\DELL\OneDrive\NII-Portal-1\TABNET_Export"
 PASTA_ARQUIVOS = r"C:\Users\DELL\OneDrive\NII-Portal-1\arquivos"
@@ -18,14 +18,19 @@ MESES_PT = {'Jan':'01','Fev':'02','Mar':'03','Abr':'04','Mai':'05','Jun':'06',
 
 def limpar_num(v):
     if pd.isna(v) or str(v).strip() in ['-', '', '...']: return 0.0
-    try: return float(str(v).replace('.','').replace(',','.'))
+    try:
+        # Remove R$, aspas e espaços
+        v_str = str(v).replace('R$', '').replace('"', '').replace("'", "").strip()
+        v_str = v_str.replace('.', '').replace(',', '.')
+        return float(v_str)
     except: return 0.0
 
 def encontrar_data_no_arquivo(caminho):
     try:
         with open(caminho, 'r', encoding='latin-1') as f:
-            for _ in range(20):
-                match = re.search(r'Período:?\s*([A-Z][a-z]{2})/(\d{4})', f.readline(), re.IGNORECASE)
+            for _ in range(30):
+                line = f.readline()
+                match = re.search(r'Período:?\s*([A-Z][a-z]{2})/(\d{4})', line, re.IGNORECASE)
                 if match:
                     m, a = match.groups()
                     return f"{a}-{MESES_PT.get(m.capitalize(), '01')}"
@@ -42,23 +47,28 @@ for arq in arquivos:
         
         # 1. TENTA CSV RICO (;)
         try:
-            with open(arq, 'r', encoding='latin-1') as f: head = [next(f) for _ in range(10)]
+            with open(arq, 'r', encoding='latin-1') as f: head = [next(f) for _ in range(15)]
             header_row = -1
             for i, l in enumerate(head):
                 if "Procedimento" in l and ";" in l: header_row = i; break
             
             if header_row != -1:
                 df = pd.read_csv(arq, sep=';', encoding='latin-1', header=header_row, on_bad_lines='skip', engine='python')
+                
+                # REMOVE COLUNA DE INTERNAÇÕES
+                cols_dup = [c for c in df.columns if "nterna" in c and "edio" not in c]
+                if cols_dup: df.drop(columns=cols_dup, inplace=True)
+
         except: pass
 
-        # 2. TENTA TEXTO (Fallback)
+        # 2. TENTA TEXTO
         if df.empty:
             try:
                 dados_txt = []
                 with open(arq, 'r', encoding='latin-1') as f:
                     for l in f:
                         p = l.strip().split()
-                        if len(p) >= 7 and p[0].isdigit():
+                        if len(p) >= 7 and p[0].isdigit(): 
                             dados_txt.append({
                                 'procedimento': p[0]+" "+" ".join(p[1:-5]),
                                 'aih_aprovadas': p[-5], 'valor_total': p[-4], 
@@ -69,41 +79,39 @@ for arq in arquivos:
 
         if df.empty: continue
 
-        # --- LIMPEZA E PADRONIZAÇÃO ---
-        
-        # Remove totais e lixo
-        if isinstance(df.iloc[0,0], str):
-            df = df[~df.iloc[:,0].str.contains(r"^(Total|Fonte|Notas)", case=False, na=False)]
-        
-        # Normaliza nomes de colunas
-        df.columns = [unidecode(c.strip().lower()).replace(" ", "_").replace(".", "").replace("-", "") for c in df.columns]
+        # --- PADRONIZAÇÃO DE COLUNAS ---
+        # Remove aspas e normaliza
+        df.columns = [unidecode(str(c).strip().lower()).replace('"', '').replace("'", "").replace("_", " ").replace(".", "") for c in df.columns]
 
-        # CORREÇÃO DO ERRO DE AGOSTO (DUPLICIDADE DE COLUNAS)
-        # Se tiver 'internacoes', jogamos fora para ficar só com 'aih_aprovadas'
-        if 'internacoes' in df.columns:
-            df.drop(columns=['internacoes'], inplace=True)
-
-        # Mapeamento
-        mapa = {
-            'procedimento': 'procedimento',
-            'aih_aprovadas': 'qtd_aih', 
-            'valor_total': 'valor', 
-            'dias_permanencia': 'dias', 
-            'obitos': 'obitos',
-            'valor_servicos_hospitalares': 'val_hosp', 
-            'valor_servicos_profissionais': 'val_prof'
-        }
+        # Mapeamento Flexível (Caça palavras-chave)
+        mapa = {}
+        for c in df.columns:
+            if "procedimento" in c: mapa[c] = 'procedimento'
+            elif "aih" in c and "aprov" in c: mapa[c] = 'qtd_aih'
+            elif "valor" in c and "total" in c: mapa[c] = 'valor'
+            elif "dias" in c: mapa[c] = 'dias'
+            elif "obito" in c: mapa[c] = 'obitos'
+            # Caça ao tesouro dos valores extras
+            elif "valor" in c and "hosp" in c and "fed" not in c and "gest" not in c: mapa[c] = 'val_hosp'
+            elif "valor" in c and "prof" in c and "fed" not in c and "gest" not in c: mapa[c] = 'val_prof'
+        
         df.rename(columns=mapa, inplace=True)
 
-        # Filtro Raio-X (Só linhas que começam com código numérico)
+        # --- FILTRO "RAIO-X" + REMOÇÃO DE DUPLICATAS ---
         if 'procedimento' in df.columns:
-            df = df[df['procedimento'].astype(str).str.match(r'^\d')]
+            # 1. Mantém só linhas que começam com número (ignora Total)
+            df = df[df['procedimento'].astype(str).str.match(r'^"?\d')]
+            
+            # 2. *** NOVO: REMOVE LINHAS DUPLICADAS EXATAS ***
+            # Se a linha "0409... PARTO" aparecer 2x com os mesmos valores, apaga a segunda.
+            df.drop_duplicates(subset=['procedimento'], keep='first', inplace=True)
 
         if df.empty: continue
 
         # Identifica Data
         periodo = encontrar_data_no_arquivo(arq)
         if not periodo:
+            # Fallback para nome do arquivo
             parts = os.path.basename(arq).replace(".csv", "").split("_")
             for p in parts:
                 if "-" in p and len(p)>=7 and p[:3] in MESES_PT:
@@ -112,20 +120,22 @@ for arq in arquivos:
                     break
         
         if periodo:
-            # Garante colunas
-            for c in ['qtd_aih', 'valor', 'dias', 'obitos', 'val_hosp', 'val_prof']:
-                if c not in df.columns: df[c] = 0.0
-                else: df[c] = df[c].apply(limpar_num)
+            # Garante colunas numéricas
+            cols_num = ['qtd_aih', 'valor', 'dias', 'obitos', 'val_hosp', 'val_prof']
+            for col in cols_num:
+                if col not in df.columns: df[col] = 0.0
+                else: df[col] = df[col].apply(limpar_num)
 
-            # Score para deduplicação (Prefere quem tem val_hosp preenchido)
-            score = len(df) + (5000 if df['val_hosp'].sum() > 0 else 0)
+            # Score: Prefere arquivos com val_hosp > 0 (Ricos)
+            is_rich = df['val_hosp'].sum() > 0
+            score = len(df) + (5000 if is_rich else 0)
             
             if periodo not in buffer_meses or score > buffer_meses[periodo]['score']:
-                # Salva metadados
+                # Metadados
                 df['data'] = f"{periodo}-01"
                 mes_str = list(MESES_PT.keys())[list(MESES_PT.values()).index(periodo.split('-')[1])]
                 df['periodo'] = f"{mes_str}-{periodo.split('-')[0]}"
-                buffer_meses[periodo] = {'df': df, 'score': score, 'arq': os.path.basename(arq)}
+                buffer_meses[periodo] = {'df': df, 'score': score, 'arq': os.path.basename(arq), 'is_rich': is_rich}
 
     except Exception as e: print(f"Erro {arq}: {e}")
 
@@ -135,21 +145,32 @@ if dfs:
     df_final = pd.concat(dfs, ignore_index=True)
     df_final.sort_values('data', inplace=True)
     
-    # Cálculos Finais
+    # Cálculos
     df_final['media_perm'] = np.where(df_final['qtd_aih']>0, df_final['dias']/df_final['qtd_aih'], 0).round(1)
     df_final['ticket_medio'] = np.where(df_final['qtd_aih']>0, df_final['valor']/df_final['qtd_aih'], 0).round(2)
 
-    # Salva JSON
+    # Salva
     cols = ['periodo','data','procedimento','qtd_aih','valor','dias','obitos','media_perm','ticket_medio','val_hosp','val_prof']
     cols_final = [c for c in cols if c in df_final.columns]
     df_final[cols_final].to_json(CAMINHO_JSON, orient='records', indent=4)
     
     print(f"\n✅ SUCESSO! Base limpa.")
+    print(f"   Meses únicos: {len(buffer_meses)}")
     
-    # Check Agosto 2025
+    # RELATÓRIO DE AGOSTO
     if '2025-08' in buffer_meses:
-        d8 = buffer_meses['2025-08']['df']
-        print(f"🔎 Check Agosto 2025: AIH = {int(d8['qtd_aih'].sum())} (Deve ser ~906)")
-        print(f"   Val Hosp: {d8['val_hosp'].sum():,.2f} | Val Prof: {d8['val_prof'].sum():,.2f}")
+        info = buffer_meses['2025-08']
+        d8 = info['df']
+        print(f"\n🔎 RELATÓRIO AGOSTO/2025:")
+        print(f"   Arquivo usado: {info['arq']}")
+        print(f"   Tipo: {'RICO (Detalhado)' if info['is_rich'] else 'POBRE (Básico)'}")
+        print(f"   Qtd AIH:   {int(d8['qtd_aih'].sum())} (Esperado ~900)")
+        print(f"   Val Hosp:  R$ {d8['val_hosp'].sum():,.2f}")
+        
+        if not info['is_rich']:
+            print("   ⚠️ AVISO: O arquivo de Agosto não tem colunas detalhadas (Hosp/Prof).")
+            print("      Isso acontece porque o script escolheu o arquivo 'tabnet_...csv' (básico)")
+            print("      em vez do manual, ou o manual está ilegível/sem data.")
+    
 else:
     print("❌ Erro.")
