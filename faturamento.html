@@ -56,11 +56,11 @@
         /* Cores Bordas */
         .bl-green { border-left-color: #28a745; }
         .bl-blue { border-left-color: #007bff; }
-        .bl-teal { border-left-color: #20c997; }
         .bl-orange { border-left-color: #fd7e14; }
         .bl-purple { border-left-color: #6f42c1; }
+        .bl-red { border-left-color: #dc3545; } /* Nova cor para Óbitos */
 
-        /* --- ESTILIZAÇÃO AVANÇADA DA TABELA --- */
+        /* Tabela */
         table.dataTable thead th {
             background-color: #f1f3f5; color: #495057; font-weight: 600;
             border-bottom: 2px solid #dee2e6 !important; text-align: center !important;
@@ -69,18 +69,15 @@
         table.dataTable tbody td {
             padding: 8px 10px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; font-size: 13px;
         }
-        /* Alinhamentos */
         .dt-left { text-align: left !important; }
         .dt-center { text-align: center !important; }
         .dt-right { text-align: right !important; }
         .fw-bold { font-weight: 700; color: #28a745; }
-
-        /* Botões do DataTables */
+        
         .dt-buttons button {
             background: #f8f9fa !important; border: 1px solid #ddd !important; color: #555 !important;
-            border-radius: 4px !important; font-size: 12px !important; margin-right: 5px !important;
+            border-radius: 4px !important; margin-right: 5px !important;
         }
-        .dt-buttons button:hover { background: #e2e6ea !important; }
         .dataTables_filter input { border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
     </style>
 </head>
@@ -123,21 +120,25 @@
                 <div class="val" id="kpValor">R$ 0,00</div>
                 <i class="fas fa-dollar-sign" style="color:#28a745"></i>
             </div>
-            <div class="kpi bl-teal">
-                <h5>V. Hospitalar (Mês)</h5>
-                <div class="val" id="kpHosp">R$ 0,00</div>
-                <i class="fas fa-hospital" style="color:#20c997"></i>
-            </div>
-            <div class="kpi bl-orange">
-                <h5>V. Profissional (Mês)</h5>
-                <div class="val" id="kpProf">R$ 0,00</div>
-                <i class="fas fa-user-md" style="color:#fd7e14"></i>
-            </div>
+            
             <div class="kpi bl-blue">
-                <h5>AIH (Mês)</h5>
+                <h5>AIH Aprovadas</h5>
                 <div class="val" id="kpAIH">0</div>
                 <i class="fas fa-procedures" style="color:#007bff"></i>
             </div>
+            
+            <div class="kpi bl-orange">
+                <h5>Média Permanência</h5>
+                <div class="val" id="kpMedia">0.0 dias</div>
+                <i class="fas fa-clock" style="color:#fd7e14"></i>
+            </div>
+
+            <div class="kpi bl-red">
+                <h5>Total Óbitos</h5>
+                <div class="val" id="kpObitos">0</div>
+                <i class="fas fa-heart-broken" style="color:#dc3545"></i>
+            </div>
+
             <div class="kpi bl-purple">
                 <h5>Ticket Médio</h5>
                 <div class="val" id="kpTicket">R$ 0,00</div>
@@ -166,10 +167,12 @@
                     <tr>
                         <th>Código/Procedimento</th>
                         <th>AIH</th>
+                        <th>Méd. Dias</th>
                         <th>V. Hosp (SH)</th>
                         <th>V. Prof (SP)</th>
                         <th>Valor Total</th>
                         <th>Ticket</th>
+                        <th>Óbitos</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -223,7 +226,8 @@
             mesesDisponiveis.forEach(m => {
                 let nome = mesesNome[parseInt(m)-1];
                 let opt = document.createElement('option');
-                opt.value = m; opt.innerText = nome;
+                opt.value = m; 
+                opt.innerText = nome;
                 selMes.appendChild(opt);
             });
 
@@ -238,51 +242,66 @@
             const dadosMes = dadosRaw.filter(d => d.data === `${ano}-${mes}-01`);
             const dadosAno = dadosRaw.filter(d => d.data.startsWith(ano));
 
-            // KPIs
-            let t = { v:0, a:0, h:0, p:0 };
+            // --- CÁLCULO DOS KPIS ---
+            let t = { v:0, a:0, h:0, p:0, d:0, o:0 }; // v=valor, a=aih, h=hosp, p=prof, d=dias, o=obitos
+            
             dadosMes.forEach(d => {
-                t.v += d.valor||0; t.a += d.qtd_aih||0; t.h += d.val_hosp||0; t.p += d.val_prof||0;
+                t.v += d.valor||0; 
+                t.a += d.qtd_aih||0; 
+                t.h += d.val_hosp||0; 
+                t.p += d.val_prof||0;
+                t.d += d.dias||0;     // Soma dias de permanencia
+                t.o += d.obitos||0;   // Soma obitos
             });
 
+            // Média de Permanência Geral = Total Dias / Total AIH
+            let mediaGeral = t.a > 0 ? (t.d / t.a).toFixed(1) : "0.0";
+
             $('#kpValor').text(brl.format(t.v));
-            $('#kpHosp').text(brl.format(t.h));
-            $('#kpProf').text(brl.format(t.p));
             $('#kpAIH').text(t.a.toLocaleString('pt-BR'));
+            $('#kpMedia').text(mediaGeral + " dias"); // NOVO
+            $('#kpObitos').text(t.o); // NOVO
             $('#kpTicket').text(t.a ? brl.format(t.v/t.a) : 'R$ 0,00');
             
             $('#tabelaTitulo').text(`Detalhamento: ${mesesNome[parseInt(mes)-1]}/${ano}`);
 
             updateCharts(dadosAno, dadosMes, t);
             
-            // --- TABELA AVANÇADA ---
+            // --- TABELA ---
             if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
             
             $('#tabela').DataTable({
                 data: dadosMes,
-                dom: 'Bfrtip', // Habilita Botões (B) e Filtro (f)
+                dom: 'Bfrtip',
                 buttons: [
-                    { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar' },
+                    { extend: 'copy', text: '<i class="fas fa-copy"></i>' },
                     { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel' },
-                    { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF' },
-                    { extend: 'colvis', text: '<i class="fas fa-columns"></i> Colunas' } // Filtro de Visibilidade
+                    { extend: 'colvis', text: '<i class="fas fa-columns"></i> Ver' }
                 ],
-                pageLength: -1, // Padrão: Mostrar TUDO (-1)
+                pageLength: -1,
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
-                scrollY: '500px', // Rolagem Vertical se for muito grande
+                scrollY: '500px',
                 scrollCollapse: true,
-                paging: true, // Mantém paginação ativa caso queira usar
+                paging: true,
                 columns: [
-                    { data: 'procedimento', width:'40%', className: 'dt-left', render: d => `<span style="font-weight:500">${d.substring(0,65)}</span>` },
+                    { data: 'procedimento', width:'35%', className: 'dt-left', render: d => `<span style="font-weight:500">${d.substring(0,65)}</span>` },
                     { data: 'qtd_aih', className: 'dt-center', render: d => `<span style="background:#eef2f7; padding:2px 8px; border-radius:4px;">${d}</span>` },
+                    
+                    // Coluna Média
+                    { data: 'media_perm', className: 'dt-center', render: d => d ? d : '-' },
+
                     { data: 'val_hosp', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
                     { data: 'val_prof', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
                     { data: 'valor', className: 'dt-right fw-bold', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' },
-                    { data: 'ticket_medio', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' }
+                    { data: 'ticket_medio', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' },
+                    
+                    // Coluna Óbitos (Vermelho se > 0)
+                    { data: 'obitos', className: 'dt-center', render: d => d > 0 ? `<span style="color:#dc3545; font-weight:bold">${d}</span>` : '-' }
                 ],
-                order: [[4, 'desc']], 
+                order: [[5, 'desc']], 
                 language: { 
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
-                    search: "🔎 Pesquisar:" // Ícone no campo de busca
+                    search: "🔎 Filtrar:"
                 }
             });
         }
@@ -308,15 +327,8 @@
                 data: {
                     labels: lbls,
                     datasets: [
-                        {
-                            label: 'Faturamento (R$)', data: lbls.map(l=>grupos[l].v),
-                            backgroundColor: '#28a745', order: 2, yAxisID: 'y'
-                        },
-                        {
-                            label: 'Qtd AIH', data: lbls.map(l=>grupos[l].a),
-                            type: 'line', borderColor: '#0056b3', backgroundColor: '#0056b3',
-                            borderWidth: 2, pointRadius: 4, tension: 0.3, order: 1, yAxisID: 'y1'
-                        }
+                        { label: 'Faturamento (R$)', data: lbls.map(l=>grupos[l].v), backgroundColor: '#28a745', order: 2, yAxisID: 'y' },
+                        { label: 'Qtd AIH', data: lbls.map(l=>grupos[l].a), type: 'line', borderColor: '#0056b3', backgroundColor: '#0056b3', borderWidth: 2, pointRadius: 4, tension: 0.3, order: 1, yAxisID: 'y1' }
                     ]
                 },
                 options: { 
@@ -334,9 +346,7 @@
             let pieData = [tMes.h, tMes.p];
             let pieLbls = ['Hospitalar', 'Profissional'];
             let pieCols = ['#20c997', '#fd7e14'];
-            if(tMes.h === 0 && tMes.v > 0) { 
-                pieData = [tMes.v]; pieLbls=['Total (Sem detalhe)']; pieCols=['#ccc'];
-            }
+            if(tMes.h === 0 && tMes.v > 0) { pieData = [tMes.v]; pieLbls=['Total (Sem detalhe)']; pieCols=['#ccc']; }
 
             chartPie = new Chart(ctx2, {
                 type: 'doughnut',
