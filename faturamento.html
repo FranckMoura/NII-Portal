@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - Painel Executivo</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css"> 
@@ -26,7 +37,7 @@
         .filter-group select { padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; outline: none; }
         .filter-group label { font-size: 13px; font-weight: 500; color: #555; }
 
-        /* Cards KPI */
+        /* KPIs */
         .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
         .kpi { 
             background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #ddd;
@@ -49,27 +60,28 @@
         .bl-orange { border-left-color: #fd7e14; }
         .bl-purple { border-left-color: #6f42c1; }
 
-        /* --- ESTILIZAÇÃO PROFISSIONAL DA TABELA --- */
+        /* --- ESTILIZAÇÃO AVANÇADA DA TABELA --- */
         table.dataTable thead th {
-            background-color: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            border-bottom: 2px solid #dee2e6 !important;
-            text-align: center !important; /* Cabeçalhos Centralizados */
-            padding: 12px 10px;
+            background-color: #f1f3f5; color: #495057; font-weight: 600;
+            border-bottom: 2px solid #dee2e6 !important; text-align: center !important;
+            padding: 12px 10px; font-size: 13px;
         }
         table.dataTable tbody td {
-            padding: 10px 10px;
-            vertical-align: middle;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 10px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; font-size: 13px;
         }
-        /* Alinhamentos Específicos */
+        /* Alinhamentos */
         .dt-left { text-align: left !important; }
         .dt-center { text-align: center !important; }
         .dt-right { text-align: right !important; }
-        
-        /* Coluna de Valor Total em Negrito */
         .fw-bold { font-weight: 700; color: #28a745; }
+
+        /* Botões do DataTables */
+        .dt-buttons button {
+            background: #f8f9fa !important; border: 1px solid #ddd !important; color: #555 !important;
+            border-radius: 4px !important; font-size: 12px !important; margin-right: 5px !important;
+        }
+        .dt-buttons button:hover { background: #e2e6ea !important; }
+        .dataTables_filter input { border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
     </style>
 </head>
 <body>
@@ -145,8 +157,11 @@
         </div>
 
         <div class="box">
-            <span class="box-title" id="tabelaTitulo">Detalhamento do Mês</span>
-            <table id="tabela" class="display hover row-border" style="width:100%; font-size:13px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="box-title" id="tabelaTitulo" style="border:none; margin:0;">Detalhamento</span>
+            </div>
+            
+            <table id="tabela" class="display hover row-border" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Código/Procedimento</th>
@@ -208,8 +223,7 @@
             mesesDisponiveis.forEach(m => {
                 let nome = mesesNome[parseInt(m)-1];
                 let opt = document.createElement('option');
-                opt.value = m; 
-                opt.innerText = nome;
+                opt.value = m; opt.innerText = nome;
                 selMes.appendChild(opt);
             });
 
@@ -240,35 +254,40 @@
 
             updateCharts(dadosAno, dadosMes, t);
             
-            // --- TABELA FORMATADA ---
+            // --- TABELA AVANÇADA ---
             if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
+            
             $('#tabela').DataTable({
                 data: dadosMes,
+                dom: 'Bfrtip', // Habilita Botões (B) e Filtro (f)
+                buttons: [
+                    { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar' },
+                    { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel' },
+                    { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF' },
+                    { extend: 'colvis', text: '<i class="fas fa-columns"></i> Colunas' } // Filtro de Visibilidade
+                ],
+                pageLength: -1, // Padrão: Mostrar TUDO (-1)
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+                scrollY: '500px', // Rolagem Vertical se for muito grande
+                scrollCollapse: true,
+                paging: true, // Mantém paginação ativa caso queira usar
                 columns: [
-                    // Texto à Esquerda
                     { data: 'procedimento', width:'40%', className: 'dt-left', render: d => `<span style="font-weight:500">${d.substring(0,65)}</span>` },
-                    
-                    // Números Inteiros ao Centro
                     { data: 'qtd_aih', className: 'dt-center', render: d => `<span style="background:#eef2f7; padding:2px 8px; border-radius:4px;">${d}</span>` },
-                    
-                    // Moedas à Direita
                     { data: 'val_hosp', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
                     { data: 'val_prof', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-' },
-                    
-                    // Valor Total em Negrito e Verde
                     { data: 'valor', className: 'dt-right fw-bold', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' },
-                    
                     { data: 'ticket_medio', className: 'dt-right', render: v => v?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'-' }
                 ],
-                order: [[4, 'desc']], // Ordena por Valor Total
-                pageLength: 10,
-                lengthMenu: [10, 25, 50],
-                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                order: [[4, 'desc']], 
+                language: { 
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
+                    search: "🔎 Pesquisar:" // Ícone no campo de busca
+                }
             });
         }
 
         function updateCharts(dadosAno, dadosMes, tMes) {
-            // Agrupamento para Gráfico Evolutivo
             let grupos = {};
             dadosAno.forEach(d => {
                 let k = d.periodo.split('-')[0];
@@ -281,57 +300,34 @@
             const ord = mesesNome;
             lbls.sort((a,b) => ord.indexOf(a)-ord.indexOf(b));
 
-            // --- GRÁFICO COMBINADO (BARRAS + LINHA) ---
             const ctx1 = document.getElementById('chartEvo').getContext('2d');
             if(chartEvo) chartEvo.destroy();
             
             chartEvo = new Chart(ctx1, {
-                type: 'bar', // Tipo principal
+                type: 'bar', 
                 data: {
                     labels: lbls,
                     datasets: [
                         {
-                            label: 'Faturamento (R$)',
-                            data: lbls.map(l=>grupos[l].v),
-                            backgroundColor: '#28a745', // Barras Verdes
-                            order: 2,
-                            yAxisID: 'y'
+                            label: 'Faturamento (R$)', data: lbls.map(l=>grupos[l].v),
+                            backgroundColor: '#28a745', order: 2, yAxisID: 'y'
                         },
                         {
-                            label: 'Qtd AIH',
-                            data: lbls.map(l=>grupos[l].a),
-                            type: 'line', // Linha sobreposta
-                            borderColor: '#0056b3', // Linha Azul
-                            backgroundColor: '#0056b3',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            tension: 0.3,
-                            order: 1,
-                            yAxisID: 'y1' // Eixo da Direita
+                            label: 'Qtd AIH', data: lbls.map(l=>grupos[l].a),
+                            type: 'line', borderColor: '#0056b3', backgroundColor: '#0056b3',
+                            borderWidth: 2, pointRadius: 4, tension: 0.3, order: 1, yAxisID: 'y1'
                         }
                     ]
                 },
                 options: { 
-                    responsive:true, 
-                    maintainAspectRatio:false, 
+                    responsive:true, maintainAspectRatio:false, 
                     scales:{
-                        y: { 
-                            position: 'left', 
-                            beginAtZero:true, 
-                            title: {display:true, text:'Valor (R$)'},
-                            grid: { borderDash: [2, 2] }
-                        },
-                        y1: { 
-                            position: 'right', 
-                            beginAtZero:true, 
-                            title: {display:true, text:'AIH (Qtd)'},
-                            grid: { display: false } // Remove grade do eixo direito para limpar
-                        }
+                        y: { position: 'left', beginAtZero:true, grid: { borderDash: [2, 2] } },
+                        y1: { position: 'right', beginAtZero:true, grid: { display: false } }
                     } 
                 }
             });
 
-            // Pizza
             const ctx2 = document.getElementById('chartPie').getContext('2d');
             if(chartPie) chartPie.destroy();
             
