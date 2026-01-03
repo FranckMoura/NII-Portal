@@ -1,83 +1,58 @@
 ==============================================================================
- MANUAL DE GERAÇÃO DE RELATÓRIOS FINANCEIROS - NII PORTAL
+ MANUAL DE GERAÇÃO E MANUTENÇÃO - NII PORTAL (ATUALIZADO)
 ==============================================================================
- Data da Última Atualização: 29/12/2025
+ Data da Última Atualização: 03/01/2026
  Responsável: Franck Moura
- Sistema: Automação Python (VS Code)
+ Sistema: Automação Python (VS Code) + GitHub Pages
 ==============================================================================
 
-[1] ESTRUTURA DE PASTAS
+[1] ESTRUTURA DE PASTAS (FECHAMENTO FINANCEIRO INTERNO)
 ------------------------------------------------------------------------------
 Dentro de "faturamento/ANO/MES_nome", crie a pasta do mês (ex: 11_novembro).
 Se houver Fila Zero, crie uma subpasta chamada "fila_zero" dentro dela.
 
-[2] ARQUIVOS OBRIGATÓRIOS (CHECKLIST DE CÓPIA)
+[2] ARQUIVOS OBRIGATÓRIOS (FECHAMENTO FINANCEIRO)
 ------------------------------------------------------------------------------
-Copie os arquivos PDF do SoulMV e os Scripts Python para as pastas indicadas:
+Copie os arquivos PDF do SoulMV para as pastas indicadas conforme rotina anterior:
+   - Scripts: calculo_rateio_equipe.py, calculo_repasse_terceiros.py, etc.
+   - Arquivos: RATEIO.pdf, R_PRODUCAO_MEDICA..., vinculos.csv, etc.
 
-A) NA PASTA DO MÊS (RAIZ):
-   1. Script: calculo_rateio_equipe.py
-      - PDF: *RATEIO*.pdf (Obrigatório ter RATEIO no nome)
-      - PDF: R_PRODUCAO_MEDICA_CONTA...pdf
-      - CSV: vinculos.csv
-
-   2. Script: calculo_repasse_terceiros.py
-      - PDF: R_RECEITA_PROCEDIMENTO_GERAL...pdf (ou LANCAMENTOS)
-
-   3. Script: calculo_financiamento_geral.py
-      - PDF: R_PROD_FINANCIAMENTO...pdf (Sem "FILAZERO" no nome)
-
-   4. Script: gerar_capa.py
-      - Gera a capa com base na data dos arquivos.
-
-B) NA SUBPASTA "fila_zero":
-   1. Script: calculo_fila_zero.py
-      - PDF: R_RECEITA... (Fila Zero)
-      - PDF: R_PRODUCAO... (Fila Zero)
-
-   2. Script: calculo_fila_zero_terceiros.py
-      - PDF: R_RECEITA_PROCEDIMENTO_GERAL... (Fila Zero)
-
-   3. Script: calculo_financiamento_fz.py
-      - PDF: R_PROD_FINANCIAMENTO...FILAZERO...pdf (Obrigatório ter FILAZERO)
-
-[3] COMO EXECUTAR TUDO (ROTINA DE FECHAMENTO)
+[3] COMO RODAR O FECHAMENTO MENSAL (INTERNO)
 ------------------------------------------------------------------------------
-Não execute um por um. Use o robô mestre:
-
 1. Abra o Terminal no VS Code.
-2. Execute o comando:
-   & python c:/Users/DELL/OneDrive/NII-Portal-1/executar_fechamento.py
+2. Execute: & python executar_fechamento.py
+3. Siga as instruções na tela.
 
-3. Digite o número da pasta do mês desejado.
-4. Aguarde a mensagem "✅ FECHAMENTO CONCLUÍDO".
-
-[4] COMO IMPRIMIR (VISUAL ALTO CONTRASTE)
-------------------------------------------------------------------------------
-1. Abra a pasta do mês no Windows Explorer.
-2. Abra os arquivos HTML gerados no navegador.
-3. Clique no botão azul "Imprimir Página" (ou "Imprimir Capa").
-   * O sistema converterá automaticamente as cores para Preto/Negrito.
-4. Sugestão de Ordem para Encadernação:
-   - Capa
-   - Rateio de Equipe (Médicos)
-   - Fila Zero (Médicos)
-   - Repasse Terceiros/SADT (Geral)
-   - Fila Zero Terceiros/SADT
-   - Financiamento Geral (MAC/FAEC)
-   - Financiamento Fila Zero
-
-[5] SOLUÇÃO DE PROBLEMAS COMUNS
-------------------------------------------------------------------------------
-ERRO: "Valores do Rateio errados/duplicados"
--> O script pegou o PDF errado. Certifique-se que o PDF da receita do rateio 
-   tenha a palavra "RATEIO" no nome do arquivo.
-
-ERRO: "Financiamento zerado"
--> Verifique se o PDF de financiamento está na pasta e se tem o nome correto 
-   (R_PROD_FINANCIAMENTO...).
-
-ERRO: "Logo da capa não aparece"
--> Verifique se há internet (a logo vem do GitHub) ou edite o script 
-   gerar_capa.py para apontar para uma imagem local.
 ==============================================================================
+[NOVO] [6] MANUTENÇÃO DO PORTAL WEB (MÓDULO FATURAMENTO/TABNET)
+==============================================================================
+Esta rotina atualiza os gráficos e tabelas do site (https://franckmoura.github.io/NII-Portal/).
+
+A) QUANDO SAI UMA NOVA COMPETÊNCIA (Ex: Saiu Outubro no TabNet)
+------------------------------------------------------------------------------
+1. Execute o script de Extração (Demora ~40min):
+   & python extrator_tabnet.py
+   
+   * O que ele faz: Baixa todos os arquivos CSV (Ricos com 15 colunas) do DATASUS.
+   * Onde salva: Pasta "TABNET_Export".
+
+B) ATUALIZAÇÃO ROTINEIRA (PROCESSAMENTO E PUBLICAÇÃO)
+------------------------------------------------------------------------------
+Se você já baixou os arquivos ou quer apenas recalcular os dados:
+
+1. Execute o script Mestre:
+   & python ATUALIZAR_TUDO.py
+
+   * O que ele faz (Automaticamente):
+     1. Atualiza dados do SISREG (Regulação).
+     2. Processa os arquivos do TabNet (Faturamento) -> Gera dados_tabnet.json.
+     3. Executa o Upload Manager -> Envia tudo para o GitHub.
+
+C) SOLUÇÃO DE PROBLEMAS (TABNET)
+------------------------------------------------------------------------------
+ERRO: "Mês X com dados zerados ou faltando colunas"
+-> Significa que o arquivo na pasta 'TABNET_Export' é do tipo "Pobre".
+-> Solução: Apague o arquivo .csv desse mês específico e rode o 'extrator_tabnet.py' novamente (ou baixe manualmente marcando TODAS as colunas no TabNet e salvando como .csv).
+
+ERRO: "Login Inválido"
+-> Edite o arquivo 'login.html' para alterar usuário/senha.

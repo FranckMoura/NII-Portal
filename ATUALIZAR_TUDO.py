@@ -8,7 +8,7 @@ def imprimir_titulo(texto):
     print(f"   🚀 {texto}")
     print("="*60)
 
-imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V25 - SQLite)")
+imprimir_titulo("SISTEMA DE GESTÃO E AUDITORIA NII (V26 - INTEGRADO)")
 python_cmd = sys.executable 
 
 def rodar(script, obrigatorio=True):
@@ -39,31 +39,46 @@ def rodar(script, obrigatorio=True):
             exit()
         return False
 
-# --- 1. EXTRAÇÃO (Tenta rodar o V18 ou o script que tiver) ---
-# Se você mudou o nome do extrator, ajuste a linha abaixo também.
+# ==============================================================================
+# 1. MÓDULO REGULAÇÃO (SISREG)
+# ==============================================================================
+imprimir_titulo("ETAPA 1: REGULAÇÃO (SISREG)")
+
+# Tenta rodar o extrator do SISREG se existir (pode ser pulado se não houver credenciais)
 if os.path.exists("extracao_sisreg_v18.py"):
-    rodar("extracao_sisreg_v18.py", obrigatorio=True)
+    rodar("extracao_sisreg_v18.py", obrigatorio=False)
 else:
-    print("⚠️ Script de extração (v18) não encontrado. Pulando etapa...")
+    print("⚠️ Script de extração SISREG não encontrado ou ignorado. Seguindo...")
 
-# --- 2. PROCESSAMENTO (AQUI ESTÁ A MUDANÇA) ---
-# Agora chama o script com o nome correto
-rodar("processar_dados_sisreg.py", obrigatorio=True)
+# Processamento do SISREG (Gera os JSONs da Regulação)
+rodar("processar_dados_sisreg.py", obrigatorio=False)
 
-# --- 3. IMPORTAÇÃO FINANCEIRA (Opcional) ---
-if os.path.exists("pDetAIH.csv") and os.path.exists("importar_faturamento_v3.py"):
-    print("\n[INFO] Verificando faturamento...")
-    rodar("importar_faturamento_v3.py", obrigatorio=False)
 
-# --- 4. UPLOAD (Gerencia o Git) ---
-if os.path.exists("upload_manager_v6.py"):
-    rodar("upload_manager_v6.py", obrigatorio=True)
-elif os.path.exists("upload_manager.py"):
+# ==============================================================================
+# 2. MÓDULO FATURAMENTO (TABNET / SIH)
+# ==============================================================================
+imprimir_titulo("ETAPA 2: FATURAMENTO (TABNET)")
+
+# Nota: O 'extrator_tabnet.py' não roda aqui pois demora 40min.
+# Deve ser rodado manualmente apenas quando houver nova competência.
+
+# Processamento do TabNet (Lê os CSVs da pasta TABNET_Export e gera dados_tabnet.json)
+if os.path.exists("processar_tabnet.py"):
+    rodar("processar_tabnet.py", obrigatorio=True)
+else:
+    print("❌ Script 'processar_tabnet.py' não encontrado!")
+
+
+# ==============================================================================
+# 3. PUBLICAÇÃO (GIT / GITHUB PAGES)
+# ==============================================================================
+imprimir_titulo("ETAPA 3: PUBLICAÇÃO E UPLOAD")
+
+if os.path.exists("upload_manager.py"):
     rodar("upload_manager.py", obrigatorio=True)
 else:
-    print("❌ Script de Upload não encontrado.")
+    print("❌ Script 'upload_manager.py' não encontrado. Não foi possível publicar.")
 
-imprimir_titulo("PROCESSO FINALIZADO!")
-print("   Acesse: https://franckmoura.github.io/NII-Portal/painel_regulacao.html")
-print("   Fechando em 10 segundos...")
-time.sleep(10)
+print("\n" + "="*60)
+print("🏁 PROCESSO GERAL FINALIZADO COM SUCESSO!")
+print("="*60 + "\n")

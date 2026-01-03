@@ -1,0 +1,66 @@
+==============================================================================
+ MAPA DA ESTRUTURA E FLUXO DE TRABALHO - NII PORTAL
+==============================================================================
+ Data da Revisão: 03/01/2026
+==============================================================================
+
+[1] A ESTRUTURA DE PASTAS (ORGANIZADA)
+------------------------------------------------------------------------------
+Para não virar bagunça, esta é a organização oficial dos arquivos.
+Separamos mentalmente o que é PORTAL (BI) do que é FINANCEIRO (Fechamento):
+
+NII-Portal-1/
+│
+│   # --- ROTINA DIÁRIA ---
+├── script_simuladas.py         <-- (Uso: Todo dia. Gera índice de pacientes)
+│
+│   # --- ROTINA MENSAL (FECHAMENTO FINANCEIRO) ---
+├── executar_fechamento.py      <-- (Uso: 1x Mês. Gera os PDFs e Capas)
+├── gerar_capa.py               <-- (Auxiliar: Chamado pelo fechamento)
+├── calculo_rateio_....py       <-- (Outros scripts de cálculo financeiro)
+│
+│   # --- ROTINA DO PORTAL (TABNET/BI) ---
+├── extrator_tabnet.py          <-- (Uso: 1x Mês. Baixa dados novos do SUS)
+├── processar_tabnet.py         <-- (Uso: Atualiza gráficos e tabelas)
+├── ATUALIZAR_TUDO.py           <-- (Uso: Roda processamentos e sobe pro site)
+├── upload_manager.py           <-- (Auxiliar: Envia pro GitHub)
+│
+│   # --- ARQUIVOS E DADOS ---
+├── 📂 arquivos/                <-- ONDE TUDO É SALVO
+│   ├── dados_tabnet.json       (Dados do BI - Gráficos e Tabelas)
+│   ├── dados_financeiro.json   (Dados das Capas/Financeiro)
+│   ├── indice_pacientes.html   (Gerado pelo script_simuladas)
+│   └── dados.json              (Lista de arquivos p/ download)
+│
+├── 📂 TABNET_Export/           (CSVs originais baixados do DATASUS)
+├── 📂 faturamento/             (Onde você guarda os PDFs mensais do SoulMV)
+│
+│   # --- O SITE (FRONTEND) ---
+├── index.html                  (Página Inicial com Cards)
+├── faturamento.html            (Painel TabNet)
+├── financeiro.html             (Painel Repasses)
+├── indicasus.html              (Painel Estado)
+├── login.html                  (Tela de Acesso)
+└── ... (pastas css/js/img)
+
+
+[2] RESUMO DO FLUXO DE TRABALHO
+------------------------------------------------------------------------------
+Com essa organização, sua vida fica dividida em 3 momentos distintos:
+
+A) TODO DIA (OPERACIONAL)
+   1. Cole o PDF das simuladas na pasta raiz.
+   2. Rode: & python script_simuladas.py
+   3. O arquivo 'arquivos/indice_pacientes.html' será atualizado.
+
+B) UMA VEZ POR MÊS (FECHAMENTO FINANCEIRO)
+   1. Organize as pastas do mês dentro de 'faturamento/' (ex: 11_novembro).
+   2. Rode: & python executar_fechamento.py
+   3. Isso gera os PDFs finais e atualiza o 'dados_financeiro.json'.
+
+C) UMA VEZ POR MÊS (ATUALIZAÇÃO DO PORTAL/BI)
+   1. Saiu a competência no TabNet? 
+      Rode: & python extrator_tabnet.py (Demora ~40min)
+   
+   2. Quer atualizar o site com tudo (Financeiro novo + TabNet novo)?
+      Rode: & python ATUALIZAR_TUDO.py

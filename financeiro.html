@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NII - Módulo Financeiro</title>
+    
+    <script src="js/auth.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,149 +23,121 @@
     <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg">
-                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-slate-800">Painel Financeiro</h1>
-                        <p class="text-xs text-slate-500">Gestão de Repasses e Produção</p>
+                <div class="flex">
+                    <a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+                        <span class="font-bold text-xl text-blue-800">NII Financeiro</span>
+                    </a>
+                    <div class="hidden md:ml-6 md:flex md:space-x-4 items-center">
+                        <a href="index.html" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Início</a>
+                        <a href="faturamento.html" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Faturamento</a>
+                        <a href="#" class="bg-blue-50 text-blue-700 px-3 py-2 rounded-md text-sm font-medium">Financeiro</a>
+                        <a href="painel_regulacao.html" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Regulação</a>
                     </div>
                 </div>
+                
                 <div class="flex items-center">
-                    <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> Voltar ao Portal
-                    </a>
+                    <div class="hidden md:flex items-center space-x-4">
+                        <span class="text-xs text-gray-400">Hospital Santa Helena</span>
+                        
+                        <a href="#" onclick="fazerLogout()" class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <div id="container-pastas" class="space-y-6">
-            <div class="text-center py-10">
-                <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl"></i>
-                <p class="mt-2 text-gray-500">Carregando dados financeiros...</p>
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Repasses & Financeiro</h1>
+            <p class="text-gray-500 text-sm mt-1">Acesso aos espelhos de pagamento médico e rateio de equipe (Pool).</p>
+        </div>
+
+        <div id="financeiro-container" class="space-y-4">
+            <div class="flex justify-center py-10">
+                <i class="fa-solid fa-circle-notch fa-spin text-blue-600 text-3xl"></i>
             </div>
         </div>
 
     </main>
 
     <script>
-        // Mapa para ordenar os meses corretamente
-        const mesesMap = {
-            'JANEIRO': 1, 'FEVEREIRO': 2, 'MARÇO': 3, 'ABRIL': 4, 'MAIO': 5, 'JUNHO': 6,
-            'JULHO': 7, 'AGOSTO': 8, 'SETEMBRO': 9, 'OUTUBRO': 10, 'NOVEMBRO': 11, 'DEZEMBRO': 12
-        };
-
-        function parseValor(valorStr) {
-            if (!valorStr || valorStr === '---') return 0;
-            return parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.').trim());
-        }
-
-        // Ordena competências (Dezembro antes de Novembro)
-        function sortCompetencias(a, b) {
-            const [mesA, anoA] = a.split('/');
-            const [mesB, anoB] = b.split('/');
-            
-            if (anoA !== anoB) return parseInt(anoB) - parseInt(anoA);
-            return mesesMap[mesB.toUpperCase()] - mesesMap[mesA.toUpperCase()];
-        }
-
         async function carregarFinanceiro() {
-            const container = document.getElementById('container-pastas');
+            const container = document.getElementById('financeiro-container');
             
             try {
-                // Força o navegador a não usar cache do JSON
-                const response = await fetch('arquivos/dados_financeiro.json?v=' + new Date().getTime());
-                const dados = await response.json();
+                // Carrega JSON (reutilizando o do faturamento ou um específico se criar depois)
+                // Aqui vou usar o 'dados.json' que já tem a lista geral, e filtrar o que é financeiro
+                const response = await fetch('dados.json?v=' + new Date().getTime());
+                const arquivos = await response.json();
 
-                // 1. Agrupar por Competência (NORMALIZADO PARA MAIÚSCULO)
-                const grupos = {};
-                dados.forEach(item => {
-                    // Transforma "Novembro/2025" em "NOVEMBRO/2025" para agrupar junto
-                    let comp = (item.competencia || "Outros").toUpperCase();
-                    if (!grupos[comp]) grupos[comp] = [];
-                    grupos[comp].push(item);
-                });
-
-                // 2. Ordenar as pastas (Mês mais recente primeiro)
-                const competenciasOrdenadas = Object.keys(grupos).sort(sortCompetencias);
+                // Filtra apenas arquivos que parecem ser do financeiro (ex: Repasse, Pagamento, NF)
+                // Se quiser mostrar TODOS, basta remover o .filter
+                const arqFinanceiro = arquivos.filter(a => 
+                    a.nome.toLowerCase().includes('repasse') || 
+                    a.nome.toLowerCase().includes('pagamento') ||
+                    a.nome.toLowerCase().includes('financeiro') ||
+                    a.nome.toLowerCase().includes('nf')
+                );
 
                 container.innerHTML = '';
 
-                if (competenciasOrdenadas.length === 0) {
-                    container.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhum relatório encontrado.</div>`;
+                if (arqFinanceiro.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white rounded-lg shadow-sm p-10 text-center">
+                            <i class="fa-solid fa-folder-open text-gray-300 text-5xl mb-4"></i>
+                            <p class="text-gray-500">Nenhum documento financeiro encontrado no repositório.</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                // 3. Gerar HTML
-                competenciasOrdenadas.forEach((comp, index) => {
-                    let itens = grupos[comp];
-                    
-                    // ORDENAÇÃO INTERNA DOS CARDS
-                    // Capa (começa com "00") primeiro, depois alfabético
-                    itens.sort((a, b) => a.titulo.localeCompare(b.titulo));
+                // Agrupa por Ano (Simulado com base no nome ou data)
+                // Para simplificar, vou criar uma pasta única "Documentos Gerais"
+                // Se quiser agrupar real, precisaria de lógica extra.
+                
+                const pastas = { 'Documentos Disponíveis': arqFinanceiro };
 
-                    // Calcula total (excluindo a capa que não tem valor)
-                    const totalMes = itens.reduce((acc, item) => acc + parseValor(item.valor_total), 0);
-                    
-                    // A primeira pasta já vem aberta
-                    const isOpen = index === 0;
-                    const hiddenClass = isOpen ? '' : 'hidden';
-                    const rotateClass = isOpen ? 'rotate-180' : '';
+                Object.keys(pastas).forEach((pastaNome, index) => {
+                    const arquivosDaPasta = pastas[pastaNome];
+                    const idPasta = `pasta-${index}`;
+                    const idIcone = `icon-${index}`;
 
-                    const pastaHTML = `
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                            <button onclick="togglePasta('pasta-${index}', 'icon-${index}')" class="folder-header w-full flex items-center justify-between p-5 text-left bg-white border-b border-gray-100 cursor-pointer outline-none">
-                                <div class="flex items-center gap-4">
-                                    <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center border border-blue-100 shadow-sm">
-                                        <i class="fa-regular fa-folder-open text-xl"></i>
+                    let pastaHTML = `
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <div onclick="togglePasta('${idPasta}', '${idIcone}')" 
+                                 class="folder-header p-4 cursor-pointer flex justify-between items-center select-none">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600">
+                                        <i class="fa-solid fa-folder text-xl"></i>
                                     </div>
                                     <div>
-                                        <h2 class="text-lg font-bold text-slate-800 capitalize">${comp.toLowerCase()}</h2>
-                                        <p class="text-sm text-slate-500">${itens.length} arquivos disponíveis</p>
+                                        <h3 class="font-semibold text-gray-800">${pastaNome}</h3>
+                                        <span class="text-xs text-gray-500">${arquivosDaPasta.length} arquivo(s)</span>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-6">
-                                    <div class="text-right hidden sm:block">
-                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Consolidado</p>
-                                        <p class="text-lg font-bold text-green-600">R$ ${totalMes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
-                                    </div>
-                                    <i id="icon-${index}" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 ${rotateClass}"></i>
-                                </div>
-                            </button>
+                                <i id="${idIcone}" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                            </div>
 
-                            <div id="pasta-${index}" class="bg-slate-50 p-5 ${hiddenClass}">
-                                <div class="grid grid-cols-1 gap-3">
-                                    ${itens.map(item => {
-                                        // Destaque visual diferente para a CAPA
-                                        const isCapa = item.titulo.includes("CAPA");
-                                        const iconClass = isCapa ? "fa-solid fa-book text-white" : "fa-solid fa-file-contract text-white";
-                                        const bgClass = isCapa ? "bg-slate-800" : "bg-blue-600";
-                                        const borderClass = isCapa ? "border-slate-300" : "border-slate-200";
+                            <div id="${idPasta}" class="hidden border-t border-gray-100 bg-gray-50">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                                    ${arquivosDaPasta.map(arq => {
+                                        // Ícone por tipo
+                                        let iconColor = 'text-gray-500';
+                                        let iconClass = 'fa-file';
+                                        if(arq.nome.includes('.pdf')) { iconClass='fa-file-pdf'; iconColor='text-red-500'; }
+                                        else if(arq.nome.includes('.xls')) { iconClass='fa-file-excel'; iconColor='text-green-500'; }
                                         
                                         return `
-                                        <div class="bg-white p-4 rounded-lg border ${borderClass} shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row items-center justify-between gap-4">
-                                            <div class="flex items-center gap-4 w-full sm:w-auto">
-                                                <div class="${bgClass} w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                                                    <i class="${iconClass}"></i>
-                                                </div>
-                                                <div>
-                                                    <h3 class="font-semibold text-slate-800 text-sm sm:text-base">${item.titulo}</h3>
-                                                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                                                        <span><i class="fa-regular fa-clock mr-1"></i> ${item.data_geracao}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center justify-between w-full sm:w-auto gap-6 pl-14 sm:pl-0">
-                                                <div class="text-right ${isCapa ? 'hidden' : ''}">
-                                                    <span class="block text-[10px] text-slate-400 font-bold uppercase">VALOR</span>
-                                                    <span class="block font-bold text-slate-700">${item.valor_total}</span>
-                                                </div>
-                                                <a href="${item.arquivo}" target="_blank" class="bg-white border border-gray-300 hover:bg-gray-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm">
+                                        <div class="bg-white p-3 rounded-md border border-gray-200 hover:shadow-md transition-shadow flex items-start gap-3">
+                                            <i class="fa-solid ${iconClass} ${iconColor} text-xl mt-1"></i>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-700 truncate" title="${arq.nome}">${arq.nome}</p>
+                                                <p class="text-xs text-gray-400 mt-1">${arq.data} • ${arq.tamanho}</p>
+                                                <a href="${arq.caminho}" target="_blank" 
+                                                   class="mt-2 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors flex items-center gap-2 shadow-sm">
                                                     <i class="fa-solid fa-eye text-blue-600"></i> Abrir
                                                 </a>
                                             </div>
