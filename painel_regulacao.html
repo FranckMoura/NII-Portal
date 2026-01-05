@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel NII - Regulação</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"> <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
@@ -17,8 +24,8 @@
     <style>
         :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; }
         body { font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }
-        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .filter-box { background: #e3f2fd; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #90caf9; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .filter-box { background: #e3f2fd; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px solid #90caf9; flex-wrap: wrap; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
         .card .value { font-size: 32px; font-weight: bold; margin-top: 10px; }
@@ -37,16 +44,49 @@
         .carater-urgencia { color: #dc3545; font-weight: bold; }
         .carater-eletiva { color: #28a745; }
         
-        thead input { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
-        thead select { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+        thead input, thead select { width: 100%; padding: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+
+        /* Estilo dos Botões do DataTables */
+        .dt-buttons .dt-button { 
+            background: var(--primary) !important; 
+            color: white !important; 
+            border: none !important; 
+            border-radius: 4px !important; 
+            font-size: 12px !important;
+            padding: 5px 10px !important;
+        }
+        .dt-buttons .dt-button:hover { background: #003d80 !important; }
+
+        /* MODO DE IMPRESSÃO (CTRL+P) */
+        @media print {
+            body { background: white; padding: 0; }
+            .header a, .filter-box, .dt-buttons, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info, #btnImprimirGeral { display: none !important; }
+            .header { box-shadow: none; border-bottom: 2px solid #333; margin-bottom: 10px; padding: 10px 0; }
+            .card { border: 1px solid #ddd; box-shadow: none; }
+            .chart-box { page-break-inside: avoid; border: 1px solid #ddd; }
+            table { width: 100% !important; border-collapse: collapse; font-size: 10px; }
+            th, td { border: 1px solid #ccc !important; padding: 4px !important; }
+            .charts-row { display: block; } /* Gráficos um embaixo do outro na impressão */
+            .chart-box { height: 250px; margin-bottom: 20px; }
+        }
         
         @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="header">
-        <div><h1>Monitoramento SISREG</h1><p>Visão Geral (Big Data)</p></div>
-        <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">Voltar</a>
+        <div>
+            <h1>Monitoramento SISREG</h1>
+            <p>Visão Geral (Big Data)</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button id="btnImprimirGeral" onclick="window.print()" style="background:#28a745; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">
+                <i class="fas fa-print"></i> Imprimir Painel
+            </button>
+            <a href="index.html" style="text-decoration:none; background:#666; color:white; padding:8px 15px; border-radius:4px;">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
     </div>
 
     <div class="filter-box">
@@ -106,6 +146,17 @@
                     pageLength: 10,
                     order: [], 
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    
+                    // CONFIGURAÇÃO DOS BOTÕES DE EXPORTAÇÃO
+                    dom: 'Bfrtip', // Define a ordem: Botões, Filtro, Tabela...
+                    lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "Todos"] ],
+                    buttons: [
+                        { extend: 'pageLength', text: 'Mostrar Linhas' },
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', title: 'Relatorio_SISREG' },
+                        { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', title: 'Relatorio_SISREG', orientation: 'landscape', pageSize: 'A4' },
+                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela' }
+                    ],
+
                     orderCellsTop: true,
                     fixedHeader: true,
                     initComplete: function () {
@@ -137,7 +188,6 @@
                                         e.stopPropagation();
                                         $(this).attr('title', $(this).val());
                                         var regexr = '({search})'; 
-                                        var cursorPosition = this.selectionStart;
                                         api.column(colIdx).search(
                                             this.value != '' ? regexr.replace('{search}', '(((' + this.value + ')))') : '',
                                             this.value != '',
@@ -152,7 +202,7 @@
                         { 
                             data: "paciente",
                             render: function(data, type, row) {
-                                if (row.arquivo_pdf && row.arquivo_pdf.length > 5) {
+                                if (type === 'display' && row.arquivo_pdf && row.arquivo_pdf.length > 5) {
                                     let linkSeguro = row.arquivo_pdf.replace(/\\/g, "/");
                                     return `<a href="${linkSeguro}" target="_blank" class="paciente-link" title="Abrir Ficha">
                                                 <i class="fas fa-file-pdf"></i> ${data}
@@ -181,7 +231,7 @@
                             defaultContent: "-",
                             render: function(d) {
                                 let val = (d || "").toLowerCase();
-                                if(val.includes("urgencia") || val.includes("urgência") || val.includes("11")) return `<span class="carater-urgencia">Urgência</span>`;
+                                if(val.includes("urg") || val.includes("11")) return `<span class="carater-urgencia">Urgência</span>`;
                                 if(val.includes("eletiva") || val.includes("10")) return `<span class="carater-eletiva">Eletiva</span>`;
                                 return d;
                             }
@@ -226,7 +276,6 @@
             };
 
             dados.forEach(i => {
-                // Contagem Geral
                 let s = (i.status || "").toLowerCase();
                 let isApr = s.includes("aprovado")||s.includes("autorizado");
                 let isPen = s.includes("pendente")||s.includes("aguardando");
@@ -236,13 +285,9 @@
                 else if(isPen) pen++;
                 else if(isNeg) neg++;
 
-                // Contagem Por Caráter (CORREÇÃO DE ACENTUAÇÃO AQUI)
                 let cRaw = (i.carater || "").toLowerCase();
-                
-                // Normaliza para remover acentos (opcional, mas seguro) e verifica pedaços da palavra
                 let cat = 'Outros';
                 
-                // Agora procura por "urg" que pega tanto "urgencia" quanto "urgência"
                 if(cRaw.includes('urg') || cRaw.includes('emerg') || cRaw.includes('11')) {
                     cat = 'Urgência';
                 } 
@@ -288,21 +333,9 @@
                 data: {
                     labels: ['Urgência', 'Eletiva'],
                     datasets: [
-                        {
-                            label: 'Aprovados',
-                            data: [stats['Urgência'].aprovado, stats['Eletiva'].aprovado],
-                            backgroundColor: '#28a745'
-                        },
-                        {
-                            label: 'Pendentes',
-                            data: [stats['Urgência'].pendente, stats['Eletiva'].pendente],
-                            backgroundColor: '#ffc107'
-                        },
-                        {
-                            label: 'Negados',
-                            data: [stats['Urgência'].negado, stats['Eletiva'].negado],
-                            backgroundColor: '#dc3545'
-                        }
+                        { label: 'Aprovados', data: [stats['Urgência'].aprovado, stats['Eletiva'].aprovado], backgroundColor: '#28a745' },
+                        { label: 'Pendentes', data: [stats['Urgência'].pendente, stats['Eletiva'].pendente], backgroundColor: '#ffc107' },
+                        { label: 'Negados', data: [stats['Urgência'].negado, stats['Eletiva'].negado], backgroundColor: '#dc3545' }
                     ]
                 },
                 options: { 
@@ -312,10 +345,7 @@
                         title: { display: true, text: 'Status por Caráter de Internação' },
                         legend: { position: 'bottom' }
                     },
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
-                    }
+                    scales: { x: { stacked: true }, y: { stacked: true } }
                 }
             });
         }
