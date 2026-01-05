@@ -2,9 +2,9 @@ import time
 import os
 import glob
 import shutil
-import calendar
 import subprocess
 import sys
+import calendar
 from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,27 +15,26 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # Tenta importar o gerenciador de upload
 try:
-    sys.path.append(os.getcwd()) # Garante que acha o arquivo na pasta raiz
+    sys.path.append(os.getcwd())
     import upload_manager
     TEM_UPLOAD_MANAGER = True
 except ImportError:
     TEM_UPLOAD_MANAGER = False
-    print("⚠️ AVISO: upload_manager.py não encontrado. O processamento de dados será pulado.")
+    print("⚠️ AVISO: upload_manager.py não encontrado.")
 
-print(f"--- 🔄 EXTRAÇÃO SISREG + ATUALIZAÇÃO PORTAL (V19 - FULL) ---")
+print(f"--- 1. EXTRAÇÃO SISREG + ATUALIZAÇÃO (V21 - BASE V18) ---")
 
-# --- CONFIGURAÇÕES ---
+# --- SUAS CREDENCIAIS ---
 USUARIO = "046FRANCK"
-SENHA = "515462" # <--- VERIFIQUE SUA SENHA
-# Define a pasta exata onde os arquivos serão salvos
-PASTA_RAIZ = os.getcwd()
-PASTA_DOWNLOAD = os.path.join(PASTA_RAIZ, "SISREG_Export")
+SENHA = "515462" # <--- CONFIRA SUA SENHA AQUI
+PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-1\SISREG_Export" 
 
 if not os.path.exists(PASTA_DOWNLOAD): os.makedirs(PASTA_DOWNLOAD)
 
-# Limpa a pasta de downloads antes de começar para evitar confusão
+# Limpa downloads antigos para não confundir
 for f in glob.glob(os.path.join(PASTA_DOWNLOAD, "*.csv")):
-    os.remove(f)
+    try: os.remove(f) 
+    except: pass
 
 # --- CONFIGURAÇÃO CHROME ---
 options = webdriver.ChromeOptions()
@@ -48,96 +47,123 @@ prefs = {
 }
 options.add_experimental_option("prefs", prefs)
 
-# --- FUNÇÃO AUXILIAR: Mapeia abreviação de mês ---
-meses_map = {
-    1: 'jan', 2: 'fev', 3: 'mar', 4: 'abr', 5: 'mai', 6: 'jun',
-    7: 'jul', 8: 'ago', 9: 'set', 10: 'out', 11: 'nov', 12: 'dez'
-}
+# --- FUNÇÃO AUXILIAR: Renomear Arquivos ---
+meses_map = {1:'jan', 2:'fev', 3:'mar', 4:'abr', 5:'mai', 6:'jun', 7:'jul', 8:'ago', 9:'set', 10:'out', 11:'nov', 12:'dez'}
 
-def esperar_download_e_renomear(pasta, mes, ano):
-    """
-    Espera um novo arquivo .csv aparecer na pasta e renomeia ele imediatamente
-    para o formato padrão que o portal entende.
-    """
-    print("   ⏳ Aguardando download finalizar...")
-    tempo_esgotado = 0
-    while tempo_esgotado < 60:
-        # Busca arquivos CSV recentes que não tenham o nome 'extracao_sisreg'
-        arquivos = [f for f in glob.glob(os.path.join(pasta, "*.csv")) if "extracao_sisreg" not in f]
+def esperar_renomear(pasta, mes, ano):
+    print("   ⏳ Aguardando e renomeando arquivo...")
+    tempo = 0
+    while tempo < 60:
+        # Pega arquivos CSV que NÃO começam com 'extracao_sisreg' (são os novos)
+        arquivos = [f for f in glob.glob(os.path.join(pasta, "*.csv")) if "extracao_sisreg" not in os.path.basename(f)]
         
         if arquivos:
             arquivo_recente = max(arquivos, key=os.path.getctime)
-            # Verifica se o arquivo terminou de baixar (não é .crdownload)
             if not arquivo_recente.endswith(".crdownload"):
-                nome_padrao = f"extracao_sisreg_{meses_map[mes]}_{ano}.csv"
-                destino = os.path.join(pasta, nome_padrao)
+                time.sleep(1) # Garante que soltou o arquivo
+                novo_nome = f"extracao_sisreg_{meses_map[mes]}_{ano}.csv"
+                destino = os.path.join(pasta, novo_nome)
                 
-                # Remove se já existir um antigo com esse nome
                 if os.path.exists(destino): os.remove(destino)
-                
-                shutil.move(arquivo_recente, destino)
-                print(f"   ✅ Arquivo renomeado para: {nome_padrao}")
-                return True
-        
+                try:
+                    shutil.move(arquivo_recente, destino)
+                    print(f"   ✅ Renomeado para: {novo_nome}")
+                    return True
+                except: pass
         time.sleep(1)
-        tempo_esgotado += 1
-    
-    print("   ❌ Erro: Download demorou demais ou falhou.")
+        tempo += 1
+    print("   ❌ Erro: Arquivo não apareceu.")
     return False
 
-# --- FLUXO PRINCIPAL ---
+# --- FUNÇÃO DATAS ---
+def gerar_periodos_meses(qtd_meses_atras=3):
+    periodos = []
+    hoje = datetime.now()
+    for i in range(qtd_meses_atras, -1, -1):
+        mes_alvo = hoje.month - i
+        ano_alvo = hoje.year
+        while mes_alvo <= 0:
+            mes_alvo += 12
+            ano_alvo -= 1
+        data_ini = datetime(ano_alvo, mes_alvo, 1)
+        ultimo_dia = calendar.monthrange(ano_alvo, mes_alvo)[1]
+        data_fim = datetime(ano_alvo, mes_alvo, ultimo_dia)
+        periodos.append((data_ini, data_fim))
+    return periodos
+
 try:
     print(">> Abrindo navegador...")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     wait = WebDriverWait(driver, 20)
+    driver.maximize_window()
 
-    # 1. LOGIN
+    # --- LOGIN ---
     print(">> Fazendo Login...")
-    driver.get("https://sisregiii.saude.gov.br/")
+    driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     
-    # Lógica de Login (Adaptada do seu V18)
-    driver.execute_script(f"document.getElementsByName('usuario')[0].value = '{USUARIO}'")
-    driver.execute_script(f"document.getElementsByName('senha')[0].value = '{SENHA}'")
-    driver.execute_script("document.getElementsByName('entrar')[0].click()")
+    wait.until(EC.presence_of_element_located((By.NAME, "usuario"))).send_keys(USUARIO)
+    driver.find_element(By.NAME, "senha").send_keys(SENHA)
     
-    # Espera carregar e escolhe perfil se necessário
-    time.sleep(3)
     try:
-        if "Escolha um perfil" in driver.page_source:
-            driver.execute_script("document.getElementsByTagName('a')[0].click()")
-    except: pass
+        driver.find_element(By.CSS_SELECTOR, "input[type='image']").click()
+    except:
+        driver.find_element(By.CSS_SELECTOR, "div.form-no-lbl > input").click()
 
-    # 2. NAVEGAR PARA AMBULATORIAL -> RELATORIOS -> SOLICITAÇÕES
+    # --- NAVEGAÇÃO VIA MENU (Seu código V18 Original) ---
     print(">> Navegando para Exportação...")
-    driver.get("https://sisregiii.saude.gov.br/cgi-bin/relatorios/solicitacoes_co.pl")
-
-    # 3. LOOP DE DOWNLOAD (Últimos 4 meses)
-    print(">> Iniciando ciclo de downloads...")
-    data_atual = datetime.now()
-    
-    # Loop reverso: Mês atual, Mês passado, etc.
-    for i in range(3, -1, -1):
-        data_ref = data_atual - timedelta(days=i*30)
-        mes = data_ref.month
-        ano = data_ref.year
+    try:
+        try:
+            menu_rel = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/a")))
+            menu_rel.click()
+        except:
+            driver.execute_script("document.querySelector('#barraMenu > ul > li:nth-child(5) > a').click();")
         
-        # Define datas inicio/fim
-        ultimo_dia = calendar.monthrange(ano, mes)[1]
-        d1 = f"01/{mes:02d}/{ano}"
-        d2 = f"{ultimo_dia}/{mes:02d}/{ano}"
-        
-        print(f"\n>> Processando: {d1} a {d2}")
-
-        # Recarrega a página para limpar filtros
-        driver.refresh()
-        time.sleep(2)
+        time.sleep(1)
 
         try:
-            # Preenche Datas
+            submenu = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/ul/li[3]/a")))
+            submenu.click()
+        except:
+            driver.execute_script("document.querySelector('#barraMenu > ul > li:nth-child(5) > ul > li:nth-child(3) > a').click();")
+            
+    except Exception as e:
+        print(f"❌ Erro menu: {e}")
+        driver.get("https://sisregiii.saude.gov.br/cgi-bin/rel_exportacao_solicitacoes_amb")
+
+    time.sleep(5) 
+
+    # --- LOOP DE DOWNLOADS ---
+    lista_periodos = gerar_periodos_meses(3)
+    print(f">> Iniciando download de {len(lista_periodos)} arquivos...")
+
+    for dt_ini, dt_fim in lista_periodos:
+        d1 = dt_ini.strftime("%d/%m/%Y")
+        d2 = dt_fim.strftime("%d/%m/%Y")
+        print(f"\n>> Baixando: {d1} a {d2}")
+
+        driver.switch_to.default_content()
+        frames = driver.find_elements(By.TAG_NAME, "iframe")
+        iframe_found = False
+        
+        for i in range(len(frames)):
+            driver.switch_to.default_content()
+            try:
+                driver.switch_to.frame(i)
+                if len(driver.find_elements(By.NAME, "dtaIniSolic")) > 0:
+                    iframe_found = True
+                    break 
+            except: pass
+        
+        if not iframe_found:
+            print("   ❌ ERRO: Formulário não encontrado. Refresh...")
+            driver.refresh()
+            time.sleep(5)
+            continue
+
+        try:
             driver.execute_script(f"document.getElementsByName('dtaIniSolic')[0].value = '{d1}'")
             driver.execute_script(f"document.getElementsByName('dtaFimSolic')[0].value = '{d2}'")
 
-            # Marca Checkboxes
             driver.execute_script("""
                 var inputs = document.getElementsByTagName('input');
                 for(var i=0; i<inputs.length; i++) {
@@ -145,55 +171,48 @@ try:
                 }
             """)
             
-            # Clica em Exportar
             print("   (Solicitando...)")
             driver.execute_script("if(typeof exportar == 'function') { exportar(); } else { document.getElementsByName('exp')[0].click(); }")
 
-            # Lida com alertas
             try:
                 WebDriverWait(driver, 5).until(EC.alert_is_present())
                 driver.switch_to.alert.accept()
             except: pass
-            
-            # --- O PULO DO GATO: Espera e Renomeia ---
-            esperar_download_e_renomear(PASTA_DOWNLOAD, mes, ano)
+
+            # --- AQUI ESTÁ A MÁGICA: RENOMEAR ---
+            # Usa o mês/ano da data inicial (dt_ini) para nomear o arquivo
+            esperar_renomear(PASTA_DOWNLOAD, dt_ini.month, dt_ini.year)
 
         except Exception as e:
-            print(f"   ❌ Erro ao baixar período: {e}")
+            print(f"   ❌ Erro técnico: {e}")
 
-    print("\n>> Fechando navegador...")
+    print(">> Downloads finalizados. Fechando navegador...")
+    time.sleep(2)
     driver.quit()
 
-    # 4. PROCESSAMENTO DE DADOS (Upload Manager)
+    # --- PARTE 2: PROCESSAMENTO E UPLOAD (NOVA) ---
+    
     if TEM_UPLOAD_MANAGER:
         print("\n" + "="*40)
-        print("📊 2. PROCESSANDO DADOS (ATUALIZANDO BANCO DE DADOS)")
+        print("📊 2. PROCESSANDO DADOS (UPLOAD MANAGER)")
         print("="*40)
         try:
-            # Chama a função principal do seu upload_manager
-            upload_manager.processar_arquivos() 
-            print("✅ Banco de dados atualizado com sucesso!")
-        except AttributeError:
-            # Caso o upload_manager não tenha a função exata, tentamos rodar como script
-            print("⚠️ Executando upload_manager como script...")
+            upload_manager.processar_arquivos()
+            print("✅ Banco de dados atualizado!")
+        except Exception as e:
+            print(f"⚠️ Erro ao chamar função interna: {e}")
             subprocess.run([sys.executable, "upload_manager.py"], check=True)
 
-    # 5. SINCRONIZAÇÃO GIT
     print("\n" + "="*40)
-    print("☁️ 3. ENVIANDO PARA O PORTAL (GIT PUSH)")
+    print("☁️ 3. ENVIANDO PARA O PORTAL (GIT)")
     print("="*40)
     
-    comandos = [
-        ["git", "add", "."],
-        ["git", "commit", "-m", f"Atualizacao SISREG automatica {datetime.now().strftime('%d/%m/%Y')}"],
-        ["git", "push"]
-    ]
-    
-    for cmd in comandos:
-        print(f"Executando: {' '.join(cmd)}")
-        subprocess.run(cmd, cwd=PASTA_RAIZ, shell=True)
+    pasta_raiz = os.getcwd()
+    subprocess.run("git add .", shell=True, cwd=pasta_raiz)
+    subprocess.run(f'git commit -m "Atualizacao SISREG via V21 {datetime.now()}"', shell=True, cwd=pasta_raiz)
+    subprocess.run("git push", shell=True, cwd=pasta_raiz)
 
-    print("\n✅✅ CICLO COMPLETO FINALIZADO! O PORTAL DEVE ATUALIZAR EM BREVE.")
+    print("\n✅✅ SUCESSO TOTAL! DADOS ENVIADOS.")
 
 except Exception as e:
-    print(f"\n❌ ERRO FATAL: {e}")
+    print(f"❌ ERRO GERAL: {e}")
