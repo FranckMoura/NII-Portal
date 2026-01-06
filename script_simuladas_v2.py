@@ -3,10 +3,11 @@ import pandas as pd
 import re
 import os
 import sys
+import shutil
 
-print("--- 📄 EXTRATOR DE ÍNDICE DE PACIENTES (V2.0 - MULTIPAGE) ---")
+print("--- 📄 EXTRATOR DE ÍNDICE COM VISUALIZADOR (V2.1) ---")
 
-# --- 1. CONFIGURAÇÃO INTELIGENTE ---
+# --- 1. CONFIGURAÇÃO ---
 arquivos_na_pasta = [f for f in os.listdir('.') if f.lower().endswith('.pdf')]
 
 if not arquivos_na_pasta:
@@ -18,19 +19,20 @@ nome_arquivo_pdf = arquivos_na_pasta[0]
 pasta_destino = 'arquivos'
 nome_arquivo_saida = os.path.join(pasta_destino, 'indice_pacientes.html')
 
+# Cria a pasta se não existir
 if not os.path.exists(pasta_destino): os.makedirs(pasta_destino)
+
+# --- TRUQUE DE INTEGRAÇÃO ---
+# Para o link funcionar 100% no portal, é recomendável ter uma cópia do PDF 
+# dentro da pasta 'arquivos' ou usar o caminho relativo.
+# Vamos usar o caminho relativo (../) para não duplicar arquivos pesados.
+caminho_relativo_pdf = f"../{nome_arquivo_pdf}"
 
 print(f"📄 Lendo: {nome_arquivo_pdf}")
 
-# --- 2. LÓGICA DE EXTRAÇÃO AVANÇADA ---
+# --- 2. LÓGICA DE EXTRAÇÃO (Igual à V2.0) ---
 dados_extraidos = []
-
-# Variáveis de "Memória" para páginas de continuação
-ultimo_paciente_valido = {
-    'nome': None,
-    'aih': None,
-    'prontuario': None
-}
+ultimo_paciente_valido = {'nome': None, 'aih': None, 'prontuario': None}
 
 print("   Processando páginas...")
 
@@ -39,13 +41,11 @@ with pdfplumber.open(nome_arquivo_pdf) as pdf:
     
     for i, pagina in enumerate(pdf.pages):
         num_pag = i + 1
-        # Feedback de progresso a cada 50 páginas
         if num_pag % 50 == 0: print(f"   -> Lendo página {num_pag}/{total_paginas}...")
         
         texto = pagina.extract_text(x_tolerance=2)
         if not texto: continue
 
-        # Tentativa de captura via Regex
         match_nome = re.search(r'Paciente\s*:\s*(.*?)\s*Prontuário', texto)
         match_aih = re.search(r'Num AIH\s*:\s*([\d-]+)', texto)
         match_pront = re.search(r'Prontuário\s*:\s*(\d+)', texto)
@@ -54,9 +54,6 @@ with pdfplumber.open(nome_arquivo_pdf) as pdf:
         aih_encontrada = match_aih.group(1).strip() if match_aih else None
         pront_encontrado = match_pront.group(1).strip() if match_pront else None
 
-        # --- LÓGICA DE DECISÃO ---
-        
-        # CASO 1: Página Capa (Tem Nome e AIH) -> É um novo paciente ou nova conta
         if nome_encontrado and aih_encontrada:
             registro = {
                 'NOME': nome_encontrado,
@@ -64,28 +61,19 @@ with pdfplumber.open(nome_arquivo_pdf) as pdf:
                 'PRONTUARIO': pront_encontrado if pront_encontrado else "N/A",
                 'PAGINA': num_pag
             }
-            # Atualiza a memória
-            ultimo_paciente_valido = {
-                'nome': nome_encontrado,
-                'aih': aih_encontrada,
-                'prontuario': pront_encontrado
-            }
+            ultimo_paciente_valido = {'nome': nome_encontrado, 'aih': aih_encontrada, 'prontuario': pront_encontrado}
             dados_extraidos.append(registro)
 
-        # CASO 2: Página de Continuação (Sem Nome, mas tem AIH)
         elif not nome_encontrado and aih_encontrada:
-            # Verifica se a AIH bate com a do último paciente lido
             if ultimo_paciente_valido['aih'] == aih_encontrada:
-                # É continuação! Usamos os dados da memória
                 registro = {
-                    'NOME': ultimo_paciente_valido['nome'], # Pega o nome memorizado
+                    'NOME': ultimo_paciente_valido['nome'],
                     'AIH': aih_encontrada,
                     'PRONTUARIO': ultimo_paciente_valido['prontuario'],
                     'PAGINA': num_pag
                 }
                 dados_extraidos.append(registro)
             else:
-                # É uma AIH órfã (estranho, mas registramos como desconhecido para não perder a página)
                 dados_extraidos.append({
                     'NOME': "--- (Continuação Desconhecida)",
                     'AIH': aih_encontrada,
@@ -95,9 +83,8 @@ with pdfplumber.open(nome_arquivo_pdf) as pdf:
 
 print(f"✅ Leitura concluída! {len(dados_extraidos)} páginas mapeadas.")
 
-# --- 3. GERAÇÃO DO HTML (PADRÃO PORTAL) ---
+# --- 3. GERAÇÃO DO HTML (COM BOTÃO ABRIR) ---
 if dados_extraidos:
-    # Cria DataFrame para facilitar ordenação se necessário
     df = pd.DataFrame(dados_extraidos)
     
     html_content = f"""
@@ -116,7 +103,7 @@ if dados_extraidos:
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            :root {{ --primary: #0056b3; --success: #28a745; --dark: #343a40; }}
+            :root {{ --primary: #0056b3; --success: #28a745; --info: #17a2b8; --dark: #343a40; }}
             body {{ font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; padding-bottom: 80px; }}
             
             .header {{ 
@@ -128,18 +115,25 @@ if dados_extraidos:
 
             .table-container {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
             
-            /* Tabela Compacta */
             table.dataTable tbody td {{ padding: 6px 10px; font-size: 13px; vertical-align: middle; }}
             table.dataTable thead th {{ background-color: var(--primary); color: white; padding: 8px 10px; font-size: 14px; }}
             
-            .btn-add {{ 
-                background: var(--success); color: white; border: none; padding: 4px 10px; 
-                border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s;
+            /* Botões de Ação */
+            .btn-group {{ display: flex; gap: 5px; justify-content: center; }}
+            
+            .btn-action {{ 
+                border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; 
+                font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+                color: white; font-weight: 500; transition: 0.2s;
             }}
+
+            .btn-add {{ background: var(--success); }}
             .btn-add:hover {{ background: #218838; }}
             .btn-added {{ background: #6c757d; cursor: not-allowed; }}
 
-            /* Barra Flutuante de Coleta */
+            .btn-open {{ background: var(--info); }}
+            .btn-open:hover {{ background: #117a8b; }}
+
             .collection-bar {{
                 position: fixed; bottom: 0; left: 0; width: 100%;
                 background: var(--dark); color: white; padding: 15px 20px;
@@ -147,11 +141,7 @@ if dados_extraidos:
                 display: flex; justify-content: space-between; align-items: center;
             }}
             .pages-display {{ font-family: monospace; color: #ffc107; font-size: 14px; max-width: 70%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }}
-            .btn-copy {{
-                background: #007bff; color: white; border: none; padding: 8px 15px;
-                border-radius: 4px; font-weight: bold; cursor: pointer;
-            }}
-            .btn-copy:hover {{ background: #0056b3; }}
+            .btn-copy {{ background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }}
             .btn-clear {{ background: transparent; border: 1px solid #6c757d; color: #ccc; margin-left: 10px; padding: 8px; border-radius: 4px; cursor:pointer; }}
         </style>
     </head>
@@ -177,13 +167,14 @@ if dados_extraidos:
                         <th>Paciente</th>
                         <th>AIH</th>
                         <th>Prontuário</th>
-                        <th style="width:80px; text-align:center;">Ação</th>
+                        <th style="width:160px; text-align:center;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
     """
     
     # Preenche as linhas da tabela
+    # O PULO DO GATO ESTÁ AQUI: href='../{nome_arquivo_pdf}#page={row['PAGINA']}'
     for _, row in df.iterrows():
         html_content += f"""
                     <tr>
@@ -192,9 +183,14 @@ if dados_extraidos:
                         <td>{row['AIH']}</td>
                         <td>{row['PRONTUARIO']}</td>
                         <td style="text-align:center;">
-                            <button class="btn-add" onclick="addPage({row['PAGINA']}, this)">
-                                <i class="fas fa-plus"></i> Incluir
-                            </button>
+                            <div class="btn-group">
+                                <a href="{caminho_relativo_pdf}#page={row['PAGINA']}" target="_blank" class="btn-action btn-open" title="Ver Folha">
+                                    <i class="fas fa-external-link-alt"></i> Abrir
+                                </a>
+                                <button class="btn-action btn-add" onclick="addPage({row['PAGINA']}, this)">
+                                    <i class="fas fa-plus"></i> Incluir
+                                </button>
+                            </div>
                         </td>
                     </tr>
         """
@@ -210,7 +206,7 @@ if dados_extraidos:
                 <span id="pageList" class="pages-display">Nenhuma página selecionada</span>
             </div>
             <div>
-                <button class="btn-clear" onclick="clearPages()" title="Limpar Seleção"><i class="fas fa-trash"></i></button>
+                <button class="btn-clear" onclick="clearPages()" title="Limpar"><i class="fas fa-trash"></i></button>
                 <button class="btn-copy" onclick="copyAllPages()" id="btnCopy">
                     <i class="fas fa-copy"></i> COPIAR LISTA
                 </button>
@@ -221,8 +217,8 @@ if dados_extraidos:
             $(document).ready(function() {
                 $('#tabelaPacientes').DataTable({
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                    pageLength: 15,
-                    order: [[0, 'asc']] // Ordena pela página
+                    pageLength: 10,
+                    order: [[0, 'asc']]
                 });
             });
 
@@ -232,12 +228,10 @@ if dados_extraidos:
             function addPage(pageNumber, btn) {
                 if (!collectedPages.includes(pageNumber)) {
                     collectedPages.push(pageNumber);
-                    collectedPages.sort(function(a, b){return a - b}); // Ordena numérico
+                    collectedPages.sort(function(a, b){return a - b});
                     updateDisplay();
-                    
-                    // Feedback visual no botão
                     btn.classList.add('btn-added');
-                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.innerHTML = '<i class="fas fa-check"></i> Incluso';
                 }
             }
 
@@ -252,8 +246,7 @@ if dados_extraidos:
             function clearPages() {
                 collectedPages = [];
                 updateDisplay();
-                // Reseta botões visuais (opcional, requer recarregar ou lógica complexa de DOM, simplificado aqui)
-                $('.btn-added').removeClass('btn-added').html('<i class="fas fa-plus"></i> Incluir');
+                $('.btn-added').html('<i class="fas fa-plus"></i> Incluir').removeClass('btn-added');
             }
 
             function copyAllPages() {
@@ -264,17 +257,12 @@ if dados_extraidos:
                         var originalText = btn.innerHTML;
                         btn.innerHTML = '<i class="fas fa-check-double"></i> COPIADO!';
                         btn.style.background = '#28a745';
-                        
                         setTimeout(function() { 
                             btn.innerHTML = originalText; 
                             btn.style.background = '#007bff';
                         }, 2000);
-                    }, function(err) {
-                        alert('Erro ao copiar: ' + err);
-                    });
-                } else {
-                    alert('Selecione pelo menos uma página.');
-                }
+                    }, function(err) { alert('Erro: ' + err); });
+                } else { alert('Selecione páginas primeiro.'); }
             }
         </script>
     </body>
@@ -285,7 +273,7 @@ if dados_extraidos:
         f.write(html_content)
 
     print(f"\n🎉 SUCESSO! Arquivo gerado: {nome_arquivo_saida}")
-    print("   Abra este arquivo no navegador para ver o novo layout.")
+    print("   -> Agora você pode clicar em 'Abrir' para ver o PDF na página certa!")
 
 else:
-    print("\n⚠️ NENHUM DADO EXTRAÍDO. O PDF pode ser imagem (escaneado) ou formato não reconhecido.")
+    print("\n⚠️ NENHUM DADO EXTRAÍDO.")
