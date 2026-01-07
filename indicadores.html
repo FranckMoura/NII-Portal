@@ -7,41 +7,85 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #c0392b; --warning: #f39c12; }
-        body { font-family: 'Roboto', sans-serif; background: #ecf0f1; margin: 0; padding: 20px; }
+        :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --dark: #343a40; }
+        body { font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
         
-        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .header h1 { margin: 0; font-size: 24px; color: var(--primary); }
-        .btn-back { text-decoration: none; color: #7f8c8d; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .header { 
+            background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--primary);
+        }
+        .header h1 { margin: 0; font-size: 22px; color: var(--dark); }
+        .header p { margin: 5px 0 0; color: #666; font-size: 14px; }
 
-        /* KPIs (Cartões do Topo) */
+        .btn-header {
+            text-decoration: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 14px; margin-left: 10px; cursor: pointer; border: none;
+        }
+        .btn-back { background: #6c757d; color: white; }
+        .btn-print-dash { background: var(--primary); color: white; }
+        .btn-print-dash:hover { background: #004494; }
+
+        /* KPI Cards */
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .kpi-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd; }
-        .kpi-title { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; }
-        .kpi-value { font-size: 32px; font-weight: bold; color: var(--primary); margin: 10px 0; }
-        .kpi-sub { font-size: 12px; color: #95a5a6; }
+        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
+        .c-blue::after { background: var(--primary); }
+        .c-green::after { background: var(--success); }
+        .c-orange::after { background: var(--warning); }
+        .c-red::after { background: var(--danger); }
+        
+        .card h3 { font-size: 14px; color: #666; text-transform: uppercase; margin: 0 0 10px 0; }
+        .card .value { font-size: 28px; font-weight: bold; color: var(--dark); }
+        .card .sub { font-size: 12px; color: #999; margin-top: 5px; }
 
-        /* Gráficos */
+        /* Charts */
         .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 350px; }
+        .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 350px; }
 
-        /* Tabela */
-        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: var(--primary); font-weight: bold; }
-        tr:hover { background-color: #f1f2f6; }
+        /* Table Area */
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        /* DataTables Customization */
+        .dt-buttons .dt-button { 
+            background: var(--primary) !important; color: white !important; border: none !important; border-radius: 4px !important; font-size: 12px !important; margin-right: 5px !important;
+        }
+        .dt-buttons .dt-button:hover { background: #003d80 !important; }
+        table.dataTable thead th { background-color: #f8f9fa; color: #495057; border-bottom: 2px solid #dee2e6; }
+        
+        /* Badges */
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
+        .bg-ok { background-color: var(--success); }
+        .bg-alert { background-color: var(--danger); }
+        .bg-warn { background-color: var(--warning); color: #333; }
 
-        /* Cores Específicas */
-        .bd-blue { border-bottom-color: var(--secondary); }
-        .bd-green { border-bottom-color: var(--success); }
-        .bd-red { border-bottom-color: var(--danger); }
-        .bd-orange { border-bottom-color: var(--warning); }
-
+        /* Print Mode */
+        @media print {
+            body { background: white; padding: 0; }
+            .header { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; }
+            .btn-header, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info, .dt-buttons { display: none !important; }
+            .card { border: 1px solid #ddd; box-shadow: none; }
+            .charts-row { display: block; }
+            .chart-box { page-break-inside: avoid; border: 1px solid #ddd; height: 300px; margin-bottom: 20px; }
+            table { width: 100% !important; border: 1px solid #ccc; font-size: 11px; }
+            th, td { border: 1px solid #ccc !important; padding: 5px !important; }
+        }
+        
         @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -49,151 +93,175 @@
 
     <div class="header">
         <div>
-            <h1><i class="fas fa-chart-line"></i> Indicadores Assistenciais</h1>
-            <small style="color:#7f8c8d">Baseado nos Relatórios Estatísticos (PDF)</small>
+            <h1><i class="fas fa-chart-line"></i> Painel de Indicadores Assistenciais</h1>
+            <p>Monitoramento de Ocupação, Leitos e Movimentação</p>
         </div>
-        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <div>
+            <button class="btn-header btn-print-dash" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir Painel
+            </button>
+            <a href="index.html" class="btn-header btn-back">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
     </div>
 
     <div class="kpi-container">
-        <div class="kpi-card bd-blue">
-            <div class="kpi-title">Média Ocupação</div>
-            <div class="kpi-value" id="kpiOcup">- %</div>
-            <div class="kpi-sub">Último Mês</div>
+        <div class="card c-blue">
+            <h3>Ocupação Atual</h3>
+            <div class="value" id="kpiOcup">- %</div>
+            <div class="sub">Referência: <span id="refMes">--/--</span></div>
         </div>
-        <div class="kpi-card bd-green">
-            <div class="kpi-title">Internações</div>
-            <div class="kpi-value" id="kpiIntern">-</div>
-            <div class="kpi-sub">Último Mês</div>
+        <div class="card c-green">
+            <h3>Internações</h3>
+            <div class="value" id="kpiIntern">-</div>
+            <div class="sub">No mês de referência</div>
         </div>
-        <div class="kpi-card bd-orange">
-            <div class="kpi-title">Média Permanência</div>
-            <div class="kpi-value" id="kpiMedia">- dias</div>
-            <div class="kpi-sub">Geral do Hospital</div>
+        <div class="card c-orange">
+            <h3>Média Permanência</h3>
+            <div class="value" id="kpiMedia">- dias</div>
+            <div class="sub">Geral Hospitalar</div>
         </div>
-        <div class="kpi-card bd-red">
-            <div class="kpi-title">Óbitos</div>
-            <div class="kpi-value" id="kpiObito">-</div>
-            <div class="kpi-sub">Último Mês</div>
+        <div class="card c-red">
+            <h3>Óbitos</h3>
+            <div class="value" id="kpiObito">-</div>
+            <div class="sub">No mês de referência</div>
         </div>
     </div>
 
     <div class="charts-row">
         <div class="chart-box">
-            <h3 style="margin:0 0 15px 0; font-size:16px; color:#555;">Evolução Mensal (Internações vs Altas)</h3>
+            <h4 style="margin:0 0 10px 0; color:#555;">Evolução: Internações x Altas x Óbitos</h4>
             <canvas id="chartMovimento"></canvas>
         </div>
         <div class="chart-box">
-            <h3 style="margin:0 0 15px 0; font-size:16px; color:#555;">Taxa de Ocupação (%)</h3>
+            <h4 style="margin:0 0 10px 0; color:#555;">Taxa de Ocupação Mensal (%)</h4>
             <canvas id="chartOcupacao"></canvas>
         </div>
     </div>
 
     <div class="table-box">
-        <h3 style="margin:0; font-size:18px; color:#555;">Histórico Detalhado</h3>
-        <table>
+        <table id="tabelaIndicadores" class="display" style="width:100%">
             <thead>
                 <tr>
                     <th>Período</th>
+                    <th>Leitos Ativos</th>
                     <th>Internações</th>
                     <th>Altas</th>
                     <th>Óbitos</th>
-                    <th>% Ocupação (Média)</th>
-                    <th>Média Perm. (Dias)</th>
+                    <th>Média Perm.</th>
+                    <th>Taxa Ocupação</th>
                 </tr>
             </thead>
-            <tbody id="tabelaDados">
-                <tr><td colspan="6">Carregando dados...</td></tr>
-            </tbody>
+            <tbody>
+                </tbody>
         </table>
     </div>
 
     <script>
-        // Carrega o JSON gerado pelo Python
-        fetch('arquivos/dados_estatistica.json?v=' + new Date().getTime())
+        $(document).ready(function() {
+            // Carrega o JSON
+            fetch('arquivos/dados_estatistica.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
-                if(!dados || dados.length === 0) {
-                    document.getElementById('tabelaDados').innerHTML = "<tr><td colspan='6'>Nenhum dado encontrado. Rode o script de extração.</td></tr>";
-                    return;
-                }
+                if(!dados || dados.length === 0) return;
 
-                // Prepara Arrays para os Gráficos
+                // --- 1. ATUALIZAR KPIS (Pega o último mês disponível) ---
+                const ultimo = dados[dados.length - 1];
+                $('#kpiOcup').text(ultimo.taxa_ocupacao + '%');
+                $('#kpiIntern').text(ultimo.internacoes);
+                $('#kpiMedia').text(ultimo.media_permanencia.toFixed(1));
+                $('#kpiObito').text(ultimo.obitos);
+                $('#refMes').text(ultimo.periodo);
+
+                // --- 2. PREPARAR DADOS GRÁFICOS ---
                 const labels = dados.map(d => d.periodo);
                 const internacoes = dados.map(d => d.internacoes);
                 const altas = dados.map(d => d.altas);
-                const ocupacao = dados.map(d => d.taxa_ocupacao);
                 const obitos = dados.map(d => d.obitos);
+                const ocupacao = dados.map(d => d.taxa_ocupacao);
 
-                // --- ATUALIZA KPIS (Pega o último registro da lista) ---
-                const ultimo = dados[dados.length - 1];
-                document.getElementById('kpiOcup').innerText = ultimo.taxa_ocupacao + "%";
-                document.getElementById('kpiIntern').innerText = ultimo.internacoes;
-                document.getElementById('kpiMedia').innerText = ultimo.media_permanencia;
-                document.getElementById('kpiObito').innerText = ultimo.obitos;
-
-                // --- GRÁFICO 1: Movimento (Barras Agrupadas) ---
-                const ctx1 = document.getElementById('chartMovimento').getContext('2d');
-                new Chart(ctx1, {
+                // --- 3. RENDERIZAR GRÁFICOS ---
+                
+                // Gráfico Movimento
+                new Chart(document.getElementById('chartMovimento'), {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [
-                            { label: 'Internações', data: internacoes, backgroundColor: '#3498db' },
-                            { label: 'Altas', data: altas, backgroundColor: '#2ecc71' },
-                            { label: 'Óbitos', data: obitos, backgroundColor: '#e74c3c' }
+                            { label: 'Internações', data: internacoes, backgroundColor: '#0056b3' },
+                            { label: 'Altas', data: altas, backgroundColor: '#28a745' },
+                            { label: 'Óbitos', data: obitos, backgroundColor: '#dc3545' }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
 
-                // --- GRÁFICO 2: Ocupação (Linha) ---
-                const ctx2 = document.getElementById('chartOcupacao').getContext('2d');
-                new Chart(ctx2, {
+                // Gráfico Ocupação
+                new Chart(document.getElementById('chartOcupacao'), {
                     type: 'line',
                     data: {
                         labels: labels,
-                        datasets: [
-                            { 
-                                label: '% Ocupação', 
-                                data: ocupacao, 
-                                borderColor: '#f39c12', 
-                                backgroundColor: 'rgba(243, 156, 18, 0.1)',
-                                fill: true,
-                                tension: 0.3
-                            }
-                        ]
+                        datasets: [{ 
+                            label: '% Ocupação', 
+                            data: ocupacao, 
+                            borderColor: '#ffc107', 
+                            backgroundColor: 'rgba(255, 193, 7, 0.2)', 
+                            fill: true, tension: 0.3, pointRadius: 4 
+                        }]
                     },
                     options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true, max: 100 } }
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, max: 100 } },
+                        plugins: { legend: { display: false } }
                     }
                 });
 
-                // --- TABELA ---
-                const tbody = document.getElementById('tabelaDados');
-                tbody.innerHTML = "";
-                // Inverte para mostrar o mais recente em cima
+                // --- 4. PREENCHER E INICIAR DATATABLE ---
+                const tabelaBody = $('#tabelaIndicadores tbody');
+                tabelaBody.empty(); // Limpa antes
+
+                // Inverte array para mostrar o mais recente primeiro na tabela
                 [...dados].reverse().forEach(d => {
-                    let html = `
+                    // Lógica da cor da Ocupação
+                    let badgeClass = 'bg-ok';
+                    if(d.taxa_ocupacao > 85) badgeClass = 'bg-alert';
+                    else if(d.taxa_ocupacao < 60) badgeClass = 'bg-warn';
+
+                    const row = `
                         <tr>
-                            <td><strong>${d.periodo}</strong></td>
+                            <td style="font-weight:bold;">${d.periodo}</td>
+                            <td>${d.leitos_ativos || 326}</td>
                             <td>${d.internacoes}</td>
                             <td>${d.altas}</td>
                             <td>${d.obitos}</td>
-                            <td><span style="color:${d.taxa_ocupacao > 85 ? '#c0392b' : '#27ae60'} font-weight:bold;">${d.taxa_ocupacao}%</span></td>
-                            <td>${d.media_permanencia}</td>
+                            <td>${d.media_permanencia} dias</td>
+                            <td><span class="badge ${badgeClass}">${d.taxa_ocupacao}%</span></td>
                         </tr>
                     `;
-                    tbody.innerHTML += html;
+                    tabelaBody.append(row);
                 });
 
+                // Inicializa DataTables com Botões e Tradução
+                $('#tabelaIndicadores').DataTable({
+                    dom: 'Bfrtip', // B=Buttons, f=Filter, r=Processing, t=Table, i=Info, p=Pagination
+                    buttons: [
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', title: 'Indicadores_Hospitalares' },
+                        { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', title: 'Indicadores_Hospitalares' },
+                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela' }
+                    ],
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+                    },
+                    pageLength: 10,
+                    order: [] // Mantém a ordem do HTML (que já invertemos para Data Recente primeiro)
+                });
             })
             .catch(err => {
-                console.error(err);
-                document.getElementById('tabelaDados').innerHTML = "<tr><td colspan='6'>Erro ao ler JSON. Verifique se o arquivo existe.</td></tr>";
+                console.error("Erro ao carregar JSON:", err);
+                $('.table-box').html('<p style="color:red; text-align:center;">Erro ao carregar dados. Verifique se o arquivo dados_estatistica.json existe.</p>');
             });
+        });
     </script>
 </body>
 </html>
