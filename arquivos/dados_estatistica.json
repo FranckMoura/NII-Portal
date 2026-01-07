@@ -1,98 +1,110 @@
 [
     {
         "periodo": "01/2025",
-        "internacoes": 2710,
-        "altas": 2616,
+        "internacoes": 2300,
+        "altas": 2540,
         "obitos": 32,
-        "taxa_ocupacao": 71.29,
-        "media_permanencia": 3.9
+        "taxa_ocupacao": 72.61,
+        "media_permanencia": 4.26,
+        "leitos_ativos": 328
     },
     {
         "periodo": "02/2025",
-        "internacoes": 2692,
-        "altas": 2630,
+        "internacoes": 2256,
+        "altas": 2551,
         "obitos": 18,
-        "taxa_ocupacao": 80.02,
-        "media_permanencia": 3.76
+        "taxa_ocupacao": 83.49,
+        "media_permanencia": 4.1,
+        "leitos_ativos": 326
     },
     {
         "periodo": "03/2025",
-        "internacoes": 3048,
-        "altas": 2992,
+        "internacoes": 2580,
+        "altas": 2900,
         "obitos": 38,
-        "taxa_ocupacao": 78.38,
-        "media_permanencia": 3.21
+        "taxa_ocupacao": 84.28,
+        "media_permanencia": 3.5,
+        "leitos_ativos": 326
     },
     {
         "periodo": "04/2025",
-        "internacoes": 2918,
-        "altas": 2872,
+        "internacoes": 2442,
+        "altas": 2798,
         "obitos": 24,
-        "taxa_ocupacao": 80.93,
-        "media_permanencia": 4.2
+        "taxa_ocupacao": 85.43,
+        "media_permanencia": 4.57,
+        "leitos_ativos": 326
     },
     {
         "periodo": "05/2025",
-        "internacoes": 2958,
-        "altas": 2948,
+        "internacoes": 2506,
+        "altas": 2843,
         "obitos": 46,
-        "taxa_ocupacao": 80.73,
-        "media_permanencia": 4.13
+        "taxa_ocupacao": 83.37,
+        "media_permanencia": 4.5,
+        "leitos_ativos": 326
     },
     {
         "periodo": "06/2025",
-        "internacoes": 2824,
-        "altas": 2812,
+        "internacoes": 2424,
+        "altas": 2723,
         "obitos": 30,
-        "taxa_ocupacao": 76.98,
-        "media_permanencia": 5.18
+        "taxa_ocupacao": 77.81,
+        "media_permanencia": 5.65,
+        "leitos_ativos": 326
     },
     {
         "periodo": "07/2025",
-        "internacoes": 2934,
-        "altas": 2920,
+        "internacoes": 2524,
+        "altas": 2829,
         "obitos": 26,
-        "taxa_ocupacao": 73.3,
-        "media_permanencia": 3.57
+        "taxa_ocupacao": 77.66,
+        "media_permanencia": 3.89,
+        "leitos_ativos": 326
     },
     {
         "periodo": "08/2025",
-        "internacoes": 2858,
-        "altas": 2846,
+        "internacoes": 2427,
+        "altas": 2736,
         "obitos": 22,
-        "taxa_ocupacao": 76.66,
-        "media_permanencia": 4.09
+        "taxa_ocupacao": 80.88,
+        "media_permanencia": 4.46,
+        "leitos_ativos": 326
     },
     {
         "periodo": "09/2025",
-        "internacoes": 2950,
-        "altas": 2884,
-        "obitos": 34,
-        "taxa_ocupacao": 79.94,
-        "media_permanencia": 4.55
+        "internacoes": 2524,
+        "altas": 2793,
+        "obitos": 33,
+        "taxa_ocupacao": 82.25,
+        "media_permanencia": 4.96,
+        "leitos_ativos": 326
     },
     {
         "periodo": "10/2025",
-        "internacoes": 2916,
-        "altas": 2896,
+        "internacoes": 2479,
+        "altas": 2812,
         "obitos": 32,
-        "taxa_ocupacao": 79.31,
-        "media_permanencia": 7.66
+        "taxa_ocupacao": 81.17,
+        "media_permanencia": 8.36,
+        "leitos_ativos": 326
     },
     {
         "periodo": "11/2025",
-        "internacoes": 2926,
-        "altas": 2922,
+        "internacoes": 2455,
+        "altas": 2828,
         "obitos": 22,
-        "taxa_ocupacao": 78.68,
-        "media_permanencia": 5.06
+        "taxa_ocupacao": 81.97,
+        "media_permanencia": 5.52,
+        "leitos_ativos": 326
     },
     {
         "periodo": "12/2025",
-        "internacoes": 2828,
-        "altas": 2856,
+        "internacoes": 2363,
+        "altas": 2766,
         "obitos": 22,
-        "taxa_ocupacao": 77.66,
-        "media_permanencia": 4.52
+        "taxa_ocupacao": 79.41,
+        "media_permanencia": 4.93,
+        "leitos_ativos": 326
     }
 ]
