@@ -1,228 +1,199 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Histórico Interativo</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Painel NII - Indicadores Hospitalares</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        /* Estilos do Filtro */
-        .filter-bar {
-            background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: flex-end; gap: 15px; flex-wrap: wrap;
-        }
-        .filter-group { display: flex; flex-direction: column; }
-        .filter-group label { font-size: 0.85em; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
-        .filter-group input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 1em; }
-        .btn-filter {
-            background-color: #3498db; color: white; border: none; padding: 10px 20px;
-            border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.3s;
-            height: 40px;
-        }
-        .btn-filter:hover { background-color: #2980b9; }
+        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #c0392b; --warning: #f39c12; }
+        body { font-family: 'Roboto', sans-serif; background: #ecf0f1; margin: 0; padding: 20px; }
+        
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .header h1 { margin: 0; font-size: 24px; color: var(--primary); }
+        .btn-back { text-decoration: none; color: #7f8c8d; font-weight: bold; display: flex; align-items: center; gap: 5px; }
 
-        /* KPIs e Gráficos */
-        .kpi-container { display: flex; gap: 20px; margin-bottom: 30px; }
-        .kpi-card { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-        .kpi-value { font-size: 1.8em; font-weight: bold; color: #2c3e50; }
-        
-        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .chart-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: right; }
-        th { background-color: #f8f9fa; text-align: center; }
-        .td-center { text-align: center; }
+        /* KPIs (Cartões do Topo) */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd; }
+        .kpi-title { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-value { font-size: 32px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .kpi-sub { font-size: 12px; color: #95a5a6; }
+
+        /* Gráficos */
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 350px; }
+
+        /* Tabela */
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: var(--primary); font-weight: bold; }
+        tr:hover { background-color: #f1f2f6; }
+
+        /* Cores Específicas */
+        .bd-blue { border-bottom-color: var(--secondary); }
+        .bd-green { border-bottom-color: var(--success); }
+        .bd-red { border-bottom-color: var(--danger); }
+        .bd-orange { border-bottom-color: var(--warning); }
+
+        @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="navbar-brand-link"><span class="navbar-brand-text">NII - HBSH</span></a>
-            <ul class="navbar-nav">
-                <li><a href="index.html">Início</a></li>
-                <li><a href="faturamento.html">Faturamento</a></li>
-                <li><a href="indicadores.html" class="active">Indicadores</a></li>
-            </ul>
+
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-chart-line"></i> Indicadores Assistenciais</h1>
+            <small style="color:#7f8c8d">Baseado nos Relatórios Estatísticos (PDF)</small>
         </div>
-    </nav>
+        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
 
-    <header class="page-header">
-        <div class="container">
-            <h1>Indicadores Históricos (TabNet)</h1>
-            <p>Selecione um período abaixo para filtrar os dados.</p>
+    <div class="kpi-container">
+        <div class="kpi-card bd-blue">
+            <div class="kpi-title">Média Ocupação</div>
+            <div class="kpi-value" id="kpiOcup">- %</div>
+            <div class="kpi-sub">Último Mês</div>
         </div>
-    </header>
+        <div class="kpi-card bd-green">
+            <div class="kpi-title">Internações</div>
+            <div class="kpi-value" id="kpiIntern">-</div>
+            <div class="kpi-sub">Último Mês</div>
+        </div>
+        <div class="kpi-card bd-orange">
+            <div class="kpi-title">Média Permanência</div>
+            <div class="kpi-value" id="kpiMedia">- dias</div>
+            <div class="kpi-sub">Geral do Hospital</div>
+        </div>
+        <div class="kpi-card bd-red">
+            <div class="kpi-title">Óbitos</div>
+            <div class="kpi-value" id="kpiObito">-</div>
+            <div class="kpi-sub">Último Mês</div>
+        </div>
+    </div>
 
-    <main class="container">
-        
-        <section class="filter-bar">
-            <div class="filter-group">
-                <label>Data Início:</label>
-                <input type="month" id="startDate">
-            </div>
-            <div class="filter-group">
-                <label>Data Fim:</label>
-                <input type="month" id="endDate">
-            </div>
-            <button class="btn-filter" onclick="aplicarFiltro()">Filtrar Dados</button>
-            <button class="btn-filter" style="background:#95a5a6" onclick="resetarFiltro()">Limpar</button>
-        </section>
+    <div class="charts-row">
+        <div class="chart-box">
+            <h3 style="margin:0 0 15px 0; font-size:16px; color:#555;">Evolução Mensal (Internações vs Altas)</h3>
+            <canvas id="chartMovimento"></canvas>
+        </div>
+        <div class="chart-box">
+            <h3 style="margin:0 0 15px 0; font-size:16px; color:#555;">Taxa de Ocupação (%)</h3>
+            <canvas id="chartOcupacao"></canvas>
+        </div>
+    </div>
 
-        <section class="kpi-container">
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-meses">-</div>
-                <div class="kpi-label">Meses Filtrados</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-internacoes">-</div>
-                <div class="kpi-label">Total Internações</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-faturamento">-</div>
-                <div class="kpi-label">Faturamento Período</div>
-            </div>
-        </section>
-
-        <section class="chart-grid">
-            <div class="chart-card">
-                <h3>Internações vs Óbitos</h3>
-                <canvas id="chart1"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>Evolução do Faturamento</h3>
-                <canvas id="chart2"></canvas>
-            </div>
-        </section>
-
-        <section style="background:white; padding:20px; border-radius:8px;">
-            <h3>Detalhamento do Período</h3>
-            <div style="overflow-x:auto; max-height: 400px; overflow-y: auto;">
-                <table id="tabelaDados">
-                    <thead>
-                        <tr>
-                            <th>Período</th>
-                            <th>Internações</th>
-                            <th>Valor Total</th>
-                            <th>Média Perm.</th>
-                            <th>Óbitos</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-
-    </main>
+    <div class="table-box">
+        <h3 style="margin:0; font-size:18px; color:#555;">Histórico Detalhado</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Período</th>
+                    <th>Internações</th>
+                    <th>Altas</th>
+                    <th>Óbitos</th>
+                    <th>% Ocupação (Média)</th>
+                    <th>Média Perm. (Dias)</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaDados">
+                <tr><td colspan="6">Carregando dados...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     <script>
-        // DADOS BRUTOS VINDO DO PYTHON
-        const rawData = [{"periodo_txt": "Janeiro/2021", "qtd_aih": 974, "internacoes": 974, "valor_total": 1053192.13, "valor_servicos_hospi": 746480.76, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 306711.37, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1081.31, "valor_medio_intern": 1081.31, "dias_permanencia": 3467, "media_permanencia": 3.6, "obitos": 20, "taxa_mortalidade": 2.05, "data_iso": "2021-01-01"}, {"periodo_txt": "Fevereiro/2021", "qtd_aih": 907, "internacoes": 907, "valor_total": 920126.51, "valor_servicos_hospi": 651644.72, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 268481.79, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1014.47, "valor_medio_intern": 1014.47, "dias_permanencia": 2911, "media_permanencia": 3.2, "obitos": 17, "taxa_mortalidade": 1.87, "data_iso": "2021-02-01"}, {"periodo_txt": "Mar\u00e7o/2021", "qtd_aih": 1013, "internacoes": 1013, "valor_total": 1148669.31, "valor_servicos_hospi": 825271.79, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 323397.52, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1133.93, "valor_medio_intern": 1133.93, "dias_permanencia": 3617, "media_permanencia": 3.6, "obitos": 20, "taxa_mortalidade": 1.97, "data_iso": "2021-03-01"}, {"periodo_txt": "Abril/2021", "qtd_aih": 1034, "internacoes": 1034, "valor_total": 1147900.09, "valor_servicos_hospi": 811319.68, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 336580.41, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1110.15, "valor_medio_intern": 1110.15, "dias_permanencia": 3642, "media_permanencia": 3.5, "obitos": 18, "taxa_mortalidade": 1.74, "data_iso": "2021-04-01"}, {"periodo_txt": "Maio/2021", "qtd_aih": 1061, "internacoes": 1061, "valor_total": 1174136.68, "valor_servicos_hospi": 849326.96, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 324809.72, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1106.63, "valor_medio_intern": 1106.63, "dias_permanencia": 3602, "media_permanencia": 3.4, "obitos": 19, "taxa_mortalidade": 1.79, "data_iso": "2021-05-01"}, {"periodo_txt": "Junho/2021", "qtd_aih": 1002, "internacoes": 1002, "valor_total": 1143924.01, "valor_servicos_hospi": 832368.64, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 311555.37, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1141.64, "valor_medio_intern": 1141.64, "dias_permanencia": 3263, "media_permanencia": 3.3, "obitos": 19, "taxa_mortalidade": 1.9, "data_iso": "2021-06-01"}, {"periodo_txt": "Julho/2021", "qtd_aih": 998, "internacoes": 998, "valor_total": 1123789.86, "valor_servicos_hospi": 818795.05, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 304994.81, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1126.04, "valor_medio_intern": 1126.04, "dias_permanencia": 3481, "media_permanencia": 3.5, "obitos": 19, "taxa_mortalidade": 1.9, "data_iso": "2021-07-01"}, {"periodo_txt": "Agosto/2021", "qtd_aih": 1023, "internacoes": 1023, "valor_total": 1245541.71, "valor_servicos_hospi": 921457.11, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 324084.6, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1217.54, "valor_medio_intern": 1217.54, "dias_permanencia": 3545, "media_permanencia": 3.5, "obitos": 22, "taxa_mortalidade": 2.15, "data_iso": "2021-08-01"}, {"periodo_txt": "Setembro/2021", "qtd_aih": 1065, "internacoes": 1065, "valor_total": 1236502.9, "valor_servicos_hospi": 900750.91, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 3999.6, "valor_servicos_profi": 326557.89, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 5194.5, "valor_medio_aih": 1161.04, "valor_medio_intern": 1161.04, "dias_permanencia": 3572, "media_permanencia": 3.4, "obitos": 24, "taxa_mortalidade": 2.25, "data_iso": "2021-09-01"}, {"periodo_txt": "Outubro/2021", "qtd_aih": 1038, "internacoes": 1038, "valor_total": 1236363.9, "valor_servicos_hospi": 904303.39, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 3732.96, "valor_servicos_profi": 323479.35, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 4848.2, "valor_medio_aih": 1191.1, "valor_medio_intern": 1191.1, "dias_permanencia": 3894, "media_permanencia": 3.8, "obitos": 23, "taxa_mortalidade": 2.22, "data_iso": "2021-10-01"}, {"periodo_txt": "Novembro/2021", "qtd_aih": 980, "internacoes": 980, "valor_total": 1084821.68, "valor_servicos_hospi": 794719.4, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 290102.28, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1106.96, "valor_medio_intern": 1106.96, "dias_permanencia": 3599, "media_permanencia": 3.7, "obitos": 21, "taxa_mortalidade": 2.14, "data_iso": "2021-11-01"}, {"periodo_txt": "Dezembro/2021", "qtd_aih": 942, "internacoes": 942, "valor_total": 1126124.77, "valor_servicos_hospi": 826556.35, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 1066.56, "valor_servicos_profi": 297116.66, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 1385.2, "valor_medio_aih": 1195.46, "valor_medio_intern": 1195.46, "dias_permanencia": 3310, "media_permanencia": 3.5, "obitos": 16, "taxa_mortalidade": 1.7, "data_iso": "2021-12-01"}, {"periodo_txt": "Janeiro/2023", "qtd_aih": 973, "internacoes": 973, "valor_total": 1268029.45, "valor_servicos_hospi": 964280.73, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 303748.72, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1303.22, "valor_medio_intern": 1303.22, "dias_permanencia": 3834, "media_permanencia": 3.9, "obitos": 15, "taxa_mortalidade": 1.54, "data_iso": "2023-01-01"}, {"periodo_txt": "Fevereiro/2023", "qtd_aih": 939, "internacoes": 939, "valor_total": 1131021.31, "valor_servicos_hospi": 849550.0, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 281471.31, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1204.5, "valor_medio_intern": 1204.5, "dias_permanencia": 3351, "media_permanencia": 3.6, "obitos": 8, "taxa_mortalidade": 0.85, "data_iso": "2023-02-01"}, {"periodo_txt": "Mar\u00e7o/2023", "qtd_aih": 1004, "internacoes": 1004, "valor_total": 1328323.91, "valor_servicos_hospi": 1007950.88, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 320373.03, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1323.03, "valor_medio_intern": 1323.03, "dias_permanencia": 3927, "media_permanencia": 3.9, "obitos": 13, "taxa_mortalidade": 1.29, "data_iso": "2023-03-01"}, {"periodo_txt": "Abril/2023", "qtd_aih": 995, "internacoes": 995, "valor_total": 1156818.44, "valor_servicos_hospi": 859278.54, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 297539.9, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1162.63, "valor_medio_intern": 1162.63, "dias_permanencia": 3443, "media_permanencia": 3.5, "obitos": 10, "taxa_mortalidade": 1.01, "data_iso": "2023-04-01"}, {"periodo_txt": "Maio/2023", "qtd_aih": 985, "internacoes": 985, "valor_total": 1210600.67, "valor_servicos_hospi": 910168.47, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 300432.2, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1229.04, "valor_medio_intern": 1229.04, "dias_permanencia": 3820, "media_permanencia": 3.9, "obitos": 21, "taxa_mortalidade": 2.13, "data_iso": "2023-05-01"}, {"periodo_txt": "Junho/2023", "qtd_aih": 936, "internacoes": 936, "valor_total": 1135423.18, "valor_servicos_hospi": 847126.13, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 288297.05, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1213.06, "valor_medio_intern": 1213.06, "dias_permanencia": 3219, "media_permanencia": 3.4, "obitos": 12, "taxa_mortalidade": 1.28, "data_iso": "2023-06-01"}, {"periodo_txt": "Julho/2023", "qtd_aih": 954, "internacoes": 954, "valor_total": 1140081.93, "valor_servicos_hospi": 855220.13, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 284861.8, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1195.05, "valor_medio_intern": 1195.05, "dias_permanencia": 3331, "media_permanencia": 3.5, "obitos": 18, "taxa_mortalidade": 1.89, "data_iso": "2023-07-01"}, {"periodo_txt": "Agosto/2023", "qtd_aih": 1009, "internacoes": 1009, "valor_total": 1293117.25, "valor_servicos_hospi": 975457.98, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 317659.27, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1281.58, "valor_medio_intern": 1281.58, "dias_permanencia": 3422, "media_permanencia": 3.4, "obitos": 18, "taxa_mortalidade": 1.78, "data_iso": "2023-08-01"}, {"periodo_txt": "Setembro/2023", "qtd_aih": 1004, "internacoes": 1004, "valor_total": 1165990.49, "valor_servicos_hospi": 876297.05, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 289693.44, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1161.35, "valor_medio_intern": 1161.35, "dias_permanencia": 3420, "media_permanencia": 3.4, "obitos": 9, "taxa_mortalidade": 0.9, "data_iso": "2023-09-01"}, {"periodo_txt": "Outubro/2023", "qtd_aih": 995, "internacoes": 995, "valor_total": 1273732.96, "valor_servicos_hospi": 971724.94, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 302008.02, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1280.13, "valor_medio_intern": 1280.13, "dias_permanencia": 3660, "media_permanencia": 3.7, "obitos": 10, "taxa_mortalidade": 1.01, "data_iso": "2023-10-01"}, {"periodo_txt": "Novembro/2023", "qtd_aih": 976, "internacoes": 976, "valor_total": 1211295.01, "valor_servicos_hospi": 917429.63, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 293865.38, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1241.08, "valor_medio_intern": 1241.08, "dias_permanencia": 3530, "media_permanencia": 3.6, "obitos": 14, "taxa_mortalidade": 1.43, "data_iso": "2023-11-01"}, {"periodo_txt": "Dezembro/2023", "qtd_aih": 986, "internacoes": 986, "valor_total": 1267527.82, "valor_servicos_hospi": 966017.33, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 301510.49, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1285.53, "valor_medio_intern": 1285.53, "dias_permanencia": 3532, "media_permanencia": 3.6, "obitos": 17, "taxa_mortalidade": 1.72, "data_iso": "2023-12-01"}, {"periodo_txt": "Janeiro/2024", "qtd_aih": 923, "internacoes": 923, "valor_total": 1120734.71, "valor_servicos_hospi": 852339.73, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 268394.98, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1214.23, "valor_medio_intern": 1214.23, "dias_permanencia": 3502, "media_permanencia": 3.8, "obitos": 7, "taxa_mortalidade": 0.76, "data_iso": "2024-01-01"}, {"periodo_txt": "Fevereiro/2024", "qtd_aih": 901, "internacoes": 901, "valor_total": 1076555.55, "valor_servicos_hospi": 817006.8, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 259548.75, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1194.85, "valor_medio_intern": 1194.85, "dias_permanencia": 3284, "media_permanencia": 3.6, "obitos": 18, "taxa_mortalidade": 2.0, "data_iso": "2024-02-01"}, {"periodo_txt": "Mar\u00e7o/2024", "qtd_aih": 1013, "internacoes": 1013, "valor_total": 1216377.3, "valor_servicos_hospi": 908848.08, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 307529.22, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1200.77, "valor_medio_intern": 1200.77, "dias_permanencia": 3417, "media_permanencia": 3.4, "obitos": 18, "taxa_mortalidade": 1.78, "data_iso": "2024-03-01"}, {"periodo_txt": "Abril/2024", "qtd_aih": 980, "internacoes": 980, "valor_total": 1184189.78, "valor_servicos_hospi": 892129.77, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 292060.01, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1208.36, "valor_medio_intern": 1208.36, "dias_permanencia": 3466, "media_permanencia": 3.5, "obitos": 16, "taxa_mortalidade": 1.63, "data_iso": "2024-04-01"}, {"periodo_txt": "Maio/2024", "qtd_aih": 974, "internacoes": 974, "valor_total": 1185992.09, "valor_servicos_hospi": 897224.24, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 288767.85, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1217.65, "valor_medio_intern": 1217.65, "dias_permanencia": 3387, "media_permanencia": 3.5, "obitos": 24, "taxa_mortalidade": 2.46, "data_iso": "2024-05-01"}, {"periodo_txt": "Junho/2024", "qtd_aih": 934, "internacoes": 934, "valor_total": 1129562.83, "valor_servicos_hospi": 852711.81, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 276851.02, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1209.38, "valor_medio_intern": 1209.38, "dias_permanencia": 3370, "media_permanencia": 3.6, "obitos": 26, "taxa_mortalidade": 2.78, "data_iso": "2024-06-01"}, {"periodo_txt": "Julho/2024", "qtd_aih": 909, "internacoes": 909, "valor_total": 1099788.96, "valor_servicos_hospi": 838118.89, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 261670.07, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1209.89, "valor_medio_intern": 1209.89, "dias_permanencia": 3491, "media_permanencia": 3.8, "obitos": 11, "taxa_mortalidade": 1.21, "data_iso": "2024-07-01"}, {"periodo_txt": "Agosto/2024", "qtd_aih": 918, "internacoes": 918, "valor_total": 1182122.56, "valor_servicos_hospi": 908529.85, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 273592.71, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1287.72, "valor_medio_intern": 1287.72, "dias_permanencia": 3432, "media_permanencia": 3.7, "obitos": 23, "taxa_mortalidade": 2.51, "data_iso": "2024-08-01"}, {"periodo_txt": "Setembro/2024", "qtd_aih": 896, "internacoes": 896, "valor_total": 980342.51, "valor_servicos_hospi": 734512.34, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 245830.17, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1094.13, "valor_medio_intern": 1094.13, "dias_permanencia": 3133, "media_permanencia": 3.5, "obitos": 10, "taxa_mortalidade": 1.12, "data_iso": "2024-09-01"}, {"periodo_txt": "Outubro/2024", "qtd_aih": 999, "internacoes": 999, "valor_total": 1185640.27, "valor_servicos_hospi": 901749.79, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 283890.48, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1186.83, "valor_medio_intern": 1186.83, "dias_permanencia": 3604, "media_permanencia": 3.6, "obitos": 17, "taxa_mortalidade": 1.7, "data_iso": "2024-10-01"}, {"periodo_txt": "Novembro/2024", "qtd_aih": 1012, "internacoes": 1012, "valor_total": 1159328.91, "valor_servicos_hospi": 872219.65, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 287109.26, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1145.58, "valor_medio_intern": 1145.58, "dias_permanencia": 3753, "media_permanencia": 3.7, "obitos": 21, "taxa_mortalidade": 2.08, "data_iso": "2024-11-01"}, {"periodo_txt": "Dezembro/2024", "qtd_aih": 891, "internacoes": 891, "valor_total": 1125086.92, "valor_servicos_hospi": 858983.73, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 266103.19, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1262.72, "valor_medio_intern": 1262.72, "dias_permanencia": 3443, "media_permanencia": 3.9, "obitos": 14, "taxa_mortalidade": 1.57, "data_iso": "2024-12-01"}, {"periodo_txt": "Janeiro/2025", "qtd_aih": 871, "internacoes": 871, "valor_total": 1085609.68, "valor_servicos_hospi": 827895.6, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 257714.08, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1246.39, "valor_medio_intern": 1246.39, "dias_permanencia": 3192, "media_permanencia": 3.7, "obitos": 17, "taxa_mortalidade": 1.95, "data_iso": "2025-01-01"}, {"periodo_txt": "Fevereiro/2025", "qtd_aih": 810, "internacoes": 810, "valor_total": 947840.75, "valor_servicos_hospi": 716857.99, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 230982.76, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1170.17, "valor_medio_intern": 1170.17, "dias_permanencia": 2928, "media_permanencia": 3.6, "obitos": 7, "taxa_mortalidade": 0.86, "data_iso": "2025-02-01"}, {"periodo_txt": "Mar\u00e7o/2025", "qtd_aih": 995, "internacoes": 995, "valor_total": 1193228.49, "valor_servicos_hospi": 898132.2, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 295096.29, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1199.22, "valor_medio_intern": 1199.22, "dias_permanencia": 3743, "media_permanencia": 3.8, "obitos": 18, "taxa_mortalidade": 1.81, "data_iso": "2025-03-01"}, {"periodo_txt": "Abril/2025", "qtd_aih": 992, "internacoes": 992, "valor_total": 1164684.93, "valor_servicos_hospi": 873553.45, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 291131.48, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1174.08, "valor_medio_intern": 1174.08, "dias_permanencia": 3654, "media_permanencia": 3.7, "obitos": 12, "taxa_mortalidade": 1.21, "data_iso": "2025-04-01"}, {"periodo_txt": "Maio/2025", "qtd_aih": 991, "internacoes": 991, "valor_total": 1177253.25, "valor_servicos_hospi": 876648.34, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 300604.91, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1187.94, "valor_medio_intern": 1187.94, "dias_permanencia": 3550, "media_permanencia": 3.6, "obitos": 20, "taxa_mortalidade": 2.02, "data_iso": "2025-05-01"}, {"periodo_txt": "Junho/2025", "qtd_aih": 979, "internacoes": 979, "valor_total": 1135401.93, "valor_servicos_hospi": 847800.69, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 287601.24, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1159.76, "valor_medio_intern": 1159.76, "dias_permanencia": 3383, "media_permanencia": 3.5, "obitos": 14, "taxa_mortalidade": 1.43, "data_iso": "2025-06-01"}, {"periodo_txt": "Julho/2025", "qtd_aih": 970, "internacoes": 970, "valor_total": 1201848.35, "valor_servicos_hospi": 917973.91, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 283874.44, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1239.02, "valor_medio_intern": 1239.02, "dias_permanencia": 3353, "media_permanencia": 3.5, "obitos": 13, "taxa_mortalidade": 1.34, "data_iso": "2025-07-01"}, {"periodo_txt": "Agosto/2025", "qtd_aih": 906, "internacoes": 906, "valor_total": 1159616.12, "valor_servicos_hospi": 879803.92, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 279812.2, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1279.93, "valor_medio_intern": 1279.93, "dias_permanencia": 3369, "media_permanencia": 3.7, "obitos": 10, "taxa_mortalidade": 1.1, "data_iso": "2025-08-01"}, {"periodo_txt": "Setembro/2025", "qtd_aih": 983, "internacoes": 983, "valor_total": 1249901.96, "valor_servicos_hospi": 944212.53, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 305689.43, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1271.52, "valor_medio_intern": 1271.52, "dias_permanencia": 3487, "media_permanencia": 3.5, "obitos": 17, "taxa_mortalidade": 1.73, "data_iso": "2025-09-01"}, {"periodo_txt": "Outubro/2025", "qtd_aih": 986, "internacoes": 986, "valor_total": 1399485.79, "valor_servicos_hospi": 1069366.83, "val_serv_hosp__compl": 0.0, "val_serv_hosp__compl_2": 0.0, "valor_servicos_profi": 330118.96, "val_serv_prof__compl": 0.0, "val_serv_prof__compl_2": 0.0, "valor_medio_aih": 1419.36, "valor_medio_intern": 1419.36, "dias_permanencia": 3657, "media_permanencia": 3.7, "obitos": 14, "taxa_mortalidade": 1.42, "data_iso": "2025-10-01"}];
-
-        // Variáveis globais dos gráficos
-        let chart1 = null;
-        let chart2 = null;
-
-        // Ao carregar a página
-        window.onload = function() {
-            // Define datas padrão (últimos 12 meses)
-            if (rawData.length > 0) {
-                const ultimo = rawData[rawData.length - 1].data_iso.substring(0, 7); // YYYY-MM
-                document.getElementById('endDate').value = ultimo;
-                
-                // Tenta pegar 12 meses atrás
-                const idxInicio = Math.max(0, rawData.length - 12);
-                const inicio = rawData[idxInicio].data_iso.substring(0, 7);
-                document.getElementById('startDate').value = inicio;
-            }
-            aplicarFiltro();
-        };
-
-        function formatMoeda(val) { return "R$ " + val.toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
-
-        function aplicarFiltro() {
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
-
-            // Filtra o Array
-            const filtered = rawData.filter(d => {
-                const dIso = d.data_iso.substring(0, 7);
-                return dIso >= start && dIso <= end;
-            });
-
-            atualizarDashboard(filtered);
-        }
-
-        function resetarFiltro() {
-            if (rawData.length > 0) {
-                document.getElementById('startDate').value = rawData[0].data_iso.substring(0, 7);
-                document.getElementById('endDate').value = rawData[rawData.length-1].data_iso.substring(0, 7);
-                aplicarFiltro();
-            }
-        }
-
-        function atualizarDashboard(dados) {
-            // 1. Atualiza KPIs
-            let totalInt = 0, totalFat = 0;
-            dados.forEach(d => {
-                totalInt += (d.internacoes || d.qtd_aih || 0);
-                totalFat += (d['valor_total'] || 0);
-            });
-
-            document.getElementById('kpi-meses').innerText = dados.length;
-            document.getElementById('kpi-internacoes').innerText = totalInt.toLocaleString('pt-BR');
-            document.getElementById('kpi-faturamento').innerText = formatMoeda(totalFat);
-
-            // 2. Prepara dados para Gráficos
-            const labels = dados.map(d => d['periodo_txt']);
-            const dataInt = dados.map(d => d.internacoes || d.qtd_aih || 0);
-            const dataObt = dados.map(d => d.obitos || 0);
-            const dataFat = dados.map(d => d['valor_total'] || 0);
-
-            // 3. Renderiza/Atualiza Gráfico 1 (Linha)
-            const ctx1 = document.getElementById('chart1').getContext('2d');
-            if (chart1) chart1.destroy();
-            chart1 = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Internações', data: dataInt, borderColor: '#3498db', fill: false },
-                        { label: 'Óbitos', data: dataObt, borderColor: '#e74c3c', fill: false }
-                    ]
+        // Carrega o JSON gerado pelo Python
+        fetch('arquivos/dados_estatistica.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {
+                if(!dados || dados.length === 0) {
+                    document.getElementById('tabelaDados').innerHTML = "<tr><td colspan='6'>Nenhum dado encontrado. Rode o script de extração.</td></tr>";
+                    return;
                 }
-            });
 
-            // 4. Renderiza/Atualiza Gráfico 2 (Barra)
-            const ctx2 = document.getElementById('chart2').getContext('2d');
-            if (chart2) chart2.destroy();
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Faturamento', data: dataFat, backgroundColor: '#2ecc71' }
-                    ]
-                }
-            });
+                // Prepara Arrays para os Gráficos
+                const labels = dados.map(d => d.periodo);
+                const internacoes = dados.map(d => d.internacoes);
+                const altas = dados.map(d => d.altas);
+                const ocupacao = dados.map(d => d.taxa_ocupacao);
+                const obitos = dados.map(d => d.obitos);
 
-            // 5. Atualiza Tabela
-            const tbody = document.querySelector("#tabelaDados tbody");
-            tbody.innerHTML = "";
-            // Inverte para tabela mostrar mais recente no topo
-            [...dados].reverse().forEach(d => {
-                const row = `<tr>
-                    <td class="td-center">${d['periodo_txt']}</td>
-                    <td>${(d.internacoes || d.qtd_aih || 0)}</td>
-                    <td>${formatMoeda(d['valor_total'] || 0)}</td>
-                    <td>${(d.media_permanencia || 0).toFixed(1)}</td>
-                    <td>${(d.obitos || 0)}</td>
-                </tr>`;
-                tbody.innerHTML += row;
+                // --- ATUALIZA KPIS (Pega o último registro da lista) ---
+                const ultimo = dados[dados.length - 1];
+                document.getElementById('kpiOcup').innerText = ultimo.taxa_ocupacao + "%";
+                document.getElementById('kpiIntern').innerText = ultimo.internacoes;
+                document.getElementById('kpiMedia').innerText = ultimo.media_permanencia;
+                document.getElementById('kpiObito').innerText = ultimo.obitos;
+
+                // --- GRÁFICO 1: Movimento (Barras Agrupadas) ---
+                const ctx1 = document.getElementById('chartMovimento').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Internações', data: internacoes, backgroundColor: '#3498db' },
+                            { label: 'Altas', data: altas, backgroundColor: '#2ecc71' },
+                            { label: 'Óbitos', data: obitos, backgroundColor: '#e74c3c' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // --- GRÁFICO 2: Ocupação (Linha) ---
+                const ctx2 = document.getElementById('chartOcupacao').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { 
+                                label: '% Ocupação', 
+                                data: ocupacao, 
+                                borderColor: '#f39c12', 
+                                backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, max: 100 } }
+                    }
+                });
+
+                // --- TABELA ---
+                const tbody = document.getElementById('tabelaDados');
+                tbody.innerHTML = "";
+                // Inverte para mostrar o mais recente em cima
+                [...dados].reverse().forEach(d => {
+                    let html = `
+                        <tr>
+                            <td><strong>${d.periodo}</strong></td>
+                            <td>${d.internacoes}</td>
+                            <td>${d.altas}</td>
+                            <td>${d.obitos}</td>
+                            <td><span style="color:${d.taxa_ocupacao > 85 ? '#c0392b' : '#27ae60'} font-weight:bold;">${d.taxa_ocupacao}%</span></td>
+                            <td>${d.media_permanencia}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += html;
+                });
+
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('tabelaDados').innerHTML = "<tr><td colspan='6'>Erro ao ler JSON. Verifique se o arquivo existe.</td></tr>";
             });
-        }
     </script>
 </body>
 </html>
