@@ -3,22 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel NII - Indicadores Hospitalares</title>
+    <title>Painel de Indicadores HSH</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -34,17 +22,19 @@
         .header h1 { margin: 0; font-size: 22px; color: var(--dark); }
         .header p { margin: 5px 0 0; color: #666; font-size: 14px; }
 
-        .btn-header {
-            text-decoration: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 14px; margin-left: 10px; cursor: pointer; border: none;
+        .filters-container {
+            background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+            display: flex; gap: 20px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .btn-back { background: #6c757d; color: white; }
-        .btn-print-dash { background: var(--primary); color: white; }
-        .btn-print-dash:hover { background: #004494; }
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-group label { font-size: 12px; font-weight: bold; color: #666; margin-bottom: 5px; }
+        select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; min-width: 200px; }
 
-        /* KPI Cards */
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; overflow: hidden; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); }
         .card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
+        
         .c-blue::after { background: var(--primary); }
         .c-green::after { background: var(--success); }
         .c-orange::after { background: var(--warning); }
@@ -54,103 +44,97 @@
         .card .value { font-size: 28px; font-weight: bold; color: var(--dark); }
         .card .sub { font-size: 12px; color: #999; margin-top: 5px; }
 
-        /* Charts */
         .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
         .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: 350px; }
 
-        /* Table Area */
-        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        /* DataTables Customization */
-        .dt-buttons .dt-button { 
-            background: var(--primary) !important; color: white !important; border: none !important; border-radius: 4px !important; font-size: 12px !important; margin-right: 5px !important;
-        }
-        .dt-buttons .dt-button:hover { background: #003d80 !important; }
-        table.dataTable thead th { background-color: #f8f9fa; color: #495057; border-bottom: 2px solid #dee2e6; }
-        
-        /* Badges */
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
-        .bg-ok { background-color: var(--success); }
-        .bg-alert { background-color: var(--danger); }
-        .bg-warn { background-color: var(--warning); color: #333; }
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; font-weight: bold; color: #444; }
+        tr:hover { background-color: #f1f1f1; }
 
-        /* Print Mode */
         @media print {
-            body { background: white; padding: 0; }
-            .header { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; }
-            .btn-header, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info, .dt-buttons { display: none !important; }
-            .card { border: 1px solid #ddd; box-shadow: none; }
+            .filters-container, .btn-print { display: none; }
             .charts-row { display: block; }
-            .chart-box { page-break-inside: avoid; border: 1px solid #ddd; height: 300px; margin-bottom: 20px; }
-            table { width: 100% !important; border: 1px solid #ccc; font-size: 11px; }
-            th, td { border: 1px solid #ccc !important; padding: 5px !important; }
+            .chart-box { margin-bottom: 20px; page-break-inside: avoid; border: 1px solid #ccc; }
         }
-        
-        @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div>
-            <h1><i class="fas fa-chart-line"></i> Painel de Indicadores Assistenciais</h1>
-            <p>Monitoramento de Ocupação, Leitos e Movimentação</p>
+            <h1><i class="fas fa-hospital-alt"></i> Painel de Indicadores HSH</h1>
+            <p>Acompanhamento de Produção, Ocupação e Movimentação Hospitalar</p>
         </div>
         <div>
-            <button class="btn-header btn-print-dash" onclick="window.print()">
-                <i class="fas fa-print"></i> Imprimir Painel
+            <button class="btn-print" onclick="window.print()" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-print"></i> Imprimir
             </button>
-            <a href="index.html" class="btn-header btn-back">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
+        </div>
+    </div>
+
+    <div class="filters-container">
+        <div class="filter-group">
+            <label><i class="far fa-calendar-alt"></i> Período (Mês):</label>
+            <select id="selMes" onchange="mudarMes()">
+                <option value="">Carregando...</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-clinic-medical"></i> Setor / Unidade:</label>
+            <select id="selSetor" onchange="mudarSetor()">
+                <option value="TOTAL">INSTITUCIONAL (TOTAL)</option>
+            </select>
         </div>
     </div>
 
     <div class="kpi-container">
         <div class="card c-blue">
-            <h3>Ocupação Atual</h3>
-            <div class="value" id="kpiOcup">- %</div>
-            <div class="sub">Referência: <span id="refMes">--/--</span></div>
+            <h3>Taxa de Ocupação</h3>
+            <div class="value" id="kpiOcup">-</div>
+            <div class="sub">Eficiência de uso de leitos</div>
         </div>
         <div class="card c-green">
             <h3>Internações</h3>
             <div class="value" id="kpiIntern">-</div>
-            <div class="sub">No mês de referência</div>
+            <div class="sub">Entradas no período</div>
         </div>
         <div class="card c-orange">
             <h3>Média Permanência</h3>
-            <div class="value" id="kpiMedia">- dias</div>
-            <div class="sub">Geral Hospitalar</div>
+            <div class="value" id="kpiMedia">-</div>
+            <div class="sub">Dias médios de internação</div>
         </div>
         <div class="card c-red">
             <h3>Óbitos</h3>
-            <div class="value" id="kpiObito">-</div>
-            <div class="sub">No mês de referência</div>
+            <div class="value" id="kpiObitos">-</div>
+            <div class="sub">Saídas por óbito</div>
         </div>
     </div>
 
     <div class="charts-row">
         <div class="chart-box">
-            <h4 style="margin:0 0 10px 0; color:#555;">Evolução: Internações x Altas x Óbitos</h4>
+            <h4><i class="fas fa-chart-bar"></i> Movimentação: Entradas x Saídas x Óbitos</h4>
             <canvas id="chartMovimento"></canvas>
         </div>
         <div class="chart-box">
-            <h4 style="margin:0 0 10px 0; color:#555;">Taxa de Ocupação Mensal (%)</h4>
-            <canvas id="chartOcupacao"></canvas>
+            <h4><i class="fas fa-percentage"></i> Comparativo de Ocupação (Setores)</h4>
+            <canvas id="chartSetores"></canvas>
         </div>
     </div>
 
     <div class="table-box">
-        <table id="tabelaIndicadores" class="display" style="width:100%">
+        <h4 style="margin-top:0; color:#555;">Detalhamento do Período Selecionado</h4>
+        <table id="tabelaDetalhes">
             <thead>
                 <tr>
-                    <th>Período</th>
-                    <th>Leitos Ativos</th>
+                    <th>Unidade</th>
                     <th>Internações</th>
                     <th>Altas</th>
                     <th>Óbitos</th>
+                    <th>Pac/Dia</th>
                     <th>Média Perm.</th>
-                    <th>Taxa Ocupação</th>
+                    <th>Taxa Ocup.</th>
                 </tr>
             </thead>
             <tbody>
@@ -159,109 +143,186 @@
     </div>
 
     <script>
+        let dadosGlobais = [];
+        let chartMov = null;
+        let chartSet = null;
+
+        // --- INICIALIZAÇÃO ---
         $(document).ready(function() {
-            // Carrega o JSON
-            fetch('arquivos/dados_estatistica.json?v=' + new Date().getTime())
+            // Carrega o NOVO arquivo JSON
+            fetch('arquivos/dados_setorizados.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(dados => {
-                if(!dados || dados.length === 0) return;
+                dadosGlobais = dados;
+                if(!dados || dados.length === 0) {
+                    alert("Nenhum dado encontrado no arquivo JSON.");
+                    return;
+                }
 
-                // --- 1. ATUALIZAR KPIS (Pega o último mês disponível) ---
-                const ultimo = dados[dados.length - 1];
-                $('#kpiOcup').text(ultimo.taxa_ocupacao + '%');
-                $('#kpiIntern').text(ultimo.internacoes);
-                $('#kpiMedia').text(ultimo.media_permanencia.toFixed(1));
-                $('#kpiObito').text(ultimo.obitos);
-                $('#refMes').text(ultimo.periodo);
-
-                // --- 2. PREPARAR DADOS GRÁFICOS ---
-                const labels = dados.map(d => d.periodo);
-                const internacoes = dados.map(d => d.internacoes);
-                const altas = dados.map(d => d.altas);
-                const obitos = dados.map(d => d.obitos);
-                const ocupacao = dados.map(d => d.taxa_ocupacao);
-
-                // --- 3. RENDERIZAR GRÁFICOS ---
+                // Preencher Select de Meses (Do mais recente para o antigo)
+                const selMes = document.getElementById('selMes');
+                selMes.innerHTML = '';
                 
-                // Gráfico Movimento
-                new Chart(document.getElementById('chartMovimento'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Internações', data: internacoes, backgroundColor: '#0056b3' },
-                            { label: 'Altas', data: altas, backgroundColor: '#28a745' },
-                            { label: 'Óbitos', data: obitos, backgroundColor: '#dc3545' }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
+                // Inverte para o mês atual ficar em cima
+                [...dados].reverse().forEach((d, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = index; // O índice na lista original (invertida) ou usar ID
+                    opt.text = d.periodo;
+                    selMes.add(opt);
                 });
-
-                // Gráfico Ocupação
-                new Chart(document.getElementById('chartOcupacao'), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{ 
-                            label: '% Ocupação', 
-                            data: ocupacao, 
-                            borderColor: '#ffc107', 
-                            backgroundColor: 'rgba(255, 193, 7, 0.2)', 
-                            fill: true, tension: 0.3, pointRadius: 4 
-                        }]
-                    },
-                    options: { 
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true, max: 100 } },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-
-                // --- 4. PREENCHER E INICIAR DATATABLE ---
-                const tabelaBody = $('#tabelaIndicadores tbody');
-                tabelaBody.empty(); // Limpa antes
-
-                // Inverte array para mostrar o mais recente primeiro na tabela
-                [...dados].reverse().forEach(d => {
-                    // Lógica da cor da Ocupação
-                    let badgeClass = 'bg-ok';
-                    if(d.taxa_ocupacao > 85) badgeClass = 'bg-alert';
-                    else if(d.taxa_ocupacao < 60) badgeClass = 'bg-warn';
-
-                    const row = `
-                        <tr>
-                            <td style="font-weight:bold;">${d.periodo}</td>
-                            <td>${d.leitos_ativos || 326}</td>
-                            <td>${d.internacoes}</td>
-                            <td>${d.altas}</td>
-                            <td>${d.obitos}</td>
-                            <td>${d.media_permanencia} dias</td>
-                            <td><span class="badge ${badgeClass}">${d.taxa_ocupacao}%</span></td>
-                        </tr>
-                    `;
-                    tabelaBody.append(row);
-                });
-
-                // Inicializa DataTables com Botões e Tradução
-                $('#tabelaIndicadores').DataTable({
-                    dom: 'Bfrtip', // B=Buttons, f=Filter, r=Processing, t=Table, i=Info, p=Pagination
-                    buttons: [
-                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', title: 'Indicadores_Hospitalares' },
-                        { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> PDF', title: 'Indicadores_Hospitalares' },
-                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela' }
-                    ],
-                    language: {
-                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
-                    },
-                    pageLength: 10,
-                    order: [] // Mantém a ordem do HTML (que já invertemos para Data Recente primeiro)
-                });
+                
+                // Seleciona o primeiro (mais recente) e dispara a carga
+                selMes.selectedIndex = 0;
+                mudarMes();
             })
             .catch(err => {
-                console.error("Erro ao carregar JSON:", err);
-                $('.table-box').html('<p style="color:red; text-align:center;">Erro ao carregar dados. Verifique se o arquivo dados_estatistica.json existe.</p>');
+                console.error("Erro:", err);
+                document.querySelector('.kpi-container').innerHTML = `<p style='color:red; width:100%; text-align:center'>Erro ao carregar 'arquivos/dados_setorizados.json'. Execute o script Python novo.</p>`;
             });
         });
+
+        // --- FUNÇÃO: QUANDO MUDA O MÊS ---
+        function mudarMes() {
+            const selMes = document.getElementById('selMes');
+            // Como invertemos a lista no visual, precisamos pegar o dado correto
+            // Estratégia simples: Achar o objeto pelo texto do periodo
+            const periodoSelecionado = selMes.options[selMes.selectedIndex].text;
+            const dadosMes = dadosGlobais.find(d => d.periodo === periodoSelecionado);
+
+            if(!dadosMes) return;
+
+            // Preencher Select de Setores
+            const selSetor = document.getElementById('selSetor');
+            selSetor.innerHTML = '<option value="TOTAL">INSTITUCIONAL (TOTAL)</option>';
+            
+            dadosMes.unidades.forEach((u, idx) => {
+                let opt = document.createElement('option');
+                opt.value = idx; // Índice no array de unidades
+                opt.text = u.nome;
+                selSetor.add(opt);
+            });
+
+            // Reseta para Total e atualiza tudo
+            selSetor.value = "TOTAL";
+            mudarSetor();
+            
+            // Atualiza o gráfico comparativo de setores (que é fixo do mês)
+            atualizarGraficoSetores(dadosMes);
+        }
+
+        // --- FUNÇÃO: QUANDO MUDA O SETOR ---
+        function mudarSetor() {
+            const selMes = document.getElementById('selMes');
+            const selSetor = document.getElementById('selSetor');
+            
+            const periodoSelecionado = selMes.options[selMes.selectedIndex].text;
+            const dadosMes = dadosGlobais.find(d => d.periodo === periodoSelecionado);
+            
+            let dadosAtuais = null;
+
+            if(selSetor.value === "TOTAL") {
+                dadosAtuais = dadosMes.totais;
+            } else {
+                dadosAtuais = dadosMes.unidades[selSetor.value];
+            }
+
+            // 1. Atualizar KPIs
+            document.getElementById('kpiOcup').innerText = dadosAtuais.taxa_ocupacao.toFixed(2) + '%';
+            document.getElementById('kpiIntern').innerText = dadosAtuais.internacoes;
+            document.getElementById('kpiMedia').innerText = dadosAtuais.media_permanencia.toFixed(1) + ' dias';
+            document.getElementById('kpiObitos').innerText = dadosAtuais.obitos;
+
+            // 2. Atualizar Gráfico de Movimento (Barras apenas para este setor/total)
+            atualizarGraficoMovimento(dadosAtuais);
+
+            // 3. Atualizar Tabela (Sempre mostra todas as unidades do mês para comparação)
+            atualizarTabela(dadosMes);
+        }
+
+        function atualizarGraficoMovimento(dados) {
+            const ctx = document.getElementById('chartMovimento').getContext('2d');
+            if(chartMov) chartMov.destroy();
+
+            chartMov = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Internações', 'Altas', 'Óbitos'],
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: [dados.internacoes, dados.altas, dados.obitos],
+                        backgroundColor: ['#0056b3', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function atualizarGraficoSetores(dadosMes) {
+            const ctx = document.getElementById('chartSetores').getContext('2d');
+            if(chartSet) chartSet.destroy();
+
+            // Pega Top 5 setores por ocupação para não poluir
+            const unidadesOrdenadas = [...dadosMes.unidades].sort((a,b) => b.taxa_ocupacao - a.taxa_ocupacao).slice(0, 7);
+
+            chartSet = new Chart(ctx, {
+                type: 'bar', // ou 'horizontalBar' dependendo da versão do Chart.js, mas 'bar' com indexAxis:'y' no v3+
+                data: {
+                    labels: unidadesOrdenadas.map(u => u.nome),
+                    datasets: [{
+                        label: '% Ocupação',
+                        data: unidadesOrdenadas.map(u => u.taxa_ocupacao),
+                        backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                        borderColor: '#ffc107',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Barra horizontal
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        function atualizarTabela(dadosMes) {
+            const tbody = document.getElementById('tabelaDetalhes').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            // Adiciona Linha Total Primeiro
+            const trTotal = `
+                <tr style="background-color: #e9ecef; font-weight: bold;">
+                    <td>TOTAL INSTITUCIONAL</td>
+                    <td>${dadosMes.totais.internacoes}</td>
+                    <td>${dadosMes.totais.altas}</td>
+                    <td>${dadosMes.totais.obitos}</td>
+                    <td>${dadosMes.totais.pac_dia}</td>
+                    <td>${dadosMes.totais.media_permanencia.toFixed(2)}</td>
+                    <td>${dadosMes.totais.taxa_ocupacao.toFixed(2)}%</td>
+                </tr>
+            `;
+            tbody.innerHTML += trTotal;
+
+            // Adiciona as unidades
+            dadosMes.unidades.forEach(u => {
+                const tr = `
+                    <tr>
+                        <td>${u.nome}</td>
+                        <td>${u.internacoes}</td>
+                        <td>${u.altas}</td>
+                        <td>${u.obitos}</td>
+                        <td>${u.pac_dia}</td>
+                        <td>${u.media_permanencia.toFixed(2)}</td>
+                        <td>${u.taxa_ocupacao.toFixed(2)}%</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
+            });
+        }
     </script>
 </body>
 </html>
