@@ -12,17 +12,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 from webdriver_manager.chrome import ChromeDriverManager
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V43 - PREENCHIMENTO DE DATA UNIVERSAL) ---")
-
-# --- VERIFICAÇÃO DE BIBLIOTECAS ---
-try:
-    import cv2
-except ImportError:
-    print("❌ AVISO: OpenCV não instalado.")
+print(f"--- 2. AUTOMAÇÃO SISREG (V46 - PAGINAÇÃO DETETIVE) ---")
 
 # --- CONFIGURAÇÕES ---
 USUARIO = "046FRANCK"
-SENHA = "515462" # <--- ATUALIZE AQUI
+SENHA = "515462"
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-1"
 PASTA_PDF = os.path.join(PASTA_PROJETO, "Fichas_Internacao")
 ARQUIVO_JSON_SITE = os.path.join(PASTA_PROJETO, "arquivos", "dados_sisreg.json")
@@ -84,16 +78,12 @@ def focar_na_tabela_dados(driver):
         driver.switch_to.default_content()
         try:
             driver.switch_to.frame(i)
-            # Procura inputs de data ou tabela
+            # Procura por tabela de listagem OU elementos de paginação comuns
             if driver.find_elements(By.CLASS_NAME, "table_listagem") or driver.find_elements(By.NAME, "data_inicio"):
                 return True
         except: pass
     driver.switch_to.default_content()
     return False
-
-def get_datas_mes_atual():
-    hoje = datetime.now()
-    return hoje.replace(day=1).strftime("%d/%m/%Y"), hoje.strftime("%d/%m/%Y")
 
 def verificar_bloqueio_horario(driver):
     try:
@@ -109,41 +99,31 @@ def verificar_bloqueio_horario(driver):
     return False
 
 def preencher_datas_robustamente(driver, dt_ini, dt_fim):
-    """Tenta de tudo para preencher a data."""
     print(f">> Tentando preencher datas: {dt_ini} a {dt_fim}...")
-    
     sucesso = False
-    
-    # TENTATIVA 1: Pelo Name (Padrão do Sisreg)
     try:
         driver.find_element(By.NAME, "data_inicio").clear()
         driver.find_element(By.NAME, "data_inicio").send_keys(dt_ini)
         driver.find_element(By.NAME, "data_fim").clear()
         driver.find_element(By.NAME, "data_fim").send_keys(dt_fim)
-        print("   -> Datas preenchidas via NAME.")
         sucesso = True
     except: pass
-
+    
     if not sucesso:
-        # TENTATIVA 2: Pelo Label 'Período'
         try:
             inputs = driver.find_elements(By.XPATH, "//*[contains(text(),'Período')]/ancestor::tr//input[@type='text']")
             if len(inputs) >= 2:
                 inputs[0].clear(); inputs[0].send_keys(dt_ini)
                 inputs[1].clear(); inputs[1].send_keys(dt_fim)
-                print("   -> Datas preenchidas via XPATH (Período).")
                 sucesso = True
         except: pass
 
     if not sucesso:
-        # TENTATIVA 3: Força Bruta JavaScript
         try:
             driver.execute_script(f"document.getElementsByName('data_inicio')[0].value = '{dt_ini}'")
             driver.execute_script(f"document.getElementsByName('data_fim')[0].value = '{dt_fim}'")
-            print("   -> Datas preenchidas via JAVASCRIPT.")
             sucesso = True
         except: pass
-    
     return sucesso
 
 # --- SETUP ---
@@ -178,18 +158,18 @@ try:
 
     focar_na_tabela_dados(driver)
 
-    # --- PREENCHIMENTO DE DATA ---
-    dt_ini, dt_fim = get_datas_mes_atual()
+    dt_ini = "01/12/2025"
+    dt_fim = "31/12/2025"
+    print(f">> FILTRO ATIVO: {dt_ini} até {dt_fim}")
     preencher_datas_robustamente(driver, dt_ini, dt_fim)
 
-    # Clica em Pesquisar
     try: driver.find_element(By.NAME, "enviar").click()
     except: 
         try: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
         except: pass
     
     print(">> Pesquisando...")
-    time.sleep(8) # Tempo maior para o site processar a busca
+    time.sleep(8)
 
     pagina_atual = 1
     
@@ -214,21 +194,20 @@ try:
 
         print(f">> Linhas nesta página: {qtd_total}")
 
-        # Se tiver poucas linhas (só cabeçalho), tenta re-preencher data e buscar de novo
+        # Se vazio na pag 1, tenta recarregar
         if qtd_total < 5 and pagina_atual == 1:
             print("⚠️ Parece vazio! Tentando preencher data novamente...")
             preencher_datas_robustamente(driver, dt_ini, dt_fim)
             try: driver.find_element(By.NAME, "enviar").click()
             except: pass
             time.sleep(8)
-            # Recarrega elementos
             focar_na_tabela_dados(driver)
             tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
             if tabelas:
                 linhas = tabelas[-1].find_elements(By.TAG_NAME, "tr")
                 qtd_total = len(linhas)
-                print(f">> Nova contagem de linhas: {qtd_total}")
 
+        # PROCESSAMENTO DAS LINHAS
         for i in range(qtd_total):
             try:
                 focar_na_tabela_dados(driver)
@@ -248,7 +227,7 @@ try:
                     print(f"--- Pág {pagina_atual} | AIH {aih_encontrada}", end=" ")
                 else: continue
 
-                # Extração
+                # (Lógica de processamento igual...)
                 nome_paciente = "PACIENTE"
                 status_estimado = "Pendente"
                 for col in colunas:
@@ -263,7 +242,6 @@ try:
                 caminho_completo_pdf = os.path.join(PASTA_PDF, nome_arquivo_pdf)
                 caminho_relativo_site = f"Fichas_Internacao/{nome_arquivo_pdf}"
 
-                # Verifica existência
                 arquivo_existe = False
                 for f in os.listdir(PASTA_PDF):
                     if f.startswith(f"AIH_{aih_encontrada}") and f.endswith(".pdf"):
@@ -278,7 +256,6 @@ try:
                 
                 print(f"-> [NOVA! IMPRIMINDO...]")
 
-                # Highlight e Clique
                 for col in colunas:
                     if aih_encontrada in col.text:
                         driver.execute_script("arguments[0].style.backgroundColor = 'yellow';", col)
@@ -292,7 +269,6 @@ try:
                 coluna_clique.click()
                 time.sleep(5)
 
-                # Impressão
                 width, height = pyautogui.size()
                 pyautogui.click(width/2, height/2)
                 pyautogui.hotkey('ctrl', 'a'); time.sleep(0.5)
@@ -318,33 +294,61 @@ try:
                 time.sleep(3)
 
             except Exception as e:
-                print(f"❌ Erro: {e}")
+                print(f"❌ Erro na linha: {e}")
                 if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
 
         if registros_pagina == 0:
             print(">> Página vazia.")
             break
 
-        # --- PAGINAÇÃO VISUAL ---
-        print(f">> Procurando PRÓXIMA página...")
-        driver.switch_to.default_content()
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
-
+        # --- PAGINAÇÃO (V46 - BUSCA PROFUNDA) ---
+        print(f">> Tentando ir para PRÓXIMA página (Estratégia V46)...")
         paginou = False
-        if os.path.exists(IMAGEM_SETA):
+        focar_na_tabela_dados(driver)
+
+        # ESTRATÉGIA 1: Buscar imagens dentro de links (Comum no Sisreg)
+        try:
+            # Procura qualquer link que tenha uma imagem cujos nomes sugiram 'seta', 'prox', 'avancar'
+            links_imagem = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox') or contains(@src, 'seta') or contains(@src, 'next')]/..")
+            # Procura inputs de imagem
+            inputs_imagem = driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox'))]")
+            
+            candidatos = links_imagem + inputs_imagem
+            
+            if candidatos:
+                # O botão de "próximo" costuma ser o último da lista (pois o "anterior" vem antes)
+                btn = candidatos[-1]
+                print(f"   -> [HTML] Candidato de imagem encontrado: {btn.tag_name}")
+                driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+                time.sleep(1)
+                driver.execute_script("arguments[0].click();", btn)
+                paginou = True
+        except Exception as e:
+            print(f"   -> [HTML] Falha na busca por imagem: {e}")
+
+        # ESTRATÉGIA 2: Buscar links com símbolo > ou >> (sem depender de 'contains text' simples)
+        if not paginou:
             try:
-                try: posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA, confidence=0.85)
-                except: posicao = pyautogui.locateCenterOnScreen(IMAGEM_SETA)
-                
-                if posicao:
-                    print(f"   -> [VISUAL] Clicando em {posicao}...")
-                    pyautogui.moveTo(posicao); time.sleep(0.5); pyautogui.click()
+                # Busca links que o texto exato seja >, >>, ou contenha ...
+                links_texto = driver.find_elements(By.XPATH, "//a[contains(text(), '>>')] | //a[text()='>'] | //a[contains(text(), 'Próx')]")
+                if links_texto:
+                    btn = links_texto[0]
+                    print("   -> [HTML] Botão texto encontrado.")
+                    driver.execute_script("arguments[0].click();", btn)
                     paginou = True
             except: pass
 
         if not paginou:
-            print(">> Fim do processo.")
+            # SE FALHAR TUDO, PRINTAR OS LINKS DO RODAPÉ PARA DEBUG
+            print("⚠️ NÃO ENCONTREI O BOTÃO. Listando links do rodapé para análise:")
+            try:
+                todos_links = driver.find_elements(By.TAG_NAME, "a")
+                # Pega os últimos 10 links da página
+                for l in todos_links[-10:]:
+                    print(f"   Link: '{l.text}' | href: '{l.get_attribute('href')}' | HTML: {l.get_attribute('innerHTML').strip()[:50]}")
+            except: pass
+
+            print(">> Fim do processo (Sem paginação).")
             break
         
         time.sleep(8)
