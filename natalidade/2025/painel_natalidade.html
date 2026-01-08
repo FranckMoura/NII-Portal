@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indicadores de Natalidade - HSH</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .header { background: linear-gradient(135deg, #e83e8c, #d63384); color: white; padding: 20px 0; margin-bottom: 20px; }
+        .card-kpi { transition: transform 0.2s; border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card-kpi:hover { transform: translateY(-5px); }
+        .icon-box { font-size: 2rem; opacity: 0.8; margin-bottom: 10px; }
+        .chart-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 400px; }
+        .table-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .badge-normal { background-color: #20c997; }
+        .badge-cesaria { background-color: #fd7e14; }
+    </style>
+</head>
+<body>
+
+    <div class="header text-center shadow">
+        <div class="container">
+            <h1><i class="fas fa-baby-carriage"></i> Painel de Natalidade & Obstetrícia</h1>
+            <p class="mb-0">Acompanhamento de Partos e Nascimentos - HSH</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-4">
+                <label class="form-label fw-bold text-secondary">Selecione a Competência:</label>
+                <select id="filtroMes" class="form-select shadow-sm" onchange="atualizarDashboard()">
+                    <option value="01/2025">01/2025</option><option value="02/2025">02/2025</option><option value="03/2025">03/2025</option><option value="04/2025">04/2025</option><option value="05/2025">05/2025</option><option value="06/2025">06/2025</option><option value="07/2025">07/2025</option><option value="08/2025">08/2025</option><option value="09/2025">09/2025</option><option value="10/2025">10/2025</option><option value="11/2025">11/2025</option><option value="12/2025">12/2025</option>
+                    <option value="TODOS">VISÃO GERAL (ANO)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-4 text-center">
+            <div class="col-md-4 mb-2">
+                <div class="card card-kpi bg-white text-success h-100 py-3 border-bottom border-5 border-success">
+                    <div class="card-body">
+                        <div class="icon-box"><i class="fas fa-smile-beam"></i></div>
+                        <h2 class="fw-bold display-4" id="txtVivos">0</h2>
+                        <span class="text-uppercase fw-bold text-secondary small">Nascidos Vivos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="card card-kpi bg-white text-warning h-100 py-3 border-bottom border-5 border-warning">
+                    <div class="card-body">
+                        <div class="icon-box"><i class="fas fa-procedures"></i></div>
+                        <h2 class="fw-bold display-4" id="txtTotalPartos">0</h2>
+                        <span class="text-uppercase fw-bold text-secondary small">Total de Partos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="card card-kpi bg-white text-danger h-100 py-3 border-bottom border-5 border-danger">
+                    <div class="card-body">
+                        <div class="icon-box"><i class="fas fa-heart-broken"></i></div>
+                        <h2 class="fw-bold display-4" id="txtMortos">0</h2>
+                        <span class="text-uppercase fw-bold text-secondary small">Natimortos + Óbitos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="chart-container">
+                    <h5 class="text-secondary text-center mb-3">Tipo de Parto</h5>
+                    <canvas id="chartTipo"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="chart-container">
+                    <h5 class="text-secondary text-center mb-3">Evolução Mensal (Vivos)</h5>
+                    <canvas id="chartEvolucao"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <h5 class="text-secondary mb-3"><i class="fas fa-list"></i> Detalhamento por Tipo</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mês</th>
+                            <th>Tipo de Parto</th>
+                            <th class="text-center text-success">Vivos</th>
+                            <th class="text-center text-muted">Natimortos</th>
+                            <th class="text-center text-danger">Óbitos Neo</th>
+                            <th class="text-center fw-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaDados">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const dadosRaw = [{"mes": "01/2025", "tipo": "PARTO NORMAL", "vivos": 2, "mortos": 0, "obitos": 0}, {"mes": "02/2025", "tipo": "PARTO CESARIANO", "vivos": 134, "mortos": 0, "obitos": 0}, {"mes": "02/2025", "tipo": "PARTO NORMAL", "vivos": 262, "mortos": 1, "obitos": 0}, {"mes": "03/2025", "tipo": "PARTO CESARIANO", "vivos": 165, "mortos": 4, "obitos": 0}, {"mes": "03/2025", "tipo": "PARTO NORMAL", "vivos": 371, "mortos": 5, "obitos": 0}, {"mes": "04/2025", "tipo": "PARTO CESARIANO", "vivos": 167, "mortos": 0, "obitos": 0}, {"mes": "04/2025", "tipo": "PARTO NORMAL", "vivos": 362, "mortos": 4, "obitos": 1}, {"mes": "05/2025", "tipo": "PARTO CESARIANO", "vivos": 198, "mortos": 1, "obitos": 0}, {"mes": "05/2025", "tipo": "PARTO NORMAL", "vivos": 322, "mortos": 6, "obitos": 0}, {"mes": "06/2025", "tipo": "PARTO CESARIANO", "vivos": 171, "mortos": 1, "obitos": 1}, {"mes": "06/2025", "tipo": "PARTO NORMAL", "vivos": 331, "mortos": 7, "obitos": 0}, {"mes": "07/2025", "tipo": "PARTO CESARIANO", "vivos": 165, "mortos": 0, "obitos": 0}, {"mes": "07/2025", "tipo": "PARTO NORMAL", "vivos": 300, "mortos": 4, "obitos": 1}, {"mes": "08/2025", "tipo": "PARTO CESARIANO", "vivos": 147, "mortos": 2, "obitos": 0}, {"mes": "08/2025", "tipo": "PARTO NORMAL", "vivos": 258, "mortos": 3, "obitos": 1}, {"mes": "09/2025", "tipo": "PARTO CESARIANO", "vivos": 151, "mortos": 1, "obitos": 1}, {"mes": "09/2025", "tipo": "PARTO NORMAL", "vivos": 293, "mortos": 3, "obitos": 3}, {"mes": "10/2025", "tipo": "PARTO CESARIANO", "vivos": 159, "mortos": 0, "obitos": 0}, {"mes": "10/2025", "tipo": "PARTO NORMAL", "vivos": 300, "mortos": 2, "obitos": 0}, {"mes": "11/2025", "tipo": "PARTO CESARIANO", "vivos": 146, "mortos": 1, "obitos": 0}, {"mes": "11/2025", "tipo": "PARTO NORMAL", "vivos": 308, "mortos": 3, "obitos": 1}, {"mes": "12/2025", "tipo": "PARTO CESARIANO", "vivos": 178, "mortos": 0, "obitos": 1}, {"mes": "12/2025", "tipo": "PARTO NORMAL", "vivos": 299, "mortos": 2, "obitos": 0}];
+        let chartPizza = null;
+        let chartLinha = null;
+
+        function atualizarDashboard() {
+            const mesSel = document.getElementById('filtroMes').value;
+            
+            // 1. Filtrar Dados
+            let dadosFiltrados = dadosRaw;
+            if (mesSel !== "TODOS") {
+                dadosFiltrados = dadosRaw.filter(d => d.mes === mesSel);
+            }
+
+            // 2. Calcular Totais
+            let totalVivos = 0;
+            let totalMortos = 0;
+            let totalObitos = 0;
+            let totalNormal = 0;
+            let totalCesaria = 0;
+
+            dadosFiltrados.forEach(d => {
+                totalVivos += d.vivos;
+                totalMortos += d.mortos;
+                totalObitos += d.obitos;
+                
+                if(d.tipo.includes("CESARIANO")) totalCesaria += (d.vivos + d.mortos);
+                else if(d.tipo.includes("NORMAL")) totalNormal += (d.vivos + d.mortos);
+            });
+
+            const totalGeral = totalVivos + totalMortos; // Aproximado partos
+
+            // 3. Atualizar Cards
+            animarValor('txtVivos', totalVivos);
+            animarValor('txtTotalPartos', totalGeral);
+            animarValor('txtMortos', totalMortos + totalObitos);
+
+            // 4. Atualizar Tabela
+            const tbody = document.getElementById('tabelaDados');
+            tbody.innerHTML = '';
+            dadosFiltrados.forEach(d => {
+                let badge = 'bg-secondary';
+                if(d.tipo.includes('NORMAL')) badge = 'badge-normal';
+                if(d.tipo.includes('CESARIANO')) badge = 'badge-cesaria';
+
+                const tr = `
+                    <tr>
+                        <td>${d.mes}</td>
+                        <td><span class="badge ${badge}">${d.tipo}</span></td>
+                        <td class="text-center fw-bold">${d.vivos}</td>
+                        <td class="text-center">${d.mortos}</td>
+                        <td class="text-center">${d.obitos}</td>
+                        <td class="text-center fw-bold">${d.vivos + d.mortos}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
+            });
+
+            // 5. Atualizar Gráficos
+            atualizarGraficos(totalNormal, totalCesaria);
+        }
+
+        function atualizarGraficos(normal, cesaria) {
+            const ctx1 = document.getElementById('chartTipo').getContext('2d');
+            
+            if(chartPizza) chartPizza.destroy();
+
+            chartPizza = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Parto Normal', 'Cesariana'],
+                    datasets: [{
+                        data: [normal, cesaria],
+                        backgroundColor: ['#20c997', '#fd7e14'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Gráfico de Evolução (Fixo, mostra todos os meses)
+            // Agrupar dados por mês para o gráfico de linha
+            const meses = [...new Set(dadosRaw.map(d => d.mes))]; // Unicos
+            const valores = meses.map(m => {
+                return dadosRaw.filter(d => d.mes === m).reduce((sum, current) => sum + current.vivos, 0);
+            });
+
+            const ctx2 = document.getElementById('chartEvolucao').getContext('2d');
+            if(chartLinha) chartLinha.destroy();
+
+            chartLinha = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Nascidos Vivos',
+                        data: valores,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function animarValor(id, valor) {
+            document.getElementById(id).innerText = valor;
+        }
+
+        // Iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seleciona o último mês por padrão se houver
+            const select = document.getElementById('filtroMes');
+            if(select.options.length > 1) {
+                // select.selectedIndex = select.options.length - 2; // Penultimo (ultimo é TODOS)
+            }
+            atualizarDashboard();
+        });
+    </script>
+</body>
+</html>
