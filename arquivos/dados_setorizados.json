@@ -1,0 +1,1259 @@
+[
+    {
+        "periodo": "01/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 945,
+            "altas": 1232,
+            "obitos": 16,
+            "pac_dia": 3687,
+            "taxa_ocupacao": 71.15,
+            "media_permanencia": 4.4
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 542,
+                "altas": 69,
+                "obitos": 0,
+                "media_permanencia": 0.57,
+                "taxa_ocupacao": 53.39,
+                "pac_dia": 331
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 135,
+                "altas": 195,
+                "obitos": 1,
+                "media_permanencia": 3.06,
+                "taxa_ocupacao": 71.84,
+                "pac_dia": 732
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 46,
+                "altas": 191,
+                "obitos": 0,
+                "media_permanencia": 1.16,
+                "taxa_ocupacao": 58.06,
+                "pac_dia": 234
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 80,
+                "altas": 508,
+                "obitos": 0,
+                "media_permanencia": 2.06,
+                "taxa_ocupacao": 81.15,
+                "pac_dia": 1132
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 45,
+                "altas": 148,
+                "obitos": 0,
+                "media_permanencia": 1.03,
+                "taxa_ocupacao": 51.94,
+                "pac_dia": 161
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 33,
+                "altas": 79,
+                "obitos": 0,
+                "media_permanencia": 1.46,
+                "taxa_ocupacao": 46.83,
+                "pac_dia": 118
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 23,
+                "altas": 11,
+                "obitos": 10,
+                "media_permanencia": 3.93,
+                "taxa_ocupacao": 92.58,
+                "pac_dia": 287
+            },
+            {
+                "nome": "1º ANDAR C.O LEITO EX",
+                "internacoes": 3,
+                "altas": 0,
+                "obitos": 0,
+                "media_permanencia": 0.0,
+                "taxa_ocupacao": 0.0,
+                "pac_dia": 0
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 38,
+                "altas": 16,
+                "obitos": 5,
+                "media_permanencia": 11.7,
+                "taxa_ocupacao": 92.29,
+                "pac_dia": 515
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 0,
+                "altas": 11,
+                "obitos": 0,
+                "media_permanencia": 6.25,
+                "taxa_ocupacao": 80.65,
+                "pac_dia": 100
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 4,
+                "obitos": 0,
+                "media_permanencia": 12.83,
+                "taxa_ocupacao": 82.8,
+                "pac_dia": 77
+            }
+        ]
+    },
+    {
+        "periodo": "02/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 910,
+            "altas": 1236,
+            "obitos": 9,
+            "pac_dia": 3804,
+            "taxa_ocupacao": 79.66,
+            "media_permanencia": 4.22
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 553,
+                "altas": 98,
+                "obitos": 0,
+                "media_permanencia": 0.72,
+                "taxa_ocupacao": 78.93,
+                "pac_dia": 442
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 112,
+                "altas": 189,
+                "obitos": 1,
+                "media_permanencia": 3.27,
+                "taxa_ocupacao": 86.38,
+                "pac_dia": 774
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 48,
+                "altas": 153,
+                "obitos": 0,
+                "media_permanencia": 1.43,
+                "taxa_ocupacao": 68.13,
+                "pac_dia": 248
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 78,
+                "altas": 510,
+                "obitos": 0,
+                "media_permanencia": 2.01,
+                "taxa_ocupacao": 88.57,
+                "pac_dia": 1116
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 45,
+                "altas": 161,
+                "obitos": 0,
+                "media_permanencia": 1.02,
+                "taxa_ocupacao": 62.14,
+                "pac_dia": 174
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 28,
+                "altas": 96,
+                "obitos": 0,
+                "media_permanencia": 1.38,
+                "taxa_ocupacao": 62.05,
+                "pac_dia": 139
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 13,
+                "altas": 6,
+                "obitos": 7,
+                "media_permanencia": 5.31,
+                "taxa_ocupacao": 98.57,
+                "pac_dia": 276
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 31,
+                "altas": 8,
+                "obitos": 1,
+                "media_permanencia": 12.38,
+                "taxa_ocupacao": 95.83,
+                "pac_dia": 483
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 2,
+                "altas": 9,
+                "obitos": 0,
+                "media_permanencia": 4.94,
+                "taxa_ocupacao": 75.0,
+                "pac_dia": 84
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 9.71,
+                "taxa_ocupacao": 80.95,
+                "pac_dia": 68
+            }
+        ]
+    },
+    {
+        "periodo": "03/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1056,
+            "altas": 1404,
+            "obitos": 19,
+            "pac_dia": 4245,
+            "taxa_ocupacao": 77.77,
+            "media_permanencia": 3.56
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 731,
+                "altas": 103,
+                "obitos": 0,
+                "media_permanencia": 0.64,
+                "taxa_ocupacao": 81.61,
+                "pac_dia": 506
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 85,
+                "altas": 237,
+                "obitos": 1,
+                "media_permanencia": 3.14,
+                "taxa_ocupacao": 89.72,
+                "pac_dia": 890
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 64,
+                "altas": 185,
+                "obitos": 0,
+                "media_permanencia": 1.25,
+                "taxa_ocupacao": 67.49,
+                "pac_dia": 272
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 46,
+                "altas": 572,
+                "obitos": 0,
+                "media_permanencia": 2.04,
+                "taxa_ocupacao": 90.61,
+                "pac_dia": 1264
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 48,
+                "altas": 176,
+                "obitos": 0,
+                "media_permanencia": 1.01,
+                "taxa_ocupacao": 60.0,
+                "pac_dia": 186
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 29,
+                "altas": 105,
+                "obitos": 0,
+                "media_permanencia": 1.14,
+                "taxa_ocupacao": 55.65,
+                "pac_dia": 138
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 28,
+                "altas": 4,
+                "obitos": 14,
+                "media_permanencia": 3.88,
+                "taxa_ocupacao": 93.87,
+                "pac_dia": 291
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 13,
+                "altas": 4,
+                "obitos": 3,
+                "media_permanencia": 15.97,
+                "taxa_ocupacao": 97.31,
+                "pac_dia": 543
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 8,
+                "altas": 11,
+                "obitos": 0,
+                "media_permanencia": 3.36,
+                "taxa_ocupacao": 75.81,
+                "pac_dia": 94
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 4,
+                "altas": 7,
+                "obitos": 1,
+                "media_permanencia": 3.21,
+                "taxa_ocupacao": 65.59,
+                "pac_dia": 61
+            }
+        ]
+    },
+    {
+        "periodo": "04/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 983,
+            "altas": 1362,
+            "obitos": 12,
+            "pac_dia": 4160,
+            "taxa_ocupacao": 80.44,
+            "media_permanencia": 4.74
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 690,
+                "altas": 98,
+                "obitos": 1,
+                "media_permanencia": 0.67,
+                "taxa_ocupacao": 85.67,
+                "pac_dia": 514
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 94,
+                "altas": 253,
+                "obitos": 0,
+                "media_permanencia": 2.7,
+                "taxa_ocupacao": 87.19,
+                "pac_dia": 837
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 61,
+                "altas": 178,
+                "obitos": 0,
+                "media_permanencia": 1.24,
+                "taxa_ocupacao": 65.64,
+                "pac_dia": 256
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 47,
+                "altas": 543,
+                "obitos": 0,
+                "media_permanencia": 2.06,
+                "taxa_ocupacao": 91.7,
+                "pac_dia": 1238
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 40,
+                "altas": 170,
+                "obitos": 0,
+                "media_permanencia": 0.98,
+                "taxa_ocupacao": 58.33,
+                "pac_dia": 175
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 18,
+                "altas": 95,
+                "obitos": 0,
+                "media_permanencia": 1.3,
+                "taxa_ocupacao": 56.25,
+                "pac_dia": 135
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 12,
+                "altas": 5,
+                "obitos": 6,
+                "media_permanencia": 4.79,
+                "taxa_ocupacao": 99.0,
+                "pac_dia": 297
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 17,
+                "altas": 9,
+                "obitos": 5,
+                "media_permanencia": 17.87,
+                "taxa_ocupacao": 99.26,
+                "pac_dia": 536
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 1,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 7.64,
+                "taxa_ocupacao": 89.17,
+                "pac_dia": 107
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 3,
+                "altas": 5,
+                "obitos": 0,
+                "media_permanencia": 8.12,
+                "taxa_ocupacao": 72.22,
+                "pac_dia": 65
+            }
+        ]
+    },
+    {
+        "periodo": "05/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1027,
+            "altas": 1369,
+            "obitos": 23,
+            "pac_dia": 4197,
+            "taxa_ocupacao": 80.44,
+            "media_permanencia": 4.67
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 679,
+                "altas": 106,
+                "obitos": 0,
+                "media_permanencia": 0.65,
+                "taxa_ocupacao": 78.39,
+                "pac_dia": 486
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 96,
+                "altas": 235,
+                "obitos": 1,
+                "media_permanencia": 2.98,
+                "taxa_ocupacao": 84.38,
+                "pac_dia": 837
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 60,
+                "altas": 186,
+                "obitos": 1,
+                "media_permanencia": 1.28,
+                "taxa_ocupacao": 65.76,
+                "pac_dia": 265
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 75,
+                "altas": 569,
+                "obitos": 0,
+                "media_permanencia": 2.05,
+                "taxa_ocupacao": 91.61,
+                "pac_dia": 1278
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 47,
+                "altas": 164,
+                "obitos": 0,
+                "media_permanencia": 0.96,
+                "taxa_ocupacao": 53.23,
+                "pac_dia": 165
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 25,
+                "altas": 91,
+                "obitos": 0,
+                "media_permanencia": 1.26,
+                "taxa_ocupacao": 53.23,
+                "pac_dia": 132
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 27,
+                "altas": 4,
+                "obitos": 11,
+                "media_permanencia": 4.12,
+                "taxa_ocupacao": 91.61,
+                "pac_dia": 284
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 14,
+                "altas": 3,
+                "obitos": 10,
+                "media_permanencia": 17.09,
+                "taxa_ocupacao": 98.03,
+                "pac_dia": 547
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 4,
+                "altas": 7,
+                "obitos": 0,
+                "media_permanencia": 6.22,
+                "taxa_ocupacao": 90.32,
+                "pac_dia": 112
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 4,
+                "obitos": 0,
+                "media_permanencia": 10.11,
+                "taxa_ocupacao": 97.85,
+                "pac_dia": 91
+            }
+        ]
+    },
+    {
+        "periodo": "06/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1012,
+            "altas": 1317,
+            "obitos": 15,
+            "pac_dia": 3791,
+            "taxa_ocupacao": 76.87,
+            "media_permanencia": 5.94
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 633,
+                "altas": 95,
+                "obitos": 0,
+                "media_permanencia": 0.57,
+                "taxa_ocupacao": 63.67,
+                "pac_dia": 382
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 139,
+                "altas": 219,
+                "obitos": 1,
+                "media_permanencia": 2.8,
+                "taxa_ocupacao": 77.5,
+                "pac_dia": 744
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 56,
+                "altas": 167,
+                "obitos": 0,
+                "media_permanencia": 1.23,
+                "taxa_ocupacao": 55.13,
+                "pac_dia": 215
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 62,
+                "altas": 548,
+                "obitos": 0,
+                "media_permanencia": 1.98,
+                "taxa_ocupacao": 85.56,
+                "pac_dia": 1155
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 55,
+                "altas": 171,
+                "obitos": 0,
+                "media_permanencia": 1.05,
+                "taxa_ocupacao": 60.33,
+                "pac_dia": 181
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 25,
+                "altas": 86,
+                "obitos": 0,
+                "media_permanencia": 1.38,
+                "taxa_ocupacao": 55.0,
+                "pac_dia": 132
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 22,
+                "altas": 10,
+                "obitos": 7,
+                "media_permanencia": 3.87,
+                "taxa_ocupacao": 91.67,
+                "pac_dia": 275
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 20,
+                "altas": 9,
+                "obitos": 7,
+                "media_permanencia": 21.46,
+                "taxa_ocupacao": 95.37,
+                "pac_dia": 515
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 0,
+                "altas": 7,
+                "obitos": 0,
+                "media_permanencia": 10.4,
+                "taxa_ocupacao": 86.67,
+                "pac_dia": 104
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 5,
+                "obitos": 0,
+                "media_permanencia": 14.67,
+                "taxa_ocupacao": 97.78,
+                "pac_dia": 88
+            }
+        ]
+    },
+    {
+        "periodo": "07/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1057,
+            "altas": 1369,
+            "obitos": 13,
+            "pac_dia": 3915,
+            "taxa_ocupacao": 72.85,
+            "media_permanencia": 4.01
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 655,
+                "altas": 101,
+                "obitos": 0,
+                "media_permanencia": 0.57,
+                "taxa_ocupacao": 63.71,
+                "pac_dia": 395
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 161,
+                "altas": 237,
+                "obitos": 0,
+                "media_permanencia": 2.79,
+                "taxa_ocupacao": 80.85,
+                "pac_dia": 802
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 47,
+                "altas": 168,
+                "obitos": 0,
+                "media_permanencia": 1.46,
+                "taxa_ocupacao": 65.51,
+                "pac_dia": 264
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 73,
+                "altas": 574,
+                "obitos": 0,
+                "media_permanencia": 1.93,
+                "taxa_ocupacao": 83.66,
+                "pac_dia": 1167
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 53,
+                "altas": 185,
+                "obitos": 0,
+                "media_permanencia": 0.94,
+                "taxa_ocupacao": 57.74,
+                "pac_dia": 179
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 28,
+                "altas": 78,
+                "obitos": 0,
+                "media_permanencia": 1.48,
+                "taxa_ocupacao": 52.02,
+                "pac_dia": 129
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 8,
+                "altas": 4,
+                "obitos": 5,
+                "media_permanencia": 4.97,
+                "taxa_ocupacao": 99.35,
+                "pac_dia": 308
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 27,
+                "altas": 7,
+                "obitos": 8,
+                "media_permanencia": 14.56,
+                "taxa_ocupacao": 93.91,
+                "pac_dia": 524
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 4,
+                "altas": 9,
+                "obitos": 0,
+                "media_permanencia": 6.53,
+                "taxa_ocupacao": 79.03,
+                "pac_dia": 98
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 1,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 4.9,
+                "taxa_ocupacao": 52.69,
+                "pac_dia": 49
+            }
+        ]
+    },
+    {
+        "periodo": "08/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 998,
+            "altas": 1313,
+            "obitos": 11,
+            "pac_dia": 4077,
+            "taxa_ocupacao": 76.22,
+            "media_permanencia": 4.62
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 580,
+                "altas": 81,
+                "obitos": 1,
+                "media_permanencia": 0.7,
+                "taxa_ocupacao": 71.45,
+                "pac_dia": 443
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 133,
+                "altas": 234,
+                "obitos": 0,
+                "media_permanencia": 3.18,
+                "taxa_ocupacao": 85.08,
+                "pac_dia": 844
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 70,
+                "altas": 183,
+                "obitos": 1,
+                "media_permanencia": 1.17,
+                "taxa_ocupacao": 60.55,
+                "pac_dia": 244
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 85,
+                "altas": 529,
+                "obitos": 0,
+                "media_permanencia": 2.17,
+                "taxa_ocupacao": 88.82,
+                "pac_dia": 1239
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 57,
+                "altas": 175,
+                "obitos": 0,
+                "media_permanencia": 0.97,
+                "taxa_ocupacao": 55.48,
+                "pac_dia": 172
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 21,
+                "altas": 81,
+                "obitos": 0,
+                "media_permanencia": 1.66,
+                "taxa_ocupacao": 58.06,
+                "pac_dia": 144
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 20,
+                "altas": 6,
+                "obitos": 6,
+                "media_permanencia": 5.56,
+                "taxa_ocupacao": 96.77,
+                "pac_dia": 300
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 29,
+                "altas": 10,
+                "obitos": 3,
+                "media_permanencia": 16.0,
+                "taxa_ocupacao": 94.62,
+                "pac_dia": 528
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 2,
+                "altas": 9,
+                "obitos": 0,
+                "media_permanencia": 5.56,
+                "taxa_ocupacao": 71.77,
+                "pac_dia": 89
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 1,
+                "altas": 5,
+                "obitos": 0,
+                "media_permanencia": 9.25,
+                "taxa_ocupacao": 79.57,
+                "pac_dia": 74
+            }
+        ]
+    },
+    {
+        "periodo": "09/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1049,
+            "altas": 1351,
+            "obitos": 16,
+            "pac_dia": 4009,
+            "taxa_ocupacao": 79.69,
+            "media_permanencia": 5.17
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 670,
+                "altas": 119,
+                "obitos": 0,
+                "media_permanencia": 0.65,
+                "taxa_ocupacao": 78.17,
+                "pac_dia": 469
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 131,
+                "altas": 253,
+                "obitos": 4,
+                "media_permanencia": 2.83,
+                "taxa_ocupacao": 82.52,
+                "pac_dia": 859
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 42,
+                "altas": 147,
+                "obitos": 0,
+                "media_permanencia": 1.16,
+                "taxa_ocupacao": 59.29,
+                "pac_dia": 185
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 91,
+                "altas": 556,
+                "obitos": 0,
+                "media_permanencia": 1.98,
+                "taxa_ocupacao": 88.37,
+                "pac_dia": 1193
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 49,
+                "altas": 157,
+                "obitos": 0,
+                "media_permanencia": 0.99,
+                "taxa_ocupacao": 54.67,
+                "pac_dia": 164
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 27,
+                "altas": 97,
+                "obitos": 0,
+                "media_permanencia": 1.29,
+                "taxa_ocupacao": 56.25,
+                "pac_dia": 135
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 21,
+                "altas": 4,
+                "obitos": 7,
+                "media_permanencia": 4.36,
+                "taxa_ocupacao": 97.33,
+                "pac_dia": 292
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 17,
+                "altas": 5,
+                "obitos": 5,
+                "media_permanencia": 19.22,
+                "taxa_ocupacao": 96.11,
+                "pac_dia": 519
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 1,
+                "altas": 7,
+                "obitos": 0,
+                "media_permanencia": 7.27,
+                "taxa_ocupacao": 90.83,
+                "pac_dia": 109
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 12.0,
+                "taxa_ocupacao": 93.33,
+                "pac_dia": 84
+            }
+        ]
+    },
+    {
+        "periodo": "10/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 1021,
+            "altas": 1364,
+            "obitos": 16,
+            "pac_dia": 4096,
+            "taxa_ocupacao": 79.12,
+            "media_permanencia": 8.91
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 650,
+                "altas": 104,
+                "obitos": 0,
+                "media_permanencia": 0.62,
+                "taxa_ocupacao": 70.16,
+                "pac_dia": 435
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 141,
+                "altas": 261,
+                "obitos": 1,
+                "media_permanencia": 2.94,
+                "taxa_ocupacao": 80.83,
+                "pac_dia": 877
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 39,
+                "altas": 148,
+                "obitos": 0,
+                "media_permanencia": 1.22,
+                "taxa_ocupacao": 62.26,
+                "pac_dia": 193
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 66,
+                "altas": 552,
+                "obitos": 0,
+                "media_permanencia": 2.05,
+                "taxa_ocupacao": 89.68,
+                "pac_dia": 1251
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 56,
+                "altas": 190,
+                "obitos": 0,
+                "media_permanencia": 0.93,
+                "taxa_ocupacao": 59.35,
+                "pac_dia": 184
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 26,
+                "altas": 88,
+                "obitos": 0,
+                "media_permanencia": 1.25,
+                "taxa_ocupacao": 50.81,
+                "pac_dia": 126
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 23,
+                "altas": 4,
+                "obitos": 9,
+                "media_permanencia": 5.44,
+                "taxa_ocupacao": 96.45,
+                "pac_dia": 299
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 20,
+                "altas": 8,
+                "obitos": 6,
+                "media_permanencia": 18.89,
+                "taxa_ocupacao": 94.8,
+                "pac_dia": 529
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 0,
+                "altas": 7,
+                "obitos": 0,
+                "media_permanencia": 11.3,
+                "taxa_ocupacao": 91.13,
+                "pac_dia": 113
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 2,
+                "obitos": 0,
+                "media_permanencia": 44.5,
+                "taxa_ocupacao": 95.7,
+                "pac_dia": 89
+            }
+        ]
+    },
+    {
+        "periodo": "11/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 992,
+            "altas": 1367,
+            "obitos": 11,
+            "pac_dia": 3998,
+            "taxa_ocupacao": 78.33,
+            "media_permanencia": 5.8
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 668,
+                "altas": 103,
+                "obitos": 0,
+                "media_permanencia": 0.61,
+                "taxa_ocupacao": 72.17,
+                "pac_dia": 433
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 148,
+                "altas": 267,
+                "obitos": 0,
+                "media_permanencia": 2.83,
+                "taxa_ocupacao": 83.43,
+                "pac_dia": 876
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 33,
+                "altas": 142,
+                "obitos": 0,
+                "media_permanencia": 1.49,
+                "taxa_ocupacao": 73.33,
+                "pac_dia": 220
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 45,
+                "altas": 548,
+                "obitos": 0,
+                "media_permanencia": 2.04,
+                "taxa_ocupacao": 88.44,
+                "pac_dia": 1194
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 34,
+                "altas": 190,
+                "obitos": 0,
+                "media_permanencia": 0.96,
+                "taxa_ocupacao": 64.33,
+                "pac_dia": 193
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 27,
+                "altas": 95,
+                "obitos": 0,
+                "media_permanencia": 1.23,
+                "taxa_ocupacao": 52.08,
+                "pac_dia": 125
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 21,
+                "altas": 5,
+                "obitos": 7,
+                "media_permanencia": 5.1,
+                "taxa_ocupacao": 86.67,
+                "pac_dia": 260
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 16,
+                "altas": 5,
+                "obitos": 4,
+                "media_permanencia": 21.71,
+                "taxa_ocupacao": 96.48,
+                "pac_dia": 521
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 0,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 13.12,
+                "taxa_ocupacao": 87.5,
+                "pac_dia": 105
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 6,
+                "obitos": 0,
+                "media_permanencia": 8.88,
+                "taxa_ocupacao": 78.89,
+                "pac_dia": 71
+            }
+        ]
+    },
+    {
+        "periodo": "12/2025",
+        "totais": {
+            "nome": "INSTITUCIONAL (TOTAL)",
+            "internacoes": 949,
+            "altas": 1338,
+            "obitos": 11,
+            "pac_dia": 3996,
+            "taxa_ocupacao": 77.45,
+            "media_permanencia": 5.14
+        },
+        "unidades": [
+            {
+                "nome": "1º ANDAR",
+                "internacoes": 655,
+                "altas": 96,
+                "obitos": 0,
+                "media_permanencia": 0.64,
+                "taxa_ocupacao": 72.74,
+                "pac_dia": 451
+            },
+            {
+                "nome": "2º ANDAR - I POSTO",
+                "internacoes": 114,
+                "altas": 304,
+                "obitos": 1,
+                "media_permanencia": 2.36,
+                "taxa_ocupacao": 77.79,
+                "pac_dia": 844
+            },
+            {
+                "nome": "2º ANDAR - POSTO II",
+                "internacoes": 36,
+                "altas": 162,
+                "obitos": 0,
+                "media_permanencia": 1.14,
+                "taxa_ocupacao": 64.52,
+                "pac_dia": 200
+            },
+            {
+                "nome": "3º ANDAR - SUS",
+                "internacoes": 48,
+                "altas": 502,
+                "obitos": 0,
+                "media_permanencia": 2.2,
+                "taxa_ocupacao": 85.52,
+                "pac_dia": 1193
+            },
+            {
+                "nome": "4º ANDAR - PARTICULA",
+                "internacoes": 32,
+                "altas": 161,
+                "obitos": 0,
+                "media_permanencia": 0.96,
+                "taxa_ocupacao": 51.94,
+                "pac_dia": 161
+            },
+            {
+                "nome": "3º ANDAR PARTICULAR",
+                "internacoes": 19,
+                "altas": 85,
+                "obitos": 0,
+                "media_permanencia": 1.42,
+                "taxa_ocupacao": 54.44,
+                "pac_dia": 135
+            },
+            {
+                "nome": "UTI ADULTO",
+                "internacoes": 23,
+                "altas": 4,
+                "obitos": 5,
+                "media_permanencia": 4.86,
+                "taxa_ocupacao": 92.58,
+                "pac_dia": 287
+            },
+            {
+                "nome": "UI - UTI NEONATAL",
+                "internacoes": 21,
+                "altas": 12,
+                "obitos": 5,
+                "media_permanencia": 13.62,
+                "taxa_ocupacao": 95.16,
+                "pac_dia": 531
+            },
+            {
+                "nome": "UI - UCINCO",
+                "internacoes": 1,
+                "altas": 9,
+                "obitos": 0,
+                "media_permanencia": 9.73,
+                "taxa_ocupacao": 86.29,
+                "pac_dia": 107
+            },
+            {
+                "nome": "UI- UCINCA",
+                "internacoes": 0,
+                "altas": 3,
+                "obitos": 0,
+                "media_permanencia": 14.5,
+                "taxa_ocupacao": 93.55,
+                "pac_dia": 87
+            }
+        ]
+    }
+]
