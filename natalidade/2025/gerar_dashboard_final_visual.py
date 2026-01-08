@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-print("--- 👶 GERADOR FINAL: DADOS LIMPOS + VISUAL PERFEITO ---")
+print("--- 👶 GERADOR FINAL: IMPRESSÃO LIMPA (TEXTO PURO) ---")
 
 # --- CONFIGURAÇÕES ---
 PASTA_ATUAL = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +17,7 @@ if not os.path.exists(ARQUIVO_EXCEL):
 print(">> Processando dados...")
 df = pd.read_excel(ARQUIVO_EXCEL)
 
-# --- 1. LIMPEZA DE DADOS (A Lógica Nova que remove pacientes) ---
+# --- 1. LIMPEZA DE DADOS ---
 def limpar_nome_procedimento_v2(texto):
     texto = str(texto).upper().strip()
     if "TOTAL" in texto or ">>>" in texto: return "IGNORAR"
@@ -27,7 +27,6 @@ def limpar_nome_procedimento_v2(texto):
     if match_inicio:
         texto = texto[match_inicio.start():]
     else:
-        # Remove códigos numéricos soltos no início se não achar palavras chave
         texto = re.sub(r'^[\w\d]+\s+', '', texto)
 
     # Remove idade/datas do final
@@ -35,9 +34,7 @@ def limpar_nome_procedimento_v2(texto):
     if match_idade:
         texto = texto[:match_idade.start()]
     
-    # Remove CIDs iniciais (Ex: O800)
     texto = re.sub(r'^[A-Z0-9]{3,4}\s+', '', texto)
-
     return texto.strip()
 
 def definir_grupo_macro(texto):
@@ -78,7 +75,7 @@ for index, row in df_agrupado.iterrows():
 
 json_string = json.dumps(dados_json, ensure_ascii=False)
 
-# --- 2. HTML COM O LAYOUT VISUAL (O "Bonito" do PDF 1125) ---
+# --- 2. HTML COM CSS DE IMPRESSÃO LIMPA ---
 html_content = f"""
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -93,41 +90,97 @@ html_content = f"""
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 
     <style>
-        body {{ background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+        /* --- ESTILO DE TELA (BONITO/COLORIDO) --- */
+        body {{ background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }}
         
         .header {{ background: white; padding: 20px 0; border-bottom: 3px solid #6f42c1; margin-bottom: 25px; }}
-        .card-kpi {{ border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.2s; }}
-        .card-kpi:hover {{ transform: translateY(-5px); }}
+        .card-kpi {{ border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
         
-        .badge-cesaria {{ background-color: #fd7e14 !important; color: white; }}
-        .badge-normal {{ background-color: #20c997 !important; color: white; }}
+        /* Badges coloridos APENAS NA TELA */
+        .badge-cesaria {{ background-color: #fd7e14; color: white; padding: 5px 10px; border-radius: 4px; }}
+        .badge-normal {{ background-color: #20c997; color: white; padding: 5px 10px; border-radius: 4px; }}
         
         .chart-box {{ background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }}
         .table-container {{ background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }}
 
-        /* --- AJUSTES DE IMPRESSÃO (Mantendo o visual colorido) --- */
+        /* --- MODO DE IMPRESSÃO (TEXTO PURO / LIMPO) --- */
         @media print {{
-            @page {{ size: A4 landscape; margin: 1cm; }} /* Força Paisagem para caber melhor */
+            @page {{ size: A4 landscape; margin: 1cm; }}
             
-            body {{ background-color: white !important; font-size: 11px; }}
-            .container {{ max-width: 100% !important; width: 100% !important; padding: 0 !important; }}
+            body {{ 
+                background-color: white !important; 
+                font-family: Arial, sans-serif !important; /* Fonte padrão de impressora */
+                font-size: 10pt !important; 
+                color: #000 !important; 
+            }}
             
-            /* Esconder controles */
-            .no-print, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info, select, button {{ display: none !important; }}
+            /* Esconder elementos de navegação */
+            .no-print, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info, select, button, .header button {{ 
+                display: none !important; 
+            }}
             
-            /* Ajuste Cards */
-            .card-kpi {{ border: 1px solid #ddd !important; box-shadow: none !important; margin-bottom: 10px; page-break-inside: avoid; }}
+            .container {{ max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }}
+            .header {{ padding: 0 0 10px 0; border-bottom: 2px solid #000; margin-bottom: 15px; }}
             
-            /* Ajuste Gráficos */
-            .chart-box {{ border: 1px solid #ddd !important; box-shadow: none !important; height: 220px !important; page-break-inside: avoid; }}
+            /* CARDS: Transformar em lista simples ou caixas simples */
+            .row {{ display: flex; flex-wrap: nowrap; }}
+            .card-kpi {{ 
+                border: 1px solid #000 !important; 
+                box-shadow: none !important; 
+                border-radius: 0 !important;
+                background: none !important;
+                margin: 0 5px 10px 0;
+            }}
+            .card-kpi h2 {{ font-size: 14pt !important; margin: 0; color: #000 !important; }}
+            .card-kpi small {{ font-size: 8pt !important; color: #000 !important; }}
             
-            /* Tabela Bonita mas Compacta */
-            table {{ width: 100% !important; border-collapse: collapse !important; font-size: 10px !important; }}
-            th {{ background-color: #f8f9fa !important; color: black !important; border-bottom: 2px solid #666 !important; }}
-            td {{ border-bottom: 1px solid #eee !important; padding: 4px 8px !important; }}
+            /* GRÁFICOS: Borda simples */
+            .chart-box {{ 
+                border: 1px solid #000 !important; 
+                box-shadow: none !important; 
+                height: 180px !important; 
+                page-break-inside: avoid;
+                margin-bottom: 10px;
+                border-radius: 0 !important;
+            }}
             
-            /* Forçar impressão de cores de fundo (badges) */
-            .badge {{ color: white !important; border: none !important; -webkit-print-color-adjust: exact; }}
+            /* TABELA: Estilo Excel Preto e Branco Puro */
+            .table-container {{ box-shadow: none !important; padding: 0 !important; }}
+            table {{ 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                font-size: 9pt !important; 
+            }}
+            
+            th {{ 
+                border: 1px solid #000 !important; 
+                background-color: #f0f0f0 !important; /* Cinza bem claro só pra diferenciar cabeçalho */
+                color: #000 !important; 
+                font-weight: bold !important;
+                padding: 4px !important;
+            }}
+            
+            td {{ 
+                border: 1px solid #000 !important; 
+                padding: 4px !important; 
+                color: #000 !important;
+            }}
+            
+            /* REMOVER ESTILO DOS BOTÕES/BADGES NA IMPRESSÃO */
+            .badge, .badge-cesaria, .badge-normal {{ 
+                background: none !important; 
+                background-color: transparent !important;
+                color: #000 !important; 
+                border: none !important; 
+                padding: 0 !important;
+                font-weight: normal !important;
+                text-transform: uppercase;
+            }}
+            
+            /* Alinhamentos */
+            td:nth-child(2) {{ text-align: left; }} /* Procedimento */
+            .text-center {{ text-align: center !important; }}
+            .text-end {{ text-align: right !important; }}
         }}
     </style>
 </head>
@@ -136,10 +189,10 @@ html_content = f"""
     <div class="header">
         <div class="container d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="fw-bold mb-0 text-primary"><i class="fas fa-hospital-user"></i> Indicadores Obstétricos</h3>
-                <p class="text-muted mb-0 small">Hospital Beneficente Santa Helena - Núcleo de Informação</p>
+                <h3 class="fw-bold mb-0 text-primary" style="color: #000 !important;">Indicadores Obstétricos</h3>
+                <p class="text-muted mb-0 small" style="color: #000 !important;">Hospital Beneficente Santa Helena - Núcleo de Informação</p>
             </div>
-            <button class="btn btn-dark btn-sm no-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir / Salvar PDF</button>
+            <button class="btn btn-dark btn-sm no-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
         </div>
     </div>
 
@@ -176,8 +229,8 @@ html_content = f"""
             </div>
             <div class="col-md-3 col-6 mb-2">
                 <div class="card card-kpi bg-primary text-white h-100 py-3 text-center">
-                    <h2 class="fw-bold mb-0 text-white" id="kpiCesaria">0%</h2>
-                    <small class="text-uppercase fw-bold opacity-75">Taxa Cesárea</small>
+                    <h2 class="fw-bold mb-0 text-white" id="kpiCesaria" style="color:white !important">0%</h2>
+                    <small class="text-uppercase fw-bold opacity-75" style="color:white !important">Taxa Cesárea</small>
                 </div>
             </div>
         </div>
@@ -185,7 +238,7 @@ html_content = f"""
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="chart-box h-100">
-                    <h6 class="text-center fw-bold text-secondary mb-3">Tipo de Parto</h6>
+                    <h6 class="text-center fw-bold text-secondary mb-3" style="color:#000 !important">Tipo de Parto</h6>
                     <div style="height: 200px;">
                         <canvas id="chartPizza"></canvas>
                     </div>
@@ -193,7 +246,7 @@ html_content = f"""
             </div>
             <div class="col-md-8 mb-3">
                 <div class="chart-box h-100">
-                    <h6 class="text-center fw-bold text-secondary mb-3">Top Procedimentos</h6>
+                    <h6 class="text-center fw-bold text-secondary mb-3" style="color:#000 !important">Top Procedimentos</h6>
                     <div style="height: 200px;">
                         <canvas id="chartBarras"></canvas>
                     </div>
@@ -202,7 +255,7 @@ html_content = f"""
         </div>
 
         <div class="table-container">
-            <h5 class="fw-bold text-secondary mb-3"><i class="fas fa-list"></i> Detalhamento</h5>
+            <h5 class="fw-bold text-secondary mb-3 no-print"><i class="fas fa-list"></i> Detalhamento</h5>
             <table id="tabelaDados" class="table table-hover align-middle w-100">
                 <thead class="table-light">
                     <tr>
@@ -255,23 +308,23 @@ html_content = f"""
                 data: dados,
                 columns: [
                     {{ data: 'mes' }},
-                    {{ data: 'procedimento', className: 'fw-bold text-secondary' }},
+                    {{ data: 'procedimento', className: 'fw-bold' }},
                     {{ 
                         data: 'grupo',
                         render: function(data) {{
                             let cor = data === 'CESARIANA' ? 'badge-cesaria' : 'badge-normal';
-                            return `<span class="badge ${{cor}} p-2">${{data}}</span>`;
+                            // Na impressão, o CSS remove o background e a cor
+                            return `<span class="badge ${{cor}}">${{data}}</span>`;
                         }}
                     }},
-                    {{ data: 'vivos', className: 'text-center fw-bold text-success' }},
+                    {{ data: 'vivos', className: 'text-center fw-bold' }},
                     {{ data: 'mortos', className: 'text-center' }},
-                    {{ data: 'obitos', className: 'text-center text-danger' }},
+                    {{ data: 'obitos', className: 'text-center' }},
                     {{ data: 'total', className: 'text-center fw-bold' }}
                 ],
                 dom: 'Bfrtip',
                 buttons: [
                     {{ extend: 'excelHtml5', text: '<i class=\"fas fa-file-excel\"></i> Excel', className: 'btn-success btn-sm' }},
-                    {{ extend: 'pdfHtml5', text: '<i class=\"fas fa-file-pdf\"></i> PDF', className: 'btn-danger btn-sm', orientation: 'landscape', pageSize: 'A4' }},
                     {{ extend: 'print', text: '<i class=\"fas fa-print\"></i> Imprimir', className: 'btn-dark btn-sm' }}
                 ],
                 paging: false,
@@ -365,9 +418,9 @@ try:
     with open(ARQUIVO_HTML, "w", encoding="utf-8") as f:
         f.write(html_content)
     print("\n" + "="*50)
-    print(f"✅ DASHBOARD VISUAL + DADOS LIMPOS!")
+    print(f"✅ DASHBOARD DE IMPRESSÃO LIMPA GERADO!")
     print(f"📂 Arquivo: {ARQUIVO_HTML}")
-    print("   Dica: Use a opção 'Paisagem' na hora de imprimir.")
+    print("   Ao imprimir, os botões somem e o texto fica preto puro.")
     print("="*50)
 except Exception as e:
     print(f"❌ Erro ao salvar HTML: {e}")
