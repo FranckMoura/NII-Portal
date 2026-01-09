@@ -6,8 +6,17 @@
     <title>Consulta SIGTAP & Comparador</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -22,14 +31,18 @@
         .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         table.dataTable thead th { background-color: var(--primary); color: white; }
         
-        /* Botões */
+        /* Estilo dos Botões DataTables */
+        .dt-buttons .dt-button { 
+            background: var(--primary) !important; color: white !important; border: none !important; border-radius: 4px !important; font-size: 12px !important; margin-right: 5px !important;
+        }
+        .dt-buttons .dt-button:hover { background: #003d80 !important; }
+
+        /* Botões de Ação na Linha */
         .btn-compare { background: white; border: 1px solid #ccc; color: #666; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .btn-compare:hover { background: #eee; }
         .btn-compare.active { background: var(--accent); color: #333; border-color: #e0a800; font-weight: bold; }
         
-        .btn-details { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
-
-        /* Barra Flutuante de Comparação */
+        /* Barra Flutuante */
         .comparison-bar {
             position: fixed; bottom: -100px; left: 0; width: 100%;
             background: var(--dark); color: white; padding: 15px 20px;
@@ -42,8 +55,14 @@
         
         /* Modal de Comparação */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 8px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-content { background-color: #fefefe; margin: 2% auto; padding: 25px; border: 1px solid #888; width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 8px; position: relative; }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+
+        .btn-print-modal { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 15px; }
+        .btn-print-modal:hover { background: #5a6268; }
         
         /* Tabela de Comparação */
         .compare-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -94,8 +113,15 @@
 
     <div id="modalCompare" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="fecharModal()">&times;</span>
-            <h2><i class="fas fa-balance-scale"></i> Comparativo Lado a Lado</h2>
+            <div class="modal-header">
+                <h2 style="margin:0"><i class="fas fa-balance-scale"></i> Comparativo Lado a Lado</h2>
+                <div>
+                    <button class="btn-print-modal" onclick="imprimirComparativo()">
+                        <i class="fas fa-print"></i> Imprimir Relatório
+                    </button>
+                    <span class="close" onclick="fecharModal()">&times;</span>
+                </div>
+            </div>
             <div id="compareContent"></div>
         </div>
     </div>
@@ -113,6 +139,12 @@
                 
                 $('#tabelaProc').DataTable({
                     data: dados,
+                    // Configuração de Botões de Exportação/Impressão da Tabela Principal
+                    dom: 'Bfrtip',
+                    buttons: [
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', title: 'Tabela_SIGTAP_OPME' },
+                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Lista' }
+                    ],
                     columns: [
                         { data: 'codigo', width: '100px' },
                         { data: 'procedimento' },
@@ -145,7 +177,8 @@
                             }
                         }
                     ],
-                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    pageLength: 25
                 });
             });
         });
@@ -155,8 +188,8 @@
         function toggleCompare(codigo, btn) {
             const index = compareList.indexOf(codigo);
             if (index === -1) {
-                if(compareList.length >= 3) {
-                    alert("Máximo de 3 itens para comparação.");
+                if(compareList.length >= 4) { // Aumentei para 4 pra caber na impressão A4 paisagem
+                    alert("Máximo de 4 itens para comparação.");
                     return;
                 }
                 compareList.push(codigo);
@@ -236,6 +269,36 @@
 
         function fecharModal() {
             $('#modalCompare').css('display', 'none');
+        }
+
+        // --- FUNÇÃO DE IMPRESSÃO DO MODAL ---
+        function imprimirComparativo() {
+            var conteudo = document.getElementById('compareContent').innerHTML;
+            
+            // Abre uma janela nova em branco
+            var janelaImpressao = window.open('', '', 'height=600,width=800');
+            
+            janelaImpressao.document.write('<html><head><title>Relatório Comparativo - NII HBSH</title>');
+            // Adiciona estilos para a impressão ficar bonita
+            janelaImpressao.document.write('<style>');
+            janelaImpressao.document.write('body { font-family: "Roboto", sans-serif; padding: 20px; }');
+            janelaImpressao.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }');
+            janelaImpressao.document.write('th, td { border: 1px solid #333; padding: 8px; vertical-align: top; }');
+            janelaImpressao.document.write('th { background-color: #eee; text-align: right; width: 150px; }');
+            janelaImpressao.document.write('.opme-list { padding-left: 20px; margin: 0; list-style-type: square; }');
+            janelaImpressao.document.write('.opme-item-price { float: right; font-weight: bold; }');
+            janelaImpressao.document.write('</style>');
+            janelaImpressao.document.write('</head><body>');
+            
+            // Cabeçalho do Relatório
+            janelaImpressao.document.write('<h2 style="text-align:center; margin-bottom:5px;">Comparativo de Procedimentos SIGTAP</h2>');
+            janelaImpressao.document.write('<p style="text-align:center; font-size:12px; margin-top:0;">Hospital Beneficente Santa Helena</p><hr>');
+            
+            janelaImpressao.document.write(conteudo);
+            janelaImpressao.document.write('</body></html>');
+            
+            janelaImpressao.document.close();
+            janelaImpressao.print();
         }
 
         // Fecha modal clicando fora
