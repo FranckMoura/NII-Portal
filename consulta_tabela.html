@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta SIGTAP & Comparador</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #0056b3; --accent: #ffc107; --dark: #333; }
+        body { font-family: 'Roboto', sans-serif; background: #f4f6f9; padding: 20px; }
+        
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
+        .header h1 { margin: 0; color: var(--primary); font-size: 24px; }
+        
+        /* Tabela Principal */
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        table.dataTable thead th { background-color: var(--primary); color: white; }
+        
+        /* Botões */
+        .btn-compare { background: white; border: 1px solid #ccc; color: #666; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-compare:hover { background: #eee; }
+        .btn-compare.active { background: var(--accent); color: #333; border-color: #e0a800; font-weight: bold; }
+        
+        .btn-details { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+
+        /* Barra Flutuante de Comparação */
+        .comparison-bar {
+            position: fixed; bottom: -100px; left: 0; width: 100%;
+            background: var(--dark); color: white; padding: 15px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: bottom 0.3s;
+        }
+        .comparison-bar.visible { bottom: 0; }
+        .btn-go-compare { background: var(--accent); color: #333; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        
+        /* Modal de Comparação */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 8px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        
+        /* Tabela de Comparação */
+        .compare-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .compare-table th, .compare-table td { border: 1px solid #ddd; padding: 10px; vertical-align: top; }
+        .compare-table th { background: #f8f9fa; text-align: right; width: 150px; font-weight: bold; color: #555; }
+        .compare-col { min-width: 250px; }
+        .opme-list { max-height: 200px; overflow-y: auto; font-size: 12px; list-style: none; padding: 0; }
+        .opme-list li { padding: 3px 0; border-bottom: 1px solid #eee; }
+        .opme-item-price { float: right; font-weight: bold; color: var(--success); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-search-plus"></i> Consulta de Procedimentos & OPME</h1>
+            <p>Pesquise, verifique compatibilidades e compare procedimentos.</p>
+        </div>
+        <a href="index.html" style="text-decoration:none; color:#666;"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
+
+    <div class="table-box">
+        <table id="tabelaProc" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Procedimento</th>
+                    <th>Valor SH</th>
+                    <th>Valor SP</th>
+                    <th>Valor Total</th>
+                    <th>OPMEs</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="comparison-bar" id="compBar">
+        <div>
+            <span id="compCount">0</span> itens selecionados para comparação.
+            <button onclick="limparComparacao()" style="background:transparent; border:1px solid #666; color:#ccc; margin-left:10px; cursor:pointer; padding:5px;">Limpar</button>
+        </div>
+        <button class="btn-go-compare" onclick="abrirComparacao()">
+            <i class="fas fa-balance-scale"></i> COMPARAR AGORA
+        </button>
+    </div>
+
+    <div id="modalCompare" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h2><i class="fas fa-balance-scale"></i> Comparativo Lado a Lado</h2>
+            <div id="compareContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let dadosGlobais = [];
+        let compareList = [];
+
+        $(document).ready(function() {
+            // Carrega JSON
+            fetch('arquivos/tabela_unificada.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {
+                dadosGlobais = dados;
+                
+                $('#tabelaProc').DataTable({
+                    data: dados,
+                    columns: [
+                        { data: 'codigo', width: '100px' },
+                        { data: 'procedimento' },
+                        { 
+                            data: 'valor_sh', 
+                            render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')
+                        },
+                        { 
+                            data: 'valor_sp',
+                            render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')
+                        },
+                        { 
+                            data: 'valor_total',
+                            render: function(d) { return `<span style="font-weight:bold; color:#0056b3;">R$ ${d.toFixed(2).replace('.',',')}</span>`; }
+                        },
+                        { 
+                            data: 'qtd_opme',
+                            render: function(d) {
+                                return d > 0 ? `<span class="badge" style="background:#28a745; color:white; padding:2px 6px; border-radius:4px;">${d} itens</span>` : '-';
+                            }
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="btn-compare" onclick="toggleCompare('${row.codigo}', this)">
+                                        <i class="fas fa-balance-scale"></i> Comparar
+                                    </button>
+                                `;
+                            }
+                        }
+                    ],
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                });
+            });
+        });
+
+        // --- Lógica de Comparação ---
+
+        function toggleCompare(codigo, btn) {
+            const index = compareList.indexOf(codigo);
+            if (index === -1) {
+                if(compareList.length >= 3) {
+                    alert("Máximo de 3 itens para comparação.");
+                    return;
+                }
+                compareList.push(codigo);
+                $(btn).addClass('active').html('<i class="fas fa-check"></i> Selecionado');
+            } else {
+                compareList.splice(index, 1);
+                $(btn).removeClass('active').html('<i class="fas fa-balance-scale"></i> Comparar');
+            }
+            atualizarBarra();
+        }
+
+        function atualizarBarra() {
+            $('#compCount').text(compareList.length);
+            if(compareList.length > 0) {
+                $('#compBar').addClass('visible');
+            } else {
+                $('#compBar').removeClass('visible');
+            }
+        }
+
+        function limparComparacao() {
+            compareList = [];
+            $('.btn-compare').removeClass('active').html('<i class="fas fa-balance-scale"></i> Comparar');
+            atualizarBarra();
+        }
+
+        function abrirComparacao() {
+            if(compareList.length < 2) {
+                alert("Selecione pelo menos 2 itens para comparar.");
+                return;
+            }
+
+            const itens = dadosGlobais.filter(d => compareList.includes(d.codigo));
+            
+            let html = '<table class="compare-table"><tbody>';
+            
+            // Linha Nome
+            html += '<tr><th>Procedimento</th>';
+            itens.forEach(i => html += `<td class="compare-col" style="font-size:16px; font-weight:bold; color:#0056b3;">${i.procedimento}<br><small style="color:#666">Cod: ${i.codigo}</small></td>`);
+            html += '</tr>';
+
+            // Linha Valores
+            html += '<tr><th>Valor Hospitalar (SH)</th>';
+            itens.forEach(i => html += `<td>R$ ${i.valor_sh.toFixed(2).replace('.',',')}</td>`);
+            html += '</tr>';
+
+            html += '<tr><th>Valor Profissional (SP)</th>';
+            itens.forEach(i => html += `<td>R$ ${i.valor_sp.toFixed(2).replace('.',',')}</td>`);
+            html += '</tr>';
+
+            html += '<tr><th>TOTAL</th>';
+            itens.forEach(i => html += `<td style="background:#e3f2fd; font-weight:bold;">R$ ${i.valor_total.toFixed(2).replace('.',',')}</td>`);
+            html += '</tr>';
+
+            // Linha OPME
+            html += '<tr><th>Compatibilidade (OPME)</th>';
+            itens.forEach(i => {
+                html += '<td>';
+                if(i.compatibilidades.length > 0) {
+                    html += `<ul class="opme-list">`;
+                    i.compatibilidades.forEach(op => {
+                        html += `<li>${op.nome} <span class="opme-item-price">R$ ${op.valor.toFixed(2).replace('.',',')}</span></li>`;
+                    });
+                    html += `</ul>`;
+                } else {
+                    html += '<span style="color:#999">Nenhuma compatibilidade.</span>';
+                }
+                html += '</td>';
+            });
+            html += '</tr>';
+
+            html += '</tbody></table>';
+
+            $('#compareContent').html(html);
+            $('#modalCompare').css('display', 'block');
+        }
+
+        function fecharModal() {
+            $('#modalCompare').css('display', 'none');
+        }
+
+        // Fecha modal clicando fora
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('modalCompare')) {
+                fecharModal();
+            }
+        }
+    </script>
+</body>
+</html>
