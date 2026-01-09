@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Mortalidade Hospitalar</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #343a40; --red: #dc3545; --bg: #f4f6f9; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); padding: 20px; margin: 0; }
+        
+        .header { 
+            background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-left: 5px solid var(--red); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .header h1 { margin: 0; color: var(--primary); font-size: 24px; }
+        .btn-back { text-decoration: none; color: #666; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+
+        /* Filtros */
+        .filter-box { 
+            background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; 
+            display: flex; gap: 15px; align-items: flex-end; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .filter-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+        .filter-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 150px; }
+        .btn-filter { background: var(--primary); color: white; border: none; padding: 9px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-filter:hover { background: #23272b; }
+
+        /* KPIs */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 4px solid #ccc; }
+        .card.red { border-bottom-color: var(--red); }
+        .card .val { font-size: 36px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .card .lbl { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+
+        /* Gráficos */
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .chart-box { background: white; padding: 20px; border-radius: 8px; height: 350px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Tabela */
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        .dt-buttons .dt-button { background: var(--primary) !important; color: white !important; border: none !important; border-radius: 4px !important; font-size: 12px !important; }
+
+        @media print {
+            .filter-box, .btn-back, .dt-buttons, .dataTables_filter, .dataTables_length, .dataTables_paginate, button { display: none !important; }
+            body { padding: 0; background: white; }
+            .header { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; }
+            .charts-row { display: block; }
+            .chart-box { height: 300px; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 20px; box-shadow: none; }
+            .card { border: 1px solid #eee; box-shadow: none; }
+        }
+        
+        @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-procedures"></i> Painel de Mortalidade</h1>
+            <p style="margin:5px 0 0; color:#666; font-size:14px;">Análise Epidemiológica e Assistencial - 2025</p>
+        </div>
+        <div>
+            <button onclick="window.print()" style="background:var(--red); color:white; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; margin-right:10px;">
+                <i class="fas fa-print"></i> Imprimir Painel
+            </button>
+            <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
+
+    <div class="filter-box">
+        <div class="filter-group">
+            <label>Mês/Ano</label>
+            <select id="filtroMes">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Unidade</label>
+            <select id="filtroSetor">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <button class="btn-filter" onclick="aplicarFiltros()">Filtrar</button>
+        <button class="btn-filter" style="background:#6c757d; margin-left:5px;" onclick="resetarFiltros()">Limpar</button>
+    </div>
+
+    <div class="kpi-row">
+        <div class="card red">
+            <div class="lbl">Total de Óbitos</div>
+            <div class="val" id="kpiTotal">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Média de Idade</div>
+            <div class="val" id="kpiIdade">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Setor Crítico</div>
+            <div class="val" id="kpiSetor" style="font-size:18px; margin-top:15px; line-height:1.2;">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Principal Causa (CID)</div>
+            <div class="val" id="kpiCid" style="font-size:18px; margin-top:15px; line-height:1.2;">-</div>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="chart-box">
+            <h4 style="margin:0 0 10px 0; color:#555;">Evolução Temporal</h4>
+            <canvas id="chartEvolucao"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4 style="margin:0 0 10px 0; color:#555;">Distribuição por Setor</h4>
+            <canvas id="chartSetor"></canvas>
+        </div>
+    </div>
+
+    <div class="table-box">
+        <table id="tabelaObitos" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Paciente</th>
+                    <th>Idade</th>
+                    <th>Unidade</th>
+                    <th>CID (Causa)</th>
+                    <th>Médico</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        let dadosGlobais = [];
+        let table;
+        let chart1, chart2;
+
+        $(document).ready(function() {
+            // Carrega o JSON com timestamp para evitar cache
+            fetch('arquivos/dados_mortalidade.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {
+                if(!dados || dados.length === 0) {
+                    alert("Nenhum dado encontrado no JSON.");
+                    return;
+                }
+                
+                // Tratamento de segurança para dados nulos
+                dadosGlobais = dados.map(d => ({
+                    ...d,
+                    mes_ref: d.mes_ref || "N/A",
+                    unidade: d.unidade || "Não Identificado",
+                    idade: d.idade || 0
+                }));
+
+                preencherFiltros();
+                atualizarDashboard(dadosGlobais);
+                
+                // Inicializa DataTables
+                table = $('#tabelaObitos').DataTable({
+                    data: dadosGlobais,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        { extend: 'excelHtml5', title: 'Relatorio_Mortalidade_HBSH' },
+                        { extend: 'print', text: 'Imprimir Lista' }
+                    ],
+                    columns: [
+                        { data: 'data_fmt', width: '80px' },
+                        { data: 'paciente' },
+                        { data: 'idade', width: '50px' },
+                        { data: 'unidade' },
+                        { 
+                            data: 'cid',
+                            render: function(d, type, row) { 
+                                // Tooltip com descrição completa
+                                return `<span title="${row.cid_desc || ''}" style="font-weight:bold; color:#dc3545; cursor:help;">${d || '-'}</span>`; 
+                            }
+                        },
+                        { data: 'medico' }
+                    ],
+                    order: [[0, 'desc']], // Ordena por data (mais recente)
+                    pageLength: 10,
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Erro ao ler JSON:", err);
+                $('.table-box').html('<p style="text-align:center; color:red">Erro ao carregar dados. Verifique se o script Python foi executado corretamente.</p>');
+            });
+        });
+
+        function preencherFiltros() {
+            // Extrai meses e setores únicos
+            let meses = [...new Set(dadosGlobais.map(d => d.mes_ref))].sort((a,b) => {
+                // Ordenação customizada para MM/AAAA
+                if(a === "N/A") return 1;
+                if(b === "N/A") return -1;
+                let [ma, ya] = a.split('/'); 
+                let [mb, yb] = b.split('/');
+                return new Date(ya, ma) - new Date(yb, mb);
+            });
+            
+            let setores = [...new Set(dadosGlobais.map(d => d.unidade))].sort();
+
+            meses.forEach(m => $('#filtroMes').append(`<option value="${m}">${m}</option>`));
+            setores.forEach(s => $('#filtroSetor').append(`<option value="${s}">${s}</option>`));
+        }
+
+        function aplicarFiltros() {
+            let mes = $('#filtroMes').val();
+            let setor = $('#filtroSetor').val();
+
+            let filtrados = dadosGlobais.filter(d => {
+                return (!mes || d.mes_ref === mes) && (!setor || d.unidade === setor);
+            });
+
+            atualizarDashboard(filtrados);
+            if(table) {
+                table.clear().rows.add(filtrados).draw();
+            }
+        }
+
+        function resetarFiltros() {
+            $('#filtroMes').val('');
+            $('#filtroSetor').val('');
+            aplicarFiltros();
+        }
+
+        function atualizarDashboard(dados) {
+            // Reset se vazio
+            if(!dados || dados.length === 0) {
+                $('#kpiTotal').text('0');
+                $('#kpiIdade').text('-');
+                $('#kpiSetor').text('-');
+                $('#kpiCid').text('-');
+                if(chart1) chart1.destroy();
+                if(chart2) chart2.destroy();
+                return;
+            }
+
+            // 1. Cálculos KPIs
+            let total = dados.length;
+            let somaIdade = dados.reduce((acc, curr) => acc + curr.idade, 0);
+            
+            let countSetor = {};
+            let countCid = {};
+            let countMes = {};
+
+            dados.forEach(d => {
+                countSetor[d.unidade] = (countSetor[d.unidade] || 0) + 1;
+                let cidKey = d.cid || "N/I";
+                countCid[cidKey] = (countCid[cidKey] || 0) + 1;
+                countMes[d.mes_ref] = (countMes[d.mes_ref] || 0) + 1;
+            });
+
+            $('#kpiTotal').text(total);
+            $('#kpiIdade').text(Math.round(somaIdade / total) + " anos");
+            
+            // Maior Setor
+            let topSetor = Object.entries(countSetor).sort((a,b) => b[1] - a[1])[0];
+            $('#kpiSetor').text(topSetor ? `${topSetor[0]} (${topSetor[1]})` : '-');
+
+            // Maior CID
+            let topCid = Object.entries(countCid).sort((a,b) => b[1] - a[1])[0];
+            $('#kpiCid').text(topCid ? `${topCid[0]} (${topCid[1]})` : '-');
+
+            // 2. Gráfico Linha (Evolução)
+            // Ordena cronologicamente para o gráfico
+            let labelsMes = Object.keys(countMes).sort((a,b) => {
+                let [ma, ya] = a.split('/'); let [mb, yb] = b.split('/');
+                return new Date(ya, ma-1) - new Date(yb, mb-1);
+            });
+            let dataMes = labelsMes.map(m => countMes[m]);
+
+            const ctx1 = document.getElementById('chartEvolucao').getContext('2d');
+            if(chart1) chart1.destroy();
+            chart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labelsMes,
+                    datasets: [{
+                        label: 'Óbitos',
+                        data: dataMes,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        pointBackgroundColor: '#dc3545',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // 3. Gráfico Rosca (Setores)
+            const ctx2 = document.getElementById('chartSetor').getContext('2d');
+            if(chart2) chart2.destroy();
+            chart2 = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(countSetor),
+                    datasets: [{
+                        data: Object.values(countSetor),
+                        backgroundColor: [
+                            '#dc3545', '#343a40', '#ffc107', '#17a2b8', 
+                            '#28a745', '#6610f2', '#fd7e14', '#6c757d'
+                        ]
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
