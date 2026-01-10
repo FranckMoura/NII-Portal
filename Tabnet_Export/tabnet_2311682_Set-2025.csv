@@ -9,7 +9,6 @@ Estabelecimento: 2311682 HOSPITAL SANTA HELENA
 Período: Set/2025
 Procedimento AIH aprovadas Internações Valor total Valor serviços hospitalares Val serv hosp - compl federal Val serv hosp - compl gestor Valor serviços profissionais Val serv prof - compl federal Val serv prof - compl gestor Valor médio AIH Valor médio intern Dias permanência Média permanência Óbitos Taxa mortalidade
 Fonte: Ministério da Saúde - Sistema de Informações Hospitalares do SUS (SIH/SUS)
-
 Notas:
 Situação da base de dados nacional em 29/04/2016.
 Dados de janeiro de 2015 até março de 2016 sujeitos a retificação.
@@ -92,11 +91,8 @@ Consulte o site da Secretaria Estadual de Saúde para mais informações.
 0415010012 TRATAMENTO C/ CIRURGIAS MULTIPLAS 12 12 27.607,80 20.215,38 - - 7.392,42 - - 2.300,65 2.300,65 35 2,9 1 8,33
 0415040027 DEBRIDAMENTO DE FASCEITE NECROTIZANTE 1 1 914,63 717,43 - - 197,20 - - 914,63 914,63 12 12,0 - -
 0415040035 DEBRIDAMENTO DE ULCERA / DE TECIDOS DESVITALIZADOS 2 2 15.475,05 13.302,27 - - 2.172,78 - - 7.737,52 7.737,52 38 19,0 - -
-
 Legenda:
 - - Dado numérico igual a 0 não resultante de arredondamento.
 0; 0,0 - Dado numérico igual a 0 resultante de arredondamento de um dado originalmente positivo.
-
-
 COPIA COMO .CSV
 COPIA PARA TABWIN
