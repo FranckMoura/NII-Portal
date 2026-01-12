@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../NII-P2"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "NII-Portal-1",
+		"liveServer.settings.multiRootWorkspaceName": "NII-Portal-1"
+	}
+}
