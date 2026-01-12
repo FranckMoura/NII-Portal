@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios de Fechamento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .header-bar { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px 0; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .report-card { 
+            background: white; border: none; border-radius: 10px; 
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px; border-left: 5px solid #ccc;
+        }
+        .report-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Cores por Tipo */
+        .card-rateio { border-left-color: #28a745; }
+        .card-terceiros { border-left-color: #ffc107; }
+        .card-fila { border-left-color: #17a2b8; }
+        .card-finan { border-left-color: #007bff; }
+
+        .btn-ver { background-color: #1e3c72; color: white; border-radius: 20px; padding: 5px 20px; text-decoration: none; font-size: 0.9em; transition: 0.3s; }
+        .btn-ver:hover { background-color: #2a5298; color: white; }
+        
+        .meta-info { font-size: 0.85em; color: #666; }
+        .valor-destaque { font-weight: bold; font-size: 1.1em; color: #333; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Central de Relatórios</h2>
+                <small>Fechamentos Mensais e Repasses</small>
+            </div>
+            <a href="index.html" class="btn btn-outline-light btn-sm">Voltar ao Início</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <input type="text" id="filtroInput" class="form-control p-3 shadow-sm" placeholder="🔍 Pesquisar relatório (ex: Novembro, Rateio, Terceiros)..." onkeyup="filtrarRelatorios()">
+            </div>
+        </div>
+
+        <div id="lista-relatorios" class="row">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p>Carregando relatórios...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO: Coloque aqui o nome exato do arquivo JSON gerado pelo seu upload_manager.py
+        // Geralmente fica na pasta 'arquivos/'
+        const URL_JSON = 'arquivos/dados_financeiro.json'; 
+
+        async function carregarRelatorios() {
+            try {
+                // Tenta carregar o JSON
+                const response = await fetch(URL_JSON + '?v=' + new Date().getTime()); // timestamp evita cache
+                if (!response.ok) throw new Error("Arquivo JSON não encontrado");
+                
+                const dados = await response.json();
+                renderizarCards(dados);
+
+            } catch (erro) {
+                console.error(erro);
+                document.getElementById('lista-relatorios').innerHTML = `
+                    <div class="col-12 text-center text-danger">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erro ao carregar</h4>
+                        <p>Não foi possível ler o arquivo de dados (${URL_JSON}).<br>Verifique se o upload_manager.py criou o arquivo na pasta 'arquivos'.</p>
+                    </div>`;
+            }
+        }
+
+        function renderizarCards(lista) {
+            const container = document.getElementById('lista-relatorios');
+            container.innerHTML = '';
+
+            // Ordena: Mais recentes primeiro (baseado na data de geração)
+            // Se a data for string BR, precisa tratar, mas vamos assumir ordem de chegada invertida por enquanto
+            // lista.reverse(); 
+
+            if (lista.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center">Nenhum relatório encontrado.</div>';
+                return;
+            }
+
+            lista.forEach(item => {
+                // Define cor baseada no titulo
+                let classeTipo = 'card-finan'; // padrão
+                if(item.titulo.toLowerCase().includes('rateio')) classeTipo = 'card-rateio';
+                if(item.titulo.toLowerCase().includes('terceiros')) classeTipo = 'card-terceiros';
+                if(item.titulo.toLowerCase().includes('fila zero')) classeTipo = 'card-fila';
+
+                // Ícone baseado no titulo
+                let icone = 'fa-file-alt';
+                if(item.titulo.toLowerCase().includes('rateio')) icone = 'fa-user-md';
+                if(item.titulo.toLowerCase().includes('terceiros')) icone = 'fa-truck-medical';
+                if(item.titulo.toLowerCase().includes('finan')) icone = 'fa-chart-line';
+
+                const html = `
+                <div class="col-md-6 col-lg-4 mb-3 card-item">
+                    <div class="card report-card ${classeTipo} p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title text-primary mb-0">
+                                <i class="fas ${icone} me-2"></i>${item.titulo}
+                            </h5>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+                            <span class="badge bg-light text-dark border">
+                                <i class="far fa-calendar-alt"></i> ${item.competencia}
+                            </span>
+                            <span class="valor-destaque text-success">${item.valor_total}</span>
+                        </div>
+
+                        <div class="meta-info mb-3">
+                            <i class="far fa-clock"></i> Gerado em: ${item.data_geracao}
+                        </div>
+
+                        <a href="${item.arquivo}" target="_blank" class="btn btn-ver w-100 text-center">
+                            Abrir Relatório <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function filtrarRelatorios() {
+            const termo = document.getElementById('filtroInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card-item');
+
+            cards.forEach(card => {
+                const texto = card.innerText.toLowerCase();
+                if(texto.includes(termo)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Inicia
+        document.addEventListener('DOMContentLoaded', carregarRelatorios);
+    </script>
+</body>
+</html>
