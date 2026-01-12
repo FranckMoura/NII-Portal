@@ -89,7 +89,7 @@
         .theme-cyan { border-left-color: #17a2b8; }
         .theme-cyan .icon-box { background-color: #e0f7fa; color: #17a2b8; }
 
-        /* Mortalidade (Preto/Cinza - NOVO) */
+        /* Mortalidade (Preto/Cinza) */
         .theme-black { border-left-color: #343a40; }
         .theme-black .icon-box { background-color: #e2e6ea; color: #343a40; }
 
@@ -203,7 +203,7 @@
                 <div class="icon-box"><i class="fas fa-hand-holding-usd"></i></div>
                 <div class="card-content">
                     <h3>Financeiro & Repasses</h3>
-                    <p>Gestão de repasses médicos, rateio de equipe (pool) e extratos.</p>
+                    <p>Relatórios Consolidados: Rateio de Equipe, Terceiros e Financiamento.</p>
                     <div class="tags"><span class="tag">Pagamentos</span><span class="tag">Médicos</span></div>
                 </div>
             </a>
@@ -295,6 +295,7 @@
 
         async function carregarArquivos() {
             try {
+                // Tenta carregar dados.json (pode não existir mais, ou pode ser para arquivos gerais)
                 const response = await fetch('dados.json?v=' + new Date().getTime());
                 if (!response.ok) {
                     document.getElementById('lista-arquivos').innerHTML = '<p style="grid-column: 1/-1; text-align:center">Nenhum arquivo encontrado.</p>';
@@ -310,7 +311,6 @@
                 }
 
                 arquivos.forEach(arq => {
-                    // Ícone baseado na extensão
                     let icon = '📄';
                     if(arq.nome.includes('.pdf')) icon = '<i class="fas fa-file-pdf" style="color:#dc3545"></i>';
                     else if(arq.nome.includes('.xls') || arq.nome.includes('.csv')) icon = '<i class="fas fa-file-excel" style="color:#28a745"></i>';
