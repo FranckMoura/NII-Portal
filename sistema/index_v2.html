@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII - Portal Hospitalar</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #007bff;
+            --dark: #1e293b;
+            --light: #f8f9fa;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0061f2 0%, #00ba88 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        header h1 { font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        header p { font-weight: 300; opacity: 0.9; font-size: 1.1rem; }
+        header .badge { 
+            background: rgba(255,255,255,0.2); 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        /* Botão Logout no topo */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.4); }
+
+        main {
+            flex: 1;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .welcome-msg {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #64748b;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-decoration: none;
+            color: var(--dark);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background: #e0f2fe;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .menu-card h3 { font-size: 1.2rem; margin-bottom: 10px; font-weight: 700; }
+        .menu-card p { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f1f5f9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <span class="badge">HBSH</span>
+        <h1>Hospital Beneficente Santa Helena</h1>
+        <p>NII - Núcleo Interno de Informação</p>
+    </header>
+
+    <main>
+        <div class="welcome-msg" id="saudacao">
+            </div>
+
+        <div class="menu-grid">
+            
+            <a href="painel_v3.html" class="menu-card">
+                <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                <h3>Painel de Regulação</h3>
+                <p>Monitoramento de solicitações SISREG, status de autorizações e tempo médio de espera.</p>
+            </a>
+
+            <div class="menu-card disabled">
+                <div class="icon-box" style="background:#fef3c7; color:#d97706;"><i class="fas fa-file-invoice-dollar"></i></div>
+                <h3>Faturamento SUS</h3>
+                <p>Em breve: Relatórios de produção e faturamento.</p>
+            </div>
+
+            <a href="https://github.com/franckmoura/NII-Portal" target="_blank" class="menu-card">
+                <div class="icon-box" style="background:#f1f5f9; color:#334155;"><i class="fab fa-github"></i></div>
+                <h3>Repositório NII</h3>
+                <p>Acesso aos códigos fonte e documentação do projeto no GitHub.</p>
+            </a>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura (Coord. Faturamento)</p>
+    </footer>
+
+    <script>
+        // CONFIGURAÇÃO SUPABASE
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        // --- 🔒 CADEADO DE SEGURANÇA ---
+        async function verificarLogin() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) {
+                window.location.href = "login.html"; // Chuta para login se não estiver logado
+            }
+        }
+        verificarLogin();
+
+        async function fazerLogout() {
+            await client.auth.signOut();
+            window.location.href = "login.html";
+        }
+        // -------------------------------
+
+        // Saudação
+        const hour = new Date().getHours();
+        const msgElement = document.getElementById('saudacao');
+        let greeting = 'Bem-vindo ao Portal de Dados.';
+        
+        if (hour < 12) greeting = 'Bom dia! Selecione um módulo abaixo:';
+        else if (hour < 18) greeting = 'Boa tarde! Selecione um módulo abaixo:';
+        else greeting = 'Boa noite! Selecione um módulo abaixo:';
+        
+        msgElement.innerText = greeting;
+    </script>
+
+</body>
+</html>

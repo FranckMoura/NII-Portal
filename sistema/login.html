@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NII Portal</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0061f2 0%, #00ba88 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-header { margin-bottom: 25px; }
+        .login-header i { font-size: 40px; color: #007bff; margin-bottom: 10px; }
+        h2 { margin: 0; color: #333; font-weight: 600; }
+        p { color: #666; font-size: 14px; margin-top: 5px; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { background: #0056b3; transform: translateY(-1px); }
+        
+        #msg { 
+            background-color: #fee2e2; 
+            color: #dc2626; 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 13px; 
+            margin-top: 15px; 
+            display: none; 
+            border: 1px solid #fecaca;
+        }
+        
+        .footer-text { margin-top: 20px; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-hospital-user"></i>
+            <h2>Portal NII</h2>
+            <p>Entre com suas credenciais</p>
+        </div>
+
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="fazerLogin()" id="btnLogin">Acessar Sistema</button>
+        
+        <div id="msg"></div>
+        
+        <div class="footer-text">Hospital Beneficente Santa Helena &copy; 2026</div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO SUPABASE (Mesma dos outros arquivos)
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        async function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('senha').value;
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('msg');
+
+            // Validação simples
+            if (!email || !password) {
+                mostrarErro("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            // Estado de carregamento
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            msg.style.display = 'none';
+
+            try {
+                const { data, error } = await client.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // SUCESSO: Redireciona para a Home (Index)
+                window.location.href = "index.html";
+
+            } catch (e) {
+                console.error(e);
+                mostrarErro("E-mail ou senha incorretos.");
+                btn.disabled = false;
+                btn.innerText = "Acessar Sistema";
+            }
+        }
+
+        function mostrarErro(texto) {
+            const msg = document.getElementById('msg');
+            msg.innerText = texto;
+            msg.style.display = 'block';
+        }
+        
+        // Permite apertar ENTER para logar
+        document.getElementById('senha').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') fazerLogin();
+        });
+    </script>
+</body>
+</html>
