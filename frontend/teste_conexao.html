@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste de Conexão Supabase</title>
+    <style>body{font-family:monospace;padding:20px;background:#222;color:#0f0;}</style>
+</head>
+<body>
+    <h2>DIAGNÓSTICO DE CONEXÃO NII</h2>
+    <p>Status: <span id="status">Testando...</span></p>
+    <hr>
+    <div id="log"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ==========================================
+        // COLE SUAS CHAVES AQUI COM CUIDADO
+        // ==========================================
+        const URL = 'https://voweywtzoldwfhgkniup.supabase.co'; 
+        const KEY = 'SUA_CHAVE_GIGANTE_AQUI'; // <--- COLE AQUI
+        // ==========================================
+
+        const logDiv = document.getElementById('log');
+        
+        function log(msg, color='white') {
+            logDiv.innerHTML += `<div style="color:${color}; margin-bottom:5px;">> ${msg}</div>`;
+        }
+
+        async function testar() {
+            try {
+                // 1. Verifica Protocolo
+                if (window.location.protocol === 'file:') {
+                    log("ERRO FATAL: Você abriu o arquivo com dois cliques (file://).", "red");
+                    log("SOLUÇÃO: Instale a extensão 'Live Server' no VSCode e clique em 'Open with Live Server'.", "yellow");
+                    return;
+                }
+
+                const supabase = window.supabase.createClient(URL, KEY);
+                log("Cliente Supabase iniciado...");
+
+                // 2. Tenta buscar 1 linha
+                const { data, error } = await supabase
+                    .from('tb_faturamento_mensal')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    log(`ERRO DE CONEXÃO: ${error.message}`, "red");
+                    log(`Detalhe: ${error.hint || 'Verifique se rodou o SQL de permissão.'}`, "orange");
+                } else {
+                    log("SUCESSO TOTAL! CONEXÃO ESTABELECIDA. 🚀", "#00ff00");
+                    log(`Dados encontrados: ${data.length} linhas.`, "#00ff00");
+                    if(data.length > 0) {
+                        log(`Exemplo: ${JSON.stringify(data[0])}`, "gray");
+                    } else {
+                        log("Aviso: Conectou, mas a tabela está vazia. Rode o script Python novamente.", "yellow");
+                    }
+                }
+
+            } catch (err) {
+                log(`ERRO CRÍTICO NO SCRIPT: ${err.message}`, "red");
+            }
+        }
+
+        testar();
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+{
+    "title": "clicar_fechar_conta",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1920,
+            "height": 413,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+                    "title": "SOULMV"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "div:nth-of-type(5) > div.b13 button"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[5]/div[14]/div/button"
+                ],
+                [
+                    "pierce/div:nth-of-type(5) > div.b13 button"
+                ]
+            ],
+            "offsetY": 12,
+            "offsetX": 5,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "div:nth-of-type(4) > div.b13 button"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[4]/div[14]/div/button"
+                ],
+                [
+                    "pierce/div:nth-of-type(4) > div.b13 button"
+                ]
+            ],
+            "offsetY": 10,
+            "offsetX": 9,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "div:nth-of-type(3) > div.b13 button"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[3]/div[14]/div/button"
+                ],
+                [
+                    "pierce/div:nth-of-type(3) > div.b13 button"
+                ]
+            ],
+            "offsetY": 9,
+            "offsetX": 7,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "div:nth-of-type(9) > div.b13 button"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[9]/div[14]/div/button"
+                ],
+                [
+                    "pierce/div:nth-of-type(9) > div.b13 button"
+                ]
+            ],
+            "offsetY": 8,
+            "offsetX": 8,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "div:nth-of-type(8) > div.b13 button"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[8]/div[14]/div/button"
+                ],
+                [
+                    "pierce/div:nth-of-type(8) > div.b13 button"
+                ]
+            ],
+            "offsetY": 12,
+            "offsetX": 5,
+            "frame": [
+                1
+            ]
+        }
+    ]
+}

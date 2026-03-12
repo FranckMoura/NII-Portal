@@ -1,0 +1,27 @@
+(async function() {
+    console.log("--- 🚀 INICIANDO FECHAMENTO EM MASSA ---");
+
+    // Busca todos os botões da coluna de fechamento (classe .b13) dentro da tabela
+    const botoes = document.querySelectorAll('#REG_FAT_grdRegFat .b13 button');
+
+    if (botoes.length === 0) {
+        console.log("❌ Nenhum botão encontrado.");
+        console.log("Dica: Clique com o botão direito em um dos botões, vá em 'Inspecionar', abra a aba Console e tente novamente.");
+        return;
+    }
+
+    console.log(`✅ Foram encontrados ${botoes.length} pacientes na tela. Processando...`);
+
+    // Clica em um por um com intervalo para não derrubar o banco do MV
+    for (let i = 0; i < botoes.length; i++) {
+        console.log(`👉 Fechando conta ${i + 1} de ${botoes.length}...`);
+        
+        // Simula o clique físico
+        botoes[i].click();
+
+        // Aguarda 1.5 segundos antes de ir para o próximo (ajuste se a internet estiver lenta)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    console.log("🎉 TODAS AS CONTAS DA TELA FORAM FECHADAS!");
+})();

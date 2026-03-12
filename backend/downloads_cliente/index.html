@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Regulação - HUJM / EBSERH</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; margin: 0; min-height: 100vh; padding-bottom: 20px; scroll-behavior: smooth; }
+        
+        .top-brand-bar { background-color: white; padding: 15px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 4px solid #004e92; }
+        .hujm-main-logo { height: 90px; max-width: 100%; object-fit: contain; }
+
+        .header-bg { background-color: #ffffff !important; position: relative; padding: 30px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 30px; border-bottom: 5px solid #004e92; overflow: hidden; }
+        .header-watermark { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('logo.png'); background-size: 50%; background-position: center; background-repeat: no-repeat; opacity: 0.04; z-index: 0; pointer-events: none; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        /* OCULTA ELEMENTOS DE IMPRESSÃO NA TELA */
+        .header-print { display: none; }
+        #print-footer { display: none; }
+
+        /* FILTROS */
+        .filter-bar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; border: 1px solid #e2e8f0; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-weight: 700; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.9rem; }
+        .btn-filter { background: #004e92; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; height: 40px; display: flex; align-items: center; gap: 8px; }
+        .btn-filter:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .btn-graficos { background: #10b981; } .btn-graficos:hover { background: #059669; }
+        .search-box-container { flex: 1; min-width: 250px; }
+        .input-wrapper { position: relative; width: 100%; }
+        .input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-wrapper input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; }
+
+        /* KPI & GRÁFICOS */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .meta-card:hover { transform: translateY(-5px); }
+        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
+        .border-blue::before { background: #3b82f6; } .border-green::before { background: #10b981; } .border-purple::before { background: #8b5cf6; } .border-yellow::before { background: #f59e0b; } .border-red::before { background: #ef4444; }
+        .meta-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
+        .meta-value { font-size: 2rem; font-weight: 900; color: #0f172a; line-height: 1; }
+        .card-clickable { cursor: pointer; transition: all 0.2s; }
+        .card-clickable:hover { box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); transform: translateY(-5px) scale(1.02); }
+        .charts-row { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+
+        /* TABELA */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; border-spacing: 0; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.8rem; border: none !important; }
+        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; white-space: normal !important; word-wrap: break-word; }
+        .dt-button { background: #004e92 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 8px 15px !important; font-weight: 600 !important; font-size: 0.85rem !important; }
+        .dt-button:hover { background: #1e3a8a !important; }
+        .search-input { width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.7rem; font-weight: normal; color: #334155; outline: none; margin-top: 5px; transition: border-color 0.3s; }
+        .search-input:focus, .search-input.highlight-filter { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: white; display: inline-block; white-space: nowrap; }
+        .bg-aprovado { background-color: #10b981; } .bg-pendente { background-color: #f59e0b; } .bg-negado { background-color: #ef4444; } .bg-urgencia { background-color: #f97316; } .bg-eletiva { background-color: #3b82f6; }
+        .btn-abrir { background-color: white; border: 1px solid #ef4444; color: #ef4444; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-abrir:hover { background-color: #ef4444; color: white; }
+
+        /* MODAL */
+        #modalDetalhes { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; animation: slideDown 0.3s ease-out; }
+        .modal-header { background: #004e92; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: #f87171; }
+        .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .modal-table { width: 100%; border-collapse: collapse; }
+        .modal-table th { background: #f1f5f9; padding: 10px; text-align: left; font-size: 0.8rem; color: #475569; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        .modal-table td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #1e293b; }
+        .modal-row-clickable { cursor: pointer; transition: background-color 0.2s; }
+        .modal-row-clickable:hover { background-color: #f1f5f9; }
+        .modal-row-clickable i.fa-search { opacity: 0; transition: opacity 0.2s; color: #3b82f6; }
+        .modal-row-clickable:hover i.fa-search { opacity: 1; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ==================================================================== */
+        /* CSS DE IMPRESSÃO A4 RETRATO */
+        /* ==================================================================== */
+        @media print {
+            @page { margin: 5mm; size: A4 portrait; }
+            body { background: white !important; font-size: 6.5pt !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Esconde elementos de tela na impressão */
+            .top-brand-bar, .header-bg, .btn-back, .filter-bar, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info, #toast-container, .table-search, .no-print, #modalDetalhes { display: none !important; }
+            
+            /* Mostra elementos exclusivos de impressão */
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+            .header-print img { height: 40px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { font-size: 11pt; margin: 0; font-weight: 900; color: #000 !important; }
+            .header-info h2 { font-size: 8pt; margin: 2px 0; color: #000 !important; }
+            
+            .kpi-row { display: flex !important; justify-content: space-between !important; gap: 5px !important; margin-bottom: 10px !important; page-break-inside: avoid; }
+            .meta-card { border: 1px solid #000 !important; padding: 4px !important; flex: 1; text-align: center; border-radius: 4px !important; margin: 0 !important; box-shadow: none !important; }
+            .meta-card::before { display: none; }
+            .meta-title { font-size: 5pt !important; font-weight: bold; margin-bottom: 2px; color: #000 !important; }
+            .meta-value { font-size: 9pt !important; color: #000 !important; font-weight: bold; }
+            
+            .charts-row { display: flex !important; flex-direction: row !important; gap: 5px !important; margin-bottom: 10px !important; page-break-inside: avoid; align-items: stretch; height: 140px !important; }
+            .chart-box { border: 1px solid #000 !important; padding: 5px !important; flex: 1; border-radius: 4px !important; display: flex; flex-direction: column; box-shadow: none !important; }
+            .chart-box h4 { font-size: 7pt !important; margin: 0 0 3px 0 !important; border-bottom: 1px solid #000 !important; padding-bottom: 2px !important; color: #000 !important; }
+            .chart-box div { flex: 1; display: flex; justify-content: center; align-items: center; position: relative !important; height: 100% !important; }
+            canvas { max-height: 100px !important; max-width: 100% !important; height: auto !important; width: auto !important; }
+            
+            #secao-tabela { page-break-before: auto; }
+            table.dataTable { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; margin-top: 5px !important; }
+            table.dataTable thead th { border: 1px solid #000 !important; color: #000 !important; font-size: 5.5pt !important; padding: 3px 2px !important; background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; text-align: left; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; font-size: 5.5pt !important; padding: 3px 2px !important; vertical-align: middle; word-break: break-word !important; white-space: normal !important; }
+            
+            table.dataTable thead th:nth-child(1), table.dataTable tbody td:nth-child(1) { width: 8%; } 
+            table.dataTable thead th:nth-child(2), table.dataTable tbody td:nth-child(2) { width: 8%; } 
+            table.dataTable thead th:nth-child(3), table.dataTable tbody td:nth-child(3) { width: 16%; } 
+            table.dataTable thead th:nth-child(4), table.dataTable tbody td:nth-child(4) { width: 18%; } 
+            table.dataTable thead th:nth-child(5), table.dataTable tbody td:nth-child(5) { width: 12%; } 
+            table.dataTable thead th:nth-child(6), table.dataTable tbody td:nth-child(6) { width: 9%; }  
+            table.dataTable thead th:nth-child(7), table.dataTable tbody td:nth-child(7) { width: 11%; } 
+            table.dataTable thead th:nth-child(8), table.dataTable tbody td:nth-child(8) { width: 9%; }  
+            table.dataTable thead th:nth-child(9), table.dataTable tbody td:nth-child(9) { width: 9%; }  
+
+            .badge { color: #000 !important; background: none !important; border: 1px solid #000; padding: 1px 2px; font-size: 5pt !important; font-weight: bold; border-radius: 3px; display: inline-block; text-align: center; }
+            .btn-abrir { display: none !important; }
+
+            #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 6pt; font-weight: bold; border-top: 1px solid #000; padding-top: 3px; color: #000 !important; }
+        }
+    </style>
+</head>
+<body style="display: none;"> <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3"></div>
+    <div id="modalDetalhes">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-clipboard-list mr-2"></i> Detalhamento</h3>
+                <button class="modal-close" onclick="fecharModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4 text-sm text-gray-500 italic"><i class="fas fa-mouse-pointer mr-1"></i> Clique em qualquer linha abaixo para filtrar.</div>
+                <table class="modal-table" id="tabelaModalDetalhes">
+                    <thead><tr><th>Clínica Requisitante</th><th class="text-center">Caráter</th><th class="text-center">Qtd</th></tr></thead>
+                    <tbody id="tabelaModalBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-brand-bar no-print">
+        <img src="logo.png" alt="Logo HUJM / EBSERH / UFMT" class="hujm-main-logo">
+    </div>
+
+    <div class='header-bg no-print'>
+        <div class="header-watermark"></div>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4 relative z-10'>
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-900 text-white p-4 rounded-xl shadow-md"><i class="fa-solid fa-hospital-user text-4xl"></i></div>
+                <div>
+                    <h1 class='text-4xl font-black text-blue-900 drop-shadow-sm'>Painel de Regulação</h1>
+                    <p class='text-slate-500 font-bold tracking-wide mt-1'>Monitoramento de Solicitações SISREG</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6 relative">
+                <div id="notif-bell" class="relative cursor-pointer mr-2" onclick="toggleNotifMenu()">
+                    <i class="fas fa-bell text-3xl text-blue-900 hover:text-blue-600 transition"></i>
+                    <span id="notif-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </div>
+                <div id="notif-menu" class="hidden absolute top-12 right-0 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                    <div class="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                        <span class="font-bold text-gray-700 text-sm"><i class="fas fa-history text-blue-500 mr-1"></i> Histórico</span>
+                        <button onclick="marcarTodasLidas()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold transition">Limpar</button>
+                    </div>
+                    <div id="notif-list" class="max-h-80 overflow-y-auto bg-white"></div>
+                </div>
+
+                <button onclick="fazerLogout()" class="ml-4 bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-lg font-bold text-sm transition shadow-sm border border-red-200">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-print">
+        <img src="logo.png" alt="Logo HUJM">
+        <div class="header-info">
+            <h1>Hospital Universitário Júlio Müller</h1>
+            <h2>Relatório Analítico de Regulação (SISREG)</h2>
+            <p style="font-size:10pt; margin:0;">Rede EBSERH / UFMT</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="far fa-calendar-alt"></i> Período:</label>
+                <div style="display:flex; gap:10px;"><input type="date" id="dataIni"><input type="date" id="dataFim"></div>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-notes-medical"></i> Caráter:</label>
+                <select id="filtroTipo">
+                    <option value="URGENCIA" selected>Urgência</option>
+                    <option value="ELETIVA">Eletiva</option>
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group" style="justify-content:flex-end;">
+                <label>&nbsp;</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-filter" onclick="carregarDados()"><i class="fas fa-filter"></i> Filtrar</button>
+                    <button class="btn-filter" onclick="limparFiltrosTabela()" style="background:#64748b;"><i class="fas fa-eraser"></i> Limpar</button>
+                    <button class="btn-filter btn-graficos" onclick="imprimirResumo()"><i class="fas fa-print"></i> Imprimir (Retrato)</button>
+                </div>
+            </div>
+            <div class="filter-group" style="margin-left: 20px; justify-content:flex-end; padding-bottom:5px;">
+                <span id="status-msg" style="font-size:0.9rem; color:#64748b; font-weight:600;">Aguardando filtro...</span>
+            </div>
+            <div class="search-box-container">
+                <label>BUSCA RÁPIDA (Global):</label>
+                <div class="input-wrapper"><i class="fas fa-search"></i><input type="text" id="tableSearch" placeholder="Paciente, AIH..." onkeyup="filtrarTabelaLocal()"></div>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="meta-card border-blue card-clickable" onclick="abrirModalDetalhes('TOTAL')"><div class="meta-title flex justify-between">Total <i class="fas fa-external-link-alt" style="color:#cbd5e1;"></i></div><div class="meta-value" id="kpiTotal" style="color:#004e92;">0</div></div>
+            <div class="meta-card border-green card-clickable" onclick="abrirModalDetalhes('APROVADOS')"><div class="meta-title flex justify-between">Aprovados <i class="fas fa-external-link-alt" style="color:#cbd5e1;"></i></div><div class="meta-value" id="kpiAprovados" style="color:#10b981;">0</div></div>
+            <div class="meta-card border-purple"><div class="meta-title flex justify-between">Tempo Médio</div><div class="meta-value" id="kpiTempo">0 <span style="font-size:1rem; color:#64748b;">dias</span></div></div>
+            <div class="meta-card border-yellow card-clickable" onclick="abrirModalDetalhes('PENDENTES')"><div class="meta-title flex justify-between">Pendentes <i class="fas fa-external-link-alt" style="color:#cbd5e1;"></i></div><div class="meta-value" id="kpiPendentes" style="color:#f59e0b;">0</div></div>
+            <div class="meta-card border-red card-clickable" onclick="abrirModalDetalhes('NEGADOS')"><div class="meta-title flex justify-between">Negados <i class="fas fa-external-link-alt" style="color:#cbd5e1;"></i></div><div class="meta-value" id="kpiNegados" style="color:#ef4444;">0</div></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box"><h4><i class="fas fa-chart-pie" style="color:#004e92;"></i> Status Geral</h4><div style="height: 250px; position: relative;"><canvas id="chartDoughnut"></canvas></div></div>
+            <div class="chart-box"><h4><i class="fas fa-chart-bar" style="color:#004e92;"></i> Tempo Médio por Clínica (Top 10)</h4><div style="height: 250px; position: relative;"><canvas id="chartClinica"></canvas></div></div>
+        </div>
+
+        <div class="chart-box" id="secao-tabela" style="padding-top:10px;">
+            <h4 class="no-print"><i class="fas fa-list-ul" style="color:#004e92;"></i> Registro de Solicitações</h4>
+            <table id="tabelaRegulacao" class="display compact hover" style="width:100%">
+                <thead>
+                    <tr><th>Data Sol.</th><th>Data Aut.</th><th>Clínica</th><th>Paciente</th><th>CNS</th><th>Solicitação</th><th>AIH</th><th>Status</th><th>Caráter</th><th class="no-print">FICHA</th></tr>
+                    <tr class="table-search no-print"></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="text-center text-slate-400 text-xs font-bold mt-12 mb-4 no-print tracking-wide">
+            Portal NII - Desenvolvido por Franck Moura
+        </div>
+
+    </div>
+
+    <div id="print-footer">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>. Documento para conferência interna. Desenvolvido por Franck Moura.
+    </div>
+
+    <script>
+        const SB_URL = 'https://merxzzzbxzuvsydlipcm.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcnh6enpieHp1dnN5ZGxpcGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MjEyMTUsImV4cCI6MjA4ODM5NzIxNX0.uxPWScWYTkUIqeGAkB1gsqxnyL2D1mRRjPayFr8uv7k';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let chartDoughnut = null; let chartClinica = null; let dataTableInstance = null; let dadosGlobais = [];
+
+        async function verificarAcesso() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html'; 
+            } else {
+                document.body.style.display = 'block'; 
+                iniciarSistema();
+            }
+        }
+        verificarAcesso();
+
+        async function fazerLogout() {
+            await client.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        function cleanData(val) {
+            if (val === null || val === undefined) return '-';
+            let s = String(val).trim();
+            if (s === 'None' || s === 'nan' || s === 'NaN' || s === '') return '-';
+            return s;
+        }
+
+        function iniciarSistema() {
+            const agora = new Date();
+            const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
+            const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+            const fmt = (d) => d.toISOString().split('T')[0];
+
+            document.getElementById('dataIni').value = fmt(primeiroDia);
+            document.getElementById('dataFim').value = fmt(ultimoDia);
+            
+            const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#footer-data').text(hojePrint);
+            
+            carregarDados();
+            carregarNotificacoes();
+            inscreverRealtimeNotificacoes();
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('modalDetalhes');
+            if (event.target == modal) fecharModal();
+        }
+
+        function fecharModal() { $('#modalDetalhes').fadeOut(200); }
+
+        function agruparNomeClinica(nomeBruto) {
+            let n = cleanData(nomeBruto).toUpperCase();
+            if (n === '-') return "NÃO INFORMADA";
+            if (n.includes("OBSTET")) return "OBSTETRÍCIA";
+            if (n.includes("PEDIATR")) return "PEDIATRIA";
+            if (n.includes("CLINICA MEDICA") || n.includes("CLÍNICA MÉDICA")) return "CLÍNICA MÉDICA";
+            if (n.includes("CIRURGIA GERAL")) return "CIRURGIA GERAL";
+            if (n.includes("ORTOPEDI")) return "ORTOPEDIA";
+            return nomeBruto;
+        }
+
+        window.aplicarFiltroModal = function(clinicaClicada, carater, tipoStatus) {
+            fecharModal(); limparFiltrosTabela();
+            let searchClinica = clinicaClicada;
+            if(clinicaClicada === "OBSTETRÍCIA") searchClinica = "OBSTET";
+            if(clinicaClicada === "PEDIATRIA") searchClinica = "PEDIATR";
+            if(clinicaClicada === "CLÍNICA MÉDICA") searchClinica = "CLINICA MEDICA"; 
+            if(clinicaClicada === "NÃO INFORMADA") searchClinica = "-";
+
+            dataTableInstance.column(2).search(searchClinica);
+            $('.table-search th:eq(2) input').val(searchClinica).addClass('highlight-filter');
+
+            let strStatus = '';
+            if(tipoStatus === 'APROVADOS') { dataTableInstance.column(7).search('APROV|AUTORIZ', true, false); strStatus = 'Aprov'; }
+            else if(tipoStatus === 'PENDENTES') { dataTableInstance.column(7).search('PENDENTE'); strStatus = 'Pend'; }
+            else if(tipoStatus === 'NEGADOS') { dataTableInstance.column(7).search('NEGADO|CANCELADO|DEVOLVID', true, false); strStatus = 'Negad'; }
+            
+            if(tipoStatus !== 'TOTAL') $('.table-search th:eq(7) input').val(strStatus).addClass('highlight-filter');
+
+            let charC = carater.substring(0,3);
+            dataTableInstance.column(8).search(charC);
+            $('.table-search th:eq(8) input').val(charC).addClass('highlight-filter');
+
+            dataTableInstance.draw();
+            $('html, body').animate({ scrollTop: $("#secao-tabela").offset().top - 80 }, 600);
+        };
+
+        function limparFiltrosTabela() {
+            $('#tableSearch').val(''); $('.search-input').val('').removeClass('highlight-filter');
+            if(dataTableInstance) dataTableInstance.search('').columns().search('').draw();
+        }
+
+        function abrirModalDetalhes(tipo) {
+            let dadosFiltrados = []; let titulo = ""; let corHeader = "";
+
+            if (tipo === 'TOTAL') { dadosFiltrados = dadosGlobais; titulo = "Detalhamento: Total"; corHeader = "#004e92"; } 
+            else if (tipo === 'APROVADOS') { dadosFiltrados = dadosGlobais.filter(d => cleanData(d.status).toUpperCase().includes('APROVAD')); titulo = "Detalhamento: Aprovados"; corHeader = "#10b981"; } 
+            else if (tipo === 'PENDENTES') { dadosFiltrados = dadosGlobais.filter(d => !cleanData(d.status).toUpperCase().includes('APROVAD') && !cleanData(d.status).toUpperCase().includes('NEGADO') && !cleanData(d.status).toUpperCase().includes('CANCELADO') && !cleanData(d.status).toUpperCase().includes('DEVOLVID')); titulo = "Detalhamento: Pendentes"; corHeader = "#f59e0b"; } 
+            else if (tipo === 'NEGADOS') { dadosFiltrados = dadosGlobais.filter(d => cleanData(d.status).toUpperCase().includes('NEGADO') || cleanData(d.status).toUpperCase().includes('CANCELADO') || cleanData(d.status).toUpperCase().includes('DEVOLVID')); titulo = "Detalhamento: Negados/Cancelados"; corHeader = "#ef4444"; }
+
+            if (dadosFiltrados.length === 0) { alert(`Não há solicitações.`); return; }
+
+            const agrupamento = {};
+            dadosFiltrados.forEach(p => {
+                let clinica = agruparNomeClinica(p.nome_clinica);
+                let rawCarater = cleanData(p.carater_internacao).toUpperCase();
+                let carater = rawCarater;
+                if(rawCarater === '10') carater = 'ELETIVA (10)';
+                else if(rawCarater === '11') carater = 'URGÊNCIA (11)';
+                else if(rawCarater === '-') carater = 'NÃO INFORMADO';
+                let chave = clinica + "|" + carater;
+                if(!agrupamento[chave]) agrupamento[chave] = { clinica: clinica, carater: carater, qtd: 0 };
+                agrupamento[chave].qtd++;
+            });
+
+            let arrayAgrupado = Object.values(agrupamento);
+            arrayAgrupado.sort((a, b) => b.qtd !== a.qtd ? b.qtd - a.qtd : a.clinica.localeCompare(b.clinica));
+
+            const tbody = $('#tabelaModalBody'); tbody.empty();
+            arrayAgrupado.forEach(item => {
+                let badgeClass = item.carater.includes('URG') || item.carater.includes('11') ? 'bg-urgencia' : 'bg-eletiva';
+                tbody.append(`<tr class="modal-row-clickable" onclick="aplicarFiltroModal('${item.clinica}', '${item.carater}', '${tipo}')"><td class="font-bold"><i class="fas fa-search text-xs mr-2"></i>${item.clinica}</td><td class="text-center"><span class="badge ${badgeClass}">${item.carater.substring(0,6)}</span></td><td class="text-center font-black text-lg" style="color: ${corHeader};">${item.qtd}</td></tr>`);
+            });
+
+            $('#modalTitle').html(`<i class="fas fa-clipboard-list mr-2"></i> ${titulo}`);
+            $('.modal-header').css('background-color', corHeader);
+            $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
+        }
+
+        function imprimirResumo() {
+            const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#footer-data').text(hojePrint);
+            $('body').addClass('print-summary'); window.print();
+            setTimeout(() => { $('body').removeClass('print-summary'); }, 1000);
+        }
+
+        function toggleNotifMenu() { $('#notif-menu').toggleClass('hidden'); }
+        $(document).click(function(event) { if(!$(event.target).closest('#notif-bell').length && !$(event.target).closest('#notif-menu').length) $('#notif-menu').addClass('hidden'); });
+
+        async function carregarNotificacoes() {
+            const { data, error } = await client.from('notificacoes').select('*').order('criado_em', { ascending: false }).limit(40);
+            if (!error && data) {
+                let unreadCount = data.filter(n => !n.lida).length;
+                if (unreadCount > 0) $('#notif-badge').text(unreadCount).removeClass('hidden');
+                else $('#notif-badge').addClass('hidden');
+                renderizarListaNotificacoes(data);
+            }
+        }
+
+        function renderizarListaNotificacoes(lista) {
+            const container = $('#notif-list'); container.empty();
+            if (lista.length === 0) { container.append('<div class="p-5 text-center text-sm text-gray-400">Nenhuma atualização recente.</div>'); return; }
+            lista.forEach(n => {
+                let colorClass = n.status_novo === 'APROVADO' ? 'text-green-600' : 'text-red-500';
+                let iconClass = n.status_novo === 'APROVADO' ? 'fa-check-circle' : 'fa-times-circle';
+                let bgClass = n.lida ? 'bg-white opacity-70 hover:opacity-100' : 'bg-blue-50 hover:bg-blue-100';
+                let dotHtml = n.lida ? '' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 shadow-sm"></div>';
+                let nomeSeguro = n.paciente.replace(/'/g, "\\'");
+                container.append(`<div class="p-3 border-b border-gray-100 cursor-pointer transition flex items-start gap-3 ${bgClass}" onclick="abrirNotificacao(${n.id}, '${nomeSeguro}', ${n.lida})"><i class="fas ${iconClass} ${colorClass} mt-1 text-lg"></i><div class="flex-1"><div class="${n.lida ? 'text-gray-500' : 'text-gray-900 font-bold'} text-[0.8rem] leading-tight">${n.paciente}</div><div class="text-[0.7rem] text-gray-500 mt-1">Status: <span class="font-bold ${colorClass}">${n.status_novo}</span></div></div>${dotHtml}</div>`);
+            });
+        }
+
+        async function abrirNotificacao(id, paciente, jaLida) {
+            $('#notif-menu').addClass('hidden');
+            if (!jaLida) client.from('notificacoes').update({ lida: true }).eq('id', id).then(() => { carregarNotificacoes(); });
+            limparFiltrosTabela(); $('#filtroTipo').val('TODOS'); 
+            let dRet = new Date(); dRet.setMonth(dRet.getMonth() - 6); $('#dataIni').val(dRet.toISOString().split('T')[0]);
+            let dFim = new Date(); dFim.setMonth(dFim.getMonth() + 1); $('#dataFim').val(dFim.toISOString().split('T')[0]);
+            $('#tableSearch').val(paciente);
+            await carregarDados(); filtrarTabelaLocal();  
+            $('html, body').animate({ scrollTop: $("#tabelaRegulacao").offset().top - 80 }, 600);
+        }
+
+        async function marcarTodasLidas() { await client.from('notificacoes').update({ lida: true }).eq('lida', false); carregarNotificacoes(); }
+
+        function exibirToast(notif) {
+            const id = 'toast-' + Date.now();
+            let bgClass = notif.status_novo === 'APROVADO' ? 'bg-green-600' : 'bg-red-500';
+            $('#toast-container').append(`<div id="${id}" class="flex items-center w-full max-w-xs p-4 text-white ${bgClass} rounded-lg shadow-xl mb-3"><div class="ml-3 text-sm font-normal"><span class="mb-1 text-[0.7rem] font-bold text-white uppercase tracking-wider block">Atualização de Status</span><div class="text-[0.85rem] font-bold leading-tight mb-1">${notif.paciente}</div><div class="text-[0.75rem]">Passou para: <b>${notif.status_novo}</b></div></div><button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white/10 text-white hover:bg-white/30 rounded-lg p-1.5 h-8 w-8" onclick="$('#${id}').remove()"><i class="fas fa-times"></i></button></div>`);
+            try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
+            setTimeout(() => { $(`#${id}`).fadeOut(400, function() { $(this).remove(); }); }, 8000);
+        }
+
+        function inscreverRealtimeNotificacoes() {
+            client.channel('custom-notif-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notificacoes' }, (payload) => { exibirToast(payload.new); carregarNotificacoes(); }).subscribe();
+        }
+
+        async function carregarDados() {
+            const d1 = document.getElementById('dataIni').value;
+            const d2 = document.getElementById('dataFim').value;
+            const filtroTipo = document.getElementById('filtroTipo').value;
+            $('#status-msg').html('<i class="fas fa-spinner fa-spin text-blue-600"></i> Sincronizando dados...');
+
+            try {
+                let allData = []; let from = 0; let step = 1000; let keepFetching = true;
+                while (keepFetching) {
+                    let query = client.from('regulacao').select('data_solicitacao, data_autorizacao, nome_clinica, nome_paciente, cns_paciente, num_solicitacao, cod_solicitacao, num_aih, status, carater_internacao, arquivo_pdf').order('data_atualizacao', { ascending: false }).range(from, from + step - 1); 
+                    if (filtroTipo === 'URGENCIA') query = query.or('carater_internacao.ilike.%URG%,carater_internacao.eq.11');
+                    else if (filtroTipo === 'ELETIVA') query = query.or('carater_internacao.ilike.%ELETIV%,carater_internacao.eq.10');
+                    const { data, error } = await query;
+                    if(error) throw error;
+                    if (data && data.length > 0) { allData = allData.concat(data); from += step; $('#status-msg').html(`<i class="fas fa-spinner fa-spin text-blue-600"></i> Sincronizando... (${allData.length} registros)`); }
+                    if (!data || data.length < step) keepFetching = false;
+                }
+
+                let dadosFiltrados = allData.filter(item => { let dataDoItem = cleanData(item.data_solicitacao); if (dataDoItem === '-') return true; return dataDoItem >= d1 && dataDoItem <= d2; });
+
+                if(dadosFiltrados.length === 0) {
+                    $('#status-msg').text("Nenhum dado encontrado."); dadosGlobais = [];
+                    atualizarKPIs([]); renderizarGraficos([]); renderizarTabelaPrincipal([]);
+                } else {
+                    dadosGlobais = dadosFiltrados; $('#status-msg').text(dadosFiltrados.length + " registros sincronizados.");
+                    atualizarKPIs(dadosFiltrados); renderizarGraficos(dadosFiltrados); renderizarTabelaPrincipal(dadosFiltrados);
+                }
+            } catch(e) { console.error(e); $('#status-msg').text("Erro de conexão."); }
+        }
+
+        function atualizarKPIs(data) {
+            let total = data.length; let aprovados = 0; let pendentes = 0; let negados = 0;
+            data.forEach(d => { let st = cleanData(d.status).toUpperCase(); if (st.includes('APROVAD') || st.includes('AUTORIZAD')) aprovados++; else if (st.includes('NEGADO') || st.includes('CANCELADO') || st.includes('DEVOLVID')) negados++; else pendentes++; });
+            let somaDias = 0, contaDias = 0;
+            data.forEach(d => { let dSol = cleanData(d.data_solicitacao); let dAut = cleanData(d.data_autorizacao); if(dSol !== '-' && dAut !== '-') { let diff = Math.ceil(Math.abs(new Date(dAut) - new Date(dSol)) / (1000 * 60 * 60 * 24)); if(diff >= 0 && diff < 1000) { somaDias += diff; contaDias++; } } });
+            $('#kpiTotal').text(total); $('#kpiAprovados').text(aprovados); $('#kpiPendentes').text(pendentes); $('#kpiNegados').text(negados); $('#kpiTempo').html((contaDias > 0 ? (somaDias/contaDias).toFixed(1) : "0.0") + ' <span style="font-size:1rem; color:#64748b;">dias</span>');
+        }
+
+        function renderizarGraficos(data) {
+            let stats = { 'Aprovado': 0, 'Pendente': 0, 'Negado': 0 };
+            data.forEach(d => { let st = cleanData(d.status).toUpperCase(); if (st.includes('APROVAD') || st.includes('AUTORIZAD')) stats['Aprovado']++; else if (st.includes('NEGADO') || st.includes('CANCELADO') || st.includes('DEVOLVID')) stats['Negado']++; else stats['Pendente']++; });
+            const ctx1 = document.getElementById('chartDoughnut').getContext('2d'); if(chartDoughnut) chartDoughnut.destroy();
+            chartDoughnut = new Chart(ctx1, { type: 'doughnut', data: { labels: ['Aprovado', 'Pendente', 'Negado / Canc.'], datasets: [{ data: [stats['Aprovado'], stats['Pendente'], stats['Negado']], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
+
+            let clinicas = {};
+            data.forEach(d => { let dSol = cleanData(d.data_solicitacao); let dAut = cleanData(d.data_autorizacao); let nomeRaw = cleanData(d.nome_clinica); if(nomeRaw !== '-' && dSol !== '-' && dAut !== '-') { let nome = nomeRaw.substring(0, 25); let diff = Math.ceil(Math.abs(new Date(dAut) - new Date(dSol)) / (1000 * 60 * 60 * 24)); if(!clinicas[nome]) clinicas[nome] = {soma:0, qtd:0}; clinicas[nome].soma += diff; clinicas[nome].qtd++; } });
+            let arrClinicas = []; for(let c in clinicas) arrClinicas.push({ nome: c, media: (clinicas[c].soma / clinicas[c].qtd).toFixed(1) }); arrClinicas.sort((a,b) => b.media - a.media);
+            const ctx2 = document.getElementById('chartClinica').getContext('2d'); if(chartClinica) chartClinica.destroy();
+            chartClinica = new Chart(ctx2, { type: 'bar', data: { labels: arrClinicas.slice(0, 10).map(i => i.nome), datasets: [{ label: 'Dias (Média)', data: arrClinicas.slice(0, 10).map(i => i.media), backgroundColor: '#004e92', borderRadius: 4 }] }, options: { indexAxis: 'y', maintainAspectRatio: false } });
+        }
+
+        function renderizarTabelaPrincipal(data) {
+            if ($.fn.DataTable.isDataTable('#tabelaRegulacao')) $('#tabelaRegulacao').DataTable().destroy();
+            $('.table-search').empty();
+            $('#tabelaRegulacao thead tr:eq(0) th').each( function (i) { if(i === 9) $('.table-search').append('<th class="no-print"></th>'); else $('.table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); });
+
+            dataTableInstance = $('#tabelaRegulacao').DataTable({
+                data: data, dom: 'lBrtip', pageLength: 25, responsive: true, orderCellsTop: true, lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]], order: [[0, 'desc']], 
+                columnDefs: [ { targets: 2, width: '15%' }, { targets: 3, width: '20%' }, { targets: [7, 8], width: '8%' } ],
+                buttons: [ { extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Excel' }, { extend: 'print', className: 'dt-button', text: '<i class="fas fa-print"></i> Imprimir (Retrato A4)', action: function () { window.print(); } } ],
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_" },
+                columns: [
+                    { data: 'data_solicitacao', render: d => cleanData(d) !== '-' ? d.split('-').reverse().join('/') : '<span style="color:#ef4444; font-weight:bold; font-size:0.75rem;">Sem Data</span>' },
+                    { data: 'data_autorizacao', render: d => cleanData(d) !== '-' ? d.split('-').reverse().join('/') : '-' },
+                    { data: 'nome_clinica', render: d => cleanData(d) !== '-' ? `<span style="white-space: normal; display: block; min-width: 120px;">${cleanData(d)}</span>` : '-' },
+                    { data: 'nome_paciente', render: d => cleanData(d) !== '-' ? `<b style="white-space: normal; display: block; min-width: 150px;">${cleanData(d)}</b>` : '-' },
+                    { data: 'cns_paciente', render: d => cleanData(d) },
+                    { data: null, render: r => cleanData(r.cod_solicitacao) !== '-' ? cleanData(r.cod_solicitacao) : cleanData(r.num_solicitacao) },
+                    { data: 'num_aih', render: (d, type, row) => { let aih = cleanData(d); let sol1 = cleanData(row.cod_solicitacao); let sol2 = cleanData(row.num_solicitacao); if (aih === '-' || aih === sol1 || aih === sol2) return '<span style="color:#cbd5e1; font-weight:bold;">-</span>'; return `<b>${aih}</b>`; } },
+                    { data: 'status', render: d => { let st = cleanData(d).toUpperCase(); if(st === '-') return '-'; if(st.includes('APROVAD') || st.includes('AUTORIZAD')) return `<span class="badge bg-aprovado">${st}</span>`; if(st.includes('NEGADO') || st.includes('CANCELADO') || st.includes('DEVOLVID')) return `<span class="badge bg-negado">${st}</span>`; return `<span class="badge bg-pendente">${st}</span>`; } },
+                    { data: 'carater_internacao', render: d => { let val = cleanData(d).toUpperCase(); if(val === '10' || val.includes('ELETIV')) return `<span class="badge bg-eletiva">ELETIVA (10)</span>`; if(val === '11' || val.includes('URG')) return `<span class="badge bg-urgencia">URGÊNCIA (11)</span>`; return val !== '-' ? `<span class="badge bg-pendente">${val}</span>` : '-'; } },
+                    { data: 'arquivo_pdf', className: 'text-center no-print', render: d => cleanData(d) !== '-' && cleanData(d).length > 5 ? `<a href="${cleanData(d)}" target="_blank" class="btn-abrir"><i class="fas fa-file-pdf"></i> Abrir</a>` : '-' }
+                ],
+                initComplete: function () { this.api().columns().every( function () { var that = this; $('input', $('.table-search th').eq(this.index())).on('keyup change clear', function () { if (that.search() !== this.value) that.search(this.value).draw(); }); }); }
+            });
+        }
+    </script>
+</body>
+</html>

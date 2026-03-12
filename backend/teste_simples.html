@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Regulação - NII (V5 Sem Login)</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Roboto', sans-serif; color: #333; margin: 0; padding: 20px; }
+        
+        /* Layout */
+        .header-bar { background: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #007bff; }
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd; }
+        .kpi-card h3 { margin: 0; font-size: 13px; color: #666; text-transform: uppercase; font-weight: 700; }
+        .kpi-card .value { font-size: 28px; font-weight: 800; margin-top: 10px; color: #333; }
+        
+        .border-blue { border-bottom-color: #007bff; }
+        .border-green { border-bottom-color: #28a745; }
+        .border-purple { border-bottom-color: #6f42c1; }
+        .border-yellow { border-bottom-color: #ffc107; }
+        .border-red { border-bottom-color: #dc3545; }
+
+        .charts-row-1 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 25px; }
+        .charts-row-2 { display: block; margin-bottom: 25px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .card-header h4 { margin: 0; font-size: 16px; color: #333; }
+        
+        .btn-detail { background: #fff; border: 1px solid #ccc; color: #555; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn-detail:hover { background: #007bff; color: white; border-color: #007bff; }
+
+        .date-filter { display: flex; gap: 10px; align-items: center; }
+        .date-filter input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-filter { background: #007bff; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .btn-back { display: flex; align-items: center; gap: 5px; background: #e9ecef; color: #333; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 14px; transition: 0.2s; margin-left: 15px; }
+        .btn-back:hover { background: #dee2e6; color: #000; }
+        
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; text-transform: uppercase; }
+        .bg-aprovado { background-color: #28a745; }
+        .bg-pendente { background-color: #ffc107; color: #333; }
+        .bg-negado { background-color: #dc3545; }
+        .bg-urgencia { background-color: #fd7e14; }
+        .bg-eletiva { background-color: #17a2b8; }
+        
+        /* BOTÃO PDF */
+        .btn-pdf { 
+            color: #dc3545; 
+            font-size: 18px; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            text-decoration: none;
+        }
+        .btn-pdf:hover { transform: scale(1.2); color: #a71d2a; }
+
+        table.dataTable thead th { background-color: #f8f9fa; font-size: 12px; }
+        table.dataTable tbody td { font-size: 12px; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 3% auto; padding: 25px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
+        .close:hover { color: black; }
+        
+        .modal-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .modal-table th, .modal-table td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+        .modal-table th { background-color: #f2f2f2; font-weight: 700; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #modalDetalhe, #modalDetalhe * { visibility: visible; }
+            #modalDetalhe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; z-index: 9999; }
+            .modal-content { border: none; box-shadow: none; width: 100%; margin: 0; padding: 0; }
+            .close, .btn-detail, .no-print, .header-bar, .date-filter { display: none !important; }
+        }
+        
+        #debug-area { font-size:10px; color:red; margin-top:5px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div>
+            <h2 style="margin:0; font-size:22px;"><i class="fas fa-hospital-user"></i> Painel de Regulação</h2>
+            <span id="status-msg" style="font-size:12px; color:#666;">Carregando...</span>
+            <div id="debug-area"></div>
+        </div>
+        <div class="date-filter">
+            <label>De:</label> <input type="date" id="dataIni">
+            <label>Até:</label> <input type="date" id="dataFim">
+            <button class="btn-filter" onclick="carregarDados()">Filtrar</button>
+        </div>
+    </div>
+
+    <div class="kpi-container">
+        <div class="kpi-card border-blue"><h3>Solicitações</h3><div class="value" id="kpiTotal">0</div></div>
+        <div class="kpi-card border-green"><h3>Aprovados</h3><div class="value" id="kpiAprovados">0</div></div>
+        <div class="kpi-card border-purple"><h3>Tempo Médio</h3><div class="value" id="kpiTempo">0 dias</div></div>
+        <div class="kpi-card border-yellow"><h3>Pendentes</h3><div class="value" id="kpiPendentes">0</div></div>
+        <div class="kpi-card border-red"><h3>Negados</h3><div class="value" id="kpiNegados">0</div></div>
+    </div>
+
+    <div class="charts-row-1">
+        <div class="card">
+            <div class="card-header">
+                <h4>Status Geral</h4>
+                <button class="btn-detail" onclick="abrirModal('status')"><i class="fas fa-search"></i> Ver Detalhes</button>
+            </div>
+            <div style="height: 300px;"><canvas id="chartDoughnut"></canvas></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h4>Tempo Médio por Clínica (Top 10)</h4>
+                <button class="btn-detail" onclick="abrirModal('clinica')"><i class="fas fa-search"></i> Ver Detalhes</button>
+            </div>
+            <div style="height: 300px;"><canvas id="chartClinica"></canvas></div>
+        </div>
+    </div>
+
+    <div class="charts-row-2">
+        <div class="card">
+            <div class="card-header">
+                <h4 style="color:#666;">Evolução Diária (Volume)</h4>
+            </div>
+            <div style="height: 180px;"><canvas id="chartLine"></canvas></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Registro de Solicitações</h4>
+        </div>
+        <table id="tabelaRegulacao" class="display compact" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Data Sol.</th>
+                    <th>Data Aut.</th>
+                    <th>Clínica</th>
+                    <th>Paciente</th>
+                    <th>Solicitação</th>
+                    <th>AIH</th>
+                    <th>Status</th>
+                    <th>Ficha</th> </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="modalDetalhe" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button class="btn-filter no-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Relatório</button>
+            </div>
+            <div id="conteudoModal"></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÕES SUPABASE
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let chartDoughnut = null;
+        let chartClinica = null;
+        let chartLine = null;
+        
+        let dadosStatus = [];
+        let dadosClinica = [];
+
+        $(document).ready(function() {
+            // Define data padrão de 2025 a 2027 para garantir visualização
+            document.getElementById('dataIni').value = "2025-01-01";
+            document.getElementById('dataFim').value = "2027-01-01";
+            
+            // CARREGA DIRETO (SEM VERIFICAR LOGIN)
+            carregarDados();
+        });
+
+        async function carregarDados() {
+            const d1 = document.getElementById('dataIni').value;
+            const d2 = document.getElementById('dataFim').value;
+            $('#status-msg').text("Carregando...");
+            $('#debug-area').text("");
+
+            try {
+                // Busca dados (Limite aumentado para 5000 para pegar tudo)
+                const { data, error } = await client
+                    .from('regulacao')
+                    .select('*')
+                    .gte('data_solicitacao', d1)
+                    .lte('data_solicitacao', d2)
+                    .order('data_solicitacao', { ascending: false })
+                    .limit(5000);
+
+                if(error) throw error;
+
+                if(!data || data.length === 0) {
+                    $('#status-msg').text("Nenhum dado encontrado neste período.");
+                    atualizarKPIs([]); renderizarGraficos([]); renderizarTabelaPrincipal([]);
+                } else {
+                    $('#status-msg').text(data.length + " registros encontrados.");
+                    atualizarKPIs(data);
+                    renderizarGraficos(data);
+                    renderizarTabelaPrincipal(data);
+                }
+            } catch(e) {
+                console.error(e);
+                $('#status-msg').text("Erro de conexão.");
+                $('#debug-area').text("Detalhe: " + e.message);
+            }
+        }
+
+        function atualizarKPIs(data) {
+            let total = data.length;
+            let aprovados = data.filter(d => d.status && (d.status.toUpperCase().includes('APROVADO') || d.status.toUpperCase().includes('AUTORIZADO'))).length;
+            let pendentes = data.filter(d => d.status && (d.status.toUpperCase().includes('PENDENTE') || d.status.toUpperCase().includes('SOLICITADO'))).length;
+            let negados = data.filter(d => d.status && (d.status.toUpperCase().includes('NEGADO') || d.status.toUpperCase().includes('CANCELADO'))).length;
+            
+            let somaDias = 0, contaDias = 0;
+            data.forEach(d => {
+                if(d.data_solicitacao && d.data_autorizacao) {
+                    let diff = Math.ceil(Math.abs(new Date(d.data_autorizacao) - new Date(d.data_solicitacao)) / (1000 * 60 * 60 * 24));
+                    if(diff >= 0 && diff < 1000) { somaDias += diff; contaDias++; }
+                }
+            });
+            let media = contaDias > 0 ? (somaDias/contaDias).toFixed(1) : "0.0";
+
+            $('#kpiTotal').text(total);
+            $('#kpiAprovados').text(aprovados);
+            $('#kpiPendentes').text(pendentes);
+            $('#kpiNegados').text(negados);
+            $('#kpiTempo').text(media + " dias");
+        }
+
+        function renderizarGraficos(data) {
+            let stats = { 'Aprovado': 0, 'Pendente': 0, 'Negado': 0 };
+            data.forEach(d => {
+                if(d.status) {
+                    let s = d.status.toUpperCase();
+                    if(s.includes('APROVADO') || s.includes('AUTORIZADO')) stats['Aprovado']++;
+                    else if(s.includes('PENDENTE') || s.includes('SOLICITADO')) stats['Pendente']++;
+                    else stats['Negado']++;
+                }
+            });
+            
+            dadosStatus = [
+                {label: 'Aprovado', val: stats['Aprovado']}, 
+                {label: 'Pendente', val: stats['Pendente']}, 
+                {label: 'Negado', val: stats['Negado']}
+            ];
+
+            const ctx1 = document.getElementById('chartDoughnut').getContext('2d');
+            if(chartDoughnut) chartDoughnut.destroy();
+            chartDoughnut = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Aprovado', 'Pendente', 'Negado'],
+                    datasets: [{ data: [stats['Aprovado'], stats['Pendente'], stats['Negado']], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            let clinicas = {};
+            data.forEach(d => {
+                if(d.nome_clinica && d.data_solicitacao && d.data_autorizacao) {
+                    let nome = d.nome_clinica.substring(0, 30);
+                    let diff = Math.ceil(Math.abs(new Date(d.data_autorizacao) - new Date(d.data_solicitacao)) / (1000 * 60 * 60 * 24));
+                    if(!clinicas[nome]) clinicas[nome] = {soma:0, qtd:0};
+                    clinicas[nome].soma += diff;
+                    clinicas[nome].qtd++;
+                }
+            });
+
+            let arrClinicas = [];
+            for(let c in clinicas) {
+                arrClinicas.push({ nome: c, media: (clinicas[c].soma / clinicas[c].qtd).toFixed(1) });
+            }
+            arrClinicas.sort((a,b) => b.media - a.media);
+            let top10 = arrClinicas.slice(0, 10);
+            
+            dadosClinica = top10;
+
+            const ctx2 = document.getElementById('chartClinica').getContext('2d');
+            if(chartClinica) chartClinica.destroy();
+            chartClinica = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: top10.map(i => i.nome),
+                    datasets: [{ label: 'Dias (Média)', data: top10.map(i => i.media), backgroundColor: '#6f42c1', borderRadius: 4 }]
+                },
+                options: { indexAxis: 'y', maintainAspectRatio: false }
+            });
+
+            const diasUrg = {}, diasElet = {};
+            const datas = new Set();
+            data.forEach(d => {
+                if(d.data_solicitacao) {
+                    datas.add(d.data_solicitacao);
+                    let urg = d.carater_internacao && d.carater_internacao.includes('URG');
+                    let elet = d.carater_internacao && d.carater_internacao.includes('ELET');
+                    if(urg) diasUrg[d.data_solicitacao] = (diasUrg[d.data_solicitacao]||0)+1;
+                    if(elet) diasElet[d.data_solicitacao] = (diasElet[d.data_solicitacao]||0)+1;
+                }
+            });
+            let sortedDates = Array.from(datas).sort();
+            
+            const ctx3 = document.getElementById('chartLine').getContext('2d');
+            if(chartLine) chartLine.destroy();
+            chartLine = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: sortedDates.map(d => d.split('-').reverse().join('/').substring(0,5)),
+                    datasets: [
+                        { label: 'Urgência', data: sortedDates.map(d => diasUrg[d]||0), borderColor: '#fd7e14', fill: false },
+                        { label: 'Eletiva', data: sortedDates.map(d => diasElet[d]||0), borderColor: '#17a2b8', fill: false }
+                    ]
+                }, options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function renderizarTabelaPrincipal(data) {
+            if ($.fn.DataTable.isDataTable('#tabelaRegulacao')) $('#tabelaRegulacao').DataTable().destroy();
+            
+            $('#tabelaRegulacao').DataTable({
+                data: data,
+                pageLength: 10,
+                order: [[0, 'desc']], 
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                columns: [
+                    { data: 'data_solicitacao', render: d => d ? d.split('-').reverse().join('/') : '-' },
+                    { data: 'data_autorizacao', render: d => d ? d.split('-').reverse().join('/') : '-' },
+                    { data: 'nome_clinica', render: d => d ? d.substring(0, 20) : '-' },
+                    { data: 'nome_paciente', render: d => d ? d.substring(0, 15) + '...' : '-' },
+                    { data: 'num_solicitacao' },
+                    { data: 'num_aih', render: d => d || '-' },
+                    { 
+                        data: 'status', 
+                        render: d => {
+                            if(!d) return '-';
+                            let cls = d.toUpperCase().includes('APROVADO') ? 'bg-aprovado' : (d.toUpperCase().includes('PENDENTE') ? 'bg-pendente' : 'bg-negado');
+                            return `<span class="badge ${cls}">${d}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'arquivo_pdf', 
+                        render: d => {
+                            if(d && d.length > 5) {
+                                return `<a href="${d}" target="_blank" class="btn-pdf" title="Abrir Ficha"><i class="fas fa-file-pdf"></i></a>`;
+                            }
+                            return '-';
+                        }
+                    }
+                ]
+            });
+        }
+
+        function abrirModal(tipo) {
+            let titulo = "";
+            let imgBase64 = "";
+            let htmlTable = '<table class="modal-table"><thead><tr>';
+            let dados = [];
+
+            if(tipo === 'status') {
+                titulo = "Relatório Detalhado: Status Geral";
+                imgBase64 = chartDoughnut.toBase64Image();
+                htmlTable += '<th>Situação</th><th>Quantidade</th></tr></thead><tbody>';
+                dados = dadosStatus;
+                dados.forEach(d => { htmlTable += `<tr><td>${d.label}</td><td>${d.val}</td></tr>`; });
+            } else {
+                titulo = "Relatório Detalhado: Tempo por Clínica";
+                imgBase64 = chartClinica.toBase64Image();
+                htmlTable += '<th>Clínica</th><th>Tempo Médio (Dias)</th></tr></thead><tbody>';
+                dados = dadosClinica;
+                dados.forEach(d => { htmlTable += `<tr><td>${d.nome}</td><td>${d.media}</td></tr>`; });
+            }
+            htmlTable += '</tbody></table>';
+
+            document.getElementById('conteudoModal').innerHTML = `
+                <h2 style="text-align:center; color:#333;">${titulo}</h2>
+                <p style="text-align:center; color:#666; font-size:14px;">Período: ${$('#dataIni').val()} a ${$('#dataFim').val()}</p>
+                <div style="text-align:center; margin:20px 0; border:1px solid #eee; padding:10px;">
+                    <img src="${imgBase64}" style="max-height:300px; max-width:100%;">
+                </div>
+                <h3>Dados Tabulados</h3>
+                ${htmlTable}
+                <div style="margin-top:30px; text-align:center; font-size:10px; color:#999;">
+                    Gerado pelo Sistema NII em ${new Date().toLocaleString()}
+                </div>
+            `;
+
+            $('#modalDetalhe').fadeIn();
+        }
+
+        function fecharModal() {
+            $('#modalDetalhe').fadeOut();
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('modalDetalhe')) {
+                fecharModal();
+            }
+        }
+    </script>
+</body>
+</html>

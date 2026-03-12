@@ -1,0 +1,38 @@
+
+(c) Microsoft Corporation. Todos os direitos reservados.
+
+C:\Users\fatsus>cd C:\Users\fatsus\Desktop\robo\dist
+
+C:\Users\fatsus\Desktop\robo\dist>injetor_remoto.exe
+--- 🤖 ROBÔ DE INJEÇÃO SOUL MV (VERSÃO REMOTA JSON CLONE) ---
+📄 Lendo planilha de faturamento...
+✅ 14 pacientes na fila de injeção!
+
+🌐 Abrindo navegador remoto com Flags desativadas...
+>> Acessando MV e Logando...
+>> Aguardando tela de Instituição...
+
+>> Aguardando Menu Principal carregar...
+🔎 Buscando a tela C_CONSULTA_CONTA_P321...
+✅ Menu clicado! Aguardando o formulário interno abrir...
+
+🚀 FORMULÁRIO PRONTO! INICIANDO INJEÇÃO DOS DADOS...
+🔄 Injetando: Conta 21932 | AIH 5126101031634 | LORENA SILVA RODRIGU... ❌ Erro de navegação na tela.
+🔄 Injetando: Conta 21689 | AIH 5126101027608 | SILVANEIDE OLIVEIRA ... ✅ OK
+🔄 Injetando: Conta 21706 | AIH 5126101036067 | RAYSSA SUELLEN SILVA... ✅ OK
+🔄 Injetando: Conta 21855 | AIH 5126101042788 | SARA VITORIA DE LARA... ✅ OK
+🔄 Injetando: Conta 21964 | AIH 5126101042392 | QUEREN HAPUQUE NEVES... ✅ OK
+🔄 Injetando: Conta 21980 | AIH 5126101042403 | EMILAYNE DE MATOS CA... ✅ OK
+🔄 Injetando: Conta 22048 | AIH 5126101042403 | EMILAYNE DE MATOS CA... ✅ OK
+🔄 Injetando: Conta 22178 | AIH 5126101059178 | JOSE PEDRO ALVES... ✅ OK
+🔄 Injetando: Conta 22223 | AIH 5126101059189 | RAMIZA ALVES SANTOS ... ✅ OK
+🔄 Injetando: Conta 22295 | AIH 5126101054833 | YUMY KESSIA CASTRO D... ✅ OK
+🔄 Injetando: Conta 22296 | AIH 5126101054822 | TAISLAYNE SANTOS DA ... ✅ OK
+🔄 Injetando: Conta 22311 | AIH 5126101059211 | TAIENNE SALES DA SIL... ✅ OK
+🔄 Injetando: Conta 22374 | AIH 5126101055141 | LIRYANNE DE SOUZA SI... ✅ OK
+🔄 Injetando: Conta 22449 | AIH 5126101059321 | RN DE LETICIA NOGUEI... ✅ OK
+--------------------------------------------------
+🎉 INJEÇÃO FINALIZADA! | Sucessos: 13 | Erros: 1
+--------------------------------------------------
+
+✅ Processo concluído! Aperte ENTER para fechar o robô e o navegador...

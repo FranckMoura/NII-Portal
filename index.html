@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=frontend/login.html">
+    
+    <title>HBSH - Carregando...</title>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .logo-container {
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        img {
+            max-width: 300px; /* Ajuste o tamanho da logo aqui */
+            height: auto;
+        }
+
+        p {
+            color: #555;
+            font-size: 14px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script>
+        // Redirecionamento via JS (garantia caso o meta falhe)
+        window.location.href = "frontend/login.html";
+    </script>
+</head>
+<body>
+
+    <div class="logo-container">
+        <img src="logo.png" alt="Hospital Beneficente Santa Helena">
+    </div>
+
+    <p><i class="fas fa-spinner fa-spin"></i> Acessando Portal...</p>
+    
+    <p style="font-size: 11px; margin-top: 10px;">
+        Se não for redirecionado automaticamente, <a href="frontend/login.html">clique aqui</a>.
+    </p>
+
+</body>
+</html>

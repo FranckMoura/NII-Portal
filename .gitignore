@@ -1,0 +1,39 @@
+# --- 1. PYTHON E AMBIENTE VIRTUAL ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# --- 2. DADOS SENSÍVEIS E DE PACIENTES (CRÍTICO) ---
+# Impede que planilhas e PDFs com nomes de pacientes subam
+*.xlsx
+*.xls
+*.csv
+*.pdf
+*.xml
+
+# Ignorar pastas de downloads criadas pelos robôs
+backend/downloads/
+downloads/
+
+# --- 3. SCRIPTS COM SENHAS E CHAVES ---
+# Ignora qualquer arquivo que comece com "robo_" (seus scripts Python)
+robo_*.py
+backend/robo_*.py
+
+# Arquivos de variáveis de ambiente (onde guardaremos as senhas no futuro)
+.env
+.env.local
+
+# --- 4. CONFIGURAÇÕES DO EDITOR ---
+.vscode/
+.idea/
+
+# --- 5. SISTEMA OPERACIONAL ---
+.DS_Store
+Thumbs.db
+
+# --- 6. SCRIPTS DE DEPLOY COM TOKENS ---
+backend/downloads_cliente/deploy_github.py

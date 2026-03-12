@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruzamento MV x SISREG - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; padding: 0; margin: 0; min-height: 100vh; padding-bottom: 50px; }
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
+        .table-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; overflow-x: auto; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 10px 8px !important; font-size: 0.75rem; white-space: nowrap; border: none; }
+        table.dataTable tbody td { padding: 8px 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.8rem; vertical-align: middle; }
+        .dt-button { background: #10b981 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: 600 !important; font-size: 0.75rem !important; }
+        .dt-button:hover { background: #059669 !important; }
+        .badge-aih { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; }
+        .btn-pdf { background-color: white; border: 1px solid #ef4444; color: #ef4444; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-pdf:hover { background-color: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-code-compare text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Auditoria de Faturamento</h1>
+                    <p class='text-gray-300'>Cruzamento: Contas Pendentes (MV) vs Fichas Aprovadas (SISREG)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
+                <a href="../index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 font-semibold flex justify-between items-center">
+            <div><i class="fas fa-check-circle mr-2"></i> 42 pacientes encontrados com AIH liberada para faturamento!</div>
+            <div class="text-sm font-normal text-green-600">Emissão: 24/02/2026 17:52</div>
+        </div>
+        
+        <div class="table-card">
+            <table id="tabelaContas" class="display compact w-full">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Conta MV</th>
+                        <th>Paciente</th>
+                        <th style="width: 90px;">Data Int.</th>
+                        <th>Procedimento (MV)</th>
+                        <th style="width: 140px;">AIH Aprovada</th>
+                        <th style="width: 100px; text-align:center;">Ficha SISREG</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="font-bold text-gray-700">21860</td>
+                        <td class="font-bold text-gray-900 uppercase">KAROLINA ALMEIDA GONCALVES</td>
+                        <td class="text-gray-600">27/12/2025</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE TRANSTORNOS RESPIRATORIOS E CARDIOVASCULARES ESPECIFICOS DO PERIODO NEONATAL">TRATAMENTO DE TRANSTORNOS RESPIRATORIOS E CAR...</td>
+                        <td><span class="badge-aih">512610103411-0</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103411-0_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22075</td>
+                        <td class="font-bold text-gray-900 uppercase">AUGUSTO RODRIGUES SPONCHIADO DE ARAUJO</td>
+                        <td class="text-gray-600">15/01/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE TRANSTORNOS RESPIRATORIOS E CARDIOVASCULARES ESPECIFICOS DO PERIODO NEONATAL">TRATAMENTO DE TRANSTORNOS RESPIRATORIOS E CAR...</td>
+                        <td><span class="badge-aih">512610104711-1</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21689</td>
+                        <td class="font-bold text-gray-900 uppercase">SILVANEIDE OLIVEIRA DA SILVA</td>
+                        <td class="text-gray-600">20/01/2026</td>
+                        <td class="text-xs text-gray-500" title="SUTURA DE LACERACOES DE TRAJETO PELVICO">SUTURA DE LACERACOES DE TRAJETO PELVICO</td>
+                        <td><span class="badge-aih">512610102760-8</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610102760-8_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21425</td>
+                        <td class="font-bold text-gray-900 uppercase">LOURDES DA SILVA E SOUZA</td>
+                        <td class="text-gray-600">28/01/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INSUFICIENCIA CARDIACA">TRATAMENTO DE INSUFICIENCIA CARDIACA</td>
+                        <td><span class="badge-aih">512610101397-9</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21502</td>
+                        <td class="font-bold text-gray-900 uppercase">EDSON PAULO DOS SANTOS</td>
+                        <td class="text-gray-600">29/01/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INSUFICIENCIA CARDIACA">TRATAMENTO DE INSUFICIENCIA CARDIACA</td>
+                        <td><span class="badge-aih">512610190303-2</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21639</td>
+                        <td class="font-bold text-gray-900 uppercase">SUSIANE PAIVA DE ARRUDA</td>
+                        <td class="text-gray-600">01/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610102657-4</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610102657-4_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21706</td>
+                        <td class="font-bold text-gray-900 uppercase">RAYSSA SUELLEN SILVA DALMOLIN</td>
+                        <td class="text-gray-600">03/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610103606-7</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103606-7_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21855</td>
+                        <td class="font-bold text-gray-900 uppercase">SARA VITORIA DE LARA HUNGRIA</td>
+                        <td class="text-gray-600">05/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104278-8</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104278-8_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21897</td>
+                        <td class="font-bold text-gray-900 uppercase">JOCILDA SOARES GOMES</td>
+                        <td class="text-gray-600">05/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES DE PROCEDIMENTOS CIRURGICOS OU CLINICOS">TRATAMENTO DE COMPLICACOES DE PROCEDIMENTOS C...</td>
+                        <td><span class="badge-aih">512610190416-5</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610190416-5_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21905</td>
+                        <td class="font-bold text-gray-900 uppercase">SABLINA APARECIDA MAGALHAES PIRES</td>
+                        <td class="text-gray-600">05/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ">TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRA...</td>
+                        <td><span class="badge-aih">512610104057-7</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104057-7_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21964</td>
+                        <td class="font-bold text-gray-900 uppercase">QUEREN HAPUQUE NEVES SILVA</td>
+                        <td class="text-gray-600">06/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104239-2</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104239-2_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21980</td>
+                        <td class="font-bold text-gray-900 uppercase">EMILAYNE DE MATOS CARDOSO</td>
+                        <td class="text-gray-600">06/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104240-3</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104240-3_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21982</td>
+                        <td class="font-bold text-gray-900 uppercase">RN DE FLAVIA REGINA VENANCIO DE OLIVEIRA</td>
+                        <td class="text-gray-600">06/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL">TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS N...</td>
+                        <td><span class="badge-aih">512610104502-1</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22007</td>
+                        <td class="font-bold text-gray-900 uppercase">EVERALDO DE OLIVEIRA MARTINS</td>
+                        <td class="text-gray-600">07/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DAS DOENCAS CRONICAS DAS VIAS AEREAS INFERIORES">TRATAMENTO DAS DOENCAS CRONICAS DAS VIAS AERE...</td>
+                        <td><span class="badge-aih">512610104503-2</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22019</td>
+                        <td class="font-bold text-gray-900 uppercase">WANNELLYZY COSTA LIMA</td>
+                        <td class="text-gray-600">07/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA EM GESTAÇÃO DE ALTO RISCO">OPERAÇÃO CESARIANA EM GESTAÇÃO DE ALTO RISCO</td>
+                        <td><span class="badge-aih">512610104505-4</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22048</td>
+                        <td class="font-bold text-gray-900 uppercase">EMILAYNE DE MATOS CARDOSO</td>
+                        <td class="text-gray-600">08/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104240-3</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104240-3_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22082</td>
+                        <td class="font-bold text-gray-900 uppercase">JANIO KLEDSON FEITOZA DO NASCIMENTO</td>
+                        <td class="text-gray-600">09/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INSUFICIENCIA CARDIACA">TRATAMENTO DE INSUFICIENCIA CARDIACA</td>
+                        <td><span class="badge-aih">512610103318-5</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22088</td>
+                        <td class="font-bold text-gray-900 uppercase">RITA DE SOUZA AMORIM</td>
+                        <td class="text-gray-600">09/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INSUFICIENCIA CARDIACA">TRATAMENTO DE INSUFICIENCIA CARDIACA</td>
+                        <td><span class="badge-aih">512610103324-0</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103324-0_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22103</td>
+                        <td class="font-bold text-gray-900 uppercase">JOAO MIGUEL DOS SANTOS SIMLER</td>
+                        <td class="text-gray-600">09/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL">TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS N...</td>
+                        <td><span class="badge-aih">512610104527-4</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104527-4_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22104</td>
+                        <td class="font-bold text-gray-900 uppercase">EZENIL PAULA DA SILVA</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104284-3</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22106</td>
+                        <td class="font-bold text-gray-900 uppercase">MARIA EDUARDA DE SOUZA LEITE</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104271-1</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104271-1_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22129</td>
+                        <td class="font-bold text-gray-900 uppercase">GABRIELLA PATRICIA FREITAS DE MORAES</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES RELACIONADAS PREDOMINANTEMENTE AO PUERPERIO">TRATAMENTO DE COMPLICACOES RELACIONADAS PREDO...</td>
+                        <td><span class="badge-aih">512610104300-8</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22137</td>
+                        <td class="font-bold text-gray-900 uppercase">GESSICA VITORIA MATOS DA SILVA</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td><span class="badge-aih">512610104533-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22139</td>
+                        <td class="font-bold text-gray-900 uppercase">ALICE BENITES DE OLIVEIRA</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104354-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22147</td>
+                        <td class="font-bold text-gray-900 uppercase">GISELLE AMORIM DA COSTA</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td><span class="badge-aih">512610104541-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22149</td>
+                        <td class="font-bold text-gray-900 uppercase">EDNA HOHANNA SOUZA MELO</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104281-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22150</td>
+                        <td class="font-bold text-gray-900 uppercase">JULIANA CRISTINA DA SILVA CORREA</td>
+                        <td class="text-gray-600">10/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td><span class="badge-aih">512610104390-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22151</td>
+                        <td class="font-bold text-gray-900 uppercase">ANA CAROLINE DA SILVA FIALHO</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104391-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22153</td>
+                        <td class="font-bold text-gray-900 uppercase">KEMILLY AGATA BUENO SOARES</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104392-1</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22154</td>
+                        <td class="font-bold text-gray-900 uppercase">MARIA RITA MIRANDA DIAS</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104286-5</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104286-5_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22155</td>
+                        <td class="font-bold text-gray-900 uppercase">LARISSA FARIAS DE SOUZA OLIVEIRA</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104398-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22161</td>
+                        <td class="font-bold text-gray-900 uppercase">DANIELLA CARDOSO GUSMAO</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104399-8</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22166</td>
+                        <td class="font-bold text-gray-900 uppercase">LUCINEY GONCALVES DO NASCIMENTO COSTA</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO C/ CIRURGIAS MULTIPLAS">TRATAMENTO C/ CIRURGIAS MULTIPLAS</td>
+                        <td><span class="badge-aih">512610105023-5</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22175</td>
+                        <td class="font-bold text-gray-900 uppercase">INGRIDE SILVA DE ARAUJO</td>
+                        <td class="text-gray-600">11/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610104400-9</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22246</td>
+                        <td class="font-bold text-gray-900 uppercase">MARIA DO CARMO VIEIRA DOS SANTOS</td>
+                        <td class="text-gray-600">12/02/2026</td>
+                        <td class="text-xs text-gray-500" title="HISTERECTOMIA (POR VIA VAGINAL)">HISTERECTOMIA (POR VIA VAGINAL)</td>
+                        <td><span class="badge-aih">512610105025-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22264</td>
+                        <td class="font-bold text-gray-900 uppercase">ANA VALADARES</td>
+                        <td class="text-gray-600">12/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DAS DOENCAS CRONICAS DAS VIAS AEREAS INFERIORES">TRATAMENTO DAS DOENCAS CRONICAS DAS VIAS AERE...</td>
+                        <td><span class="badge-aih">512610103907-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22267</td>
+                        <td class="font-bold text-gray-900 uppercase">IRIS AMELIE CAMPOS ARAUJO SILVA</td>
+                        <td class="text-gray-600">12/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL">TRATAMENTO DE OUTROS TRANSTORNOS ORIGINADOS N...</td>
+                        <td><span class="badge-aih">512610104058-8</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104058-8_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22304</td>
+                        <td class="font-bold text-gray-900 uppercase">REGIANE LEITE DE JESUS</td>
+                        <td class="text-gray-600">13/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO C/ CIRURGIAS MULTIPLAS">TRATAMENTO C/ CIRURGIAS MULTIPLAS</td>
+                        <td><span class="badge-aih">512610105038-9</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22326</td>
+                        <td class="font-bold text-gray-900 uppercase">ELIENE AREIAS FRAGA FROIS DE ARRUDA</td>
+                        <td class="text-gray-600">13/02/2026</td>
+                        <td class="text-xs text-gray-500" title="COLPOPERINEOPLASTIA ANTERIOR E POSTERIOR">COLPOPERINEOPLASTIA ANTERIOR E POSTERIOR</td>
+                        <td><span class="badge-aih">512610190356-0</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610190356-0_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22378</td>
+                        <td class="font-bold text-gray-900 uppercase">CINTHIA DENISE SOUZA DE JESUS</td>
+                        <td class="text-gray-600">15/02/2026</td>
+                        <td class="text-xs text-gray-500" title="PARTO NORMAL">PARTO NORMAL</td>
+                        <td><span class="badge-aih">512610103237-1</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103237-1_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22382</td>
+                        <td class="font-bold text-gray-900 uppercase">JULIANA DO CARMO FERREIRA</td>
+                        <td class="text-gray-600">15/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES RELACIONADAS PREDOMINANTEMENTE AO PUERPERIO">TRATAMENTO DE COMPLICACOES RELACIONADAS PREDO...</td>
+                        <td><span class="badge-aih">512610102052-4</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610102052-4_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22454</td>
+                        <td class="font-bold text-gray-900 uppercase">LUDMYLLA GEOVANNA DA SILVA</td>
+                        <td class="text-gray-600">16/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ">TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRA...</td>
+                        <td><span class="badge-aih">512610104226-0</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104226-0_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#tabelaContas').DataTable({
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                dom: 'Bfrtip',
+                pageLength: 50,
+                order: [[1, 'asc']], // Ordena por nome do paciente
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar para Excel', className: 'dt-button' }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

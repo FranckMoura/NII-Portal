@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Institucional - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- PADRONIZAÇÃO VISUAL (Deep Blue + Glass) --- */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: #1e293b; 
+            margin: 0; 
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        /* CABEÇALHO (Glassmorphism) */
+        .header-bg { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; 
+            padding: 20px 40px 60px 40px; /* Padding ajustado */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Título */
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-icon { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .header-title h1 { margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .header-title p { margin: 2px 0 0; opacity: 0.9; font-size: 0.95rem; font-weight: 300; }
+        
+        /* Área Direita (Logo + Botão) */
+        .header-right { display: flex; align-items: center; gap: 25px; }
+        .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
+        .btn-back { 
+            background: rgba(255,255,255,0.15); color: white; padding: 10px 20px; 
+            border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+
+        .header-print { display: none; }
+
+        /* --- ABAS --- */
+        .tabs-container { max-width: 1200px; margin: -55px auto 20px auto; padding: 0 20px; display: flex; gap: 8px; align-items: flex-end; }
+        .tab-btn { 
+            padding: 14px 25px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 12px 12px 0 0; 
+            color: rgba(255,255,255,0.7); 
+            cursor: pointer; font-weight: 600; border: none; transition: all 0.2s; font-size: 0.95rem; backdrop-filter: blur(5px);
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .tab-btn.active { background: white; color: #004e92; padding-bottom: 18px; font-weight: 800; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
+
+        /* --- CONTEÚDO --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .content-card { background: white; padding: 25px; border-radius: 16px; min-height: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+        .filter-bar { background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid #e2e8f0; }
+        .search-box { flex: 1; position: relative; }
+        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; }
+        .search-box input:focus { border-color: #004e92; box-shadow: 0 0 0 3px rgba(0,78,146,0.1); }
+        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; }
+
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- DATA TABLES --- */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 14px 12px !important; font-size: 0.85rem; border-bottom: none !important; }
+        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.9rem; }
+        table.dataTable tbody tr:nth-child(even) { background-color: #f8fafc; }
+        table.dataTable tbody tr:hover { background-color: #e0f2fe; cursor: default; }
+        
+        .dataTables_length { margin-bottom: 15px; font-size: 0.9rem; color: #475569; }
+        .dataTables_length select { border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px; margin: 0 5px; }
+
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-sim { background: #dcfce7; color: #166534; }
+        .badge-nao { background: #fee2e2; color: #991b1b; }
+
+        /* --- IMPRESSÃO --- */
+        @media print {
+            @page { margin: 10mm; size: A4 portrait; }
+            body { background: white !important; color: #000 !important; font-size: 9pt !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .header-bg, .tabs-container, .filter-bar, .btn-back, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info { display: none !important; }
+            
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; }
+            .header-meta { margin-left: auto; text-align: right; font-size: 8pt; }
+
+            .content-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; width: 100% !important; }
+            table.dataTable thead th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 5px !important; }
+            table.dataTable tbody td { color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; }
+            #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; border-top: 1px solid #000; padding-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon"><i class="fas fa-hospital fa-2x"></i></div>
+                <div class="header-title">
+                    <h1>Módulo Institucional</h1>
+                    <p>CNES: 2311682 - Hospital Beneficente Santa Helena</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
+                <a href="index_v2.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="abrirAba('tabServicos')"><i class="fas fa-notes-medical"></i> Serviços</button>
+        <button class="tab-btn" onclick="abrirAba('tabMarcacoes')"><i class="fas fa-certificate"></i> Habilitações</button>
+        <button class="tab-btn" onclick="abrirAba('tabLeitos')"><i class="fas fa-bed"></i> Leitos</button>
+        <button class="tab-btn" onclick="abrirAba('tabProfissionais')"><i class="fas fa-user-md"></i> Profissionais</button>
+    </div>
+
+    <div class="container">
+        <div class="header-print">
+            <img src="../logo.png" alt="Logo">
+            <div class="header-info">
+                <h1>Hospital Beneficente Santa Helena</h1>
+                <h2 id="print-subtitle">Relatório Institucional</h2>
+                <p style="font-size:9pt; margin:0;">CNES: 2311682</p>
+            </div>
+            <div class="header-meta">
+                <div><b>Emissão:</b> <span id="print-data"></span></div>
+                <div>Portal NII</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="globalSearch" placeholder="Digite para filtrar (Nome, CBO, Código, Especialidade...)" onkeyup="filtrarTabela()">
+                </div>
+            </div>
+
+            <div id="tabServicos" class="tab-content active">
+                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Serviços Especializados</h3>
+                <table id="tblServicos" class="display" style="width:100%">
+                    <thead><tr><th>Serviço</th><th>Classificação</th><th>Amb. SUS</th><th>Hosp. SUS</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="tabMarcacoes" class="tab-content">
+                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Habilitações e Incentivos</h3>
+                <table id="tblMarcacoes" class="display" style="width:100%">
+                    <thead><tr><th>Comp.</th><th>Tipo</th><th>Descrição</th><th>Nº Leitos</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="tabLeitos" class="tab-content">
+                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Capacidade Instalada (Leitos)</h3>
+                <table id="tblLeitos" class="display" style="width:100%">
+                    <thead><tr><th>Cód</th><th>Tipo</th><th>Especialidade</th><th>Existentes</th><th>SUS</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="tabProfissionais" class="tab-content">
+                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Corpo Clínico e Assistencial</h3>
+                <div id="loading-prof" style="text-align:center; padding:40px; color:#64748b;">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i><br><span style="margin-top:10px; display:block;">Carregando base de dados...</span>
+                </div>
+                <table id="tblProfissionais" class="display" style="width:100%; display:none;">
+                    <thead><tr><th>Nome</th><th>CBO / Cargo</th><th>CH Hosp</th><th>Vínculo</th><th>Atende SUS</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="print-footer" style="display:none;">Relatório gerado pelo Portal NII. Uso Interno.</div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let tabelaAtivaId = '#tblServicos';
+
+        $(document).ready(function() {
+            $('#print-data').text(new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'));
+            carregarServicos();
+            carregarMarcacoes();
+            carregarLeitos();
+        });
+
+        function abrirAba(idAba) {
+            $('.tab-content').removeClass('active');
+            $('.tab-btn').removeClass('active');
+            $('#' + idAba).addClass('active');
+            $(`button[onclick="abrirAba('${idAba}')"]`).addClass('active');
+            
+            if (idAba === 'tabServicos') tabelaAtivaId = '#tblServicos';
+            if (idAba === 'tabMarcacoes') tabelaAtivaId = '#tblMarcacoes';
+            if (idAba === 'tabLeitos') tabelaAtivaId = '#tblLeitos';
+            if (idAba === 'tabProfissionais') {
+                tabelaAtivaId = '#tblProfissionais';
+                if (!$.fn.DataTable.isDataTable('#tblProfissionais')) carregarProfissionais();
+            }
+
+            const titulos = {
+                'tabServicos': 'Relatório de Serviços Especializados',
+                'tabMarcacoes': 'Relatório de Habilitações',
+                'tabLeitos': 'Relatório de Leitos (Capacidade)',
+                'tabProfissionais': 'Relatório de Profissionais'
+            };
+            $('#print-subtitle').text(titulos[idAba]);
+            
+            $('#globalSearch').val('');
+            if ($.fn.DataTable.isDataTable(tabelaAtivaId)) {
+                $(tabelaAtivaId).DataTable().search('').draw();
+            }
+        }
+
+        function filtrarTabela() {
+            const termo = $('#globalSearch').val();
+            if ($.fn.DataTable.isDataTable(tabelaAtivaId)) {
+                $(tabelaAtivaId).DataTable().search(termo).draw();
+            }
+        }
+
+        function getDTConfig(nomeArquivo) {
+            return {
+                dom: 'lBrtip',
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+                destroy: true,
+                buttons: [
+                    { 
+                        extend: 'excelHtml5', 
+                        title: nomeArquivo, 
+                        text: '<i class="fas fa-file-excel"></i> Excel',
+                        className: 'bg-green-600 text-white px-3 py-1 rounded shadow hover:bg-green-700 font-bold border-none mr-2 text-sm' 
+                    },
+                    { 
+                        text: '<i class="fas fa-print"></i> Imprimir', 
+                        className: 'bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 font-bold border-none text-sm',
+                        action: function () { window.print(); } 
+                    }
+                ],
+                language: { 
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
+                    lengthMenu: "Mostrar _MENU_ registros por página"
+                }
+            };
+        }
+
+        function renderBool(data) {
+            if (data === true || data === 'true') return '<span class="badge badge-sim">Sim</span>';
+            return '<span class="badge badge-nao">Não</span>';
+        }
+
+        async function carregarServicos() {
+            const { data } = await client.from('institucional_servicos').select('*');
+            $('#tblServicos').DataTable({
+                ...getDTConfig('Institucional_Servicos'),
+                data: data,
+                columns: [
+                    { data: 'servico', defaultContent: "-", width: "40%" },
+                    { data: 'classificacao', defaultContent: "-" },
+                    { data: 'amb_sus', render: renderBool, defaultContent: "-" },
+                    { data: 'hosp_sus', render: renderBool, defaultContent: "-" }
+                ]
+            });
+        }
+
+        async function carregarMarcacoes() {
+            const { data } = await client.from('institucional_marcacoes').select('*');
+            $('#tblMarcacoes').DataTable({
+                ...getDTConfig('Institucional_Habilitacoes'),
+                data: data,
+                columns: [
+                    { data: 'competencia', defaultContent: "-" },
+                    { data: 'tipo', defaultContent: "-" },
+                    { data: 'descricao', defaultContent: "-", width: "50%" },
+                    { data: 'num_leitos', defaultContent: "-" }
+                ]
+            });
+        }
+
+        async function carregarLeitos() {
+            const { data } = await client.from('institucional_leitos').select('*');
+            $('#tblLeitos').DataTable({
+                ...getDTConfig('Institucional_Leitos'),
+                data: data,
+                columns: [
+                    { data: 'codigo_leito', defaultContent: "-" },
+                    { data: 'tipo_leito', defaultContent: "-" },
+                    { data: 'especialidade', defaultContent: "-", width: "40%" },
+                    { data: 'existentes', defaultContent: "0" },
+                    { data: 'sus', defaultContent: "0" }
+                ]
+            });
+        }
+
+        async function carregarProfissionais() {
+            const { data, error } = await client.from('institucional_profissionais').select('*');
+            if(error) { console.error(error); return; }
+
+            $('#loading-prof').hide();
+            $('#tblProfissionais').show().DataTable({
+                ...getDTConfig('Institucional_Profissionais'),
+                data: data,
+                deferRender: true,
+                columns: [
+                    { data: 'nome', defaultContent: "-", render: function(d){ return `<b style="color:#004e92">${d}</b>`} },
+                    { data: 'cbo', defaultContent: "-" },
+                    { data: 'ch_hosp_sus', defaultContent: "0" },
+                    { data: 'vinculo', defaultContent: "-" },
+                    { data: 'atende_sus', defaultContent: "-" }
+                ]
+            });
+        }
+    </script>
+</body>
+</html>

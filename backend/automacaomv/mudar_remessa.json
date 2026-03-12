@@ -1,0 +1,194 @@
+{
+    "title": "mudar_remessa",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1920,
+            "height": 618,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+                    "title": "SOULMV"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Remessa[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames145"
+                ],
+                [
+                    "xpath///*[@id=\"#frames145\"]"
+                ],
+                [
+                    "pierce/#\\#frames145"
+                ]
+            ],
+            "offsetY": 13,
+            "offsetX": 28,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#\\31 fda9491-a6ba-41e4-a34a-9a097d2ffefe div:nth-of-type(6) > div.b4 > div"
+                ],
+                [
+                    "xpath///*[@id=\"REG_FAT_grdRegFat\"]/div[4]/div[3]/div/div[6]/div[5]/div"
+                ],
+                [
+                    "pierce/#\\31 fda9491-a6ba-41e4-a34a-9a097d2ffefe div:nth-of-type(6) > div.b4 > div"
+                ]
+            ],
+            "offsetY": 7,
+            "offsetX": 31,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "change",
+            "value": "265",
+            "selectors": [
+                [
+                    "aria/Remessa[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames147"
+                ],
+                [
+                    "xpath///*[@id=\"#frames147\"]"
+                ],
+                [
+                    "pierce/#\\#frames147"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                1
+            ],
+            "target": "main",
+            "key": "ArrowDown"
+        },
+        {
+            "type": "keyUp",
+            "key": "ArrowDown",
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "265",
+            "selectors": [
+                [
+                    "aria/Remessa[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames148"
+                ],
+                [
+                    "xpath///*[@id=\"#frames148\"]"
+                ],
+                [
+                    "pierce/#\\#frames148"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                1
+            ],
+            "target": "main",
+            "key": "ArrowDown"
+        },
+        {
+            "type": "keyUp",
+            "key": "ArrowDown",
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/salvar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-record-save i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-record-save\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-record-save i"
+                ]
+            ],
+            "offsetY": 13,
+            "offsetX": 6,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/OK"
+                ],
+                [
+                    "#frames151"
+                ],
+                [
+                    "xpath///*[@id=\"frames151\"]"
+                ],
+                [
+                    "pierce/#frames151"
+                ],
+                [
+                    "text/OK"
+                ]
+            ],
+            "offsetY": 6.34375,
+            "offsetX": 28.890625,
+            "frame": [
+                1
+            ]
+        }
+    ]
+}

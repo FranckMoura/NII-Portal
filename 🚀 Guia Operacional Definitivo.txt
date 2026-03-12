@@ -1,0 +1,8 @@
+Frequência,Ação,Arquivos / Insumos,Script / Procedimento
+Diária,Monitoramento SISREG,(Nuvem/Automático),Rodar monitor_silencioso.py minimizado.
+Diária,Auditoria de Fichas (Autorizações),Relatório conferencia_autorizacao.*,Salvar em /backend e rodar cruzador_mv_sisreg.py.
+Diária / Eventual,Índice de Simuladas,PDF das Simuladas (SISAIH01),Salvar em /entradas_pdf e rodar script_simuladas.py.
+Mensal,Fechamento Médico,PDFs de Produção/Receita,Salvar em /repasse e rodar robo_repasses.py.
+Mensal,Fechamento SADT,PDFs de Produção Geral,Salvar em /repasse e rodar robo_financeiro_geral.py.
+Mensal,Faturamento TABNET,Arquivo CSV do Tabnet,Salvar na pasta e rodar processar_tabnet.py.
+Eventual,Atualizar SIGTAP,1. R_SUB_GRU_PROC_P321.csv  2. R_COMPATIBILIDADE_PROTESE.csv,Salvar na pasta e rodar robo_sigtap.py.

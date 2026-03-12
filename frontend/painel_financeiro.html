@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Faturamento SUS - NII</title>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; margin: 0; min-height: 100vh; padding-bottom: 40px; }
+        
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; }
+        .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .filter-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-right: 5px; }
+
+        /* CARDS KPI - FONTE REDUZIDA */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; overflow: hidden; transition: transform 0.2s; border: 1px solid #e2e8f0; text-align: center; }
+        .meta-card:hover { transform: translateY(-5px); }
+        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
+        
+        .border-purple::before { background: #9C27B0; }
+        .border-blue::before { background: #2196F3; }
+        .border-green::before { background: #4CAF50; }
+        .border-orange::before { background: #FF9800; }
+        .border-red::before { background: #ef4444; }
+
+        .meta-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .meta-value { font-size: 1.3rem; font-weight: 900; color: #0f172a; line-height: 1.2; margin-bottom: 5px; word-wrap: break-word; } /* Fonte Ajustada */
+        .meta-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; }
+        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; border: none !important; padding: 12px !important; font-size: 0.85rem; }
+        table.dataTable tbody td { padding: 8px 12px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
+        table.dataTable tbody tr:hover { background-color: #f1f5f9; }
+        
+        .dt-buttons { margin-bottom: 15px; }
+        .dt-button { background: #fff !important; border: 1px solid #004e92 !important; border-radius: 4px !important; color: #004e92 !important; font-weight: bold !important; padding: 5px 15px !important; font-size: 0.85rem !important; }
+        .dt-button:hover { background: #004e92 !important; color: #fff !important; }
+
+        .btn-refresh { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-refresh:hover { background: rgba(255,255,255,0.3); }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.2); color: white; margin-left: 10px; }
+
+        /* Estilos EXCLUSIVOS para o momento da impressão */
+        @media print {
+            @page { margin: 10mm; size: A4 landscape; }
+            body { background: white !important; color: #000 !important; font-size: 9pt !important; }
+            .header-bg, .btn-refresh, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .dataTables_info, .chart-box { display: none !important; }
+            
+            /* Forçar exibição apenas da tabela e gráficos injetados */
+            .chart-box:last-child { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+            table.dataTable { border: 1px solid #000 !important; width: 100% !important; margin-top: 20px; }
+            table.dataTable thead th { background: #ddd !important; color: #000 !important; font-weight: 900 !important; border: 1px solid #000 !important; padding: 5px !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; padding: 4px !important; color: #000 !important; }
+            
+            .text-green-700, .text-blue-600 { color: #000 !important; font-weight: bold; }
+            .badge { border: 1px solid #000 !important; color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg pt-8 pb-14 shadow-lg mb-8'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-invoice-dollar text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Faturamento SUS (SIH)</h1>
+                    <p class='text-gray-300'>Gestão Financeira e Produção <span id="status" class="status-badge">Conectando...</span></p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="filter-container">
+                    <span class="filter-label">Ano:</span>
+                    <select id="anoFilter" onchange="carregarDadosAno()" class="filter-select"></select>
+                    <span class="filter-label" style="margin-left:10px">Mês:</span>
+                    <select id="mesFilter" onchange="renderizar()" class="filter-select"><option value="">Todos</option></select>
+                </div>
+                <img src="../logo.png" alt="Logo" class="header-mini-logo">
+                <a href="index_v2.html" class="btn-refresh"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="kpi-row">
+            <div class="meta-card border-green"><div class="meta-title">Valor Total</div><div class="meta-value" id="kpValor">R$ 0,00</div><div class="meta-sub">Faturamento Aprovado</div></div>
+            <div class="meta-card border-blue"><div class="meta-title">AIH Aprovadas</div><div class="meta-value" id="kpAIH">0</div><div class="meta-sub">Quantidade</div></div>
+            <div class="meta-card border-orange"><div class="meta-title">Média Permanência</div><div class="meta-value" id="kpMedia">0.0</div><div class="meta-sub">Dias</div></div>
+            <div class="meta-card border-red"><div class="meta-title">Total Óbitos</div><div class="meta-value" id="kpObitos">0</div><div class="meta-sub">No período</div></div>
+            <div class="meta-card border-purple"><div class="meta-title">Ticket Médio AIH</div><div class="meta-value" id="kpTicket">R$ 0,00</div><div class="meta-sub">Valor Médio</div></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box">
+                <h4><i class="fas fa-chart-line text-green-600"></i> Evolução: Faturamento x AIH</h4>
+                <div style="height:300px;"><canvas id="chartEvo"></canvas></div>
+            </div>
+            <div class="chart-box">
+                <h4><i class="fas fa-chart-pie text-orange-500"></i> Composição (Hosp. vs Prof.)</h4>
+                <div style="height:300px;"><canvas id="chartPie"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h4><i class="fas fa-table text-blue-600"></i> Detalhamento da Produção</h4>
+            <table id="tabela" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Mês</th>
+                        <th>Procedimento</th>
+                        <th>AIH</th>
+                        <th>Dias (Méd)</th>
+                        <th>V. Hosp</th>
+                        <th>V. Prof</th>
+                        <th>Total</th>
+                        <th>Óbitos</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="text-center text-gray-400 text-xs mt-8 mb-4 no-print">Painel integrado ao NII Backend • Fonte: SIA/SIH Supabase</div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        let dadosAno = []; let chartEvo, chartPie;
+        const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const mesesNome = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
+        $(document).ready(function() { setupAnos(); });
+
+        function setupAnos() {
+            const sel = document.getElementById('anoFilter');
+            sel.innerHTML = "";
+            const anoAtual = new Date().getFullYear();
+            for(let i = anoAtual + 1; i >= 2008; i--) {
+                let opt = document.createElement('option'); opt.value = i; opt.innerText = i; sel.appendChild(opt);
+            }
+            sel.value = "2025";
+            carregarDadosAno();
+        }
+
+        async function carregarDadosAno() {
+            const ano = document.getElementById('anoFilter').value;
+            $('#status').text("Baixando " + ano + "...");
+            try {
+                const { data, error } = await client.from('faturamento')
+                    .select('*').gte('competencia_iso', `${ano}-01-01`).lte('competencia_iso', `${ano}-12-31`).order('valor_total', { ascending: false });
+                if(error) throw error;
+                dadosAno = data || [];
+                $('#status').text(dadosAno.length ? "Online (" + dadosAno.length + " reg)" : "Sem dados");
+                atualizarComboMeses(); renderizar();
+            } catch (e) { console.error(e); $('#status').text("Erro de Conexão"); }
+        }
+
+        function atualizarComboMeses() {
+            const selMes = document.getElementById('mesFilter');
+            selMes.innerHTML = '<option value="">Todos</option>';
+            if(dadosAno.length > 0) {
+                const mesesPresentes = [...new Set(dadosAno.map(d => d.competencia_iso.substring(5,7)))].sort();
+                mesesPresentes.forEach(m => {
+                    let nome = mesesNome[parseInt(m)-1];
+                    let opt = document.createElement('option'); opt.value = m; opt.innerText = nome; selMes.appendChild(opt);
+                });
+            }
+        }
+
+        function renderizar() {
+            const mesSelecionado = document.getElementById('mesFilter').value;
+            let dadosFiltrados = mesSelecionado ? dadosAno.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`)) : dadosAno;
+
+            // KPIs
+            let t = { v:0, a:0, h:0, p:0, d:0, o:0 };
+            dadosFiltrados.forEach(d => {
+                t.v += d.valor_total||0; t.a += d.aih_aprovadas||0; t.h += d.valor_serv_hosp||0; 
+                t.p += d.valor_serv_prof||0; t.d += d.dias_permanencia||0; t.o += d.obitos||0;
+            });
+            $('#kpValor').text(brl.format(t.v)); $('#kpAIH').text(t.a.toLocaleString('pt-BR'));
+            $('#kpMedia').text(t.a > 0 ? (t.d/t.a).toFixed(1) : "0.0"); $('#kpObitos').text(t.o);
+            $('#kpTicket').text(t.a ? brl.format(t.v/t.a) : 'R$ 0,00');
+
+            updateCharts(dadosFiltrados);
+
+            // TABELA COM CABEÇALHO DE IMPRESSÃO INJETADO
+            if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
+            
+            $('#tabela').DataTable({
+                data: dadosFiltrados,
+                pageLength: 25,
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
+                    { 
+                        extend: 'print', 
+                        text: '<i class="fas fa-print"></i> Imprimir', 
+                        className: 'dt-button',
+                        customize: function (win) {
+                            // 1. INJETAR CABEÇALHO PERSONALIZADO
+                            var ano = $('#anoFilter').val();
+                            var mes = $('#mesFilter option:selected').text();
+                            var hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+                            
+                            var headerHtml = `
+                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:15px; margin-bottom:20px; font-family:Arial;">
+                                    <img src="../logo.png" style="height:60px; margin-right:20px;">
+                                    <div style="text-align:center; flex-grow:1;">
+                                        <h1 style="margin:0; font-size:16pt; font-weight:900; text-transform:uppercase;">HOSPITAL BENEFICENTE SANTA HELENA</h1>
+                                        <h2 style="margin:5px 0; font-size:12pt; font-weight:bold;">Relatório de Faturamento SUS (SIH)</h2>
+                                        <p style="margin:0; font-size:10pt;">Portal NII - Núcleo Interno de Informação</p>
+                                    </div>
+                                    <div style="text-align:right; font-size:9pt; line-height:1.4; min-width:180px;">
+                                        <div><b>Ano Base:</b> ${ano}</div>
+                                        <div><b>Competência:</b> ${mes}</div>
+                                        <div><b>Emissão:</b> ${hoje}</div>
+                                    </div>
+                                </div>`;
+                            
+                            $(win.document.body).find('h1').remove(); // Remove título padrão
+                            $(win.document.body).css('background', 'white');
+                            $(win.document.body).prepend(headerHtml);
+
+                            // 2. INJETAR GRÁFICOS
+                            var imgEvo = chartEvo.toBase64Image();
+                            var imgPie = chartPie.toBase64Image();
+                            
+                            $(win.document.body).find('table').before(
+                                '<div style="display:flex; justify-content:space-between; margin-bottom:20px; page-break-inside:avoid;">' +
+                                '<div style="width:65%; text-align:center; border:1px solid #000; padding:5px;"><h4 style="margin:5px 0;">Evolução</h4><img src="'+imgEvo+'" style="width:100%; max-height:200px; object-fit:contain;"/></div>' +
+                                '<div style="width:30%; text-align:center; border:1px solid #000; padding:5px;"><h4 style="margin:5px 0;">Composição</h4><img src="'+imgPie+'" style="width:100%; max-height:200px; object-fit:contain;"/></div>' +
+                                '</div>'
+                            );
+                        }
+                    }
+                ],
+                columns: [
+                    { data: 'competencia_fmt', width: '80px' },
+                    { data: 'procedimento', render: d => d ? d.substring(0,50)+'...' : '-' },
+                    { data: 'aih_aprovadas', className: "text-center font-bold" },
+                    { data: 'media_permanencia', render: v => v ? v : '-' },
+                    { data: 'valor_serv_hosp', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'valor_serv_prof', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'valor_total', className: "font-bold text-green-700", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'obitos', render: d => d>0 ? `<span class="badge" style="background:#ef4444; color:white;">${d}</span>` : d }
+                ],
+                order: [[6, 'desc']],
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", search: "Pesquisar:" }
+            });
+        }
+
+        function updateCharts(dados) {
+            let grupos = {};
+            dados.forEach(d => {
+                let m = d.competencia_iso.substring(5,7); let nome = mesesNome[parseInt(m)-1];
+                if(!grupos[nome]) grupos[nome] = {v:0, a:0};
+                grupos[nome].v += d.valor_total; grupos[nome].a += d.aih_aprovadas;
+            });
+            let lbls = Object.keys(grupos).sort((a,b) => mesesNome.indexOf(a) - mesesNome.indexOf(b));
+            
+            if(chartEvo) chartEvo.destroy();
+            chartEvo = new Chart(document.getElementById('chartEvo').getContext('2d'), {
+                type: 'bar',
+                data: { labels: lbls, datasets: [
+                    { label: 'Faturamento (R$)', data: lbls.map(l=>grupos[l].v), backgroundColor: '#10b981', order: 2, yAxisID: 'y' },
+                    { label: 'Qtd. AIH', data: lbls.map(l=>grupos[l].a), type: 'line', borderColor: '#004e92', backgroundColor: '#004e92', borderWidth: 2, order: 1, yAxisID: 'y1' }
+                ]},
+                options: { animation: false, responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{position:'left'}, y1:{position:'right', grid:{display:false}}} }
+            });
+
+            if(chartPie) chartPie.destroy();
+            let th = dados.reduce((a,d)=>a+(d.valor_serv_hosp||0),0); let tp = dados.reduce((a,d)=>a+(d.valor_serv_prof||0),0);
+            chartPie = new Chart(document.getElementById('chartPie').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: ['Hospitalar', 'Profissional'], datasets: [{ data: [th, tp], backgroundColor: ['#20c997', '#f97316'], borderWidth: 0 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, cutout:'70%' }
+            });
+        }
+    </script>
+</body>
+</html>

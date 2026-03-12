@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamento Manual OPME</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- ESTILO TELA (Deep Blue) --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: #f3f4f6; 
+            color: #1e293b; 
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        /* Cabeçalho Tela */
+        .header-screen { 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%); 
+            color: white; padding: 20px 40px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .paper-container {
+            max-width: 210mm;
+            margin: 30px auto;
+            background: white;
+            padding: 10mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            min-height: 297mm;
+            position: relative;
+        }
+
+        /* Inputs do Formulário (Estilo Tela) */
+        input.editable {
+            border: 1px solid #cbd5e1;
+            padding: 6px;
+            width: 100%;
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 13px;
+            color: #333;
+            background: #fff;
+            border-radius: 4px;
+        }
+        input.editable:focus { outline: 2px solid #004e92; border-color: #004e92; }
+
+        /* Botões de Ação */
+        .actions { margin-top: 20px; text-align: right; }
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; color: white; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-add { background: #10b981; }
+        .btn-print { background: #004e92; }
+        .btn-del { background: #ef4444; padding: 4px 8px; font-size: 12px; margin-left: 5px; border-radius: 4px; color: white; border: none; cursor: pointer; }
+
+        /* --- ESTILO IMPRESSÃO (Réplica SoulMV) --- */
+        .print-header { display: none; }
+        
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .header-screen, .no-print, .btn-del { display: none !important; }
+            
+            .paper-container { box-shadow: none; margin: 0; padding: 0; width: 100%; max-width: none; }
+            
+            /* Remove bordas dos inputs na impressão para parecer texto puro */
+            input.editable { border: none !important; background: transparent !important; padding: 0; }
+            
+            .print-header { display: block; font-family: 'Courier New', Courier, monospace; margin-bottom: 20px; }
+            .print-header h1 { font-size: 14px; font-weight: bold; margin: 0; }
+            .print-header p { font-size: 12px; margin: 2px 0; }
+            
+            .meta-info { display: flex; justify-content: space-between; font-size: 11px; margin-top: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+            
+            table { width: 100%; border-collapse: collapse; font-family: 'Courier New', Courier, monospace; font-size: 11px; }
+            th { border-bottom: 1px dashed #000; text-align: left; padding: 5px 2px; font-weight: bold; }
+            td { padding: 5px 2px; vertical-align: top; }
+            
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-screen no-print">
+        <div class="flex items-center gap-4">
+            <div class="bg-white/20 p-2 rounded"><i class="fas fa-file-invoice-dollar text-2xl"></i></div>
+            <div>
+                <h1 class="text-xl font-bold">Lançamento Manual OPME</h1>
+                <p class="text-sm opacity-80">Gerador de Relatório Padrão SoulMV</p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="adicionarLinha()" class="btn btn-add"><i class="fas fa-plus"></i> Adicionar Item</button>
+            <button onclick="window.print()" class="btn btn-print"><i class="fas fa-print"></i> Imprimir</button>
+            <a href="index_v2.html" class="btn" style="background:rgba(255,255,255,0.2);"><i class="fas fa-arrow-left"></i> Menu</a>
+        </div>
+    </div>
+
+    <div class="paper-container">
+        
+        <div class="print-header" style="display:block; font-family: 'Courier New', Courier, monospace;">
+            <div style="text-align:left;">
+                <h1 style="font-size:14px; font-weight:bold;">HOSPITAL BENEFICENTE SANTA HELENA</h1>
+                <p style="font-size:12px;">SOULMV - Sistema de Gerenciamento de AIH</p>
+                <p style="font-size:12px;">Relatório de Próteses por Fornecedor - Analítico</p>
+            </div>
+            
+            <div class="meta-info" style="display:flex; justify-content:space-between; font-size:11px; margin-top:15px; border-bottom:1px dashed #000; padding-bottom:5px;">
+                <div style="flex:1;">Competência: <input type="text" class="editable" value="12/2025" style="width:60px; display:inline;"> - Remessa(s): TODAS</div>
+                <div style="width:100px; text-align:right;">Página: 1/1</div>
+            </div>
+            
+            <div class="meta-info" style="display:flex; justify-content:space-between; font-size:11px; border:none; margin-top:5px;">
+                <div>Emitido por: <input type="text" class="editable" value="FRANCK" style="width:100px; display:inline;"></div>
+                <div>Em: <span id="dataAtual"></span></div>
+            </div>
+
+            <div style="margin-top:15px; margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:5px;">
+                <div style="display:flex; gap:10px;">
+                    <span style="font-weight:bold;">Fornecedor:</span>
+                    <input type="text" class="editable" value="ASTRAMED COMERCIO DE MATERIAIS MEDICOS LTDA" style="font-weight:bold; width:80%;">
+                </div>
+            </div>
+        </div>
+
+        <table id="tblItens">
+            <thead>
+                <tr>
+                    <th style="width:25%;">Paciente / Guia</th>
+                    <th style="width:10%;">N.Fiscal</th>
+                    <th style="width:10%;">Cód. Proc</th>
+                    <th style="width:30%;">Descrição do Material</th>
+                    <th style="width:5%; text-align:center;">Qtd</th>
+                    <th style="width:10%; text-align:right;">Vlr. Unit</th>
+                    <th style="width:10%; text-align:right;">Vlr. Total</th>
+                    <th class="no-print" style="width:20px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+            <tfoot>
+                <tr style="border-top:1px dashed #000;">
+                    <td colspan="6" style="text-align:right; font-weight:bold; padding-top:10px;">TOTAL GERAL:</td>
+                    <td style="text-align:right; font-weight:bold; padding-top:10px;" id="totalGeral">0,00</td>
+                    <td class="no-print"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Define data atual no formato SoulMV
+            const agora = new Date();
+            const strData = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR').substring(0,5);
+            $('#dataAtual').text(strData);
+
+            // Adiciona uma linha inicial
+            adicionarLinha();
+        });
+
+        function adicionarLinha() {
+            const linha = `
+                <tr>
+                    <td>
+                        <input type="text" class="editable font-bold" placeholder="Nome do Paciente"><br>
+                        <input type="text" class="editable" placeholder="Guia / AIH" style="font-size:10px; color:#666;">
+                    </td>
+                    <td><input type="text" class="editable" placeholder="000000"></td>
+                    <td><input type="text" class="editable" placeholder="07..."></td>
+                    <td>
+                        <input type="text" class="editable" placeholder="DESCRIÇÃO DO ITEM">
+                        <input type="text" class="editable" placeholder="Detalhe/Obs" style="font-size:10px; color:#666;">
+                    </td>
+                    <td><input type="number" class="editable qtd text-center" value="1" oninput="calcularTotal(this)"></td>
+                    <td><input type="number" class="editable val-unit text-right" value="0.00" step="0.01" oninput="calcularTotal(this)"></td>
+                    <td><input type="text" class="editable val-total text-right font-bold" value="0,00" readonly></td>
+                    <td class="no-print text-center"><button class="btn-del" onclick="$(this).closest('tr').remove(); totalizarGeral();"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `;
+            $('#tblItens tbody').append(linha);
+        }
+
+        function calcularTotal(element) {
+            const row = $(element).closest('tr');
+            const qtd = parseFloat(row.find('.qtd').val()) || 0;
+            const unit = parseFloat(row.find('.val-unit').val()) || 0;
+            const total = qtd * unit;
+
+            row.find('.val-total').val(total.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            totalizarGeral();
+        }
+
+        function totalizarGeral() {
+            let total = 0;
+            $('#tblItens tbody tr').each(function() {
+                // Recupera o valor total da célula (string formatada BR) e converte para float
+                const valStr = $(this).find('.val-total').val() || "0,00";
+                const val = parseFloat(valStr.replace(/\./g, '').replace(',', '.')) || 0;
+                total += val;
+            });
+            $('#totalGeral').text(total.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        }
+    </script>
+</body>
+</html>

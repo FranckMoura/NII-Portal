@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamento de Metas - HBSH</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Roboto', sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 5px solid #0056b3; }
+        
+        h2 { margin-top: 0; color: #333; font-size: 22px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        h3 { color: #0056b3; font-size: 16px; margin-top: 25px; margin-bottom: 15px; text-transform: uppercase; font-weight: bold; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-width { grid-column: span 2; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #555; }
+        input[type="number"], input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: #0056b3; outline: none; }
+        
+        .hint { font-size: 11px; color: #888; margin-top: 2px; }
+        
+        .btn-save { background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; margin-top: 30px; transition: 0.2s; }
+        .btn-save:hover { background: #218838; }
+        
+        .btn-back { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #666; font-size: 14px; }
+        .btn-back:hover { color: #000; }
+
+        #msgStatus { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
+        .msg-success { background: #d4edda; color: #155724; }
+        .msg-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <a href="painel_metas.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
+
+    <div class="container">
+        <h2><i class="fas fa-edit"></i> Lançamento Manual de Metas (Qualidade)</h2>
+        <p style="font-size:13px; color:#666;">Insira os dados coletados com a CCIH, Supervisão Administrativa e Ouvidoria.</p>
+
+        <form id="formMetas">
+            
+            <div class="form-grid">
+                <div class="full-width">
+                    <label>Mês de Referência (Competência)</label>
+                    <input type="date" id="competencia" required>
+                    <div class="hint">Selecione qualquer dia do mês desejado (ex: 01/01/2025).</div>
+                </div>
+            </div>
+
+            <h3>1. Metas Quantitativas (Complementar)</h3>
+            <div class="form-grid">
+                <div>
+                    <label>Internações Clínica Médica</label>
+                    <input type="number" id="int_clinica" placeholder="Meta: 73">
+                </div>
+                <div>
+                    <label>Internações Clínica Cirúrgica</label>
+                    <input type="number" id="int_cirurgica" placeholder="Meta: 148">
+                </div>
+                <div>
+                    <label>Internações Pediatria</label>
+                    <input type="number" id="int_pediatria" placeholder="Meta: 84">
+                </div>
+                <div>
+                    <label>Recusas de Cirurgias Eletivas</label>
+                    <input type="number" id="recusas" placeholder="Meta: 0">
+                    <div class="hint">Apenas recusas não justificadas </div>
+                </div>
+            </div>
+
+            <h3>2. Metas Qualitativas (CCIH & Qualidade)</h3>
+            <div class="form-grid">
+                <div>
+                    <label>Densidade Infecção UTI Adulto</label>
+                    <input type="number" step="0.01" id="infec_adulto" placeholder="Meta: < 13">
+                    <div class="hint">Casos p/ 1000 dias [cite: 53]</div>
+                </div>
+                <div>
+                    <label>Densidade Infecção UTI Neo</label>
+                    <input type="number" step="0.01" id="infec_neo" placeholder="Meta: < 13">
+                    <div class="hint">Casos p/ 1000 dias [cite: 59]</div>
+                </div>
+                <div>
+                    <label>Taxa de Satisfação do Usuário (%)</label>
+                    <input type="number" step="0.01" id="satisfacao" placeholder="Meta: >= 60%">
+                    <div class="hint">% Ótimo/Bom [cite: 80]</div>
+                </div>
+                <div>
+                    <label>Adesão Protocolos Segurança (%)</label>
+                    <input type="number" step="0.01" id="protocolos" placeholder="Meta: >= 80%">
+                    <div class="hint">Auditoria Trimestral [cite: 69]</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save">Salvar Dados</button>
+            <div id="msgStatus"></div>
+        </form>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO SUPABASE ---
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        // Preenche data atual automaticamente
+        document.getElementById('competencia').valueAsDate = new Date();
+
+        // --- SALVAR DADOS ---
+        document.getElementById('formMetas').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.querySelector('.btn-save');
+            const msg = document.getElementById('msgStatus');
+            
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+            msg.style.display = 'none';
+
+            // Pega a data e força para o dia 01 para padronizar (YYYY-MM-01)
+            let dataRaw = document.getElementById('competencia').value;
+            let dataObj = new Date(dataRaw);
+            // Ajuste simples para pegar Ano e Mês sem bug de timezone
+            let ano = dataRaw.substring(0,4);
+            let mes = dataRaw.substring(5,7);
+            let competencia_iso = `${ano}-${mes}-01`;
+
+            // Objeto de dados
+            const dados = {
+                competencia_iso: competencia_iso,
+                total_internacoes_clinica: document.getElementById('int_clinica').value || 0,
+                total_internacoes_cirurgica: document.getElementById('int_cirurgica').value || 0,
+                total_internacoes_pediatria: document.getElementById('int_pediatria').value || 0,
+                recusas_cirurgias: document.getElementById('recusas').value || 0,
+                taxa_infeccao_uti_adulto: document.getElementById('infec_adulto').value || null,
+                taxa_infeccao_uti_neo: document.getElementById('infec_neo').value || null,
+                taxa_satisfacao_usuario: document.getElementById('satisfacao').value || null,
+                seguranca_paciente_protocolos: document.getElementById('protocolos').value || null
+            };
+
+            try {
+                // UPSERT: Se existir a data, atualiza. Se não, cria novo.
+                const { data, error } = await client
+                    .from('metas_performance')
+                    .upsert(dados, { onConflict: 'competencia_iso' })
+                    .select();
+
+                if (error) throw error;
+
+                msg.className = 'msg-success';
+                msg.innerText = "Dados salvos com sucesso para " + mes + "/" + ano + "!";
+                msg.style.display = 'block';
+
+            } catch (erro) {
+                console.error(erro);
+                msg.className = 'msg-error';
+                msg.innerText = "Erro ao salvar: " + erro.message;
+                msg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar Dados";
+            }
+        });
+    </script>
+
+</body>
+</html>

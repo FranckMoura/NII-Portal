@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruzamento MV x SISREG - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; padding: 0; margin: 0; min-height: 100vh; padding-bottom: 50px; }
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
+        .table-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; overflow-x: auto; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 10px 8px !important; font-size: 0.75rem; white-space: nowrap; border: none; }
+        table.dataTable tbody td { padding: 8px 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.8rem; vertical-align: middle; }
+        .dt-button { background: #10b981 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: 600 !important; font-size: 0.75rem !important; }
+        .dt-button:hover { background: #059669 !important; }
+        .badge-aih { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; }
+        .btn-pdf { background-color: white; border: 1px solid #ef4444; color: #ef4444; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-pdf:hover { background-color: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-code-compare text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Auditoria de Faturamento</h1>
+                    <p class='text-gray-300'>Cruzamento: Contas Pendentes (MV) vs Fichas Aprovadas (SISREG)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <img src="logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
+                <a href="modulo_operacional.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 font-semibold flex justify-between items-center">
+            <div><i class="fas fa-check-circle mr-2"></i> 12 pacientes encontrados com AIH liberada para faturamento!</div>
+            <div class="text-sm font-normal text-green-600">Emissão: 06/03/2026 13:49</div>
+        </div>
+        
+        <div class="table-card">
+            <table id="tabelaContas" class="display compact w-full">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Conta MV</th>
+                        <th>Paciente</th>
+                        <th style="width: 100px;">CNS</th>
+                        <th style="width: 90px;">Data Int.</th>
+                        <th>Procedimento (MV)</th>
+                        <th style="width: 100px;">Solicitação</th>
+                        <th style="width: 140px;">AIH Aprovada</th>
+                        <th style="width: 100px; text-align:center;">Ficha SISREG</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="font-bold text-gray-700">21932</td>
+                        <td class="font-bold text-gray-900 uppercase">LORENA SILVA RODRIGUES</td>
+                        <td class="text-gray-600">705003645516951</td>
+                        <td class="text-gray-600">11/10/2025</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE PNEUMONIAS OU INFLUENZA (GRIPE)">TRATAMENTO DE PNEUMONIAS OU INFLUENZA (GRIPE)</td>
+                        <td class="font-bold text-gray-600">650058138</td>
+                        <td><span class="badge-aih">512610103163-4</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103163-4_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">20469</td>
+                        <td class="font-bold text-gray-900 uppercase">SANDRA PEREIRA DA SILVA</td>
+                        <td class="text-gray-600">702504334239435</td>
+                        <td class="text-gray-600">16/12/2025</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO CLÍNICO DE PACIENTE ONCOLÓGICO">TRATAMENTO CLÍNICO DE PACIENTE ONCOLÓGICO</td>
+                        <td class="font-bold text-gray-600">650204380</td>
+                        <td><span class="badge-aih">512610103399-9</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610103399-9_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">21720</td>
+                        <td class="font-bold text-gray-900 uppercase">ANGELLYNA ALVES MURTINHO</td>
+                        <td class="text-gray-600">898006431310936</td>
+                        <td class="text-gray-600">22/12/2025</td>
+                        <td class="text-xs text-gray-500" title="REVISÃO DE DERIVAÇÃO VENTRICULAR PARA PERITÔNEO / ÁTRIO / PLEURA / RAQUE">REVISÃO DE DERIVAÇÃO VENTRICULAR PARA PERITÔN...</td>
+                        <td class="font-bold text-gray-600">650091704</td>
+                        <td><span class="badge-aih">512610103408-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22087</td>
+                        <td class="font-bold text-gray-900 uppercase">SARA VITORIA DE LARA HUNGRIA</td>
+                        <td class="text-gray-600">701207044191615</td>
+                        <td class="text-gray-600">09/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES RELACIONADAS PREDOMINANTEMENTE AO PUERPERIO">TRATAMENTO DE COMPLICACOES RELACIONADAS PREDO...</td>
+                        <td class="font-bold text-gray-600">650294687</td>
+                        <td><span class="badge-aih">512610104278-8</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610104278-8_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22282</td>
+                        <td class="font-bold text-gray-900 uppercase">KAELLY NUNES DA SILVA</td>
+                        <td class="text-gray-600">707807664534415</td>
+                        <td class="text-gray-600">13/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td class="font-bold text-gray-600">651182917</td>
+                        <td><span class="badge-aih">512610105480-0</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610105480-0_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22513</td>
+                        <td class="font-bold text-gray-900 uppercase">DANIELLY CRISTINA DA COSTA SOUZA CARDOSO</td>
+                        <td class="text-gray-600">702903568580473</td>
+                        <td class="text-gray-600">18/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td class="font-bold text-gray-600">651459069</td>
+                        <td><span class="badge-aih">512610105949-7</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22975</td>
+                        <td class="font-bold text-gray-900 uppercase">SABRINA DA COSTA FERNANDES</td>
+                        <td class="text-gray-600">702501322172532</td>
+                        <td class="text-gray-600">18/02/2026</td>
+                        <td class="text-xs text-gray-500" title="SUTURA DE LACERACOES DE TRAJETO PELVICO">SUTURA DE LACERACOES DE TRAJETO PELVICO</td>
+                        <td class="font-bold text-gray-600">651474208</td>
+                        <td><span class="badge-aih">512610105950-8</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22523</td>
+                        <td class="font-bold text-gray-900 uppercase">ROSILEIDE DA SILVA PRADO</td>
+                        <td class="text-gray-600">702507329717734</td>
+                        <td class="text-gray-600">18/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td class="font-bold text-gray-600">651477568</td>
+                        <td><span class="badge-aih">512610105942-0</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22742</td>
+                        <td class="font-bold text-gray-900 uppercase">MARIA BETANIA MARTINEZ</td>
+                        <td class="text-gray-600">700803984271481</td>
+                        <td class="text-gray-600">22/02/2026</td>
+                        <td class="text-xs text-gray-500" title="OPERAÇÃO CESARIANA">OPERAÇÃO CESARIANA</td>
+                        <td class="font-bold text-gray-600">652068034</td>
+                        <td><span class="badge-aih">512610106159-8</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22850</td>
+                        <td class="font-bold text-gray-900 uppercase">IVONE DE SALES SOUZA</td>
+                        <td class="text-gray-600">708105567675436</td>
+                        <td class="text-gray-600">24/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES DE PROCEDIMENTOS CIRURGICOS OU CLINICOS">TRATAMENTO DE COMPLICACOES DE PROCEDIMENTOS C...</td>
+                        <td class="font-bold text-gray-600">649516688</td>
+                        <td><span class="badge-aih">512610102655-2</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610102655-2_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22866</td>
+                        <td class="font-bold text-gray-900 uppercase">RAIRA GABRIELI SILVA</td>
+                        <td class="text-gray-600">702406026836621</td>
+                        <td class="text-gray-600">24/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE COMPLICACOES RELACIONADAS PREDOMINANTEMENTE AO PUERPERIO">TRATAMENTO DE COMPLICACOES RELACIONADAS PREDO...</td>
+                        <td class="font-bold text-gray-600">651864304</td>
+                        <td><span class="badge-aih">512610106036-6</span></td>
+                        <td class="text-center"><a href="https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/Fichas_Internacao/AIH_512610106036-6_APROVADA.pdf" target="_blank" class="btn-pdf"><i class="fas fa-file-pdf text-lg"></i> Imprimir Ficha</a></td>
+                    </tr>
+        
+                    <tr>
+                        <td class="font-bold text-gray-700">22990</td>
+                        <td class="font-bold text-gray-900 uppercase">ANA JULIA ARRUDA ALVES DOS SANTOS</td>
+                        <td class="text-gray-600">702306115172614</td>
+                        <td class="text-gray-600">27/02/2026</td>
+                        <td class="text-xs text-gray-500" title="TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ">TRATAMENTO DE INTERCORRENCIAS CLINICAS NA GRA...</td>
+                        <td class="font-bold text-gray-600">653270348</td>
+                        <td><span class="badge-aih">512610105965-1</span></td>
+                        <td class="text-center"><span class="text-gray-400 text-xs italic">Sem PDF</span></td>
+                    </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#tabelaContas').DataTable({
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                dom: 'Bfrtip',
+                pageLength: 50,
+                order: [[1, 'asc']], // Ordena por nome do paciente
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar para Excel', className: 'dt-button' }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

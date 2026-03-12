@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoria IndicaSUS - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; margin: 0; min-height: 100vh; padding-bottom: 40px; scroll-behavior: smooth; }
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 30px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        .filter-bar { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; border: 1px solid #e2e8f0; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-weight: 700; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.9rem; }
+        .btn-filter { background: #004e92; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; height: 40px; display: flex; align-items: center; gap: 8px; }
+        .btn-filter:hover { background: #1e3a8a; transform: translateY(-1px); }
+        .btn-graficos { background: #10b981; } .btn-graficos:hover { background: #059669; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .meta-card:hover { transform: translateY(-5px); }
+        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
+        .border-blue::before { background: #3b82f6; } .border-green::before { background: #10b981; } .border-purple::before { background: #8b5cf6; } .border-yellow::before { background: #f59e0b; }
+        .meta-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
+        .meta-value { font-size: 2.2rem; font-weight: 900; color: #0f172a; line-height: 1; }
+        .meta-subtitle { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-top: 5px; }
+
+        .charts-row { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; border-spacing: 0; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.8rem; border: none !important; }
+        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
+        .dt-button { background: #004e92 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 8px 15px !important; font-weight: 600 !important; font-size: 0.85rem !important; }
+        .dt-button:hover { background: #1e3a8a !important; }
+        .search-input { width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.7rem; font-weight: normal; color: #334155; outline: none; margin-top: 5px; }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: inline-block; }
+        .bg-uti { background-color: #fce7f3; color: #9d174d; }
+        .bg-enf { background-color: #e0f2fe; color: #0369a1; }
+        .bg-alta { background-color: #dcfce7; color: #166534; border: 1px solid #166534; }
+        .bg-internado { background-color: #fef08a; color: #854d0e; border: 1px solid #854d0e; }
+        .col-diarias { font-weight: 900 !important; color: #004e92 !important; font-size: 1rem !important; text-align: center; }
+
+        #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #004e92; font-weight: bold; }
+
+        .header-print { display: none; }
+        
+        @media print {
+            @page { margin: 8mm; size: A4 portrait; }
+            body { 
+                background: white !important; font-size: 7.5pt !important; 
+                color: #000 !important; line-height: 1.2 !important;
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; 
+            }
+            
+            .header-bg, .btn-back, .filter-bar, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info, .table-search, .no-print { display: none !important; }
+            
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+            .header-print img { height: 40px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { font-size: 11pt; margin: 0; font-weight: 900; }
+            .header-info h2 { font-size: 9pt; margin: 2px 0; }
+            .header-meta { font-size: 7pt; text-align: right; }
+            
+            .kpi-row { display: flex !important; justify-content: space-between !important; flex-wrap: nowrap !important; gap: 5px !important; margin-bottom: 10px !important; }
+            .meta-card { border: 1px solid #000 !important; padding: 5px !important; box-shadow: none !important; flex: 1; text-align: center; border-radius: 4px !important; margin: 0 !important; }
+            .meta-title { font-size: 6pt !important; font-weight: bold; margin-bottom: 2px; color: #000 !important; }
+            .meta-value { font-size: 11pt !important; color: #000 !important; }
+            .meta-subtitle { display: none !important; } 
+            
+            .charts-row { display: flex !important; flex-direction: row !important; gap: 5px !important; margin-bottom: 10px !important; height: 130px !important; align-items: stretch; }
+            .chart-box { border: 1px solid #000 !important; padding: 5px 10px !important; box-shadow: none !important; flex: 1; border-radius: 4px !important; display: flex; flex-direction: column; }
+            .chart-box h4 { font-size: 8pt !important; margin: 0 0 5px 0 !important; border-bottom: 1px solid #000 !important; padding-bottom: 2px !important; color: #000 !important; }
+            .chart-canvas-wrapper { height: 95px !important; width: 100% !important; position: relative; }
+            canvas { max-height: 95px !important; width: 100% !important; }
+            
+            #secao-tabela { page-break-before: auto; }
+            table.dataTable { border-collapse: collapse !important; width: 100% !important; margin-top: 5px !important; table-layout: fixed; }
+            table.dataTable thead th { border: 1px solid #000 !important; color: #000 !important; font-size: 6pt !important; padding: 3px !important; background-color: #eee !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; font-size: 6.5pt !important; padding: 3px !important; word-break: break-word; overflow: hidden; }
+            
+            th.col-paciente { width: 23% !important; }
+            th.col-mun { width: 15% !important; }
+            th.col-leito { width: 14% !important; }
+            th.col-data { width: 11% !important; }
+            th.col-aih { width: 18% !important; }
+            th.col-qtd { width: 8% !important; }
+
+            .badge { color: #000 !important; background: none !important; border: 1px solid #000; padding: 1px 2px; font-size: 5.5pt !important; font-weight: bold; border-radius: 2px; }
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 6pt; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
+            .print-hide { display: none !important; width: 0 !important; padding: 0 !important; margin: 0 !important; border: none !important; }
+            body.print-summary #secao-tabela { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading" style="display: none;">
+        <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+        <span id="loading-msg">Sincronizando Banco de Dados...</span>
+    </div>
+
+    <div class='header-bg pt-8 pb-14 shadow-lg mb-8'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-bed-pulse text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Auditoria de Diárias UTI</h1>
+                    <p class='text-gray-300'>Confronto de Faturamento Estadual (IndicaSUS)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+                <a href="../modulo_operacional.html" class="btn-back" style="background: rgba(255,255,255,0.2); color:white; padding: 8px 15px; border-radius: 8px; text-decoration: none; font-weight: bold;"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-print">
+        <img src="../logo.png" alt="Logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+        <div class="header-info">
+            <h1>Hospital Beneficente Santa Helena</h1>
+            <h2>Relatório de Auditoria de Diárias UTI (IndicaSUS)</h2>
+            <p style="font-size:10pt; margin:0;">Portal NII - Faturamento</p>
+        </div>
+        <div class="header-meta">
+            <div><b>Competência:</b> <span id="print-periodo">--/-- a --/--</span></div>
+            <div><b>Emissão:</b> <span id="print-data"></span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="far fa-calendar-alt"></i> Competência (Filtro):</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="dataIni">
+                    <input type="date" id="dataFim">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fas fa-procedures"></i> Tipo de Leito:</label>
+                <select id="filtroTipo">
+                    <option value="UTI" selected>Somente Leitos de UTI</option>
+                    <option value="TODOS">Todos os Leitos (Censo Geral)</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="justify-content:flex-end;">
+                <label>&nbsp;</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-filter" onclick="carregarDados()">
+                        <i class="fas fa-calculator"></i> Calcular
+                    </button>
+                    <button class="btn-filter btn-graficos" onclick="imprimirResumo()">
+                        <i class="fas fa-chart-pie"></i> Imprimir Resumo
+                    </button>
+                </div>
+            </div>
+            
+            <div class="filter-group" style="margin-left: 20px; justify-content:flex-end; padding-bottom:5px;">
+                <span id="status-msg" style="font-size:0.9rem; color:#64748b; font-weight:600;">Pronto para cálculo.</span>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="meta-card border-blue">
+                <div class="meta-title">Diárias UTI Adulto</div>
+                <div class="meta-value" id="kpiUtiAdulto" style="color:#004e92;">0</div>
+                <div class="meta-subtitle">Consumidas no mês</div>
+            </div>
+            <div class="meta-card border-purple">
+                <div class="meta-title">Diárias UTI Neo</div>
+                <div class="meta-value" id="kpiUtiNeo" style="color:#8b5cf6;">0</div>
+                <div class="meta-subtitle">Consumidas no mês</div>
+            </div>
+            <div class="meta-card border-green">
+                <div class="meta-title">Pacientes Únicos</div>
+                <div class="meta-value" id="kpiPacientes" style="color:#10b981;">0</div>
+                <div class="meta-subtitle">Atendidos no período</div>
+            </div>
+            <div class="meta-card border-yellow">
+                <div class="meta-title">Média de Permanência</div>
+                <div class="meta-value" id="kpiTempo">0 <span style="font-size:1rem; color:#64748b;">dias</span></div>
+                <div class="meta-subtitle">Por internação</div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box">
+                <h4><i class="fas fa-chart-pie" style="color:#004e92;"></i> Distribuição de Diárias</h4>
+                <div class="chart-canvas-wrapper"><canvas id="chartDoughnut"></canvas></div>
+            </div>
+            <div class="chart-box">
+                <h4><i class="fas fa-map-marker-alt" style="color:#004e92;"></i> Top 10 Municípios (Por Consumo de Diárias)</h4>
+                <div class="chart-canvas-wrapper"><canvas id="chartMunicipios"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-box" id="secao-tabela" style="padding-top:10px;">
+            <h4 class="no-print"><i class="fas fa-list-ul" style="color:#004e92;"></i> Detalhamento por Paciente</h4>
+            <table id="tabelaIndica" class="display compact nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="col-paciente">Paciente</th>
+                        <th class="col-mun">Município</th>
+                        <th class="col-leito">Tipo de Leito</th>
+                        <th class="col-data">Internação</th>
+                        <th class="col-data">Alta (Evolução)</th>
+                        <th class="col-aih">AIH / SISREG</th>
+                        <th class="text-center print-hide">Status</th> 
+                        <th class="text-center col-qtd">Diárias no Mês</th> 
+                    </tr>
+                    <tr class="table-search no-print">
+                        </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>. Módulo de Faturamento e Auditoria.
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        let chartDoughnut = null;
+        let chartMunicipios = null;
+        let dataTableInstance = null;
+
+        $(document).ready(function() {
+            const agora = new Date();
+            const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
+            const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+            const fmt = (d) => d.toISOString().split('T')[0];
+
+            document.getElementById('dataIni').value = fmt(primeiroDia);
+            document.getElementById('dataFim').value = fmt(ultimoDia);
+            
+            const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#print-data').text(hojePrint);
+            $('#footer-data').text(hojePrint);
+
+            carregarDados();
+        });
+
+        function imprimirResumo() {
+            $('body').addClass('print-summary');
+            window.print();
+            setTimeout(() => { $('body').removeClass('print-summary'); }, 1000);
+        }
+
+        // Função auxiliar para quebrar as datas isoladamente sem risco de fuso horário
+        function parseD(str) {
+            let p = str.split('-');
+            return new Date(p[0], p[1]-1, p[2]); // Retorna sempre à meia noite (00:00:00) exata local.
+        }
+
+        async function carregarDados() {
+            const d1 = document.getElementById('dataIni').value;
+            const d2 = document.getElementById('dataFim').value;
+            const filtroTipo = document.getElementById('filtroTipo').value;
+            
+            $('#print-periodo').text(`${d1.split('-').reverse().join('/')} a ${d2.split('-').reverse().join('/')}`);
+            $('#loading-msg').text("Consultando banco de dados...");
+            $('#loading').css('display', 'flex');
+
+            try {
+                const { data: snap } = await client.from('indicasus_leitos')
+                                                   .select('data_extracao')
+                                                   .order('data_extracao', {ascending:false})
+                                                   .limit(1);
+
+                if(!snap || snap.length === 0) {
+                    $('#loading').hide();
+                    $('#status-msg').text("Nenhum dado encontrado no banco.");
+                    return;
+                }
+
+                const dtRef = snap[0].data_extracao;
+                $('#loading-msg').text(`Filtrando pacientes (Base: ${dtRef.split('-').reverse().join('/')})...`);
+
+                let allData = [];
+                let from = 0;
+                let step = 1000;
+                let keepFetching = true;
+
+                while (keepFetching) {
+                    let query = client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih')
+                        .eq('data_extracao', dtRef) 
+                        .lte('data_internacao', d2) 
+                        .or(`data_evolucao.gte.${d1},data_evolucao.is.null`) 
+                        .range(from, from + step - 1); 
+
+                    if (filtroTipo === 'UTI') {
+                        query = query.ilike('tipo_leito', '%UTI%');
+                    }
+
+                    const { data, error } = await query;
+                    if(error) throw error;
+
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data); 
+                        from += step;
+                    }
+                    if (!data || data.length < step) keepFetching = false;
+                }
+
+                if(allData.length === 0) {
+                    $('#loading').hide();
+                    $('#status-msg').text("Nenhum paciente neste período.");
+                    $('#kpiUtiAdulto, #kpiUtiNeo, #kpiPacientes, #kpiTempo').text("0");
+                    renderizarGraficos([]); renderizarTabelaPrincipal([]);
+                    return;
+                }
+
+                const map = new Map();
+                allData.forEach(row => {
+                    const nome = (row.nome_paciente || "SEM NOME").trim().toUpperCase();
+                    const dtInt = row.data_internacao || "SEM DATA";
+                    const key = nome + "_" + dtInt;
+                    
+                    let leitoOrig = (row.tipo_leito || "").toUpperCase();
+                    let leitoCurto = "OUTROS";
+                    if (leitoOrig.includes("UTI ADULTO")) leitoCurto = "UTI ADULTO";
+                    else if (leitoOrig.includes("UTI NEO") || leitoOrig.includes("NEONATAL")) leitoCurto = "UTI NEO";
+                    else if (leitoOrig.includes("UTI PEDI")) leitoCurto = "UTI PEDI";
+                    else if (leitoOrig.includes("ENFERMARIA") || leitoOrig.includes("CLINICO")) leitoCurto = "ENFERMARIA";
+                    else leitoCurto = leitoOrig.substring(0, 15);
+                    
+                    row.tipo_leito_limpo = leitoCurto; 
+
+                    if (!map.has(key)) {
+                        map.set(key, row);
+                    } else {
+                        const existing = map.get(key);
+                        if (new Date(row.data_extracao) > new Date(existing.data_extracao)) {
+                            map.set(key, row);
+                        }
+                    }
+                });
+
+                let deduplicated = Array.from(map.values());
+
+                // --- MATEMÁTICA DEFINITIVA SIGTAP/SUS ---
+                const startFilter = parseD(d1);
+                const endFilter = parseD(d2);
+                
+                const hojeData = new Date();
+                const hojeStr = hojeData.getFullYear() + '-' + String(hojeData.getMonth()+1).padStart(2,'0') + '-' + String(hojeData.getDate()).padStart(2,'0');
+                const hojeParsed = parseD(hojeStr);
+
+                let totalAdulto = 0;
+                let totalNeo = 0;
+                let pacientesUnicos = 0;
+                let somaPermanencia = 0;
+
+                const dadosFinais = [];
+
+                deduplicated.forEach(p => {
+                    if (!p.data_internacao || p.data_internacao === "SEM DATA") return;
+
+                    let dtAdmissao = parseD(p.data_internacao);
+                    // Se não tem alta, usa a data de HOJE para simular que está internado.
+                    let dtAlta = p.data_evolucao ? parseD(p.data_evolucao) : hojeParsed;
+
+                    // Limita os dias EXATAMENTE dentro da fronteira do mês pesquisado
+                    let calcStart = new Date(Math.max(dtAdmissao.getTime(), startFilter.getTime()));
+                    let calcEnd = new Date(Math.min(dtAlta.getTime(), endFilter.getTime()));
+
+                    let diarias = 0;
+
+                    if (calcStart <= calcEnd) {
+                        let diffTime = calcEnd.getTime() - calcStart.getTime();
+                        diarias = Math.floor(diffTime / (1000 * 3600 * 24)); // Diferença bruta em dias
+                        
+                        // REGRA 1: Bate e Volta no mesmo dia (Taxa de sala / 1 Diária)
+                        if (dtAdmissao.getTime() === dtAlta.getTime()) {
+                            diarias = 1;
+                        } 
+                        // REGRA 2: Cruzamento de Fronteira (Virada de Mês)
+                        // Se o paciente passou o mês inteiro ou virou o mês (alta ocorreu depois do final do filtro)
+                        // O SUS paga a noite do dia 31 (último dia do filtro), então ganha +1 diária.
+                        else if (dtAlta.getTime() > endFilter.getTime()) {
+                            diarias = diarias + 1;
+                        }
+
+                        if (diarias > 0) {
+                            p.diarias_calculadas = diarias;
+                            dadosFinais.push(p);
+
+                            pacientesUnicos++;
+                            somaPermanencia += diarias;
+
+                            let leitoStr = p.tipo_leito_limpo;
+                            if (leitoStr === "UTI ADULTO") totalAdulto += diarias;
+                            if (leitoStr === "UTI NEO" || leitoStr === "UTI PEDI") totalNeo += diarias;
+                        }
+                    }
+                });
+
+                $('#kpiUtiAdulto').text(totalAdulto);
+                $('#kpiUtiNeo').text(totalNeo);
+                $('#kpiPacientes').text(pacientesUnicos);
+                
+                let media = pacientesUnicos > 0 ? (somaPermanencia / pacientesUnicos).toFixed(1) : "0.0";
+                $('#kpiTempo').html(media + ' <span style="font-size:1rem; color:#64748b;">dias</span>');
+
+                $('#status-msg').text(`${dadosFinais.length} internações processadas no mês.`);
+
+                renderizarGraficos(dadosFinais);
+                renderizarTabelaPrincipal(dadosFinais);
+
+                $('#loading').hide();
+
+            } catch(e) {
+                console.error(e);
+                $('#loading').hide();
+                alert("Erro ao processar as contas matemáticas. Verifique a conexão.");
+            }
+        }
+
+        function renderizarGraficos(data) {
+            let diariastipo = {};
+            let municipioDiarias = {};
+
+            data.forEach(d => {
+                let tipo = d.tipo_leito_limpo;
+                let mun = (d.municipio_residencia || "NÃO INFORMADO").toUpperCase();
+                let qtd = d.diarias_calculadas || 0;
+
+                diariastipo[tipo] = (diariastipo[tipo] || 0) + qtd;
+                municipioDiarias[mun] = (municipioDiarias[mun] || 0) + qtd;
+            });
+            
+            const ctx1 = document.getElementById('chartDoughnut').getContext('2d');
+            if(chartDoughnut) chartDoughnut.destroy();
+            chartDoughnut = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(diariastipo),
+                    datasets: [{ data: Object.values(diariastipo), backgroundColor: ['#004e92', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'] }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 10 } } } } }
+            });
+
+            let arrMun = [];
+            for(let c in municipioDiarias) arrMun.push({ nome: c, valor: municipioDiarias[c] });
+            arrMun.sort((a,b) => b.valor - a.valor);
+            let top10 = arrMun.slice(0, 10);
+
+            const ctx2 = document.getElementById('chartMunicipios').getContext('2d');
+            if(chartMunicipios) chartMunicipios.destroy();
+            chartMunicipios = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: top10.map(i => i.nome.length > 15 ? i.nome.substring(0,15)+'...' : i.nome),
+                    datasets: [{ label: 'Qtd Diárias', data: top10.map(i => i.valor), backgroundColor: '#004e92', borderRadius: 4 }]
+                },
+                options: { indexAxis: 'y', maintainAspectRatio: false, scales: { y: { ticks: { font: { size: 9 } } } } }
+            });
+        }
+
+        function renderizarTabelaPrincipal(data) {
+            if ($.fn.DataTable.isDataTable('#tabelaIndica')) $('#tabelaIndica').DataTable().destroy();
+            
+            $('.table-search').empty();
+            $('#tabelaIndica thead tr:eq(0) th').each( function (i) {
+                if(i === 6) {
+                    $('.table-search').append('<th class="print-hide"><input type="text" placeholder="Filtrar" class="search-input" /></th>');
+                } else {
+                    $('.table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>');
+                }
+            });
+
+            dataTableInstance = $('#tabelaIndica').DataTable({
+                data: data,
+                dom: 'lBrtip',
+                pageLength: 25,
+                orderCellsTop: true, 
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+                order: [[7, 'desc']], 
+                responsive: true,
+                buttons: [
+                    { extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Excel' },
+                    { 
+                        extend: 'print', 
+                        className: 'dt-button', 
+                        text: '<i class="fas fa-print"></i> Imprimir Tabela (A4)', 
+                        action: function () { window.print(); } 
+                    }
+                ],
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_" },
+                columns: [
+                    { 
+                        data: 'nome_paciente', 
+                        render: function(d, type, row) {
+                            if (type === 'display') {
+                                return `<b style="color:#0f172a;" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b>`;
+                            }
+                            return d;
+                        } 
+                    },
+                    { 
+                        data: 'municipio_residencia', 
+                        render: d => d ? (d.length > 15 ? d.substring(0, 15) + '...' : d) : '-' 
+                    },
+                    { 
+                        data: 'tipo_leito_limpo', 
+                        render: d => {
+                            if(!d) return '-';
+                            let cls = d.includes('UTI') ? 'bg-uti' : 'bg-enf';
+                            return `<span class="badge ${cls}">${d}</span>`;
+                        }
+                    },
+                    { data: 'data_internacao', render: d => d && d !== "SEM DATA" ? d.split('-').reverse().join('/') : '-' },
+                    { data: 'data_evolucao', render: d => d ? d.split('-').reverse().join('/') : '<span style="color:#cbd5e1;">-</span>' },
+                    { 
+                        data: 'aih', 
+                        render: (d, type, row) => {
+                            let sis = row.cod_solicitacao_sisreg || "-";
+                            let aih = d || "-";
+                            return `<div style="line-height:1.2; font-size: 0.9em;"><span style="color:#64748b; font-weight:normal;">AIH:</span> <b>${aih}</b><br><span style="color:#64748b; font-weight:normal;">SIS:</span> <b>${sis}</b></div>`;
+                        }
+                    },
+                    { 
+                        data: 'data_evolucao', 
+                        className: 'text-center print-hide', 
+                        render: (d, type, row) => {
+                            if(d) return `<span class="badge bg-alta">ALTA</span>`;
+                            return `<span class="badge bg-internado">INTERNADO</span>`;
+                        }
+                    },
+                    { 
+                        data: 'diarias_calculadas', 
+                        className: 'col-diarias',
+                        render: d => d > 0 ? d : '-'
+                    }
+                ],
+                initComplete: function () {
+                    this.api().columns().every( function () {
+                        var that = this;
+                        $('input', $('.table-search th').eq(this.index())).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that.search(this.value).draw();
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

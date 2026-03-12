@@ -1,0 +1,187 @@
+{
+    "title": "Recording 04/03/2026 at 17:42:30",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 959,
+            "height": 901,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+                    "title": "SOULMV"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/pesquisar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-search i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-search\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-search i"
+                ]
+            ],
+            "offsetY": 17,
+            "offsetX": 12,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Conta[role=\"gridcell\"]"
+                ],
+                [
+                    "#frames4 div.b0"
+                ],
+                [
+                    "xpath///*[@id=\"grdAtendConta\"]/div[4]/div[3]/div/div/div[1]"
+                ],
+                [
+                    "pierce/#frames4 div.b0"
+                ]
+            ],
+            "offsetY": 8.859375,
+            "offsetX": 14,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "change",
+            "value": "21932",
+            "selectors": [
+                [
+                    "aria/Conta[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames79"
+                ],
+                [
+                    "xpath///*[@id=\"#frames79\"]"
+                ],
+                [
+                    "pierce/#\\#frames79"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/confirmar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-execute i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-execute\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-execute i"
+                ]
+            ],
+            "offsetY": 19,
+            "offsetX": 10,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Nr AIH[role=\"gridcell\"]"
+                ],
+                [
+                    "#frames4 div.b1"
+                ],
+                [
+                    "xpath///*[@id=\"grdAtendConta\"]/div[4]/div[3]/div/div/div[2]"
+                ],
+                [
+                    "pierce/#frames4 div.b1"
+                ]
+            ],
+            "offsetY": 7.859375,
+            "offsetX": 35,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "change",
+            "value": " 512610103163",
+            "selectors": [
+                [
+                    "aria/Nr AIH[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames82"
+                ],
+                [
+                    "xpath///*[@id=\"#frames82\"]"
+                ],
+                [
+                    "pierce/#\\#frames82"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/salvar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-record-save i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-record-save\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-record-save i"
+                ]
+            ],
+            "offsetY": 17,
+            "offsetX": 15,
+            "frame": [
+                1
+            ]
+        }
+    ]
+}

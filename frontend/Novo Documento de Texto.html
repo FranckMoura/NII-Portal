@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Financeiro - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
+        
+        /* CABEÇALHO GERAL - Padronizado Deep Blue */
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
+        .header-print { display: none; }
+
+        /* Logo Miniatura no Cabeçalho */
+        .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
+        /* --- ABAS (Alto Contraste) --- */
+        .module-nav { display: flex; gap: 8px; margin-top: -45px; padding: 0 20px; align-items: flex-end; }
+        
+        .module-tab { 
+            padding: 14px 30px; 
+            /* Fundo escuro semi-transparente para inativas */
+            background: rgba(0, 0, 0, 0.4); 
+            border-radius: 10px 10px 0 0; 
+            color: #cbd5e1; /* Cinza claro */
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .module-tab:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+        }
+
+        .module-tab.active { 
+            /* Fundo igual ao da página (branco gelo) */
+            background: #f3f4f6; 
+            color: #004e92; /* Azul da Identidade */
+            border-top: 4px solid #004e92; 
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            font-weight: 800;
+            padding-bottom: 15px; 
+            transform: translateY(1px); 
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        }
+        /* ------------------------------------------- */
+
+        /* CARDS E CONTEÚDO */
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; border: 1px solid #e5e7eb; }
+        .view-section { display: none; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* TABELAS DATATABLES */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; }
+        table.dataTable thead th { 
+            background-color: #e2e8f0 !important; color: #1e293b !important; font-weight: 800 !important; 
+            text-transform: uppercase; padding: 12px 10px !important; border: 1px solid #cbd5e1 !important; text-align: center !important; 
+        }
+        table.dataTable tbody td { padding: 8px 10px !important; border: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
+        table.dataTable tbody tr:nth-child(even) { background-color: #f1f5f9 !important; } 
+        table.dataTable tbody tr:nth-child(odd) { background-color: #ffffff !important; }
+        table.dataTable tbody tr:hover { background-color: #e0f2fe !important; }
+
+        /* Seletor de quantidade de registros */
+        .dataTables_length { margin-bottom: 10px; font-size: 0.9rem; color: #475569; }
+        .dataTables_length select { border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px; margin: 0 5px; }
+
+        /* ESTILOS DE IMPRESSÃO */
+        @media print {
+            @page { margin: 5mm 10mm; size: A4 portrait; }
+            body { background: white !important; color: #000 !important; font-family: 'Arial', sans-serif !important; font-size: 9pt !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            .header-bg, .btn-voltar, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .module-nav, .dataTables_info { display: none !important; }
+            
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; }
+            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; }
+
+            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 15px !important; }
+            .card { padding: 5px 10px !important; box-shadow: none !important; border: 1px solid #000 !important; }
+            .card h3 { font-size: 8pt !important; color: #000 !important; }
+            .card p { font-size: 11pt !important; color: #000 !important; margin-top: 2px !important; }
+            .card i { display: none !important; }
+
+            /* Tabelas na Impressão */
+            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; }
+            table.dataTable thead th { background-color: #ddd !important; color: #000 !important; font-weight: 900 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; }
+            table.dataTable tbody td { color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 2px 4px !important; }
+            table.dataTable tbody tr:nth-child(even) { background-color: #eee !important; }
+            table.dataTable tfoot { display: table-row-group !important; }
+            table.dataTable tfoot td { border-top: 2px solid #000 !important; font-weight: 900 !important; }
+
+            /* Remove cores */
+            .text-green-600, .text-blue-600, .text-cyan-600, .text-pink-600, .text-orange-600 { color: #000 !important; font-weight: 800 !important; }
+            
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
+        }
+    </style>
+</head>
+<body class='text-gray-800'>
+
+    <div class='header-bg pt-8 pb-14 shadow-lg mb-8'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-coins text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Gestão Financeira</h1>
+                    <p class='text-gray-300'>Portal NII - Núcleo Interno de Informação</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
+                <a href="index_v2.html" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded transition no-print flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class='max-w-7xl mx-auto module-nav no-print'>
+        <div class="module-tab active" onclick="trocarModulo('medico')">
+            <i class="fas fa-user-md mr-2"></i> Repasse Médico
+        </div>
+        <div class="module-tab" onclick="trocarModulo('terceiros')">
+            <i class="fas fa-truck-medical mr-2"></i> Repasse Terceiros
+        </div>
+    </div>
+
+    <div class="header-print">
+        <img src="../logo.png" alt="Logo">
+        <div class="header-info">
+            <h1>Hospital Beneficente Santa Helena</h1>
+            <h2 id="print-title">Relatório Financeiro</h2>
+            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
+        </div>
+        <div class="header-meta">
+            <div><b>Competência:</b> <span id="print-comp">--/--</span></div>
+            <div><b>Emissão:</b> <span id="print-data"></span></div>
+        </div>
+    </div>
+
+    <div id="view-medico" class="view-section active max-w-7xl mx-auto px-4">
+        
+        <div class='mb-4 filter-area flex gap-4 items-center bg-white p-4 rounded-lg shadow-sm border border-gray-200'>
+            <label class="font-bold text-gray-600">Competência:</label>
+            <select id="selCompMedico" onchange="Medico.carregarDados()" class="p-2 border rounded shadow-sm bg-white min-w-[150px]"></select>
+            <button onclick="Medico.carregarDados()" class="bg-green-600 text-white px-3 py-2 rounded shadow hover:bg-green-700"><i class="fas fa-sync"></i></button>
+        </div>
+
+        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+            <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
+                <div><h3>Receita Rateio (SP)</h3><p class='text-2xl font-bold text-blue-600' id="card-med-rateio">R$ 0,00</p></div>
+            </div>
+            <div class='card border-l-4 border-orange-500 flex items-center justify-between'>
+                <div><h3>Produção Geral</h3><p class='text-2xl font-bold text-orange-600' id="card-med-prod">R$ 0,00</p></div>
+            </div>
+            <div class='card border-l-4 border-green-500 flex items-center justify-between'>
+                <div><h3>Total a Repassar</h3><p class='text-2xl font-bold text-green-600' id="card-med-total">R$ 0,00</p></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'><i class="fas fa-list"></i> Detalhamento por Profissional</h2>
+            <table id='tblMedico' class="display w-full">
+                <thead>
+                    <tr>
+                        <th>Profissional</th>
+                        <th class="text-right">V. Rateio</th>
+                        <th class="text-right">V. Prod. Geral</th>
+                        <th class="text-center">TOTAL (R$)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view-terceiros" class="view-section max-w-7xl mx-auto px-4">
+        
+        <div class='mb-4 filter-area flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow-sm border border-gray-200'>
+            <div class="flex flex-col">
+                <label class="font-bold text-gray-600 text-sm mb-1">Competência:</label>
+                <div class="flex gap-2">
+                    <select id="selCompTerc" onchange="Terceiros.carregarDados()" class="p-2 border rounded shadow-sm bg-white min-w-[150px]"></select>
+                    <button onclick="Terceiros.carregarDados()" class="bg-blue-600 text-white px-3 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-sync"></i></button>
+                </div>
+            </div>
+            <div class="flex flex-col flex-1">
+                <label class="font-bold text-gray-600 text-sm mb-1">Buscar (Grupo, Código, Descrição):</label>
+                <div class="relative">
+                    <input type="text" id="txtSearchTerc" onkeyup="Terceiros.aplicarFiltroTexto()" placeholder="Filtrar..." class="w-full p-2 pl-10 border rounded shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <label class="font-bold text-gray-600 text-sm mb-1">Presets:</label>
+                <select id="selPresetTerc" onchange="Terceiros.aplicarPreset()" class="p-2 border rounded shadow-sm bg-white">
+                    <option value="">Nenhum</option>
+                    <option value="BANCO_SANGUE">Banco de Sangue</option>
+                    <option value="ULTRASSONOGRAFIA">Ultrassonografia</option>
+                    <option value="TOMOGRAFIA">Tomografia</option>
+                </select>
+            </div>
+        </div>
+
+        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+            <div class='card border-l-4 border-blue-500 flex items-center justify-between'>
+                <div><h3>Faturamento Total (Filtro)</h3><p class='text-2xl font-bold text-gray-800' id="card-terc-total">R$ 0,00</p></div>
+            </div>
+            <div class='card border-l-4 border-cyan-500 flex items-center justify-between'>
+                <div>
+                    <h3>SADT UTI ADULTO</h3>
+                    <p class='text-2xl font-bold text-cyan-600' id="card-terc-uti-adulto">R$ 0,00</p>
+                    <p class='text-xs text-gray-400'><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
+                </div>
+            </div>
+            <div class='card border-l-4 border-pink-500 flex items-center justify-between'>
+                <div>
+                    <h3>SADT UTI NEONATAL</h3>
+                    <p class='text-2xl font-bold text-pink-600' id="card-terc-uti-neo">R$ 0,00</p>
+                    <p class='text-xs text-gray-400'><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class='text-xl font-bold mb-4 text-gray-700 no-print'><i class="fas fa-list-ul"></i> Detalhamento</h2>
+            <table id='tblTerceiros' class="display w-full">
+                <thead>
+                    <tr>
+                        <th>Grupo</th>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th class="text-center">Qtd</th>
+                        <th class="text-center">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>.
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        const fmt = v => parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        // Configuração Global Datatables (Com seletor de quantidade)
+        const commonDTConfig = (filename) => ({
+            destroy: true, 
+            dom: 'lBrtip', // 'l' ativa o seletor de registros
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+            buttons: [
+                { extend: 'excelHtml5', title: filename, className: 'bg-green-600 text-white px-3 py-1 rounded mx-1 text-sm font-bold' },
+                { text: '<i class="fas fa-print"></i> Imprimir', className: 'bg-blue-600 text-white px-3 py-1 rounded mx-1 text-sm font-bold', action: function () { window.print(); } }
+            ],
+            language: { 
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
+                lengthMenu: "Mostrar _MENU_ registros"
+            }
+        });
+
+        // ========================
+        // LÓGICA DE NAVEGAÇÃO
+        // ========================
+        function trocarModulo(modulo) {
+            $('.view-section').removeClass('active');
+            $('#view-' + modulo).addClass('active');
+            
+            $('.module-tab').removeClass('active');
+            $(`.module-tab[onclick="trocarModulo('${modulo}')"]`).addClass('active');
+
+            // Atualiza Título de Impressão
+            const titulos = { 'medico': 'Relatório de Repasse Médico', 'terceiros': 'Relatório de Repasse Terceiros (SADT)' };
+            $('#print-title').text(titulos[modulo]);
+
+            // Carrega dados se necessário (Lazy Load)
+            if(modulo === 'medico' && !Medico.carregado) Medico.init();
+            if(modulo === 'terceiros' && !Terceiros.carregado) Terceiros.init();
+        }
+
+        $(document).ready(function() {
+            const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#print-data').text(hoje);
+            $('#footer-data').text(hoje);
+            
+            // Inicia no Médico
+            trocarModulo('medico');
+        });
+
+        // ========================
+        // NAMESPACE: MÉDICO
+        // ========================
+        const Medico = {
+            carregado: false,
+            init: async function() {
+                const { data } = await client.from('financeiro_repasses').select('competencia');
+                const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
+                    const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
+                    return new Date(y2, m2) - new Date(y1, m1);
+                });
+                const sel = $('#selCompMedico');
+                sel.empty();
+                comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                if(comps.length > 0) this.carregarDados();
+                this.carregado = true;
+            },
+            carregarDados: async function() {
+                const comp = $('#selCompMedico').val();
+                if($('#view-medico').hasClass('active')) $('#print-comp').text(comp);
+                
+                const { data } = await client.from('financeiro_repasses').select('*').eq('competencia', comp);
+                
+                // Cards
+                const totRateio = data.reduce((s, i) => s + (i.valor_rateio || 0), 0);
+                const totProd = data.reduce((s, i) => s + (i.valor_prod_extra || 0), 0);
+                const totGeral = totRateio + totProd;
+
+                $('#card-med-rateio').text('R$ ' + fmt(totRateio));
+                $('#card-med-prod').text('R$ ' + fmt(totProd));
+                $('#card-med-total').text('R$ ' + fmt(totGeral));
+
+                // Tabela
+                if ($.fn.DataTable.isDataTable('#tblMedico')) $('#tblMedico').DataTable().destroy();
+                $('#tblMedico').DataTable({
+                    ...commonDTConfig('Repasse_Medico'),
+                    data: data,
+                    columns: [
+                        { data: 'medico', className: 'font-bold' },
+                        { data: 'valor_rateio', className: 'text-right', render: d => 'R$ ' + fmt(d) },
+                        { data: 'valor_prod_extra', className: 'text-right', render: d => 'R$ ' + fmt(d) },
+                        { data: 'valor_liquido', className: 'text-center font-bold text-green-700', render: d => 'R$ ' + fmt(d) }
+                    ]
+                });
+            }
+        };
+
+        // ========================
+        // NAMESPACE: TERCEIROS
+        // ========================
+        const Terceiros = {
+            carregado: false,
+            dadosBrutos: [],
+            PRESETS: {
+                'BANCO_SANGUE': { tipo: 'lista', codigos: ['0306020106', '0306020084', '0306020076', '0306020068', '0212010026', '0212010034'] },
+                'ULTRASSONOGRAFIA': { tipo: 'sigtap', grupo: '02', subgrupo: '05', excluir: ['0205010032'] },
+                'TOMOGRAFIA': { tipo: 'sigtap', grupo: '02', subgrupo: '06' }
+            },
+            init: async function() {
+                const { data } = await client.from('financeiro_geral').select('competencia');
+                const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
+                const sel = $('#selCompTerc');
+                sel.empty();
+                comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                if(comps.length > 0) this.carregarDados();
+                this.carregado = true;
+            },
+            carregarDados: async function() {
+                const comp = $('#selCompTerc').val();
+                if($('#view-terceiros').hasClass('active')) $('#print-comp').text(comp);
+
+                const { data } = await client.from('financeiro_geral').select('*').eq('competencia', comp);
+                this.dadosBrutos = data;
+                $('#txtSearchTerc').val('');
+                $('#selPresetTerc').val('');
+                this.renderizar(data);
+            },
+            aplicarFiltroTexto: function() {
+                const termo = $('#txtSearchTerc').val().toLowerCase().trim();
+                $('#selPresetTerc').val(''); // Limpa preset ao digitar
+                if (!termo) { this.renderizar(this.dadosBrutos); return; }
+                
+                const filtrados = this.dadosBrutos.filter(d => (
+                    (d.grupo || '') + ' ' + (d.codigo || '') + ' ' + (d.descricao || '')
+                ).toLowerCase().includes(termo));
+                this.renderizar(filtrados);
+            },
+            aplicarPreset: function() {
+                const key = $('#selPresetTerc').val();
+                $('#txtSearchTerc').val(''); // Limpa busca texto
+                if(!key) { this.renderizar(this.dadosBrutos); return; }
+
+                const regra = this.PRESETS[key];
+                const filtrados = this.dadosBrutos.filter(d => {
+                    if (regra.tipo === 'lista') return regra.codigos.includes(d.codigo);
+                    if (regra.tipo === 'sigtap') {
+                        if (regra.grupo && d.cod_grupo !== regra.grupo) return false;
+                        if (regra.subgrupo && d.cod_subgrupo !== regra.subgrupo) return false;
+                        if (regra.excluir && regra.excluir.includes(d.codigo)) return false;
+                        return true;
+                    }
+                    return false;
+                });
+                this.renderizar(filtrados);
+            },
+            renderizar: function(data) {
+                // Lógica de Cards (UTI Fixa)
+                let qtdUtiAdulto = 0, qtdUtiNeo = 0, totalGeral = 0;
+                data.forEach(d => {
+                    totalGeral += (d.valor_total || 0);
+                    if (d.grupo === 'UTI ADULTO') qtdUtiAdulto += (d.qtd || 0);
+                    if (d.grupo === 'UTI NEONATAL') qtdUtiNeo += (d.qtd || 0);
+                });
+
+                $('#card-terc-total').text('R$ ' + fmt(totalGeral));
+                $('#qtd-uti-adulto').text(qtdUtiAdulto);
+                $('#card-terc-uti-adulto').text('R$ ' + fmt(qtdUtiAdulto * 50));
+                $('#qtd-uti-neo').text(qtdUtiNeo);
+                $('#card-terc-uti-neo').text('R$ ' + fmt(qtdUtiNeo * 70));
+
+                if ($.fn.DataTable.isDataTable('#tblTerceiros')) $('#tblTerceiros').DataTable().destroy();
+                $('#tblTerceiros').DataTable({
+                    ...commonDTConfig('Repasse_Terceiros'),
+                    data: data,
+                    columns: [
+                        { data: 'grupo', className: 'text-xs font-bold' },
+                        { data: 'codigo' },
+                        { data: 'descricao' },
+                        { data: 'qtd', className: 'text-center' },
+                        { data: 'valor_total', className: 'text-center font-bold text-blue-600', render: d => 'R$ ' + fmt(d) }
+                    ],
+                    order: [[0, 'asc']]
+                });
+            }
+        };
+    </script>
+</body>
+</html>

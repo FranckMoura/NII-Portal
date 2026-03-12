@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Regulação HUJM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Roboto', sans-serif; margin: 0; position: relative; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border-top: 5px solid #004e92; z-index: 10; }
+        .login-input { width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; transition: 0.3s; }
+        .login-input:focus { border-color: #004e92; box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.1); }
+        .btn-login { width: 100%; background: #004e92; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .btn-login:hover { background: #003366; }
+        
+        /* Assinatura do Criador */
+        .footer-credito { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <img src="logo.png" alt="Logo HUJM" style="height: 70px; margin: 0 auto 20px auto; object-fit: contain;">
+        <h2 class="text-2xl font-black text-blue-900 mb-1">Acesso Restrito</h2>
+        <p class="text-gray-500 text-sm mb-6">Insira as suas credenciais para aceder ao painel.</p>
+
+        <div id="msg-erro" class="hidden bg-red-100 text-red-700 p-3 rounded-lg text-sm mb-4 font-bold border border-red-200"></div>
+
+        <form id="formLogin" onsubmit="fazerLogin(event)">
+            <div class="relative">
+                <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
+                <input type="email" id="email" class="login-input pl-10" placeholder="E-mail de acesso" required>
+            </div>
+            <div class="relative">
+                <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                <input type="password" id="senha" class="login-input pl-10" placeholder="Palavra-passe" required>
+            </div>
+            <button type="submit" class="btn-login" id="btn-submit">Entrar no Sistema <i class="fas fa-arrow-right ml-2"></i></button>
+        </form>
+    </div>
+
+    <div class="footer-credito">
+        NII - Desenvolvido por Franck Moura
+    </div>
+
+    <script>
+        const SB_URL = 'https://merxzzzbxzuvsydlipcm.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lcnh6enpieHp1dnN5ZGxpcGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MjEyMTUsImV4cCI6MjA4ODM5NzIxNX0.uxPWScWYTkUIqeGAkB1gsqxnyL2D1mRRjPayFr8uv7k';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        client.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.href = 'index.html';
+        });
+
+        async function fazerLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            const msg = document.getElementById('msg-erro');
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A autenticar...';
+            msg.classList.add('hidden');
+
+            const { data, error } = await client.auth.signInWithPassword({ email, password: senha });
+
+            if (error) {
+                msg.textContent = "Credenciais inválidas. Tente novamente.";
+                msg.classList.remove('hidden');
+                btn.innerHTML = 'Entrar no Sistema <i class="fas fa-arrow-right ml-2"></i>';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

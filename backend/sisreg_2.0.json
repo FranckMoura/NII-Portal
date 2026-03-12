@@ -1,0 +1,932 @@
+{
+    "title": "sisreg_2.0",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1351,
+            "height": 317,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "https://sisregiii.saude.gov.br/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "change",
+            "value": "20325223FRANCK",
+            "selectors": [
+                [
+                    "#usuario"
+                ],
+                [
+                    "xpath///*[@id=\"usuario\"]"
+                ],
+                [
+                    "pierce/#usuario"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "515462",
+            "selectors": [
+                [
+                    "aria/Senha :"
+                ],
+                [
+                    "#senha"
+                ],
+                [
+                    "xpath///*[@id=\"senha\"]"
+                ],
+                [
+                    "pierce/#senha"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#usuario"
+                ],
+                [
+                    "xpath///*[@id=\"usuario\"]"
+                ],
+                [
+                    "pierce/#usuario"
+                ],
+                [
+                    "text/20325223FRANCK"
+                ]
+            ],
+            "offsetY": 20.75,
+            "offsetX": 159.609375
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "a"
+        },
+        {
+            "type": "keyUp",
+            "key": "a",
+            "target": "main"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "20325223franck",
+            "selectors": [
+                [
+                    "#usuario"
+                ],
+                [
+                    "xpath///*[@id=\"usuario\"]"
+                ],
+                [
+                    "pierce/#usuario"
+                ],
+                [
+                    "text/20325223FRANCK"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Tab"
+        },
+        {
+            "type": "keyUp",
+            "key": "Tab",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "515462",
+            "selectors": [
+                [
+                    "aria/Senha :"
+                ],
+                [
+                    "#senha"
+                ],
+                [
+                    "xpath///*[@id=\"senha\"]"
+                ],
+                [
+                    "pierce/#senha"
+                ],
+                [
+                    "text/515462"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/entrar"
+                ],
+                [
+                    "div.form-no-lbl > input"
+                ],
+                [
+                    "xpath///*[@id=\"conteudoFull\"]/div[1]/div[1]/div[8]/input"
+                ],
+                [
+                    "pierce/div.form-no-lbl > input"
+                ],
+                [
+                    "text/entrar"
+                ]
+            ],
+            "offsetY": 9.625,
+            "offsetX": 21.6875,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/AIH GERADA"
+                ],
+                [
+                    "li.sfHover > ul > li:nth-of-type(2) > a"
+                ],
+                [
+                    "xpath///*[@id=\"barraMenu\"]/ul/li[6]/ul/li[2]/a"
+                ],
+                [
+                    "pierce/li.sfHover > ul > li:nth-of-type(2) > a"
+                ],
+                [
+                    "text/AIH Gerada"
+                ]
+            ],
+            "offsetY": 4.234375,
+            "offsetX": 71.875
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Selecione a Prioridade",
+                    "aria/[role=\"combobox\"]"
+                ],
+                [
+                    "tr:nth-of-type(10) select"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[10]/td[2]/select"
+                ],
+                [
+                    "pierce/tr:nth-of-type(10) select"
+                ]
+            ],
+            "offsetY": 15,
+            "offsetX": 116.671875,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "change",
+            "value": "E",
+            "selectors": [
+                [
+                    "aria/Eletiva",
+                    "aria/[role=\"combobox\"]"
+                ],
+                [
+                    "tr:nth-of-type(10) select"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[10]/td[2]/select"
+                ],
+                [
+                    "pierce/tr:nth-of-type(10) select"
+                ]
+            ],
+            "frame": [
+                0
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/PESQUISAR"
+                ],
+                [
+                    "tr:nth-of-type(12) input:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[12]/td/input[1]"
+                ],
+                [
+                    "pierce/tr:nth-of-type(12) input:nth-of-type(1)"
+                ],
+                [
+                    "text/PESQUISAR"
+                ]
+            ],
+            "offsetY": 8,
+            "offsetX": 20.515625,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "tr:nth-of-type(3) > td:nth-of-type(3)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]/table/tbody/tr[3]/td[3]"
+                ],
+                [
+                    "pierce/tr:nth-of-type(3) > td:nth-of-type(3)"
+                ]
+            ],
+            "offsetY": 3,
+            "offsetX": 150.4375,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 258,
+            "offsetX": 88,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 258,
+            "offsetX": 88,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "p"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/1/0/print.pdf",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/1/0/print.pdf",
+            "key": "c"
+        },
+        {
+            "type": "keyUp",
+            "key": "c",
+            "target": "chrome-untrusted://print/1/0/print.pdf"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "target": "chrome-untrusted://print/1/0/print.pdf"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/VOLTAR"
+                ],
+                [
+                    "center > input:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/input[1]"
+                ],
+                [
+                    "pierce/center > input:nth-of-type(1)"
+                ],
+                [
+                    "text/VOLTAR"
+                ]
+            ],
+            "offsetY": 7,
+            "offsetX": 48.171875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "tr:nth-of-type(4) > td:nth-of-type(3)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]/table/tbody/tr[4]/td[3]"
+                ],
+                [
+                    "pierce/tr:nth-of-type(4) > td:nth-of-type(3)"
+                ]
+            ],
+            "offsetY": 10,
+            "offsetX": 141.4375,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 747,
+            "offsetX": 83,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 747,
+            "offsetX": 83,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "p"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/2/0/print.pdf",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/2/0/print.pdf",
+            "key": "c"
+        },
+        {
+            "type": "keyUp",
+            "key": "c",
+            "target": "chrome-untrusted://print/2/0/print.pdf"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "target": "chrome-untrusted://print/2/0/print.pdf"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/VOLTAR"
+                ],
+                [
+                    "center > input:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/input[1]"
+                ],
+                [
+                    "pierce/center > input:nth-of-type(1)"
+                ],
+                [
+                    "text/VOLTAR"
+                ]
+            ],
+            "offsetY": 5,
+            "offsetX": 81.171875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Exibindo Página 1 de 1194 Proxima ",
+                    "aria/[role=\"textbox\"]"
+                ],
+                [
+                    "center:nth-of-type(3) input"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[3]/table/tbody/tr/td/input"
+                ],
+                [
+                    "pierce/center:nth-of-type(3) input"
+                ]
+            ],
+            "offsetY": 13,
+            "offsetX": 31.9375,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "body > center"
+                ],
+                [
+                    "xpath//html/body/center"
+                ],
+                [
+                    "pierce/body > center"
+                ]
+            ],
+            "offsetY": 693,
+            "offsetX": 436,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Proxima[role=\"image\"]"
+                ],
+                [
+                    "center:nth-of-type(3) img"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[3]/table/tbody/tr/td/a/img"
+                ],
+                [
+                    "pierce/center:nth-of-type(3) img"
+                ]
+            ],
+            "offsetY": 3,
+            "offsetX": 4.578125,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "tr:nth-of-type(3) > td:nth-of-type(3)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]/table/tbody/tr[3]/td[3]"
+                ],
+                [
+                    "pierce/tr:nth-of-type(3) > td:nth-of-type(3)"
+                ]
+            ],
+            "offsetY": 22,
+            "offsetX": 110.71875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 77,
+            "offsetX": 49,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#fichaInternacao"
+                ],
+                [
+                    "xpath///*[@id=\"fichaInternacao\"]"
+                ],
+                [
+                    "pierce/#fichaInternacao"
+                ]
+            ],
+            "offsetY": 77,
+            "offsetX": 49,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "p"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/3/0/print.pdf",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "target": "chrome-untrusted://print/3/0/print.pdf",
+            "key": "c"
+        },
+        {
+            "type": "keyUp",
+            "key": "c",
+            "target": "chrome-untrusted://print/3/0/print.pdf"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "target": "chrome-untrusted://print/3/0/print.pdf"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/VOLTAR"
+                ],
+                [
+                    "center > input:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/input[1]"
+                ],
+                [
+                    "pierce/center > input:nth-of-type(1)"
+                ],
+                [
+                    "text/VOLTAR"
+                ]
+            ],
+            "offsetY": 3,
+            "offsetX": 63.171875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        }
+    ]
+}

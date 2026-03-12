@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Financeiro SUS - Santa Helena</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card-kpi { 
+            border: none;
+            border-left: 5px solid #0d6efd; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            background: white;
+        }
+        .card-kpi:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .header-title { color: #2c3e50; font-weight: 700; }
+        .loading-spinner { display: none; }
+        #erro-container { display: none; }
+    </style>
+</head>
+<body class="p-4">
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="header-title"><i class="fas fa-hospital-symbol me-2 text-danger"></i>Monitoramento de Faturamento</h2>
+            <p class="text-muted mb-0">Visão Geral da Produção Hospitalar (Fonte: SoulMV)</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" onclick="carregarDados()">
+            <i class="fas fa-sync-alt me-1"></i> <span id="btn-texto">Atualizar Dados</span>
+            <div class="spinner-border spinner-border-sm ms-2 loading-spinner" id="spinner" role="status"></div>
+        </button>
+    </div>
+
+    <div id="erro-container" class="alert alert-danger shadow-sm" role="alert">
+        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Erro de Conexão</h5>
+        <p id="msg-erro">Detalhes do erro aqui.</p>
+        <hr>
+        <p class="mb-0 small">Se der erro de permissão, verifique se você rodou o Script SQL de "RLS" no Supabase.</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card card-kpi shadow-sm h-100 py-3">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Faturamento Total (Mês)</div>
+                    <div class="h2 mb-0 fw-bold text-dark" id="kpi-total">R$ --</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-kpi shadow-sm h-100 py-3" style="border-left-color: #1cc88a;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total de AIHs</div>
+                    <div class="h2 mb-0 fw-bold text-dark" id="kpi-aihs">--</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-kpi shadow-sm h-100 py-3" style="border-left-color: #f6c23e;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ticket Médio por AIH</div>
+                    <div class="h2 mb-0 fw-bold text-dark" id="kpi-ticket">R$ --</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header py-3 bg-white border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-chart-bar me-2"></i>Receita por Especialidade</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="myBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header py-3 bg-white border-bottom-0">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-chart-pie me-2"></i>Distribuição (%)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="myPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // =========================================================================
+    // ✅ CHAVES CONFIGURADAS CORRETAMENTE (USANDO A ANON KEY SEGURA)
+    // =========================================================================
+    
+    const SUPABASE_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+    // Esta é a chave ANON (Pública) que você enviou anteriormente.
+    const SUPABASE_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+
+    // =========================================================================
+
+    // Inicializa o cliente
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let barChart = null;
+    let pieChart = null;
+
+    async function carregarDados() {
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('btn-texto').innerText = 'Carregando...';
+        document.getElementById('erro-container').style.display = 'none';
+
+        try {
+            // Verifica conexão local (Segurança do Chrome)
+            if (window.location.protocol === 'file:') {
+                throw new Error("Erro de CORS: Você abriu o arquivo direto da pasta (file://). \nUse a extensão 'Live Server' no VS Code ou suba para o GitHub Pages.");
+            }
+
+            // Busca dados da tabela
+            const { data, error } = await supabase
+                .from('tb_faturamento_mensal')
+                .select('*')
+                .order('valor_total', { ascending: false });
+
+            if (error) {
+                // Se der erro 401 ou de permissão, avisamos sobre o RLS
+                if (error.code === '42501' || error.message.includes('permission')) {
+                    throw new Error("ERRO DE PERMISSÃO (RLS): O banco bloqueou o acesso. \nVá no SQL Editor do Supabase e rode o comando para liberar o acesso 'anon'.");
+                }
+                throw error;
+            }
+
+            if (!data || data.length === 0) {
+                alert("Conectado com Sucesso! \nMas a tabela está vazia. Rode o script Python 'ingestor_faturamento.py' para enviar os dados.");
+                return;
+            }
+
+            // Processamento
+            const labels = data.map(item => item.especialidade.replace(/\d+/g, '').trim()); 
+            const valores = data.map(item => item.valor_total);
+            const contas = data.map(item => item.qtd_contas);
+
+            // KPIs
+            const totalValor = valores.reduce((a, b) => a + b, 0);
+            const totalContas = contas.reduce((a, b) => a + b, 0);
+            const ticketMedio = totalContas > 0 ? totalValor / totalContas : 0;
+
+            document.getElementById('kpi-total').innerText = totalValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpi-aihs').innerText = totalContas.toLocaleString('pt-BR');
+            document.getElementById('kpi-ticket').innerText = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            renderizarGraficos(labels, valores);
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('erro-container').style.display = 'block';
+            document.getElementById('msg-erro').innerText = err.message;
+        } finally {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('btn-texto').innerText = 'Atualizar Dados';
+        }
+    }
+
+    function renderizarGraficos(labels, dataValues) {
+        if (barChart) barChart.destroy();
+        if (pieChart) pieChart.destroy();
+
+        const ctxBar = document.getElementById('myBarChart').getContext('2d');
+        barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: dataValues,
+                    backgroundColor: '#4e73df',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { callback: (val) => 'R$ ' + val } } }
+            }
+        });
+
+        const ctxPie = document.getElementById('myPieChart').getContext('2d');
+        pieChart = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: { legend: { position: 'right' } }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarDados);
+</script>
+
+</body>
+</html>

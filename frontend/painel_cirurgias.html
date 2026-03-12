@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produção Cirúrgica SUS</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- PADRONIZAÇÃO VISUAL (Deep Blue) --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: #f3f4f6; /* Fundo Cinza Claro na página */
+            color: #1e293b; 
+            margin: 0; 
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        /* CABEÇALHO TELA (Deep Blue Gradient) */
+        .header-bg { 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; 
+            color: white !important;
+            padding: 30px 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        /* Logo no Cabeçalho da Tela */
+        .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* HEADER DE IMPRESSÃO (Oculto na tela) */
+        .header-print { display: none; }
+
+        /* --- FILTRO DE MÊS --- */
+        .filter-bar { 
+            background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            margin-bottom: 25px; display: flex; align-items: center; gap: 15px; border: 1px solid #e2e8f0;
+        }
+        .filter-bar label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 0.9rem; }
+        .filter-bar select { 
+            padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px; 
+            font-family: 'Roboto'; font-size: 1rem; outline: none; min-width: 200px;
+        }
+
+        /* --- CARDS DE KPI --- */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        
+        .meta-card { 
+            background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            position: relative; overflow: hidden; transition: transform 0.2s; border: 1px solid #e2e8f0;
+        }
+        .meta-card:hover { transform: translateY(-5px); }
+        
+        /* Borda colorida superior */
+        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
+        .card-verde::before { background: #10b981; }
+        .card-rosa::before { background: #ec4899; }
+        .card-cinza::before { background: #64748b; }
+
+        .meta-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
+        .meta-value { font-size: 2.5rem; font-weight: 900; color: #0f172a; line-height: 1; margin-bottom: 5px; }
+        .meta-desc { font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        
+        .meta-badge { 
+            position: absolute; top: 20px; right: 20px; 
+            padding: 5px 12px; border-radius: 20px; color: white; font-weight: 800; font-size: 0.8rem;
+        }
+
+        /* --- GRÁFICOS E TABELAS --- */
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+
+        /* Datatables */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; border-spacing: 0; }
+        table.dataTable thead th { 
+            background-color: #004e92 !important; color: white !important; font-weight: 700 !important; 
+            text-transform: uppercase; padding: 14px 10px !important; font-size: 0.85rem; border: none !important;
+        }
+        table.dataTable tbody td { padding: 12px 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
+        table.dataTable tbody tr:nth-child(even) { background-color: #f8fafc; }
+        
+        /* Botões */
+        .dt-buttons { margin-bottom: 15px; float: left; gap: 5px; display: flex; }
+        .dt-button { 
+            background: #004e92 !important; color: white !important; border: none !important; 
+            border-radius: 6px !important; padding: 8px 15px !important; font-weight: 600 !important; font-size: 0.9rem !important;
+        }
+        .dt-button:hover { background: #1e3a8a !important; }
+        
+        .dataTables_length { float: left; margin-right: 15px; padding-top: 5px; }
+        .dataTables_length select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px; outline: none; }
+
+        /* --- IMPRESSÃO --- */
+        @media print {
+            @page { margin: 10mm; size: A4 portrait; }
+            body { 
+                background: white !important; color: #000 !important; 
+                font-family: 'Arial', sans-serif !important; font-size: 9pt !important; 
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; 
+            }
+            
+            /* Oculta Elementos de Tela */
+            .header-bg, .btn-back, .filter-bar, .charts-row, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info { display: none !important; }
+            
+            /* Exibe Cabeçalho Impressão */
+            .header-print { 
+                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
+                padding-bottom: 10px; margin-bottom: 20px; 
+            }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; }
+            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; }
+
+            /* KPIs na Impressão (Simplificados) */
+            .kpi-row { display: flex !important; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+            .meta-card { border: 1px solid #000 !important; padding: 10px !important; box-shadow: none !important; flex: 1; }
+            .meta-card::before { display: none; } 
+            .meta-title { color: #000 !important; font-size: 8pt !important; }
+            .meta-value { color: #000 !important; font-size: 16pt !important; }
+            .meta-badge { border: 1px solid #000 !important; color: #000 !important; background: none !important; position: static !important; display: inline-block; margin-top: 5px; }
+
+            /* Tabela Impressão */
+            .chart-box { box-shadow: none !important; padding: 0 !important; border: none !important; }
+            .chart-box h4 { display: none; } 
+            
+            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; width: 100% !important; }
+            table.dataTable thead th { 
+                background-color: #ddd !important; color: #000 !important; 
+                border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; 
+            }
+            table.dataTable tbody td { 
+                color: #000 !important; border: 1px solid #000 !important; 
+                font-size: 8pt !important; padding: 4px !important; 
+            }
+            table.dataTable tbody tr:nth-child(even) { background-color: #eee !important; }
+
+            #print-footer { 
+                position: fixed; bottom: 0; left: 0; right: 0; 
+                text-align: center; font-size: 7pt; color: #000; 
+                border-top: 1px solid #000; padding-top: 5px; 
+                display: block !important; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg shadow-lg mb-8'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-procedures text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Produção Cirúrgica</h1>
+                    <p class='text-gray-300'>Monitoramento de Metas e Produção SUS</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
+                <a href="index_v2.html" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded transition no-print flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="header-print">
+            <img src="../logo.png" alt="Logo">
+            <div class="header-info">
+                <h1>Hospital Beneficente Santa Helena</h1>
+                <h2>Relatório de Produção Cirúrgica</h2>
+                <p style="font-size:10pt; margin:0;">CNES: 2311682 - Portal NII</p>
+            </div>
+            <div class="header-meta">
+                <div><b>Mês Ref:</b> <span id="print-mes">--</span></div>
+                <div><b>Emissão:</b> <span id="print-data"></span></div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <label><i class="far fa-calendar-alt"></i> Mês de Referência:</label>
+            <select id="filtroMes" onchange="filtrarDados()">
+                <option value="todos">Todos (Ano Atual)</option>
+            </select>
+        </div>
+
+        <div class="kpi-row">
+            <div class="meta-card card-verde">
+                <div class="meta-title">Cirurgias Gerais (Meta: 148)</div>
+                <div class="meta-value" id="kpCirurgia">0</div>
+                <div class="meta-desc">Produção Realizada</div>
+                <div id="badgeCir" class="meta-badge" style="background: #ccc;">0%</div>
+            </div>
+
+            <div class="meta-card card-rosa">
+                <div class="meta-title">Obstetrícia (Meta: 699)</div>
+                <div class="meta-value" id="kpObstetricia">0</div>
+                <div class="meta-desc">Partos e Curetagens</div>
+                <div id="badgeObs" class="meta-badge" style="background: #ccc;">0%</div>
+            </div>
+
+            <div class="meta-card card-cinza">
+                <div class="meta-title">Total Geral</div>
+                <div class="meta-value" id="kpTotal">0</div>
+                <div class="meta-desc">Centro Cirúrgico</div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box">
+                <h4><i class="fas fa-bullseye" style="color:#004e92;"></i> Acompanhamento de Metas</h4>
+                <div style="height: 250px;"><canvas id="chartMetas"></canvas></div>
+            </div>
+            <div class="chart-box">
+                <h4><i class="fas fa-chart-pie" style="color:#004e92;"></i> Top Cirurgias Gerais</h4>
+                <div style="height: 250px;"><canvas id="chartProcedimentos"></canvas></div>
+            </div>
+        </div>
+
+        <div class="chart-box" style="padding-top: 10px;">
+            <h4 class="no-print"><i class="fas fa-list-ul" style="color:#004e92;"></i> Detalhamento de Procedimentos</h4>
+            <table id="tbDetalhes" class="display compact" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Data</th>
+                        <th style="width: 100px;">Tipo</th>
+                        <th>Procedimento</th>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>. Documento para conferência interna.
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        const META_CIRURGIA = 148;
+        const META_OBSTETRICIA = 699;
+        const TERMOS_OBSTETRICIA = ['CESARIANA', 'PARTO', 'CURETAGEM', 'ECTOPICA', 'ECTÓPICA', 'AMNIOTOMIA', 'UTERINA'];
+
+        let dadosBrutos = [];
+        let chartM = null;
+        let chartP = null;
+
+        $(document).ready(function() {
+            // Data para impressão
+            const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#print-data').text(hojePrint);
+            $('#footer-data').text(hojePrint);
+
+            popularFiltros();
+            carregarDados();
+        });
+
+        function popularFiltros() {
+            const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const sel = document.getElementById('filtroMes');
+            meses.forEach((m, i) => {
+                let opt = document.createElement('option');
+                opt.value = (i+1).toString().padStart(2, '0');
+                opt.text = m;
+                sel.appendChild(opt);
+            });
+        }
+
+        async function carregarDados() {
+            const { data, error } = await client
+                .from('cirurgias_detalhe')
+                .select('*')
+                .eq('convenio', 'SUS')
+                .order('data_cirurgia', { ascending: false });
+
+            if (data) {
+                dadosBrutos = data;
+                if(dadosBrutos.length > 0) {
+                    try {
+                        const mesRecente = dadosBrutos[0].data_cirurgia.split('-')[1];
+                        document.getElementById('filtroMes').value = mesRecente;
+                    } catch(e) {}
+                }
+                filtrarDados();
+            }
+        }
+
+        function isObstetricia(nomeProc) {
+            if(!nomeProc) return false;
+            const nome = nomeProc.toUpperCase();
+            return TERMOS_OBSTETRICIA.some(termo => nome.includes(termo));
+        }
+
+        function filtrarDados() {
+            const mes = document.getElementById('filtroMes').value;
+            $('#print-mes').text($("#filtroMes option:selected").text()); // Atualiza cabeçalho impressão
+
+            let dados = dadosBrutos;
+            if (mes !== 'todos') {
+                dados = dadosBrutos.filter(d => d.data_cirurgia.split('-')[1] === mes);
+            }
+            processarKPIs(dados);
+        }
+
+        function processarKPIs(dados) {
+            let qtdCirurgia = 0;
+            let qtdObs = 0;
+            let listaCirurgiasGerais = [];
+
+            let dadosTabela = dados.map(d => {
+                let ehObs = isObstetricia(d.procedimento);
+                if (ehObs) {
+                    qtdObs++;
+                } else {
+                    qtdCirurgia++;
+                    listaCirurgiasGerais.push(d.procedimento);
+                }
+                return {
+                    ...d,
+                    tipo_display: ehObs ? 'OBSTETRÍCIA' : 'CIRURGIA'
+                };
+            });
+
+            $('#kpCirurgia').text(qtdCirurgia);
+            $('#kpObstetricia').text(qtdObs);
+            $('#kpTotal').text(dados.length);
+
+            let percCir = Math.round((qtdCirurgia / META_CIRURGIA) * 100);
+            let percObs = Math.round((qtdObs / META_OBSTETRICIA) * 100);
+            
+            // Cores para os badges (Verde meta batida, Amarelo perto, Vermelho longe)
+            $('#badgeCir').text(percCir + '%').css('background', percCir >= 100 ? '#10b981' : (percCir >= 80 ? '#f59e0b' : '#ef4444'));
+            $('#badgeObs').text(percObs + '%').css('background', percObs >= 100 ? '#10b981' : (percObs >= 80 ? '#f59e0b' : '#ef4444'));
+
+            renderizarGraficos(qtdCirurgia, qtdObs, listaCirurgiasGerais);
+            renderizarTabela(dadosTabela);
+        }
+
+        function renderizarGraficos(qtdCir, qtdObs, listaGerais) {
+            const ctx1 = document.getElementById('chartMetas').getContext('2d');
+            if (chartM) chartM.destroy();
+            
+            chartM = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Cirurgia Geral', 'Obstetrícia'],
+                    datasets: [
+                        { label: 'Realizado', data: [qtdCir, qtdObs], backgroundColor: ['#10b981', '#ec4899'] },
+                        { label: 'Meta', data: [META_CIRURGIA, META_OBSTETRICIA], type: 'line', borderColor: '#333', borderWidth: 2, pointStyle: 'rectRot', pointRadius: 6 }
+                    ]
+                },
+                options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+
+            let counts = {};
+            listaGerais.forEach(p => { 
+                let nome = (p || "N/D").substring(0, 25);
+                counts[nome] = (counts[nome] || 0) + 1; 
+            });
+            let sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
+
+            const ctx2 = document.getElementById('chartProcedimentos').getContext('2d');
+            if (chartP) chartP.destroy();
+            
+            chartP = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: sorted.map(x => x[0]),
+                    datasets: [{
+                        data: sorted.map(x => x[1]),
+                        backgroundColor: ['#004e92', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe']
+                    }]
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'right' } } 
+                }
+            });
+        }
+
+        function renderizarTabela(dados) {
+            if ($.fn.DataTable.isDataTable('#tbDetalhes')) {
+                $('#tbDetalhes').DataTable().destroy();
+            }
+
+            $('#tbDetalhes').DataTable({
+                data: dados,
+                dom: 'lBfrtip',
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
+                    { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button' }
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+                order: [[0, 'desc']],
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_ registros" },
+                columns: [
+                    { 
+                        data: 'data_cirurgia',
+                        render: function(data) { return data ? data.split('-').reverse().join('/') : '-'; }
+                    },
+                    { 
+                        data: 'tipo_display',
+                        render: function(data) {
+                            return `<span style="font-weight:900; color:${data === 'OBSTETRÍCIA' ? '#ec4899' : '#10b981'}; text-transform:uppercase; font-size:0.75rem;">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'procedimento',
+                        render: function(data) { return `<span style="font-weight:600; color:#334155;">${(data || "").substring(0, 60)}</span>`; }
+                    },
+                    { data: 'paciente' },
+                    { 
+                        data: 'cirurgiao',
+                        render: function(data) {
+                            if(!data || data.includes("NÃO INFORMADO")) return "-";
+                            return data;
+                        }
+                    }
+                ]
+            });
+        }
+    </script>
+</body>
+</html>

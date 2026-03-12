@@ -1,0 +1,64 @@
+(function() {
+    console.log("--- 🚀 INICIANDO ALTERAÇÃO DE REMESSA EM MASSA ---");
+
+    let novaRemessa = prompt("1. Qual o NÚMERO da nova remessa?");
+    if (!novaRemessa) return;
+    
+    let qtdStr = prompt("2. Quantos pacientes deseja alterar para baixo na sequência?\n(Ex: 50)");
+    if (!qtdStr || isNaN(qtdStr)) return;
+    let qtd = parseInt(qtdStr);
+
+    console.log("%c⏳ ATENÇÃO: CLIQUE NA CAIXINHA DA PRIMEIRA REMESSA AGORA!", "color: orange; font-size: 16px; font-weight: bold;");
+    console.log("Você tem 4 segundos para clicar e deixar o cursor piscando lá dentro...");
+
+    setTimeout(async () => {
+        let input = document.activeElement;
+        
+        // Verifica se o usuário conseguiu focar no input a tempo
+        if (!input || input.tagName.toLowerCase() !== 'input') {
+            console.log("%c❌ ERRO: O cursor não estava piscando dentro do campo. Atualize a página e tente novamente.", "color: red; font-size: 14px;");
+            return;
+        }
+
+        console.log(`%c🚀 Assumindo o controle! Injetando ${qtd} remessas...`, "color: green; font-size: 14px; font-weight: bold;");
+
+        for (let i = 0; i < qtd; i++) {
+            input = document.activeElement;
+            
+            if (!input || input.tagName.toLowerCase() !== 'input') {
+                console.log("⚠️ A tabela acabou antes do esperado ou o foco foi perdido.");
+                break;
+            }
+
+            // 1. Preenche a Remessa
+            input.value = novaRemessa;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // 2. Simula o aperto da "Seta para Baixo" para o MV abrir a linha inferior
+            input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40, bubbles: true }));
+            
+            // 3. Pausa para o MV processar a animação (200ms = 5 por segundo)
+            await new Promise(r => setTimeout(r, 200)); 
+        }
+
+        console.log("💾 Salvando lote (Clicando no disquete)...");
+        let btnSalvar = document.querySelector('#tb-record-save i') || document.querySelector('#tb-record-save a');
+        if (btnSalvar) btnSalvar.click();
+
+        console.log("⏳ Aguardando o MV processar a gravação no banco...");
+        await new Promise(r => setTimeout(r, 2500));
+
+        // Busca e clica na janelinha nativa de OK do MV
+        let botoes = Array.from(document.querySelectorAll('button, span.x-btn-inner, span.ui-button-text'));
+        let btnOk = botoes.find(b => b.innerText.trim().toUpperCase() === 'OK' && b.offsetParent !== null);
+        
+        if (btnOk) {
+            btnOk.click();
+            console.log("%c🎉 SUCESSO TOTAL! Remessas alteradas e confirmadas.", "color: white; background: green; font-size: 16px; padding: 4px;");
+        } else {
+            console.log("⚠️ Não encontrei a janela de confirmação. Se ela apareceu na tela, clique em OK manualmente.");
+        }
+
+    }, 4000); // 4000 = 4 Segundos de espera para você clicar
+})();

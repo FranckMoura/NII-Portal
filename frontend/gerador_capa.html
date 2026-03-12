@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Capa - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            background-color: #525659; /* Cor de fundo padrão de visualizadores de PDF */
+            font-family: 'Roboto', sans-serif; 
+            display: flex; 
+            min-height: 100vh; 
+            margin: 0;
+            overflow: hidden; /* Evita barra de rolagem dupla */
+        }
+
+        /* --- MENU LATERAL (CONFIGURAÇÃO) --- */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            z-index: 10;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 { 
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; 
+            color: #e2e8f0; display: flex; align-items: center; gap: 10px;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #94a3b8; font-weight: 500; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #334155; 
+            background: #1e293b; color: white; font-size: 0.9rem; outline: none; transition: 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #3b82f6; background: #0f172a; }
+
+        .btn-print {
+            background: #10b981; color: white; padding: 12px; border-radius: 6px; 
+            font-weight: 700; text-align: center; cursor: pointer; margin-top: auto; margin-bottom: 10px;
+            transition: 0.2s; border: none; width: 100%; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-print:hover { background: #059669; transform: translateY(-1px); }
+
+        .btn-back {
+            background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 10px; border-radius: 6px; 
+            text-align: center; cursor: pointer; text-decoration: none; display: block; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* --- ÁREA DE VISUALIZAÇÃO (PREVIEW) --- */
+        .preview-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #525659;
+            padding: 40px;
+            overflow: auto;
+        }
+
+        /* FOLHA A4 (Simulação Física) */
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            /* Margens internas de segurança para impressão */
+            padding: 0; 
+            box-sizing: border-box;
+            transform-origin: center top;
+        }
+
+        /* --- CONTEÚDO DA CAPA --- */
+        
+        /* Faixa Topo */
+        .top-deco {
+            height: 15px;
+            width: 100%;
+            background: linear-gradient(90deg, #002b5e 0%, #004e92 100%);
+        }
+
+        /* Área Central */
+        .page-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 40px; /* Margens internas visuais */
+            text-align: center;
+        }
+
+        .logo-img {
+            height: 90px; /* Tamanho controlado */
+            margin-bottom: 40px;
+            object-fit: contain;
+        }
+
+        .hospital-name {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin: 0 0 60px 0;
+        }
+
+        .report-title {
+            font-size: 32px; /* Reduzido de 42px */
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.3;
+            text-transform: uppercase;
+            max-width: 80%;
+        }
+
+        .divider-line {
+            width: 80px;
+            height: 4px;
+            background: #004e92;
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            font-weight: 700;
+            color: #004e92;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        .box-competencia {
+            border: 1px solid #cbd5e1;
+            background-color: #f8fafc;
+            padding: 20px 50px;
+            border-radius: 4px;
+            min-width: 300px;
+        }
+
+        .comp-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .comp-value {
+            font-size: 28px; /* Reduzido de 42px */
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+        }
+
+        /* Rodapé */
+        .page-footer {
+            background-color: #f1f5f9;
+            border-top: 4px solid #004e92;
+            padding: 30px 40px 40px 40px;
+            text-align: center;
+        }
+
+        .dept-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #004e92;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .signature { margin-bottom: 25px; }
+        .sig-name { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0; }
+        .sig-role { font-size: 12px; color: #64748b; margin: 3px 0 0 0; text-transform: uppercase; }
+
+        .meta-info {
+            font-size: 10px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            width: 100%;
+            display: block;
+        }
+
+        /* --- AJUSTES DE IMPRESSÃO --- */
+        @media print {
+            @page { margin: 0; size: A4 portrait; }
+            body { background: white; display: block; overflow: visible; }
+            .sidebar { display: none !important; }
+            .preview-area { padding: 0; display: block; background: white; }
+            .a4-page { width: 100%; height: 100vh; box-shadow: none; margin: 0; transform: none !important; }
+            .btn-print, .btn-back { display: none; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-file-alt"></i> Gerador de Capa</h2>
+        
+        <div class="form-group">
+            <label>Mês de Referência:</label>
+            <select id="inpMes" onchange="atualizarCapa()">
+                <option value="JANEIRO">JANEIRO</option>
+                <option value="FEVEREIRO">FEVEREIRO</option>
+                <option value="MARÇO">MARÇO</option>
+                <option value="ABRIL">ABRIL</option>
+                <option value="MAIO">MAIO</option>
+                <option value="JUNHO">JUNHO</option>
+                <option value="JULHO">JULHO</option>
+                <option value="AGOSTO">AGOSTO</option>
+                <option value="SETEMBRO">SETEMBRO</option>
+                <option value="OUTUBRO">OUTUBRO</option>
+                <option value="NOVEMBRO">NOVEMBRO</option>
+                <option value="DEZEMBRO">DEZEMBRO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Ano:</label>
+            <input type="number" id="inpAno" oninput="atualizarCapa()">
+        </div>
+
+        <div class="form-group">
+            <label>Setor / Convênio:</label>
+            <input type="text" id="inpSetor" value="Convênio SUS" oninput="atualizarCapa()">
+        </div>
+
+        <div class="form-group">
+            <label>Título do Relatório:</label>
+            <input type="text" id="inpTitulo" value="Relatório Gerencial de Faturamento e Produção Hospitalar" oninput="atualizarCapa()">
+        </div>
+
+        <div class="form-group">
+            <label>Responsável:</label>
+            <input type="text" id="inpNome" value="Franck Moura" oninput="atualizarCapa()">
+        </div>
+
+        <div class="form-group">
+            <label>Cargo:</label>
+            <input type="text" id="inpCargo" value="Coordenador de Faturamento - SUS" oninput="atualizarCapa()">
+        </div>
+
+        <div class="form-group">
+            <label>Data de Emissão:</label>
+            <input type="date" id="inpData" onchange="atualizarCapa()">
+        </div>
+
+        <div style="margin-top: auto;">
+            <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> Imprimir / Salvar PDF</button>
+            <a href="index_v2.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <div class="preview-area" id="previewArea">
+        
+        <div class="a4-page" id="folhaA4">
+            
+            <div class="top-deco"></div>
+
+            <div class="page-body">
+                <img src="../logo.png" alt="Logo HSH" class="logo-img">
+                
+                <h2 class="hospital-name">Hospital Beneficente Santa Helena</h2>
+                
+                <h1 class="report-title" id="lblTitulo">RELATÓRIO GERENCIAL<br>DE FATURAMENTO</h1>
+                
+                <div class="divider-line"></div>
+
+                <div class="subtitle" id="lblSetor">CONVÊNIO SUS</div>
+                
+                <div class="box-competencia">
+                    <div class="comp-label">Competência</div>
+                    <div class="comp-value" id="lblCompetencia">JANEIRO/2026</div>
+                </div>
+            </div>
+
+            <div class="page-footer">
+                <div class="dept-name">DEPARTAMENTO DE FATURAMENTO</div>
+                
+                <div class="signature">
+                    <p class="sig-name" id="lblNome">Franck Moura</p>
+                    <p class="sig-role" id="lblCargo">Coordenador de Faturamento - SUS</p>
+                </div>
+
+                <div class="meta-info">
+                    Cuiabá - Mato Grosso | Emitido em: <span id="lblData"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Lógica de Data: Começar com Mês Anterior
+            const hoje = new Date();
+            const dataCompetencia = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+            
+            $('#inpAno').val(dataCompetencia.getFullYear());
+            $('#inpMes')[0].selectedIndex = dataCompetencia.getMonth();
+            $('#inpData').val(hoje.toISOString().split('T')[0]);
+
+            atualizarCapa();
+            ajustarZoom(); // Ajusta o tamanho da folha na tela
+        });
+
+        // Ajusta o zoom da folha para caber na tela sem scroll horizontal
+        function ajustarZoom() {
+            const width = window.innerWidth - 320; // Largura disponível (menos sidebar)
+            const a4Width = 794; // Largura aproximada A4 em px (210mm)
+            
+            if (width < a4Width + 80) {
+                const scale = (width - 40) / a4Width;
+                $('#folhaA4').css('transform', `scale(${scale})`);
+                $('#folhaA4').css('margin-top', '20px');
+            } else {
+                $('#folhaA4').css('transform', 'scale(0.9)'); // Leve zoom out padrão para ver a folha toda
+            }
+        }
+
+        window.addEventListener('resize', ajustarZoom);
+
+        function atualizarCapa() {
+            const mes = $('#inpMes').val();
+            const ano = $('#inpAno').val();
+            const setor = $('#inpSetor').val();
+            const dataRaw = $('#inpData').val();
+            const titulo = $('#inpTitulo').val();
+            const nome = $('#inpNome').val();
+            const cargo = $('#inpCargo').val();
+
+            $('#lblCompetencia').text(`${mes}/${ano}`);
+            $('#lblSetor').text(setor);
+            $('#lblTitulo').html(titulo.replace(/\n/g, '<br>'));
+            $('#lblNome').text(nome);
+            $('#lblCargo').text(cargo);
+
+            if (dataRaw) {
+                const [y, m, d] = dataRaw.split('-');
+                $('#lblData').text(`${d}/${m}/${y}`);
+            } else {
+                $('#lblData').text('__/__/____');
+            }
+        }
+    </script>
+</body>
+</html>

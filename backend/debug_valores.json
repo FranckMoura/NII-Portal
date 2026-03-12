@@ -1,0 +1,182 @@
+[
+    {
+        "codigo": "0506010058",
+        "descricao": "AVALIAÇÃO DO POSSÍVEL DOADOR FALECIDO DE ORGÃOS OU TECIDOS PARA TRANSPLANTES",
+        "valor_sh": 0.0,
+        "valor_sp": 215.0,
+        "valor_total": 215.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020010",
+        "descricao": "INTERCORRENCIA POS TRANSPLANTE ALOGÊNICO DE CELULAS-TRONCO HEMATOPOÉTICAS - NAO APARENTADO (HOSPITAL DIA)",
+        "valor_sh": 109.25,
+        "valor_sp": 25.75,
+        "valor_total": 135.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020029",
+        "descricao": "INTERCORRENCIA POS-TRANSPLANTE AUTOGENICO DE CELULAS-TRONCO HEMATOPOETICAS (HOSPITAL DIA)",
+        "valor_sh": 109.25,
+        "valor_sp": 25.75,
+        "valor_total": 135.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020037",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA POS-TRANSPLANTE ALOGENICO DE CELULAS-TRONCO HEMATOPOETICAS DE APARENTADO (HOSPITAL DIA)",
+        "valor_sh": 109.25,
+        "valor_sp": 25.75,
+        "valor_total": 135.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020045",
+        "descricao": "TRATAMENTO DE INTERCORRÊNCIA PÓS-TRANSPLANTE DE ÓRGÃOS / CÉLULAS-TRONCO HEMATOPOÉTICAS",
+        "valor_sh": 100.89,
+        "valor_sp": 34.11,
+        "valor_total": 135.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020053",
+        "descricao": "TRATAMENTO DE INTERCORRÊNCIA PÓS-TRANSPLANTE DE RIM - PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 82.62,
+        "valor_sp": 35.43,
+        "valor_total": 118.05000000000001,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020061",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA PÓS TRANSPLANTE DE CORAÇÃO- PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 160.97,
+        "valor_sp": 44.87,
+        "valor_total": 205.84,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020070",
+        "descricao": "TRATAMENTO DE INTERCORRÊNCIA PÓS TRANSPLANTE DE PULMÃO UNI/BILATERAL - PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 250.54,
+        "valor_sp": 107.43,
+        "valor_total": 357.97,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020096",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA PÓS TRANSPLANTE DE FIGADO- PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 267.67,
+        "valor_sp": 114.77,
+        "valor_total": 382.44,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020100",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA PÓS TRANSPLANTE ALOGÊNICO DE CÉLULAS-TRONCO HEMATOPOÉTICAS- PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 338.12,
+        "valor_sp": 59.67,
+        "valor_total": 397.79,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020118",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA PÓS TRANSPLANTE AUTOLÓGO DE CÉLULAS-TRONCO HEMATOPOÉTICAS- PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 108.46,
+        "valor_sp": 19.14,
+        "valor_total": 127.6,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0506020134",
+        "descricao": "TRATAMENTO DE INTERCORRENCIA PÓS TRANSPLANTE DE PÂNCREAS - PÓS TRANSPLANTE CRÍTICO",
+        "valor_sh": 213.81,
+        "valor_sp": 91.67,
+        "valor_total": 305.48,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010010",
+        "descricao": "ANESTESIA OBSTETRICA P/ CESARIANA",
+        "valor_sh": 0.0,
+        "valor_sp": 61.18,
+        "valor_total": 61.18,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010028",
+        "descricao": "ANALGESIA OBSTETRICA P/ PARTO NORMAL",
+        "valor_sh": 0.0,
+        "valor_sp": 48.3,
+        "valor_total": 48.3,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010036",
+        "descricao": "ANESTESIA OBSTETRICA P/CESARIANA EM GESTACAO DE ALTO RISCO",
+        "valor_sh": 0.0,
+        "valor_sp": 96.6,
+        "valor_total": 96.6,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010044",
+        "descricao": "ANESTESIA GERAL",
+        "valor_sh": 0.0,
+        "valor_sp": 84.0,
+        "valor_total": 84.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010052",
+        "descricao": "ANESTESIA REGIONAL",
+        "valor_sh": 0.0,
+        "valor_sp": 84.0,
+        "valor_total": 84.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0417010060",
+        "descricao": "SEM DESCRIÇÃO",
+        "valor_sh": 0.0,
+        "valor_sp": 15.15,
+        "valor_total": 15.15,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0502010010",
+        "descricao": "AVALIACAO CLINICA DE MORTE ENCEFALICA EM MAIOR DE 2 ANOS",
+        "valor_sh": 75.0,
+        "valor_sp": 140.0,
+        "valor_total": 215.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    },
+    {
+        "codigo": "0502010029",
+        "descricao": "AVALIAÇÃO CLINICA DE MORTE ENCEFÁLICA EM MENOR DE 2 ANOS",
+        "valor_sh": 125.0,
+        "valor_sp": 150.0,
+        "valor_total": 275.0,
+        "compatibilidades": [],
+        "qtd_opme": 0
+    }
+]

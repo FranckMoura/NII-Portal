@@ -1,0 +1,263 @@
+{
+    "title": "injetar_aih",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1920,
+            "height": 413,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://6692prd.cloudmv.com.br/soul-mv/",
+                    "title": "SOULMV"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "label"
+                ],
+                [
+                    "xpath///*[@id=\"workspace-menubar\"]/ul/li[1]/label"
+                ],
+                [
+                    "pierce/label"
+                ]
+            ],
+            "offsetY": 15,
+            "offsetX": 9
+        },
+        {
+            "type": "change",
+            "value": "C_CONSULTA_CONTA_P321",
+            "selectors": [
+                [
+                    "aria/Search"
+                ],
+                [
+                    "#menu-filter-1"
+                ],
+                [
+                    "xpath///*[@id=\"menu-filter-1\"]"
+                ],
+                [
+                    "pierce/#menu-filter-1"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#workspace-menubar li:nth-of-type(2) > a"
+                ],
+                [
+                    "xpath///*[@id=\"workspace-menubar\"]/ul/li[2]/a"
+                ],
+                [
+                    "pierce/#workspace-menubar li:nth-of-type(2) > a"
+                ]
+            ],
+            "offsetY": 23,
+            "offsetX": 256
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Conta[role=\"gridcell\"]"
+                ],
+                [
+                    "#frames4 div.b0"
+                ],
+                [
+                    "xpath///*[@id=\"grdAtendConta\"]/div[4]/div[3]/div/div/div[1]"
+                ],
+                [
+                    "pierce/#frames4 div.b0"
+                ]
+            ],
+            "offsetY": 21.859375,
+            "offsetX": 60,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/pesquisar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-search i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-search\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-search i"
+                ]
+            ],
+            "offsetY": 20,
+            "offsetX": 20,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Conta[role=\"gridcell\"]"
+                ],
+                [
+                    "#frames4 div.b0"
+                ],
+                [
+                    "xpath///*[@id=\"grdAtendConta\"]/div[4]/div[3]/div/div/div[1]"
+                ],
+                [
+                    "pierce/#frames4 div.b0"
+                ]
+            ],
+            "offsetY": 10.859375,
+            "offsetX": 54,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "change",
+            "value": "22721",
+            "selectors": [
+                [
+                    "aria/Conta[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames25"
+                ],
+                [
+                    "xpath///*[@id=\"#frames25\"]"
+                ],
+                [
+                    "pierce/#\\#frames25"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/confirmar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-execute i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-execute\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-execute i"
+                ]
+            ],
+            "offsetY": 16,
+            "offsetX": 15,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Nr AIH[role=\"gridcell\"]"
+                ],
+                [
+                    "#frames4 div.b1"
+                ],
+                [
+                    "xpath///*[@id=\"grdAtendConta\"]/div[4]/div[3]/div/div/div[2]"
+                ],
+                [
+                    "pierce/#frames4 div.b1"
+                ]
+            ],
+            "offsetY": 9.859375,
+            "offsetX": 55,
+            "frame": [
+                1
+            ]
+        },
+        {
+            "type": "change",
+            "value": "5126101061532",
+            "selectors": [
+                [
+                    "aria/Nr AIH[role=\"textbox\"]"
+                ],
+                [
+                    "#\\#frames28"
+                ],
+                [
+                    "xpath///*[@id=\"#frames28\"]"
+                ],
+                [
+                    "pierce/#\\#frames28"
+                ]
+            ],
+            "frame": [
+                1
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/salvar",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "#tb-record-save i"
+                ],
+                [
+                    "xpath///*[@id=\"tb-record-save\"]/a/i"
+                ],
+                [
+                    "pierce/#tb-record-save i"
+                ]
+            ],
+            "offsetY": 24,
+            "offsetX": 13,
+            "frame": [
+                1
+            ]
+        }
+    ]
+}

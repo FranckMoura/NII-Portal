@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII - Menu Principal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <style>
+        :root { --primary: #004e92; --dark: #1e293b; --light: #f8f9fa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: var(--dark); 
+            display: flex; flex-direction: column; min-height: 100vh; 
+        }
+        
+        header { 
+            background: transparent; color: white; padding: 30px 20px 10px 20px; 
+            text-align: center; position: relative; 
+        }
+        
+        .header-logo { display: inline-block; margin-bottom: 15px; }
+        .header-logo img { 
+            height: 70px; display: block; 
+            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+        }
+
+        header h1 { font-weight: 800; margin-bottom: 5px; font-size: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        
+        .logout-btn { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(255,255,255,0.15); color: white; text-decoration: none; 
+            padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; transition: 0.2s; 
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        
+        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; }
+        
+        .welcome-msg { 
+            display: table; margin: 0 auto 35px auto; 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 12px 40px; border-radius: 50px; color: white; 
+            font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); text-align: center;
+        }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        
+        .menu-card { 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 30px; 
+            text-decoration: none; color: var(--dark); box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            transition: all 0.3s ease; display: flex; flex-direction: column; 
+            align-items: center; text-align: center; position: relative; overflow: hidden;
+        }
+        .menu-card:hover { 
+            transform: translateY(-5px); background: rgba(255, 255, 255, 1); 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); border-color: var(--primary); 
+        }
+        
+        .icon-box { width: 70px; height: 70px; background: #e0f2fe; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; }
+        .logo-box { height: 70px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
+        .menu-card h3 { font-size: 1.25rem; margin-bottom: 10px; font-weight: 700; color: #1e293b; }
+        .menu-card p { font-size: 0.9rem; color: #64748b; line-height: 1.5; margin: 0; }
+        
+        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; background: transparent; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena"></div>
+        <h1>Hospital Beneficente Santa Helena</h1>
+        <p>NII - Núcleo Interno de Informação</p>
+    </header>
+
+    <main>
+        <div class="welcome-msg" id="saudacao">Carregando...</div>
+
+        <div class="menu-grid">
+            
+            <a href="painel_regulacao.html" class="menu-card">
+                <div class="logo-box"><img src="../500px-Logo-sisreg.png" alt="Logo Sisreg"></div>
+                <h3>Painel de Regulação</h3>
+                <p>Monitoramento de solicitações SISREG e status.</p>
+            </a>
+
+            <a href="dashboard.html" class="menu-card">
+                <div class="icon-box" style="background:#d1fae5; color:#059669;"><i class="fas fa-bullseye"></i></div>
+                <h3>Metas & Qualidade</h3>
+                <p>Controle de Contrato: TMP, Cesáreas e Produção Física.</p>
+            </a>
+
+            <a href="painel_financeiro.html" class="menu-card">
+                <div class="logo-box"><img src="../logo_sus_faturamento.png" alt="Logo Faturamento"></div>
+                <h3>Faturamento SUS</h3>
+                <p>Dashboard Financeiro, Competências e Valores (R$).</p>
+            </a>
+
+            <a href="painel_historico.html" class="menu-card">
+                <div class="icon-box" style="background:#fef3c7; color:#d97706;"><i class="fas fa-chart-line"></i></div>
+                <h3>Série Histórica (Executivo)</h3>
+                <p>Evolução financeira, ticket médio e análises SIGTAP.</p>
+            </a>
+
+            <a href="painel_indicasus_v2.html" class="menu-card">
+                <div class="logo-box"><img src="../LogoSES-Gov.png" alt="Logo SES MT"></div>
+                <h3>IndicaSUS (Leitos)</h3>
+                <p>Censo Diário e Auditoria de Complexidade (UTI/UCI).</p>
+            </a>
+
+            <a href="painel_cirurgias.html" class="menu-card">
+                <div class="icon-box" style="background:#fce7f3; color:#db2777;"><i class="fas fa-user-md"></i></div>
+                <h3>Produção Cirúrgica</h3>
+                <p>Monitoramento operacional de cirurgias SUS (SoulMV).</p>
+            </a>
+
+            <a href="painel_sigtap.html" class="menu-card">
+                <div class="logo-box"><img src="../logo_sigtap.png" alt="Logo SIGTAP"></div>
+                <h3>Consulta SIGTAP</h3>
+                <p>Pesquisa rápida de valores e compatibilidades (OPME).</p>
+            </a>
+
+            <a href="modulo_financeiro.html" class="menu-card">
+                <div class="icon-box" style="background:#ccfbf1; color:#0f766e;"><i class="fas fa-coins"></i></div>
+                <h3>Gestão Financeira</h3>
+                <p>Repasses Médicos, SADT, Terceiros e Produção Geral.</p>
+            </a>
+
+            <a href="painel_institucional.html" class="menu-card">
+                <div class="logo-box"><img src="../logo_institucional.png" alt="Logo Institucional"></div>
+                <h3>Institucional (CNES)</h3>
+                <p>Leitos, Serviços, Habilitações e Profissionais.</p>
+            </a>
+
+            <a href="painel_operacional.html" class="menu-card" style="background:#334155; border-color:#475569;">
+                <div class="icon-box" style="background:#475569; color:#cbd5e1;">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h3 style="color:white;">Ferramentas Operacionais</h3>
+                <p style="color:#94a3b8;">Lançamentos Manuais, Capas e Arquivos Diários.</p>
+            </a>
+
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</p></footer>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: 'nii-auth-token', storage: window.localStorage } });
+
+        async function verificarLogin() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) window.location.href = "login.html"; 
+        }
+        // verificarLogin(); 
+
+        async function fazerLogout() { await client.auth.signOut(); window.location.href = "login.html"; }
+
+        const hour = new Date().getHours();
+        const msgElement = document.getElementById('saudacao');
+        let greeting = 'Bem-vindo ao Portal de Dados.';
+        if (hour < 12) greeting = 'Bom dia! Selecione um módulo abaixo:';
+        else if (hour < 18) greeting = 'Boa tarde! Selecione um módulo abaixo:';
+        else greeting = 'Boa noite! Selecione um módulo abaixo:';
+        msgElement.innerText = greeting;
+    </script>
+</body>
+</html>

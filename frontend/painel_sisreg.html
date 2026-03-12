@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel SISREG - Histórico</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #004e92; --dark: #1e293b; --light: #f1f5f9; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--light); color: var(--dark); padding-bottom: 40px; }
+        
+        /* HEADER DEEP BLUE */
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%); color: white; padding: 30px 0; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title { font-weight: 700; font-size: 1.8rem; margin: 0; }
+        .header-subtitle { opacity: 0.8; font-weight: 300; font-size: 0.9rem; }
+        .btn-voltar { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; transition: 0.2s; }
+        .btn-voltar:hover { background: rgba(255,255,255,0.3); color: white; }
+        .header-logo-mini { height: 50px; filter: brightness(0) invert(1); opacity: 0.9; }
+
+        /* CARDS */
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #004e92; display: flex; justify-content: space-between; align-items: center; }
+        .stat-val { font-size: 1.8rem; font-weight: 700; color: var(--dark); line-height: 1; }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; margin-top: 5px; }
+        .stat-icon { font-size: 1.5rem; color: #cbd5e1; }
+
+        /* TABELA */
+        .table-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        table.dataTable thead th { background-color: #f8fafc !important; color: #475569 !important; font-weight: 700 !important; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid #e2e8f0 !important; }
+        table.dataTable tbody td { font-size: 0.85rem; vertical-align: middle; border-color: #f1f5f9; padding: 12px 10px !important; }
+        
+        .badge-tipo { font-size: 0.65rem; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
+        .bg-urgencia { background-color: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+        .bg-eletiva { background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        
+        .paciente-nome { font-weight: 600; color: #0f172a; display: block; }
+        .paciente-mae { font-size: 0.75rem; color: #64748b; }
+        .paciente-cns { font-family: monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569; font-size: 0.75rem; }
+
+        /* MODAL */
+        .modal-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .info-label { font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; display: block; }
+        .info-val { font-size: 0.9rem; font-weight: 500; color: #1e293b; display: block; margin-bottom: 12px; }
+        .laudo-area { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; line-height: 1.5; color: #334155; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px;">
+                    <i class="fa-solid fa-file-medical-alt fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="header-title">Histórico SISREG</h1>
+                    <div class="header-subtitle">Base de Dados Histórica - AIH Gerada</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <img src="../logo.png" alt="Logo" class="header-logo-mini">
+                <a href="painel_operacional.html" class="btn-voltar"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card" style="border-color: #3b82f6;">
+                    <div><div class="stat-val" id="kpi-total">0</div><div class="stat-label">Registros Totais</div></div>
+                    <i class="fas fa-database stat-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="border-color: #10b981;">
+                    <div><div class="stat-val" id="kpi-completos">0</div><div class="stat-label">Cadastros Completos</div></div>
+                    <i class="fas fa-check-circle stat-icon" style="color:#10b981;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="border-color: #f59e0b;">
+                    <div><div class="stat-val" id="kpi-urgencia">0</div><div class="stat-label">Urgências</div></div>
+                    <i class="fas fa-ambulance stat-icon" style="color:#f59e0b;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="border-color: #6366f1;">
+                    <div><div class="stat-val" id="kpi-update">-</div><div class="stat-label">Última Carga</div></div>
+                    <i class="fas fa-clock stat-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div id="loader" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted small">Carregando dados do Supabase...</p>
+            </div>
+
+            <table id="tabela-dados" class="table table-hover w-100" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Solicitação / AIH</th>
+                        <th>Paciente / Mãe</th>
+                        <th>CNS / Contato</th>
+                        <th>Localidade</th>
+                        <th>Caráter</th>
+                        <th>Datas</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-dados"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDetalhes" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-info-circle me-2 text-primary"></i>Detalhes da Internação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <span class="info-label">Paciente</span>
+                            <span class="info-val" id="m-paciente">-</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="info-label">Nome da Mãe</span>
+                            <span class="info-val" id="m-mae">-</span>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="info-label">AIH</span>
+                            <span class="info-val" id="m-aih">-</span>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="info-label">Solicitação</span>
+                            <span class="info-val" id="m-solic">-</span>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="info-label">Caráter</span>
+                            <span class="info-val" id="m-carater">-</span>
+                        </div>
+                        <div class="col-md-12">
+                            <span class="info-label">Médico Solicitante</span>
+                            <span class="info-val" id="m-medico">-</span>
+                        </div>
+                        <div class="col-12">
+                            <span class="info-label mb-2">Laudo Clínico / Justificativa</span>
+                            <div class="laudo-area" id="m-laudo"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SB_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+        
+        window.dadosCache = [];
+
+        async function init() {
+            try {
+                const { data, error } = await sb.from('historico_aih').select('*').order('data_mineracao', {ascending: false});
+                if(error) throw error;
+                
+                window.dadosCache = data;
+                renderizarPainel(data);
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao carregar dados.");
+            }
+        }
+
+        function renderizarPainel(data) {
+            // KPIs
+            $('#kpi-total').text(data.length);
+            $('#kpi-completos').text(data.filter(d => d.nome_mae && d.nome_mae.length > 3).length);
+            $('#kpi-urgencia').text(data.filter(d => d.carater_internacao && d.carater_internacao.includes('Urg')).length);
+            if(data.length) {
+                const dt = new Date(data[0].data_mineracao);
+                $('#kpi-update').text(dt.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}));
+            }
+
+            // Tabela
+            const tbody = $('#tbody-dados');
+            tbody.empty();
+
+            data.forEach((row, idx) => {
+                const solic = row.num_solicitacao || row.cod_solicitacao || '-';
+                const aih = row.num_aih || '-';
+                const mae = row.nome_mae ? `<div class="paciente-mae"><i class="fas fa-female me-1"></i>${row.nome_mae}</div>` : '';
+                const cns = row.cns || '-';
+                const tel = row.telefone || '';
+                const mun = row.municipio_residencia || '<span class="text-warning">Pendente</span>';
+                
+                // Badge Caráter
+                let caraterBadge = '-';
+                if(row.carater_internacao) {
+                    const isUrg = row.carater_internacao.toUpperCase().includes('URG');
+                    const cls = isUrg ? 'bg-urgencia' : 'bg-eletiva';
+                    const txt = isUrg ? 'URGÊNCIA' : 'ELETIVA';
+                    caraterBadge = `<span class="badge-tipo ${cls}">${txt}</span>`;
+                }
+
+                // Datas
+                const dtSol = row.data_solicitacao ? new Date(row.data_solicitacao).toLocaleDateString('pt-BR') : '-';
+                const dtAut = row.data_autorizacao ? new Date(row.data_autorizacao).toLocaleDateString('pt-BR') : '-';
+
+                const tr = `
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-primary">${solic}</div>
+                            <div class="small text-muted">${aih}</div>
+                        </td>
+                        <td>
+                            <span class="paciente-nome">${row.nome_paciente}</span>
+                            ${mae}
+                        </td>
+                        <td>
+                            <div class="paciente-cns">${cns}</div>
+                            <div class="small text-muted">${tel}</div>
+                        </td>
+                        <td>${mun}</td>
+                        <td>${caraterBadge}</td>
+                        <td>
+                            <div class="small">Sol: ${dtSol}</div>
+                            <div class="small">Aut: ${dtAut}</div>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" onclick="abrirModal(${idx})">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(tr);
+            });
+
+            $('#loader').hide();
+            $('#tabela-dados').show().DataTable({
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+                order: [[5, 'desc']], // Ordena por data
+                pageLength: 10
+            });
+        }
+
+        window.abrirModal = function(idx) {
+            const d = window.dadosCache[idx];
+            $('#m-paciente').text(d.nome_paciente);
+            $('#m-mae').text(d.nome_mae || '-');
+            $('#m-aih').text(d.num_aih);
+            $('#m-solic').text(d.num_solicitacao || '-');
+            $('#m-carater').text(d.carater_internacao || '-');
+            $('#m-medico').text(d.nome_medico_solicitante || '-');
+            $('#m-laudo').text(d.laudo_clinico || 'Sem laudo.');
+            
+            new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
+        }
+
+        init();
+    </script>
+</body>
+</html>

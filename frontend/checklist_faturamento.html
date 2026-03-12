@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Reestruturação - Faturamento SUS</title>
+    <style>
+        /* Estilo simples e limpo para o NII-Portal */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; color: #0056b3; }
+        .section-title { background-color: #e9ecef; padding: 10px; margin-top: 20px; font-weight: bold; border-radius: 4px; }
+        .check-item { margin: 10px 0; display: flex; align-items: center; }
+        input[type="checkbox"] { transform: scale(1.5); margin-right: 10px; cursor: pointer; }
+        label { cursor: pointer; }
+        .btn-action { background-color: #28a745; color: white; border: none; padding: 10px 20px; margin-top: 20px; cursor: pointer; border-radius: 5px; font-size: 16px; }
+        .btn-action:hover { background-color: #218838; }
+        #status-msg { margin-top: 15px; font-weight: bold; color: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🏥 Checklist: Revisão de Processos de Faturamento</h2>
+    <p>Use este formulário para auditar prontuários antes do fechamento do lote.</p>
+
+    <div class="section-title">1. Montagem de Altas (Recepção/Arquivo)</div>
+    <div class="check-item"><input type="checkbox" id="c1"> <label for="c1">Aviso de alta assinado e datado.</label></div>
+    <div class="check-item"><input type="checkbox" id="c2"> <label for="c2">Documentos do paciente (CNS, RG) legíveis.</label></div>
+    <div class="check-item"><input type="checkbox" id="c3"> <label for="c3">Prontuário ordenado cronologicamente.</label></div>
+
+    <div class="section-title">2. Exames Laboratoriais (Enfermagem/Posto)</div>
+    <div class="check-item"><input type="checkbox" id="c4"> <label for="c4">Resultados de exames impressos e anexados.</label></div>
+    <div class="check-item"><input type="checkbox" id="c5"> <label for="c5">Exames compatíveis com a evolução clínica.</label></div>
+
+    <div class="section-title">3. Autorizações e AIH (Faturamento)</div>
+    <div class="check-item"><input type="checkbox" id="c6"> <label for="c6">Laudo Médico Principal preenchido e assinado.</label></div>
+    <div class="check-item"><input type="checkbox" id="c7"> <label for="c7">Número da AIH/Autorização validado no SISREG.</label></div>
+    <div class="check-item"><input type="checkbox" id="c8"> <label for="c8">Compatibilidade CID x Procedimento verificada.</label></div>
+
+    <button class="btn-action" onclick="validarChecklist()">Validar Processo</button>
+    <div id="status-msg"></div>
+</div>
+
+<script>
+    function validarChecklist() {
+        // Seleciona todos os checkboxes
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        let todosMarcados = true;
+
+        checkboxes.forEach((cb) => {
+            if (!cb.checked) {
+                todosMarcados = false;
+            }
+        });
+
+        const status = document.getElementById('status-msg');
+        
+        if (todosMarcados) {
+            status.style.color = "#28a745";
+            status.innerHTML = "✅ Processo validado! O prontuário está pronto para faturamento.";
+            // Aqui você poderia adicionar um código para salvar no banco de dados futuramente
+        } else {
+            status.style.color = "#dc3545";
+            status.innerHTML = "⚠️ Pendências encontradas. Revise os itens não marcados.";
+        }
+    }
+</script>
+
+</body>
+</html>

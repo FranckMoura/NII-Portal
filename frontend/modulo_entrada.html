@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrada de Dados - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- ESTILO TELA (Deep Blue Padronizado) --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: #1e293b; 
+            margin: 0; 
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* Cabeçalho de Tela */
+        .header-bg { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; 
+            padding: 20px 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+
+        /* Navegação de Abas */
+        .tabs-container { max-width: 1400px; margin: 0 auto 20px auto; padding: 0 20px; display: flex; gap: 10px; }
+        .tab-btn { 
+            padding: 12px 25px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 10px 10px 0 0; 
+            color: rgba(255,255,255,0.7); 
+            cursor: pointer; font-weight: 600; border: none; transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .tab-btn.active { 
+            background: #f3f4f6; color: #004e92; 
+            font-weight: 800; padding-bottom: 15px; 
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Layout Grid Principal */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Histórico Lateral (Atualizado) */
+        .history-panel {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 12px; 
+            border-bottom: 1px solid #eee; 
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .history-item:hover { background: #e0f2fe; }
+        
+        /* Área Clicável do Item */
+        .history-info { flex: 1; cursor: pointer; }
+        .history-title { font-weight: 700; font-size: 0.9rem; color: #0f172a; display: block; margin-bottom: 2px;}
+        .history-date { font-size: 0.75rem; color: #64748b; }
+
+        /* Botões de Ação (Só aparecem no Hover) */
+        .history-actions { 
+            display: flex; gap: 8px; 
+            opacity: 0; transition: opacity 0.2s; 
+        }
+        .history-item:hover .history-actions { opacity: 1; }
+        
+        .btn-icon-action {
+            background: transparent; border: none; cursor: pointer; 
+            color: #64748b; padding: 4px; border-radius: 4px; transition: 0.2s;
+        }
+        .btn-icon-action:hover { background: rgba(0,0,0,0.1); color: #0f172a; }
+        .btn-delete:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+
+        /* Área de Conteúdo */
+        .content-area { flex: 1; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Card de Cadastro */
+        .card-cadastro { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end; }
+        .inp-std { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+
+        /* --- ESTILOS DE IMPRESSÃO PADRONIZADOS --- */
+        .header-print { display: none; } /* Esconde na tela */
+        
+        .paper-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 10mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Inputs editáveis que parecem texto na impressão */
+        input.editable {
+            border: 1px solid #e2e8f0; padding: 4px; width: 100%;
+            font-family: 'Courier New', Courier, monospace; font-size: 11px;
+            color: #333; background: #f8fafc; border-radius: 4px;
+        }
+        input.editable:focus { outline: 2px solid #004e92; background: white; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: 'Arial', sans-serif; }
+            
+            /* Oculta interface de sistema */
+            .header-bg, .tabs-container, .no-print, .btn-del, .history-panel, .layout-grid { display: block !important; }
+            .layout-grid { display: block; padding: 0; margin: 0; max-width: none; }
+            .history-panel { display: none !important; }
+            .header-bg, .tabs-container, .no-print { display: none !important; }
+            
+            .content-area { margin: 0; padding: 0; width: 100%; max-width: none; }
+            .tab-content { display: none !important; }
+            .tab-content.active { display: block !important; }
+            .paper-container { box-shadow: none; margin: 0; padding: 0; width: 100%; }
+            
+            /* --- NOVO CABEÇALHO (PADRÃO FINANCEIRO) --- */
+            .header-print { 
+                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
+                padding-bottom: 10px; margin-bottom: 20px; 
+            }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: #000; }
+            .header-info p { margin: 0; font-size: 10pt; color: #000; }
+            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: #000; }
+
+            /* Remove bordas dos inputs */
+            input.editable { border: none !important; background: transparent !important; padding: 0; }
+            
+            /* Estilo da Tabela (Mantendo Fonte do Relatório) */
+            .soulmv-table { width: 100%; border-collapse: collapse; font-family: 'Courier New', Courier, monospace; font-size: 11px; }
+            .soulmv-table th { border-bottom: 1px dashed #000; text-align: left; padding: 5px 2px; font-weight: bold; }
+            .soulmv-table td { padding: 5px 2px; vertical-align: top; }
+            .soulmv-table tr { page-break-inside: avoid; }
+            
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bg no-print">
+        <div class="flex items-center gap-4">
+            <div class="bg-white/20 p-2 rounded-lg"><i class="fas fa-keyboard text-2xl"></i></div>
+            <div>
+                <h1 class="text-xl font-bold">Módulo de Entrada de Dados</h1>
+                <p class="text-sm opacity-80">Cadastros e Lançamentos Manuais</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <img src="../logo.png" alt="Logo" class="header-logo">
+            <a href="painel_operacional.html" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded font-bold transition flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="tabs-container no-print">
+        <button class="tab-btn" onclick="abrirAba('tab-cadastros')"><i class="fas fa-users-cog"></i> Cadastros</button>
+        <button class="tab-btn active" onclick="abrirAba('tab-opme')"><i class="fas fa-file-medical"></i> Lançamento OPME</button>
+        <button class="tab-btn" onclick="abrirAba('tab-geral')"><i class="fas fa-file-invoice-dollar"></i> Lançamento Geral</button>
+    </div>
+
+    <div class="layout-grid">
+        
+        <div class="history-panel no-print">
+            <h3 class="font-bold text-lg text-blue-900 mb-4 border-b pb-2"><i class="fas fa-history"></i> Histórico</h3>
+            <div id="listaHistorico">
+                <p class="text-gray-500 text-sm">Carregando...</p>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <div id="tab-cadastros" class="tab-content">
+                <div class="card-cadastro">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4 border-b pb-2">Cadastro Rápido</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-500">Nome</label>
+                            <input type="text" id="cadNome" class="inp-std">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-500">Tipo</label>
+                            <select id="cadTipo" class="inp-std">
+                                <option value="FORNECEDOR">Fornecedor</option>
+                                <option value="MEDICO">Médico</option>
+                            </select>
+                        </div>
+                        <button class="bg-blue-600 text-white px-6 py-2 rounded font-bold" onclick="salvarCadastroFake()">Salvar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-opme" class="tab-content active">
+                
+                <div class="flex justify-between items-center mb-4 no-print bg-white p-3 rounded shadow">
+                    <div class="flex gap-2 w-full max-w-lg">
+                        <input type="text" id="tituloOpme" class="inp-std" placeholder="Nome do Relatório (Ex: Astramed Dez/25)" oninput="atualizarCabecalho()" style="background:#f8fafc;">
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="hidden" id="idRelatorioAtual">
+                        
+                        <button onclick="salvarRelatorio('OPME')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-bold shadow"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="adicionarLinhaOPME()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold shadow"><i class="fas fa-plus"></i> Item</button>
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold shadow"><i class="fas fa-print"></i> Imprimir</button>
+                    </div>
+                </div>
+
+                <div class="paper-container">
+                    
+                    <div class="header-print">
+                        <img src="../logo.png" alt="Logo">
+                        <div class="header-info">
+                            <h1>Hospital Beneficente Santa Helena</h1>
+                            <h2 id="print-title-opme">Relatório de Próteses por Fornecedor</h2>
+                            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
+                        </div>
+                        <div class="header-meta">
+                            <div><b>Competência:</b> <span id="print-comp-opme">12/2025</span></div>
+                            <div><b>Emissão:</b> <span class="dataAtual"></span></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:5px; font-family: 'Courier New', Courier, monospace;">
+                        <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
+                            <div>Competência: <input type="text" id="compOpme" class="editable" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
+                            <div>Responsável: <input type="text" class="editable" value="FRANCK" style="width:100px; display:inline;"></div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <span style="font-weight:bold;">Fornecedor:</span>
+                            <input type="text" id="fornOpme" class="editable font-bold" value="ASTRAMED COMERCIO DE MATERIAIS MEDICOS LTDA" style="width:80%;">
+                        </div>
+                    </div>
+
+                    <table class="soulmv-table" id="tblOpme">
+                        <thead>
+                            <tr>
+                                <th style="width:25%;">Paciente / Guia</th>
+                                <th style="width:10%;">N.Fiscal</th>
+                                <th style="width:10%;">Cód. Proc</th>
+                                <th style="width:30%;">Descrição do Material</th>
+                                <th style="width:5%; text-align:center;">Qtd</th>
+                                <th style="width:10%; text-align:right;">Vlr. Unit</th>
+                                <th style="width:10%; text-align:right;">Vlr. Total</th>
+                                <th class="no-print" style="width:20px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr style="border-top:1px dashed #000;">
+                                <td colspan="6" style="text-align:right; font-weight:bold; padding-top:10px;">TOTAL GERAL:</td>
+                                <td style="text-align:right; font-weight:bold; padding-top:10px;" id="totalGeralOpme">0,00</td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-geral" class="tab-content">
+                
+                <div class="flex justify-between items-center mb-4 no-print bg-white p-3 rounded shadow">
+                    <div class="flex gap-2 w-full max-w-lg">
+                        <input type="text" id="tituloGeral" class="inp-std" placeholder="Nome do Relatório (Ex: Plantão Extra)" oninput="atualizarCabecalho()" style="background:#f8fafc;">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="salvarRelatorio('GERAL')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-bold shadow"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="adicionarLinhaGeral()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold shadow"><i class="fas fa-plus"></i> Item</button>
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold shadow"><i class="fas fa-print"></i> Imprimir</button>
+                    </div>
+                </div>
+
+                <div class="paper-container">
+                    
+                    <div class="header-print">
+                        <img src="../logo.png" alt="Logo">
+                        <div class="header-info">
+                            <h1>Hospital Beneficente Santa Helena</h1>
+                            <h2 id="print-title-geral">Relatório Geral de Produção</h2>
+                            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
+                        </div>
+                        <div class="header-meta">
+                            <div><b>Competência:</b> <span id="print-comp-geral">12/2025</span></div>
+                            <div><b>Emissão:</b> <span class="dataAtual"></span></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:5px; font-family: 'Courier New', Courier, monospace;">
+                        <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
+                            <div>Competência: <input type="text" id="compGeral" class="editable" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
+                            <div>Responsável: <input type="text" class="editable" value="FRANCK" style="width:100px; display:inline;"></div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <span style="font-weight:bold;">Prestador/Origem:</span>
+                            <input type="text" id="fornGeral" class="editable font-bold" value="DIVERSOS / GERAL" style="width:80%;">
+                        </div>
+                    </div>
+
+                    <table class="soulmv-table" id="tblGeral">
+                        <thead>
+                            <tr>
+                                <th style="width:30%;">Paciente / Descrição</th>
+                                <th style="width:15%;">Setor/Local</th>
+                                <th style="width:30%;">Procedimento / Serviço</th>
+                                <th style="width:5%; text-align:center;">Qtd</th>
+                                <th style="width:10%; text-align:right;">Vlr. Unit</th>
+                                <th style="width:10%; text-align:right;">Vlr. Total</th>
+                                <th class="no-print" style="width:20px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr style="border-top:1px dashed #000;">
+                                <td colspan="5" style="text-align:right; font-weight:bold; padding-top:10px;">TOTAL GERAL:</td>
+                                <td style="text-align:right; font-weight:bold; padding-top:10px;" id="totalGeralGeral">0,00</td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span class="dataAtual"></span>. Documento para conferência.
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
+        $(document).ready(function() {
+            const agora = new Date();
+            const strData = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
+            $('.dataAtual').text(strData);
+
+            adicionarLinhaOPME();
+            adicionarLinhaGeral();
+            carregarHistorico();
+        });
+
+        function abrirAba(idAba) {
+            $('.tab-content').removeClass('active');
+            $('.tab-btn').removeClass('active');
+            $('#' + idAba).addClass('active');
+            $(`button[onclick="abrirAba('${idAba}')"]`).addClass('active');
+            
+            // Limpa o ID atual ao trocar de aba para evitar sobrescrever errad
+            $('#idRelatorioAtual').val('');
+        }
+
+        function atualizarCabecalho() {
+            $('#print-comp-opme').text($('#compOpme').val());
+            $('#print-comp-geral').text($('#compGeral').val());
+            
+            const titOpme = $('#tituloOpme').val();
+            if(titOpme) $('#print-title-opme').text(titOpme);
+            
+            const titGeral = $('#tituloGeral').val();
+            if(titGeral) $('#print-title-geral').text(titGeral);
+        }
+
+        // --- SISTEMA DE SALVAMENTO ---
+        async function salvarRelatorio(tipo) {
+            let titulo, competencia, fornecedor, itens = [];
+            const idExistente = $('#idRelatorioAtual').val();
+            
+            if(tipo === 'OPME') {
+                titulo = $('#tituloOpme').val();
+                competencia = $('#compOpme').val();
+                fornecedor = $('#fornOpme').val();
+                $('#tblOpme tbody tr').each(function() {
+                    const inputs = $(this).find('input');
+                    itens.push({
+                        col1: inputs.eq(0).val(), col2: inputs.eq(1).val(), col3: inputs.eq(2).val(),
+                        col4: inputs.eq(3).val(), col5: inputs.eq(4).val(), col6: inputs.eq(5).val(),
+                        qtd: inputs.eq(6).val(), valUnit: inputs.eq(7).val(), valTotal: inputs.eq(8).val()
+                    });
+                });
+            } else {
+                titulo = $('#tituloGeral').val();
+                competencia = $('#compGeral').val();
+                fornecedor = $('#fornGeral').val();
+                $('#tblGeral tbody tr').each(function() {
+                    const inputs = $(this).find('input');
+                    itens.push({
+                        col1: inputs.eq(0).val(), col2: inputs.eq(1).val(), col3: inputs.eq(2).val(),
+                        col4: inputs.eq(3).val(), qtd: inputs.eq(4).val(), valUnit: inputs.eq(5).val(), valTotal: inputs.eq(6).val()
+                    });
+                });
+            }
+
+            if(!titulo) return alert("Digite um nome para o relatório!");
+
+            let error;
+            if(idExistente) {
+                // UPDATE
+                const res = await client.from('lancamentos_manuais').update({
+                    titulo, tipo, competencia, fornecedor, conteudo: itens
+                }).eq('id', idExistente);
+                error = res.error;
+            } else {
+                // INSERT
+                const res = await client.from('lancamentos_manuais').insert({
+                    titulo, tipo, competencia, fornecedor, conteudo: itens
+                });
+                error = res.error;
+            }
+
+            if(error) alert("Erro ao salvar: " + error.message);
+            else { 
+                alert("Salvo com sucesso!"); 
+                carregarHistorico(); 
+                $('#idRelatorioAtual').val(''); // Limpa ID após salvar para permitir novos
+            }
+        }
+
+        async function carregarHistorico() {
+            const { data, error } = await client.from('lancamentos_manuais').select('id, titulo, data_criacao, tipo').order('data_criacao', {ascending: false});
+            const lista = $('#listaHistorico');
+            lista.empty();
+            
+            if(data) {
+                data.forEach(item => {
+                    const dataFmt = new Date(item.data_criacao).toLocaleDateString('pt-BR');
+                    lista.append(`
+                        <div class="history-item">
+                            <div class="history-info" onclick="carregarItem(${item.id})">
+                                <span class="history-title">${item.titulo}</span>
+                                <span class="history-date">${item.tipo} - ${dataFmt}</span>
+                            </div>
+                            <div class="history-actions">
+                                <button class="btn-icon-action" onclick="editarNomeRelatorio(${item.id}, '${item.titulo}')" title="Renomear"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon-action btn-delete" onclick="excluirRelatorio(${item.id})" title="Excluir"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+        }
+
+        async function carregarItem(id) {
+            const { data } = await client.from('lancamentos_manuais').select('*').eq('id', id).single();
+            if(!data) return;
+
+            $('#idRelatorioAtual').val(data.id); // Define ID para modo edição
+
+            if(data.tipo === 'OPME') {
+                abrirAba('tab-opme');
+                $('#tituloOpme').val(data.titulo);
+                $('#compOpme').val(data.competencia);
+                $('#fornOpme').val(data.fornecedor);
+                $('#tblOpme tbody').empty();
+                data.conteudo.forEach(row => adicionarLinhaOPME(row));
+                totalizarTabela('#tblOpme', '#totalGeralOpme');
+            } else {
+                abrirAba('tab-geral');
+                $('#tituloGeral').val(data.titulo);
+                $('#compGeral').val(data.competencia);
+                $('#fornGeral').val(data.fornecedor);
+                $('#tblGeral tbody').empty();
+                data.conteudo.forEach(row => adicionarLinhaGeral(row));
+                totalizarTabela('#tblGeral', '#totalGeralGeral');
+            }
+            atualizarCabecalho();
+        }
+
+        async function excluirRelatorio(id) {
+            if(confirm("Tem certeza que deseja excluir este relatório?")) {
+                const { error } = await client.from('lancamentos_manuais').delete().eq('id', id);
+                if(error) alert("Erro ao excluir.");
+                else carregarHistorico();
+            }
+        }
+
+        async function editarNomeRelatorio(id, nomeAtual) {
+            const novoNome = prompt("Novo nome do relatório:", nomeAtual);
+            if(novoNome && novoNome !== nomeAtual) {
+                const { error } = await client.from('lancamentos_manuais').update({ titulo: novoNome }).eq('id', id);
+                if(error) alert("Erro ao renomear.");
+                else carregarHistorico();
+            }
+        }
+
+        // --- FUNÇÕES DE TABELA ---
+        function adicionarLinhaOPME(dados = null) {
+            const row = `
+                <tr>
+                    <td><input type="text" class="editable font-bold" value="${dados?.col1 || ''}" placeholder="PACIENTE"><br><input type="text" class="editable" value="${dados?.col2 || ''}" placeholder="Guia" style="font-size:10px;"></td>
+                    <td><input type="text" class="editable" value="${dados?.col3 || ''}"></td>
+                    <td><input type="text" class="editable" value="${dados?.col4 || ''}"></td>
+                    <td><input type="text" class="editable" value="${dados?.col5 || ''}" placeholder="ITEM"><input type="text" class="editable" value="${dados?.col6 || ''}" style="font-size:10px;"></td>
+                    <td><input type="number" class="editable qtd text-center" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
+                    <td><input type="number" class="editable val-unit text-right" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
+                    <td><input type="text" class="editable val-total text-right font-bold" value="${dados?.valTotal || '0,00'}" readonly></td>
+                    <td class="no-print text-center"><button class="btn-del text-red-500" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblOpme', '#totalGeralOpme')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `;
+            $('#tblOpme tbody').append(row);
+        }
+
+        function adicionarLinhaGeral(dados = null) {
+            const row = `
+                <tr>
+                    <td><input type="text" class="editable font-bold" value="${dados?.col1 || ''}" placeholder="DESCRIÇÃO"><br><input type="text" class="editable" value="${dados?.col2 || ''}" placeholder="Detalhe" style="font-size:10px;"></td>
+                    <td><input type="text" class="editable" value="${dados?.col3 || ''}"></td>
+                    <td><input type="text" class="editable" value="${dados?.col4 || ''}"></td>
+                    <td><input type="number" class="editable qtd text-center" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
+                    <td><input type="number" class="editable val-unit text-right" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
+                    <td><input type="text" class="editable val-total text-right font-bold" value="${dados?.valTotal || '0,00'}" readonly></td>
+                    <td class="no-print text-center"><button class="btn-del text-red-500" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblGeral', '#totalGeralGeral')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `;
+            $('#tblGeral tbody').append(row);
+        }
+
+        function calcTotal(element, idTotal) {
+            const row = $(element).closest('tr');
+            const qtd = parseFloat(row.find('.qtd').val()) || 0;
+            const unit = parseFloat(row.find('.val-unit').val()) || 0;
+            const total = qtd * unit;
+            row.find('.val-total').val(total.toLocaleString('pt-BR', {minimumFractionDigits: 2}));
+            const tableId = '#' + $(element).closest('table').attr('id');
+            totalizarTabela(tableId, idTotal);
+        }
+
+        function totalizarTabela(tableId, idTotal) {
+            let total = 0;
+            $(`${tableId} tbody tr`).each(function() {
+                const valStr = $(this).find('.val-total').val() || "0,00";
+                const val = parseFloat(valStr.replace(/\./g, '').replace(',', '.')) || 0;
+                total += val;
+            });
+            $(idTotal).text(total.toLocaleString('pt-BR', {minimumFractionDigits: 2}));
+        }
+
+        function salvarCadastroFake() { alert("Simulação: Cadastro salvo na sessão."); }
+    </script>
+</body>
+</html>

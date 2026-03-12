@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prestação de Contas SUS 2025 - Câmara dos Deputados</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .gradient-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <div id="upload-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+        <div class="bg-white p-12 rounded-2xl shadow-2xl text-center max-w-xl w-full border-t-8 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-bl-full -z-10 opacity-50"></div>
+            <i class="fas fa-chart-line text-7xl text-blue-600 mb-6 drop-shadow-md"></i>
+            <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">Portal de Transparência</h2>
+            <p class="text-slate-500 mb-8 font-medium">Apresentação Oficial - Exercício 2025</p>
+            
+            <label class="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold py-4 px-8 rounded-xl cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl w-full block transform hover:-translate-y-1">
+                <i class="fas fa-upload mr-2"></i> Carregar Base de Dados (CSV)
+                <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleFile(event)">
+            </label>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden flex-1 flex flex-col">
+        
+        <header class="gradient-header text-white px-8 py-6 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div class="max-w-7xl mx-auto flex justify-between items-center relative z-10">
+                <div class="flex items-center gap-5">
+                    <div class="bg-white/10 p-4 rounded-xl border border-white/20 shadow-inner">
+                        <i class="fas fa-hospital-alt text-4xl text-amber-400 drop-shadow-md"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight uppercase drop-shadow-sm">Hospital Beneficente Santa Helena</h1>
+                        <p class="text-blue-200 font-medium tracking-wide mt-1"><i class="fas fa-file-invoice-dollar mr-1"></i> Relatório de Desempenho Financeiro SUS - Exercício 2025</p>
+                    </div>
+                </div>
+                <div class="text-right bg-black/20 p-3 rounded-lg border border-white/10">
+                    <div class="text-xs text-blue-300 uppercase font-bold tracking-widest mb-1">Status do Financiamento</div>
+                    <div class="font-black text-xl text-emerald-400"><i class="fas fa-check-circle mr-1"></i> 100% MAC Aprovado</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl mx-auto w-full p-8 -mt-8 relative z-20">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl card-shadow p-6 border-l-8 border-blue-600 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                    <div class="absolute top-4 right-4 text-blue-100 group-hover:text-blue-200 transition-colors"><i class="fas fa-coins text-5xl"></i></div>
+                    <p class="text-slate-500 font-bold uppercase tracking-wider text-xs mb-2">Total de Recursos Aprovados</p>
+                    <h3 class="text-4xl font-black text-slate-800" id="kpiTotal">R$ 0,00</h3>
+                    <p class="text-emerald-500 font-semibold text-sm mt-3 bg-emerald-50 inline-block px-2 py-1 rounded"><i class="fas fa-chart-line mr-1"></i> Faturamento Consolidado</p>
+                </div>
+
+                <div class="bg-white rounded-2xl card-shadow p-6 border-l-8 border-amber-500 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                    <div class="absolute top-4 right-4 text-amber-100 group-hover:text-amber-200 transition-colors"><i class="fas fa-procedures text-5xl"></i></div>
+                    <p class="text-slate-500 font-bold uppercase tracking-wider text-xs mb-2">Volume de Produção Hospitalar</p>
+                    <h3 class="text-4xl font-black text-slate-800" id="kpiQtd">0</h3>
+                    <p class="text-amber-600 font-semibold text-sm mt-3 bg-amber-50 inline-block px-2 py-1 rounded"><i class="fas fa-users mr-1"></i> Procedimentos Realizados</p>
+                </div>
+
+                <div class="bg-white rounded-2xl card-shadow p-6 border-l-8 border-emerald-500 relative overflow-hidden group hover:scale-105 transition-transform duration-300">
+                    <div class="absolute top-4 right-4 text-emerald-100 group-hover:text-emerald-200 transition-colors"><i class="fas fa-receipt text-5xl"></i></div>
+                    <p class="text-slate-500 font-bold uppercase tracking-wider text-xs mb-2">Ticket Médio por Procedimento</p>
+                    <h3 class="text-4xl font-black text-slate-800" id="kpiTicket">R$ 0,00</h3>
+                    <p class="text-slate-400 font-semibold text-sm mt-3 bg-slate-100 inline-block px-2 py-1 rounded"><i class="fas fa-info-circle mr-1"></i> Custo médio aprovado</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl card-shadow p-6 mb-8 border border-blue-100 flex items-start gap-4">
+                <div class="bg-blue-600 text-white rounded-full p-4 shadow-md flex-shrink-0">
+                    <i class="fas fa-baby-carriage text-2xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-blue-900 font-bold text-lg mb-1">Impacto Social Direto à População</h4>
+                    <p class="text-slate-700 leading-relaxed">
+                        A análise técnica comprova que o <b>maior peso de investimento e produção</b> da instituição está diretamente ligado à <b>Linha de Cuidado Materno-Infantil</b> (Partos, Cesarianas e Tratamentos Intensivos Neonatais). Este dado consolida o Hospital como um equipamento estratégico vital para a garantia da vida de mães e recém-nascidos da região.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl card-shadow p-6 lg:col-span-2 border border-slate-100">
+                    <h4 class="text-slate-800 font-black text-lg mb-6 border-b border-slate-100 pb-3"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i> Evolução Financeira Mês a Mês</h4>
+                    <div class="relative h-72 w-full">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl card-shadow p-6 border border-slate-100 flex flex-col">
+                    <h4 class="text-slate-800 font-black text-lg mb-6 border-b border-slate-100 pb-3"><i class="fas fa-door-open text-amber-500 mr-2"></i> Origem do Faturamento</h4>
+                    <div class="relative flex-1 w-full min-h-[250px]">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl card-shadow p-6 border border-slate-100 mb-8">
+                <h4 class="text-slate-800 font-black text-lg mb-6 border-b border-slate-100 pb-3"><i class="fas fa-trophy text-emerald-500 mr-2"></i> Top 10 Procedimentos de Maior Relevância Financeira</h4>
+                <div class="relative h-96 w-full">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            
+            // PapaParse processa o CSV na hora
+            Papa.parse(file, {
+                header: true,
+                delimiter: ";",
+                skipEmptyLines: true,
+                complete: function(results) {
+                    document.getElementById('upload-screen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    processData(results.data);
+                }
+            });
+        }
+
+        function processData(data) {
+            let totalValor = 0;
+            let totalQtd = 0;
+            let valPorMes = { "01":0, "02":0, "03":0, "04":0, "05":0, "06":0, "07":0, "08":0, "09":0, "10":0, "11":0, "12":0 };
+            let valPorOrigem = {};
+            let procMap = {};
+
+            // Descobre os nomes exatos das colunas (proteção contra espaços)
+            if(data.length === 0) return;
+            let keys = Object.keys(data[0]);
+            let valorKey = keys.find(k => k.toLowerCase().includes('valor'));
+            let qtdKey = keys.find(k => k.toLowerCase().includes('quant'));
+            let compKey = keys.find(k => k.toLowerCase().includes('compet'));
+            let origKey = keys.find(k => k.toLowerCase().includes('origem'));
+            let procKey = keys.find(k => k.toLowerCase().includes('descri'));
+
+            // Processa cada linha
+            data.forEach(row => {
+                let valStr = row[valorKey] || "0";
+                // Limpa o valor monetário do Brasil para float do JS
+                let val = parseFloat(valStr.toString().replace(/\./g, '').replace(',', '.'));
+                let qtd = parseInt(row[qtdKey]) || 0;
+                
+                if(isNaN(val)) val = 0;
+                if(isNaN(qtd)) qtd = 0;
+
+                totalValor += val;
+                totalQtd += qtd;
+
+                // Agrupa Mês (Ex: 01/05/2025 -> extrai o 05)
+                let comp = row[compKey] || '';
+                if(comp.length >= 10) {
+                    let m = comp.substring(3,5);
+                    if(valPorMes[m] !== undefined) valPorMes[m] += val;
+                }
+
+                // Agrupa Origem
+                let orig = row[origKey] || 'Outros';
+                if(!valPorOrigem[orig]) valPorOrigem[orig] = 0;
+                valPorOrigem[orig] += val;
+
+                // Agrupa Procedimentos
+                let proc = row[procKey] || 'N/A';
+                if(!procMap[proc]) procMap[proc] = 0;
+                procMap[proc] += val;
+            });
+
+            // Preenche os KPIs no HTML
+            document.getElementById('kpiTotal').innerText = formatCurrency(totalValor);
+            document.getElementById('kpiQtd').innerText = totalQtd.toLocaleString('pt-BR');
+            document.getElementById('kpiTicket').innerText = formatCurrency(totalValor / (totalQtd || 1));
+
+            renderizarGraficos(valPorMes, valPorOrigem, procMap);
+        }
+
+        function renderizarGraficos(valPorMes, valPorOrigem, procMap) {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // 1. Gráfico de Linha (Mês a Mês)
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            let gradientLine = ctxLine.createLinearGradient(0, 0, 0, 400);
+            gradientLine.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
+            gradientLine.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+                    datasets: [{
+                        label: 'Faturamento Aprovado (R$)',
+                        data: Object.values(valPorMes),
+                        borderColor: '#2563eb',
+                        backgroundColor: gradientLine,
+                        fill: true,
+                        tension: 0.4, // Curva suave
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#2563eb',
+                        pointBorderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(ctx) { return formatCurrency(ctx.raw); } }, padding: 12, backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 14 }, bodyFont: { size: 14, weight: 'bold' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { callback: function(val) { return formatCurrency(val); } } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Gráfico de Rosca (Origem)
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(valPorOrigem),
+                    datasets: [{
+                        data: Object.values(valPorOrigem),
+                        backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#ec4899'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true, pointStyle: 'circle' } },
+                        tooltip: { callbacks: { label: function(ctx) { 
+                            let total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                            let pct = ((ctx.raw / total)*100).toFixed(1) + '%';
+                            return ` ${formatCurrency(ctx.raw)} (${pct})`; 
+                        }}, padding: 12, backgroundColor: 'rgba(15, 23, 42, 0.9)' }
+                    }
+                }
+            });
+
+            // 3. Gráfico de Barras Horizontais (Top 10 Procedimentos)
+            // Ordenar e pegar os 10 maiores
+            let sortedProcs = Object.keys(procMap).map(k => ({nome: k, val: procMap[k]}))
+                                .sort((a,b) => b.val - a.val).slice(0, 10);
+
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    // Corta o nome se for muito gigante
+                    labels: sortedProcs.map(p => p.nome.length > 50 ? p.nome.substring(0, 50) + '...' : p.nome),
+                    datasets: [{
+                        label: 'Valor Aprovado (R$)',
+                        data: sortedProcs.map(p => p.val),
+                        backgroundColor: '#0ea5e9', // Azul claro
+                        borderRadius: 6,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Define como barras horizontais
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(ctx) { return formatCurrency(ctx.raw); } }, padding: 12, backgroundColor: 'rgba(15, 23, 42, 0.9)' }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: function(val) { return formatCurrency(val); } } },
+                        y: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 }, color: '#334155' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

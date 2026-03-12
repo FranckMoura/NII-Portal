@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NII Portal</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        .login-card {
+            /* REMOVIDO O FUNDO BRANCO */
+            background: transparent; 
+            
+            /* APENAS O CONTORNO */
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            
+            /* Opcional: um desfoque muito sutil só dentro da linha */
+            backdrop-filter: blur(5px);
+            
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-header { margin-bottom: 25px; }
+        
+        /* LOGO */
+        .login-logo {
+            max-width: 220px; 
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+            /* Filtro mantido para garantir leitura */
+            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+        }
+
+        /* TEXTOS AGORA SÃO BRANCOS (para ler no fundo escuro) */
+        h2 { margin: 0; color: #ffffff; font-weight: 700; font-size: 24px; letter-spacing: 0.5px; }
+        p { color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-top: 5px; font-weight: 400; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            /* Campos brancos semi-transparentes para destacar do fundo escuro */
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            color: #333; /* Texto digitado preto */
+        }
+        input:focus { 
+            background: #ffffff;
+            border-color: #004e92; 
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1); 
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            /* Botão Branco/Azul para contrastar */
+            background: #ffffff;
+            color: #004e92;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800; /* Mais grosso */
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover { 
+            background: #f0f2f5; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
+        }
+        
+        #msg { 
+            background-color: rgba(220, 38, 38, 0.2); /* Vermelho transparente */
+            color: #ffcccc; 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            margin-top: 15px; 
+            display: none; 
+            border: 1px solid rgba(220, 38, 38, 0.5);
+        }
+        
+        /* Rodapé */
+        .footer-container { margin-top: 30px; text-align: center; }
+        .footer-text { font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: 500; margin-bottom: 4px; }
+        .dev-text { font-size: 11px; color: rgba(255, 255, 255, 0.3); font-weight: 400; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <img src="../logo.png" alt="Hospital Santa Helena" class="login-logo">
+            
+            <h2>Portal NII</h2>
+            <p>Entre com suas credenciais</p>
+        </div>
+
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="fazerLogin()" id="btnLogin">Acessar Sistema</button>
+        
+        <div id="msg"></div>
+    </div>
+    
+    <div class="footer-container">
+        <div class="footer-text">Hospital Beneficente Santa Helena &copy; 2026</div>
+        <div class="dev-text">Desenvolvido por Franck Moura</div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        
+        const client = window.supabase.createClient(SB_URL, SB_KEY, {
+            auth: {
+                persistSession: true,
+                storageKey: 'nii-auth-token',
+                storage: window.localStorage
+            }
+        });
+
+        async function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('senha').value;
+            const btn = document.getElementById('btnLogin');
+            
+            if (!email || !password) {
+                mostrarErro("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            document.getElementById('msg').style.display = 'none';
+
+            try {
+                const { data, error } = await client.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                if(data.session) {
+                    localStorage.setItem('nii-auth-token', JSON.stringify(data.session));
+                    
+                    btn.innerHTML = "Sucesso! Entrando...";
+                    btn.style.background = "#28a745";
+                    btn.style.color = "#fff";
+                    
+                    setTimeout(() => {
+                        window.location.replace("index_v2.html?v=" + new Date().getTime());
+                    }, 500);
+
+                } else {
+                    throw new Error("Sessão não criada.");
+                }
+
+            } catch (e) {
+                console.error(e);
+                mostrarErro("E-mail ou senha incorretos.");
+                btn.disabled = false;
+                btn.innerText = "Acessar Sistema";
+                btn.style.background = "#ffffff";
+                btn.style.color = "#004e92";
+            }
+        }
+
+        function mostrarErro(texto) {
+            const msg = document.getElementById('msg');
+            msg.innerText = texto;
+            msg.style.display = 'block';
+        }
+        
+        document.getElementById('senha').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') fazerLogin();
+        });
+    </script>
+</body>
+</html>

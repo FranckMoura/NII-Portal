@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Metas - HBSH</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- PADRONIZAÇÃO VISUAL (Deep Blue) --- */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: #1e293b; 
+            margin: 0; 
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        /* CABEÇALHO TELA */
+        .header-bg { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; 
+            padding: 30px 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-icon { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .header-title h1 { margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        .header-title p { margin: 2px 0 0; opacity: 0.9; font-size: 0.95rem; font-weight: 300; }
+        
+        .header-right { display: flex; align-items: center; gap: 25px; }
+        .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
+        .btn-back { 
+            background: rgba(255,255,255,0.15); color: white; padding: 10px 20px; 
+            border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+
+        .header-print { display: none; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- BARRA DE FILTROS --- */
+        .filter-bar { 
+            background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            margin-bottom: 30px; display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; border: 1px solid #e2e8f0;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+        .filter-group label { font-weight: 700; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group select { 
+            padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; 
+            font-family: 'Roboto'; outline: none; font-size: 0.95rem; background: #fff;
+        }
+        .filter-group select:focus { border-color: #004e92; box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.1); }
+
+        /* Títulos das Seções */
+        .section-title { 
+            font-size: 1.2rem; font-weight: 800; color: #fff; margin: 30px 0 15px 0; 
+            display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;
+        }
+        .section-title i { color: #60a5fa; } /* Azul claro para ícones */
+
+        /* --- GRID DE METAS --- */
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        
+        .meta-card { 
+            background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            position: relative; border-top: 5px solid #ccc; transition: transform 0.2s;
+        }
+        .meta-card:hover { transform: translateY(-5px); }
+        
+        /* Cores de Status */
+        .status-success { border-top-color: #10b981; } /* 10 Pontos */
+        .status-warning { border-top-color: #f59e0b; } /* Pontuação Parcial */
+        .status-danger { border-top-color: #ef4444; }  /* 0 Pontos */
+
+        .meta-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; min-height: 25px; }
+        .meta-value { font-size: 2.2rem; font-weight: 900; color: #0f172a; margin-bottom: 5px; line-height: 1; }
+        .meta-target { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        
+        .meta-points { 
+            position: absolute; top: 20px; right: 20px; 
+            background: #0f172a; color: #fff; padding: 4px 10px; 
+            border-radius: 6px; font-size: 0.75rem; font-weight: 700; 
+        }
+
+        /* --- IMPRESSÃO --- */
+        @media print {
+            @page { margin: 10mm; size: A4 portrait; }
+            body { 
+                background: white !important; color: #000 !important; 
+                font-family: 'Arial', sans-serif !important; font-size: 9pt !important; 
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; 
+            }
+            
+            /* Oculta Elementos de Tela */
+            .header-bg, .btn-back, .filter-bar { display: none !important; }
+            
+            /* Exibe Cabeçalho Impressão */
+            .header-print { 
+                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
+                padding-bottom: 10px; margin-bottom: 20px; 
+            }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; }
+            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; }
+
+            /* Ajustes Seções e Cards */
+            .section-title { color: #000 !important; border-bottom: 1px solid #000 !important; }
+            .section-title i { display: none; }
+            
+            .meta-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; }
+            .meta-card { border: 1px solid #000 !important; padding: 10px !important; box-shadow: none !important; break-inside: avoid; }
+            .meta-card::before { display: none; } /* Remove barra colorida se houver */
+            .status-success, .status-warning, .status-danger { border-top: 1px solid #000 !important; } /* Borda simples */
+            
+            .meta-points { 
+                background: none !important; color: #000 !important; border: 1px solid #000 !important; 
+                top: 10px !important; right: 10px !important; 
+            }
+
+            #print-footer { 
+                position: fixed; bottom: 0; left: 0; right: 0; 
+                text-align: center; font-size: 7pt; color: #000; 
+                border-top: 1px solid #000; padding-top: 5px; 
+                display: block !important; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon"><i class="fas fa-tasks fa-2x"></i></div>
+                <div class="header-title">
+                    <h1>Monitoramento de Contrato SUS</h1>
+                    <p>Painel de Metas Quantitativas e Qualitativas - CNES: 2311682</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <img src="../logo.png" alt="Logo" class="header-mini-logo">
+                <a href="index_v2.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-print">
+        <img src="../logo.png" alt="Logo">
+        <div class="header-info">
+            <h1>Hospital Beneficente Santa Helena</h1>
+            <h2>Relatório de Monitoramento de Metas (Contrato SUS)</h2>
+            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
+        </div>
+        <div class="header-meta">
+            <div><b>Referência:</b> <span id="print-ref">--/--</span></div>
+            <div><b>Emissão:</b> <span id="print-data"></span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="far fa-calendar"></i> Ano:</label>
+                <select id="anoFilter" onchange="carregarDados()"></select>
+            </div>
+            
+            <div class="filter-group">
+                <label><i class="far fa-calendar-alt"></i> Mês:</label>
+                <select id="mesFilter" onchange="renderizarPainel()">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="justify-content: flex-end; align-items: flex-end;">
+                <a href="modulo_financeiro.html" class="bg-white border border-blue-500 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-50 transition flex items-center gap-2" style="text-decoration:none; font-size:0.9rem;">
+                    <i class="fas fa-coins"></i> Ver Financeiro
+                </a>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-chart-bar"></i> Metas Quantitativas (Produção & Eficiência)</div>
+        <div class="meta-grid" id="gridQuantitativo">
+            </div>
+
+        <div class="section-title"><i class="fas fa-check-circle"></i> Metas Qualitativas (Qualidade & Segurança)</div>
+        <div class="meta-grid" id="gridQualitativo">
+            </div>
+
+    </div>
+
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>. Documento para conferência interna.
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let dadosFaturamento = [];
+        let dadosMetasManuais = [];
+        const mesesNome = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+        $(document).ready(function() {
+            // Data para impressão
+            const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#print-data').text(hojePrint);
+            $('#footer-data').text(hojePrint);
+
+            setupFiltros();
+        });
+
+        function setupFiltros() {
+            const sel = document.getElementById('anoFilter');
+            const anoAtual = new Date().getFullYear();
+            for(let i = anoAtual; i >= 2023; i--) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                sel.appendChild(opt);
+            }
+            sel.value = "2025"; // Default para dados históricos
+            
+            const selMes = document.getElementById('mesFilter');
+            mesesNome.forEach((m, i) => {
+                let opt = document.createElement('option');
+                opt.value = (i+1).toString().padStart(2, '0');
+                opt.innerText = m;
+                selMes.appendChild(opt);
+            });
+            selMes.value = "01"; // Default Jan
+            
+            carregarDados();
+        }
+
+        async function carregarDados() {
+            const ano = $('#anoFilter').val();
+            
+            // 1. Busca Produção do SIH
+            const { data: fatData } = await client
+                .from('faturamento')
+                .select('*')
+                .gte('competencia_iso', `${ano}-01-01`)
+                .lte('competencia_iso', `${ano}-12-31`);
+                
+            dadosFaturamento = fatData || [];
+
+            // 2. Busca Metas Manuais
+            try {
+                const { data: metasData } = await client
+                    .from('metas_performance')
+                    .select('*')
+                    .gte('competencia_iso', `${ano}-01-01`)
+                    .lte('competencia_iso', `${ano}-12-31`);
+                dadosMetasManuais = metasData || [];
+            } catch (e) {
+                console.warn("Tabela metas_performance não encontrada ou vazia.");
+                dadosMetasManuais = [];
+            }
+
+            renderizarPainel();
+        }
+
+        function renderizarPainel() {
+            const mes = $('#mesFilter').val();
+            const ano = $('#anoFilter').val();
+            const comp = `${ano}-${mes}`;
+            
+            // Atualiza cabeçalho impressão
+            $('#print-ref').text(`${$('#mesFilter option:selected').text()}/${ano}`);
+
+            // Filtrar dados do mês
+            const dadosMesFat = dadosFaturamento.filter(d => d.competencia_iso && d.competencia_iso.includes(comp));
+            const dadosMesMeta = dadosMetasManuais.find(d => d.competencia_iso && d.competencia_iso.includes(comp)) || {};
+
+            // --- CÁLCULOS AUTOMÁTICOS (SIH) ---
+            
+            // 1. Taxa de Mortalidade
+            let totalObitos = dadosMesFat.reduce((acc, d) => acc + (d.obitos || 0), 0);
+            let totalAIH = dadosMesFat.reduce((acc, d) => acc + (d.aih_aprovadas || 0), 0);
+            let taxaMortalidade = totalAIH > 0 ? (totalObitos / totalAIH) * 100 : 0;
+            
+            // 2. Média de Permanência Geral
+            let totalDias = dadosMesFat.reduce((acc, d) => acc + (d.dias_permanencia || 0), 0);
+            let mediaPermanencia = totalAIH > 0 ? (totalDias / totalAIH) : 0;
+
+            // 3. Taxa de Cesárea
+            let totalCesareas = 0;
+            let totalPartos = 0;
+            dadosMesFat.forEach(d => {
+                let proc = (d.procedimento || "").toUpperCase();
+                if(proc.includes("PARTO") || proc.includes("CESARIANA")) {
+                    totalPartos += d.aih_aprovadas;
+                    if(proc.includes("CESARIANA")) {
+                        totalCesareas += d.aih_aprovadas;
+                    }
+                }
+            });
+            let taxaCesarea = totalPartos > 0 ? (totalCesareas / totalPartos) * 100 : 0;
+
+            // --- RENDERIZAÇÃO DOS CARDS ---
+            const gridQuant = document.getElementById('gridQuantitativo');
+            const gridQuali = document.getElementById('gridQualitativo');
+            gridQuant.innerHTML = '';
+            gridQuali.innerHTML = '';
+
+            // Quantitativo
+            let ptsCesarea = calcularPontos(taxaCesarea, 35.5, 'menor', [10, 7, 5, 2]);
+            addCard(gridQuant, "Taxa de Cesárea", taxaCesarea.toFixed(1) + "%", "Meta: ≤ 35%", ptsCesarea);
+
+            let ptsPerm = calcularPontos(mediaPermanencia, 8, 'menor', [10, 5, 0]);
+            addCard(gridQuant, "Média Permanência (Geral)", mediaPermanencia.toFixed(1) + " dias", "Ref Clínica: 8 dias", ptsPerm);
+
+            // Qualitativo
+            let ptsMort = calcularPontos(taxaMortalidade, 7, 'menor', [10, 7, 3]);
+            addCard(gridQuali, "Mortalidade Institucional", taxaMortalidade.toFixed(2) + "%", "Meta: ≤ 7%", ptsMort);
+
+            let valIPCS = dadosMesMeta.taxa_infeccao_uti_adulto !== undefined ? dadosMesMeta.taxa_infeccao_uti_adulto : 0;
+            let ptsIPCS = calcularPontos(valIPCS, 13, 'menor', [10, 5, 0]);
+            addCard(gridQuali, "Densidade Infecção UTI", valIPCS, "Meta: < 13/1000 dias", ptsIPCS);
+
+            let valSat = dadosMesMeta.taxa_satisfacao_usuario !== undefined ? dadosMesMeta.taxa_satisfacao_usuario : 0;
+            let ptsSat = calcularPontos(valSat, 60, 'maior', [5, 3, 0]);
+            addCard(gridQuali, "Satisfação Usuário", valSat + "%", "Meta: ≥ 60%", ptsSat);
+            
+            let valSeg = dadosMesMeta.seguranca_paciente_protocolos !== undefined ? dadosMesMeta.seguranca_paciente_protocolos : 0;
+            let ptsSeg = calcularPontos(valSeg, 80, 'maior', [10, 7, 5]);
+            addCard(gridQuali, "Protocolos de Segurança", valSeg + "%", "Meta: ≥ 80%", ptsSeg);
+        }
+
+        function addCard(container, titulo, valor, metaTexto, pontos) {
+            let classeCor = 'status-danger';
+            if(pontos === 10 || pontos === 5) classeCor = 'status-success'; 
+            else if(pontos > 0) classeCor = 'status-warning'; 
+
+            const html = `
+                <div class="meta-card ${classeCor}">
+                    <div class="meta-points">${pontos} Pts</div>
+                    <div class="meta-title">${titulo}</div>
+                    <div class="meta-value">${valor}</div>
+                    <div class="meta-target">${metaTexto}</div>
+                </div>
+            `;
+            container.innerHTML += html;
+        }
+
+        function calcularPontos(valor, meta, tipo, escalaPontos) {
+            if(tipo === 'menor') {
+                if(valor <= meta) return escalaPontos[0]; 
+                if(valor <= meta * 1.1) return escalaPontos[1] || 0; 
+                return 0;
+            } else {
+                if(valor >= meta) return escalaPontos[0];
+                if(valor >= meta * 0.9) return escalaPontos[1] || 0;
+                return 0;
+            }
+        }
+    </script>
+</body>
+</html>

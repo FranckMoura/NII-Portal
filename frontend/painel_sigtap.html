@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta SIGTAP - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f3f4f6; color: #1e293b; padding: 0; margin: 0; min-height: 100vh; }
+        
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        .btn-back { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
+
+        .table-card { background: rgba(255,255,255,1); padding: 25px; border-radius: 12px; min-height: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+        
+        .btn-compare { background: white; border: 1px solid #cbd5e1; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #475569; transition: 0.2s; }
+        .btn-compare:hover { border-color: #004e92; color: #004e92; }
+        .btn-compare.active { background: #004e92; color: white; border-color: #004e92; }
+
+        #compBar { position: fixed; bottom: -100px; left: 0; width: 100%; background: #1e293b; color: white; padding: 15px 30px; transition: bottom 0.4s; display: flex; justify-content: space-between; align-items: center; z-index: 999; box-sizing: border-box; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); }
+        #compBar.visible { bottom: 0; }
+        .btn-go { background: #ffc107; color: #333; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
+        .btn-go:hover { transform: scale(1.05); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 3% auto; padding: 30px; width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #94a3b8; font-weight: bold; transition: 0.2s; }
+        .close-modal:hover { color: #ef4444; }
+        
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; border: none !important; padding: 12px !important; font-size: 0.85rem; }
+        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: top; }
+        
+        table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table.compare-tbl th, table.compare-tbl td { border: 1px solid #e2e8f0; padding: 15px; vertical-align: top; }
+        table.compare-tbl th { background: #f8fafc; text-align: right; width: 180px; color: #004e92; font-weight: 800; }
+
+        /* --- O SEGREDO: MODO DE IMPRESSÃO --- */
+        .header-print { display: none; }
+        #print-footer { display: none; }
+        
+        @media print {
+            @page { margin: 10mm; size: A4 landscape; }
+            body * { visibility: hidden; } 
+            
+            /* Mostra apenas a Tabela Comparativa e o Cabeçalho de Impressão */
+            #modalComp, #modalComp * { visibility: visible; } 
+            .header-print, .header-print * { visibility: visible; }
+            #print-footer, #print-footer * { visibility: visible; }
+
+            /* Estética de Impressão (Mantendo cores) */
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #modalComp { position: absolute; left: 0; top: 120px; width: 100%; height: auto; background: white; z-index: 9999; }
+            .modal-content { box-shadow: none; border: none; margin: 0; padding: 0; width: 100%; max-height: none; overflow: visible; }
+            .close-modal, .no-print { display: none !important; } 
+
+            .header-print { 
+                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
+                padding-bottom: 10px; margin-bottom: 20px; position: absolute; top: 0; left: 0; width: 100%;
+            }
+            .header-print img { height: 50px; margin-right: 15px; }
+            .header-info { flex: 1; text-align: center; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000;}
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: #000;}
+            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: #000;}
+
+            table.compare-tbl { font-size: 8pt; margin-top: 0; }
+            table.compare-tbl th, table.compare-tbl td { padding: 8px; border: 1px solid #ccc; }
+            
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg no-print'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-book-medical text-3xl"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold'>Catálogo SIGTAP</h1>
+                    <p class='text-gray-300'>Tabela Unificada de Procedimentos e OPME</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
+                <a href="index_v2.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-print">
+        <img src="../logo.png" alt="Logo HSH">
+        <div class="header-info">
+            <h1>Hospital Beneficente Santa Helena</h1>
+            <h2>Relatório Comparativo SIGTAP</h2>
+            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
+        </div>
+        <div class="header-meta">
+            <div><b>Emissão:</b> <span id="print-data-emissao"></span></div>
+        </div>
+    </div>
+
+    <div class="container no-print">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex justify-between items-center">
+            <div class="relative w-full md:w-1/2">
+                <input type="text" id="customSearch" placeholder="Digite o código, nome do procedimento ou CID..." class="w-full p-3 pl-10 border border-gray-300 rounded-lg shadow-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+            </div>
+            <div class="text-sm font-bold text-gray-400 ml-4" id="contador-registros">Aguardando banco...</div>
+        </div>
+
+        <div class="table-card">
+            <div id="loading-msg" style="text-align:center; padding:50px; color:#64748b;">
+                <i class="fas fa-circle-notch fa-spin fa-3x text-blue-500 mb-4"></i><br>
+                <span id="status-text" class="font-bold text-lg">Sincronizando Catálogo...</span>
+            </div>
+            <table id="tabelaProc" class="display" style="width:100%; display:none">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Procedimento & Detalhes</th>
+                        <th>Valor SH</th>
+                        <th>Valor SP</th>
+                        <th>Total</th>
+                        <th class="text-center">OPME</th>
+                        <th class="text-center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="compBar" class="no-print">
+        <div>
+            <span id="compCount" class="font-bold text-xl text-yellow-400">0</span> itens selecionados. 
+            <button onclick="limparComp()" style="background:none; border:none; color:#94a3b8; cursor:pointer; text-decoration:underline; margin-left:15px; font-size: 0.9rem;">Limpar Seleção</button>
+        </div>
+        <button class="btn-go" onclick="abrirModal()"><i class="fas fa-columns mr-2"></i> COMPARAR LADO A LADO</button>
+    </div>
+
+    <div id="modalComp" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="fecharModal()">&times;</span>
+            <h2 class="text-2xl font-bold text-blue-800 mb-4 border-b pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos</h2>
+            
+            <button onclick="window.print()" class="no-print bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-bold transition mb-4">
+                <i class="fas fa-print mr-2"></i> Imprimir Relatório Oficial
+            </button>
+            
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="print-footer">
+        Relatório gerado pelo Portal NII em <span id="footer-data-rodape"></span>.
+    </div>
+
+    <script>
+        var SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+
+        var dadosGlobais = [];
+        var selecionados = [];
+        var dataTableInstance = null;
+
+        $(document).ready(async function() {
+            // Seta as datas no cabeçalho/rodapé de impressão
+            const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+            $('#print-data-emissao').text(hoje);
+            $('#footer-data-rodape').text(hoje);
+
+            var client = window.supabase.createClient(SB_URL, SB_KEY);
+            
+            try {
+                let allData = [];
+                let from = 0;
+                let step = 1000;
+                let keepFetching = true;
+
+                while (keepFetching) {
+                    $('#status-text').text(`Baixando catálogo... (${allData.length} registros lidos)`);
+                    const { data, error } = await client.from('sigtap_unificada').select('*').range(from, from + step - 1);
+                    if (error) throw error;
+                    if (data && data.length > 0) { allData = allData.concat(data); from += step; }
+                    if (!data || data.length < step) { keepFetching = false; }
+                }
+
+                dadosGlobais = allData;
+                $('#loading-msg').hide();
+                $('#tabelaProc').show();
+                $('#contador-registros').html(`<i class="fas fa-database text-blue-500 mr-1"></i> ${dadosGlobais.length} itens catalogados`);
+
+                dataTableInstance = $('#tabelaProc').DataTable({
+                    data: dadosGlobais,
+                    dom: 'lBrtip',
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+                    buttons: [{ extend: 'excelHtml5', className: 'bg-green-600 text-white px-3 py-1 rounded mx-1 text-sm font-bold border-none', text: '<i class="fas fa-file-excel"></i> Excel' }],
+                    columns: [
+                        { data: 'codigo', render: function(d) { return '<b class="text-blue-800">'+d+'</b>'; } },
+                        { 
+                            data: 'descricao', 
+                            render: function(d, type, row) { 
+                                let tags = '';
+                                if (row.detalhes) {
+                                    let items = row.detalhes.split(' | ');
+                                    tags = '<div class="mt-2 flex flex-wrap gap-1">' + items.map(x => `<span class="bg-blue-50 text-blue-700 text-[0.65rem] px-2 py-0.5 rounded-full border border-blue-100 font-semibold uppercase tracking-wider">${x}</span>`).join('') + '</div>';
+                                }
+                                return '<span class="font-bold text-gray-800 text-sm">' + d + '</span>' + tags; 
+                            } 
+                        },
+                        { data: 'valor_sh', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                        { 
+                            data: 'valor_sp', 
+                            render: function(d, type, row) { 
+                                let base = '<span class="text-[0.95rem]">R$ ' + d.toFixed(2).replace('.',',') + '</span>';
+                                if (row.detalhes && row.detalhes.includes('Anestesia: S') && d > 0) {
+                                    let anes = d * 0.30;
+                                    let cir = d * 0.70;
+                                    base += `<div class="mt-1.5 pt-1.5 border-t border-gray-100 text-[0.7rem] text-gray-500 leading-tight">
+                                                <div class="mb-0.5"><b class="text-blue-600">Cirurgião:</b> R$ ${cir.toFixed(2).replace('.',',')}</div>
+                                                <div><b class="text-purple-600">Anestesista:</b> R$ ${anes.toFixed(2).replace('.',',')}</div>
+                                             </div>`;
+                                }
+                                return base;
+                            } 
+                        },
+                        { data: 'valor_total', render: function(d) { return '<span style="color:#10b981; font-weight:900; font-size:1.05rem;">R$ '+d.toFixed(2).replace('.',',')+'</span>'; } },
+                        { 
+                            data: 'compatibilidades',
+                            className: 'text-center',
+                            render: function(d) {
+                                var qtd = (d && d.length) ? d.length : 0;
+                                return qtd > 0 ? '<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-wrench"></i> '+qtd+' itens</span>' : '<span class="text-gray-300">-</span>';
+                            }
+                        },
+                        {
+                            data: null,
+                            className: 'text-center',
+                            render: function(d, type, row) {
+                                return '<button class="btn-compare" id="btn_'+row.codigo+'" onclick="toggle(\''+row.codigo+'\')"><i class="fas fa-plus"></i> Comparar</button>';
+                            }
+                        }
+                    ],
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                });
+
+                $('#customSearch').on('keyup', function() { dataTableInstance.search(this.value).draw(); });
+
+            } catch (err) {
+                $('#status-text').html("<span style='color:red'>Erro de conexão: " + err.message + "</span>");
+            }
+        });
+
+        window.toggle = function(cod) {
+            var idx = selecionados.indexOf(cod);
+            var btn = $('#btn_' + cod);
+            if (idx === -1) {
+                if (selecionados.length >= 4) { alert("Limite máximo: 4 itens para comparação."); return; }
+                selecionados.push(cod);
+                btn.addClass('active').html('<i class="fas fa-check"></i> Selecionado');
+            } else {
+                selecionados.splice(idx, 1);
+                btn.removeClass('active').html('<i class="fas fa-plus"></i> Comparar');
+            }
+            $('#compCount').text(selecionados.length);
+            if(selecionados.length > 0) $('#compBar').addClass('visible');
+            else $('#compBar').removeClass('visible');
+        };
+
+        window.limparComp = function() {
+            selecionados.forEach(function(c) { $('#btn_' + c).removeClass('active').html('<i class="fas fa-plus"></i> Comparar'); });
+            selecionados = [];
+            $('#compCount').text(0);
+            $('#compBar').removeClass('visible');
+        };
+
+        window.abrirModal = function() {
+            if (selecionados.length < 2) { alert("Selecione pelo menos 2 procedimentos para comparar."); return; }
+            var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
+
+            var h = '<table class="compare-tbl"><tbody>';
+            
+            h += '<tr><th>Procedimento</th>';
+            itens.forEach(function(i) { h += '<td style="color:#0f172a; font-weight:800; font-size:1rem;">' + i.descricao + '<br><span style="color:#64748b; font-size:0.85rem; font-weight:400;">Cód: ' + i.codigo + '</span></td>'; });
+            h += '</tr>';
+
+            h += '<tr><th><i class="fas fa-info-circle text-gray-400"></i> Regras & Atributos</th>';
+            itens.forEach(function(i) { 
+                let det = i.detalhes ? i.detalhes.split(' | ').map(x => `<span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded m-0.5 inline-block border border-gray-200"><b>${x.split(':')[0]}</b>:${x.split(':')[1]}</span>`).join('') : '-';
+                h += '<td>' + det + '</td>'; 
+            });
+            h += '</tr>';
+
+            h += '<tr><th><i class="fas fa-hospital text-gray-400"></i> Valor Hospitalar (SH)</th>';
+            itens.forEach(function(i) { h += '<td class="font-medium text-gray-600">R$ ' + i.valor_sh.toFixed(2).replace('.',',') + '</td>'; });
+            h += '</tr>';
+            
+            h += '<tr><th><i class="fas fa-user-md text-gray-400"></i> Valor Profissional (SP)</th>';
+            itens.forEach(function(i) { 
+                let text = '<td class="font-medium text-gray-600">R$ ' + i.valor_sp.toFixed(2).replace('.',','); 
+                if (i.detalhes && i.detalhes.includes('Anestesia: S') && i.valor_sp > 0) {
+                    let anes = i.valor_sp * 0.30;
+                    let cir = i.valor_sp * 0.70;
+                    text += `<div class="mt-2 text-[0.8rem] space-y-1">
+                                <div class="bg-blue-50 border border-blue-100 px-2 py-1 rounded"><b class="text-blue-700">Cirurgião (70%):</b> R$ ${cir.toFixed(2).replace('.',',')}</div>
+                                <div class="bg-purple-50 border border-purple-100 px-2 py-1 rounded"><b class="text-purple-700">Anestesista (30%):</b> R$ ${anes.toFixed(2).replace('.',',')}</div>
+                             </div>`;
+                }
+                text += '</td>';
+                h += text;
+            });
+            h += '</tr>';
+            
+            h += '<tr><th><i class="fas fa-coins text-green-500"></i> TOTAL</th>';
+            itens.forEach(function(i) { h += '<td style="background:#ecfdf5; color:#047857; font-weight:900; font-size:1.2rem; border-bottom: 2px solid #10b981;">R$ ' + i.valor_total.toFixed(2).replace('.',',') + '</td>'; });
+            h += '</tr>';
+
+            h += '<tr><th><i class="fas fa-tools text-orange-400"></i> Compatibilidade (OPME)</th>';
+            itens.forEach(function(i) {
+                if (i.compatibilidades && i.compatibilidades.length > 0) {
+                    h += '<td><ul class="list-none p-0 m-0 space-y-2">';
+                    i.compatibilidades.forEach(function(op) { 
+                        let valFormatado = op.valor && op.valor > 0 ? '<span class="float-right text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded text-[0.7rem] ml-1 border border-green-200">R$ ' + op.valor.toFixed(2).replace('.',',') + '</span>' : '';
+                        let qtdFormatado = op.qtd_max ? '<span class="float-right text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded text-[0.7rem] ml-1 border border-blue-200">Qtd Máx: ' + op.qtd_max + '</span>' : '';
+                        h += '<li class="text-xs text-gray-700 border-b border-dashed border-gray-200 pb-2"><b style="color:#d97706">' + op.cod_opme + '</b><br>' + op.nome + '<div class="mt-1 overflow-hidden">' + qtdFormatado + valFormatado + '</div></li>'; 
+                    });
+                    h += '</ul></td>';
+                } else {
+                    h += '<td><div class="text-center text-gray-400 py-4"><i class="fas fa-ban text-2xl mb-2 block"></i>Sem OPME compatível</div></td>';
+                }
+            });
+            h += '</tr>';
+
+            h += '</tbody></table>';
+
+            document.getElementById('modalBody').innerHTML = h;
+            document.getElementById('modalComp').style.display = 'block';
+        };
+
+        window.fecharModal = function() { document.getElementById('modalComp').style.display = 'none'; };
+        window.onclick = function(event) { if (event.target == document.getElementById('modalComp')) fecharModal(); };
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simuladas (Índice) - Portal NII</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; }
+        .header h2 { margin: 0; color: #007bff; display: flex; align-items: center; gap: 10px; }
+        
+        .btn-back { color: #666; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-back:hover { color: #007bff; }
+
+        .file-list { list-style: none; padding: 0; margin: 0; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee; transition: 0.2s; border-radius: 8px; }
+        .file-item:hover { background-color: #f8f9fa; transform: translateX(5px); }
+        
+        .file-info { display: flex; align-items: center; gap: 20px; }
+        .icon-box { width: 50px; height: 50px; background: #e0f2fe; color: #007bff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        
+        .file-name { font-weight: 700; font-size: 16px; color: #333; margin-bottom: 4px; }
+        .file-meta { font-size: 13px; color: #888; display: flex; gap: 10px; align-items: center; }
+        
+        .btn-open { background: #28a745; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-open:hover { background: #218838; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-layer-group"></i> Simuladas com Índice</h2>
+            <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar ao Menu</a>
+        </div>
+
+        <p style="color:#666; margin-bottom:30px;">
+            Abaixo estão os espelhos de conta processados. Clique em <strong>"Acessar Índice"</strong> para visualizar e selecionar as páginas.
+        </p>
+
+        <ul id="listaArquivos" class="file-list">
+            <li style="text-align:center; padding:40px; color:#999;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Carregando arquivos...
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        
+        // Configuração de Login (Mesma dos outros)
+        const client = window.supabase.createClient(SB_URL, SB_KEY, {
+            auth: { persistSession: true, storageKey: 'nii-auth-token', storage: window.localStorage }
+        });
+        
+        const BUCKET = 'arquivos-faturamento';
+        const PASTA = 'INDICES'; // Agora olha dentro da pasta correta
+
+        async function carregarArquivos() {
+            const lista = document.getElementById('listaArquivos');
+            
+            // Lista arquivos da pasta INDICES
+            const { data, error } = await client.storage.from(BUCKET).list(PASTA, {
+                limit: 20,
+                offset: 0,
+                sortBy: { column: 'created_at', order: 'desc' },
+            });
+
+            if (error) {
+                console.error(error);
+                lista.innerHTML = '<li style="color:red; text-align:center;">Erro ao carregar lista.</li>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                lista.innerHTML = '<li style="text-align:center; padding:40px; color:#aaa;">Nenhum arquivo processado encontrado.</li>';
+                return;
+            }
+
+            lista.innerHTML = ''; 
+
+            data.forEach(arquivo => {
+                if(arquivo.name.startsWith('.')) return; // Ignora arquivos de sistema
+
+                // Gera URL completa
+                const caminhoCompleto = `${PASTA}/${arquivo.name}`;
+                const { data: { publicUrl } } = client.storage.from(BUCKET).getPublicUrl(caminhoCompleto);
+                
+                // Formata Data
+                const dataObj = new Date(arquivo.created_at);
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' às ' + dataObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                
+                // Limpa o nome para ficar bonito (remove "Indice_" e data repetida se quiser, ou deixa original)
+                let nomeExibicao = arquivo.name.replace('Indice_', '').replace('.html', '');
+
+                const item = `
+                    <li class="file-item">
+                        <div class="file-info">
+                            <div class="icon-box"><i class="fas fa-file-contract"></i></div>
+                            <div>
+                                <div class="file-name">${nomeExibicao}</div>
+                                <div class="file-meta">
+                                    <i class="far fa-clock"></i> Processado em: ${dataFormatada}
+                                </div>
+                            </div>
+                        </div>
+                        <a href="${publicUrl}" target="_blank" class="btn-open">
+                            Acessar Índice <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                `;
+                lista.innerHTML += item;
+            });
+        }
+
+        async function init() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) window.location.href = "login.html";
+            else carregarArquivos();
+        }
+        
+        init();
+    </script>
+</body>
+</html>

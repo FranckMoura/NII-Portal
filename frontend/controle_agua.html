@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Água - NII</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #004e92; --dark: #1e293b; --light: #f1f5f9; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--light); color: var(--dark); padding-bottom: 40px; }
+        
+        /* HEADER DEEP BLUE */
+        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%); color: white; padding: 30px 0; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title { font-weight: 700; font-size: 1.8rem; margin: 0; }
+        .header-subtitle { opacity: 0.8; font-weight: 300; font-size: 0.9rem; }
+        .btn-voltar { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; transition: 0.2s; }
+        .btn-voltar:hover { background: rgba(255,255,255,0.3); color: white; }
+        .header-logo-mini { height: 50px; filter: brightness(0) invert(1); opacity: 0.9; }
+
+        /* CARDS PADRÃO */
+        .card-custom { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: none; margin-bottom: 20px; position: relative; }
+        .card-title-custom { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        
+        /* CARD DA VEZ (Destaque) */
+        .card-destaque { border-top: 4px solid #0ea5e9; }
+        .avatar-box { width: 80px; height: 80px; background-color: #f0f9ff; color: #0ea5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .nome-pessoa { font-size: 1.3rem; font-weight: 700; color: #0f172a; text-align: center; }
+        .plus-icon { color: #cbd5e1; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
+
+        /* INFO FINANCEIRA */
+        .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; height: 100%; }
+        .info-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 5px; }
+        .info-value { font-size: 1.4rem; font-weight: 800; color: #004e92; }
+
+        /* TABELA */
+        table thead th { background-color: #f8fafc !important; color: #475569 !important; font-weight: 700 !important; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid #e2e8f0 !important; }
+        table tbody td { font-size: 0.85rem; vertical-align: middle; border-color: #f1f5f9; padding: 12px 10px !important; }
+        .badge-status { font-size: 0.7rem; padding: 5px 10px; border-radius: 6px; text-transform: uppercase; font-weight: 700; background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        
+        .loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bg">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px;">
+                    <i class="fa-solid fa-hand-holding-water fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="header-title">Controle de Água</h1>
+                    <div class="header-subtitle">Setor de Faturamento - Hospital Santa Helena</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <img src="../logo.png" alt="Logo" class="header-logo-mini">
+                <a href="painel_operacional.html" class="btn-voltar"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            
+            <div class="col-lg-7">
+                
+                <div class="card-custom card-destaque">
+                    <div id="loading" class="loading-overlay">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <h2 class="card-title-custom text-center"><i class="fas fa-bullseye me-2"></i>De quem é a vez?</h2>
+                    
+                    <div class="row align-items-center my-4">
+                        <div class="col-5">
+                            <div class="avatar-box"><i class="fas fa-user fa-2x"></i></div>
+                            <div class="nome-pessoa" id="person1">...</div>
+                        </div>
+                        <div class="col-2 text-center plus-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="col-5">
+                            <div class="avatar-box"><i class="fas fa-user fa-2x"></i></div>
+                            <div class="nome-pessoa" id="person2">...</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button onclick="registrarPagamento()" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                            <i class="fas fa-check-circle me-2"></i> Registrar Pagamento Realizado
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-custom" style="background-color: #f8fafc; border: 1px solid #e0e7ff;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-arrow-right text-primary fs-4"></i>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase">Próxima dupla da fila:</div>
+                                <div class="fw-bold text-primary fs-5" id="nextPair">Calculando...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="info-box">
+                            <div class="info-label">Cota Individual</div>
+                            <div class="info-value">R$ 19,50</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-box">
+                            <div class="info-label">Valor Total (3 Galões)</div>
+                            <div class="info-value text-dark">R$ 39,00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-custom p-0 overflow-hidden">
+                    <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                        <h3 class="m-0 fs-6 fw-bold text-secondary text-uppercase"><i class="fas fa-history me-2"></i>Histórico</h3>
+                        <span id="total-pagamentos" class="badge bg-secondary">0 reg</span>
+                    </div>
+                    
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Dupla Responsável</th>
+                                    <th class="text-end">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+        // CONFIGURAÇÃO DO SUPABASE
+        const SB_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
+        const sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+
+        // CONFIGURAÇÃO DAS DUPLAS
+        const participantes = ["Cristina", "Bianca", "Franck", "Thiago", "Lucelia", "Geovana"];
+        const duplas = [
+            [participantes[0], participantes[1]], // Dupla 0
+            [participantes[2], participantes[3]], // Dupla 1
+            [participantes[4], participantes[5]]  // Dupla 2
+        ];
+
+        let indiceAtual = 0;
+
+        async function carregarDados() {
+            try {
+                const { data, error } = await sbClient
+                    .from('controle_agua')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) throw error;
+
+                // Lógica da Vez
+                const totalPagamentos = data.length;
+                indiceAtual = totalPagamentos % duplas.length;
+
+                atualizarInterface(data);
+                
+            } catch (err) {
+                console.error("Erro:", err);
+                alert("Erro ao conectar com o banco de dados.");
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function atualizarInterface(historico) {
+            // Atualiza Dupla Atual
+            const duplaDaVez = duplas[indiceAtual];
+            document.getElementById('person1').innerText = duplaDaVez[0];
+            document.getElementById('person2').innerText = duplaDaVez[1];
+
+            // Atualiza Próxima Dupla
+            const proximoIndice = (indiceAtual + 1) % duplas.length;
+            const proximaDupla = duplas[proximoIndice];
+            document.getElementById('nextPair').innerText = `${proximaDupla[0]} & ${proximaDupla[1]}`;
+
+            // Atualiza Tabela Histórico
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('total-pagamentos').innerText = historico.length + ' registros';
+
+            historico.forEach(reg => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-muted fw-bold">${reg.data_pagamento}</td>
+                    <td class="fw-medium">${reg.pessoa_1} & ${reg.pessoa_2}</td>
+                    <td class="text-end">
+                        <span class="badge-status">
+                            <i class="fas fa-check me-1"></i> Pago
+                        </span>
+                        <button onclick="apagarPagamento(${reg.id})" class="btn btn-sm text-danger ms-2" title="Apagar registro">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function registrarPagamento() {
+            const dupla = duplas[indiceAtual];
+            if(!confirm(`Confirmar que ${dupla[0]} e ${dupla[1]} pagaram a água desta rodada?`)) return;
+
+            // --- TRAVA DE SEGURANÇA COM SENHA ---
+            const senha = prompt("🔒 Digite a senha de autorização:");
+            if (senha !== "515462") {
+                alert("❌ Senha incorreta! Ação cancelada.");
+                return;
+            }
+            // ------------------------------------
+
+            document.getElementById('loading').style.display = 'flex';
+            
+            const hoje = new Date().toLocaleDateString('pt-BR');
+
+            try {
+                const { error } = await sbClient.from('controle_agua').insert({
+                    data_pagamento: hoje,
+                    pessoa_1: dupla[0],
+                    pessoa_2: dupla[1],
+                    valor: 39.00
+                });
+
+                if (error) throw error;
+                await carregarDados(); 
+
+            } catch (err) {
+                alert("Erro ao registrar: " + err.message);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function apagarPagamento(id) {
+            if(!confirm("Tem certeza que deseja apagar este registro? Isso fará a fila voltar uma posição.")) return;
+            
+            // --- TRAVA DE SEGURANÇA COM SENHA ---
+            const senha = prompt("🔒 Digite a senha de autorização para apagar:");
+            if (senha !== "515462") {
+                alert("❌ Senha incorreta! Ação cancelada.");
+                return;
+            }
+            // ------------------------------------
+
+            document.getElementById('loading').style.display = 'flex';
+
+            try {
+                const { error } = await sbClient.from('controle_agua').delete().eq('id', id);
+                if (error) throw error;
+                await carregarDados(); 
+            } catch (err) {
+                alert("Erro ao apagar: " + err.message);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Iniciar
+        carregarDados();
+    </script>
+</body>
+</html>

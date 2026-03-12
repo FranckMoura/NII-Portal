@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Mortalidade Hospitalar</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #343a40; --red: #dc3545; --bg: #f4f6f9; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); padding: 20px; margin: 0; }
+        
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--red); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .header h1 { margin: 0; color: var(--primary); font-size: 24px; }
+        .btn-back { text-decoration: none; color: #666; font-weight: bold; font-size: 14px; }
+        
+        /* Status do Sistema (Novo) */
+        .status-badge { padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .status-loading { background: #fff3cd; color: #856404; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+
+        .filter-box { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; border: 1px solid #ddd; }
+        .filter-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+        .filter-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 150px; }
+        .btn-filter { background: var(--primary); color: white; border: none; padding: 9px 20px; border-radius: 4px; cursor: pointer; }
+        
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 4px solid #ccc; }
+        .card.red { border-bottom-color: var(--red); }
+        .card .val { font-size: 32px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .card .lbl { font-size: 11px; text-transform: uppercase; color: #888; }
+        
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .chart-box { background: white; padding: 20px; border-radius: 8px; height: 350px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .table-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .dt-buttons .dt-button { background: var(--primary) !important; color: white !important; border: none !important; border-radius: 4px !important; font-size: 12px !important; }
+
+        @media print {
+            .filter-box, .btn-back, .dt-buttons, .dataTables_filter, .dataTables_length, .dataTables_paginate, button { display: none !important; }
+            body { padding: 0; background: white; }
+            .header { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; }
+            .charts-row { display: block; }
+            .chart-box { height: 300px; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 20px; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-procedures"></i> Painel de Mortalidade</h1>
+            <p style="margin:5px 0 0; color:#666; font-size:14px;">
+                Dados em Tempo Real 
+                <span id="sys-status" class="status-badge status-loading">⏳ Conectando...</span>
+            </p>
+        </div>
+        <div>
+            <button onclick="window.print()" style="background:var(--red); color:white; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; margin-right:10px;">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
+
+    <div class="filter-box">
+        <div class="filter-group">
+            <label>Mês/Ano</label>
+            <select id="filtroMes"><option value="">Todos</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Unidade</label>
+            <select id="filtroSetor"><option value="">Todas</option></select>
+        </div>
+        <button class="btn-filter" onclick="aplicarFiltros()">Filtrar</button>
+        <button class="btn-filter" style="background:#6c757d; margin-left:5px;" onclick="resetarFiltros()">Limpar</button>
+    </div>
+
+    <div class="kpi-row">
+        <div class="card red">
+            <div class="lbl">Total de Óbitos</div>
+            <div class="val" id="kpiTotal">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Média de Idade</div>
+            <div class="val" id="kpiIdade">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Setor Crítico</div>
+            <div class="val" id="kpiSetor" style="font-size:18px; margin-top:15px; line-height:1.2;">-</div>
+        </div>
+        <div class="card">
+            <div class="lbl">Principal Causa (CID)</div>
+            <div class="val" id="kpiCid" style="font-size:18px; margin-top:15px; line-height:1.2;">-</div>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <div class="chart-box">
+            <h4 style="margin:0 0 10px 0; color:#555;">Evolução Temporal</h4>
+            <canvas id="chartEvolucao"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4 style="margin:0 0 10px 0; color:#555;">Distribuição por Setor</h4>
+            <canvas id="chartSetor"></canvas>
+        </div>
+    </div>
+
+    <div class="table-box">
+        <table id="tabelaObitos" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Paciente</th>
+                    <th>Idade</th>
+                    <th>Unidade</th>
+                    <th>CID (Causa)</th>
+                    <th>Médico</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // --- CREDENCIAIS ---
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n';
+        
+        let dadosGlobais = [];
+        let table;
+        let chart1, chart2;
+
+        // Função segura para atualizar status
+        function setStatus(msg, type) {
+            const el = document.getElementById('sys-status');
+            el.innerText = msg;
+            el.className = 'status-badge ' + type;
+        }
+
+        $(document).ready(async function() {
+            try {
+                // 1. Inicializa Supabase DENTRO do ready para evitar erros de tempo
+                if (!window.supabase) throw new Error("Biblioteca Supabase não carregou.");
+                const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+                
+                setStatus("📡 Baixando dados...", "status-loading");
+
+                // 2. Busca dados
+                const { data, error } = await supabase
+                    .from('mortalidade')
+                    .select('*')
+                    .order('data_iso', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    setStatus("⚠️ Tabela vazia", "status-error");
+                    $('.table-box').prepend('<p style="color:orange; text-align:center">Nenhum dado encontrado.</p>');
+                    return;
+                }
+
+                setStatus("✅ Online", "status-success");
+
+                // 3. Processamento
+                dadosGlobais = data.map(d => ({
+                    ...d,
+                    mes_ref: d.mes_ref || "N/A",
+                    unidade: d.unidade || "Não Identificado",
+                    idade: d.idade || 0
+                }));
+
+                preencherFiltros();
+                atualizarDashboard(dadosGlobais);
+                
+                // 4. Inicializa Tabela
+                table = $('#tabelaObitos').DataTable({
+                    data: dadosGlobais,
+                    dom: 'Bfrtip',
+                    buttons: [ 'excelHtml5', 'print' ],
+                    columns: [
+                        { data: 'data_fmt', width: '80px' },
+                        { data: 'paciente' },
+                        { data: 'idade', width: '50px' },
+                        { data: 'unidade' },
+                        { 
+                            data: 'cid',
+                            render: function(d, type, row) { 
+                                return `<span title="${row.cid_desc || ''}" style="font-weight:bold; color:#dc3545; cursor:help;">${d || '-'}</span>`; 
+                            }
+                        },
+                        { data: 'medico' }
+                    ],
+                    order: [[0, 'desc']],
+                    pageLength: 10,
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                });
+
+            } catch (e) {
+                console.error(e);
+                setStatus("❌ Erro: " + e.message, "status-error");
+                alert("Erro ao carregar painel: " + e.message);
+            }
+        });
+
+        // --- FUNÇÕES DASHBOARD ---
+        function preencherFiltros() {
+            let meses = [...new Set(dadosGlobais.map(d => d.mes_ref))].sort();
+            let setores = [...new Set(dadosGlobais.map(d => d.unidade))].sort();
+            meses.forEach(m => $('#filtroMes').append(`<option value="${m}">${m}</option>`));
+            setores.forEach(s => $('#filtroSetor').append(`<option value="${s}">${s}</option>`));
+        }
+
+        function aplicarFiltros() {
+            let mes = $('#filtroMes').val();
+            let setor = $('#filtroSetor').val();
+            let filtrados = dadosGlobais.filter(d => (!mes || d.mes_ref === mes) && (!setor || d.unidade === setor));
+            atualizarDashboard(filtrados);
+            if(table) table.clear().rows.add(filtrados).draw();
+        }
+
+        function resetarFiltros() { $('#filtroMes').val(''); $('#filtroSetor').val(''); aplicarFiltros(); }
+
+        function atualizarDashboard(dados) {
+            if(!dados || dados.length === 0) { $('#kpiTotal').text('0'); return; }
+            $('#kpiTotal').text(dados.length);
+            let somaIdade = dados.reduce((acc, curr) => acc + curr.idade, 0);
+            $('#kpiIdade').text(Math.round(somaIdade / dados.length) + " anos");
+
+            let countSetor = {}, countMes = {}, countCid = {};
+            dados.forEach(d => {
+                countSetor[d.unidade] = (countSetor[d.unidade] || 0) + 1;
+                countMes[d.mes_ref] = (countMes[d.mes_ref] || 0) + 1;
+                countCid[d.cid || "N/I"] = (countCid[d.cid || "N/I"] || 0) + 1;
+            });
+
+            let topSetor = Object.entries(countSetor).sort((a,b) => b[1] - a[1])[0];
+            $('#kpiSetor').text(topSetor ? `${topSetor[0]} (${topSetor[1]})` : '-');
+            let topCid = Object.entries(countCid).sort((a,b) => b[1] - a[1])[0];
+            $('#kpiCid').text(topCid ? `${topCid[0]} (${topCid[1]})` : '-');
+
+            renderChartEvolucao(countMes);
+            renderChartSetor(countSetor);
+        }
+
+        function renderChartEvolucao(dadosMes) {
+            let labels = Object.keys(dadosMes).sort();
+            let values = labels.map(l => dadosMes[l]);
+            if(chart1) chart1.destroy();
+            chart1 = new Chart(document.getElementById('chartEvolucao'), {
+                type: 'line', data: { labels: labels, datasets: [{ label: 'Óbitos', data: values, borderColor: '#dc3545', backgroundColor: 'rgba(220, 53, 69, 0.1)', fill: true }] }, options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function renderChartSetor(dadosSetor) {
+            if(chart2) chart2.destroy();
+            chart2 = new Chart(document.getElementById('chartSetor'), {
+                type: 'doughnut', data: { labels: Object.keys(dadosSetor), datasets: [{ data: Object.values(dadosSetor), backgroundColor: ['#dc3545', '#343a40', '#ffc107', '#17a2b8', '#28a745', '#6c757d'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+        }
+    </script>
+</body>
+</html>

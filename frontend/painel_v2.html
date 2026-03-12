@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII - Portal Hospitalar</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <style>
+        :root { --primary: #007bff; --dark: #1e293b; --light: #f8f9fa; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header { 
+            background: linear-gradient(135deg, #0061f2 0%, #00ba88 100%); 
+            color: white; padding: 40px 20px; text-align: center; box-shadow: var(--shadow); position: relative; 
+        }
+        
+        .logo-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .logo-container img { height: 60px; display: block; }
+
+        header h1 { font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; font-size: 1.8rem; }
+        header p { font-weight: 300; opacity: 0.9; font-size: 1rem; }
+        
+        .logout-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 0.9rem; transition: 0.3s; }
+        .logout-btn:hover { background: rgba(255,255,255,0.4); }
+        
+        main { flex: 1; max-width: 1000px; margin: 40px auto; padding: 0 20px; width: 100%; }
+        .welcome-msg { text-align: center; margin-bottom: 30px; color: #64748b; }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .menu-card { background: white; border-radius: 12px; padding: 30px; text-decoration: none; color: var(--dark); box-shadow: var(--shadow); transition: all 0.3s ease; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: var(--primary); }
+        
+        .icon-box { width: 60px; height: 60px; background: #e0f2fe; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; }
+        .menu-card h3 { font-size: 1.2rem; margin-bottom: 10px; font-weight: 700; }
+        .menu-card p { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+        
+        .link-disabled { pointer-events: none; opacity: 0.5; filter: grayscale(100%); }
+        footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 0.85rem; border-top: 1px solid #e2e8f0; background: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        
+        <div class="logo-container">
+            <img src="logo.png" alt="Hospital Santa Helena">
+        </div>
+
+        <h1>Hospital Beneficente Santa Helena</h1>
+        <p>NII - Núcleo Interno de Informação</p>
+    </header>
+
+    <main>
+        <div class="welcome-msg" id="saudacao">Carregando...</div>
+
+        <div class="menu-grid">
+            
+            <a href="painel_regulacao.html" class="menu-card">
+                <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                <h3>Painel de Regulação</h3>
+                <p>Monitoramento de solicitações SISREG e status.</p>
+            </a>
+
+            <a href="faturamento.html" class="menu-card">
+                <div class="icon-box" style="background:#d1fae5; color:#059669;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Faturamento SUS</h3>
+                <p>Dashboard financeiro e produção hospitalar.</p>
+            </a>
+
+            <a href="painel_metas.html" class="menu-card">
+                <div class="icon-box" style="background:#f3e8ff; color:#7e22ce;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3>Metas & Contrato</h3>
+                <p>Indicadores de Qualidade e Metas Quantitativas.</p>
+            </a>
+
+            <a href="painel_indicasus.html" class="menu-card">
+                <div class="icon-box" style="background:#e0f2f1; color:#009688;">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <h3>IndicaSUS (Leitos)</h3>
+                <p>Monitoramento de ocupação e solicitações estaduais.</p>
+            </a>
+
+            <div id="card-html" class="menu-card link-disabled">
+                <div class="icon-box" style="background:#fff3cd; color:#d97706;">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <h3>Índice Inteligente (Hoje)</h3>
+                <p id="txt-html">Procurando...</p>
+            </div>
+
+            <div id="card-pdf" class="menu-card link-disabled">
+                <div class="icon-box" style="background:#fee2e2; color:#dc2626;">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3>PDF Original (Hoje)</h3>
+                <p id="txt-pdf">Procurando...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</p>
+    </footer>
+
+    <script>
+        // CONFIGURAÇÃO SUPABASE
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        
+        const client = window.supabase.createClient(SB_URL, SB_KEY, {
+            auth: { persistSession: true, storageKey: 'nii-auth-token', storage: window.localStorage }
+        });
+
+        async function verificarLogin() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) window.location.href = "login.html"; 
+        }
+        verificarLogin();
+
+        async function fazerLogout() {
+            await client.auth.signOut();
+            window.location.href = "login.html";
+        }
+
+        const hour = new Date().getHours();
+        const msgElement = document.getElementById('saudacao');
+        let greeting = 'Bem-vindo ao Portal de Dados.';
+        if (hour < 12) greeting = 'Bom dia! Selecione um módulo abaixo:';
+        else if (hour < 18) greeting = 'Boa tarde! Selecione um módulo abaixo:';
+        else greeting = 'Boa noite! Selecione um módulo abaixo:';
+        msgElement.innerText = greeting;
+
+        function configurarDownload(idCard, idTexto, urlArquivo, nomeArquivo, tipo) {
+            const btn = $(idCard);
+            const txt = $(idTexto);
+            btn.removeClass('link-disabled');
+            txt.html(`<span style="color:#059669; font-weight:bold;"><i class="fas fa-check-circle"></i> Baixar ${tipo}</span><br><small style="color:#666">Disponível</small>`);
+            btn.off('click').on('click', function() {
+                const htmlOriginal = txt.html();
+                txt.html('<i class="fas fa-spinner fa-spin"></i> Baixando...');
+                fetch(urlArquivo).then(response => response.blob()).then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none'; a.href = url; a.download = nomeArquivo;
+                    document.body.appendChild(a); a.click();
+                    window.URL.revokeObjectURL(url);
+                    txt.html(htmlOriginal);
+                }).catch(err => {
+                    console.error(err); alert("Erro ao baixar. Tentando aba...");
+                    window.open(urlArquivo, '_blank'); txt.html(htmlOriginal);
+                });
+            });
+        }
+
+        async function carregarSimulada() {
+            try {
+                const { data } = await client.from('controle_simuladas').select('*').order('id', { ascending: false }).limit(1);
+                if (data && data.length > 0) {
+                    const reg = data[0];
+                    configurarDownload('#card-html', '#txt-html', reg.link_indice, `Indice_Contas_${reg.data_arquivo}.html`, 'Índice');
+                    configurarDownload('#card-pdf', '#txt-pdf', reg.link_pdf, `Contas_Original_${reg.data_arquivo}.pdf`, 'PDF');
+                } else {
+                    $('#txt-html').text("Sem arquivo hoje.");
+                    $('#txt-pdf').text("Sem arquivo hoje.");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        $(document).ready(function() { carregarSimulada(); });
+    </script>
+</body>
+</html>
