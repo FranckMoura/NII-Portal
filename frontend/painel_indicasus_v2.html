@@ -96,7 +96,7 @@
         .bg-ucinca { background-color: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; }
         .bg-enf { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-        /* ESTILOS DO MODAL (POPUP) - ATUALIZADO V7 */
+        /* ESTILOS DO MODAL (POPUP) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content { background: #fff; width: 90%; max-width: 750px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.3s ease-out; }
         .modal-overlay.active { display: flex; }
@@ -423,7 +423,7 @@
                 while (keepFetching) {
                     let query = client.from('indicasus_leitos')
                         .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae')
-                        .gte('data_extracao', d1) // A Mágica: Filtramos pelas diárias extraídas neste mês, não pela internação
+                        .gte('data_extracao', d1) 
                         .lte('data_extracao', d2) 
                         .range(from, from + step - 1); 
 
@@ -462,7 +462,6 @@
                     }
                     
                     const p = map.get(key);
-                    // Garante que não conta o mesmo dia duas vezes
                     if(p.dias_contados.has(row.data_extracao)) return;
                     p.dias_contados.add(row.data_extracao);
 
@@ -473,34 +472,16 @@
                     else if (leito === "UCINCA") p.dias_ucinca++;
                     else p.dias_enf++;
                     
-                    // Guarda a última foto (a diária mais recente deste mês)
                     if (new Date(row.data_extracao) > new Date(p.data_extracao)) p.data_extracao = row.data_extracao;
                 });
 
-                // A Matemática do SUS: Apenas descontamos o dia da alta se a alta OCORREU NESTE MÊS
+                // Apenas agrupa e conta TODAS as diárias, sem descontos.
                 dadosGlobais = Array.from(map.values()).map(p => {
-                    // Verifica se a "última foto" do paciente é diferente do último dia do mês (indicando que teve alta)
-                    let teveAltaNesteMes = false;
-                    if (p.data_extracao && p.data_extracao !== d2) {
-                         teveAltaNesteMes = true;
-                    }
-
-                    // Apenas desconta 1 diária (regra do SUS de não pagar o dia da alta) se o paciente efetivamente teve alta.
-                    // Se ele continuou internado para o mês seguinte (data_extracao == d2), o SUS paga todos os dias!
-                    if (teveAltaNesteMes) {
-                        if (p.dias_uti_ad > 0) p.dias_uti_ad--;
-                        else if (p.dias_utin > 0) p.dias_utin--;
-                        else if (p.dias_ucinco > 0) p.dias_ucinco--;
-                        else if (p.dias_ucinca > 0) p.dias_ucinca--;
-                        else if (p.dias_enf > 0) p.dias_enf--;
-                    }
-
                     kpiUtiAdulto += p.dias_uti_ad;
                     kpiUtin += p.dias_utin;
                     kpiUcinco += p.dias_ucinco;
                     kpiUcinca += p.dias_ucinca;
                     kpiEnfermaria += p.dias_enf;
-                    
                     return p;
                 });
 
@@ -581,7 +562,6 @@
                                 let safeInt = String(row.data_internacao || '').replace(/'/g, "\\'");
                                 let safeMun = String(row.municipio_residencia || '').replace(/'/g, "\\'");
                                 
-                                // Campos novos
                                 let safeCns = String(row.cns || '').replace(/'/g, "\\'");
                                 let safeCpf = String(row.cpf || '').replace(/'/g, "\\'");
                                 let safeNasc = String(row.data_nascimento || '').replace(/'/g, "\\'");
