@@ -35,7 +35,7 @@
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.2); color: white; margin-left: 10px; border: 1px solid rgba(255,255,255,0.3); }
 
         /* FILTROS HEADER */
-        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; }
+        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .filter-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-right: 5px; }
 
@@ -98,7 +98,7 @@
 
         /* ESTILOS DO MODAL (POPUP) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-content { background: #fff; width: 90%; max-width: 750px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.3s ease-out; }
+        .modal-content { background: #fff; width: 90%; max-width: 800px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.3s ease-out; }
         .modal-overlay.active { display: flex; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-header { background: #004e92; color: #fff; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
@@ -107,7 +107,7 @@
         .modal-close:hover { opacity: 1; }
         .modal-body { padding: 25px; }
         
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .info-item { background: #f8fafc; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .info-label { font-size: 0.70rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; letter-spacing: 0.5px;}
         .info-value { font-size: 0.95rem; color: #0f172a; font-weight: 600; }
@@ -136,8 +136,13 @@
                 <button class="modal-close" onclick="fecharModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <h3 id="modalNome" class="text-xl font-bold text-slate-800 mb-2"></h3>
-                <p class="text-sm text-gray-500 mb-4"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> <span id="modalMunicipio"></span></p>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 id="modalNome" class="text-xl font-bold text-slate-800 mb-2"></h3>
+                        <p class="text-sm text-gray-500 mb-4"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> <span id="modalMunicipio"></span></p>
+                    </div>
+                    <span id="modalSusStatus" class="px-3 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs font-bold uppercase"></span>
+                </div>
                 
                 <div class="section-title"><i class="fas fa-user-circle mr-1"></i> Dados Pessoais</div>
                 <div class="info-grid">
@@ -173,6 +178,10 @@
                         <span class="info-label"><i class="fas fa-calendar-check text-blue-500"></i> Internação Inicial</span>
                         <span class="info-value" id="modalInternacao"></span>
                     </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-heartbeat text-red-500"></i> Evolução Clínica</span>
+                        <span class="info-value text-slate-700" id="modalEvolucao"></span>
+                    </div>
                 </div>
 
                 <div class="mt-4 pt-3 border-t text-[0.65rem] text-gray-400 text-center">
@@ -199,6 +208,13 @@
                     
                     <span class="filter-label" style="margin-left:10px">Mês:</span>
                     <select id="mesFilter" onchange="carregarDados()" class="filter-select"></select>
+                    
+                    <span class="filter-label" style="margin-left:10px"><i class="fas fa-user-tag text-blue-300"></i> Paciente:</span>
+                    <select id="susFilter" onchange="aplicarFiltroSusLocal()" class="filter-select" style="min-width: 120px;">
+                        <option value="TODOS">Todos (Geral)</option>
+                        <option value="SIM">Apenas SUS</option>
+                        <option value="NAO">Apenas Particulares (Não SUS)</option>
+                    </select>
                 </div>
 
                 <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
@@ -314,7 +330,8 @@
         let chartDoughnut = null;
         let chartUtis = null;
         let dataTableInstance = null;
-        let dadosGlobais = [];
+        let dadosOriginaisBrutos = []; // Guarda todos os dados do BD para não precisar ir na nuvem toda vez que muda o select
+        let dadosFiltradosGlobais = [];
         
         let filtroLeitoAtivo = 'TODOS';
 
@@ -323,8 +340,7 @@
             if (event.target == modal) { fecharModal(); }
         }
 
-        // --- NOVA FUNÇÃO PARA ABRIR O DOSSIÊ COMPLETO ---
-        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae) {
+        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao) {
             document.getElementById('modalNome').innerText = nome;
             document.getElementById('modalMunicipio').innerText = municipio && municipio !== 'null' ? municipio : 'Não informado';
             
@@ -336,6 +352,18 @@
             document.getElementById('modalCns').innerText = (cns && cns !== 'null') ? cns : 'Não informado';
             document.getElementById('modalNascimento').innerText = (dtNasc && dtNasc !== 'null') ? dtNasc.split('-').reverse().join('/') : 'Não informada';
             document.getElementById('modalMae').innerText = (mae && mae !== 'null') ? mae : 'Não informada';
+            
+            // Novos campos do Modal
+            document.getElementById('modalEvolucao').innerText = (evolucao && evolucao !== 'null') ? evolucao : 'Sem Evolução Registrada';
+            
+            const statusSusSpan = document.getElementById('modalSusStatus');
+            if(sus && sus.toUpperCase().includes('SIM')) {
+                statusSusSpan.innerText = 'Paciente SUS';
+                statusSusSpan.className = 'px-3 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs font-bold uppercase';
+            } else {
+                statusSusSpan.innerText = 'Paciente Não SUS / Particular';
+                statusSusSpan.className = 'px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-full text-xs font-bold uppercase';
+            }
             
             document.getElementById('pacienteModal').classList.add('active');
         }
@@ -394,10 +422,9 @@
         function limparFiltrosTabela() {
             $('#tableSearch').val('');
             $('.search-input').val('').removeClass('highlight-filter');
+            $('#susFilter').val('TODOS');
             filtrarPorLeito('TODOS');
-            if(dataTableInstance) {
-                dataTableInstance.search('').columns().search('').draw();
-            }
+            aplicarFiltroSusLocal(); // Refaz a tabela com "Todos" os pacientes
         }
 
         function filtrarTabelaLocal() {
@@ -422,7 +449,8 @@
 
                 while (keepFetching) {
                     let query = client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae')
+                        // Adicionamos internacao_sus e evolucao_clinica na busca
+                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica')
                         .gte('data_extracao', d1) 
                         .lte('data_extracao', d2) 
                         .range(from, from + step - 1); 
@@ -437,68 +465,85 @@
                     if (!data || data.length < step) keepFetching = false;
                 }
 
-                if(allData.length === 0) {
-                    $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
-                    $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
-                    dadosGlobais = [];
-                    renderizarGraficos([]); renderizarTabelaPrincipal([]);
-                    return;
-                }
-
-                const map = new Map();
-                let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0;
-
-                allData.forEach(row => {
-                    const nome = (row.nome_paciente || "SEM NOME").trim().toUpperCase();
-                    const dtInt = row.data_internacao || "SEM DATA";
-                    const key = nome + "_" + dtInt;
-                    
-                    if (!map.has(key)) {
-                        map.set(key, { 
-                            ...row, 
-                            dias_contados: new Set(), 
-                            dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0 
-                        });
-                    }
-                    
-                    const p = map.get(key);
-                    if(p.dias_contados.has(row.data_extracao)) return;
-                    p.dias_contados.add(row.data_extracao);
-
-                    let leito = (row.tipo_leito || "").toUpperCase();
-                    if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                    else if (leito === "UTIN") p.dias_utin++;
-                    else if (leito === "UCINCO") p.dias_ucinco++;
-                    else if (leito === "UCINCA") p.dias_ucinca++;
-                    else p.dias_enf++;
-                    
-                    if (new Date(row.data_extracao) > new Date(p.data_extracao)) p.data_extracao = row.data_extracao;
-                });
-
-                // Apenas agrupa e conta TODAS as diárias, sem descontos.
-                dadosGlobais = Array.from(map.values()).map(p => {
-                    kpiUtiAdulto += p.dias_uti_ad;
-                    kpiUtin += p.dias_utin;
-                    kpiUcinco += p.dias_ucinco;
-                    kpiUcinca += p.dias_ucinca;
-                    kpiEnfermaria += p.dias_enf;
-                    return p;
-                });
-
-                $('#kpiUtiAdulto').text(kpiUtiAdulto);
-                $('#kpiUtin').text(kpiUtin);
-                $('#kpiUcinco').text(kpiUcinco);
-                $('#kpiUcinca').text(kpiUcinca);
-                $('#kpiPacientes').text(dadosGlobais.length);
-                $('#kpiEnfermaria').text(kpiEnfermaria);
-
-                renderizarGraficos(dadosGlobais);
-                renderizarTabelaPrincipal(dadosGlobais);
-
-                $('#status-badge').html(`<i class="fas fa-check-circle text-green-400"></i> Online (${dadosGlobais.length} pacientes)`);
+                dadosOriginaisBrutos = allData; // Guarda o banco original na memória do navegador
+                aplicarFiltroSusLocal(); // Chama a função que processa e desenha a tela
 
             } catch(e) {
                 $('#status-badge').html('<i class="fas fa-times-circle text-red-400"></i> Erro');
+            }
+        }
+
+        // Esta função filtra os dados da memória sem ir ao banco e atualiza os gráficos/tabelas
+        function aplicarFiltroSusLocal() {
+            const susFilterValue = $('#susFilter').val(); // TODOS, SIM ou NAO
+            
+            if(dadosOriginaisBrutos.length === 0) {
+                $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
+                $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
+                renderizarGraficos([]); renderizarTabelaPrincipal([]);
+                return;
+            }
+
+            const map = new Map();
+            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0;
+
+            dadosOriginaisBrutos.forEach(row => {
+                // VERIFICAÇÃO DO FILTRO SUS
+                const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
+                if (susFilterValue === 'SIM' && !isSus) return;
+                if (susFilterValue === 'NAO' && isSus) return;
+
+                const nome = (row.nome_paciente || "SEM NOME").trim().toUpperCase();
+                const dtInt = row.data_internacao || "SEM DATA";
+                const key = nome + "_" + dtInt;
+                
+                if (!map.has(key)) {
+                    map.set(key, { 
+                        ...row, 
+                        dias_contados: new Set(), 
+                        dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0 
+                    });
+                }
+                
+                const p = map.get(key);
+                if(p.dias_contados.has(row.data_extracao)) return;
+                p.dias_contados.add(row.data_extracao);
+
+                let leito = (row.tipo_leito || "").toUpperCase();
+                if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
+                else if (leito === "UTIN") p.dias_utin++;
+                else if (leito === "UCINCO") p.dias_ucinco++;
+                else if (leito === "UCINCA") p.dias_ucinca++;
+                else p.dias_enf++;
+                
+                if (new Date(row.data_extracao) > new Date(p.data_extracao)) p.data_extracao = row.data_extracao;
+            });
+
+            // Agrupa e soma tudo
+            dadosFiltradosGlobais = Array.from(map.values()).map(p => {
+                kpiUtiAdulto += p.dias_uti_ad;
+                kpiUtin += p.dias_utin;
+                kpiUcinco += p.dias_ucinco;
+                kpiUcinca += p.dias_ucinca;
+                kpiEnfermaria += p.dias_enf;
+                return p;
+            });
+
+            $('#kpiUtiAdulto').text(kpiUtiAdulto);
+            $('#kpiUtin').text(kpiUtin);
+            $('#kpiUcinco').text(kpiUcinco);
+            $('#kpiUcinca').text(kpiUcinca);
+            $('#kpiPacientes').text(dadosFiltradosGlobais.length);
+            $('#kpiEnfermaria').text(kpiEnfermaria);
+
+            renderizarGraficos(dadosFiltradosGlobais);
+            renderizarTabelaPrincipal(dadosFiltradosGlobais);
+
+            let txtFiltro = susFilterValue === 'TODOS' ? 'Geral' : (susFilterValue === 'SIM' ? 'Apenas SUS' : 'Apenas Particulares');
+            $('#status-badge').html(`<i class="fas fa-check-circle text-green-400"></i> Online (${dadosFiltradosGlobais.length} pacientes - ${txtFiltro})`);
+            
+            if(dataTableInstance) {
+                dataTableInstance.search('').columns().search('').draw();
             }
         }
 
@@ -566,10 +611,12 @@
                                 let safeCpf = String(row.cpf || '').replace(/'/g, "\\'");
                                 let safeNasc = String(row.data_nascimento || '').replace(/'/g, "\\'");
                                 let safeMae = String(row.nome_mae || '').replace(/'/g, "\\'");
+                                let safeSus = String(row.internacao_sus || '').replace(/'/g, "\\'");
+                                let safeEvol = String(row.evolucao_clinica || '').replace(/'/g, "\\'");
                                 
                                 return `<div style="display:flex; align-items:center; justify-content:space-between;">
                                             <b style="color:#0f172a;" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b>
-                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}')" title="Ver Dossiê">
+                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}')" title="Ver Dossiê">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>`;
