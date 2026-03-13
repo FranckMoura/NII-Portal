@@ -1,5 +1,4 @@
 import graphviz
-from IPython.display import display
 
 # 1. Criação do objeto do fluxograma
 fluxo = graphviz.Digraph('Novo_Fluxo_Faturamento', format='png')
@@ -35,9 +34,6 @@ fluxo.edge('FRANCK_PEND', 'FRANCK_FINAL', label=' Outras pendências\nresolvidas
 fluxo.edge('BIANCA', 'FRANCK_FINAL', label=' Contas Auditadas', color='#2ecc71')
 fluxo.edge('NIR', 'FRANCK_FINAL', label=' Contas Faturadas\ne Autorizadas', color='#8e44ad')
 
-# 4. Renderizar e exibir a imagem (Funciona nativamente no Jupyter/Colab)
-display(fluxo)
-
-# 5. Salvar a imagem
+# 4. Salvar a imagem (O display do IPython foi removido)
 fluxo.render('novo_fluxograma_faturamento', view=False)
 print("Fluxograma gerado com sucesso e salvo como 'novo_fluxograma_faturamento.png'")
