@@ -1,0 +1,35 @@
+digraph Novo_Fluxo_Faturamento {
+	fontname=Helvetica rankdir=TB size="10,10"
+	node [fontcolor=white fontname=Helvetica shape=box style="filled, rounded"]
+	ARQUIVO [label="1. ARQUIVO
+Montagem do Prontuário
+e Anexação de Documentos" fillcolor="#7f8c8d"]
+	ALEXANDRE [label="2. TRIAGEM (Alexandre)
+Consulta Sisreg (AIH),
+Impressão de Exames/AIH" fillcolor="#f39c12"]
+	DIGITACAO [label="3. FATURAMENTO (Cristina e Carlos)
+Lançamento no sistema SoulMV" fillcolor="#2980b9"]
+	BIANCA [label="4A. AUDITORIA (Bianca)
+Conferência minuciosa de
+lançamentos e dados" fillcolor="#27ae60"]
+	FRANCK_PEND [label="4B. GESTÃO DE PENDÊNCIAS (Franck)
+Triagem de NF, Descrição
+Cirúrgica, Autorizações" fillcolor="#e74c3c"]
+	NIR [label="APOIO NIR
+Autorizações (Planejamento Familiar),
+Faturamento Laqueadura e APACs" fillcolor="#8e44ad"]
+	FRANCK_FINAL [label="5. FECHAMENTO (Franck)
+Validação, Consistência, Exportação (SISAIH01),
+Relatórios e Repasses Médicos" fillcolor="#2c3e50"]
+	ARQUIVO -> ALEXANDRE
+	ALEXANDRE -> DIGITACAO
+	DIGITACAO -> BIANCA [label=" Sem pendências" color="#27ae60" fontcolor="#27ae60"]
+	DIGITACAO -> FRANCK_PEND [label=" Com pendências
+(NF, Descrição, etc.)" color="#c0392b" fontcolor="#c0392b"]
+	FRANCK_PEND -> NIR [label=" Eletivas / Planej. Familiar" color="#8e44ad" fontcolor="#8e44ad"]
+	FRANCK_PEND -> FRANCK_FINAL [label=" Outras pendências
+resolvidas" color="#7f8c8d"]
+	BIANCA -> FRANCK_FINAL [label=" Contas Auditadas" color="#2ecc71"]
+	NIR -> FRANCK_FINAL [label=" Contas Faturadas
+e Autorizadas" color="#8e44ad"]
+}
