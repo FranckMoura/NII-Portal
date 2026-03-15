@@ -19,14 +19,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; }
-        .header-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; padding: 20px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; padding-bottom: 50px; }
+        .header-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; padding: 20px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
         .dt-button { background: #10b981 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 8px 16px !important; font-weight: bold !important; font-size: 0.8rem !important; margin-right: 8px !important; }
         .dt-button.buttons-print { background: #475569 !important; }
         .dt-button.buttons-excel { background: #0284c7 !important; }
-        table.dataTable thead th { background-color: #1e293b !important; color: white !important; font-size: 0.8rem; text-transform: uppercase; }
-        table.dataTable tbody td { font-size: 0.8rem; color: #334155; vertical-align: middle; }
-        .loading { display: flex; justify-content: center; align-items: center; height: 200px; font-size: 1.5rem; color: #64748b; font-weight: bold; }
+        
+        table.dataTable thead th { background-color: #1e293b !important; color: white !important; font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; border-bottom: none !important; white-space: nowrap; }
+        table.dataTable tbody td { font-size: 0.75rem; color: #334155; vertical-align: middle; padding: 8px !important; border-bottom: 1px solid #f1f5f9; }
+        table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
+
+        .loading { display: flex; justify-content: center; align-items: center; height: 200px; font-size: 1.2rem; color: #64748b; font-weight: bold; flex-direction: column; gap: 10px; }
+        
+        /* Estilos do Sistema de Abas */
+        .tab-btn { padding: 12px 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: #64748b; }
+        .tab-btn:hover { color: #2563eb; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -34,41 +46,67 @@
     <div class='header-bg'>
         <div class='max-w-7xl mx-auto flex justify-between items-center'>
             <div class="flex items-center gap-4">
-                <i class="fa-solid fa-chart-line text-4xl"></i>
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold'>Painel de Auditoria - Simuladas</h1>
-                    <p class='text-blue-200'>Visão Analítica de Procedimentos Faturados</p>
+                    <h1 class='text-2xl font-bold'>BI Simuladas - Auditoria de Dados</h1>
+                    <p class='text-blue-200 text-sm'>Cruze dados, exporte relatórios e audite valores.</p>
                 </div>
             </div>
-            <div>
+            <div class="flex gap-4">
                 <select id="filtroCompetencia" class="bg-white/20 text-white border border-white/30 rounded px-4 py-2 outline-none font-bold cursor-pointer">
                     <option value="02/2026" class="text-black">Competência: 02/2026</option>
                     </select>
-                <a href="index.html" class="ml-4 bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-white font-bold transition"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_operacional.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-white font-bold transition flex items-center gap-2"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
-    <div class="max-w-[95%] mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <div id="loader" class="loading"><i class="fas fa-spinner fa-spin mr-3"></i> A carregar milhares de registros do banco de dados...</div>
+    <div class="max-w-[98%] mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
         
-        <table id="tabelaProcedimentos" class="display w-full" style="display:none;">
-            <thead>
-                <tr>
-                    <th>AIH</th>
-                    <th>Paciente</th>
-                    <th>Pág</th>
-                    <th>Lnh</th>
-                    <th>Código</th>
-                    <th>Qtd</th>
-                    <th>Cmpt</th>
-                    <th>Doc/CNES</th>
-                    <th>Descrição do Procedimento</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaBody">
-            </tbody>
-        </table>
+        <div class="flex border-b border-gray-200 mb-6">
+            <button onclick="mudarAba('procedimentos')" id="btn-procedimentos" class="tab-btn active"><i class="fas fa-list-ol mr-2"></i> Procedimentos Lançados</button>
+            <button onclick="mudarAba('valores')" id="btn-valores" class="tab-btn"><i class="fas fa-dollar-sign mr-2"></i> Valores Financeiros (Prévia)</button>
+        </div>
+
+        <div id="loader" class="loading">
+            <i class="fas fa-circle-notch fa-spin text-3xl text-blue-600"></i>
+            <span>Baixando milhares de dados do Supabase...</span>
+        </div>
+        
+        <div id="aba-procedimentos" class="tab-content active w-full overflow-x-auto">
+            <table id="tabelaProcedimentos" class="display w-full">
+                <thead>
+                    <tr>
+                        <th>Pág</th>
+                        <th>AIH</th>
+                        <th>Paciente</th>
+                        <th>Lnh</th>
+                        <th>Código</th>
+                        <th>Qtd</th>
+                        <th>Cmpt</th>
+                        <th>Documento/CNES</th>
+                        <th>Descrição do Procedimento</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyProcedimentos"></tbody>
+            </table>
+        </div>
+
+        <div id="aba-valores" class="tab-content w-full overflow-x-auto">
+            <table id="tabelaValores" class="display w-full">
+                <thead>
+                    <tr>
+                        <th>Pág</th>
+                        <th>AIH</th>
+                        <th>Paciente</th>
+                        <th>Grupo / Procedimento Consolidado</th>
+                        <th class="text-right">Valor Extraído (R$)</th>
+                    </tr>
+                </thead>
+                <tbody id="tBodyValores"></tbody>
+            </table>
+        </div>
+
     </div>
 
     <script>
@@ -76,69 +114,110 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let dataTable;
+        let dtProcedimentos, dtValores;
+
+        // Função para alternar visualmente as abas
+        function mudarAba(nomeAba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('aba-' + nomeAba).classList.add('active');
+            document.getElementById('btn-' + nomeAba).classList.add('active');
+        }
 
         async function carregarDados() {
             const competencia = document.getElementById('filtroCompetencia').value;
             
             document.getElementById('loader').style.display = 'flex';
-            if(dataTable) {
-                dataTable.destroy();
-                document.getElementById('tabelaProcedimentos').style.display = 'none';
+            document.getElementById('aba-procedimentos').style.opacity = '0';
+            document.getElementById('aba-valores').style.opacity = '0';
+            
+            if(dtProcedimentos) { dtProcedimentos.destroy(); }
+            if(dtValores) { dtValores.destroy(); }
+
+            try {
+                // Busca Assíncrona e Simultânea (Mais rápido)
+                const [resProc, resVal] = await Promise.all([
+                    supabase.from('simuladas_procedimentos').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true }),
+                    supabase.from('simuladas_valores').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true })
+                ]);
+
+                if (resProc.error) throw resProc.error;
+                if (resVal.error) throw resVal.error;
+
+                // --- ALIMENTAR TABELA PROCEDIMENTOS ---
+                const tbodyP = document.getElementById('tBodyProcedimentos');
+                tbodyP.innerHTML = '';
+                resProc.data.forEach(row => {
+                    tbodyP.innerHTML += `
+                        <tr>
+                            <td class="text-blue-600 font-bold">${row.pagina}</td>
+                            <td class="font-mono text-gray-700">${row.aih}</td>
+                            <td class="uppercase font-bold">${row.paciente}</td>
+                            <td class="text-center text-gray-500">${row.linha}</td>
+                            <td class="font-mono text-blue-800">${row.codigo}</td>
+                            <td class="text-center font-bold">${row.qtde}</td>
+                            <td class="text-gray-500">${row.cmpt}</td>
+                            <td class="text-gray-500 font-mono">${row.documento_cnes}</td>
+                            <td class="uppercase">${row.descricao}</td>
+                        </tr>
+                    `;
+                });
+
+                // --- ALIMENTAR TABELA VALORES ---
+                const tbodyV = document.getElementById('tBodyValores');
+                tbodyV.innerHTML = '';
+                resVal.data.forEach(row => {
+                    let corTotal = row.grupo_consolidado === 'TOTAL GERAL DA CONTA' ? 'bg-green-100 font-black text-green-800' : '';
+                    let corTexto = row.grupo_consolidado === 'TOTAL GERAL DA CONTA' ? 'font-black text-green-700' : '';
+
+                    tbodyV.innerHTML += `
+                        <tr class="${corTotal}">
+                            <td class="text-blue-600 font-bold">${row.pagina}</td>
+                            <td class="font-mono text-gray-700">${row.aih}</td>
+                            <td class="uppercase font-bold">${row.paciente}</td>
+                            <td class="uppercase ${corTexto}">${row.grupo_consolidado}</td>
+                            <td class="text-right font-mono ${corTexto}">${row.valor_rs}</td>
+                        </tr>
+                    `;
+                });
+
+                // Esconde Loader e Mostra as Abas
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('aba-procedimentos').style.opacity = '1';
+                document.getElementById('aba-valores').style.opacity = '1';
+
+                // Inicia o DataTables para os Procedimentos
+                dtProcedimentos = $('#tabelaProcedimentos').DataTable({
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    dom: 'Bfrtip', pageLength: 20,
+                    buttons: [
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Baixar Excel', title: 'Relatorio_Procedimentos_' + competencia.replace('/','-') },
+                        { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> Baixar CSV', fieldSeparator: ';', title: 'Relatorio_Procedimentos_' + competencia.replace('/','-') },
+                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', title: 'Procedimentos Lançados - ' + competencia }
+                    ]
+                });
+
+                // Inicia o DataTables para os Valores
+                dtValores = $('#tabelaValores').DataTable({
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    dom: 'Bfrtip', pageLength: 20,
+                    buttons: [
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Baixar Excel', title: 'Relatorio_Financeiro_' + competencia.replace('/','-') },
+                        { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> Baixar CSV', fieldSeparator: ';', title: 'Relatorio_Financeiro_' + competencia.replace('/','-') },
+                        { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', title: 'Valores Financeiros - ' + competencia }
+                    ]
+                });
+
+            } catch(e) {
+                alert('Ocorreu um erro ao baixar os dados: ' + e);
+                document.getElementById('loader').innerHTML = '<span class="text-red-500"><i class="fas fa-times-circle"></i> Falha na conexão com banco de dados.</span>';
             }
-
-            // Busca os dados do Supabase
-            const { data, error } = await supabase
-                .from('simuladas_procedimentos')
-                .select('*')
-                .eq('competencia_arquivo', competencia)
-                .order('pagina', { ascending: true })
-                .order('linha', { ascending: true });
-
-            if (error) {
-                alert('Erro ao carregar dados: ' + error.message);
-                return;
-            }
-
-            const tbody = document.getElementById('tabelaBody');
-            tbody.innerHTML = '';
-
-            data.forEach(row => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="font-bold text-blue-700">${row.aih}</td>
-                        <td class="uppercase font-medium text-gray-800">${row.paciente}</td>
-                        <td class="text-center text-gray-500">${row.pagina}</td>
-                        <td class="text-center">${row.linha}</td>
-                        <td class="font-mono text-gray-600">${row.codigo}</td>
-                        <td class="text-center font-bold">${row.qtde}</td>
-                        <td>${row.cmpt}</td>
-                        <td class="text-xs text-gray-400">${row.documento_cnes}</td>
-                        <td class="uppercase">${row.descricao}</td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('tabelaProcedimentos').style.display = 'table';
-
-            // Inicializa a tabela com os Botões Mágicos
-            dataTable = $('#tabelaProcedimentos').DataTable({
-                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                dom: 'Bfrtip',
-                pageLength: 25,
-                buttons: [
-                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Excel', title: 'Relatorio_Procedimentos_Simuladas' },
-                    { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> Baixar CSV', fieldSeparator: ';', title: 'Relatorio_Procedimentos_Simuladas' },
-                    { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Relatório', title: 'Auditoria de Procedimentos - ' + competencia }
-                ]
-            });
         }
 
-        // Carrega ao iniciar e ao mudar o filtro
+        // Eventos de inicialização
         document.addEventListener('DOMContentLoaded', carregarDados);
         document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
-
     </script>
 </body>
 </html>
