@@ -1,14 +1,14 @@
 # 🏥 Portal NII - Núcleo Interno de Informação
 **Hospital Beneficente Santa Helena**
 
-Este repositório contém o código-fonte e a documentação do **Ecossistema NII**, uma plataforma de inteligência de dados desenvolvida para centralizar, automatizar e monitorar as operações críticas do hospital: Regulação (SISREG), Faturamento SUS (SIH), Repasses Médicos, Tabela SIGTAP, Prévia de Simuladas e Auditoria de Fichas.
+Este repositório contém o código-fonte e a documentação do **Ecossistema NII**, uma plataforma de inteligência de dados desenvolvida para centralizar, automatizar e monitorar as operações críticas do hospital: Regulação (SISREG), Faturamento SUS (SIH), Repasses Médicos, Tabela SIGTAP, Prévia de Simuladas, Auditoria de Fichas e Auditoria de Leitos (IndicaSUS).
 
 ---
 
 ## 🏗️ Arquitetura do Sistema
 
 O sistema opera sob uma arquitetura **Serverless Híbrida**:
-1.  **Frontend (UI):** Interfaces web leves (HTML5 + TailwindCSS + DataTables) que se conectam diretamente ao banco de dados via JavaScript (Client-Side).
+1.  **Frontend (UI):** Interfaces web leves (HTML5 + TailwindCSS + DataTables + Chart.js + Mermaid.js) que se conectam diretamente ao banco de dados via JavaScript (Client-Side).
 2.  **Backend (Robôs):** Scripts em Python executados localmente (ou em servidor) para extração de dados (ETL), leitura de PDFs/CSVs complexos e automação de navegador (Selenium).
 3.  **Database:** Supabase (PostgreSQL + Storage) na nuvem, atuando como o "Coração" que sincroniza e armazena tudo em tempo real.
 
@@ -53,10 +53,17 @@ O sistema opera sob uma arquitetura **Serverless Híbrida**:
 * **Frontend (`Painel_Fichas_Liberadas.html`):** Painel web gerado dinamicamente na pasta `frontend`, que lista apenas os pacientes prontos para faturamento, trazendo um botão de atalho para abrir e imprimir diretamente a Ficha de Internação (PDF) arquivada na nuvem.
 * **Output Secundário:** Gera backup em Excel (`FICHAS_PARA_IMPRIMIR.xlsx`).
 
+### 7. 🛏️ Módulo de Auditoria IndicaSUS (Cofinanciamento de Leitos)
+*Extração profunda, auditoria e cruzamento de diárias hospitalares no sistema estadual.*
+* **`robo_auditor_retroativo.py` (Robô "Trator"):** Algoritmo de RPA avançado que navega no IndicaSUS. Lida automaticamente com paginação oculta, ignora bloqueios de HTML (`disabled inputs`), e extrai com "força bruta": CPF, CNS, Mãe, AIH, SISREG, Evolução Clínica e Status SUS. Possui "Inteligência de Competência" que fatia automaticamente as diárias em meses corretos e conta com um Raio-X em tempo real no terminal.
+* **Frontend (`painel_indicasus_v2.html`):** Dashboard analítico de alta performance com cálculos efetuados em memória (Client-Side). Apresenta KPIs dinâmicos (UTI, UTIN, UCINCo, Enfermaria), filtragem por Tipo de Paciente (SUS / Não SUS), gráficos interativos via `Chart.js` e um Dossiê completo do paciente via popup.
+* **Base de Conhecimento (`painel_rotinas.html`):** Documentação viva do setor, contendo um mapeamento do Pipeline de Faturamento gerado inteiramente por código vetorial através da biblioteca `Mermaid.js`, com suporte a tela cheia e download em alta resolução (`html2canvas`).
+* **Tabela:** `indicasus_leitos`
+
 ---
 
 ## ⚙️ Instalação e Configuração
 
 **1. Dependências do Python:**
 ```bash
-pip install selenium webdriver-manager pandas pdfplumber supabase python-dotenv unidecode openpyxl
+pip install selenium webdriver-manager pandas pdfplumber supabase python-dotenv unidecode openpyxl graphviz
