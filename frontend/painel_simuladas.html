@@ -55,7 +55,7 @@
             <div class="flex gap-4">
                 <select id="filtroCompetencia" class="bg-white/20 text-white border border-white/30 rounded px-4 py-2 outline-none font-bold cursor-pointer">
                     <option value="02/2026" class="text-black">Competência: 02/2026</option>
-                    </select>
+                </select>
                 <a href="modulo_operacional.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-white font-bold transition flex items-center gap-2"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
@@ -70,10 +70,10 @@
 
         <div id="loader" class="loading">
             <i class="fas fa-circle-notch fa-spin text-3xl text-blue-600"></i>
-            <span>Baixando milhares de dados do Supabase...</span>
+            <span>A descarregar milhares de dados do Supabase... (Isto pode levar alguns segundos)</span>
         </div>
         
-        <div id="aba-procedimentos" class="tab-content active w-full overflow-x-auto">
+        <div id="aba-procedimentos" class="tab-content active w-full overflow-x-auto" style="opacity: 0;">
             <table id="tabelaProcedimentos" class="display w-full">
                 <thead>
                     <tr>
@@ -92,7 +92,7 @@
             </table>
         </div>
 
-        <div id="aba-valores" class="tab-content w-full overflow-x-auto">
+        <div id="aba-valores" class="tab-content w-full overflow-x-auto" style="opacity: 0;">
             <table id="tabelaValores" class="display w-full">
                 <thead>
                     <tr>
@@ -116,7 +116,6 @@
 
         let dtProcedimentos, dtValores;
 
-        // Função para alternar visualmente as abas
         function mudarAba(nomeAba) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -136,7 +135,7 @@
             if(dtValores) { dtValores.destroy(); }
 
             try {
-                // Busca Assíncrona e Simultânea (Mais rápido)
+                // Busca Assíncrona limitando temporariamente se necessário (Supabase permite buscar blocos)
                 const [resProc, resVal] = await Promise.all([
                     supabase.from('simuladas_procedimentos').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true }),
                     supabase.from('simuladas_valores').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true })
@@ -145,11 +144,11 @@
                 if (resProc.error) throw resProc.error;
                 if (resVal.error) throw resVal.error;
 
-                // --- ALIMENTAR TABELA PROCEDIMENTOS ---
+                // --- ALIMENTAR TABELA PROCEDIMENTOS (MODO TURBO) ---
                 const tbodyP = document.getElementById('tBodyProcedimentos');
-                tbodyP.innerHTML = '';
+                let htmlProc = ""; // Usa um acumulador de string
                 resProc.data.forEach(row => {
-                    tbodyP.innerHTML += `
+                    htmlProc += `
                         <tr>
                             <td class="text-blue-600 font-bold">${row.pagina}</td>
                             <td class="font-mono text-gray-700">${row.aih}</td>
@@ -163,15 +162,16 @@
                         </tr>
                     `;
                 });
+                tbodyP.innerHTML = htmlProc; // Injeta TUDO de uma vez só no ecrã (ultra rápido)
 
-                // --- ALIMENTAR TABELA VALORES ---
+                // --- ALIMENTAR TABELA VALORES (MODO TURBO) ---
                 const tbodyV = document.getElementById('tBodyValores');
-                tbodyV.innerHTML = '';
+                let htmlVal = "";
                 resVal.data.forEach(row => {
-                    let corTotal = row.grupo_consolidado === 'TOTAL GERAL DA CONTA' ? 'bg-green-100 font-black text-green-800' : '';
-                    let corTexto = row.grupo_consolidado === 'TOTAL GERAL DA CONTA' ? 'font-black text-green-700' : '';
+                    let corTotal = row.grupo_consolidado === 'TOTAL GERAL' ? 'bg-green-100 font-black text-green-800' : '';
+                    let corTexto = row.grupo_consolidado === 'TOTAL GERAL' ? 'font-black text-green-700' : '';
 
-                    tbodyV.innerHTML += `
+                    htmlVal += `
                         <tr class="${corTotal}">
                             <td class="text-blue-600 font-bold">${row.pagina}</td>
                             <td class="font-mono text-gray-700">${row.aih}</td>
@@ -181,16 +181,16 @@
                         </tr>
                     `;
                 });
+                tbodyV.innerHTML = htmlVal; // Injeta TUDO de uma vez só
 
-                // Esconde Loader e Mostra as Abas
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('aba-procedimentos').style.opacity = '1';
                 document.getElementById('aba-valores').style.opacity = '1';
 
-                // Inicia o DataTables para os Procedimentos
+                // Inicia o DataTables com deferRender para não crashar com milhares de dados
                 dtProcedimentos = $('#tabelaProcedimentos').DataTable({
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                    dom: 'Bfrtip', pageLength: 20,
+                    dom: 'Bfrtip', pageLength: 20, deferRender: true,
                     buttons: [
                         { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Baixar Excel', title: 'Relatorio_Procedimentos_' + competencia.replace('/','-') },
                         { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> Baixar CSV', fieldSeparator: ';', title: 'Relatorio_Procedimentos_' + competencia.replace('/','-') },
@@ -198,10 +198,9 @@
                     ]
                 });
 
-                // Inicia o DataTables para os Valores
                 dtValores = $('#tabelaValores').DataTable({
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                    dom: 'Bfrtip', pageLength: 20,
+                    dom: 'Bfrtip', pageLength: 20, deferRender: true,
                     buttons: [
                         { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Baixar Excel', title: 'Relatorio_Financeiro_' + competencia.replace('/','-') },
                         { extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> Baixar CSV', fieldSeparator: ';', title: 'Relatorio_Financeiro_' + competencia.replace('/','-') },
@@ -215,7 +214,6 @@
             }
         }
 
-        // Eventos de inicialização
         document.addEventListener('DOMContentLoaded', carregarDados);
         document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
     </script>
