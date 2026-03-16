@@ -30,7 +30,8 @@
         .top-brand-bar { background-color: white; padding: 15px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 4px solid #004e92; }
         .hujm-main-logo { height: 90px; max-width: 100%; object-fit: contain; }
 
-        .header-bg { background-color: #ffffff !important; position: relative; padding: 30px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 30px; border-bottom: 5px solid #004e92; overflow: hidden; }
+        /* CORREÇÃO APLICADA: Removido o 'overflow: hidden;' para a lista de notificações poder aparecer */
+        .header-bg { background-color: #ffffff !important; position: relative; padding: 30px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 30px; border-bottom: 5px solid #004e92; }
         .header-watermark { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('logo.png'); background-size: 50%; background-position: center; background-repeat: no-repeat; opacity: 0.04; z-index: 0; pointer-events: none; }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
@@ -279,6 +280,13 @@
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
         let chartDoughnut = null; let chartClinica = null; let dataTableInstance = null; let dadosGlobais = [];
+
+        // CORREÇÃO APLICADA: Função de filtro local para o DataTables
+        function filtrarTabelaLocal() {
+            if(dataTableInstance) {
+                dataTableInstance.search($('#tableSearch').val()).draw();
+            }
+        }
 
         async function verificarAcesso() {
             const { data: { session } } = await client.auth.getSession();
