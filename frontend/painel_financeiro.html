@@ -16,13 +16,16 @@
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/2.2.0/css/searchPanes.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
     
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/searchpanes/2.2.0/js/dataTables.searchPanes.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,7 +40,7 @@
         .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .filter-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-right: 5px; }
 
-        /* CARDS KPI - FONTE REDUZIDA */
+        /* CARDS KPI */
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; overflow: hidden; transition: transform 0.2s; border: 1px solid #e2e8f0; text-align: center; }
         .meta-card:hover { transform: translateY(-5px); }
@@ -59,7 +62,8 @@
         table.dataTable tbody td { padding: 10px 10px !important; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.85rem; vertical-align: middle; }
         table.dataTable tbody tr:hover { background-color: #f1f5f9; }
         
-        .dt-button { background: #fff !important; border: 1px solid #004e92 !important; border-radius: 4px !important; color: #004e92 !important; font-weight: bold !important; padding: 5px 15px !important; font-size: 0.85rem !important; }
+        .dt-buttons { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .dt-button { background: #fff !important; border: 1px solid #004e92 !important; border-radius: 6px !important; color: #004e92 !important; font-weight: bold !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; }
         .dt-button:hover { background: #004e92 !important; color: #fff !important; }
 
         .btn-refresh { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
@@ -78,12 +82,12 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ESTILOS DA ETIQUETA DO PROCEDIMENTO */
-        .proc-codigo { background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; font-weight: bold; margin-right: 8px; border: 1px solid #cbd5e1; }
+        .proc-codigo { background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; font-weight: 900; margin-right: 10px; border: 1px solid #cbd5e1; display: inline-block; }
         .proc-desc { font-weight: 600; color: #0f172a; }
-        
-        /* LINHAS DE FILTRO NO CABEÇALHO DA TABELA */
-        .filter-row input { width: 100%; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.75rem; outline: none; }
-        .filter-row input:focus { border-color: #004e92; box-shadow: 0 0 0 2px rgba(0,78,146,0.2); }
+
+        /* ESTILOS DO SEARCHPANES (Filtro Avançado) */
+        div.dtsp-panesContainer { background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        div.dtsp-title { font-weight: 900; color: #004e92; text-transform: uppercase; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -105,8 +109,8 @@
                     
                     <span class="filter-label" style="margin-left:10px">Período:</span>
                     <select id="mesFilter" onchange="renderizar()" class="filter-select">
-                        <option value="">Todo o Ano</option>
-                        <option value="6M">Últimos 6 Meses (Deste Ano)</option>
+                        <option value="">Todo o Ano Selecionado</option>
+                        <option value="6M">Apenas Últimos 6 Meses</option>
                     </select>
                 </div>
                 <img src="../logo.png" alt="Logo" class="header-mini-logo">
@@ -150,11 +154,9 @@
                             <th>V. Hosp</th>
                             <th>V. Prof</th>
                             <th>Total</th>
-                            <th>Permanência (Média)</th>
+                            <th>Perm. (Méd)</th>
                             <th>Óbitos</th>
                         </tr>
-                        <tr class="filter-row" id="filterRowAIH">
-                            </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -171,8 +173,6 @@
                             <th>V. Prof</th>
                             <th>Total</th>
                         </tr>
-                        <tr class="filter-row" id="filterRowSP">
-                            </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -204,7 +204,7 @@
             $(btn).addClass('active');
             $('.view-section').removeClass('active');
             $('#view_' + viewId).addClass('active');
-            // Reajusta colunas caso o DataTables se desconfigure ao estar escondido
+            // Reajusta as colunas invisíveis para não partirem o layout
             if(tableAIH_Instance) tableAIH_Instance.columns.adjust();
             if(tableSP_Instance) tableSP_Instance.columns.adjust();
         }
@@ -225,7 +225,6 @@
             $('#status').text("Sincronizando " + ano + "...");
             
             try {
-                // Requisição Dupla Simultânea (Muito mais rápido)
                 const [resAIH, resSP] = await Promise.all([
                     client.from('faturamento').select('*').gte('competencia_iso', `${ano}-01-01`).lte('competencia_iso', `${ano}-12-31`).order('valor_total', { ascending: false }),
                     client.from('faturamento_sp').select('*').gte('competencia_iso', `${ano}-01-01`).lte('competencia_iso', `${ano}-12-31`).order('valor_total', { ascending: false })
@@ -238,7 +237,6 @@
                 dadosSP = resSP.data || [];
                 
                 $('#status').text("Online");
-                atualizarComboMeses(); 
                 renderizar();
             } catch (e) { 
                 console.error(e); 
@@ -246,50 +244,18 @@
             }
         }
 
-        function atualizarComboMeses() {
-            const selMes = document.getElementById('mesFilter');
-            // Guarda o valor que estava lá para não perder a seleção ao mudar de ano
-            const valorAntigo = selMes.value;
-            selMes.innerHTML = '<option value="">Todo o Ano</option><option value="6M">Últimos 6 Meses Presentes</option>';
-            
-            if(dadosAIH.length > 0) {
-                const mesesPresentes = [...new Set(dadosAIH.map(d => d.competencia_iso.substring(5,7)))].sort();
-                mesesPresentes.forEach(m => {
-                    let nome = mesesNome[parseInt(m)-1];
-                    let opt = document.createElement('option'); opt.value = m; opt.innerText = nome; selMes.appendChild(opt);
-                });
-            }
-            if(valorAntigo) selMes.value = valorAntigo;
-        }
-
-        // FUNÇÃO DE SEPARAR CÓDIGO E DESCRIÇÃO
+        // FUNÇÃO INTELIGENTE DE SEPARAÇÃO: CÓDIGO E DESCRIÇÃO
         function formatarProcedimento(procString) {
             if(!procString) return '-';
-            // O SISREG/SIH usa códigos de 10 dígitos. Separamos o código do resto do texto.
             let parts = procString.split(' ');
+            // Se a primeira palavra tiver exatamente 10 números, é o código SUS!
             if(parts.length > 0 && parts[0].length === 10 && !isNaN(parts[0])) {
                 let codigo = parts[0];
                 let descricao = parts.slice(1).join(' ');
-                return `<span class="proc-codigo">${codigo}</span><span class="proc-desc">${descricao.length > 60 ? descricao.substring(0,60)+'...' : descricao}</span>`;
+                // A descrição original (crua) é guardada num span invisível caso precisemos, mas mostramos a bonitinha
+                return `<span class="proc-codigo">${codigo}</span><span class="proc-desc" title="${descricao}">${descricao.length > 55 ? descricao.substring(0,55)+'...' : descricao}</span>`;
             }
-            // Fallback se não tiver código perfeito
             return `<span class="proc-desc">${procString.length > 70 ? procString.substring(0,70)+'...' : procString}</span>`;
-        }
-
-        // Configuração genérica para injetar filtros de coluna nas tabelas
-        function setupColumnFilters(tableId) {
-            $(`#${tableId} thead tr:eq(0) th`).each(function (i) {
-                $(`#filterRow${tableId.replace('tabela','')}`).append(`<th><input type="text" placeholder="🔍 Buscar..." data-index="${i}" /></th>`);
-            });
-        }
-
-        function applyColumnFilters(instance, tableId) {
-            $(`#filterRow${tableId.replace('tabela','')} input`).on('keyup change clear', function () {
-                let idx = $(this).data('index');
-                if (instance.column(idx).search() !== this.value) {
-                    instance.column(idx).search(this.value).draw();
-                }
-            });
         }
 
         function renderizar() {
@@ -298,16 +264,11 @@
             let dtAIH = dadosAIH;
             let dtSP = dadosSP;
 
-            // Filtro Especial (Últimos 6 meses)
+            // Lógica do Filtro de Período (Últimos 6 Meses)
             if(mesSelecionado === "6M") {
-                // Encontra os últimos 6 meses que existem nos dados baixados daquele ano
                 const mesesPresentes = [...new Set(dadosAIH.map(d => d.competencia_iso.substring(5,7)))].sort().reverse().slice(0,6);
                 dtAIH = dadosAIH.filter(d => mesesPresentes.includes(d.competencia_iso.substring(5,7)));
                 dtSP = dadosSP.filter(d => mesesPresentes.includes(d.competencia_iso.substring(5,7)));
-            } else if (mesSelecionado) {
-                // Filtro de Mês exato
-                dtAIH = dadosAIH.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`));
-                dtSP = dadosSP.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`));
             }
 
             // Totais AIH
@@ -328,19 +289,29 @@
             // ==========================================
             // RENDERIZA TABELA AIH (PRINCIPAL)
             // ==========================================
-            if ($.fn.DataTable.isDataTable('#tabelaAIH')) {
-                tableAIH_Instance.destroy();
-                $('#filterRowAIH').empty();
-            }
-            setupColumnFilters('tabelaAIH');
-
+            if ($.fn.DataTable.isDataTable('#tabelaAIH')) tableAIH_Instance.destroy();
+            
             tableAIH_Instance = $('#tabelaAIH').DataTable({
-                data: dtAIH, pageLength: 15, responsive: true, dom: 'lBrtip', orderCellsTop: true,
-                lengthMenu: [[15, 50, 100, -1], [15, 50, 100, "Todos"]],
-                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' }],
+                data: dtAIH, 
+                pageLength: 15, 
+                responsive: true, 
+                dom: 'Bfrtip', // O botão 'searchPanes' fará a mágica
+                buttons: [
+                    { extend: 'searchPanes', text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', className: 'dt-button' },
+                    { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Excel', className: 'dt-button' }
+                ],
+                searchPanes: {
+                    cascadePanes: true,
+                    viewTotal: true,
+                    columns: [0, 1] // Cria as caixas de filtro Múltiplo para as colunas "Mês" e "Procedimento"
+                },
                 columns: [
                     { data: 'competencia_fmt', width: '60px' },
-                    { data: 'procedimento', render: d => formatarProcedimento(d) },
+                    { 
+                        data: 'procedimento', 
+                        // O 'display' usa o HTML colorido. O filtro/Excel usa o texto cru original (para a pesquisa funcionar bem!)
+                        render: function(data, type) { return type === 'display' ? formatarProcedimento(data) : data; } 
+                    },
                     { data: 'aih_aprovadas', className: "text-center font-bold text-blue-600" },
                     { data: 'valor_serv_hosp', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_serv_prof', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
@@ -348,39 +319,47 @@
                     { data: 'media_permanencia', className: "text-center", render: v => v ? v + ' d' : '-' },
                     { data: 'obitos', className: "text-center", render: d => d > 0 ? `<span class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded border border-red-300">${d}</span>` : '-' }
                 ],
-                order: [[5, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_" }
+                order: [[5, 'desc']], 
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", searchPanes: { title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, collapse: {0: 'Filtros Avançados', _: 'Filtros Avançados (%d)'} } }
             });
-            applyColumnFilters(tableAIH_Instance, 'tabelaAIH');
 
             // ==========================================
             // RENDERIZA TABELA SP (SECUNDÁRIOS)
             // ==========================================
-            if ($.fn.DataTable.isDataTable('#tabelaSP')) {
-                tableSP_Instance.destroy();
-                $('#filterRowSP').empty();
-            }
-            setupColumnFilters('tabelaSP');
+            if ($.fn.DataTable.isDataTable('#tabelaSP')) tableSP_Instance.destroy();
 
             tableSP_Instance = $('#tabelaSP').DataTable({
-                data: dtSP, pageLength: 15, responsive: true, dom: 'lBrtip', orderCellsTop: true,
-                lengthMenu: [[15, 50, 100, -1], [15, 50, 100, "Todos"]],
-                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' }],
+                data: dtSP, 
+                pageLength: 15, 
+                responsive: true, 
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'searchPanes', text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', className: 'dt-button' },
+                    { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Excel', className: 'dt-button' }
+                ],
+                searchPanes: {
+                    cascadePanes: true,
+                    viewTotal: true,
+                    columns: [0, 1] // Cria as caixas de filtro Múltiplo para as colunas "Mês" e "Item Secundário"
+                },
                 columns: [
                     { data: 'competencia_fmt', width: '60px' },
-                    { data: 'procedimento', render: d => formatarProcedimento(d) },
+                    { 
+                        data: 'procedimento', 
+                        render: function(data, type) { return type === 'display' ? formatarProcedimento(data) : data; } 
+                    },
                     { data: 'qtd_aprovada', className: "text-center font-bold text-orange-500" },
                     { data: 'valor_serv_hosp', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_serv_prof', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_total', className: "font-bold text-purple-700", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
-                order: [[5, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_" }
+                order: [[5, 'desc']], 
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", searchPanes: { title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, collapse: {0: 'Filtros Avançados', _: 'Filtros Avançados (%d)'} } }
             });
-            applyColumnFilters(tableSP_Instance, 'tabelaSP');
         }
 
         function updateCharts(dtAIH, dtSP) {
             let grupos = {};
-            // Soma ambos para os gráficos globais
             dtAIH.forEach(d => {
                 let m = d.competencia_iso.substring(5,7); let nome = mesesNome[parseInt(m)-1];
                 if(!grupos[nome]) grupos[nome] = {vAIH:0, vSP:0};
