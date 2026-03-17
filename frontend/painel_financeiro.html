@@ -63,7 +63,7 @@
         table.dataTable tbody tr:hover { background-color: #f1f5f9; }
         
         .dt-buttons { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
-        .dt-button { background: #fff !important; border: 1px solid #004e92 !important; border-radius: 6px !important; color: #004e92 !important; font-weight: bold !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; }
+        .dt-button { background: #fff !important; border: 1px solid #004e92 !important; border-radius: 6px !important; color: #004e92 !important; font-weight: bold !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; cursor: pointer; }
         .dt-button:hover { background: #004e92 !important; color: #fff !important; }
 
         .btn-refresh { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; text-decoration: none; }
@@ -109,9 +109,7 @@
                     
                     <span class="filter-label" style="margin-left:10px">Período:</span>
                     <select id="mesFilter" onchange="renderizar()" class="filter-select">
-                        <option value="">Todo o Ano Selecionado</option>
-                        <option value="6M">Apenas Últimos 6 Meses</option>
-                    </select>
+                        </select>
                 </div>
                 <img src="../logo.png" alt="Logo" class="header-mini-logo">
                 <a href="index_v2.html" class="btn-refresh"><i class="fas fa-arrow-left"></i> Voltar</a>
@@ -204,7 +202,6 @@
             $(btn).addClass('active');
             $('.view-section').removeClass('active');
             $('#view_' + viewId).addClass('active');
-            // Reajusta as colunas invisíveis para não partirem o layout
             if(tableAIH_Instance) tableAIH_Instance.columns.adjust();
             if(tableSP_Instance) tableSP_Instance.columns.adjust();
         }
@@ -237,6 +234,7 @@
                 dadosSP = resSP.data || [];
                 
                 $('#status').text("Online");
+                atualizarComboMeses(); 
                 renderizar();
             } catch (e) { 
                 console.error(e); 
@@ -244,15 +242,29 @@
             }
         }
 
-        // FUNÇÃO INTELIGENTE DE SEPARAÇÃO: CÓDIGO E DESCRIÇÃO
+        function atualizarComboMeses() {
+            const selMes = document.getElementById('mesFilter');
+            const valorAntigo = selMes.value;
+            selMes.innerHTML = '<option value="">Todo o Ano Selecionado</option><option value="6M">Apenas Últimos 6 Meses</option>';
+            
+            // O segredo: junta as duas tabelas para achar todos os meses disponíveis
+            let todosOsDados = [...dadosAIH, ...dadosSP];
+            if(todosOsDados.length > 0) {
+                const mesesPresentes = [...new Set(todosOsDados.map(d => d.competencia_iso.substring(5,7)))].sort();
+                mesesPresentes.forEach(m => {
+                    let nome = mesesNome[parseInt(m)-1];
+                    let opt = document.createElement('option'); opt.value = m; opt.innerText = nome; selMes.appendChild(opt);
+                });
+            }
+            if(valorAntigo) selMes.value = valorAntigo;
+        }
+
         function formatarProcedimento(procString) {
             if(!procString) return '-';
             let parts = procString.split(' ');
-            // Se a primeira palavra tiver exatamente 10 números, é o código SUS!
             if(parts.length > 0 && parts[0].length === 10 && !isNaN(parts[0])) {
                 let codigo = parts[0];
                 let descricao = parts.slice(1).join(' ');
-                // A descrição original (crua) é guardada num span invisível caso precisemos, mas mostramos a bonitinha
                 return `<span class="proc-codigo">${codigo}</span><span class="proc-desc" title="${descricao}">${descricao.length > 55 ? descricao.substring(0,55)+'...' : descricao}</span>`;
             }
             return `<span class="proc-desc">${procString.length > 70 ? procString.substring(0,70)+'...' : procString}</span>`;
@@ -264,18 +276,19 @@
             let dtAIH = dadosAIH;
             let dtSP = dadosSP;
 
-            // Lógica do Filtro de Período (Últimos 6 Meses)
             if(mesSelecionado === "6M") {
-                const mesesPresentes = [...new Set(dadosAIH.map(d => d.competencia_iso.substring(5,7)))].sort().reverse().slice(0,6);
+                let todosOsDados = [...dadosAIH, ...dadosSP];
+                const mesesPresentes = [...new Set(todosOsDados.map(d => d.competencia_iso.substring(5,7)))].sort().reverse().slice(0,6);
                 dtAIH = dadosAIH.filter(d => mesesPresentes.includes(d.competencia_iso.substring(5,7)));
                 dtSP = dadosSP.filter(d => mesesPresentes.includes(d.competencia_iso.substring(5,7)));
+            } else if (mesSelecionado) {
+                dtAIH = dadosAIH.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`));
+                dtSP = dadosSP.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`));
             }
 
-            // Totais AIH
             let tAIH = { v:0, a:0, h:0, p:0 };
             dtAIH.forEach(d => { tAIH.v += d.valor_total||0; tAIH.a += d.aih_aprovadas||0; tAIH.h += d.valor_serv_hosp||0; tAIH.p += d.valor_serv_prof||0; });
             
-            // Totais SP
             let tSP = { v:0, q:0, h:0, p:0 };
             dtSP.forEach(d => { tSP.v += d.valor_total||0; tSP.q += d.qtd_aprovada||0; tSP.h += d.valor_serv_hosp||0; tSP.p += d.valor_serv_prof||0; });
 
@@ -287,7 +300,7 @@
             updateCharts(dtAIH, dtSP);
 
             // ==========================================
-            // RENDERIZA TABELA AIH (PRINCIPAL)
+            // TABELA AIH (PRINCIPAL)
             // ==========================================
             if ($.fn.DataTable.isDataTable('#tabelaAIH')) tableAIH_Instance.destroy();
             
@@ -295,21 +308,26 @@
                 data: dtAIH, 
                 pageLength: 15, 
                 responsive: true, 
-                dom: 'Bfrtip', // O botão 'searchPanes' fará a mágica
+                dom: 'Bfrtip',
                 buttons: [
-                    { extend: 'searchPanes', text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', className: 'dt-button' },
+                    { 
+                        extend: 'searchPanes', 
+                        text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', 
+                        className: 'dt-button',
+                        config: { cascadePanes: true, viewTotal: true }
+                    },
                     { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Excel', className: 'dt-button' }
                 ],
-                searchPanes: {
-                    cascadePanes: true,
-                    viewTotal: true,
-                    columns: [0, 1] // Cria as caixas de filtro Múltiplo para as colunas "Mês" e "Procedimento"
-                },
+                // EXIGE que apenas as colunas 0 (Mês) e 1 (Procedimento) apareçam no painel de Filtros Avançados
+                columnDefs: [
+                    { searchPanes: { show: true }, targets: [0, 1] },
+                    { searchPanes: { show: false }, targets: [2, 3, 4, 5, 6, 7] }
+                ],
                 columns: [
                     { data: 'competencia_fmt', width: '60px' },
                     { 
                         data: 'procedimento', 
-                        // O 'display' usa o HTML colorido. O filtro/Excel usa o texto cru original (para a pesquisa funcionar bem!)
+                        // Garante que o Excel e os Filtros usem o texto PURO (sem as cores) e só a Tabela use o HTML
                         render: function(data, type) { return type === 'display' ? formatarProcedimento(data) : data; } 
                     },
                     { data: 'aih_aprovadas', className: "text-center font-bold text-blue-600" },
@@ -320,11 +338,18 @@
                     { data: 'obitos', className: "text-center", render: d => d > 0 ? `<span class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded border border-red-300">${d}</span>` : '-' }
                 ],
                 order: [[5, 'desc']], 
-                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", searchPanes: { title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, collapse: {0: 'Filtros Avançados', _: 'Filtros Avançados (%d)'} } }
+                language: { 
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", 
+                    searchPanes: { 
+                        title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, 
+                        collapse: {0: '<i class="fas fa-filter"></i> Filtros Avançados', _: '<i class="fas fa-filter"></i> Filtros Avançados (%d)'},
+                        clearMessage: 'Limpar Tudo'
+                    } 
+                }
             });
 
             // ==========================================
-            // RENDERIZA TABELA SP (SECUNDÁRIOS)
+            // TABELA SP (SECUNDÁRIOS)
             // ==========================================
             if ($.fn.DataTable.isDataTable('#tabelaSP')) tableSP_Instance.destroy();
 
@@ -334,18 +359,24 @@
                 responsive: true, 
                 dom: 'Bfrtip',
                 buttons: [
-                    { extend: 'searchPanes', text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', className: 'dt-button' },
+                    { 
+                        extend: 'searchPanes', 
+                        text: '<i class="fas fa-filter"></i> Filtros Múltiplos Avançados', 
+                        className: 'dt-button',
+                        config: { cascadePanes: true, viewTotal: true }
+                    },
                     { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Excel', className: 'dt-button' }
                 ],
-                searchPanes: {
-                    cascadePanes: true,
-                    viewTotal: true,
-                    columns: [0, 1] // Cria as caixas de filtro Múltiplo para as colunas "Mês" e "Item Secundário"
-                },
+                // EXIGE que apenas as colunas 0 (Mês) e 1 (Procedimento) apareçam no painel de Filtros Avançados
+                columnDefs: [
+                    { searchPanes: { show: true }, targets: [0, 1] },
+                    { searchPanes: { show: false }, targets: [2, 3, 4, 5] }
+                ],
                 columns: [
                     { data: 'competencia_fmt', width: '60px' },
                     { 
                         data: 'procedimento', 
+                        // Garante que o Excel e os Filtros usem o texto PURO (sem as cores) e só a Tabela use o HTML
                         render: function(data, type) { return type === 'display' ? formatarProcedimento(data) : data; } 
                     },
                     { data: 'qtd_aprovada', className: "text-center font-bold text-orange-500" },
@@ -354,7 +385,14 @@
                     { data: 'valor_total', className: "font-bold text-purple-700", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
                 order: [[5, 'desc']], 
-                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", searchPanes: { title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, collapse: {0: 'Filtros Avançados', _: 'Filtros Avançados (%d)'} } }
+                language: { 
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", 
+                    searchPanes: { 
+                        title: { _: 'Filtros Ativos - %d', 0: 'Nenhum Filtro Ativo', 1: '1 Filtro Ativo' }, 
+                        collapse: {0: '<i class="fas fa-filter"></i> Filtros Avançados', _: '<i class="fas fa-filter"></i> Filtros Avançados (%d)'},
+                        clearMessage: 'Limpar Tudo'
+                    } 
+                }
             });
         }
 
