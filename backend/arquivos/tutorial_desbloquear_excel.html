@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Desbloquear Planilhas Excel (.xlsx)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        ol {
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            border-left: 4px solid #e74c3c;
+            padding: 10px;
+            font-family: monospace;
+            display: block;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .tip {
+            background-color: #e8f8f5;
+            border-left: 4px solid #1abc9c;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Como Remover Senha de Edição no Excel (Método XML)</h1>
+    <p>Este tutorial explica passo a passo como desbloquear abas protegidas de um arquivo <strong>.xlsx</strong> mantendo toda a formatação original, alterando a estrutura interna do arquivo.</p>
+
+    <h2>Passo a Passo</h2>
+    <ol>
+        <li><strong>Faça um backup:</strong> Antes de começar, crie uma cópia do arquivo original por segurança.</li>
+        
+        <li><strong>Altere a extensão:</strong> Renomeie a cópia do arquivo de <span class="highlight">.xlsx</span> para <span class="highlight">.zip</span>. <br>
+        <em>*Se o Windows não mostrar a extensão, vá na guia "Exibir" e marque a opção "Extensões de nomes de arquivos".</em></li>
+        
+        <li><strong>Extraia os arquivos:</strong> Clique com o botão direito no arquivo .zip e escolha "Extrair Tudo..." para uma nova pasta.</li>
+        
+        <li><strong>Localize a planilha bloqueada:</strong> Navegue até a pasta extraída, abra a pasta <strong>xl</strong> e, em seguida, a pasta <strong>worksheets</strong>. Aqui você verá arquivos como <code>sheet1.xml</code>, <code>sheet2.xml</code>.</li>
+        
+        <li><strong>Edite o arquivo XML:</strong> 
+            <ul>
+                <li>Clique com o botão direito na planilha que deseja desbloquear e abra com o <strong>VS Code</strong>.</li>
+                <li>Pressione <code>Ctrl + F</code> e pesquise por <code>sheetProtection</code>.</li>
+                <li>Você encontrará uma tag parecida com esta:
+                    <span class="code-block">&lt;sheetProtection algorithmName="SHA-512" hashValue="..." saltValue="..." spinCount="100000" sheet="1" objects="1" scenarios="1"/&gt;</span>
+                </li>
+                <li><strong>Exclua a tag inteira</strong> (começando no <code>&lt;</code> antes de sheetProtection até o fechamento <code>/&gt;</code>).</li>
+                <li>Salve o arquivo (<code>Ctrl + S</code>) e feche o VS Code.</li>
+            </ul>
+        </li>
+        
+        <li><strong>Recrie o arquivo ZIP:</strong> Volte para a pasta principal onde você extraiu tudo. Selecione <strong>todos</strong> os arquivos e pastas ali dentro (<code>_rels</code>, <code>docProps</code>, <code>xl</code>, <code>[Content_Types].xml</code>). Clique com o botão direito e escolha "Compactar para arquivo ZIP".</li>
+        
+        <li><strong>Restaure a extensão original:</strong> Renomeie o novo arquivo compactado de <span class="highlight">.zip</span> de volta para <span class="highlight">.xlsx</span>.</li>
+    </ol>
+
+    <div class="tip">
+        <strong>Pronto!</strong> Ao abrir este novo arquivo no Excel, a aba estará completamente livre para edição e com a mesma estrutura visual de antes.
+    </div>
+</div>
+
+</body>
+</html>

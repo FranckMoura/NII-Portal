@@ -4,8 +4,7 @@ import glob
 from supabase import create_client, Client
 from datetime import datetime
 
-print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V22 (COM CAPTURA DE CNS) ---")
-print(f">> Correção: Detecta nomes errados e agora captura o Cartão SUS (CNS).")
+print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V22 (COM PROCEDIMENTOS SOLICITADOS) ---")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_DOWNLOADS = os.path.join(BASE_DIR, "downloads")
@@ -37,20 +36,13 @@ def traduzir_carater(valor):
     return v
 
 def validar_nome_paciente(nome, num_solicitacao):
-    """
-    Impede que Status ou Lixo entrem como Nome do Paciente
-    """
+    """ Impede que Status ou Lixo entrem como Nome do Paciente """
     n = limpar(nome)
-    if not n: 
-        return f"PACIENTE {num_solicitacao}" # Nome provisório se vier vazio
+    if not n: return f"PACIENTE {num_solicitacao}"
     
     n_upper = n.upper()
-    palavras_proibidas = [
-        "APROVADA", "AUTORIZADO", "PENDENTE", "NEGADO", "CANCELADO", 
-        "DEVOLVIDO", "AGUARDANDO", "URGENCIA", "ELETIVA", "SOLICITACAO"
-    ]
+    palavras_proibidas = ["APROVADA", "AUTORIZADO", "PENDENTE", "NEGADO", "CANCELADO", "DEVOLVIDO", "AGUARDANDO", "URGENCIA", "ELETIVA", "SOLICITACAO"]
     
-    # Se o nome for exatamente uma dessas palavras (erro de coluna deslocada)
     if n_upper in palavras_proibidas:
         return f"ERRO LEITURA CSV ({num_solicitacao})"
         
@@ -65,18 +57,15 @@ def corrigir_nomes_colunas(df):
         'CarÃ¡ter internaÃ§Ã£o': 'Caráter internação',
         'Status da solicitaÃ§Ã£o de InternaÃ§Ã£o': 'Status da solicitação de Internação',
         'Nome da clÃ\xadnica': 'Nome da clínica',
+        'Nome do procedimento solicitado': 'Nome do procedimento solicitado', # ADICIONADO
         'MÃ©dico Solicitante': 'Médico Solicitante',
         'ClassificaÃ§Ã£o de risco': 'Classificação de risco',
         'Justificativa': 'Justificativa', 
         'N. AIH': 'N. AIH',
         'Nome do paciente': 'Nome do paciente',
         'Valor total da AIH': 'Valor total da AIH',
-        # Incluindo possíveis mapeamentos para a coluna CNS do CSV
-        'CNS': 'CNS',
-        'Cartão Nacional de Saúde': 'CNS',
-        'CartÃ£o Nacional de SaÃºde': 'CNS'
     }
-    # Tenta renomear todas as variações para um padrão comum
+    
     for col in df.columns:
         if 'cns' in col.lower() or 'cart' in col.lower():
             mapa[col] = 'CNS'
@@ -91,11 +80,8 @@ def forcar_atualizacao(registro):
         erro = str(e1)
         if "duplicate key" in erro or "constraint" in erro:
             try:
-                # Remove conflitos antigos (limpa a sujeira)
+                # Trator: Apaga do banco qualquer conflito com essa solicitação e recria a linha limpa
                 supabase.table("regulacao").delete().eq("num_solicitacao", registro["num_solicitacao"]).execute()
-                if registro["num_aih"]:
-                    supabase.table("regulacao").delete().eq("num_aih", registro["num_aih"]).execute()
-                
                 supabase.table("regulacao").insert(registro).execute()
                 return True
             except:
@@ -107,7 +93,7 @@ def processar():
     registros = {}
 
     if not arquivos:
-        print("⚠️ Nenhum arquivo CSV encontrado.")
+        print("⚠️ Nenhum arquivo CSV encontrado na pasta downloads.")
         return
 
     for arq in arquivos:
@@ -122,6 +108,7 @@ def processar():
                 solicitacao = limpar(row.get("N. da solicitação"))
                 if not solicitacao: continue
 
+                # Cria chave primária falsa para quem ainda não tem AIH
                 chave_aih = aih if aih else solicitacao
                 
                 nome_bruto = row.get("Nome do paciente")
@@ -131,7 +118,6 @@ def processar():
                     "num_aih": chave_aih,
                     "num_solicitacao": solicitacao,
                     "nome_paciente": nome_corrigido,
-                    # --- AQUI ESTÁ A CORREÇÃO: CAPTURA E ENVIO DO CNS PARA O SUPABASE ---
                     "cns_paciente": limpar(row.get("CNS")), 
                     "status": limpar(row.get("Status da solicitação de Internação")),
                     "data_solicitacao": converter_data(row.get("Data da solicitação")),
@@ -141,6 +127,7 @@ def processar():
                     "carater_internacao": traduzir_carater(row.get("Caráter internação")),
                     "medico_solicitante": limpar(row.get("Médico Solicitante")),
                     "valor_total_aih": limpar(row.get("Valor total da AIH")),
+                    "procedimento": limpar(row.get("Nome do procedimento solicitado")), # COLUNA ADICIONADA E MAPEADA
                     "data_atualizacao": datetime.now().isoformat()
                 }
         except Exception as e: 
@@ -149,26 +136,24 @@ def processar():
     lista = list(registros.values())
     
     if lista:
-        print(f"\n📦 Processando {len(lista)} registros (Enviando CNS...)...")
+        print(f"\n📦 Processando {len(lista)} registros (Enviando Procedimentos para Nuvem)...")
         
         sucessos = 0
-        
         TAMANHO_LOTE = 50
+        
         for i in range(0, len(lista), TAMANHO_LOTE):
             lote = lista[i:i+TAMANHO_LOTE]
             try:
-                # Tenta upsert padrão
                 supabase.table("regulacao").upsert(lote, on_conflict="num_solicitacao").execute()
                 sucessos += len(lote)
                 print(f"   ✅ Lote {i} processado.", end="\r")
             except:
-                # Se falhar, usa o trator
                 print(f"\n   ⚠️ Lote {i} com conflito/erro. Corrigindo linha a linha...")
                 for item in lote:
                     forcar_atualizacao(item)
                     sucessos += 1
         
-        print(f"\n✅ Banco de dados higienizado e CNS populados! Atualize o painel HTML.")
+        print(f"\n✅ Banco de dados higienizado e Populado! Abra o painel HTML.")
     else:
         print("⚠️ Nada para enviar.")
 
