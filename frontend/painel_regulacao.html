@@ -240,7 +240,7 @@
                 <label>BUSCA RÁPIDA (Global):</label>
                 <div class="input-wrapper">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="tableSearch" placeholder="Paciente, AIH, Solicitação..." onkeyup="filtrarTabelaLocal()">
+                    <input type="text" id="tableSearch" placeholder="Paciente, AIH, Solicitação, Procedimento..." onkeyup="filtrarTabelaLocal()">
                 </div>
             </div>
         </div>
@@ -302,6 +302,7 @@
                         <th>Paciente</th>
                         <th>CNS</th>
                         <th>Solicitação</th>
+                        <th>Procedimento</th>
                         <th>AIH</th>
                         <th>Status</th>
                         <th>Caráter</th>
@@ -384,29 +385,29 @@
             dataTableInstance.column(2).search(searchClinica);
             $('.table-search th:eq(2) input').val(searchClinica).addClass('highlight-filter');
 
-            // Aplica filtro no Status (índice 7) usando Regex
+            // Aplica filtro no Status (índice 8) usando Regex
             let strStatus = '';
             if(tipoStatus === 'APROVADOS') {
-                dataTableInstance.column(7).search('APROV|AUTORIZ', true, false);
+                dataTableInstance.column(8).search('APROV|AUTORIZ', true, false);
                 strStatus = 'Aprov';
             }
             else if(tipoStatus === 'PENDENTES') {
-                dataTableInstance.column(7).search('PENDENTE');
+                dataTableInstance.column(8).search('PENDENTE');
                 strStatus = 'Pend';
             }
             else if(tipoStatus === 'NEGADOS') {
-                dataTableInstance.column(7).search('NEGADO|CANCELADO', true, false);
+                dataTableInstance.column(8).search('NEGADO|CANCELADO', true, false);
                 strStatus = 'Negad';
             }
             
             if(tipoStatus !== 'TOTAL') {
-                $('.table-search th:eq(7) input').val(strStatus).addClass('highlight-filter');
+                $('.table-search th:eq(8) input').val(strStatus).addClass('highlight-filter');
             }
 
-            // Aplica filtro no Caráter (índice 8)
+            // Aplica filtro no Caráter (índice 9)
             let charC = carater.substring(0,3);
-            dataTableInstance.column(8).search(charC);
-            $('.table-search th:eq(8) input').val(charC).addClass('highlight-filter');
+            dataTableInstance.column(9).search(charC);
+            $('.table-search th:eq(9) input').val(charC).addClass('highlight-filter');
 
             // Redesenha a tabela e rola para ela
             dataTableInstance.draw();
@@ -658,7 +659,8 @@
 
                 while (keepFetching) {
                     let query = client.from('regulacao')
-                                      .select('data_solicitacao, data_autorizacao, nome_clinica, nome_paciente, cns_paciente, num_solicitacao, cod_solicitacao, num_aih, status, carater_internacao, arquivo_pdf')
+                                      // ADICIONADO O CAMPO: procedimento
+                                      .select('data_solicitacao, data_autorizacao, nome_clinica, nome_paciente, cns_paciente, num_solicitacao, cod_solicitacao, num_aih, status, carater_internacao, arquivo_pdf, procedimento')
                                       .gte('data_solicitacao', d1)
                                       .lte('data_solicitacao', d2)
                                       .order('data_solicitacao', { ascending: false })
@@ -775,7 +777,7 @@
             
             $('.table-search').empty();
             $('#tabelaRegulacao thead tr:eq(0) th').each( function (i) {
-                if(i === 9) { 
+                if(i === 10) { // O índice do PDF 'FICHA' passou a ser 10 com a nova coluna
                     $('.table-search').append('<th class="no-print"></th>');
                 } else {
                     $('.table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>');
@@ -823,6 +825,15 @@
                         }
                     },
                     { data: null, render: r => r.cod_solicitacao || r.num_solicitacao || '-' },
+                    // A NOVA COLUNA DE PROCEDIMENTO AQUI
+                    { 
+                        data: 'procedimento', 
+                        render: function(d, type, row) {
+                            if (!d || d.trim() === "") return '<span style="color:#cbd5e1;">-</span>';
+                            if (type === 'display') return `<span title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</span>`;
+                            return d; 
+                        } 
+                    },
                     { 
                         data: 'num_aih', 
                         render: (d, type, row) => {
