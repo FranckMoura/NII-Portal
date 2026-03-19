@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Operacional - NII</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #004e92; --dark: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #000428 0%, #004e92 100%); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; margin:0; }
+        
+        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
+        .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); margin: 0 auto 15px auto; }
+        header h1 { font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; }
+        .btn-voltar { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-voltar:hover { background: rgba(255,255,255,0.3); }
+
+        main { flex: 1; max-width: 1000px; margin: 20px auto; padding: 0 20px; width: 100%; }
+        .section-title { color: rgba(255,255,255,0.8); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; font-weight: 700; text-align: center; }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .menu-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 25px; text-decoration: none; color: var(--dark); box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: all 0.3s ease; display: flex; align-items: center; gap: 20px; }
+        .menu-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 1); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); border-color: var(--primary); }
+        
+        .icon-box, .logo-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .icon-box { font-size: 24px; }
+        .logo-box img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        
+        .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: #1e293b; }
+        .card-content p { font-size: 0.85rem; color: #64748b; line-height: 1.4; margin: 0; }
+        
+        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index_v2.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao Hub</a>
+        <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
+        <h1>Módulo Operacional</h1>
+        <p>Rotinas diárias e cruzamento de dados na base da operação.</p>
+    </header>
+
+    <main>
+        <div class="menu-grid">
+            <a href="painel_regulacao.html" class="menu-card">
+                <div class="logo-box"><img src="../500px-Logo-sisreg.png" alt="Logo Sisreg" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/500px-Logo-sisreg.png'"></div>
+                <div class="card-content">
+                    <h3>Painel de Regulação</h3>
+                    <p>Monitoramento de solicitações SISREG e aprovações.</p>
+                </div>
+            </a>
+
+            <a href="painel_indicasus_v2.html" class="menu-card">
+                <div class="logo-box"><img src="../LogoSES-Gov.png" alt="Logo SES MT" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/LogoSES-Gov.png'"></div>
+                <div class="card-content">
+                    <h3>IndicaSUS (Leitos)</h3>
+                    <p>Censo Diário e Auditoria de Complexidade (UTI/UCI).</p>
+                </div>
+            </a>
+
+            <a href="painel_sigtap.html" class="menu-card">
+                <div class="logo-box"><img src="../logo_sigtap.png" alt="Logo SIGTAP" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_sigtap.png'"></div>
+                <div class="card-content">
+                    <h3>Consulta SIGTAP</h3>
+                    <p>Pesquisa rápida de valores e compatibilidades (OPME).</p>
+                </div>
+            </a>
+
+            <a href="painel_institucional.html" class="menu-card">
+                <div class="logo-box"><img src="../logo_institucional.png" alt="Logo Institucional" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_institucional.png'"></div>
+                <div class="card-content">
+                    <h3>Institucional (CNES)</h3>
+                    <p>Leitos, Serviços, Habilitações e Profissionais.</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura </p></footer>
+</body>
+</html>
