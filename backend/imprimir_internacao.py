@@ -21,8 +21,8 @@ print(f"--- 2. AUTOMAÇÃO SISREG (V57 - FORÇAR DOWNLOAD) ---")
 FORCAR_RE_DOWNLOAD = False 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
-DT_INICIO = "10/03/2026"
-DT_FIM = "17/03/2026"
+DT_INICIO = "01/03/2026"
+DT_FIM = "19/03/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
