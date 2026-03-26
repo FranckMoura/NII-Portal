@@ -11,8 +11,14 @@
     
     <style>
         /* 1. THE SETUP */
-        * { box-sizing: border-box; }
-        p { margin: 0; margin-bottom: 15px; }
+        * {
+            box-sizing: border-box;
+        }
+
+        p {
+            margin: 0;
+            margin-bottom: 15px;
+        }
 
         body {
             background-color: #e2e8f0;
@@ -43,109 +49,380 @@
 
         /* 1.1 BACKGROUND DESIGN (Subtle Bokeh/Gradients) */
         .slide-container::before {
-            content: ''; position: absolute; top: -150px; right: -100px; width: 500px; height: 500px;
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
             background: radial-gradient(circle, rgba(2, 132, 199, 0.04) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%; z-index: 0;
+            border-radius: 50%;
+            z-index: 0;
         }
 
         .slide-container::after {
-            content: ''; position: absolute; bottom: -200px; left: -150px; width: 600px; height: 600px;
+            content: '';
+            position: absolute;
+            bottom: -200px;
+            left: -150px;
+            width: 600px;
+            height: 600px;
             background: radial-gradient(circle, rgba(15, 23, 42, 0.02) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%; z-index: 0;
+            border-radius: 50%;
+            z-index: 0;
         }
 
-        .slide-container > * { position: relative; z-index: 1; }
+        .slide-container > * {
+            position: relative;
+            z-index: 1;
+        }
 
         /* 2. CONSISTENT TYPOGRAPHY */
-        .slide-container h1, .slide-container h2, .slide-container h3 { color: #0f172a; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 0; }
-        .slide-container p, .slide-container li, .slide-container .subtitle, .slide-container .number-label, .slide-container th, .slide-container td { color: #475569; font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.5; }
-        .slide-container h1 { font-size: 70px; }
-        .slide-container .slide-title { color: #0284c7; font-size: 40px; font-weight: 700; margin-bottom: 40px; text-align: left; width: 100%; }
-        .slide-container h3 { font-size: 28px; font-weight: 600; margin-bottom: 15px; }
-        .slide-container .content-area { align-items: flex-start; display: flex; flex-direction: column; flex-grow: 1; justify-content: center; width: 100%; }
+        .slide-container h1,
+        .slide-container h2,
+        .slide-container h3 {
+            color: #0f172a;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+        }
+
+        .slide-container p,
+        .slide-container li,
+        .slide-container .subtitle,
+        .slide-container .number-label,
+        .slide-container th,
+        .slide-container td {
+            color: #475569;
+            font-family: 'Lato', sans-serif;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .slide-container h1 {
+            font-size: 70px;
+        }
+
+        .slide-container .slide-title {
+            color: #0284c7;
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .slide-container h3 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .slide-container .content-area {
+            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
 
         /* 3. LAYOUT DEFINITIONS */
-        .title-layout { text-align: center; padding: 60px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #f8fafc; max-width: 900px; }
-        .title-layout h1 span { color: #0284c7; }
-        .title-layout .subtitle { font-size: 24px; margin-top: 20px; }
-
-        .table-layout { width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); }
-        .table-layout table { border-collapse: collapse; width: 100%; }
-        .table-layout th, .table-layout td { padding: 14px 24px; text-align: left; }
-        .table-layout th { background-color: #0284c7; color: #ffffff; font-size: 18px; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; }
-        .table-layout td { border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 16px; }
-        .table-layout tr:nth-child(even) td { background-color: #f8fafc; }
-        .table-layout tr:last-child td { border-bottom: none; }
-        .table-layout td strong { color: #0f172a; }
-
-        .timeline-layout { align-items: stretch; display: flex; height: stretch; justify-content: space-between; position: relative; width: 100%; margin-top: 40px; }
-        .timeline-layout .timeline-line { background-color: #cbd5e1; height: 4px; left: 0; position: absolute; top: 50%; transform: translateY(-2px); width: 100%; z-index: 0; }
-        .timeline-item { position: relative; text-align: center; width: 23%; }
-        .timeline-item::after { background-color: #ffffff; border-radius: 50%; border: 4px solid #0284c7; content: ''; height: 24px; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 24px; z-index: 1; }
-        .timeline-item .content-wrapper { left: 0; position: absolute; width: 100%; background-color: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .timeline-item:nth-child(odd) .content-wrapper { bottom: 50%; margin-bottom: 35px; }
-        .timeline-item:nth-child(even) .content-wrapper { margin-top: 35px; top: 50%; }
-        .timeline-item h3 { color: #0284c7; font-size: 20px; margin-bottom: 8px; }
-        .timeline-item .responsavel { font-weight: 700; color: #0f172a; font-size: 16px; margin-bottom: 8px; }
-        .timeline-item p { font-size: 14px; margin-bottom: 0; }
-
-        .tiled-content { align-items: stretch; display: flex; gap: 40px; justify-content: center; width: 100%; }
-        .tile { align-items: center; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; padding: 40px 30px; text-align: center; }
-        .tile .icon { color: #0284c7; font-size: 50px; margin-bottom: 25px; }
-        .tile h3 { color: #0f172a; font-size: 22px; }
-        .tile .responsavel { font-weight: 700; color: #0284c7; font-size: 16px; margin-bottom: 15px; }
-
-        .slide-container.bleed-image-layout { align-items: start; display: grid; gap: 50px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; }
-        .slide-container.bleed-image-layout > .content-container { padding: 60px 0 60px 60px; display: flex; flex-direction: column; height: 100%; justify-content: center; }
-        .slide-container.bleed-image-layout > .image-container { height: 100%; overflow: hidden; width: 100%; }
-        .slide-container.bleed-image-layout img.bleed-image-side { border-radius: 0 12px 12px 0; display: block; height: 720px; object-fit: cover; object-position: center; width: 100%; }
-        .slide-container.bleed-image-layout .bleed-text-side { display: flex; flex-direction: column; justify-content: center; }
-        .slide-container.bleed-image-layout .bleed-text-side p { margin-bottom: 20px; }
-
-        .two-column.highlight-numbers-layout { align-items: center; display: flex; gap: 50px; width: 100%; }
-        .highlight-numbers-layout > div:first-child { flex: 0 0 40%; text-align: center; background-color: #f8fafc; padding: 60px 40px; border-radius: 16px; border: 1px solid #e2e8f0; }
-        .highlight-numbers-layout .number { color: #0284c7; font-size: 150px; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; margin-bottom: 10px; }
-        .highlight-numbers-layout .number-label { font-size: 24px; font-weight: 700; color: #0f172a; }
-
-        .qa-layout { margin: 0 auto; text-align: center; width: 100%; align-self: center; }
-        .qa-layout h2 { font-size: 80px; color: #0284c7; margin-bottom: 20px; }
-        .qa-layout p { font-size: 24px; }
-        .qa-layout .contact-info { color: #0f172a; font-size: 20px; font-weight: 700; margin-top: 40px; padding: 20px; background-color: #f8fafc; border-radius: 8px; display: inline-block; }
-    
-        /* BOTÃO FLUTUANTE DE VOLTAR */
-        .btn-floating-back {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #0f172a;
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        
+        /* Title Layout */
+        .title-layout {
+            text-align: center;
+            padding: 60px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            max-width: 900px;
         }
-        .btn-floating-back:hover {
-            background: #0284c7;
+        
+        .title-layout h1 span {
+            color: #0284c7;
+        }
+
+        .title-layout .subtitle {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        /* Table Layout */
+        .table-layout {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-layout table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .table-layout th,
+        .table-layout td {
+            padding: 14px 24px;
+            text-align: left;
+        }
+
+        .table-layout th {
+            background-color: #0284c7;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .table-layout td {
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        .table-layout tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-layout td strong {
+            color: #0f172a;
+        }
+
+        /* Timeline Layout */
+        .timeline-layout {
+            align-items: stretch;
+            display: flex;
+            height: stretch;
+            justify-content: space-between;
+            position: relative;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .timeline-layout .timeline-line {
+            background-color: #cbd5e1;
+            height: 4px;
+            left: 0;
+            position: absolute;
+            top: 50%;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.3);
+            width: 100%;
+            z-index: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            text-align: center;
+            width: 23%;
+        }
+
+        .timeline-item::after {
+            background-color: #ffffff;
+            border-radius: 50%;
+            border: 4px solid #0284c7;
+            content: '';
+            height: 24px;
+            left: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            z-index: 1;
+        }
+
+        .timeline-item .content-wrapper {
+            left: 0;
+            position: absolute;
+            width: 100%;
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-item:nth-child(odd) .content-wrapper {
+            bottom: 50%;
+            margin-bottom: 35px;
+        }
+
+        .timeline-item:nth-child(even) .content-wrapper {
+            margin-top: 35px;
+            top: 50%;
+        }
+
+        .timeline-item h3 {
+            color: #0284c7;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-item .responsavel {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-item p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        /* Tiled Content with Icons */
+        .tiled-content {
+            align-items: stretch;
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .tile {
+            align-items: center;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: flex-start;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .tile .icon {
+            color: #0284c7;
+            font-size: 50px;
+            margin-bottom: 25px;
+        }
+        
+        .tile h3 {
+            color: #0f172a;
+            font-size: 22px;
+        }
+        
+        .tile .responsavel {
+            font-weight: 700;
+            color: #0284c7;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Bleed Image Right Layout */
+        .slide-container.bleed-image-layout {
+            align-items: start;
+            display: grid;
+            gap: 50px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 0;
+        }
+
+        .slide-container.bleed-image-layout > .content-container {
+            padding: 60px 0 60px 60px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .slide-container.bleed-image-layout > .image-container {
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slide-container.bleed-image-layout img.bleed-image-side {
+            border-radius: 0 12px 12px 0;
+            display: block;
+            height: 720px;
+            object-fit: cover;
+            object-position: center;
+            width: 100%;
+        }
+
+        .slide-container.bleed-image-layout .bleed-text-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .slide-container.bleed-image-layout .bleed-text-side p {
+            margin-bottom: 20px;
+        }
+
+        /* Highlighted Numbers */
+        .two-column.highlight-numbers-layout {
+            align-items: center;
+            display: flex;
+            gap: 50px;
+            width: 100%;
+        }
+
+        .highlight-numbers-layout > div:first-child {
+            flex: 0 0 40%;
+            text-align: center;
+            background-color: #f8fafc;
+            padding: 60px 40px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .highlight-numbers-layout .number {
+            color: #0284c7;
+            font-size: 150px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .highlight-numbers-layout .number-label {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Q&A Layout */
+        .qa-layout {
+            margin: 0 auto;
+            text-align: center;
+            width: 100%;
+            align-self: center;
+        }
+
+        .qa-layout h2 {
+            font-size: 80px;
+            color: #0284c7;
+            margin-bottom: 20px;
+        }
+
+        .qa-layout p {
+            font-size: 24px;
+        }
+
+        .qa-layout .contact-info {
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
 
-<a href="modulo_estrategico.html" class="btn-floating-back">
-    <i class="fas fa-arrow-left"></i> Voltar ao Painel
-</a>
-
+<!-- Slide 1: Title_Slide -->
 <div class="slide-container" id="slide1">
     <div class="title-layout">
         <h1>FATURAMENTO - <span>SUS</span></h1>
@@ -153,6 +430,7 @@
     </div>
 </div>
 
+<!-- Slide 2: Table -->
 <div class="slide-container" id="slide2">
     <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
     <div class="content-area">
@@ -212,6 +490,7 @@
     </div>
 </div>
 
+<!-- Slide 3: Timeline -->
 <div class="slide-container" id="slide3">
     <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
     <div class="content-area">
@@ -249,6 +528,7 @@
     </div>
 </div>
 
+<!-- Slide 4: Tiled_Text_With_Icons -->
 <div class="slide-container" id="slide4">
     <h2 class="slide-title">Análise Crítica e Resolução</h2>
     <div class="content-area">
@@ -275,6 +555,7 @@
     </div>
 </div>
 
+<!-- Slide 5: Bleed_Image_Right (Apoio NIR - Kamila) -->
 <div class="slide-container bleed-image-layout" id="slide5">
     <div class="content-container">
         <h2 class="slide-title">O Papel Estratégico do NIR</h2>
@@ -288,10 +569,12 @@
         </div>
     </div>
     <div class="image-container">
+        <!-- Imagem representativa de apoio e organização hospitalar -->
         <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="">
     </div>
 </div>
 
+<!-- Slide 6: Bleed_Image_Right (Fechamento) -->
 <div class="slide-container bleed-image-layout" id="slide6">
     <div class="content-container">
         <h2 class="slide-title">A Visão da Coordenação</h2>
@@ -305,10 +588,12 @@
         </div>
     </div>
     <div class="image-container">
+        <!-- Imagem representativa de dados e relatórios -->
         <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="">
     </div>
 </div>
 
+<!-- Slide 7: Highlighted_Numbers -->
 <div class="slide-container" id="slide7">
     <h2 class="slide-title">Métricas do Fluxo SUS</h2>
     <div class="content-area">
@@ -326,6 +611,7 @@
     </div>
 </div>
 
+<!-- Slide 8: Q&A -->
 <div class="slide-container" id="slide8">
     <div class="qa-layout">
         <h2>Dúvidas Adicionais?</h2>

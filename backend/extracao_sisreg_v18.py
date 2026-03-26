@@ -41,7 +41,7 @@ def gerar_periodos_desde_2025():
     periodos = []
     data_atual = datetime.now()
     
-    ano_inicio = 2025
+    ano_inicio = 2026
     mes_inicio = 1
     
     ano_fim = data_atual.year

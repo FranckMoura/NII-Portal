@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxograma - FATURAMENTO - CONVÊNIO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* 1. THE SETUP */
+        * {
+            box-sizing: border-box;
+        }
+
+        p {
+            margin: 0;
+            margin-bottom: 15px;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px 0;
+            place-items: center;
+        }
+
+        .slide-container {
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Lato', sans-serif;
+            height: 720px;
+            justify-content: center;
+            overflow: hidden;
+            padding: 60px;
+            position: relative;
+            width: 1280px;
+        }
+
+        /* 1.1 BACKGROUND DESIGN (Subtle Bokeh/Gradients) */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(2, 132, 199, 0.04) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .slide-container::after {
+            content: '';
+            position: absolute;
+            bottom: -200px;
+            left: -150px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(15, 23, 42, 0.02) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 2. CONSISTENT TYPOGRAPHY */
+        .slide-container h1,
+        .slide-container h2,
+        .slide-container h3 {
+            color: #0f172a;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+        }
+
+        .slide-container p,
+        .slide-container li,
+        .slide-container .subtitle,
+        .slide-container .number-label,
+        .slide-container th,
+        .slide-container td {
+            color: #475569;
+            font-family: 'Lato', sans-serif;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .slide-container h1 {
+            font-size: 70px;
+        }
+
+        .slide-container .slide-title {
+            color: #0284c7;
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .slide-container h3 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .slide-container .content-area {
+            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* 3. LAYOUT DEFINITIONS */
+        
+        /* Title Layout */
+        .title-layout {
+            text-align: center;
+            padding: 60px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            max-width: 900px;
+        }
+        
+        .title-layout h1 span {
+            color: #0284c7;
+        }
+
+        .title-layout .subtitle {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        /* Table Layout */
+        .table-layout {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-layout table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .table-layout th,
+        .table-layout td {
+            padding: 16px 24px;
+            text-align: left;
+        }
+
+        .table-layout th {
+            background-color: #0284c7;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .table-layout td {
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        .table-layout tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-layout td strong {
+            color: #0f172a;
+        }
+
+        /* Timeline Layout */
+        .timeline-layout {
+            align-items: stretch;
+            display: flex;
+            height: stretch;
+            justify-content: space-between;
+            position: relative;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .timeline-layout .timeline-line {
+            background-color: #cbd5e1;
+            height: 4px;
+            left: 0;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-2px);
+            width: 100%;
+            z-index: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            text-align: center;
+            width: 23%;
+        }
+
+        .timeline-item::after {
+            background-color: #ffffff;
+            border-radius: 50%;
+            border: 4px solid #0284c7;
+            content: '';
+            height: 24px;
+            left: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            z-index: 1;
+        }
+
+        .timeline-item .content-wrapper {
+            left: 0;
+            position: absolute;
+            width: 100%;
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-item:nth-child(odd) .content-wrapper {
+            bottom: 50%;
+            margin-bottom: 35px;
+        }
+
+        .timeline-item:nth-child(even) .content-wrapper {
+            margin-top: 35px;
+            top: 50%;
+        }
+
+        .timeline-item h3 {
+            color: #0284c7;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-item .responsavel {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-item p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        /* Tiled Content with Icons */
+        .tiled-content {
+            align-items: stretch;
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .tile {
+            align-items: center;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: flex-start;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .tile .icon {
+            color: #0284c7;
+            font-size: 50px;
+            margin-bottom: 25px;
+        }
+        
+        .tile h3 {
+            color: #0f172a;
+            font-size: 22px;
+        }
+        
+        .tile .responsavel {
+            font-weight: 700;
+            color: #0284c7;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Bleed Image Right Layout */
+        .slide-container.bleed-image-layout {
+            align-items: start;
+            display: grid;
+            gap: 50px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 0;
+        }
+
+        .slide-container.bleed-image-layout > .content-container {
+            padding: 60px 0 60px 60px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .slide-container.bleed-image-layout > .image-container {
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slide-container.bleed-image-layout img.bleed-image-side {
+            border-radius: 0 12px 12px 0;
+            display: block;
+            height: 720px;
+            object-fit: cover;
+            object-position: center;
+            width: 100%;
+        }
+
+        .slide-container.bleed-image-layout .bleed-text-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .slide-container.bleed-image-layout .bleed-text-side p {
+            margin-bottom: 20px;
+        }
+
+        /* Highlighted Numbers */
+        .two-column.highlight-numbers-layout {
+            align-items: center;
+            display: flex;
+            gap: 50px;
+            width: 100%;
+        }
+
+        .highlight-numbers-layout > div:first-child {
+            flex: 0 0 40%;
+            text-align: center;
+            background-color: #f8fafc;
+            padding: 60px 40px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .highlight-numbers-layout .number {
+            color: #0284c7;
+            font-size: 150px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .highlight-numbers-layout .number-label {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Q&A Layout */
+        .qa-layout {
+            margin: 0 auto;
+            text-align: center;
+            width: 100%;
+            align-self: center;
+        }
+
+        .qa-layout h2 {
+            font-size: 80px;
+            color: #0284c7;
+            margin-bottom: 20px;
+        }
+
+        .qa-layout p {
+            font-size: 24px;
+        }
+
+        .qa-layout .contact-info {
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title_Slide -->
+<div class="slide-container" id="slide1">
+    <div class="title-layout">
+        <h1>FATURAMENTO - <span>CONVÊNIO</span></h1>
+        <p class="subtitle">Mapeamento de Processos & Fluxograma Estratégico</p>
+    </div>
+</div>
+
+<!-- Slide 2: Table -->
+<div class="slide-container" id="slide2">
+    <h2 class="slide-title">Visão Geral do Processo</h2>
+    <div class="content-area">
+        <div class="table-layout">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Ordem</th>
+                        <th style="width: 45%;">Departamento / Setor</th>
+                        <th style="width: 45%;">Responsáveis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>01</strong></td>
+                        <td>ARQUIVO / SAME</td>
+                        <td>Lindomar</td>
+                    </tr>
+                    <tr>
+                        <td><strong>02</strong></td>
+                        <td>GESTÃO DE CONTAS</td>
+                        <td>Lucelia</td>
+                    </tr>
+                    <tr>
+                        <td><strong>03</strong></td>
+                        <td>ENFERMAGEM / MÉDICOS</td>
+                        <td>Pollyana / Lucelia</td>
+                    </tr>
+                    <tr>
+                        <td><strong>04</strong></td>
+                        <td>AUDITORIA INTERNA</td>
+                        <td>Pollyana</td>
+                    </tr>
+                    <tr>
+                        <td><strong>05</strong></td>
+                        <td>CONTAS MEDICAS</td>
+                        <td>Thiago / Lucelia / Geovana</td>
+                    </tr>
+                    <tr>
+                        <td><strong>06</strong></td>
+                        <td>AUDITORIA IN LOCO</td>
+                        <td>Equipe Externa / Interna</td>
+                    </tr>
+                    <tr>
+                        <td><strong>07</strong></td>
+                        <td>DEMONSTRATIVO</td>
+                        <td>Lucelia</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: Timeline -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">Fluxo Inicial (Etapas 1 a 4)</h2>
+    <div class="content-area">
+        <div class="timeline-layout">
+            <div class="timeline-line"></div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>1. Arquivo / SAME</h3>
+                    <p class="responsavel">Resp: Lindomar</p>
+                    <p>Recepção inicial, catalogação e organização física dos prontuários e guias recebidas.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2. Gestão de Contas</h3>
+                    <p class="responsavel">Resp: Lucelia</p>
+                    <p>Triagem, controle de fluxo e preparação administrativa das contas hospitalares.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>3. Enferm. / Médicos</h3>
+                    <p class="responsavel">Resp: Pollyana / Lucelia</p>
+                    <p>Análise técnica assistencial profunda sobre os materiais, medicamentos e procedimentos.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>4. Auditoria Interna</h3>
+                    <p class="responsavel">Resp: Pollyana</p>
+                    <p>Verificação de conformidade rigorosa antes da liberação para o faturamento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Tiled_Text_With_Icons -->
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">Fluxo de Finalização (Etapas 5 a 7)</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <h3>5. Contas Médicas</h3>
+                <p class="responsavel">Thiago / Lucelia / Geovana</p>
+                <p>Processamento do faturamento, verificação de pendências e fechamento completo do lote de guias para faturamento.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-hospital-user"></i></div>
+                <h3>6. Auditoria In Loco</h3>
+                <p class="responsavel">Equipe Externa/Interna</p>
+                <p>Acompanhamento e negociação presencial ou remota com representantes e auditores de operadoras de saúde.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-chart-pie"></i></div>
+                <h3>7. Demonstrativo</h3>
+                <p class="responsavel">Lucelia</p>
+                <p>Geração de relatórios gerenciais, análise de indicadores de glosas e métricas financeiras de repasse.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Bleed_Image_Right (Pollyana) -->
+<div class="slide-container bleed-image-layout" id="slide5">
+    <div class="content-container">
+        <h2 class="slide-title">O Papel da Auditoria</h2>
+        <div class="content-area">
+            <div class="bleed-text-side">
+                <h3>Garantia de Qualidade (Etapa 4)</h3>
+                <p>A Auditoria Interna atua como o principal ponto de checagem do ciclo, assegurando que as informações assistenciais estejam perfeitamente alinhadas com as regras de negócio.</p>
+                <p>Liderada por <strong>Pollyana</strong>, esta etapa previne glosas, corrige inconformidades no prontuário e garante o faturamento justo dos procedimentos prestados pela instituição.</p>
+                <p>O fluxo assegura uma transição limpa para a equipe de Contas Médicas.</p>
+            </div>
+        </div>
+    </div>
+    <div class="image-container">
+        <img class="bleed-image-side" src="http://googleusercontent.com/image_collection/image_retrieval/18182449938106680915" alt="Profissionais de saúde em reunião revisando documentos de auditoria médica">
+    </div>
+</div>
+
+<!-- Slide 6: Bleed_Image_Right (Lucelia) -->
+<div class="slide-container bleed-image-layout" id="slide6">
+    <div class="content-container">
+        <h2 class="slide-title">A Visão de Gestão</h2>
+        <div class="content-area">
+            <div class="bleed-text-side">
+                <h3>Controle e Demonstrativos (Etapa 7)</h3>
+                <p>A etapa final do faturamento é o momento crucial onde todos os dados processados são consolidados para a avaliação financeira da instituição.</p>
+                <p>Sob a responsabilidade de <strong>Lucelia</strong>, a gestão de contas e os demonstrativos finais garantem a transparência, o monitoramento exato dos repasses e o controle minucioso dos indicadores operacionais.</p>
+                <p>Esta etapa garante o fechamento do ciclo de forma estratégica, otimizando o fluxo de caixa do Hospital.</p>
+            </div>
+        </div>
+    </div>
+    <div class="image-container">
+        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800" alt="">
+    </div>
+</div>
+
+<!-- Slide 7: Highlighted_Numbers -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">Métricas de Organização</h2>
+    <div class="content-area">
+        <div class="two-column highlight-numbers-layout">
+            <div>
+                <div class="number">07</div>
+                <div class="number-label">Etapas Críticas</div>
+            </div>
+            <div>
+                <h3>Controle End-to-End</h3>
+                <p>O mapeamento formalizado do fluxo garante rastreabilidade total do prontuário desde a recepção até o envio final.</p>
+                <p>A clareza na atribuição de responsáveis (Lindomar, Lucelia, Pollyana, Thiago, Geovana) elimina gargalos e aumenta consideravelmente a eficiência da recuperação de receita e da conformidade hospitalar.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Q&A -->
+<div class="slide-container" id="slide8">
+    <div class="qa-layout">
+        <h2>Dúvidas?</h2>
+        <p>Obrigado pelo acompanhamento do fluxo operacional.</p>
+        <div class="contact-info">
+            <i class="fa-solid fa-briefcase-medical" style="margin-right: 10px; color: #0284c7;"></i> FATURAMENTO - CONVÊNIO
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
