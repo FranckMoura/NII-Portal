@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Legado - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* === PADRÕES VISUAIS DO PORTAL === */
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background: #f3f4f6; 
+            color: #1e293b; 
+            padding-bottom: 50px; 
+            margin: 0;
+        }
+
+        .header-bg { 
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; 
+            color: white !important; 
+            padding: 20px 40px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            margin-bottom: 30px; 
+        }
+
+        /* Estilo da Logo fornecido */
+        .header-mini-logo {
+            height: 40px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        .btn-back { 
+            background: rgba(255,255,255,0.1); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            padding: 10px 24px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            text-decoration: none; 
+            font-size: 14px;
+        }
+        .btn-back:hover { 
+            background: rgba(255,255,255,0.2); 
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: #3b82f6; 
+            color: white; 
+            padding: 10px 24px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* === CONFIGURAÇÃO DATATABLES === */
+        .dt-button { 
+            background: #3b82f6 !important; 
+            color: white !important; 
+            border: none !important; 
+            border-radius: 6px !important; 
+            padding: 6px 16px !important; 
+            font-weight: bold !important; 
+            font-size: 0.75rem !important; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+            transition: all 0.2s ease;
+        }
+        .dt-button:hover { 
+            background: #2563eb !important; 
+        }
+
+        table.dataTable { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin-top: 15px !important;
+        }
+        table.dataTable thead th { 
+            background-color: #004e92 !important; 
+            color: white !important; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            padding: 14px 10px !important; 
+            border: none !important; 
+            white-space: nowrap; 
+            font-weight: 700;
+        }
+        table.dataTable tbody td { 
+            font-size: 0.8rem; 
+            color: #334155; 
+            padding: 10px 10px !important; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+        table.dataTable tbody tr:hover { 
+            background-color: #f1f5f9 !important; 
+        }
+        
+        .loading { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 250px; 
+            font-size: 1.2rem; 
+            color: #64748b; 
+            font-weight: 500; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        
+        .table-search th { 
+            padding: 6px !important; 
+            background-color: #f1f5f9 !important; 
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+        .table-search input {
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-2'>
+            <div class="flex items-center gap-5">
+                <div class="bg-white/10 p-4 rounded-xl border border-white/20">
+                    <i class="fa-solid fa-database text-3xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class='text-3xl font-black uppercase tracking-tight'>Base de Dados Legada</h1>
+                    <p class='text-gray-200 text-sm mt-1 font-medium'>Pesquisa histórica rápida nas bases de faturamento anteriores ao SoulMV.</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 bg-white/10 border border-white/20 p-2 rounded-lg">
+                    <span class="text-xs font-bold uppercase text-gray-200 ml-2">Tabela:</span>
+                    <select id="filtroTabela" class="bg-transparent text-white rounded px-2 py-1 font-bold outline-none cursor-pointer text-sm">
+                        <option value="legado_int_oni" class="text-black">Sistema ONI (int_oni)</option>
+                        <option value="legado_int_dual" class="text-black">Sistema DUAL (int_dual)</option>
+                    </select>
+                    <button onclick="buscarDados()" class="btn-primary">
+                        <i class="fas fa-search"></i> Carregar Dados
+                    </button>
+                </div>
+                
+                <div class="w-px h-10 bg-white/20"></div>
+
+                <div class="flex items-center gap-3">
+                    <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+                    
+                    <a href="modulo_estrategico.html" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto bg-white p-7 rounded-2xl shadow-lg border border-gray-200">
+        <div id="loader" class="loading" style="display:none;">
+            <i class="fas fa-circle-notch fa-spin text-5xl text-blue-600"></i>
+            <span class="font-bold">Baixando histórico do banco de dados legado...</span>
+            <p class="text-xs text-gray-500">(O carregamento inicial pode demorar devido ao volume de dados)</p>
+        </div>
+        
+        <div id="tabelaContainer" class="overflow-x-auto w-full" style="opacity:1;">
+            <table id="tabelaDinamica" class="display compact w-full">
+            </table>
+        </div>
+    </div>
+
+<script>
+$.fn.dataTable.ext.errMode = 'none';
+
+const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let dataTableInstancia;
+
+async function buscarDados() {
+    const nomeTabela = document.getElementById('filtroTabela').value;
+    const loader = document.getElementById('loader');
+    const container = document.getElementById('tabelaContainer');
+    
+    loader.style.display = 'flex';
+    container.style.opacity = '0';
+    
+    if (dataTableInstancia) {
+        dataTableInstancia.destroy();
+        $('#tabelaDinamica').empty(); 
+    }
+
+    try {
+        const { data, error } = await client.from(nomeTabela).select('*').limit(4000);
+        
+        if (error) throw new Error(error.message);
+        if (!data || data.length === 0) throw new Error("A tabela está vazia ou sem dados carregados.");
+
+        let colunasKeys = Object.keys(data[0]);
+        let colunasParaDatatable = colunasKeys.map(k => {
+            let isNameCol = k.toLowerCase().includes('nome') || k.toLowerCase().includes('paciente');
+            return { 
+                title: k.replace(/_/g, ' '), 
+                data: k, 
+                defaultContent: "-",
+                className: isNameCol ? 'font-bold uppercase text-gray-900' : 'font-mono text-gray-600'
+            }
+        });
+
+        let theadHtml = '<thead><tr>' + colunasParaDatatable.map(c => `<th>${c.title}</th>`).join('') + '</tr>';
+        theadHtml += '<tr class="table-search no-print">' + colunasParaDatatable.map(c => `<th><input type="text" placeholder="Filtrar..." class="w-full" /></th>`).join('') + '</tr></thead>';
+        $('#tabelaDinamica').html(theadHtml);
+
+        dataTableInstancia = $('#tabelaDinamica').DataTable({
+            data: data,
+            columns: colunasParaDatatable,
+            pageLength: 20,
+            dom: 'Bfrtip',
+            orderCellsTop: true,
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+            buttons: [
+                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Resultado (Excel)', className: 'dt-button' }
+            ],
+            scrollX: true,
+            order: [], 
+            initComplete: function () {
+                this.api().columns().every( function () {
+                    var that = this;
+                    $('input', $('.table-search th').eq(this.index())).on('keyup change clear', function () {
+                        if (that.search() !== this.value) { that.search(this.value).draw(); }
+                    });
+                });
+            }
+        });
+
+        loader.style.display = 'none';
+        container.style.opacity = '1';
+
+    } catch (e) {
+        console.error(e);
+        loader.innerHTML = `<span class="text-red-500 font-bold text-center"><i class="fas fa-exclamation-triangle text-5xl mb-3 block"></i>${e.message}</span>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', buscarDados);
+</script>
+</body>
+</html>
