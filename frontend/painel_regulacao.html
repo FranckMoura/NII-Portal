@@ -24,7 +24,7 @@
         body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; margin: 0; min-height: 100vh; padding-bottom: 40px; scroll-behavior: smooth; }
         .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 30px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; }
         .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 98%; margin: 0 auto; padding: 0 15px; }
         .header-print { display: none; }
 
         /* FILTROS */
@@ -59,9 +59,9 @@
         .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
 
         /* TABELA E FILTROS INDIVIDUAIS */
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; border-spacing: 0; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; border-spacing: 0; table-layout: fixed; }
         table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.8rem; border: none !important; }
-        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
+        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dt-button { background: #004e92 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 8px 15px !important; font-weight: 600 !important; font-size: 0.85rem !important; }
         .dt-button:hover { background: #1e3a8a !important; }
         
@@ -315,17 +315,17 @@
             <table id="tabelaRegulacao" class="display compact nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Data Sol.</th>
-                        <th>Data Aut.</th>
-                        <th>Clínica</th>
-                        <th>Paciente</th>
-                        <th>CNS</th>
-                        <th>Solicitação</th>
-                        <th>Procedimento</th>
-                        <th>AIH</th>
-                        <th>Status</th>
-                        <th>Caráter</th>
-                        <th class="no-print">FICHA</th> 
+                        <th style="width: 7%;">Data Sol.</th>
+                        <th style="width: 7%;">Data Aut.</th>
+                        <th style="width: 15%;">Clínica</th>
+                        <th style="width: 18%;">Paciente</th>
+                        <th style="width: 10%;">CNS</th>
+                        <th style="width: 9%;">Solicitação</th>
+                        <th style="width: 18%;">Procedimento</th>
+                        <th style="width: 8%;">AIH</th>
+                        <th style="width: 6%;">Status</th>
+                        <th style="width: 5%;">Caráter</th>
+                        <th style="width: 5%;" class="no-print text-center">FICHA</th> 
                     </tr>
                     <tr class="table-search no-print">
                         </tr>
@@ -388,23 +388,19 @@
             return nomeBruto;
         }
 
-        // --- MÁGICA DO FILTRO AUTOMÁTICO VIA MODAL ---
         window.aplicarFiltroModal = function(clinicaClicada, carater, tipoStatus) {
             fecharModal();
             limparFiltrosTabela();
 
-            // Lógica de busca de clínica para DataTables
             let searchClinica = clinicaClicada;
             if(clinicaClicada === "OBSTETRÍCIA") searchClinica = "OBSTET";
             if(clinicaClicada === "PEDIATRIA") searchClinica = "PEDIATR";
             if(clinicaClicada === "CLÍNICA MÉDICA") searchClinica = "CLINICA MEDICA"; 
             if(clinicaClicada === "NÃO INFORMADA") searchClinica = "-";
 
-            // Aplica filtro invisível na coluna Clínica (índice 2)
             dataTableInstance.column(2).search(searchClinica);
             $('.table-search th:eq(2) input').val(searchClinica).addClass('highlight-filter');
 
-            // Aplica filtro no Status (índice 8) usando Regex
             let strStatus = '';
             if(tipoStatus === 'APROVADOS') {
                 dataTableInstance.column(8).search('APROV|AUTORIZ', true, false);
@@ -423,12 +419,10 @@
                 $('.table-search th:eq(8) input').val(strStatus).addClass('highlight-filter');
             }
 
-            // Aplica filtro no Caráter (índice 9)
             let charC = carater.substring(0,3);
             dataTableInstance.column(9).search(charC);
             $('.table-search th:eq(9) input').val(charC).addClass('highlight-filter');
 
-            // Redesenha a tabela e rola para ela
             dataTableInstance.draw();
             
             $('html, body').animate({
@@ -507,7 +501,6 @@
 
             arrayAgrupado.forEach(item => {
                 let badgeClass = item.carater.includes('URG') ? 'bg-urgencia' : 'bg-eletiva';
-                // LINHA CLICÁVEL INJETANDO O FILTRO
                 tbody.append(`
                     <tr class="modal-row-clickable" onclick="aplicarFiltroModal('${item.clinica}', '${item.carater}', '${tipo}')" title="Filtrar esta clínica na tabela principal">
                         <td class="font-bold"><i class="fas fa-search text-xs mr-2"></i>${item.clinica}</td>
@@ -522,8 +515,6 @@
 
             $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
         }
-
-        // ================= FUNÇÕES DO PAINEL ================= //
 
         function imprimirResumo() {
             $('body').addClass('print-summary');
@@ -678,7 +669,6 @@
 
                 while (keepFetching) {
                     let query = client.from('regulacao')
-                                      // TRUQUE 1: Pede as 3 colunas de procedimento para garantir que nada fica vazio!
                                       .select('data_solicitacao, data_autorizacao, nome_clinica, nome_paciente, cns_paciente, num_solicitacao, cod_solicitacao, num_aih, status, carater_internacao, arquivo_pdf, procedimento, nome_procedimento_solicitado, procedimento_solicitado')
                                       .gte('data_solicitacao', d1)
                                       .lte('data_solicitacao', d2)
@@ -810,7 +800,7 @@
                 orderCellsTop: true, 
                 lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
                 order: [[0, 'desc']], 
-                responsive: false, // Desligado para impressão ficar exata
+                responsive: false, // Fixa as colunas na largura da tela
                 buttons: [
                     { extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Excel' },
                     { extend: 'print', className: 'dt-button', text: '<i class="fas fa-print"></i> Imprimir Tudo (Paisagem)', action: function () { window.print(); } }
@@ -845,7 +835,6 @@
                     },
                     { data: null, render: r => r.cod_solicitacao || r.num_solicitacao || '-' },
                     { 
-                        // TRUQUE 2: Funde as 3 colunas, garantindo que pega o procedimento independentemente da data de extração
                         data: null, 
                         render: function(d, type, row) {
                             let proc = row.procedimento || row.nome_procedimento_solicitado || row.procedimento_solicitado || "";
