@@ -4,14 +4,14 @@ import glob
 from supabase import create_client, Client
 from datetime import datetime
 
-print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V22 (COM PROCEDIMENTOS SOLICITADOS) ---")
+print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V22 (CORREÇÃO DE ACENTUAÇÃO UTF-8) ---")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_DOWNLOADS = os.path.join(BASE_DIR, "downloads")
 
 # --- CONFIGURAÇÕES ---
-SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk"
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://voweywtzoldwfhgkniup.supabase.co")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk")
 
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -49,27 +49,12 @@ def validar_nome_paciente(nome, num_solicitacao):
     return n
 
 def corrigir_nomes_colunas(df):
-    mapa = {
-        'N. da solicitaÃ§Ã£o': 'N. da solicitação',
-        'Data da solicitaÃ§Ã£o': 'Data da solicitação',
-        'Data da autorizaÃ§Ã£o': 'Data da autorização',
-        'Data da InternaÃ§Ã£o': 'Data da Internação',
-        'CarÃ¡ter internaÃ§Ã£o': 'Caráter internação',
-        'Status da solicitaÃ§Ã£o de InternaÃ§Ã£o': 'Status da solicitação de Internação',
-        'Nome da clÃ\xadnica': 'Nome da clínica',
-        'Nome do procedimento solicitado': 'Nome do procedimento solicitado', # ADICIONADO
-        'MÃ©dico Solicitante': 'Médico Solicitante',
-        'ClassificaÃ§Ã£o de risco': 'Classificação de risco',
-        'Justificativa': 'Justificativa', 
-        'N. AIH': 'N. AIH',
-        'Nome do paciente': 'Nome do paciente',
-        'Valor total da AIH': 'Valor total da AIH',
-    }
-    
+    """ Como agora lemos em UTF-8, os acentos vêm corretos. 
+        Só precisamos garantir que a coluna do CNS seja mapeada padronizada """
+    mapa = {}
     for col in df.columns:
         if 'cns' in col.lower() or 'cart' in col.lower():
             mapa[col] = 'CNS'
-            
     return df.rename(columns=mapa)
 
 def forcar_atualizacao(registro):
@@ -99,7 +84,8 @@ def processar():
     for arq in arquivos:
         print(f"Lendo: {os.path.basename(arq)}...", end="\r")
         try:
-            df = pd.read_csv(arq, sep=";", encoding="latin1", on_bad_lines='skip', dtype=str)
+            # A MÁGICA ACONTECE AQUI: Mudamos de 'latin1' para 'utf-8-sig'
+            df = pd.read_csv(arq, sep=";", encoding="utf-8-sig", on_bad_lines='skip', dtype=str)
             df.columns = [c.strip() for c in df.columns]
             df = corrigir_nomes_colunas(df)
 
@@ -108,9 +94,7 @@ def processar():
                 solicitacao = limpar(row.get("N. da solicitação"))
                 if not solicitacao: continue
 
-                # Cria chave primária falsa para quem ainda não tem AIH
                 chave_aih = aih if aih else solicitacao
-                
                 nome_bruto = row.get("Nome do paciente")
                 nome_corrigido = validar_nome_paciente(nome_bruto, solicitacao)
 
@@ -127,7 +111,7 @@ def processar():
                     "carater_internacao": traduzir_carater(row.get("Caráter internação")),
                     "medico_solicitante": limpar(row.get("Médico Solicitante")),
                     "valor_total_aih": limpar(row.get("Valor total da AIH")),
-                    "procedimento": limpar(row.get("Nome do procedimento solicitado")), # COLUNA ADICIONADA E MAPEADA
+                    "procedimento": limpar(row.get("Nome do procedimento solicitado")), 
                     "data_atualizacao": datetime.now().isoformat()
                 }
         except Exception as e: 

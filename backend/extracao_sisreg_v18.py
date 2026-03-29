@@ -11,12 +11,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 print(f"--- 1. EXTRAÇÃO SISREG (V18 - 01/01/2025 ATÉ HOJE) ---")
 
-# --- SUAS CREDENCIAIS ---
-USUARIO = "046FRANCK"
-SENHA = "212425" 
+# --- SUAS CREDENCIAIS (Híbrido: Nuvem ou Local) ---
+USUARIO = os.environ.get("SISREG_USER", "046FRANCK")
+SENHA = os.environ.get("SISREG_PASS", "212425")
 
-# --- NOVA PASTA DE DOWNLOAD CONFIGURADA ---
-PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-Cloud\backend\downloads"
+# --- NOVA PASTA DE DOWNLOAD CONFIGURADA (Dinâmica) ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PASTA_DOWNLOAD = os.path.join(BASE_DIR, "downloads")
 
 if not os.path.exists(PASTA_DOWNLOAD): 
     try:

@@ -1,0 +1,37 @@
+name: 🚜 Extração Pesada (Diária 16h MT)
+
+on:
+  schedule:
+    # 20:00 no horário UTC equivale a 16:00 no fuso horário de Cuiabá/MT
+    - cron: '0 20 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  fechamento:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar o Código
+        uses: actions/checkout@v3
+
+      - name: 🐍 Instalar o Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Instalar as Bibliotecas Necessárias
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager pandas supabase
+
+      - name: 🚜 1. Rodar Extração SISREG (CSV)
+        env:
+          SISREG_USER: ${{ secrets.SISREG_USER }}
+          SISREG_PASS: ${{ secrets.SISREG_PASS }}
+        run: python backend/extracao_sisreg_v18.py
+
+      - name: 🗄️ 2. Processar e Enviar para Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python backend/processar_regulacao_v21.py

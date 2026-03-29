@@ -1,0 +1,34 @@
+name: 🕵️‍♂️ Sentinela SISREG (A cada 30 min)
+
+on:
+  schedule:
+    # Roda a cada 30 minutos de Segunda a Sexta. (10h às 23h UTC = 06h às 19h em Cuiabá)
+    - cron: '*/30 10-23 * * 1-5'
+  workflow_dispatch: # Este comando cria um botão no GitHub para você rodar manualmente quando quiser!
+
+jobs:
+  monitorar:
+    runs-on: ubuntu-latest # O GitHub liga um computador Linux novinho
+    
+    steps:
+      - name: 📥 Baixar o Código do Repositório
+        uses: actions/checkout@v3
+
+      - name: 🐍 Instalar o Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Instalar as Bibliotecas Necessárias
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager pandas supabase
+
+      - name: 🚀 Rodar a Varredura de Status (monitor_nuvem.py)
+        env:
+          # Aqui o Linux puxa as senhas do seu cofre e entrega ao Python
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SISREG_USER: ${{ secrets.SISREG_USER }}
+          SISREG_PASS: ${{ secrets.SISREG_PASS }}
+        run: python backend/monitor_nuvem.py
