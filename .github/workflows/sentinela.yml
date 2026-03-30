@@ -1,9 +1,9 @@
-name: 🚜 Extração Pesada (Diária 16h MT)
+name: 🕵️‍♂️ Sentinela SISREG (A cada 30 min)
 
 on:
-  push: # <--- ADICIONE ESTA LINHA AQUI
   schedule:
-    - cron: '0 20 * * 1-5'
+    # O asterisco no final significa TODOS OS DIAS (Segunda a Domingo)
+    - cron: '*/30 10-23 * * *'
   workflow_dispatch:
 
 jobs:
