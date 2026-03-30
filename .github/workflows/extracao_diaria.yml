@@ -1,8 +1,8 @@
 name: 🚜 Extração Pesada (Diária 16h MT)
 
 on:
+  push: # <--- ADICIONE ESTA LINHA AQUI
   schedule:
-    # 20:00 no horário UTC equivale a 16:00 no fuso horário de Cuiabá/MT
     - cron: '0 20 * * 1-5'
   workflow_dispatch:
 

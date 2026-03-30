@@ -1,10 +1,10 @@
-name: 🕵️‍♂️ Sentinela SISREG (A cada 30 min)
+name: 🚜 Extração Pesada (Diária 16h MT)
 
 on:
+  push: # <--- ADICIONE ESTA LINHA AQUI
   schedule:
-    # Roda a cada 30 minutos de Segunda a Sexta. (10h às 23h UTC = 06h às 19h em Cuiabá)
-    - cron: '*/30 10-23 * * 1-5'
-  workflow_dispatch: # Este comando cria um botão no GitHub para você rodar manualmente quando quiser!
+    - cron: '0 20 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   monitorar:
