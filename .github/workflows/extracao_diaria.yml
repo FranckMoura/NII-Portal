@@ -1,9 +1,10 @@
-name: 🚜 Extração Pesada (Diária 16h MT)
+name: 🚜 Extração Pesada (A cada hora - 15h às 06h MT)
 
 on:
   schedule:
-    # O asterisco no final significa TODOS OS DIAS (Segunda a Domingo)
-    - cron: '0 20 * * *'
+    # Roda de hora em hora (Minuto 0). 
+    # Em Cuiabá (UTC-4): Inicia às 15:00 e vai até as 06:00 da manhã.
+    - cron: '0 0-10,19-23 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,7 +15,7 @@ jobs:
       - name: 📥 Baixar o Código
         uses: actions/checkout@v4
 
-      - name: 🐍 Instalar o Python
+      - name: 🐍 Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
