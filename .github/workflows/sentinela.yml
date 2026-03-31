@@ -2,7 +2,6 @@ name: 🕵️‍♂️ Sentinela SISREG (A cada 30 min)
 
 on:
   schedule:
-    # Roda de 30 em 30 min, todos os dias (Segunda a Domingo).
     - cron: '*/30 10-23 * * *'
   workflow_dispatch:
 
