@@ -1,0 +1,32 @@
+name: 🕵️‍♂️ Sentinela SISREG (A cada 30 min)
+
+on:
+  schedule:
+    - cron: '*/30 10-23 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitorar:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Baixar o Código
+        uses: actions/checkout@v4
+
+      - name: 🐍 Instalar o Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Instalar as Bibliotecas Necessárias
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager pandas supabase
+
+      - name: 🚀 Rodar a Varredura de Status
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SISREG_USER: ${{ secrets.SISREG_USER }}
+          SISREG_PASS: ${{ secrets.SISREG_PASS }}
+        run: python backend/monitor_nuvem.py
