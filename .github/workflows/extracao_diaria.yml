@@ -2,8 +2,7 @@ name: 🚜 Extração Pesada (A cada hora - 15h às 06h MT)
 
 on:
   schedule:
-    # Roda de hora em hora (Minuto 0). 
-    # Em Cuiabá (UTC-4): Inicia às 15:00 e vai até as 06:00 da manhã.
+    # Roda no minuto 0, nas janelas permitidas pelo SISREG.
     - cron: '0 0-10,19-23 * * *'
   workflow_dispatch:
 
@@ -29,10 +28,10 @@ jobs:
         env:
           SISREG_USER: ${{ secrets.SISREG_USER }}
           SISREG_PASS: ${{ secrets.SISREG_PASS }}
-        run: python backend/extracao_sisreg_v18.py
+        run: python backend/extrator_sisreg_v18.py
 
       - name: 🗄️ 2. Processar e Enviar para Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python backend/processar_regulacao_v21.py
+        run: python backend/processador_regulacao_v21.py
