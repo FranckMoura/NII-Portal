@@ -70,7 +70,9 @@
 
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: white; display: inline-block; }
         .bg-aprovado { background-color: #10b981; } .bg-pendente { background-color: #f59e0b; } .bg-negado { background-color: #ef4444; } .bg-urgencia { background-color: #f97316; } .bg-eletiva { background-color: #3b82f6; }
-        .btn-abrir { background-color: white; border: 1px solid #ef4444; color: #ef4444; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; }
+        
+        /* Botão PDF Menor */
+        .btn-abrir { background-color: white; border: 1px solid #ef4444; color: #ef4444; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
         .btn-abrir:hover { background-color: #ef4444; color: white; }
 
         #notif-list::-webkit-scrollbar { width: 6px; }
@@ -127,17 +129,17 @@
             table.dataTable thead th { border: 1px solid #000 !important; color: #000 !important; font-size: 7pt !important; padding: 4px !important; background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow: hidden; }
             table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; font-size: 7pt !important; padding: 4px !important; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; }
             
-            /* LARGURAS EXATAS PARA O PDF EM PAISAGEM */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 7% !important; } /* Data Sol */
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 7% !important; } /* Data Aut */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 12% !important; } /* Clínica */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* Paciente */
+            /* LARGURAS EXATAS PARA O PDF EM PAISAGEM (SOMANDO 100%) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 6% !important; } /* Data Sol */
+            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 6% !important; } /* Data Aut */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 13% !important; } /* Clínica */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; } /* Paciente */
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 10% !important; } /* CNS */
-            table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) { width: 9% !important; } /* Solicitação */
-            table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { width: 18% !important; } /* Procedimento */
-            table.dataTable th:nth-child(8), table.dataTable td:nth-child(8) { width: 8% !important; } /* AIH */
-            table.dataTable th:nth-child(9), table.dataTable td:nth-child(9) { width: 6% !important; } /* Status */
-            table.dataTable th:nth-child(10), table.dataTable td:nth-child(10) { width: 5% !important; } /* Caráter */
+            table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) { width: 8% !important; } /* Solicitação */
+            table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { width: 16% !important; } /* Procedimento */
+            table.dataTable th:nth-child(8), table.dataTable td:nth-child(8) { width: 10% !important; } /* AIH */
+            table.dataTable th:nth-child(9), table.dataTable td:nth-child(9) { width: 8% !important; } /* Status */
+            table.dataTable th:nth-child(10), table.dataTable td:nth-child(10) { width: 6% !important; } /* Caráter */
             
             .badge { color: #000 !important; background: none !important; border: 1px solid #000; padding: 1px 3px; font-size: 6pt !important; font-weight: bold; }
             .btn-abrir { display: none !important; }
@@ -317,18 +319,18 @@
                     <tr>
                         <th style="width: 7%;">Data Sol.</th>
                         <th style="width: 7%;">Data Aut.</th>
-                        <th style="width: 15%;">Clínica</th>
-                        <th style="width: 18%;">Paciente</th>
+                        <th style="width: 13%;">Clínica</th>
+                        <th style="width: 16%;">Paciente</th>
                         <th style="width: 10%;">CNS</th>
-                        <th style="width: 9%;">Solicitação</th>
-                        <th style="width: 18%;">Procedimento</th>
-                        <th style="width: 8%;">AIH</th>
+                        <th style="width: 8%;">Solicitação</th>
+                        <th style="width: 15%;">Procedimento</th>
+                        <th style="width: 10%;">AIH</th>
                         <th style="width: 6%;">Status</th>
-                        <th style="width: 5%;">Caráter</th>
-                        <th style="width: 5%;" class="no-print text-center">FICHA</th> 
+                        <th style="width: 4%;">Caráter</th>
+                        <th style="width: 4%;" class="no-print text-center">FICHA</th> 
                     </tr>
                     <tr class="table-search no-print">
-                        </tr>
+                    </tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -872,7 +874,7 @@
                         data: 'arquivo_pdf', 
                         className: 'text-center no-print', 
                         render: d => {
-                            if(d && d.length > 5) return `<a href="${d}" target="_blank" class="btn-abrir"><i class="fas fa-file-pdf"></i> Abrir</a>`;
+                            if(d && d.length > 5) return `<a href="${d}" target="_blank" class="btn-abrir" title="Abrir PDF"><i class="fas fa-file-pdf"></i> PDF</a>`;
                             return '-';
                         }
                     }
