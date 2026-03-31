@@ -10,7 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
 print("=====================================================")
-print(" 🕵️‍♂️ SENTINELA NUVEM (GitHub Actions)")
+print(" 🕵️‍♂️ SENTINELA NUVEM (Com Chave Composta Inteligente)")
 print("=====================================================")
 
 USUARIO = os.environ.get("SISREG_USER", "046FRANCK")
@@ -30,12 +30,12 @@ except:
 
 def configurar_navegador():
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new") # OBRIGATÓRIO NA NUVEM
+    chrome_options.add_argument("--headless=new") 
     chrome_options.page_load_strategy = 'eager' 
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox") # OBRIGATÓRIO NA NUVEM (LINUX)
-    chrome_options.add_argument("--disable-dev-shm-usage") # OBRIGATÓRIO NA NUVEM
+    chrome_options.add_argument("--no-sandbox") 
+    chrome_options.add_argument("--disable-dev-shm-usage") 
     chrome_options.add_argument("--log-level=3")
     
     servico = Service(ChromeDriverManager().install())
@@ -57,9 +57,9 @@ def focar_conteudo(driver):
         except: pass
     return False
 
-def limpar_nome_para_cruzamento(nome):
-    if not nome: return ""
-    return re.sub(r'\s+', ' ', str(nome)).strip().upper()
+def limpar_string(texto):
+    if not texto: return ""
+    return re.sub(r'\s+', ' ', str(texto)).strip().upper()
 
 def rodar_ciclo_monitoramento():
     print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 🚀 Iniciando patrulha de {DIAS_BUSCA} dias...")
@@ -67,17 +67,25 @@ def rodar_ciclo_monitoramento():
     
     try:
         print("   🧠 Puxando memória do banco (Tabela Regulação)...")
-        res_db = supabase.table(TABELA_DESTINO).select("num_solicitacao, nome_paciente, status, num_aih").execute()
+        # AGORA PUXAMOS TAMBÉM O PROCEDIMENTO E A CLÍNICA PARA DESEMPATE
+        res_db = supabase.table(TABELA_DESTINO).select("num_solicitacao, nome_paciente, status, num_aih, procedimento, nome_clinica").execute()
         
         mapa_pacientes = {}
         for r in res_db.data:
             if r.get('nome_paciente') and r.get('num_solicitacao'):
-                nome_limpo = limpar_nome_para_cruzamento(r['nome_paciente'])
-                mapa_pacientes[nome_limpo] = {
+                nome_limpo = limpar_string(r['nome_paciente'])
+                
+                # Cria uma lista para cada paciente, pois ele pode ter múltiplas solicitações
+                if nome_limpo not in mapa_pacientes:
+                    mapa_pacientes[nome_limpo] = []
+                    
+                mapa_pacientes[nome_limpo].append({
                     'num_solicitacao': r['num_solicitacao'],
                     'status': (r.get('status') or 'PENDENTE').upper(),
-                    'num_aih': r.get('num_aih')
-                }
+                    'num_aih': r.get('num_aih'),
+                    'procedimento': limpar_string(r.get('procedimento')),
+                    'clinica': limpar_string(r.get('nome_clinica'))
+                })
 
         driver = configurar_navegador()
         driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
@@ -132,39 +140,66 @@ def rodar_ciclo_monitoramento():
                 if len(cols) < 7: continue 
                 
                 pacientes_lidos_na_pagina += 1
-                nome_bruto_tela = cols[1].text
-                nome_paciente = limpar_nome_para_cruzamento(nome_bruto_tela)
-                texto_status = cols[6].text.strip().upper()
+                
+                # DADOS DA TELA
+                nome_paciente = limpar_string(cols[1].text)
+                proc_tela = limpar_string(cols[2].text)
+                clinica_tela = limpar_string(cols[3].text)
                 texto_aih = cols[5].text.strip()
+                texto_status = cols[6].text.strip().upper()
                 
                 if nome_paciente in mapa_pacientes:
-                    pacientes_cruzados_com_banco += 1
-                    db_info = mapa_pacientes[nome_paciente]
-                    status_banco = db_info['status']
+                    lista_solicitacoes = mapa_pacientes[nome_paciente]
+                    req_alvo = None
                     
-                    status_tela = "PENDENTE"
-                    if "AUTORIZAD" in texto_status or "APROVAD" in texto_status: status_tela = "APROVADO"
-                    elif "NEGAD" in texto_status or "CANCELAD" in texto_status or "DEVOLVID" in texto_status: status_tela = "NEGADO"
-
-                    if status_tela != status_banco and status_tela != "PENDENTE":
-                        registro_update = {
-                            "num_solicitacao": db_info['num_solicitacao'],
-                            "status": status_tela,
-                            "data_atualizacao": datetime.now().isoformat()
-                        }
-                        if "*" not in texto_aih and len(texto_aih) > 5:
-                            registro_update["num_aih"] = re.sub(r'[^0-9]', '', texto_aih)
-
-                        lote_atualizacao.append(registro_update)
+                    # LÓGICA DO DETETIVE: Encontrar a solicitação exata
+                    if len(lista_solicitacoes) == 1:
+                        # Se só tem 1 pedido, é este!
+                        req_alvo = lista_solicitacoes[0]
+                    else:
+                        # Se tem vários, cruza pelo código numérico do procedimento na tela (ex: 0409060070)
+                        codigo_proc_tela = proc_tela.split('-')[0].strip() if '-' in proc_tela else proc_tela[:10]
                         
-                        lote_notificacoes.append({
-                            "paciente": nome_paciente,
-                            "num_solicitacao": db_info['num_solicitacao'],
-                            "status_novo": status_tela
-                        })
+                        for req in lista_solicitacoes:
+                            if codigo_proc_tela in req['procedimento']:
+                                req_alvo = req
+                                break
+                        
+                        # Se ainda não achou, desempata pela clínica
+                        if not req_alvo:
+                            for req in lista_solicitacoes:
+                                if clinica_tela in req['clinica'] or req['clinica'] in clinica_tela:
+                                    req_alvo = req
+                                    break
+                    
+                    if req_alvo:
+                        pacientes_cruzados_com_banco += 1
+                        status_banco = req_alvo['status']
+                        
+                        status_tela = "PENDENTE"
+                        if "AUTORIZAD" in texto_status or "APROVAD" in texto_status: status_tela = "APROVADO"
+                        elif "NEGAD" in texto_status or "CANCELAD" in texto_status or "DEVOLVID" in texto_status: status_tela = "NEGADO"
 
-                        mapa_pacientes[nome_paciente]['status'] = status_tela
-                        atualizados += 1
+                        if status_tela != status_banco and status_tela != "PENDENTE":
+                            registro_update = {
+                                "num_solicitacao": req_alvo['num_solicitacao'],
+                                "status": status_tela,
+                                "data_atualizacao": datetime.now().isoformat()
+                            }
+                            if "*" not in texto_aih and len(texto_aih) > 5:
+                                registro_update["num_aih"] = re.sub(r'[^0-9]', '', texto_aih)
+
+                            lote_atualizacao.append(registro_update)
+                            
+                            lote_notificacoes.append({
+                                "paciente": nome_paciente,
+                                "num_solicitacao": req_alvo['num_solicitacao'],
+                                "status_novo": status_tela
+                            })
+
+                            # Atualiza em memória para não disparar duas vezes na mesma rodada
+                            req_alvo['status'] = status_tela
+                            atualizados += 1
 
             print(f"      📄 Página {pagina_atual} processada: Lidos={pacientes_lidos_na_pagina} | Achados no Banco={pacientes_cruzados_com_banco}")
 
@@ -207,7 +242,7 @@ def rodar_ciclo_monitoramento():
             supabase.table(TABELA_NOTIFICACOES).insert(lote_notificacoes).execute()
             print("   ✅ Banco atualizado com sucesso!")
         else:
-            print("   💤 Nenhuma mudança de status encontrada nesta varredura.")
+            print("   💤 Nenhuma mudança de status nova encontrada nesta varredura.")
 
     except Exception as e:
         print(f"   ⚠️ Ciclo interrompido por erro técnico: {e}")
