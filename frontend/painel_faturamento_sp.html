@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Itens Secundários SP - NII</title>
     
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,11 +16,13 @@
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,12 +33,24 @@
         .header-bg { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; border-bottom: 5px solid #f59e0b; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         
-        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; }
-        .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; }
+        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .filter-select#procFilter { max-width: 300px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
         .filter-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-right: 5px; }
 
+        /* Customização Select2 */
+        .select2-container .select2-selection--multiple { min-height: 38px; background: #f8fafc; border: none; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 2px 4px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #2a5298; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white; margin-right: 5px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.3); padding-right: 5px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #f87171; background: none; }
+        .select2-container--default.select2-container--focus .select2-selection--multiple { border: 1px solid rgba(255,255,255,0.5); }
+        .select2-dropdown { border: none; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .select2-results__option { font-size: 0.85rem; padding: 8px 12px; }
+        .select2-container--default .select2-search--inline .select2-search__field { color: #1e293b; font-family: 'Roboto', sans-serif; margin-top: 7px; }
+
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; overflow: hidden; text-align: center; border: 1px solid #e2e8f0; }
+        .meta-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; overflow: hidden; text-align: center; border: 1px solid #e2e8f0; transition: transform 0.2s;}
+        .meta-card:hover { transform: translateY(-5px); }
         .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
         .border-purple::before { background: #9C27B0; } .border-orange::before { background: #FF9800; } .border-blue::before { background: #2196F3; }
         .meta-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
@@ -42,19 +60,17 @@
         .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 25px; }
         .chart-box h4 { margin: 0 0 20px 0; font-size: 1.1rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; display: flex; align-items: center; gap: 10px; }
 
-        /* TABELA E FILTROS DE COLUNA NATIVOS */
+        /* DATATABLES */
         table.dataTable thead th { background-color: #2a5298 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; border: none !important; padding: 12px 10px !important; font-size: 0.8rem; }
         table.dataTable tbody td { padding: 8px 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
-        
-        /* O Segredo do Layout Limpo e Filtros Múltiplos */
-        thead input { width: 100%; padding: 5px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; font-size: 0.75rem; font-weight: normal; color: #333; }
-        .proc-codigo { background: #e2e8f0; color: #475569; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; font-weight: 900; margin-right: 8px; border: 1px solid #cbd5e1; }
-        .proc-desc { font-weight: 600; color: #0f172a; }
+        table.dataTable tbody tr:hover { background-color: #f1f5f9; }
 
+        .dt-buttons { margin-bottom: 15px; }
         .dt-button { background: #fff !important; border: 1px solid #2a5298 !important; border-radius: 4px !important; color: #2a5298 !important; font-weight: bold !important; padding: 5px 15px !important; font-size: 0.85rem !important; }
         .dt-button:hover { background: #2a5298 !important; color: #fff !important; }
-        .btn-refresh { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .btn-refresh { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
         .btn-refresh:hover { background: rgba(255,255,255,0.3); }
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.2); color: white; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -73,8 +89,15 @@
                 <div class="filter-container">
                     <span class="filter-label">Ano:</span>
                     <select id="anoFilter" onchange="carregarDadosAno()" class="filter-select"></select>
+                    
+                    <span class="filter-label" style="margin-left:10px">Mês:</span>
+                    <select id="mesFilter" onchange="renderizar()" class="filter-select"><option value="">Todos</option></select>
+
+                    <span class="filter-label" style="margin-left:10px">Procedimento:</span>
+                    <select id="procFilter" class="filter-select" multiple="multiple" style="width: 380px;"></select>
                 </div>
-                <a href="painel_faturamento_sus.html" class="btn-refresh" style="background: rgba(0,0,0,0.3);"><i class="fas fa-arrow-left"></i> Painel Principal (AIH)</a>
+                
+                <a href="painel_financeiro.html" class="btn-refresh" style="background: rgba(0,0,0,0.3);"><i class="fas fa-arrow-left"></i> Painel Principal (AIH)</a>
             </div>
         </div>
     </div>
@@ -97,7 +120,8 @@
                 <thead>
                     <tr>
                         <th>Mês</th>
-                        <th>Código e Descrição do Item (Medicamentos, Diárias...)</th>
+                        <th>Código</th>
+                        <th>Descrição do Item (Medicamentos, Diárias...)</th>
                         <th>Qtd Aprovada</th>
                         <th>V. Hosp</th>
                         <th>V. Prof</th>
@@ -120,13 +144,26 @@
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         const mesesNome = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
+        // Funções para separar código e descrição
+        function getProcCode(procString) {
+            if (!procString) return '-';
+            let match = procString.match(/^(\d+)\s*(.*)/);
+            return match ? match[1] : '-';
+        }
+
+        function getProcDesc(procString) {
+            if (!procString) return '-';
+            let match = procString.match(/^(\d+)\s*(.*)/);
+            return match ? match[2] : procString;
+        }
+
         $(document).ready(function() { 
             setupAnos(); 
-            setupFiltrosTabela(); 
         });
 
         function setupAnos() {
             const sel = document.getElementById('anoFilter');
+            sel.innerHTML = "";
             const anoAtual = new Date().getFullYear();
             for(let i = anoAtual + 1; i >= 2008; i--) {
                 let opt = document.createElement('option'); opt.value = i; opt.innerText = i; sel.appendChild(opt);
@@ -143,73 +180,106 @@
                 if(error) throw error;
                 dadosAno = data || [];
                 $('#status').text(dadosAno.length ? "Online (" + dadosAno.length + " Itens)" : "Sem dados");
+                
+                atualizarComboMeses(); 
+                atualizarComboProcedimentos(); // Novo Combo
                 renderizar();
             } catch (e) { console.error(e); $('#status').text("Erro"); }
         }
 
-        function formatarProcedimento(procString) {
-            if(!procString) return '-';
-            let parts = procString.split(' ');
-            if(parts.length > 0 && parts[0].length === 10 && !isNaN(parts[0])) {
-                let codigo = parts[0];
-                let descricao = parts.slice(1).join(' ');
-                return `<span class="proc-codigo">${codigo}</span><span class="proc-desc" title="${descricao}">${descricao.length > 60 ? descricao.substring(0,60)+'...' : descricao}</span>`;
+        function atualizarComboMeses() {
+            const selMes = document.getElementById('mesFilter');
+            selMes.innerHTML = '<option value="">Todos os Meses</option>';
+            if(dadosAno.length > 0) {
+                const mesesPresentes = [...new Set(dadosAno.map(d => d.competencia_iso.substring(5,7)))].sort();
+                mesesPresentes.forEach(m => {
+                    let nome = mesesNome[parseInt(m)-1];
+                    let opt = document.createElement('option'); opt.value = m; opt.innerText = nome; selMes.appendChild(opt);
+                });
             }
-            return `<span class="proc-desc">${procString}</span>`;
         }
 
-        function setupFiltrosTabela() {
-            // Cria uma segunda linha no cabeçalho para as caixas de pesquisa
-            $('#tabela thead tr').clone(true).appendTo('#tabela thead').addClass('filtros');
-            $('#tabela thead tr:eq(1) th').each(function (i) {
-                var title = $(this).text();
-                $(this).html('<input type="text" placeholder="Filtrar ' + title + '" />');
-            });
+        function atualizarComboProcedimentos() {
+            const $selProc = $('#procFilter');
+            
+            // Destrói a instância anterior do Select2 se existir
+            if ($selProc.hasClass("select2-hidden-accessible")) {
+                $selProc.select2('destroy');
+            }
+            $selProc.empty();
+            
+            if(dadosAno.length > 0) {
+                const procsPresentes = [...new Set(dadosAno.map(d => d.procedimento).filter(Boolean))].sort();
+                
+                procsPresentes.forEach(p => {
+                    let code = getProcCode(p);
+                    let desc = getProcDesc(p);
+                    $selProc.append(new Option(`${code} - ${desc}`, code, false, false));
+                });
+            }
+
+            // Inicializa a biblioteca Select2
+            $selProc.select2({
+                placeholder: "Selecione um ou mais itens...",
+                allowClear: true,
+                language: {
+                    noResults: function() { return "Item não encontrado"; }
+                }
+            }).on('change', renderizar); // Atualiza os dados quando o utilizador adiciona ou remove tags
         }
 
         function renderizar() {
+            const mesSelecionado = document.getElementById('mesFilter').value;
+            const procsSelecionados = $('#procFilter').val() || [];
+
+            // Filtra Ano/Mês
+            let dadosFiltrados = mesSelecionado ? dadosAno.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`)) : dadosAno;
+            
+            // Filtra Múltiplos Procedimentos/Itens (se houver seleção)
+            if (procsSelecionados.length > 0) {
+                dadosFiltrados = dadosFiltrados.filter(d => procsSelecionados.includes(getProcCode(d.procedimento)));
+            }
+
             let t = { v:0, q:0 };
-            dadosAno.forEach(d => { t.v += d.valor_total||0; t.q += d.qtd_aprovada||0; });
+            dadosFiltrados.forEach(d => { t.v += d.valor_total||0; t.q += d.qtd_aprovada||0; });
             $('#kpValor').text(brl.format(t.v)); $('#kpQtd').text(t.q.toLocaleString('pt-BR'));
             $('#kpTicket').text(t.q ? brl.format(t.v/t.q) : 'R$ 0,00');
 
-            updateChart(dadosAno);
+            updateChart(dadosFiltrados);
 
             if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
             
             var table = $('#tabela').DataTable({
-                data: dadosAno, 
+                data: dadosFiltrados, 
                 pageLength: 25, 
-                orderCellsTop: true, // Faz com que o sort aconteça na primeira linha e o filtro na segunda
-                dom: 'lBrtip', // Remove a barra de pesquisa global feia
-                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Tudo', className: 'dt-button' }],
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Dados para Excel', className: 'dt-button' }],
                 columns: [
                     { data: 'competencia_fmt', width: '60px' },
                     { 
                         data: 'procedimento', 
-                        render: function(data, type) { return type === 'display' ? formatarProcedimento(data) : data; } 
+                        width: '100px', 
+                        className: "font-bold text-gray-700",
+                        render: function(d) { return getProcCode(d); } 
+                    },
+                    { 
+                        data: 'procedimento', 
+                        render: function(d, type) { 
+                            let desc = getProcDesc(d);
+                            // Lógica inteligente: Curto na tela HTML, longo no Excel.
+                            if (type === 'display' && desc.length > 60) {
+                                return `<span title="${desc}">${desc.substring(0,60)}...</span>`;
+                            }
+                            return desc;
+                        } 
                     },
                     { data: 'qtd_aprovada', className: "text-center font-bold text-orange-600" },
                     { data: 'valor_serv_hosp', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_serv_prof', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_total', className: "font-bold text-purple-700", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
-                order: [[5, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_ por pág" }
-            });
-
-            // Ativa o filtro múltiplo em tempo real
-            $('#tabela thead tr:eq(1) th input').on('keyup change', function () {
-                let idx = $(this).parent().index();
-                if (table.column(idx).search() !== this.value) {
-                    table.column(idx).search(this.value).draw();
-                }
-                
-                // Recalcula os KPIs baseado no que está a ser pesquisado (Dinâmico)
-                let dadosFiltrados = table.rows({ filter: 'applied' }).data().toArray();
-                let tv = 0, tq = 0;
-                dadosFiltrados.forEach(d => { tv += d.valor_total; tq += d.qtd_aprovada; });
-                $('#kpValor').text(brl.format(tv)); $('#kpQtd').text(tq.toLocaleString('pt-BR'));
-                $('#kpTicket').text(tq ? brl.format(tv/tq) : 'R$ 0,00');
+                order: [[6, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", search: "Busca na Tabela:" }
             });
         }
 
