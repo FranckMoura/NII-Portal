@@ -31,8 +31,9 @@
         .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 25px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); margin-bottom: 30px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         
-        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; }
+        .filter-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .filter-select { background: #f8fafc; color: #1e293b; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; outline: none; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .filter-select#procFilter { max-width: 300px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
         .filter-label { font-size: 0.8rem; color: #cbd5e1; font-weight: 600; margin-right: 5px; }
 
         /* CARDS KPI */
@@ -82,8 +83,14 @@
                 <div class="filter-container">
                     <span class="filter-label">Ano:</span>
                     <select id="anoFilter" onchange="carregarDadosAno()" class="filter-select"></select>
+                    
                     <span class="filter-label" style="margin-left:10px">Mês:</span>
                     <select id="mesFilter" onchange="renderizar()" class="filter-select"><option value="">Todos</option></select>
+
+                    <span class="filter-label" style="margin-left:10px">Procedimento:</span>
+                    <select id="procFilter" onchange="renderizar()" class="filter-select">
+                        <option value="">Todos os Procedimentos</option>
+                    </select>
                 </div>
                 
                 <a href="painel_faturamento_sp.html" class="btn-refresh" style="background-color: #f59e0b; border-color: #f59e0b;"><i class="fas fa-syringe"></i> Itens Secundários (SP)</a>
@@ -119,7 +126,8 @@
                 <thead>
                     <tr>
                         <th>Mês</th>
-                        <th>Procedimento Principal</th>
+                        <th>Código</th>
+                        <th>Descrição do Procedimento</th>
                         <th>AIH</th>
                         <th>Dias (Méd)</th>
                         <th>V. Hosp</th>
@@ -142,6 +150,19 @@
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         const mesesNome = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
+        // Funções para separar código e descrição
+        function getProcCode(procString) {
+            if (!procString) return '-';
+            let match = procString.match(/^(\d+)\s*(.*)/);
+            return match ? match[1] : '-';
+        }
+
+        function getProcDesc(procString) {
+            if (!procString) return '-';
+            let match = procString.match(/^(\d+)\s*(.*)/);
+            return match ? match[2] : procString;
+        }
+
         $(document).ready(function() { setupAnos(); });
 
         function setupAnos() {
@@ -163,7 +184,9 @@
                 if(error) throw error;
                 dadosAno = data || [];
                 $('#status').text(dadosAno.length ? "Online (" + dadosAno.length + " reg)" : "Sem dados");
-                atualizarComboMeses(); renderizar();
+                atualizarComboMeses(); 
+                atualizarComboProcedimentos(); // Novo Combo
+                renderizar();
             } catch (e) { console.error(e); $('#status').text("Erro de Conexão"); }
         }
 
@@ -179,9 +202,36 @@
             }
         }
 
+        function atualizarComboProcedimentos() {
+            const selProc = document.getElementById('procFilter');
+            selProc.innerHTML = '<option value="">Todos os Procedimentos</option>';
+            if(dadosAno.length > 0) {
+                // Pega todos os procedimentos únicos que vieram do banco
+                const procsPresentes = [...new Set(dadosAno.map(d => d.procedimento).filter(Boolean))].sort();
+                
+                procsPresentes.forEach(p => {
+                    let code = getProcCode(p);
+                    let desc = getProcDesc(p);
+                    let opt = document.createElement('option'); 
+                    opt.value = code; // O valor do filtro será o código
+                    opt.innerText = `${code} - ${desc}`; // Mostra Bonito
+                    opt.title = p;
+                    selProc.appendChild(opt);
+                });
+            }
+        }
+
         function renderizar() {
             const mesSelecionado = document.getElementById('mesFilter').value;
+            const procSelecionado = document.getElementById('procFilter').value;
+
+            // Filtra Ano/Mês
             let dadosFiltrados = mesSelecionado ? dadosAno.filter(d => d.competencia_iso.includes(`-${mesSelecionado}-`)) : dadosAno;
+            
+            // Filtra Procedimento, se houver algum selecionado
+            if (procSelecionado) {
+                dadosFiltrados = dadosFiltrados.filter(d => getProcCode(d.procedimento) === procSelecionado);
+            }
 
             let t = { v:0, a:0, h:0, p:0, d:0, o:0 };
             dadosFiltrados.forEach(d => {
@@ -201,15 +251,37 @@
                 buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' }],
                 columns: [
                     { data: 'competencia_fmt', width: '80px' },
-                    { data: 'procedimento', render: d => d ? d.substring(0,60)+'...' : '-' },
+                    { 
+                        data: 'procedimento', 
+                        width: '100px', 
+                        className: "font-bold text-gray-700",
+                        render: function(d) { return getProcCode(d); } 
+                    },
+                    { 
+                        data: 'procedimento', 
+                        render: function(d, type, row) { 
+                            let desc = getProcDesc(d);
+                            // Se for para mostrar na tela, encurta. Se for para Exportar (Excel), manda o nome completo.
+                            if (type === 'display' && desc.length > 55) {
+                                return `<span title="${desc}">${desc.substring(0,55)}...</span>`;
+                            }
+                            return desc;
+                        } 
+                    },
                     { data: 'aih_aprovadas', className: "text-center font-bold" },
                     { data: 'media_permanencia', render: v => v ? v : '-' },
                     { data: 'valor_serv_hosp', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_serv_prof', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_total', className: "font-bold text-green-700", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                    { data: 'obitos', render: d => d>0 ? `<span class="badge" style="background:#ef4444; color:white; padding: 2px 6px; border-radius: 4px;">${d}</span>` : d }
+                    { 
+                        data: 'obitos', 
+                        render: function(d, type) { 
+                            if (type === 'display') return d>0 ? `<span class="badge" style="background:#ef4444; color:white; padding: 2px 6px; border-radius: 4px;">${d}</span>` : d;
+                            return d;
+                        } 
+                    }
                 ],
-                order: [[6, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", search: "Pesquisar:" }
+                order: [[7, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", search: "Pesquisar:" }
             });
         }
 

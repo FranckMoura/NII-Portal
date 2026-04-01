@@ -3,8 +3,9 @@ import os
 import glob
 from supabase import create_client, Client
 from datetime import datetime
+import re
 
-print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V22 (CORREÇÃO DE ACENTUAÇÃO UTF-8) ---")
+print(f"--- 🏥 PROCESSADOR DE REGULAÇÃO V24 (LIMPANDO FANTASMAS) ---")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_DOWNLOADS = os.path.join(BASE_DIR, "downloads")
@@ -23,6 +24,12 @@ def limpar(val):
     if pd.isna(val) or val == "": return None
     return str(val).strip()
 
+def limpar_numero(val):
+    """ Remove lixo não numérico da chave primária """
+    v = limpar(val)
+    if not v: return None
+    return re.sub(r'[^0-9]', '', v)
+
 def converter_data(data_str):
     if not data_str or pd.isna(data_str): return None
     try: return datetime.strptime(data_str.strip(), "%d/%m/%Y").strftime("%Y-%m-%d")
@@ -36,42 +43,35 @@ def traduzir_carater(valor):
     return v
 
 def validar_nome_paciente(nome, num_solicitacao):
-    """ Impede que Status ou Lixo entrem como Nome do Paciente """
     n = limpar(nome)
     if not n: return f"PACIENTE {num_solicitacao}"
-    
     n_upper = n.upper()
     palavras_proibidas = ["APROVADA", "AUTORIZADO", "PENDENTE", "NEGADO", "CANCELADO", "DEVOLVIDO", "AGUARDANDO", "URGENCIA", "ELETIVA", "SOLICITACAO"]
-    
-    if n_upper in palavras_proibidas:
-        return f"ERRO LEITURA CSV ({num_solicitacao})"
-        
+    if n_upper in palavras_proibidas: return f"ERRO LEITURA CSV ({num_solicitacao})"
     return n
 
 def corrigir_nomes_colunas(df):
-    """ Como agora lemos em UTF-8, os acentos vêm corretos. 
-        Só precisamos garantir que a coluna do CNS seja mapeada padronizada """
     mapa = {}
     for col in df.columns:
-        if 'cns' in col.lower() or 'cart' in col.lower():
-            mapa[col] = 'CNS'
+        if 'cns' in col.lower() or 'cart' in col.lower(): mapa[col] = 'CNS'
     return df.rename(columns=mapa)
 
-def forcar_atualizacao(registro):
+def atualizacao_suave(registro):
+    """ O Mini-Trator: Tenta atualizar. Se bater num fantasma cruzado, apaga o velho e insere o novo """
     try:
         supabase.table("regulacao").upsert(registro, on_conflict="num_solicitacao").execute()
         return True
-    except Exception as e1:
-        erro = str(e1)
-        if "duplicate key" in erro or "constraint" in erro:
-            try:
-                # Trator: Apaga do banco qualquer conflito com essa solicitação e recria a linha limpa
-                supabase.table("regulacao").delete().eq("num_solicitacao", registro["num_solicitacao"]).execute()
-                supabase.table("regulacao").insert(registro).execute()
-                return True
-            except:
-                return False
-        return False
+    except:
+        try:
+            # Apaga qualquer registo velho que esteja a prender esta Solicitação ou esta AIH
+            supabase.table("regulacao").delete().eq("num_solicitacao", registro["num_solicitacao"]).execute()
+            supabase.table("regulacao").delete().eq("num_aih", registro["num_aih"]).execute()
+            # Insere a versão limpa e mais recente
+            supabase.table("regulacao").insert(registro).execute()
+            return True
+        except Exception as e:
+            print(f"\n      ❌ Falha irreversível no paciente {registro['nome_paciente']}: {e}")
+            return False
 
 def processar():
     arquivos = glob.glob(os.path.join(PASTA_DOWNLOADS, "*.csv"))
@@ -84,14 +84,13 @@ def processar():
     for arq in arquivos:
         print(f"Lendo: {os.path.basename(arq)}...", end="\r")
         try:
-            # A MÁGICA ACONTECE AQUI: Mudamos de 'latin1' para 'utf-8-sig'
             df = pd.read_csv(arq, sep=";", encoding="utf-8-sig", on_bad_lines='skip', dtype=str)
             df.columns = [c.strip() for c in df.columns]
             df = corrigir_nomes_colunas(df)
 
             for i, row in df.iterrows():
-                aih = limpar(row.get("N. AIH"))
-                solicitacao = limpar(row.get("N. da solicitação"))
+                aih = limpar_numero(row.get("N. AIH"))
+                solicitacao = limpar_numero(row.get("N. da solicitação"))
                 if not solicitacao: continue
 
                 chave_aih = aih if aih else solicitacao
@@ -130,14 +129,14 @@ def processar():
             try:
                 supabase.table("regulacao").upsert(lote, on_conflict="num_solicitacao").execute()
                 sucessos += len(lote)
-                print(f"   ✅ Lote {i} processado.", end="\r")
-            except:
-                print(f"\n   ⚠️ Lote {i} com conflito/erro. Corrigindo linha a linha...")
+                print(f"   ✅ Lote {i} processado com sucesso.", end="\r")
+            except Exception as eLote:
+                print(f"\n   ⚠️ Lote {i} recusado pelo banco. Acionando Mini-Trator de limpeza...")
                 for item in lote:
-                    forcar_atualizacao(item)
-                    sucessos += 1
+                    if atualizacao_suave(item):
+                        sucessos += 1
         
-        print(f"\n✅ Banco de dados higienizado e Populado! Abra o painel HTML.")
+        print(f"\n✅ Operação concluída. {sucessos} de {len(lista)} registros salvos com sucesso.")
     else:
         print("⚠️ Nada para enviar.")
 
