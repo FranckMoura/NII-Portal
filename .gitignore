@@ -18,6 +18,13 @@ env/
 backend/downloads/
 downloads/
 
+# Ignorar pastas do juridico
+backend/juridico/
+juridico/
+*.zip
+*.rar
+
+
 # --- 3. SCRIPTS COM SENHAS E CHAVES ---
 # Ignora qualquer arquivo que comece com "robo_" (seus scripts Python)
 robo_*.py

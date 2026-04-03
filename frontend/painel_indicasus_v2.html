@@ -243,31 +243,31 @@
             <div class="meta-card border-blue card-clickable" onclick="filtrarPorLeito('UTI ADULTO')" title="Clique para listar na tabela">
                 <div class="meta-title">UTI Adulto <i class="fas fa-filter text-blue-300"></i></div>
                 <div class="meta-value" id="kpiUtiAdulto" style="color:#1e40af;">0</div>
-                <div class="meta-sub">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUtiAdulto">Diárias Faturáveis</div>
             </div>
             
             <div class="meta-card border-purple card-clickable" onclick="filtrarPorLeito('UTIN')" title="Clique para listar na tabela">
                 <div class="meta-title">UTIN (Neo) <i class="fas fa-filter text-purple-300"></i></div>
                 <div class="meta-value" id="kpiUtin" style="color:#6d28d9;">0</div>
-                <div class="meta-sub">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUtin">Diárias Faturáveis</div>
             </div>
             
             <div class="meta-card border-pink card-clickable" onclick="filtrarPorLeito('UCINCO')" title="Clique para listar na tabela">
                 <div class="meta-title">UCINCo <i class="fas fa-filter text-pink-300"></i></div>
                 <div class="meta-value" id="kpiUcinco" style="color:#be185d;">0</div>
-                <div class="meta-sub">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUcinco">Diárias Faturáveis</div>
             </div>
             
             <div class="meta-card border-teal card-clickable" onclick="filtrarPorLeito('UCINCA')" title="Clique para listar na tabela">
                 <div class="meta-title">UCINCa <i class="fas fa-filter text-teal-300"></i></div>
                 <div class="meta-value" id="kpiUcinca" style="color:#0f766e;">0</div>
-                <div class="meta-sub">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUcinca">Diárias Faturáveis</div>
             </div>
             
             <div class="meta-card border-yellow card-clickable" onclick="filtrarPorLeito('ENFERMARIA')" title="Clique para listar na tabela">
                 <div class="meta-title">Enfermaria <i class="fas fa-filter text-yellow-300"></i></div>
                 <div class="meta-value" id="kpiEnfermaria" style="color:#b45309;">0</div>
-                <div class="meta-sub">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subEnfermaria">Diárias Faturáveis</div>
             </div>
             
             <div class="meta-card border-green card-clickable" onclick="filtrarPorLeito('TODOS')" title="Limpar filtros da tabela">
@@ -330,7 +330,7 @@
         let chartDoughnut = null;
         let chartUtis = null;
         let dataTableInstance = null;
-        let dadosOriginaisBrutos = []; // Guarda todos os dados do BD para não precisar ir na nuvem toda vez que muda o select
+        let dadosOriginaisBrutos = []; 
         let dadosFiltradosGlobais = [];
         
         let filtroLeitoAtivo = 'TODOS';
@@ -353,7 +353,6 @@
             document.getElementById('modalNascimento').innerText = (dtNasc && dtNasc !== 'null') ? dtNasc.split('-').reverse().join('/') : 'Não informada';
             document.getElementById('modalMae').innerText = (mae && mae !== 'null') ? mae : 'Não informada';
             
-            // Novos campos do Modal
             document.getElementById('modalEvolucao').innerText = (evolucao && evolucao !== 'null') ? evolucao : 'Sem Evolução Registrada';
             
             const statusSusSpan = document.getElementById('modalSusStatus');
@@ -424,7 +423,7 @@
             $('.search-input').val('').removeClass('highlight-filter');
             $('#susFilter').val('TODOS');
             filtrarPorLeito('TODOS');
-            aplicarFiltroSusLocal(); // Refaz a tabela com "Todos" os pacientes
+            aplicarFiltroSusLocal(); 
         }
 
         function filtrarTabelaLocal() {
@@ -449,7 +448,6 @@
 
                 while (keepFetching) {
                     let query = client.from('indicasus_leitos')
-                        // Adicionamos internacao_sus e evolucao_clinica na busca
                         .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica')
                         .gte('data_extracao', d1) 
                         .lte('data_extracao', d2) 
@@ -465,21 +463,21 @@
                     if (!data || data.length < step) keepFetching = false;
                 }
 
-                dadosOriginaisBrutos = allData; // Guarda o banco original na memória do navegador
-                aplicarFiltroSusLocal(); // Chama a função que processa e desenha a tela
+                dadosOriginaisBrutos = allData; 
+                aplicarFiltroSusLocal(); 
 
             } catch(e) {
                 $('#status-badge').html('<i class="fas fa-times-circle text-red-400"></i> Erro');
             }
         }
 
-        // Esta função filtra os dados da memória sem ir ao banco e atualiza os gráficos/tabelas
         function aplicarFiltroSusLocal() {
-            const susFilterValue = $('#susFilter').val(); // TODOS, SIM ou NAO
+            const susFilterValue = $('#susFilter').val(); 
             
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
                 $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
+                $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca').text("Diárias Faturáveis");
                 renderizarGraficos([]); renderizarTabelaPrincipal([]);
                 return;
             }
@@ -488,7 +486,6 @@
             let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0;
 
             dadosOriginaisBrutos.forEach(row => {
-                // VERIFICAÇÃO DO FILTRO SUS
                 const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
                 if (susFilterValue === 'SIM' && !isSus) return;
                 if (susFilterValue === 'NAO' && isSus) return;
@@ -506,20 +503,42 @@
                 }
                 
                 const p = map.get(key);
-                if(p.dias_contados.has(row.data_extracao)) return;
-                p.dias_contados.add(row.data_extracao);
-
-                let leito = (row.tipo_leito || "").toUpperCase();
-                if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                else if (leito === "UTIN") p.dias_utin++;
-                else if (leito === "UCINCO") p.dias_ucinco++;
-                else if (leito === "UCINCA") p.dias_ucinca++;
-                else p.dias_enf++;
                 
-                if (new Date(row.data_extracao) > new Date(p.data_extracao)) p.data_extracao = row.data_extracao;
+                // CORREÇÃO DA OSCILAÇÃO: Pega apenas a data (YYYY-MM-DD), cortando a hora
+                const dataExt = row.data_extracao || "";
+                const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
+                
+                if (!dataDia || p.dias_contados.has(dataDia)) return; 
+                p.dias_contados.add(dataDia);
+
+                // --- REGRA SUS CORRIGIDA E ADAPTADA AO INDICADASUS ---
+                let evolucao = (row.evolucao_clinica || "").toUpperCase().trim();
+                
+                // Baseado nos seus dados brutos, a alta pode vir como "CURA/ALTA"
+                let isDiaDeAlta = evolucao === "ALTA" || 
+                                  evolucao.includes("CURA/ALTA") ||
+                                  evolucao.includes("ALTA HOSPITALAR") || 
+                                  evolucao.includes("ALTA MÉDICA") || 
+                                  evolucao.includes("ALTA MEDICA") ||
+                                  evolucao.includes("ALTA A PEDIDO");
+
+                if (!isDiaDeAlta) {
+                    let leito = (row.tipo_leito || "").toUpperCase();
+                    if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
+                    else if (leito === "UTIN") p.dias_utin++;
+                    else if (leito === "UCINCO") p.dias_ucinco++;
+                    else if (leito === "UCINCA") p.dias_ucinca++;
+                    else p.dias_enf++;
+                }
+                
+                if (new Date(row.data_extracao) > new Date(p.data_extracao)) {
+                    p.data_extracao = row.data_extracao;
+                    p.evolucao_clinica = row.evolucao_clinica;
+                    if(row.aih) p.aih = row.aih;
+                    if(row.cod_solicitacao_sisreg) p.cod_solicitacao_sisreg = row.cod_solicitacao_sisreg;
+                }
             });
 
-            // Agrupa e soma tudo
             dadosFiltradosGlobais = Array.from(map.values()).map(p => {
                 kpiUtiAdulto += p.dias_uti_ad;
                 kpiUtin += p.dias_utin;
@@ -529,10 +548,33 @@
                 return p;
             });
 
+            // --- CÁLCULO DA TAXA DE OCUPAÇÃO ---
+            const anoSelecionado = $('#anoFilter').val();
+            const mesSelecionado = $('#mesFilter').val();
+            const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
+
+            const capUtiAd = 10 * diasNoMes;
+            const capUtin = 18 * diasNoMes;
+            const capUcinco = 4 * diasNoMes;
+            const capUcinca = 3 * diasNoMes;
+
+            const txUtiAd = capUtiAd > 0 ? ((kpiUtiAdulto / capUtiAd) * 100).toFixed(1) : 0;
+            const txUtin = capUtin > 0 ? ((kpiUtin / capUtin) * 100).toFixed(1) : 0;
+            const txUcinco = capUcinco > 0 ? ((kpiUcinco / capUcinco) * 100).toFixed(1) : 0;
+            const txUcinca = capUcinca > 0 ? ((kpiUcinca / capUcinca) * 100).toFixed(1) : 0;
+
             $('#kpiUtiAdulto').text(kpiUtiAdulto);
+            $('#subUtiAdulto').html(`Ocupação: <b style="color:#1e40af;">${txUtiAd}%</b> (Cap: ${capUtiAd})`);
+
             $('#kpiUtin').text(kpiUtin);
+            $('#subUtin').html(`Ocupação: <b style="color:#6d28d9;">${txUtin}%</b> (Cap: ${capUtin})`);
+
             $('#kpiUcinco').text(kpiUcinco);
+            $('#subUcinco').html(`Ocupação: <b style="color:#be185d;">${txUcinco}%</b> (Cap: ${capUcinco})`);
+
             $('#kpiUcinca').text(kpiUcinca);
+            $('#subUcinca').html(`Ocupação: <b style="color:#0f766e;">${txUcinca}%</b> (Cap: ${capUcinca})`);
+
             $('#kpiPacientes').text(dadosFiltradosGlobais.length);
             $('#kpiEnfermaria').text(kpiEnfermaria);
 
