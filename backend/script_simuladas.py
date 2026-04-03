@@ -6,7 +6,7 @@ import time
 from supabase import create_client, Client
 from datetime import datetime
 
-print("--- 🚀 PROCESSADOR SIMULADAS V29: ALIMENTADOR DINÂMICO PARA BANCO E JSON ---")
+print("--- 🚀 PROCESSADOR SIMULADAS V30: SEPARAÇÃO INTELIGENTE DE CBO E CNES ---")
 
 # --- 1. CONFIGURAÇÕES ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
@@ -22,13 +22,11 @@ except Exception as e: print(f"❌ Erro de conexão: {e}"); exit()
 
 # --- FUNÇÕES ---
 def extrair_competencia_do_nome(nome_arquivo):
-    # Procura padrões como 0126, 0226, 1225 no nome do arquivo
     match = re.search(r'(\d{2})(\d{2})\.pdf', nome_arquivo.lower())
     if match:
         mes = match.group(1)
         ano = "20" + match.group(2)
         return f"{mes}/{ano}"
-    # Se falhar, pede ao utilizador
     return input(f"⚠️ Não foi possível detectar o mês no arquivo '{nome_arquivo}'. Digite a competência (Ex: 01/2026): ")
 
 def desamassar_linha_procedimento(linha_texto):
@@ -48,24 +46,33 @@ def desamassar_linha_procedimento(linha_texto):
         else: qtd = "1"
     else: qtd = "1"
     bloco_esq = "".join(partes) 
+    
     if len(bloco_esq) >= 10:
         codigo = bloco_esq[:10]
         docs_str = bloco_esq[10:]
     else:
         codigo = bloco_esq; docs_str = ""
+        
+    # INTELIGÊNCIA: Fatiar blocos colados (Doc + CBO + CNES)
     docs_sep = []
     if docs_str:
-        if len(docs_str) == 21 and docs_str.startswith('7'): 
-            docs_sep.extend([docs_str[:15], docs_str[15:]])
-        elif len(docs_str) > 15 and docs_str.startswith('7'):
-            docs_sep.append(docs_str[:15])
-            resto = docs_str[15:]
-            if len(resto) == 13: docs_sep.extend([resto[:7], resto[7:]]) 
-            elif len(resto) > 0: docs_sep.append(resto)
-        elif len(docs_str) == 14: 
-             docs_sep.extend([docs_str[:7], docs_str[7:]])
-        else: docs_sep.append(docs_str)
-    return {"codigo": codigo, "qtde": qtd, "cmpt": cmpt, "descricao": desc, "doc_cnes": " / ".join(docs_sep) if docs_sep else "-"}
+        d_len = len(docs_str)
+        if d_len == 28:   # Doc(15) + CBO(6) + CNES(7)
+            docs_sep = [docs_str[:15], docs_str[15:21], docs_str[21:]]
+        elif d_len == 22: # Doc(15) + CNES(7)
+            docs_sep = [docs_str[:15], "-", docs_str[15:]]
+        elif d_len == 21: # CNPJ(14) + CNES(7)
+            docs_sep = [docs_str[:14], "-", docs_str[14:]]
+        elif d_len == 14: # CNES(7) + CNES(7)
+            docs_sep = ["-", docs_str[:7], docs_str[7:]]
+        elif d_len == 7:  # Apenas CNES(7)
+            docs_sep = ["-", "-", docs_str]
+        elif d_len == 15: # Apenas Doc(15)
+            docs_sep = [docs_str, "-", "-"]
+        else:
+            docs_sep = [docs_str]
+            
+    return {"codigo": codigo, "qtde": qtd, "cmpt": cmpt, "descricao": desc, "doc_cnes": " / ".join(docs_sep) if docs_sep else "- / - / -"}
 
 def forcar_upload_correto(caminho_local, nome_remoto, content_type):
     print(f"☁️  Subindo para a nuvem: {nome_remoto}...")
@@ -105,7 +112,6 @@ def processar():
     nome_pdf = arquivos[0]
     caminho_pdf = os.path.join(PASTA_ENTRADA, nome_pdf)
     
-    # INTELIGÊNCIA: Detecta competência pelo nome do arquivo
     competencia_global = extrair_competencia_do_nome(nome_pdf)
     print(f"📌 Competência detectada: {competencia_global}")
 
@@ -241,7 +247,7 @@ def processar():
             "nome_original": nome_pdf,
             "link_pdf": link_pdf_final, 
             "link_indice": link_json_final,
-            "competencia_arquivo": competencia_global # <- A NOVA COLUNA AQUI
+            "competencia_arquivo": competencia_global 
         }).execute()
 
         print("💾 Enviando Procedimentos para o Supabase em Lotes...")

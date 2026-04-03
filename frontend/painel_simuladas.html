@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Completo - Simuladas</title>
+    <title>Painel Interativo - Simuladas</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -32,14 +32,6 @@
         table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
         .loading { display: flex; justify-content: center; align-items: center; height: 300px; font-size: 1.2rem; color: #64748b; font-weight: bold; flex-direction: column; gap: 15px; }
-
-        /* TAB MENU */
-        .tab-btn { padding: 12px 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: #64748b; background: transparent; outline: none; }
-        .tab-btn:hover { color: #004e92; }
-        .tab-btn.active { color: #004e92; border-bottom-color: #004e92; background: white; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* MODAIS (POPUP) UNIFICADO */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
@@ -91,7 +83,18 @@
                 <h4 class="font-bold text-gray-700 uppercase mb-2 text-xs flex items-center"><i class="fas fa-list-ol text-blue-600 mr-2 text-base"></i> Procedimentos Lançados</h4>
                 <div class="overflow-x-auto mb-6 border border-gray-200 rounded-lg">
                     <table class="tabela-itens !mb-0">
-                        <thead><tr><th class="w-10">Lnh</th><th class="w-24">Código</th><th>Doc/CNES</th><th class="w-12 text-center">Qtd</th><th class="w-16 text-center">Cmpt</th><th>Descrição</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th class="w-10">Lnh</th>
+                                <th class="w-24">Código</th>
+                                <th>Doc</th>
+                                <th>CBO</th>
+                                <th>CNES</th>
+                                <th class="w-12 text-center">Qtd</th>
+                                <th class="w-16 text-center">Cmpt</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
                         <tbody id="tbodyProcedimentos"></tbody>
                     </table>
                 </div>
@@ -121,8 +124,8 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold'>Painel Integrado de Simuladas</h1>
-                    <p class='text-blue-200 text-sm mt-1'>Auditoria de Valores (BI) e Fichas Originais (PDF).</p>
+                    <h1 class='text-3xl font-bold'>Índice de Fichas Simuladas</h1>
+                    <p class='text-blue-200 text-sm mt-1'>Auditoria de Fichas (PDF) e Detalhamento da Conta Médica.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -138,11 +141,6 @@
     </div>
 
     <div class="max-w-[98%] mx-auto p-4 pt-0">
-        
-        <div class="flex mb-4 px-2">
-            <button onclick="mudarAba('bi')" id="btn-bi" class="tab-btn active"><i class="fas fa-chart-pie mr-2 text-blue-600"></i> Auditoria de Valores (BI)</button>
-            <button onclick="mudarAba('indice')" id="btn-indice" class="tab-btn"><i class="fas fa-file-pdf mr-2 text-red-500"></i> Índice Interativo (Fichas PDF)</button>
-        </div>
 
         <div id="loader" class="loading">
             <i class="fas fa-circle-notch fa-spin text-4xl text-blue-600"></i>
@@ -150,23 +148,7 @@
         </div>
         
         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-            <div id="aba-bi" class="tab-content active w-full" style="opacity:0;">
-                <table id="tabelaBI" class="display w-full">
-                    <thead>
-                        <tr>
-                            <th>Pág. Ref.</th>
-                            <th>Nº AIH</th>
-                            <th>Nome do Paciente</th>
-                            <th class="text-center">Total de Itens</th>
-                            <th class="text-right">Valor Total (R$)</th>
-                            <th class="text-center">Auditoria</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div id="aba-indice" class="tab-content w-full" style="opacity:0;">
+            <div id="aba-indice" class="w-full" style="opacity:0;">
                 <table id="tabelaIndice" class="display compact w-full">
                     <thead>
                         <tr>
@@ -209,30 +191,12 @@ const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let dtBI, dtIndice;
-let mapaPacientesBI = {}; 
+let dtIndice;
 let dadosIndiceGlobal = [];
 let linkPdfAtual = ""; 
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-function mudarAba(nomeAba) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    
-    document.getElementById('aba-' + nomeAba).classList.add('active');
-    document.getElementById('btn-' + nomeAba).classList.add('active');
-
-    if(nomeAba === 'indice') {
-        $('#barra-impressao').fadeIn();
-        if(dtIndice) dtIndice.columns.adjust();
-    } else {
-        $('#barra-impressao').fadeOut();
-        if(dtBI) dtBI.columns.adjust();
-    }
-}
-
-// 1. INICIALIZA O DROPDOWN COM AS COMPETÊNCIAS DISPONÍVEIS
 async function inicializarDropdown() {
     const select = $('#filtroCompetencia');
     select.empty();
@@ -240,18 +204,16 @@ async function inicializarDropdown() {
     
     if(data && data.length > 0) {
         data.forEach(arq => {
-            // O value agora guarda a string JSON com todos os links necessários para aquela competência
             let val = JSON.stringify({ comp: arq.competencia_arquivo, pdf: arq.link_pdf, json: arq.link_indice });
             select.append(`<option value='${val}' class="text-black">Competência: ${arq.competencia_arquivo}</option>`);
         });
-        carregarDados(); // Carrega a primeira automaticamente
+        carregarDados(); 
     } else {
         select.append(`<option value="">Nenhum dado encontrado</option>`);
         $('#loading-text').text("Nenhuma competência processada ainda.");
     }
 }
 
-// 2. FUNÇÃO MESTRA QUE CARREGA TUDO COM BASE NO MÊS SELECIONADO
 async function carregarDados() {
     const jsonStr = document.getElementById('filtroCompetencia').value;
     if(!jsonStr) return;
@@ -265,79 +227,14 @@ async function carregarDados() {
     const loader = document.getElementById('loader');
     
     loader.style.display = 'flex';
-    document.getElementById('aba-bi').style.opacity = '0';
     document.getElementById('aba-indice').style.opacity = '0';
     
-    if(dtBI) { dtBI.destroy(); $('#tabelaBI tbody').empty(); }
     if(dtIndice) { dtIndice.destroy(); $('#tabelaIndice tbody').empty(); $('#tabelaIndice thead .table-search').empty(); }
     
     try {
-        loaderText.innerText = `Baixando Banco de Dados (${competencia})...`;
-        mapaPacientesBI = {};
-        
-        // Puxa as duas tabelas do Supabase para o BI
-        const [resProc, resVal] = await Promise.all([
-            client.from('simuladas_procedimentos').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true }),
-            client.from('simuladas_valores').select('*').eq('competencia_arquivo', competencia).order('id', { ascending: true })
-        ]);
-
-        if (resProc.error) throw new Error(resProc.error.message);
-        if (resVal.error) throw new Error(resVal.error.message);
-
-        // Agrupa BI
-        resProc.data.forEach(p => {
-            let nome = (p.paciente || "DESCONHECIDO").trim();
-            if(!mapaPacientesBI[nome]) mapaPacientesBI[nome] = { paciente: nome, aih: p.aih || "-", pagina: p.pagina || "-", proc_prin: "-", procs: [], vals: [], total: "0,00" };
-            mapaPacientesBI[nome].procs.push(p);
-        });
-
-        resVal.data.forEach(v => {
-            let nome = (v.paciente || "DESCONHECIDO").trim();
-            if(!mapaPacientesBI[nome]) mapaPacientesBI[nome] = { paciente: nome, aih: v.aih || "-", pagina: v.pagina || "-", proc_prin: "-", procs: [], vals: [], total: "0,00" };
-            
-            let grupo = (v.grupo_consolidado || "").toUpperCase();
-            if (grupo.includes('TOTAL GERAL')) {
-                mapaPacientesBI[nome].total = v.valor_rs || "0,00";
-            } else {
-                mapaPacientesBI[nome].vals.push(v);
-            }
-        });
-
-        // Monta a Tabela BI
-        const dadosBI = Object.values(mapaPacientesBI);
-        dtBI = $('#tabelaBI').DataTable({
-            data: dadosBI,
-            pageLength: 25,
-            dom: 'lBrtip',
-            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-            buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar', className: 'dt-button' }],
-            columns: [
-                { data: 'pagina', className: 'text-center font-bold text-blue-600' },
-                { data: 'aih', className: 'font-mono font-bold' },
-                { data: 'paciente', className: 'uppercase font-black text-gray-800' },
-                { data: 'procs', className: 'text-center', render: d => `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">${d.length} Itens</span>` },
-                { data: 'total', className: 'text-right font-mono font-bold text-green-700', render: d => 'R$ ' + d },
-                {
-                    data: null, className: 'text-center', orderable: false,
-                    render: function(d, type, row) {
-                        let safeName = row.paciente.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                        return `<button onclick="abrirModalBI('${safeName}')" class="bg-[#004e92] hover:bg-blue-800 text-white px-3 py-1.5 rounded font-bold shadow-sm w-full"><i class="fas fa-list-alt mr-1"></i> Detalhes</button>`;
-                    }
-                }
-            ]
-        });
-
-        // Agora baixa o arquivo JSON para a aba do Índice
         loaderText.innerText = "Lendo Índice Interativo (JSON)...";
         const responseJson = await fetch(linkJson);
         dadosIndiceGlobal = await responseJson.json();
-
-        // Tenta descobrir o Procedimento Principal do BI cruzando com o JSON
-        dadosIndiceGlobal.forEach(idx => {
-            if(mapaPacientesBI[idx.NOME]) {
-                mapaPacientesBI[idx.NOME].proc_prin = idx.PROC;
-            }
-        });
 
         // Configurar a busca por coluna no Índice
         $('#tabelaIndice thead tr:eq(0) th').each( function (i) {
@@ -389,8 +286,8 @@ async function carregarDados() {
         });
 
         loader.style.display = 'none';
-        document.getElementById('aba-bi').style.opacity = '1';
         document.getElementById('aba-indice').style.opacity = '1';
+        $('#barra-impressao').fadeIn();
 
     } catch(e) {
         console.error(e);
@@ -409,7 +306,7 @@ function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrVa
 
     const tbProc = $('#tbodyProcedimentos'); tbProc.empty();
     if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join(''));
-    else tbProc.append('<tr><td colspan="6" class="text-center text-gray-500 py-4">Nenhum procedimento.</td></tr>');
+    else tbProc.append('<tr><td colspan="8" class="text-center text-gray-500 py-4">Nenhum procedimento.</td></tr>');
 
     const tbVal = $('#tbodyValores'); tbVal.empty();
     if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join(''));
@@ -418,24 +315,31 @@ function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrVa
     $('#modalAuditoria').css('display', 'flex');
 }
 
-// Chamado pelo botão da aba BI
-function abrirModalBI(nome) {
-    const d = mapaPacientesBI[nome];
-    if(!d) return;
-
-    let htmlProcs = d.procs.map(p => `<tr><td class="font-bold text-gray-500">${p.linha||'-'}</td><td class="font-mono text-blue-700 bg-blue-50 px-1 rounded">${p.codigo||'-'}</td><td class="font-mono text-[0.7rem] text-gray-500">${p.documento_cnes||'-'}</td><td class="text-center font-bold text-gray-700">${p.qtde||'-'}</td><td class="text-gray-500 text-center">${p.cmpt||'-'}</td><td class="font-semibold uppercase">${p.descricao||'-'}</td></tr>`);
-    
-    let htmlVals = d.vals.map(v => `<tr class="hover:bg-gray-50"><td class="uppercase text-gray-700 font-semibold">${v.grupo_consolidado||'-'}</td><td class="text-right font-mono font-bold text-blue-900">${v.valor_rs||'-'}</td></tr>`);
-
-    desenharModal(d.paciente, d.aih, d.proc_prin, d.total, htmlProcs, htmlVals);
-}
-
 // Chamado pelo botão da aba Indice
 function abrirModalIndice(rowIndex) {
     const d = dadosIndiceGlobal[rowIndex];
     if(!d) return;
 
-    let htmlProcs = (d.procedimentos || []).map(p => `<tr><td class="font-bold text-gray-500">${p.linha||'-'}</td><td class="font-mono text-blue-700 bg-blue-50 px-1 rounded">${p.codigo||'-'}</td><td class="font-mono text-[0.7rem] text-gray-500">${p.doc_cnes||'-'}</td><td class="text-center font-bold text-gray-700">${p.qtde||'-'}</td><td class="text-gray-500 text-center">${p.cmpt||'-'}</td><td class="font-semibold uppercase">${p.descricao||'-'}</td></tr>`);
+    let htmlProcs = (d.procedimentos || []).map(p => {
+        // Agora a string doc_cnes vem sempre formatada (ex: Doc / CBO / CNES)
+        let docsStr = p.doc_cnes || p.documento_cnes || '-';
+        let doc='-', cbo='-', cnes='-';
+        
+        if(docsStr.includes(' / ')) {
+            let parts = docsStr.split(' / ');
+            if(parts.length === 3) {
+                doc = parts[0]; cbo = parts[1]; cnes = parts[2];
+            } else if (parts.length === 2) {
+                doc = parts[0]; cnes = parts[1];
+            } else {
+                doc = docsStr;
+            }
+        } else {
+            doc = docsStr; 
+        }
+
+        return `<tr><td class="font-bold text-gray-500">${p.linha||'-'}</td><td class="font-mono text-blue-700 bg-blue-50 px-1 rounded">${p.codigo||'-'}</td><td class="font-mono text-[0.7rem] text-gray-500">${doc}</td><td class="font-mono text-[0.7rem] text-gray-500">${cbo}</td><td class="font-mono text-[0.7rem] text-gray-500">${cnes}</td><td class="text-center font-bold text-gray-700">${p.qtde||'-'}</td><td class="text-gray-500 text-center">${p.cmpt||'-'}</td><td class="font-semibold uppercase">${p.descricao||'-'}</td></tr>`;
+    });
     
     let htmlVals = (d.valores || []).map(v => `<tr class="hover:bg-gray-50"><td class="uppercase text-gray-700 font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold text-blue-900">${v.valor||'-'}</td></tr>`);
 
