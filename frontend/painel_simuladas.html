@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -56,7 +57,91 @@
         .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
 
-        /* ======== ESTILOS EXCLUSIVOS PARA IMPRESSÃO DO MODAL ======== */
+        /* ========================================================= */
+        /* EFEITO GLASSMORPHISM & 3D NEON PARA A NOVA ABA BI         */
+        /* ========================================================= */
+        .tab-btn { padding: 12px 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: #64748b; background: transparent; outline: none; }
+        .tab-btn:hover { color: #0ea5e9; }
+        .tab-btn.active { color: #0ea5e9; border-bottom-color: #0ea5e9; text-shadow: 0 0 8px rgba(14, 165, 233, 0.5); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Container Cyberpunk */
+        .cyber-container {
+            background: linear-gradient(145deg, #090b14, #111827);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1), 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efeito de grade no fundo (opcional) */
+        .cyber-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Cards KPI de Vidro (Glass) 3D */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+            border-right: 1px solid rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* A Magia do 3D e do Neon no Hover */
+        .glass-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(14, 165, 233, 0.3);
+            border-top: 1px solid rgba(14, 165, 233, 0.5);
+            border-left: 1px solid rgba(14, 165, 233, 0.5);
+        }
+
+        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px #38bdf8, 0 0 10px #0284c7; }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px #34d399, 0 0 10px #059669; }
+        .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px #c084fc, 0 0 10px #9333ea; }
+        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px #fbbf24, 0 0 10px #d97706; }
+
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: bold; margin-bottom: 8px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; }
+
+        .glass-chart-container {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .glass-chart-title {
+            color: #e2e8f0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;
+        }
+
+        /* OTIMIZAÇÃO DE IMPRESSÃO DO MODAL */
         @media print {
             body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
             body.printing-modal { background: white !important; margin: 0 !important; padding: 0 !important; }
@@ -176,8 +261,8 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold'>Índice de Fichas Simuladas</h1>
-                    <p class='text-blue-200 text-sm mt-1'>Auditoria de Fichas (PDF) e Detalhamento da Conta Médica.</p>
+                    <h1 class='text-3xl font-bold'>Análise Interativa de Fichas</h1>
+                    <p class='text-blue-200 text-sm mt-1'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -194,13 +279,59 @@
 
     <div class="max-w-[98%] mx-auto p-4 pt-0">
 
+        <div class="flex px-2 no-print" style="margin-bottom: -2px; z-index: 10; position: relative;">
+            <button onclick="mudarAba('bi')" id="btn-bi" class="tab-btn"><i class="fas fa-chart-line mr-2"></i> Auditoria de Valores (BI 3D)</button>
+            <button onclick="mudarAba('indice')" id="btn-indice" class="tab-btn active"><i class="fas fa-file-pdf mr-2"></i> Índice de Fichas (PDFs)</button>
+        </div>
+
         <div id="loader" class="loading">
             <i class="fas fa-circle-notch fa-spin text-4xl text-blue-600"></i>
             <span id="loading-text">Conectando ao Supabase...</span>
         </div>
         
-        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-            <div id="aba-indice" class="w-full" style="opacity:0;">
+        <div id="aba-bi" class="tab-content w-full">
+            <div class="cyber-container">
+                <div class="flex justify-between items-center mb-8 relative z-10">
+                    <div>
+                        <h2 class="text-2xl font-black tracking-wider uppercase text-white"><i class="fas fa-bolt text-cyan-400 mr-2"></i> Inteligência de Faturamento</h2>
+                        <p class="text-cyan-200 text-sm opacity-80 mt-1">Análise em tempo real do processador de PDFs</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-hospital-user mr-1 text-blue-400"></i> Total de AIHs</div>
+                        <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-green-400"></i> Faturamento Total</div>
+                        <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-syringe mr-1 text-purple-400"></i> Proc. Lançados</div>
+                        <div class="kpi-number neon-text-purple" id="kpi-procs">0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-chart-bar mr-1 text-yellow-400"></i> Ticket Médio / AIH</div>
+                        <div class="kpi-number neon-text-yellow" id="kpi-ticket">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                    <div class="glass-chart-container">
+                        <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> AIHs por Especialidade</div>
+                        <div style="height: 300px;"><canvas id="chartEspec"></canvas></div>
+                    </div>
+                    <div class="glass-chart-container">
+                        <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-purple-400"></i> Top 10 - Procedimentos Faturados (Qtd)</div>
+                        <div style="height: 300px;"><canvas id="chartProc"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="aba-indice" class="tab-content active w-full" style="opacity:0;">
+            <div class="bg-white p-6 rounded-b-xl rounded-tr-xl shadow-md border border-gray-200">
                 <table id="tabelaIndice" class="display compact w-full">
                     <thead>
                         <tr>
@@ -246,8 +377,25 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let dtIndice;
 let dadosIndiceGlobal = [];
 let linkPdfAtual = ""; 
+let chartEspecObj = null;
+let chartProcObj = null;
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function mudarAba(nomeAba) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('aba-' + nomeAba).classList.add('active');
+    document.getElementById('btn-' + nomeAba).classList.add('active');
+
+    if(nomeAba === 'indice') {
+        $('#barra-impressao').fadeIn();
+        if(dtIndice) dtIndice.columns.adjust();
+    } else {
+        $('#barra-impressao').fadeOut();
+    }
+}
 
 async function inicializarDropdown() {
     const select = $('#filtroCompetencia');
@@ -266,6 +414,103 @@ async function inicializarDropdown() {
     }
 }
 
+function parseMoeda(str) {
+    if(!str) return 0;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+}
+
+// ==========================================
+// RENDERIZAÇÃO DO BI (DARK NEON)
+// ==========================================
+function atualizarBI(data) {
+    let totalAih = data.length;
+    let totalProcs = 0;
+    let valorTotal = 0;
+    let especMap = {};
+    let procMap = {};
+
+    data.forEach(d => {
+        totalProcs += d.procedimentos ? d.procedimentos.length : 0;
+        valorTotal += parseMoeda(d.valor_total);
+
+        let esp = d.ESPEC || "NÃO INFORMADA";
+        // Limpa código da especialidade (ex: 02-OBSTETRICOS -> OBSTETRICOS)
+        if(esp.includes('-')) esp = esp.split('-')[1].trim();
+        especMap[esp] = (especMap[esp] || 0) + 1;
+
+        if (d.procedimentos) {
+            d.procedimentos.forEach(p => {
+                let nomeProc = p.descricao || "NÃO INFORMADO";
+                nomeProc = nomeProc.length > 25 ? nomeProc.substring(0,25) + '...' : nomeProc;
+                let qtd = parseInt(p.qtde) || 1;
+                procMap[nomeProc] = (procMap[nomeProc] || 0) + qtd;
+            });
+        }
+    });
+
+    $('#kpi-aih').text(totalAih);
+    $('#kpi-procs').text(totalProcs);
+    $('#kpi-valor').text(brl.format(valorTotal));
+    $('#kpi-ticket').text(brl.format(totalAih > 0 ? valorTotal / totalAih : 0));
+
+    // Preparar dados do Gráfico de Especialidade
+    let lblEspec = Object.keys(especMap);
+    let valEspec = Object.values(especMap);
+
+    if(chartEspecObj) chartEspecObj.destroy();
+    Chart.defaults.color = '#94a3b8'; // Texto cinza claro para o dark mode
+    chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: lblEspec,
+            datasets: [{ 
+                data: valEspec, 
+                backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#6366f1'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: { 
+            maintainAspectRatio: false, cutout: '70%', 
+            plugins: { legend: { position: 'right' } } 
+        }
+    });
+
+    // Preparar dados do Gráfico de Top Procedimentos
+    let arrProcs = [];
+    for(let k in procMap) arrProcs.push({nome: k, qtd: procMap[k]});
+    arrProcs.sort((a,b) => b.qtd - a.qtd);
+    let top10 = arrProcs.slice(0, 10);
+
+    if(chartProcObj) chartProcObj.destroy();
+    chartProcObj = new Chart(document.getElementById('chartProc').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: top10.map(x => x.nome),
+            datasets: [{ 
+                label: 'Qtd. Lançada', 
+                data: top10.map(x => x.qtd), 
+                backgroundColor: 'rgba(168, 85, 247, 0.8)', // Roxo neon
+                borderColor: '#c084fc',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            indexAxis: 'y', 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+// ==========================================
+// CARREGAMENTO PRINCIPAL
+// ==========================================
 async function carregarDados() {
     const jsonStr = document.getElementById('filtroCompetencia').value;
     if(!jsonStr) return;
@@ -288,6 +533,9 @@ async function carregarDados() {
         const responseJson = await fetch(linkJson);
         dadosIndiceGlobal = await responseJson.json();
 
+        // ALIMENTA A NOVA ABA BI
+        atualizarBI(dadosIndiceGlobal);
+
         // Configurar a busca por coluna no Índice
         $('#tabelaIndice thead tr:eq(0) th').each( function (i) {
             if(i === 9) { $('#tabelaIndice thead .table-search').append('<th></th>'); } 
@@ -302,7 +550,7 @@ async function carregarDados() {
             language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
             buttons: [
                 { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
-                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button' }
+                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
             ],
             columns: [
                 { data: 'PAGINA', className: 'text-center font-bold text-blue-700' },
@@ -339,7 +587,11 @@ async function carregarDados() {
 
         loader.style.display = 'none';
         document.getElementById('aba-indice').style.opacity = '1';
-        $('#barra-impressao').fadeIn();
+        
+        // Verifica qual aba está ativa para mostrar/esconder a barra de impressão
+        if(document.getElementById('btn-indice').classList.contains('active')) {
+            $('#barra-impressao').fadeIn();
+        }
 
     } catch(e) {
         console.error(e);
@@ -348,7 +600,7 @@ async function carregarDados() {
 }
 
 // ==========================================
-// FUNÇÕES DO MODAL UNIFICADO
+// FUNÇÕES DO MODAL DA CONTA MÉDICA
 // ==========================================
 function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrValsHTML) {
     $('#modalNome').text(nome);
@@ -393,7 +645,6 @@ function abrirLeitorPdf(pagina) {
     $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
 }
 
-// FUNÇÃO MÁGICA PARA IMPRIMIR APENAS O MODAL
 function imprimirModal() {
     $('body').addClass('printing-modal');
     window.print();
