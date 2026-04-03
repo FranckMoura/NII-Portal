@@ -197,7 +197,7 @@
                 <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-bed-pulse text-3xl"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold'>Auditoria IndicaSUS (Leitos)</h1>
-                    <p class='text-gray-300'>Cofinanciamento Estadual <span id="status-badge" class="status-badge"><i class="fas fa-spinner fa-spin"></i> Conectando...</span></p>
+                    <p class='text-gray-300'>Monitoramento de Ocupação e Uso Físico dos Leitos <span id="status-badge" class="status-badge"><i class="fas fa-spinner fa-spin"></i> Conectando...</span></p>
                 </div>
             </div>
             
@@ -243,53 +243,53 @@
             <div class="meta-card border-blue card-clickable" onclick="filtrarPorLeito('UTI ADULTO')" title="Clique para listar na tabela">
                 <div class="meta-title">UTI Adulto <i class="fas fa-filter text-blue-300"></i></div>
                 <div class="meta-value" id="kpiUtiAdulto" style="color:#1e40af;">0</div>
-                <div class="meta-sub" id="subUtiAdulto">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUtiAdulto">Diárias Ocupadas</div>
             </div>
             
             <div class="meta-card border-purple card-clickable" onclick="filtrarPorLeito('UTIN')" title="Clique para listar na tabela">
                 <div class="meta-title">UTIN (Neo) <i class="fas fa-filter text-purple-300"></i></div>
                 <div class="meta-value" id="kpiUtin" style="color:#6d28d9;">0</div>
-                <div class="meta-sub" id="subUtin">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUtin">Diárias Ocupadas</div>
             </div>
             
             <div class="meta-card border-pink card-clickable" onclick="filtrarPorLeito('UCINCO')" title="Clique para listar na tabela">
                 <div class="meta-title">UCINCo <i class="fas fa-filter text-pink-300"></i></div>
                 <div class="meta-value" id="kpiUcinco" style="color:#be185d;">0</div>
-                <div class="meta-sub" id="subUcinco">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUcinco">Diárias Ocupadas</div>
             </div>
             
             <div class="meta-card border-teal card-clickable" onclick="filtrarPorLeito('UCINCA')" title="Clique para listar na tabela">
                 <div class="meta-title">UCINCa <i class="fas fa-filter text-teal-300"></i></div>
                 <div class="meta-value" id="kpiUcinca" style="color:#0f766e;">0</div>
-                <div class="meta-sub" id="subUcinca">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subUcinca">Diárias Ocupadas</div>
             </div>
             
             <div class="meta-card border-yellow card-clickable" onclick="filtrarPorLeito('ENFERMARIA')" title="Clique para listar na tabela">
                 <div class="meta-title">Enfermaria <i class="fas fa-filter text-yellow-300"></i></div>
                 <div class="meta-value" id="kpiEnfermaria" style="color:#b45309;">0</div>
-                <div class="meta-sub" id="subEnfermaria">Diárias Faturáveis</div>
+                <div class="meta-sub" id="subEnfermaria">Diárias Ocupadas</div>
             </div>
             
             <div class="meta-card border-green card-clickable" onclick="filtrarPorLeito('TODOS')" title="Limpar filtros da tabela">
                 <div class="meta-title">Total de Pacientes <i class="fas fa-users text-green-300"></i></div>
                 <div class="meta-value" id="kpiPacientes" style="color:#10b981;">0</div>
-                <div class="meta-sub">Internados no período</div>
+                <div class="meta-sub">Atendidos no período</div>
             </div>
         </div>
 
         <div class="charts-row">
             <div class="chart-box">
-                <h4><i class="fas fa-chart-pie text-orange-500"></i> Distribuição de Complexidade</h4>
+                <h4><i class="fas fa-chart-pie text-orange-500"></i> Distribuição de Complexidade (Ocupação)</h4>
                 <div class="chart-canvas-wrapper" style="height:300px;"><canvas id="chartDoughnut"></canvas></div>
             </div>
             <div class="chart-box">
-                <h4><i class="fas fa-chart-bar text-blue-600"></i> Consumo de Diárias por Tipo de UTI</h4>
+                <h4><i class="fas fa-chart-bar text-blue-600"></i> Consumo Total de Diárias por Setor</h4>
                 <div class="chart-canvas-wrapper" style="height:300px;"><canvas id="chartUtis"></canvas></div>
             </div>
         </div>
 
         <div class="chart-box" id="secao-tabela" style="padding-top:10px;">
-            <h4 id="tituloTabela" class="no-print" style="color:#0f172a;"><i class="fas fa-list-ul text-blue-600"></i> Matriz de Faturamento por Paciente</h4>
+            <h4 id="tituloTabela" class="no-print" style="color:#0f172a;"><i class="fas fa-list-ul text-blue-600"></i> Matriz de Ocupação por Paciente</h4>
             
             <table id="tabelaIndica" class="display compact nowrap" style="width:100%">
                 <thead>
@@ -477,7 +477,7 @@
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
                 $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
-                $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca').text("Diárias Faturáveis");
+                $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca').text("Diárias Ocupadas");
                 renderizarGraficos([]); renderizarTabelaPrincipal([]);
                 return;
             }
@@ -508,29 +508,20 @@
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                 
-                // Impede que o mesmo dia seja contado duas vezes se o robô for rodado repetidamente
+                // Impede que o mesmo dia seja contado duas vezes se o robô for rodado repetidamente no dia
                 if (!dataDia || p.dias_contados.has(dataDia)) return; 
                 p.dias_contados.add(dataDia);
 
-                // --- REGRA SUS CORRIGIDA: DESCONTA A DIÁRIA APENAS SE FOR ALTA HOSPITALAR ---
-                let evolucao = (row.evolucao_clinica || "").toUpperCase().trim();
-                let isDiaDeSaida = evolucao === "ALTA" || 
-                                   evolucao === "ALTA." ||
-                                   evolucao === "ALTA HOSPITALAR" || 
-                                   evolucao === "ALTA MÉDICA" || 
-                                   evolucao === "ALTA MEDICA" ||
-                                   evolucao === "ALTA ADMINISTRATIVA" ||
-                                   evolucao === "ALTA A PEDIDO";
-
-                if (!isDiaDeSaida) {
-                    let leito = (row.tipo_leito || "").toUpperCase();
-                    if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                    else if (leito === "UTIN") p.dias_utin++;
-                    else if (leito === "UCINCO") p.dias_ucinco++;
-                    else if (leito === "UCINCA") p.dias_ucinca++;
-                    else p.dias_enf++;
-                }
+                // --- NOVA REGRA PARA AUDITORIA GERAL (OCUPAÇÃO) ---
+                // Conta TODOS os dias que o paciente aparece na foto do IndicaSUS, sem descontar a alta.
+                let leito = (row.tipo_leito || "").toUpperCase();
+                if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
+                else if (leito === "UTIN") p.dias_utin++;
+                else if (leito === "UCINCO") p.dias_ucinco++;
+                else if (leito === "UCINCA") p.dias_ucinca++;
+                else p.dias_enf++;
                 
+                // Atualiza a última foto e os dados finais do paciente para o modal
                 if (new Date(row.data_extracao) > new Date(p.data_extracao)) {
                     p.data_extracao = row.data_extracao;
                     p.evolucao_clinica = row.evolucao_clinica;
@@ -616,7 +607,7 @@
                 type: 'bar',
                 data: {
                     labels: ['UTI Adulto', 'UTIN (Neo)', 'UCINCo', 'UCINCa'],
-                    datasets: [{ label: 'Diárias Faturáveis', data: [diariastipo['UTI ADULTO'], diariastipo['UTIN'], diariastipo['UCINCo'], diariastipo['UCINCa']], backgroundColor: ['#1e40af', '#6d28d9', '#be185d', '#0f766e'], borderRadius: 6 }]
+                    datasets: [{ label: 'Diárias Ocupadas', data: [diariastipo['UTI ADULTO'], diariastipo['UTIN'], diariastipo['UCINCo'], diariastipo['UCINCa']], backgroundColor: ['#1e40af', '#6d28d9', '#be185d', '#0f766e'], borderRadius: 6 }]
                 },
                 options: { indexAxis: 'x', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
