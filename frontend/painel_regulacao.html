@@ -200,7 +200,7 @@
                 </div>
 
                 <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
-                <a href="../modulo_operacional.html" class="btn-back" style="background: rgba(255,255,255,0.2);"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_operacional.html" class="btn-back" style="background: rgba(255,255,255,0.2);"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
@@ -222,10 +222,10 @@
         
         <div class="filter-bar">
             <div class="filter-group">
-                <label><i class="far fa-calendar-alt"></i> Período:</label>
+                <label><i class="far fa-calendar-alt"></i> Mês/Ano:</label>
                 <div style="display:flex; gap:10px;">
-                    <input type="date" id="dataIni">
-                    <input type="date" id="dataFim">
+                    <input type="month" id="dataIni">
+                    <input type="month" id="dataFim">
                 </div>
             </div>
 
@@ -354,12 +354,11 @@
 
         $(document).ready(function() {
             const agora = new Date();
-            const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
-            const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
-            const fmt = (d) => d.toISOString().split('T')[0];
+            // Formata o mês atual no formato YYYY-MM para o campo <input type="month">
+            const anoMesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
 
-            document.getElementById('dataIni').value = fmt(primeiroDia);
-            document.getElementById('dataFim').value = fmt(ultimoDia);
+            document.getElementById('dataIni').value = anoMesAtual;
+            document.getElementById('dataFim').value = anoMesAtual;
             
             const hojePrint = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
             $('#print-data').text(hojePrint);
@@ -578,11 +577,14 @@
             limparFiltrosTabela();
             $('#filtroTipo').val('TODOS'); 
             
+            // Para as notificações, puxa um período largo (6 meses)
             let dataRetroativa = new Date(); dataRetroativa.setMonth(dataRetroativa.getMonth() - 6);
-            $('#dataIni').val(dataRetroativa.toISOString().split('T')[0]);
+            let anoMesRetroativo = `${dataRetroativa.getFullYear()}-${String(dataRetroativa.getMonth() + 1).padStart(2, '0')}`;
+            $('#dataIni').val(anoMesRetroativo);
             
-            let hoje = new Date(); let ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-            $('#dataFim').val(ultimoDia.toISOString().split('T')[0]);
+            let hoje = new Date(); 
+            let anoMesHoje = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+            $('#dataFim').val(anoMesHoje);
 
             $('#tableSearch').val(paciente);
             $('#status-msg').html('<i class="fas fa-spinner fa-spin text-blue-500"></i> Localizando paciente...');
@@ -659,11 +661,21 @@
         }
 
         async function carregarDados() {
-            const d1 = document.getElementById('dataIni').value;
-            const d2 = document.getElementById('dataFim').value;
+            // Pega o valor YYYY-MM
+            const d1_val = document.getElementById('dataIni').value;
+            const d2_val = document.getElementById('dataFim').value;
+            
+            // Converte para primeiro dia do mês inicial e último dia do mês final
+            const d1 = `${d1_val}-01`;
+            
+            const anoFim = parseInt(d2_val.split('-')[0]);
+            const mesFim = parseInt(d2_val.split('-')[1]);
+            const ultimoDiaDoMes = new Date(anoFim, mesFim, 0).getDate();
+            const d2 = `${d2_val}-${String(ultimoDiaDoMes).padStart(2, '0')}`;
+            
             const filtroTipo = document.getElementById('filtroTipo').value;
             
-            $('#print-periodo').text(`${d1.split('-').reverse().join('/')} a ${d2.split('-').reverse().join('/')}`);
+            $('#print-periodo').text(`${d1_val.split('-').reverse().join('/')} a ${d2_val.split('-').reverse().join('/')}`);
             $('#status-msg').html('<i class="fas fa-spinner fa-spin text-blue-600"></i> Baixando dados...');
 
             try {
