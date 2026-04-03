@@ -508,21 +508,21 @@
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                 
+                // Impede que o mesmo dia seja contado duas vezes se o robô for rodado repetidamente
                 if (!dataDia || p.dias_contados.has(dataDia)) return; 
                 p.dias_contados.add(dataDia);
 
-                // --- REGRA SUS CORRIGIDA E ADAPTADA AO INDICADASUS ---
+                // --- REGRA SUS CORRIGIDA: DESCONTA A DIÁRIA APENAS SE FOR ALTA HOSPITALAR ---
                 let evolucao = (row.evolucao_clinica || "").toUpperCase().trim();
-                
-                // Baseado nos seus dados brutos, a alta pode vir como "CURA/ALTA"
-                let isDiaDeAlta = evolucao === "ALTA" || 
-                                  evolucao.includes("CURA/ALTA") ||
-                                  evolucao.includes("ALTA HOSPITALAR") || 
-                                  evolucao.includes("ALTA MÉDICA") || 
-                                  evolucao.includes("ALTA MEDICA") ||
-                                  evolucao.includes("ALTA A PEDIDO");
+                let isDiaDeSaida = evolucao === "ALTA" || 
+                                   evolucao === "ALTA." ||
+                                   evolucao === "ALTA HOSPITALAR" || 
+                                   evolucao === "ALTA MÉDICA" || 
+                                   evolucao === "ALTA MEDICA" ||
+                                   evolucao === "ALTA ADMINISTRATIVA" ||
+                                   evolucao === "ALTA A PEDIDO";
 
-                if (!isDiaDeAlta) {
+                if (!isDiaDeSaida) {
                     let leito = (row.tipo_leito || "").toUpperCase();
                     if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
                     else if (leito === "UTIN") p.dias_utin++;
