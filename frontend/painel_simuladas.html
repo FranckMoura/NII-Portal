@@ -55,6 +55,53 @@
         .pages-display { font-family: monospace; color: #fbbf24; font-size: 1rem; margin-left: 10px; font-weight:bold; }
         .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
+
+        /* ======== ESTILOS EXCLUSIVOS PARA IMPRESSÃO DO MODAL ======== */
+        @media print {
+            body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
+            body.printing-modal { background: white !important; margin: 0 !important; padding: 0 !important; }
+            
+            body.printing-modal #modalAuditoria {
+                position: static !important;
+                display: block !important;
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            body.printing-modal .modal-content {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                transform: none !important;
+                animation: none !important;
+                max-height: none !important;
+            }
+            
+            body.printing-modal .modal-header {
+                background: white !important;
+                color: black !important;
+                border-bottom: 2px solid #cbd5e1 !important;
+                padding: 10px 0 20px 0 !important;
+            }
+            body.printing-modal .modal-header h2 { color: black !important; font-size: 18pt !important; }
+            body.printing-modal .modal-header p { color: #475569 !important; }
+            body.printing-modal .modal-header #modalAih { background: #f1f5f9 !important; color: black !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .no-print-btn { display: none !important; }
+            
+            body.printing-modal .modal-body { overflow: visible !important; padding: 20px 0 !important; }
+            
+            body.printing-modal .bg-blue-50 { background: white !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .bg-green-50 { background: white !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .text-blue-800, body.printing-modal .text-green-800 { color: #475569 !important; }
+            body.printing-modal .text-blue-900 { color: black !important; }
+            body.printing-modal .text-green-700 { color: black !important; font-size: 20pt !important; }
+            
+            body.printing-modal .tabela-itens { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .tabela-itens th { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body.printing-modal .tabela-itens td { border-bottom: 1px solid #e2e8f0 !important; }
+        }
     </style>
 </head>
 <body>
@@ -66,7 +113,12 @@
                     <h2 class="text-2xl font-bold uppercase tracking-wide" id="modalNome">NOME DO PACIENTE</h2>
                     <p class="text-blue-200 text-sm mt-1">AIH: <span id="modalAih" class="font-mono font-bold text-white bg-blue-800 px-2 py-0.5 rounded"></span></p>
                 </div>
-                <button onclick="$('#modalAuditoria').hide()" class="text-white hover:text-red-400 text-4xl leading-none">&times;</button>
+                <div class="flex items-center gap-4">
+                    <button onclick="imprimirModal()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2 border border-white/30 no-print-btn shadow-sm">
+                        <i class="fas fa-print"></i> Imprimir Ficha
+                    </button>
+                    <button onclick="$('#modalAuditoria').hide()" class="text-white hover:text-red-400 text-4xl leading-none no-print-btn">&times;</button>
+                </div>
             </div>
             <div class="modal-body">
                 <div class="flex gap-4 mb-6 flex-wrap">
@@ -315,28 +367,17 @@ function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrVa
     $('#modalAuditoria').css('display', 'flex');
 }
 
-// Chamado pelo botão da aba Indice
 function abrirModalIndice(rowIndex) {
     const d = dadosIndiceGlobal[rowIndex];
     if(!d) return;
 
     let htmlProcs = (d.procedimentos || []).map(p => {
-        // Agora a string doc_cnes vem sempre formatada (ex: Doc / CBO / CNES)
         let docsStr = p.doc_cnes || p.documento_cnes || '-';
-        let doc='-', cbo='-', cnes='-';
-        
-        if(docsStr.includes(' / ')) {
-            let parts = docsStr.split(' / ');
-            if(parts.length === 3) {
-                doc = parts[0]; cbo = parts[1]; cnes = parts[2];
-            } else if (parts.length === 2) {
-                doc = parts[0]; cnes = parts[1];
-            } else {
-                doc = docsStr;
-            }
-        } else {
-            doc = docsStr; 
-        }
+        let partes = docsStr.split('/').map(s => s.trim()); 
+
+        let doc = partes[0] || '-';
+        let cbo = partes[1] || '-';
+        let cnes = partes[2] || '-';
 
         return `<tr><td class="font-bold text-gray-500">${p.linha||'-'}</td><td class="font-mono text-blue-700 bg-blue-50 px-1 rounded">${p.codigo||'-'}</td><td class="font-mono text-[0.7rem] text-gray-500">${doc}</td><td class="font-mono text-[0.7rem] text-gray-500">${cbo}</td><td class="font-mono text-[0.7rem] text-gray-500">${cnes}</td><td class="text-center font-bold text-gray-700">${p.qtde||'-'}</td><td class="text-gray-500 text-center">${p.cmpt||'-'}</td><td class="font-semibold uppercase">${p.descricao||'-'}</td></tr>`;
     });
@@ -350,6 +391,15 @@ function abrirLeitorPdf(pagina) {
     if(!linkPdfAtual) return;
     $('#iframePdf').attr('src', `${linkPdfAtual}#page=${pagina}&zoom=100`);
     $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
+}
+
+// FUNÇÃO MÁGICA PARA IMPRIMIR APENAS O MODAL
+function imprimirModal() {
+    $('body').addClass('printing-modal');
+    window.print();
+    setTimeout(() => {
+        $('body').removeClass('printing-modal');
+    }, 500);
 }
 
 // ==========================================
