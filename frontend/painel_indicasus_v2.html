@@ -556,11 +556,13 @@
             return true;
         });
 
-        $(document).ready(function() {
-            const savedTheme = localStorage.getItem('nii_theme_ind');
-            if (savedTheme === 'classic' || !savedTheme) { 
+$(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_reg');
+            
+            if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_ind', 'classic');
+            } else {
+                document.body.classList.remove('theme-classic');
             }
 
             setupAnoMes();

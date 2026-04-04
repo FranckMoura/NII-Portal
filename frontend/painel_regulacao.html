@@ -566,11 +566,13 @@
             }
         }
 
-        $(document).ready(function() {
+$(document).ready(function() {
             const savedTheme = localStorage.getItem('nii_theme_reg');
-            if (savedTheme === 'classic' || !savedTheme) { 
+            
+            if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_reg', 'classic');
+            } else {
+                document.body.classList.remove('theme-classic');
             }
 
             const agora = new Date();

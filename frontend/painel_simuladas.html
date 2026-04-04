@@ -872,12 +872,13 @@ function copyAllPages() {
 // INICIALIZAÇÃO E CHECAGEM DE TEMA SALVO
 document.addEventListener('DOMContentLoaded', () => {
     // Por defeito carregamos o Tema Clássico NII
-    const savedTheme = localStorage.getItem('nii_theme');
-    
-    if (savedTheme === 'classic' || !savedTheme) { 
-        document.body.classList.add('theme-classic');
-        localStorage.setItem('nii_theme', 'classic');
-    }
+const savedTheme = localStorage.getItem('nii_theme_reg');
+            
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+            } else {
+                document.body.classList.remove('theme-classic');
+            }
     inicializarDropdown();
 });
 document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
