@@ -22,12 +22,12 @@
 
     <style>
         /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (PADRÃO)                            */
+        /* TEMA GLOBAL DARK NEON (PADRÃO CYBERPUNK)                  */
         /* ========================================================= */
         body { 
             font-family: 'Inter', sans-serif; 
             background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #004e92 100%);
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
             background-attachment: fixed;
             color: white; 
             padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; 
@@ -44,11 +44,7 @@
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
-        .header-bg { 
-            background: transparent; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
-            padding: 25px 40px; margin-bottom: 20px; transition: 0.5s;
-        }
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
         .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
         
         .loading { display: flex; justify-content: center; align-items: center; height: 300px; font-size: 1.2rem; color: #94a3b8; font-weight: bold; flex-direction: column; gap: 15px; }
@@ -64,48 +60,31 @@
         /* Container de Vidro Genérico */
         .cyber-container {
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            z-index: 1;
-            transition: 0.5s;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative; z-index: 1; transition: 0.5s;
         }
 
         /* Cards KPI de Vidro REAL */
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.2); 
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transform-style: preserve-3d;
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; position: relative; z-index: 2;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
         .glass-card:hover {
             transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
             background: rgba(255, 255, 255, 0.08); 
             box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
-            border-top: 1px solid rgba(14, 165, 233, 0.6); 
-            border-left: 1px solid rgba(14, 165, 233, 0.6);
+            border-top: 1px solid rgba(14, 165, 233, 0.6); border-left: 1px solid rgba(14, 165, 233, 0.6);
         }
 
         .glass-chart-container {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            border-left: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            transition: 0.5s;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s;
         }
 
         .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
@@ -115,85 +94,116 @@
 
         .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
         .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; }
-        .glass-chart-title { color: #f8fafc; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; }
+        .glass-chart-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; }
 
-        /* ========================================================= */
-        /* MODO CLARO (LIGHT THEME OVERRIDES)                        */
-        /* ========================================================= */
-        body.theme-light {
-            background: #f8fafc;
-            background-image: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 100%);
-            color: #1e293b;
-        }
-        body.theme-light::before {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-        }
-        body.theme-light .blob-1 { background: rgba(56, 189, 248, 0.2); }
-        body.theme-light .blob-2 { background: rgba(168, 85, 247, 0.15); }
-
-        body.theme-light .header-bg { border-bottom-color: rgba(0,0,0,0.1); }
-        body.theme-light .header-bg h1 { color: #0f172a; }
-        body.theme-light .header-bg p { color: #475569; }
-        body.theme-light .header-bg .fa-magnifying-glass-chart { color: #0284c7; }
-        body.theme-light .header-bg .bg-black\/20 { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
-        body.theme-light .header-bg select { color: #0f172a; }
-        body.theme-light .header-bg select option { background: white; color: #0f172a; }
-        body.theme-light .btn-theme, body.theme-light .header-bg a { color: #0f172a; background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
-        body.theme-light .btn-theme:hover, body.theme-light .header-bg a:hover { background: rgba(0,0,0,0.1); }
-
-        body.theme-light .tab-btn { color: #64748b; }
-        body.theme-light .tab-btn:hover { color: #0284c7; }
-        body.theme-light .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; text-shadow: none; }
-
-        body.theme-light .cyber-container, body.theme-light .glass-card, body.theme-light .glass-chart-container {
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
-        }
-        body.theme-light .glass-card:hover {
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: -10px 10px 20px rgba(0,0,0,0.08);
-            border-top: 1px solid #38bdf8;
-            border-left: 1px solid #38bdf8;
-        }
-
-        body.theme-light .neon-text-blue { color: #0284c7; text-shadow: none; }
-        body.theme-light .neon-text-green { color: #059669; text-shadow: none; }
-        body.theme-light .neon-text-purple { color: #7e22ce; text-shadow: none; }
-        body.theme-light .neon-text-yellow { color: #b45309; text-shadow: none; }
-        body.theme-light .kpi-title, body.theme-light .glass-chart-title { color: #475569; border-bottom-color: rgba(0,0,0,0.1); }
-        body.theme-light .text-white { color: #0f172a !important; }
-        body.theme-light .text-cyan-200, body.theme-light .text-cyan-400 { color: #0284c7 !important; }
-
-        /* DATATABLES DARK & LIGHT */
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: #e2e8f0; }
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; white-space: nowrap; font-weight: 700; }
-        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        table.dataTable tbody tr { background-color: transparent !important; }
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
-
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #cbd5e1 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.2) !important; color: white !important; border-color: rgba(56, 189, 248, 0.5) !important; }
+        /* Classes Dinâmicas (Neon Padrão) */
+        .dyn-text-primary { color: #ffffff; }
+        .dyn-text-secondary { color: #bae6fd; } 
+        .dyn-text-muted { color: #94a3b8; } 
+        .dyn-text-accent { color: #22d3ee; } 
         
-        .search-input { width: 100%; padding: 4px 6px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; outline: none; margin-top: 5px; transition: 0.3s; }
-        .search-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .dyn-badge-aih { background-color: #334155; color: #ffffff; border-color: #64748b; }
+        .dyn-badge-int { background-color: rgba(6, 78, 59, 0.5); color: #6ee7b7; border-color: rgba(4, 120, 87, 0.5); }
+        .dyn-badge-sai { background-color: rgba(136, 19, 55, 0.5); color: #fda4af; border-color: rgba(190, 18, 60, 0.5); }
+        .dyn-badge-cod { background-color: rgba(22, 78, 99, 0.4); color: #67e8f9; }
+        
+        .dyn-tr-hover:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (O SEU TEMA AZUL COM VIDRO BRANCO)      */
+        /* ========================================================= */
+        
+        /* Força o fundo azul característico do NII */
+        body.theme-classic {
+            background: #004e92 !important;
+            background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important;
+            color: white !important;
+        }
+
+        /* Desliga as luzes neon */
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+
+        /* Cabeçalho */
+        body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
+        
+        /* Botões de Aba */
+        body.theme-classic .tab-btn { color: rgba(255,255,255,0.6) !important; }
+        body.theme-classic .tab-btn:hover { color: white !important; }
+        body.theme-classic .tab-btn.active { color: white !important; border-bottom-color: white !important; text-shadow: none !important; }
+
+        /* Paineis de Vidro Translúcido (Frosted Glass Limpo) */
+        body.theme-classic .cyber-container, 
+        body.theme-classic .glass-card, 
+        body.theme-classic .glass-chart-container {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+        }
+        
+        /* Sem efeito 3D torto no modo clássico, apenas levanta um pouco */
+        body.theme-classic .glass-card:hover {
+            transform: translateY(-5px) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Remove o Neon dos Textos e Força Branco */
+        body.theme-classic .neon-text-blue,
+        body.theme-classic .neon-text-green,
+        body.theme-classic .neon-text-purple,
+        body.theme-classic .neon-text-yellow {
+            color: white !important;
+            text-shadow: none !important;
+        }
+
+        /* Força textos a branco no modo Clássico */
+        body.theme-classic .dyn-text-primary { color: white !important; }
+        body.theme-classic .dyn-text-secondary { color: rgba(255,255,255,0.8) !important; }
+        body.theme-classic .dyn-text-muted { color: rgba(255,255,255,0.6) !important; }
+        body.theme-classic .dyn-text-accent { color: white !important; }
+        body.theme-classic .kpi-title, body.theme-classic .glass-chart-title { color: rgba(255,255,255,0.9) !important; border-bottom-color: rgba(255,255,255,0.2) !important; }
+        
+        body.theme-classic .dyn-badge-aih { background-color: rgba(255,255,255,0.15) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .dyn-badge-int { background-color: rgba(74, 222, 128, 0.15) !important; color: #4ade80 !important; border-color: rgba(74, 222, 128, 0.3) !important; }
+        body.theme-classic .dyn-badge-sai { background-color: rgba(248, 113, 113, 0.15) !important; color: #f87171 !important; border-color: rgba(248, 113, 113, 0.3) !important; }
+        body.theme-classic .dyn-badge-cod { background-color: rgba(255,255,255,0.1) !important; color: white !important; }
+        body.theme-classic .dyn-tr-hover:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        /* ========================================================= */
+        /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
+        /* ========================================================= */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important;}
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+
+        /* Dark/Neon Table Defaults */
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        
+        /* Overrides para Tema Clássico Azul na Tabela */
+        body.theme-classic table.dataTable thead th { background-color: rgba(255, 255, 255, 0.1) !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        body.theme-classic table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
+
+        /* Tabela Controles */
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.8) !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button { color: rgba(255,255,255,0.8) !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border-color: rgba(255,255,255,0.4) !important; }
+        
+        .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; margin-top: 5px; transition: 0.3s; }
+        body.theme-classic .search-input { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.3) !important; }
         
         .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
-        .dt-button:hover { background: rgba(56, 189, 248, 0.3) !important; color: white !important; }
-
-        /* DataTables Light Mode Overrides */
-        body.theme-light table.dataTable { color: #1e293b; }
-        body.theme-light table.dataTable thead th { background-color: rgba(0, 0, 0, 0.05) !important; color: #0f172a !important; border-bottom-color: rgba(0,0,0,0.1) !important; }
-        body.theme-light table.dataTable tbody td { border-bottom-color: rgba(0,0,0,0.05); color: #334155; }
-        body.theme-light table.dataTable tbody tr:hover { background-color: rgba(0,0,0,0.03) !important; }
-        body.theme-light .dataTables_wrapper .dataTables_length, body.theme-light .dataTables_wrapper .dataTables_filter, body.theme-light .dataTables_wrapper .dataTables_info, body.theme-light .dataTables_wrapper .dataTables_paginate { color: #475569 !important; }
-        body.theme-light .search-input { background: white; color: #1e293b; border-color: rgba(0,0,0,0.2); }
-        body.theme-light .dt-button { background: white !important; color: #0f172a !important; border-color: rgba(0,0,0,0.2) !important; }
-        body.theme-light .dt-button:hover { background: #f1f5f9 !important; }
+        body.theme-classic .dt-button { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(255,255,255,0.4) !important; }
+        body.theme-classic .dt-button:hover { background: rgba(255,255,255,0.2) !important; }
 
         /* ========================================================= */
-        /* MODAIS DARK THEME (E LIGHT OVERRIDES)                     */
+        /* MODAIS                                                    */
         /* ========================================================= */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; transition: 0.3s; }
         .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; width: 95%; max-width: 950px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.7); overflow: hidden; animation: popIn 0.3s; color: white;}
@@ -210,43 +220,32 @@
         .btn-added { background: #64748b; cursor: not-allowed; }
         .btn-fatura { background: #f59e0b; } .btn-fatura:hover { background: #d97706; }
 
-        body.theme-light .modal-overlay { background: rgba(15, 23, 42, 0.6); }
-        body.theme-light .modal-content { background: #f8fafc; color: #1e293b; border-color: rgba(0,0,0,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
-        body.theme-light .modal-header { background: white; border-bottom-color: rgba(0,0,0,0.1); }
-        body.theme-light .tabela-itens { background: white; border-color: rgba(0,0,0,0.1); }
-        body.theme-light .tabela-itens th { background: #f1f5f9; color: #475569; }
-        body.theme-light .tabela-itens td { border-bottom-color: rgba(0,0,0,0.05); color: #1e293b; }
+        /* Modal no Modo Clássico NII */
+        body.theme-classic .modal-overlay { background: rgba(0, 30, 60, 0.85); }
+        body.theme-classic .modal-content { background: #002244; border-color: rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        body.theme-classic .modal-header { background: rgba(255,255,255,0.05); border-bottom-color: rgba(255,255,255,0.2); }
+        body.theme-classic .tabela-itens { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+        body.theme-classic .tabela-itens th { background: rgba(255,255,255,0.1); color: white; }
+        body.theme-classic .tabela-itens td { border-bottom-color: rgba(255,255,255,0.1); color: white; }
+
+        /* Cores fixas de Status no Modal */
+        .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3); }
+        .bg-green-50-dark { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+        .text-green-700-dark { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        
+        body.theme-classic .bg-blue-50-dark, body.theme-classic .bg-green-50-dark { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.2) !important; }
+        body.theme-classic .text-green-700-dark { color: white !important; text-shadow: none !important; }
 
         .collection-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
-        body.theme-light .collection-bar { background: rgba(255,255,255,0.95); color: #0f172a; border-top-color: rgba(0,0,0,0.1); }
+        body.theme-classic .collection-bar { background: rgba(0, 34, 68, 0.95); border-top-color: rgba(255,255,255,0.2); }
 
         .pages-display { font-family: monospace; color: #fbbf24; font-size: 1rem; margin-left: 10px; font-weight:bold; }
-        body.theme-light .pages-display { color: #d97706; }
+        body.theme-classic .pages-display { color: #4ade80; }
+        
         .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
 
-        /* Cores de status adaptadas para Dark Mode (e revertidas no Light) */
-        .text-gray-700-dark { color: #94a3b8 !important; }
-        .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1) !important; border-color: rgba(14, 165, 233, 0.3) !important; }
-        .bg-green-50-dark { background: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.3) !important; }
-        .text-blue-800-dark { color: #38bdf8 !important; }
-        .text-blue-900-dark { color: white !important; }
-        .text-green-800-dark { color: #34d399 !important; }
-        .text-green-700-dark { color: #10b981 !important; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
-
-        body.theme-light .text-gray-700-dark { color: #475569 !important; }
-        body.theme-light .bg-blue-50-dark { background: #eff6ff !important; border-color: #bae6fd !important; }
-        body.theme-light .bg-green-50-dark { background: #f0fdf4 !important; border-color: #a7f3d0 !important; }
-        body.theme-light .text-blue-800-dark { color: #075985 !important; }
-        body.theme-light .text-blue-900-dark { color: #0f172a !important; }
-        body.theme-light .text-green-800-dark { color: #065f46 !important; }
-        body.theme-light .text-green-700-dark { color: #047857 !important; text-shadow: none; }
-
-        /* Select personalizado */
-        select option { background: #0f172a; color: white; }
-        body.theme-light select option { background: white; color: #0f172a; }
-
-        /* OTIMIZAÇÃO DE IMPRESSÃO DO MODAL (Força Fundo Branco) */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (Força Fundo Branco) */
         @media print {
             body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
             body.printing-modal { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
@@ -254,19 +253,21 @@
             
             body.printing-modal #modalAuditoria { position: static !important; display: block !important; background: white !important; padding: 0 !important; }
             body.printing-modal .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; max-height: none !important; background: white !important; color: black !important; }
-            body.printing-modal .modal-header { background: white !important; color: black !important; border-bottom: 2px solid #cbd5e1 !important; padding: 10px 0 20px 0 !important; }
-            body.printing-modal .modal-header h2 { color: black !important; font-size: 18pt !important; }
-            body.printing-modal .modal-header p { color: #475569 !important; }
-            body.printing-modal .modal-header #modalAih { background: #f1f5f9 !important; color: black !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .modal-header { background: white !important; border-bottom: 2px solid #cbd5e1 !important; padding: 10px 0 20px 0 !important; }
             body.printing-modal .no-print-btn { display: none !important; }
             body.printing-modal .modal-body { overflow: visible !important; padding: 20px 0 !important; background: white !important; }
             
-            body.printing-modal .bg-blue-50-dark { background: white !important; border: 1px solid #cbd5e1 !important; }
-            body.printing-modal .bg-green-50-dark { background: white !important; border: 1px solid #cbd5e1 !important; }
-            body.printing-modal .text-blue-800-dark, body.printing-modal .text-green-800-dark { color: #475569 !important; }
-            body.printing-modal .text-blue-900-dark { color: black !important; }
+            body.printing-modal .dyn-text-primary { color: black !important; }
+            body.printing-modal .dyn-text-secondary { color: #475569 !important; }
+            body.printing-modal .dyn-text-muted { color: #475569 !important; }
+            body.printing-modal .dyn-text-accent { color: black !important; }
             body.printing-modal .text-green-700-dark { color: black !important; font-size: 20pt !important; text-shadow: none !important; }
             
+            body.printing-modal .dyn-badge-aih { background: #f1f5f9 !important; color: black !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .dyn-badge-int, body.printing-modal .dyn-badge-sai, body.printing-modal .dyn-badge-cod { background: transparent !important; color: black !important; border: none !important; }
+
+            body.printing-modal .bg-blue-50-dark, body.printing-modal .bg-green-50-dark { background: white !important; border: 1px solid #cbd5e1 !important; }
+
             body.printing-modal .tabela-itens { box-shadow: none !important; border: 1px solid #cbd5e1 !important; background: white !important; }
             body.printing-modal .tabela-itens th { background: #f1f5f9 !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body.printing-modal .tabela-itens td { border-bottom: 1px solid #e2e8f0 !important; color: black !important; }
@@ -282,29 +283,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h2 class="text-2xl font-bold uppercase tracking-wide text-white" id="modalNome">NOME DO PACIENTE</h2>
-                    <p class="text-cyan-200 text-sm mt-1">AIH: <span id="modalAih" class="font-mono font-bold text-white bg-cyan-900 px-2 py-0.5 rounded border border-cyan-700"></span></p>
+                    <h2 class="text-2xl font-bold uppercase tracking-wide dyn-text-primary" id="modalNome">NOME DO PACIENTE</h2>
+                    <p class="dyn-text-secondary text-sm mt-1">AIH: <span id="modalAih" class="font-mono font-bold px-2 py-0.5 rounded border dyn-badge-aih"></span></p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="imprimirModal()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2 border border-white/20 no-print-btn shadow-sm btn-theme">
+                    <button onclick="imprimirModal()" class="bg-white/10 hover:bg-white/20 dyn-text-primary px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2 border border-white/20 no-print-btn shadow-sm btn-theme">
                         <i class="fas fa-print"></i> Imprimir Ficha
                     </button>
-                    <button onclick="$('#modalAuditoria').hide()" class="text-gray-400 hover:text-red-500 text-4xl leading-none no-print-btn transition">&times;</button>
+                    <button onclick="$('#modalAuditoria').hide()" class="dyn-text-muted hover:text-red-500 text-4xl leading-none no-print-btn transition">&times;</button>
                 </div>
             </div>
             <div class="modal-body">
                 <div class="flex gap-4 mb-6 flex-wrap">
                    <div class="flex-1 bg-blue-50-dark border p-4 rounded-xl transition">
-                       <h4 class="text-blue-800-dark text-xs font-bold uppercase mb-1">Procedimento Principal</h4>
-                       <p class="text-blue-900-dark font-bold text-sm" id="modalProcPrincipal"></p>
+                       <h4 class="dyn-text-accent text-xs font-bold uppercase mb-1">Procedimento Principal</h4>
+                       <p class="dyn-text-primary font-bold text-sm" id="modalProcPrincipal"></p>
                    </div>
                    <div class="bg-green-50-dark border p-4 rounded-xl min-w-[200px] text-center shadow-sm transition">
-                       <h4 class="text-green-800-dark text-xs font-bold uppercase mb-1">Total Faturado (Prévia)</h4>
+                       <h4 class="dyn-text-accent text-xs font-bold uppercase mb-1">Total Faturado (Prévia)</h4>
                        <p class="text-green-700-dark font-black text-3xl" id="modalValorTotal">R$ 0,00</p>
                    </div>
                 </div>
 
-                <h4 class="font-bold text-gray-700-dark uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-list-ol text-cyan-500 mr-2 text-base"></i> Procedimentos Lançados</h4>
+                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-list-ol dyn-text-accent mr-2 text-base"></i> Procedimentos Lançados</h4>
                 <div class="overflow-x-auto mb-6 rounded-lg">
                     <table class="tabela-itens !mb-0">
                         <thead>
@@ -323,7 +324,7 @@
                     </table>
                 </div>
 
-                <h4 class="font-bold text-gray-700-dark uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-dollar-sign text-emerald-500 mr-2 text-base"></i> Resumo Financeiro</h4>
+                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-dollar-sign text-emerald-500 mr-2 text-base"></i> Resumo Financeiro</h4>
                 <table class="tabela-itens mb-0">
                     <thead><tr><th>Grupo Consolidado (Tabela SIA/SIH)</th><th class="text-right w-40">Valor (R$)</th></tr></thead>
                     <tbody id="tbodyValores"></tbody>
@@ -335,8 +336,8 @@
     <div id="modalPdfViewer" class="modal-overlay no-print">
         <div class="modal-content" style="max-width: 1200px; height: 95vh; border: 1px solid rgba(255,255,255,0.1);">
             <div class="modal-header" style="background:rgba(0,0,0,0.2); padding: 10px 20px;">
-                <h3 class="font-bold text-white"><i class="fas fa-file-pdf text-red-500 mr-2"></i> Visualizador de Fichas SISAIH01</h3>
-                <button onclick="$('#modalPdfViewer').fadeOut(200); setTimeout(()=>$('#iframePdf').attr('src',''), 200);" class="text-gray-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+                <h3 class="font-bold dyn-text-primary"><i class="fas fa-file-pdf text-red-500 mr-2"></i> Visualizador de Fichas SISAIH01</h3>
+                <button onclick="$('#modalPdfViewer').fadeOut(200); setTimeout(()=>$('#iframePdf').attr('src',''), 200);" class="dyn-text-muted hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
             </div>
             <iframe id="iframePdf" src="" style="width:100%; height:100%; border:none; background:#f1f5f9;"></iframe>
         </div>
@@ -345,24 +346,25 @@
     <div class='header-bg no-print'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center'>
             <div class="flex items-center gap-4">
-                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl text-cyan-400"></i></div>
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl dyn-text-accent"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Análise Interativa de Fichas</h1>
-                    <p class='text-cyan-200 text-sm mt-1 opacity-80'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
+                    <h1 class='text-3xl font-bold dyn-text-primary'>Análise Interativa de Fichas</h1>
+                    <p class='dyn-text-secondary text-sm mt-1 opacity-80'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme" title="Alternar Tema Claro/Escuro">
-                    <i class="fas fa-sun"></i>
+                
+                <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded dyn-text-primary font-bold transition flex items-center gap-2 border border-white/20" title="Alternar Tema (Portal Azul / Cyber Neon)">
+                    <i class="fas fa-magic"></i>
                 </button>
 
-                <div class="bg-black/20 px-4 py-2 rounded flex items-center gap-3 border border-white/10 btn-theme">
-                    <span class="text-sm font-bold uppercase text-cyan-400">Competência:</span>
-                    <select id="filtroCompetencia" class="bg-transparent text-white font-bold outline-none cursor-pointer">
+                <div class="bg-black/20 px-4 py-2 rounded flex items-center gap-3 border border-white/10">
+                    <span class="text-sm font-bold uppercase dyn-text-accent">Competência:</span>
+                    <select id="filtroCompetencia" class="bg-transparent dyn-text-primary font-bold outline-none cursor-pointer">
                         <option value="">Carregando...</option>
                     </select>
                 </div>
-                <a href="modulo_estrategico.html" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_estrategico.html" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded dyn-text-primary font-bold transition flex items-center gap-2 border border-white/20"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
@@ -375,45 +377,47 @@
         </div>
 
         <div id="loader" class="loading">
-            <i class="fas fa-circle-notch fa-spin text-5xl text-cyan-500"></i>
-            <span id="loading-text">Conectando ao Supabase...</span>
+            <i class="fas fa-circle-notch fa-spin text-5xl dyn-text-accent"></i>
+            <span id="loading-text" class="dyn-text-muted">Conectando ao Supabase...</span>
         </div>
         
         <div id="aba-bi" class="tab-content w-full">
-            <div class="flex justify-between items-center mb-8 relative z-10 pl-2">
-                <div>
-                    <h2 class="text-2xl font-black tracking-wider uppercase text-white"><i class="fas fa-bolt text-cyan-400 mr-2"></i> Inteligência de Faturamento</h2>
-                    <p class="text-cyan-200 text-sm opacity-80 mt-1">Análise em tempo real do processador de PDFs</p>
+            <div class="cyber-container">
+                <div class="flex justify-between items-center mb-8 relative z-10 pl-2">
+                    <div>
+                        <h2 class="text-2xl font-black tracking-wider uppercase dyn-text-primary"><i class="fas fa-bolt dyn-text-accent mr-2"></i> Inteligência de Faturamento</h2>
+                        <p class="dyn-text-secondary text-sm opacity-80 mt-1">Análise em tempo real do processador de PDFs</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
-                <div class="glass-card">
-                    <div class="kpi-title"><i class="fas fa-hospital-user mr-1 text-cyan-400"></i> Total de AIHs</div>
-                    <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-hospital-user mr-1 dyn-text-accent"></i> Total de AIHs</div>
+                        <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-400"></i> Faturamento Total</div>
+                        <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-syringe mr-1 text-purple-400"></i> Proc. Lançados</div>
+                        <div class="kpi-number neon-text-purple" id="kpi-procs">0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="kpi-title"><i class="fas fa-chart-bar mr-1 text-yellow-400"></i> Ticket Médio / AIH</div>
+                        <div class="kpi-number neon-text-yellow" id="kpi-ticket">R$ 0,00</div>
+                    </div>
                 </div>
-                <div class="glass-card">
-                    <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-400"></i> Faturamento Total</div>
-                    <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
-                </div>
-                <div class="glass-card">
-                    <div class="kpi-title"><i class="fas fa-syringe mr-1 text-purple-400"></i> Proc. Lançados</div>
-                    <div class="kpi-number neon-text-purple" id="kpi-procs">0</div>
-                </div>
-                <div class="glass-card">
-                    <div class="kpi-title"><i class="fas fa-chart-bar mr-1 text-yellow-400"></i> Ticket Médio / AIH</div>
-                    <div class="kpi-number neon-text-yellow" id="kpi-ticket">R$ 0,00</div>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                <div class="glass-chart-container">
-                    <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-cyan-400"></i> AIHs por Especialidade</div>
-                    <div style="height: 300px;"><canvas id="chartEspec"></canvas></div>
-                </div>
-                <div class="glass-chart-container">
-                    <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-purple-400"></i> Top 10 - Procedimentos Faturados (Qtd)</div>
-                    <div style="height: 300px;"><canvas id="chartProc"></canvas></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                    <div class="glass-chart-container">
+                        <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 dyn-text-accent"></i> AIHs por Especialidade</div>
+                        <div style="height: 300px;"><canvas id="chartEspec"></canvas></div>
+                    </div>
+                    <div class="glass-chart-container">
+                        <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-purple-400"></i> Top 10 - Procedimentos Faturados (Qtd)</div>
+                        <div style="height: 300px;"><canvas id="chartProc"></canvas></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -445,12 +449,12 @@
 
     <div id="barra-impressao" class="collection-bar no-print" style="display:none;">
         <div>
-            <i class="fas fa-print text-cyan-400 mr-2"></i>
+            <i class="fas fa-print dyn-text-accent mr-2"></i>
             <strong>Fila de Impressão:</strong>
             <span id="pageList" class="pages-display">Nenhuma página</span>
         </div>
         <div>
-            <button class="bg-transparent border-none text-gray-400 hover:text-cyan-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Tudo</button>
+            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Tudo</button>
             <button class="btn-copy" onclick="copyAllPages()" id="btnCopy"><i class="fas fa-copy mr-1"></i> COPIAR LISTA</button>
         </div>
     </div>
@@ -471,22 +475,17 @@ let chartProcObj = null;
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 // ==========================================
-// TEMA CLARO / ESCURO (LÓGICA)
+// TEMA: CLÁSSICO NII (Azul/Vidro Branco) vs NEON CYBERPUNK
 // ==========================================
 function toggleTheme() {
     const body = document.body;
-    const btnIcon = document.querySelector('#btn-theme i');
     
-    if (body.classList.contains('theme-light')) {
-        body.classList.remove('theme-light');
-        btnIcon.classList.remove('fa-moon');
-        btnIcon.classList.add('fa-sun');
-        localStorage.setItem('nii_theme', 'dark');
+    if (body.classList.contains('theme-classic')) {
+        body.classList.remove('theme-classic');
+        localStorage.setItem('nii_theme', 'neon');
     } else {
-        body.classList.add('theme-light');
-        btnIcon.classList.remove('fa-sun');
-        btnIcon.classList.add('fa-moon');
-        localStorage.setItem('nii_theme', 'light');
+        body.classList.add('theme-classic');
+        localStorage.setItem('nii_theme', 'classic');
     }
     
     if (dadosIndiceGlobal.length > 0) {
@@ -502,8 +501,7 @@ const alwaysShowLabels = {
         chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
             const value = data.datasets[0].data[index];
             ctx.font = 'bold 12px Inter';
-            // Cor do número muda consoante o tema
-            ctx.fillStyle = document.body.classList.contains('theme-light') ? '#0f172a' : '#f8fafc'; 
+            ctx.fillStyle = '#ffffff'; // Sempre branco
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(value, datapoint.x + 5, datapoint.y);
@@ -614,8 +612,8 @@ function atualizarBI(data) {
     for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
     arrEspec.sort((a,b) => b.qtd - a.qtd);
 
-    let isLight = document.body.classList.contains('theme-light');
-    Chart.defaults.color = isLight ? '#475569' : '#cbd5e1';
+    let isClassic = document.body.classList.contains('theme-classic');
+    Chart.defaults.color = 'rgba(255,255,255,0.8)'; 
 
     if(chartEspecObj) chartEspecObj.destroy();
     chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
@@ -625,8 +623,8 @@ function atualizarBI(data) {
             datasets: [{ 
                 label: 'Qtd. de AIHs', 
                 data: arrEspec.map(x => x.qtd), 
-                backgroundColor: 'rgba(56, 189, 248, 0.3)',
-                borderColor: '#38bdf8',
+                backgroundColor: isClassic ? 'rgba(255, 255, 255, 0.2)' : 'rgba(56, 189, 248, 0.3)',
+                borderColor: isClassic ? 'rgba(255, 255, 255, 0.8)' : '#38bdf8',
                 borderWidth: 1,
                 borderRadius: 4
             }]
@@ -657,8 +655,8 @@ function atualizarBI(data) {
             datasets: [{ 
                 label: 'Qtd. Lançada', 
                 data: top10.map(x => x.qtd), 
-                backgroundColor: 'rgba(192, 132, 252, 0.3)',
-                borderColor: '#c084fc',
+                backgroundColor: isClassic ? 'rgba(255, 255, 255, 0.2)' : 'rgba(192, 132, 252, 0.3)',
+                borderColor: isClassic ? 'rgba(255, 255, 255, 0.8)' : '#c084fc',
                 borderWidth: 1,
                 borderRadius: 4
             }]
@@ -717,15 +715,15 @@ async function carregarDados() {
                 { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
             ],
             columns: [
-                { data: 'PAGINA', className: 'text-center font-bold text-cyan-400' },
-                { data: 'NOME', className: 'uppercase font-bold text-white' },
-                { data: 'CNS', className: 'font-mono text-slate-400' },
-                { data: 'AIH', render: d => `<span class="bg-slate-700 text-white border border-slate-500 px-2 py-0.5 rounded font-bold font-mono text-xs">${d}</span>` },
-                { data: 'PRONTUARIO', className: 'font-mono font-bold text-slate-300' },
-                { data: 'ESPEC', className: 'text-[0.7rem] uppercase text-slate-300' },
-                { data: 'PROC', className: 'text-slate-200', render: d => d && d.length>30 ? d.substring(0,30)+'...' : d },
-                { data: 'DT_INT', render: d => `<span class="bg-emerald-900/50 border border-emerald-700/50 text-emerald-300 px-1 rounded">${d}</span>` },
-                { data: 'DT_SAI', render: d => `<span class="bg-rose-900/50 border border-rose-700/50 text-rose-300 px-1 rounded">${d}</span>` },
+                { data: 'PAGINA', className: 'text-center font-bold dyn-text-accent' },
+                { data: 'NOME', className: 'uppercase font-bold dyn-text-primary' },
+                { data: 'CNS', className: 'font-mono dyn-text-muted' },
+                { data: 'AIH', render: d => `<span class="dyn-badge-aih px-2 py-0.5 rounded font-bold font-mono text-xs border">${d}</span>` },
+                { data: 'PRONTUARIO', className: 'font-mono font-bold dyn-text-secondary' },
+                { data: 'ESPEC', className: 'text-[0.7rem] uppercase dyn-text-secondary' },
+                { data: 'PROC', className: 'dyn-text-secondary', render: d => d && d.length>30 ? d.substring(0,30)+'...' : d },
+                { data: 'DT_INT', render: d => `<span class="dyn-badge-int px-1 rounded border">${d}</span>` },
+                { data: 'DT_SAI', render: d => `<span class="dyn-badge-sai px-1 rounded border">${d}</span>` },
                 {
                     data: null, className: 'text-center no-print w-40', orderable: false,
                     render: function(d, type, row, meta) {
@@ -758,7 +756,7 @@ async function carregarDados() {
 
     } catch(e) {
         console.error(e);
-        loader.innerHTML = `<span class="text-red-400 font-bold text-center"><i class="fas fa-exclamation-triangle text-4xl mb-3 block"></i>Erro: ${e.message}</span>`;
+        loader.innerHTML = `<span class="text-red-500 font-bold text-center"><i class="fas fa-exclamation-triangle text-4xl mb-3 block"></i>Erro: ${e.message}</span>`;
     }
 }
 
@@ -770,11 +768,11 @@ function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrVa
 
     const tbProc = $('#tbodyProcedimentos'); tbProc.empty();
     if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join(''));
-    else tbProc.append('<tr><td colspan="8" class="text-center text-slate-500 py-4">Nenhum procedimento.</td></tr>');
+    else tbProc.append('<tr><td colspan="8" class="text-center dyn-text-muted py-4">Nenhum procedimento.</td></tr>');
 
     const tbVal = $('#tbodyValores'); tbVal.empty();
     if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join(''));
-    else tbVal.append('<tr><td colspan="2" class="text-center text-slate-500 py-4">Nenhum valor.</td></tr>');
+    else tbVal.append('<tr><td colspan="2" class="text-center dyn-text-muted py-4">Nenhum valor.</td></tr>');
 
     $('#modalAuditoria').css('display', 'flex');
 }
@@ -791,19 +789,19 @@ function abrirModalIndice(rowIndex) {
         let cbo = partes[1] || '-';
         let cnes = partes[2] || '-';
 
-        return `<tr class="hover:bg-slate-800/50 transition">
-                    <td class="font-bold text-slate-400">${p.linha||'-'}</td>
-                    <td class="font-mono text-cyan-300 bg-cyan-900/30 px-1 rounded">${p.codigo||'-'}</td>
-                    <td class="font-mono text-[0.7rem] text-slate-400">${doc}</td>
-                    <td class="font-mono text-[0.7rem] text-slate-400">${cbo}</td>
-                    <td class="font-mono text-[0.7rem] text-slate-400">${cnes}</td>
-                    <td class="text-center font-bold text-slate-200">${p.qtde||'-'}</td>
-                    <td class="text-slate-400 text-center">${p.cmpt||'-'}</td>
-                    <td class="font-semibold uppercase text-slate-200">${p.descricao||'-'}</td>
+        return `<tr class="dyn-tr-hover transition">
+                    <td class="font-bold dyn-text-muted">${p.linha||'-'}</td>
+                    <td class="font-mono dyn-badge-cod px-1 rounded">${p.codigo||'-'}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${doc}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cbo}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cnes}</td>
+                    <td class="text-center font-bold dyn-text-primary">${p.qtde||'-'}</td>
+                    <td class="dyn-text-muted text-center">${p.cmpt||'-'}</td>
+                    <td class="font-semibold uppercase dyn-text-primary">${p.descricao||'-'}</td>
                 </tr>`;
     });
     
-    let htmlVals = (d.valores || []).map(v => `<tr class="hover:bg-slate-800/50 transition"><td class="uppercase text-slate-300 font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold text-cyan-400">${v.valor||'-'}</td></tr>`);
+    let htmlVals = (d.valores || []).map(v => `<tr class="dyn-tr-hover transition"><td class="uppercase dyn-text-secondary font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold dyn-text-accent">${v.valor||'-'}</td></tr>`);
 
     desenharModal(d.NOME, d.AIH, d.PROC, d.valor_total || "0,00", htmlProcs, htmlVals);
 }
@@ -846,12 +844,12 @@ function copyAllPages() {
 
 // INICIALIZAÇÃO E CHECAGEM DE TEMA SALVO
 document.addEventListener('DOMContentLoaded', () => {
+    // Por defeito carregamos o Tema Clássico NII, ou verificamos a preferência guardada
     const savedTheme = localStorage.getItem('nii_theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('theme-light');
-        const btnIcon = document.querySelector('#btn-theme i');
-        btnIcon.classList.remove('fa-sun');
-        btnIcon.classList.add('fa-moon');
+    
+    if (savedTheme === 'classic' || !savedTheme) { // Se não tiver nada salvo, o clássico é o padrão!
+        document.body.classList.add('theme-classic');
+        localStorage.setItem('nii_theme', 'classic');
     }
     inicializarDropdown();
 });
