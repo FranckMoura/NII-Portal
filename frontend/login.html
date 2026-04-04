@@ -6,127 +6,144 @@
     <title>Login - NII Portal</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            color: white; 
             height: 100vh;
             display: flex;
             flex-direction: column; 
             align-items: center;
             justify-content: center;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
+            margin: 0; 
+            transition: background 0.5s ease, color 0.5s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        /* LUZES NEON NO FUNDO */
+        .blob-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(56, 189, 248, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -10%; right: -10%; width: 45vw; height: 45vw; background: rgba(168, 85, 247, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .btn-theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); z-index: 10; }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
 
         .login-card {
-            /* REMOVIDO O FUNDO BRANCO */
-            background: transparent; 
-            
-            /* APENAS O CONTORNO */
-            border: 2px solid rgba(255, 255, 255, 0.2); 
-            
-            /* Opcional: um desfoque muito sutil só dentro da linha */
-            backdrop-filter: blur(5px);
-            
-            padding: 40px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        .login-header { margin-bottom: 25px; }
-        
-        /* LOGO */
-        .login-logo {
-            max-width: 220px; 
-            height: auto;
-            display: block;
-            margin: 0 auto 20px auto;
-            /* Filtro mantido para garantir leitura */
-            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px; padding: 50px 40px; width: 100%; max-width: 420px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            position: relative; z-index: 2; transition: 0.5s;
         }
 
-        /* TEXTOS AGORA SÃO BRANCOS (para ler no fundo escuro) */
-        h2 { margin: 0; color: #ffffff; font-weight: 700; font-size: 24px; letter-spacing: 0.5px; }
-        p { color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-top: 5px; font-weight: 400; }
+        .login-logo { max-width: 220px; height: auto; display: block; margin: 0 auto 20px auto; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); transition: 0.5s; }
 
+        h2 { margin: 0; color: #ffffff; font-weight: 800; font-size: 26px; letter-spacing: 0.5px; }
+        p { color: #94a3b8; font-size: 14px; margin-top: 5px; margin-bottom: 25px; font-weight: 400; }
+
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 1.1rem; transition: 0.3s; }
+        
         input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            /* Campos brancos semi-transparentes para destacar do fundo escuro */
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid transparent;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-            color: #333; /* Texto digitado preto */
+            width: 100%; padding: 14px 15px 14px 45px;
+            background: rgba(0, 0, 0, 0.3); color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
         }
-        input:focus { 
-            background: #ffffff;
-            border-color: #004e92; 
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1); 
-        }
+        input::placeholder { color: #64748b; }
+        input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); background: rgba(0, 0, 0, 0.5); }
+        input:focus + i, .input-group input:focus ~ i { color: #38bdf8; }
 
         button {
-            width: 100%;
-            padding: 12px;
-            /* Botão Branco/Azul para contrastar */
-            background: #ffffff;
-            color: #004e92;
-            border: none;
-            border-radius: 8px;
-            font-weight: 800; /* Mais grosso */
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 100%; padding: 14px; margin-top: 10px;
+            background: rgba(56, 189, 248, 0.1); color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px;
+            font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
-        button:hover { 
-            background: #f0f2f5; 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
-        }
+        button:hover { background: rgba(56, 189, 248, 0.3); color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3); }
         
         #msg { 
-            background-color: rgba(220, 38, 38, 0.2); /* Vermelho transparente */
-            color: #ffcccc; 
-            padding: 10px; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            margin-top: 15px; 
-            display: none; 
-            border: 1px solid rgba(220, 38, 38, 0.5);
+            background-color: rgba(239, 68, 68, 0.1); color: #fca5a5; padding: 12px; border-radius: 8px; font-size: 13px; 
+            margin-top: 20px; display: none; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;
         }
         
-        /* Rodapé */
-        .footer-container { margin-top: 30px; text-align: center; }
-        .footer-text { font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: 500; margin-bottom: 4px; }
-        .dev-text { font-size: 11px; color: rgba(255, 255, 255, 0.3); font-weight: 400; }
+        .footer-container { margin-top: 30px; text-align: center; position: relative; z-index: 2; }
+        .footer-text { font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: 600; margin-bottom: 4px; }
+        .dev-text { font-size: 11px; color: rgba(255, 255, 255, 0.4); font-weight: 400; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Cartão Branco)                  */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .login-card {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        }
+        
+        body.theme-classic h2 { color: #0f172a !important; }
+        body.theme-classic p { color: #64748b !important; }
+        
+        body.theme-classic input { background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; }
+        body.theme-classic input::placeholder { color: #94a3b8 !important; }
+        body.theme-classic input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.1) !important; background: #ffffff !important; }
+        body.theme-classic .input-group i { color: #94a3b8 !important; }
+        body.theme-classic input:focus ~ i { color: #004e92 !important; }
+
+        body.theme-classic button { background: #004e92 !important; color: white !important; border: none !important; box-shadow: 0 4px 10px rgba(0, 78, 146, 0.3) !important; }
+        body.theme-classic button:hover { background: #003366 !important; transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 78, 146, 0.4) !important; }
+        
+        body.theme-classic #msg { background-color: #fef2f2 !important; color: #dc2626 !important; border-color: #fecaca !important; }
     </style>
 </head>
 <body>
 
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+        <i class="fas fa-sun"></i>
+    </button>
+
     <div class="login-card">
         <div class="login-header">
             <img src="../logo.png" alt="Hospital Santa Helena" class="login-logo">
-            
             <h2>Portal NII</h2>
-            <p>Entre com suas credenciais</p>
+            <p>Entre com suas credenciais de acesso</p>
         </div>
 
-        <input type="email" id="email" placeholder="E-mail">
-        <input type="password" id="senha" placeholder="Senha">
-        <button onclick="fazerLogin()" id="btnLogin">Acessar Sistema</button>
+        <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="email" placeholder="E-mail corporativo">
+        </div>
         
-        <div id="msg"></div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="senha" placeholder="Senha">
+        </div>
+
+        <button onclick="fazerLogin()" id="btnLogin"><i class="fas fa-sign-in-alt"></i> Acessar Sistema</button>
+        
+        <div id="msg"><i class="fas fa-exclamation-circle mr-1"></i> <span id="msg-text"></span></div>
     </div>
     
     <div class="footer-container">
@@ -143,6 +160,38 @@
                 persistSession: true,
                 storageKey: 'nii-auth-token',
                 storage: window.localStorage
+            }
+        });
+
+        // TEMA CLARO / ESCURO
+        function toggleTheme() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_login', 'neon');
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_login', 'classic');
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            }
+        }
+
+        $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_login');
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            // Padrão Inicial: Escuro (Neon)
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
+            } else {
+                document.body.classList.remove('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
         });
 
@@ -171,9 +220,10 @@
                 if(data.session) {
                     localStorage.setItem('nii-auth-token', JSON.stringify(data.session));
                     
-                    btn.innerHTML = "Sucesso! Entrando...";
-                    btn.style.background = "#28a745";
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Sucesso! Entrando...';
+                    btn.style.background = "#10b981";
                     btn.style.color = "#fff";
+                    btn.style.borderColor = "#10b981";
                     
                     setTimeout(() => {
                         window.location.replace("index_v2.html?v=" + new Date().getTime());
@@ -187,16 +237,24 @@
                 console.error(e);
                 mostrarErro("E-mail ou senha incorretos.");
                 btn.disabled = false;
-                btn.innerText = "Acessar Sistema";
-                btn.style.background = "#ffffff";
-                btn.style.color = "#004e92";
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Acessar Sistema';
+                
+                // Restaura as cores do botão baseadas no tema ativo
+                if (document.body.classList.contains('theme-classic')) {
+                    btn.style.background = "#004e92";
+                    btn.style.color = "#ffffff";
+                    btn.style.borderColor = "#004e92";
+                } else {
+                    btn.style.background = "rgba(56, 189, 248, 0.1)";
+                    btn.style.color = "#38bdf8";
+                    btn.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                }
             }
         }
 
         function mostrarErro(texto) {
-            const msg = document.getElementById('msg');
-            msg.innerText = texto;
-            msg.style.display = 'block';
+            document.getElementById('msg-text').innerText = texto;
+            document.getElementById('msg').style.display = 'block';
         }
         
         document.getElementById('senha').addEventListener('keypress', function (e) {
