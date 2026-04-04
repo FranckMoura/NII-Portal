@@ -7,41 +7,100 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
     <style>
         :root { --primary: #004e92; --dark: #1e293b; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #000428 0%, #004e92 100%); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; margin:0; }
         
+        /* TEMA GLOBAL DARK NEON (PADRÃO) */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; display: flex; flex-direction: column; min-height: 100vh; margin:0; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        
+        .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
         header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
         .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); margin: 0 auto 15px auto; }
-        header h1 { font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; }
+        header h1 { font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: white;}
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; color: rgba(255,255,255,0.8); }
+        
+        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        
         .btn-voltar { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-voltar:hover { background: rgba(255,255,255,0.3); }
 
         main { flex: 1; max-width: 1000px; margin: 20px auto; padding: 0 20px; width: 100%; }
-        .section-title { color: rgba(255,255,255,0.8); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; font-weight: 700; text-align: center; }
+        .section-title { color: #38bdf8; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 20px 0; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 10px; font-weight: 800; text-align: center; transition: 0.5s; }
         
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         
-        .menu-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 25px; text-decoration: none; color: var(--dark); box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: all 0.3s ease; display: flex; align-items: center; gap: 20px; }
-        .menu-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 1); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); border-color: var(--primary); }
-        .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        .menu-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 25px; text-decoration: none; color: white;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .menu-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(56, 189, 248, 0.2);
+            border-top: 1px solid rgba(56, 189, 248, 0.6); border-left: 1px solid rgba(56, 189, 248, 0.6);
+        }
         
-        .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: #1e293b; }
-        .card-content p { font-size: 0.85rem; color: #64748b; line-height: 1.4; margin: 0; }
+        .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; }
         
-        .link-disabled { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
+        .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
+        .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
         
         footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        /* ICONES DINÂMICOS (NEON) */
+        .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .icon-green { color: #34d399; text-shadow: 0 0 10px rgba(52,211,153,0.5); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.1); }
+        .icon-pink { color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
+        .icon-purple { color: #c084fc; text-shadow: 0 0 10px rgba(192,132,252,0.5); border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.1); }
+        .icon-orange { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .section-title { color: white; border-bottom: 1px solid rgba(255,255,255,0.3); }
+
+        body.theme-classic .menu-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            backdrop-filter: blur(10px) !important; transform: none !important;
+        }
+        body.theme-classic .menu-card:hover {
+            transform: translateY(-5px) !important; background: rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important; border-color: #004e92 !important;
+        }
+        body.theme-classic .card-content h3 { color: #1e293b !important; }
+        body.theme-classic .card-content p { color: #64748b !important; }
+        
+        /* Ícones Clássicos */
+        body.theme-classic .icon-green { background: #d1fae5 !important; color: #059669 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-purple { background: #f3e8ff !important; color: #9333ea !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-orange { background: #ffedd5 !important; color: #ea580c !important; border: none !important; text-shadow: none !important; }
     </style>
 </head>
 <body>
 
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
     <header>
+        <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+            <i class="fas fa-sun"></i>
+        </button>
         <a href="index_v2.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao Hub</a>
+        
         <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
         <h1>Módulo Estratégico</h1>
         <p>Visão global, metas qualitativas e auditoria de sistemas.</p>
@@ -51,7 +110,7 @@
         <div class="section-title"><i class="fas fa-bullseye"></i> Estratégia e Metas</div>
         <div class="menu-grid">
             <a href="dashboard.html" class="menu-card">
-                <div class="icon-box" style="background:#d1fae5; color:#059669;"><i class="fas fa-chart-line"></i></div>
+                <div class="icon-box icon-green"><i class="fas fa-chart-line"></i></div>
                 <div class="card-content">
                     <h3>Metas & Qualidade</h3>
                     <p>Controle de Contrato: TMP, Cesáreas e Produção Física.</p>
@@ -59,7 +118,7 @@
             </a>
 
             <a href="painel_cirurgias.html" class="menu-card">
-                <div class="icon-box" style="background:#fce7f3; color:#db2777;"><i class="fas fa-user-md"></i></div>
+                <div class="icon-box icon-pink"><i class="fas fa-user-md"></i></div>
                 <div class="card-content">
                     <h3>Produção Cirúrgica</h3>
                     <p>Monitoramento operacional de cirurgias SUS (SoulMV).</p>
@@ -67,7 +126,7 @@
             </a>
 
             <a href="painel_simuladas.html" class="menu-card">
-                <div class="icon-box" style="background:#f3e8ff; color:#9333ea;"><i class="fas fa-magnifying-glass-chart"></i></div>
+                <div class="icon-box icon-purple"><i class="fas fa-magnifying-glass-chart"></i></div>
                 <div class="card-content">
                     <h3>BI - Simuladas</h3>
                     <p>Painel de Auditoria de Procedimentos e Valores Faturados.</p>
@@ -75,140 +134,48 @@
             </a>
 
             <a href="Painel_Fichas_Liberadas.html" class="menu-card">
-                <div class="icon-box" style="background:#ffedd5; color:#ea580c;"><i class="fas fa-code-compare"></i></div>
+                <div class="icon-box icon-orange"><i class="fas fa-code-compare"></i></div>
                 <div class="card-content">
                     <h3>Auditoria de Fichas</h3>
                     <p>Cruzamento de AIH: Faturamento (MV) vs Aprovadas (SISREG).</p>
                 </div>
             </a>
         </div>
-
-        <div class="section-title"><i class="fas fa-tools"></i> Operacional de Apoio</div>
-        <div class="menu-grid">
-            <a href="modulo_entrada.html" class="menu-card">
-                <div class="icon-box" style="background:#ecfdf5; color:#059669;"><i class="fas fa-edit"></i></div>
-                <div class="card-content">
-                    <h3>Entrada de Dados</h3>
-                    <p>Lançamento manual de OPME, Cadastros e Notas.</p>
-                </div>
-            </a>
-
-            <a href="gerador_capa.html" class="menu-card">
-                <div class="icon-box" style="background:#eff6ff; color:#2563eb;"><i class="fas fa-file-invoice"></i></div>
-                <div class="card-content">
-                    <h3>Gerador de Capa</h3>
-                    <p>Criar capa de fechamento de competência.</p>
-                </div>
-            </a>
-
-            <a href="Painel_Guias.html" class="menu-card">
-                <div class="icon-box" style="background:#fef08a; color:#ca8a04;"><i class="fas fa-file-invoice-dollar"></i></div>
-                <div class="card-content">
-                    <h3>Painel de Guias (Unimed)</h3>
-                    <p>Consulta ultra-rápida de Procedimentos, Taxas e OPME.</p>
-                </div>
-            </a>
-            
-            <a href="painel_sisreg.html" class="menu-card">
-                <div class="icon-box" style="background:#e0e7ff; color:#4f46e5;"><i class="fas fa-database"></i></div>
-                <div class="card-content">
-                    <h3>Histórico SISREG Bruto</h3>
-                    <p>Base de dados minerada: AIH, Laudos e Status puros.</p>
-                </div>
-            </a>
-
-            <a href="consulta_legado.html" class="menu-card">
-                <div class="icon-box" style="background:#e2e8f0; color:#334155;"><i class="fa-solid fa-server"></i></div>
-                <div class="card-content">
-                    <h3>Consulta Sistema Legado</h3>
-                    <p>Pesquisa na base de dados antiga (Int_Oni / Tb_Dual).</p>
-                </div>
-            </a>
-
-            <a href="fluxograma_sus.html" class="menu-card">
-                <div class="icon-box" style="background:#f8fafc; color:#475569;"><i class="fa-solid fa-book-open"></i></div>
-                <div class="card-content">
-                    <h3>Base de Conhecimento</h3>
-                    <p>Acesse fluxogramas do setor, manuais de faturamento e POPs.</p>
-                </div>
-            </a>
-
-            <a href="controle_agua.html" class="menu-card">
-                <div class="icon-box" style="background:#f0f9ff; color:#0ea5e9;"><i class="fas fa-hand-holding-water"></i></div>
-                <div class="card-content">
-                    <h3>Controle de Água</h3>
-                    <p>Gestão de cotas e fila de pagamento do setor administrativo.</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="section-title"><i class="fas fa-robot"></i> Arquivos do Dia (Automação Simuladas)</div>
-        <div class="menu-grid">
-            <div id="card-html" class="menu-card link-disabled">
-                <div class="icon-box" style="background:#fff7ed; color:#d97706;"><i class="fas fa-list-ol"></i></div>
-                <div class="card-content">
-                    <h3>Índice Inteligente</h3>
-                    <p id="txt-html">Buscando arquivo...</p>
-                </div>
-            </div>
-
-            <div id="card-pdf" class="menu-card link-disabled">
-                <div class="icon-box" style="background:#fef2f2; color:#dc2626;"><i class="fas fa-file-pdf"></i></div>
-                <div class="card-content">
-                    <h3>PDF Original</h3>
-                    <p id="txt-pdf">Buscando arquivo...</p>
-                </div>
-            </div>
-        </div>
     </main>
 
     <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura </p></footer>
 
     <script>
-        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
-        const client = window.supabase.createClient(SB_URL, SB_KEY);
-
-        function configurarDownload(idCard, idTexto, urlArquivo, nomeArquivo, tipo) {
-            const btn = $(idCard); const txt = $(idTexto);
-            btn.removeClass('link-disabled').css('cursor', 'pointer');
+        function toggleTheme() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
             
-            txt.html(`<span style="color:#059669; font-weight:bold;">Disponível</span> <br> <span style="font-size:0.75rem; text-decoration:underline;">Clique para baixar</span>`);
-            
-            btn.off('click').on('click', function() {
-                const htmlOriginal = txt.html(); 
-                txt.html('<i class="fas fa-spinner fa-spin"></i> Baixando...');
-                
-                fetch(urlArquivo).then(response => response.blob()).then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a'); 
-                    a.style.display = 'none'; a.href = url; a.download = nomeArquivo;
-                    document.body.appendChild(a); a.click(); 
-                    window.URL.revokeObjectURL(url); 
-                    txt.html(htmlOriginal);
-                }).catch(err => { 
-                    console.error(err); 
-                    alert("Erro ao baixar. Abrindo em nova aba..."); 
-                    window.open(urlArquivo, '_blank'); 
-                    txt.html(htmlOriginal); 
-                });
-            });
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'neon');
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'classic');
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            }
         }
 
-        async function carregarSimulada() {
-            try {
-                const { data } = await client.from('controle_simuladas').select('*').order('id', { ascending: false }).limit(1);
-                if (data && data.length > 0) {
-                    const reg = data[0];
-                    configurarDownload('#card-html', '#txt-html', reg.link_indice, `Indice_${reg.data_arquivo}.html`, 'Índice');
-                    configurarDownload('#card-pdf', '#txt-pdf', reg.link_pdf, `Original_${reg.data_arquivo}.pdf`, 'PDF');
-                } else { 
-                    $('#txt-html').text("Sem arquivo hoje."); 
-                    $('#txt-pdf').text("Sem arquivo hoje."); 
-                }
-            } catch (e) { console.error(e); }
-        }
-        $(document).ready(function() { carregarSimulada(); });
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('nii_theme_menus');
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            // Padrão Inicial: Escuro (Neon)
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
+            } else {
+                document.body.classList.remove('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
+            }
+        });
     </script>
 </body>
 </html>

@@ -14,26 +14,36 @@
         :root { --primary: #004e92; --dark: #1e293b; --light: #f8f9fa; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        /* TEMA GLOBAL DARK NEON (PADRÃO) */
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
-            color: var(--dark); 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
             display: flex; flex-direction: column; min-height: 100vh; 
-        }
-        
-        header { 
-            background: transparent; color: white; padding: 30px 20px 10px 20px; 
-            text-align: center; position: relative; 
-        }
-        
-        .header-logo { display: inline-block; margin-bottom: 15px; }
-        .header-logo img { 
-            height: 70px; display: block; 
-            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        header h1 { font-weight: 800; margin-bottom: 5px; font-size: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        /* LUZES NEON NO FUNDO */
+        .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        
+        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
+        .header-logo { display: inline-block; margin-bottom: 15px; }
+        .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+
+        header h1 { font-weight: 800; margin-bottom: 5px; font-size: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: white;}
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); color: rgba(255,255,255,0.8); }
+        
+        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
         
         .logout-btn { 
             position: absolute; top: 20px; right: 20px; 
@@ -43,44 +53,86 @@
         }
         .logout-btn:hover { background: rgba(255,255,255,0.3); }
         
-        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; }
+        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; z-index: 1;}
         
         .welcome-msg { 
             display: table; margin: 0 auto 35px auto; 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             padding: 12px 40px; border-radius: 50px; color: white; 
             font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15); text-align: center;
+            transition: 0.5s;
         }
         
-        /* Ajuste do grid para centrar os 3 grandes botões */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; justify-content: center; }
         
         .menu-card { 
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 40px 30px; 
-            text-decoration: none; color: var(--dark); box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            transition: all 0.3s ease; display: flex; flex-direction: column; 
-            align-items: center; text-align: center; position: relative; overflow: hidden;
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 40px 30px; text-decoration: none; color: white;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden;
         }
         .menu-card:hover { 
-            transform: translateY(-8px); background: rgba(255, 255, 255, 1); 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); border-color: var(--primary); 
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(56, 189, 248, 0.2);
+            border-top: 1px solid rgba(56, 189, 248, 0.6); border-left: 1px solid rgba(56, 189, 248, 0.6);
         }
         
-        .icon-box { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin-bottom: 25px; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1); }
+        .icon-box { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin-bottom: 25px; }
 
-        .menu-card h3 { font-size: 1.4rem; margin-bottom: 12px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .menu-card p { font-size: 0.95rem; color: #64748b; line-height: 1.5; margin: 0; font-weight: 400; }
+        .menu-card h3 { font-size: 1.4rem; margin-bottom: 12px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-card p { font-size: 0.95rem; color: #94a3b8; line-height: 1.5; margin: 0; font-weight: 400; }
         
         footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; background: transparent; margin-top: 40px; }
+
+        /* ICONES DINÂMICOS (NEON) */
+        .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .icon-blue { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.1); }
+        .icon-green { color: #34d399; text-shadow: 0 0 10px rgba(52,211,153,0.5); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.1); }
+        .icon-yellow { color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.5); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .welcome-msg { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); }
+
+        body.theme-classic .menu-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            backdrop-filter: blur(10px) !important; transform: none !important;
+        }
+        body.theme-classic .menu-card:hover {
+            transform: translateY(-8px) !important; background: rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important; border-color: #004e92 !important;
+        }
+        body.theme-classic .menu-card h3 { color: #1e293b !important; }
+        body.theme-classic .menu-card p { color: #64748b !important; }
+        
+        /* Ícones Clássicos */
+        body.theme-classic .icon-blue { background: #eff6ff !important; color: #2563eb !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
+        body.theme-classic .icon-green { background: #ecfdf5 !important; color: #059669 !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
+        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
     </style>
 </head>
 <body>
 
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
     <header>
+        <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+            <i class="fas fa-sun"></i>
+        </button>
         <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        
         <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
         <h1>Hospital Beneficente Santa Helena</h1>
         <p>NII - Núcleo Interno de Informação</p>
@@ -92,19 +144,19 @@
         <div class="menu-grid">
             
             <a href="modulo_operacional.html" class="menu-card">
-                <div class="icon-box" style="background:#eff6ff; color:#2563eb;"><i class="fas fa-cogs"></i></div>
+                <div class="icon-box icon-blue"><i class="fas fa-cogs"></i></div>
                 <h3>Operacional</h3>
                 <p>Regulação, IndicaSUS, SIGTAP e Dados Institucionais.</p>
             </a>
 
             <a href="modulo_gerencial.html" class="menu-card">
-                <div class="icon-box" style="background:#ecfdf5; color:#059669;"><i class="fas fa-chart-pie"></i></div>
+                <div class="icon-box icon-green"><i class="fas fa-chart-pie"></i></div>
                 <h3>Gerencial</h3>
                 <p>Faturamento SUS, Itens Secundários e Gestão Financeira.</p>
             </a>
 
             <a href="modulo_estrategico.html" class="menu-card">
-                <div class="icon-box" style="background:#fef3c7; color:#d97706;"><i class="fas fa-chess-knight"></i></div>
+                <div class="icon-box icon-yellow"><i class="fas fa-chess-knight"></i></div>
                 <h3>Estratégico</h3>
                 <p>Metas, Produção Cirúrgica, Arquivos e Simuladas.</p>
             </a>
@@ -128,6 +180,37 @@
         else if (hour < 18) greeting = 'Boa tarde! Selecione um módulo abaixo:';
         else greeting = 'Boa noite! Selecione um módulo abaixo:';
         msgElement.innerText = greeting;
+
+        function toggleTheme() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'neon');
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'classic');
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('nii_theme_menus');
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            // Padrão Inicial: Escuro (Neon)
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
+            } else {
+                document.body.classList.remove('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
+            }
+        });
     </script>
 </body>
 </html>
