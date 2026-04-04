@@ -1,93 +1,479 @@
-import os
-import pandas as pd
-import glob
-from supabase import create_client, Client
-import math
-
-print("--- 🚀 UPLOAD DE GUIAS PARA O SUPABASE (56K+) ---")
-
-# Suas credenciais do Supabase
-SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk"
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PASTA_CSV = os.path.join(BASE_DIR, "solus_unimed")
-
-def encontrar_arquivo_csv():
-    if not os.path.exists(PASTA_CSV): os.makedirs(PASTA_CSV)
-    padrao_busca = os.path.join(PASTA_CSV, "*.csv")
-    arquivos_encontrados = glob.glob(padrao_busca)
-    if arquivos_encontrados: return max(arquivos_encontrados, key=os.path.getmtime)
-    return None
-
-def processar_guias():
-    arquivo_csv = encontrar_arquivo_csv()
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Guias - NII</title>
     
-    if not arquivo_csv:
-        print(f"❌ Nenhum arquivo CSV encontrado na pasta: {PASTA_CSV}")
-        return
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    nome_base = os.path.basename(arquivo_csv)
-    print(f"📄 Lendo arquivo encontrado: {nome_base}...")
-    
-    try:
-        # Lê o arquivo
-        df = pd.read_csv(arquivo_csv, sep=';', encoding='latin1', dtype=str)
-    except Exception as e:
-        print(f"❌ Erro ao tentar abrir o arquivo: {e}")
-        return
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    # Limpeza básica
-    df = df.fillna("-")
-    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-
-    # Vamos converter o DataFrame em uma lista de dicionários para o banco
-    registros = []
-    
-    for index, row in df.iterrows():
-        linha_completa = row.to_dict()
-        
-        # O HTML usa essas chaves maiúsculas do antigo script, 
-        # mas o ideal no banco é minúsculo. Mapeamento de Extração:
-        reg = {
-            "beneficiario": linha_completa.get("BENEFICIARIO", "-"),
-            "carteirinha": linha_completa.get("CARTEIRINHA", "-"),
-            "guia": linha_completa.get("GUIA", "-"),
-            "tipo": linha_completa.get("TIPO", "-"),
-            "procedimento": linha_completa.get("PROCEDIMENTO", "-"),
-            "codigo": linha_completa.get("CODIGO", "-"),
-            "especialidade": linha_completa.get("ESPECIALIDADE", "-"),
-            "prestador": linha_completa.get("PRESTADOR", "-"),
-            "emissao": linha_completa.get("EMISSAO", "-"),
-            "dados_completos": linha_completa # Joga todas as outras 20 colunas como JSONB
+    <style>
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 50px; 
+            transition: background 0.5s ease, color 0.5s ease;
         }
-        registros.append(reg)
 
-    total = len(registros)
-    print(f"✅ Arquivo processado! Iniciando upload de {total} registros para o Supabase...")
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
 
-    # Limpar tabela antes de enviar carga nova (opcional, mas recomendado para substituir 56k)
-    print("🧹 Limpando dados antigos da tabela 'guias_unimed'...")
-    # Supabase restringe deletes sem filtro, usamos um filtro abrangente:
-    supabase.table('guias_unimed').delete().neq('id', 0).execute() 
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(250, 204, 21, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
-    # UPLOAD EM LOTES DE 1000 (Limitação de API da Supabase)
-    tamanho_lote = 1000
-    lotes = math.ceil(total / tamanho_lote)
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 25px; transition: 0.5s; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: 0.3s;}
+        .header-mini-logo:hover { transform: scale(1.05); }
 
-    for i in range(lotes):
-        inicio = i * tamanho_lote
-        fim = inicio + tamanho_lote
-        lote_atual = registros[inicio:fim]
+        .container { max-width: 1500px; margin: 0 auto; padding: 0 15px; position: relative; z-index: 1;}
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
+
+        /* FILTROS */
+        .filtro-container { 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); 
+            display: flex; flex-wrap: wrap; gap: 20px; align-items: center; transition: 0.5s;
+        }
+        .filtro-box { display: flex; flex-direction: column; gap: 5px; }
+        .filtro-box label { font-size: 0.75rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; }
+        .filtro-box select, .filtro-box input { 
+            padding: 8px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; outline: none; 
+            font-weight: 600; background: rgba(0,0,0,0.4); color: white; font-size: 0.85rem; transition: 0.3s;
+        }
+        .filtro-box select:focus, .filtro-box input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+        .filtro-box select option { background: #0f172a; color: white; }
+        .filtro-box input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+        /* TABELA DE VIDRO */
+        .table-card { 
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
+            padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; transition: 0.5s;
+        }
         
-        # Envia para o Supabase
-        resposta = supabase.table('guias_unimed').insert(lote_atual).execute()
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; font-weight: 700 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.75rem; white-space: nowrap; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.8rem; vertical-align: middle; }
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        .dataTables_length, .dataTables_info, .dataTables_paginate { color: #94a3b8 !important; margin-bottom: 15px; }
+        .dataTables_length select { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; padding: 5px; outline: none; margin: 0 5px; }
+        .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
+        .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.2) !important; color: white !important; border-color: rgba(56, 189, 248, 0.5) !important; }
+
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: 600 !important; font-size: 0.75rem !important; transition: 0.2s; margin-bottom: 15px;}
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+
+        /* BADGES NEON */
+        .badge-tipo { padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        .tipo-proc { background: rgba(56, 189, 248, 0.1); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .tipo-taxa { background: rgba(250, 204, 21, 0.1); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.3); }
+        .tipo-opme { background: rgba(244, 114, 182, 0.1); color: #fbcfe8; border: 1px solid rgba(244, 114, 182, 0.3); }
         
-        print(f"📤 Lote {i+1}/{lotes} enviado ({len(lote_atual)} registros)...")
+        .btn-detalhes { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; white-space: nowrap; }
+        .btn-detalhes:hover { background: rgba(56, 189, 248, 0.3); color: white; }
 
-    print(f"🎉 Upload CONCLUÍDO COM SUCESSO! O Painel de Guias já pode ser acessado na Web.")
+        /* PESQUISA DE COLUNAS */
+        .table-search th { padding: 6px !important; background-color: rgba(255,255,255,0.02) !important; border-bottom: 1px solid rgba(56,189,248,0.3) !important; }
+        .search-input { width: 100%; padding: 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.7rem; font-weight: normal; color: white; background: rgba(0,0,0,0.4); outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8; }
 
-if __name__ == "__main__":
-    processar_guias()
+        /* MODAL NEON */
+        #modalDetalhes { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #0f172a; width: 90%; max-width: 800px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7); overflow: hidden; animation: slideUp 0.3s ease-out; max-height: 90vh; display: flex; flex-direction: column; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .modal-header { background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { margin: 0; font-size: 1.2rem; font-weight: bold; color: #38bdf8; }
+        .btn-close { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .btn-close:hover { color: #f87171; }
+        
+        .modal-body { padding: 25px; overflow-y: auto; background: transparent; }
+        .detalhe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .detalhe-item { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .detalhe-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;}
+        .detalhe-valor { font-size: 0.9rem; font-weight: 600; color: white; word-break: break-word; }
+
+        .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px; color: #38bdf8; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #f3f4f6 !important; background-image: none !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; border: none !important; box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;}
+        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
+
+        body.theme-classic .filtro-container, body.theme-classic .table-card {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+            border-radius: 12px !important;
+        }
+
+        body.theme-classic .filtro-box label { color: #64748b !important; }
+        body.theme-classic .filtro-box select, body.theme-classic .filtro-box input { background: #f8fafc !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .filtro-box select:focus, body.theme-classic .filtro-box input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 2px rgba(0,78,146,0.1) !important; }
+        body.theme-classic .filtro-box select option { background: white !important; color: #1e293b !important; }
+        body.theme-classic .filtro-box input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
+
+        /* Datatables Clássico */
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:nth-child(even) td { background-color: #f8fafc !important; }
+        body.theme-classic table.dataTable tbody tr:hover td { background-color: #e0f2fe !important; }
+
+        body.theme-classic .table-search th { background-color: #f1f5f9 !important; border-bottom: 2px solid #cbd5e1 !important; }
+        body.theme-classic .search-input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .search-input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 1px #004e92 !important; }
+
+        body.theme-classic .dataTables_length, body.theme-classic .dataTables_info, body.theme-classic .dataTables_paginate { color: #475569 !important; }
+        body.theme-classic .dataTables_length select { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button { color: #475569 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
+
+        body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: none !important; }
+        body.theme-classic .dt-button:hover { background: #059669 !important; }
+
+        /* Badges Clássicas */
+        body.theme-classic .tipo-proc { background: #dbeafe !important; color: #1e40af !important; border: none !important;}
+        body.theme-classic .tipo-taxa { background: #fef08a !important; color: #854d0e !important; border: none !important;}
+        body.theme-classic .tipo-opme { background: #fce7f3 !important; color: #9d174d !important; border: none !important;}
+        
+        body.theme-classic .btn-detalhes { background-color: #f3f4f6 !important; border-color: #cbd5e1 !important; color: #475569 !important; }
+        body.theme-classic .btn-detalhes:hover { background-color: #e2e8f0 !important; color: #0f172a !important; }
+
+        /* Modal Clássico */
+        body.theme-classic #modalDetalhes { background: rgba(0, 34, 68, 0.8) !important; }
+        body.theme-classic .modal-content { background: white !important; color: #1e293b !important; border: none !important; }
+        body.theme-classic .modal-header { background: #004e92 !important; border: none !important; }
+        body.theme-classic .modal-header h2 { color: white !important; }
+        body.theme-classic .btn-close { color: rgba(255,255,255,0.7) !important; }
+        body.theme-classic .btn-close:hover { color: white !important; }
+        body.theme-classic .modal-body { background: #f8fafc !important; }
+        body.theme-classic .detalhe-item { background: white !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .detalhe-label { color: #64748b !important; }
+        body.theme-classic .detalhe-valor { color: #0f172a !important; }
+        body.theme-classic .loader-container { color: #004e92 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg'>
+        <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-medical-alt text-3xl text-yellow-400"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Painel de Guias</h1>
+                    <p class='text-yellow-200 text-sm mt-1 opacity-80'>Consulta unificada de Atendimentos (Unimed)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon/Clássico)">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
+                <a href="modulo_operacional.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filtro-container">
+            <div class="filtro-box">
+                <label><i class="fas fa-filter dyn-text-accent"></i> Mostrar Tipo:</label>
+                <select id="filtroTipo">
+                    <option value="PROCEDIMENTO" selected>Apenas Procedimentos (Principal)</option>
+                    <option value="TAXA">Apenas Taxas</option>
+                    <option value="OPME">Apenas OPME</option>
+                    <option value="">Mostrar Tudo (Completo)</option>
+                </select>
+            </div>
+            
+            <div class="filtro-box">
+                <label><i class="far fa-calendar-alt dyn-text-accent"></i> Período de Emissão:</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="date" id="dataIni">
+                    <span class="text-gray-500 font-bold">até</span>
+                    <input type="date" id="dataFim">
+                    <button onclick="limparDatas()" class="text-xs text-blue-400 hover:text-blue-300 font-bold ml-2 underline cursor-pointer bg-transparent border-none">Limpar Datas</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-card">
+            <div id="loader" class="loader-container">
+                <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
+                <h3 class="font-bold text-lg">Sincronizando 56.000+ Guias...</h3>
+                <p class="text-sm opacity-70">Conectando ao banco de dados.</p>
+            </div>
+
+            <table id="tabelaGuias" class="display compact w-full" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">Beneficiário</th>
+                        <th style="width: 70px;">Carteirinha</th>
+                        <th style="width: 60px;">Guia</th>
+                        <th style="width: 60px;">Tipo</th>
+                        <th>Procedimento / Item</th>
+                        <th style="width: 60px;">Código</th>
+                        <th style="width: 100px;">Especialidade</th>
+                        <th style="width: 100px;">Prestador</th>
+                        <th style="width: 70px;">Emissão</th>
+                        <th style="width: 80px; text-align:center;">Ações</th>
+                    </tr>
+                    <tr class="table-search no-print"></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modalDetalhes">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-invoice-dollar mr-2"></i> Detalhes Completos da Linha</h2>
+                <button class="btn-close" onclick="fecharModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="detalhe-grid" id="modalConteudo"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let datasetLocal = []; 
+        let tabela;
+        
+        // ==========================================
+        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
+        // ==========================================
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_guias', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_guias', 'classic');
+            }
+        }
+
+        // FUNÇÃO DE FILTRO DE DATAS CUSTOMIZADO
+        $.fn.dataTable.ext.search.push(
+            function( settings, data, dataIndex ) {
+                var minStr = $('#dataIni').val(); 
+                var maxStr = $('#dataFim').val();
+                
+                if (!minStr && !maxStr) return true;
+
+                var emissaoFull = data[8] || ""; 
+                if (!emissaoFull || emissaoFull === "-") return false;
+
+                var partes = emissaoFull.split(' ')[0].split('/');
+                if(partes.length !== 3) return true;
+                
+                var dia = parseInt(partes[0], 10);
+                var mes = parseInt(partes[1], 10) - 1;
+                var anoStr = partes[2];
+                var ano = anoStr.length === 2 ? parseInt("20" + anoStr, 10) : parseInt(anoStr, 10);
+
+                var dataLinha = new Date(ano, mes, dia);
+                var minDate = minStr ? new Date(minStr.split('-')[0], minStr.split('-')[1] - 1, minStr.split('-')[2]) : null;
+                var maxDate = maxStr ? new Date(maxStr.split('-')[0], maxStr.split('-')[1] - 1, maxStr.split('-')[2]) : null;
+
+                if (
+                    ( minDate === null && dataLinha <= maxDate ) ||
+                    ( minDate <= dataLinha && maxDate === null ) ||
+                    ( minDate <= dataLinha && dataLinha <= maxDate )
+                ) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_guias');
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+            } else {
+                document.body.classList.remove('theme-classic');
+            }
+
+            carregarDadosDoSupabase();
+        });
+
+        async function carregarDadosDoSupabase() {
+            try {
+                let allData = [];
+                let from = 0; 
+                let step = 1000; 
+                let keepFetching = true;
+
+                while (keepFetching) {
+                    const { data, error } = await client.from('guias_unimed').select('*').range(from, from + step - 1);
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                        from += step;
+                    }
+                    if (!data || data.length < step) {
+                        keepFetching = false;
+                    }
+                }
+
+                datasetLocal = allData;
+                $('#loader').hide();
+                $('#tabelaGuias').show();
+                inicializarTabela();
+
+            } catch (err) {
+                console.error(err);
+                $('#loader').html(`<i class="fas fa-exclamation-triangle text-red-500 fa-3x mb-3"></i><h3 class="font-bold text-red-400 text-lg">Erro ao baixar dados</h3><p>${err.message}</p>`);
+            }
+        }
+
+        function inicializarTabela() {
+            $('#tabelaGuias thead tr:eq(0) th').each( function (i) {
+                if(i === 9) { 
+                    $('.table-search').append('<th></th>');
+                } else {
+                    $('.table-search').append('<th><input type="text" placeholder="Buscar..." class="search-input" /></th>');
+                }
+            });
+
+            const isClassic = document.body.classList.contains('theme-classic');
+
+            tabela = $('#tabelaGuias').DataTable({
+                data: datasetLocal, 
+                deferRender: true,  
+                orderCellsTop: true, 
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                dom: 'lBrtip',
+                pageLength: 25,
+                order: [[0, 'asc']],
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar para Excel', className: 'dt-button' }
+                ],
+                columns: [
+                    { data: 'beneficiario', render: function(d) { return d ? `<span class="font-bold uppercase" title="${d}">${d.length > 25 ? d.substring(0,25)+'...' : d}</span>` : '-'; } },
+                    { data: 'carteirinha', render: function(d) { return d ? `<span class="font-medium dyn-text-muted">${d}</span>` : '-'; } },
+                    { data: 'guia', render: function(d) { return d ? `<span class="font-bold dyn-text-accent">${d}</span>` : '-'; } },
+                    { data: 'tipo', render: function(d) { 
+                        if(!d) return '-';
+                        var t = d.toUpperCase();
+                        var c = "bg-gray-200 text-gray-700";
+                        if(t.includes('PROCEDIMENTO')) c = "tipo-proc";
+                        if(t.includes('TAXA')) c = "tipo-taxa";
+                        if(t.includes('OPME')) c = "tipo-opme";
+                        return `<span class="badge-tipo ${c}">${t}</span>`;
+                    } },
+                    { data: 'procedimento', render: function(d) { return d ? `<span title="${d}">${d.length > 45 ? d.substring(0,45)+'...' : d}</span>` : '-'; } },
+                    { data: 'codigo', render: function(d) { return d ? `<span class="font-bold dyn-text-muted">${d}</span>` : '-'; } },
+                    { data: 'especialidade', render: function(d) { return d ? `<span class="text-xs uppercase dyn-text-muted">${d}</span>` : '-'; } },
+                    { data: 'prestador', render: function(d) { return d ? `<span class="text-xs uppercase dyn-text-muted" title="${d}">${d.length > 20 ? d.substring(0,20)+'...' : d}</span>` : '-'; } },
+                    { data: 'emissao' },
+                    { data: null, render: function(data, type, row) {
+                        // Passa o ID da linha para buscar depois, não a string inteira
+                        return `<button class="btn-detalhes" onclick="abrirModalPorId(${row.id})"><i class="fas fa-eye"></i> Detalhes</button>`;
+                    }, className: "text-center" }
+                ],
+                initComplete: function () {
+                    this.api().columns().every( function () {
+                        var that = this;
+                        $('input', $('.table-search th').eq(this.index())).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that.search(this.value).draw();
+                            }
+                        });
+                    });
+                }
+            });
+
+            $('#filtroTipo').on('change', function() {
+                var val = $(this).val();
+                tabela.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            $('#dataIni, #dataFim').on('change', function() {
+                tabela.draw();
+            });
+
+            $('#filtroTipo').trigger('change');
+        }
+
+        function limparDatas() {
+            $('#dataIni').val('');
+            $('#dataFim').val('');
+            tabela.draw();
+        }
+
+        function abrirModalPorId(id) {
+            const row = datasetLocal.find(d => d.id === id);
+            if(!row) return;
+
+            // Se os dados completos (todas as 25+ colunas) estiverem num JSON dentro de 'dados_completos'
+            let dadosDetalhes = row.dados_completos || row; 
+
+            const container = $('#modalConteudo');
+            container.empty();
+
+            const ignorar = ["id", "dados_completos"];
+
+            for (const [chave, valor] of Object.entries(dadosDetalhes)) {
+                if (ignorar.includes(chave.toLowerCase())) continue;
+                
+                let valFormatado = valor;
+                if (!valFormatado || valFormatado === "-") valFormatado = "<span class='dyn-text-muted italic'>Não informado</span>";
+
+                container.append(`
+                    <div class="detalhe-item">
+                        <div class="detalhe-label">${chave.replace(/_/g, ' ')}</div>
+                        <div class="detalhe-valor">${valFormatado}</div>
+                    </div>
+                `);
+            }
+            $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
+        }
+
+        function fecharModal() { $('#modalDetalhes').fadeOut(200); }
+        $(window).on('click', function(event) { if ($(event.target).is('#modalDetalhes')) { fecharModal(); } });
+    </script>
+</body>
+</html>
