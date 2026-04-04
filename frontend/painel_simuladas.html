@@ -22,7 +22,7 @@
 
     <style>
         /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (PADRÃO CYBERPUNK)                  */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
         /* ========================================================= */
         body { 
             font-family: 'Inter', sans-serif; 
@@ -110,67 +110,65 @@
         .dyn-tr-hover:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
 
         /* ========================================================= */
-        /* MODO CLÁSSICO NII (O SEU TEMA AZUL COM VIDRO BRANCO)      */
+        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
         /* ========================================================= */
         
-        /* Força o fundo azul característico do NII */
+        /* Fundo Azul mantido firmemente */
         body.theme-classic {
-            background: #004e92 !important;
+            background: #001528 !important;
             background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important;
-            color: white !important;
         }
 
-        /* Desliga as luzes neon */
+        /* Desliga as luzes neon cibernéticas */
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
 
-        /* Cabeçalho */
-        body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
-        
-        /* Botões de Aba */
+        /* Abas brancas puras no header azul */
         body.theme-classic .tab-btn { color: rgba(255,255,255,0.6) !important; }
         body.theme-classic .tab-btn:hover { color: white !important; }
         body.theme-classic .tab-btn.active { color: white !important; border-bottom-color: white !important; text-shadow: none !important; }
 
-        /* Paineis de Vidro Translúcido (Frosted Glass Limpo) */
+        /* CARTÕES E CONTAINERS BRANCOS (Estilo Material Design) */
         body.theme-classic .cyber-container, 
         body.theme-classic .glass-card, 
         body.theme-classic .glass-chart-container {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-radius: 12px !important;
         }
         
-        /* Sem efeito 3D torto no modo clássico, apenas levanta um pouco */
+        /* Sem efeito 3D bizarro, apenas eleva suavemente */
         body.theme-classic .glass-card:hover {
             transform: translateY(-5px) !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* Remove o Neon dos Textos e Força Branco */
-        body.theme-classic .neon-text-blue,
-        body.theme-classic .neon-text-green,
-        body.theme-classic .neon-text-purple,
-        body.theme-classic .neon-text-yellow {
-            color: white !important;
-            text-shadow: none !important;
+        /* Cores de texto sem neon, solidificadas */
+        body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-purple { color: #7e22ce !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-yellow { color: #d97706 !important; text-shadow: none !important; }
+
+        body.theme-classic .kpi-title, body.theme-classic .glass-chart-title { 
+            color: #64748b !important; 
+            border-bottom-color: #f1f5f9 !important; 
         }
 
-        /* Força textos a branco no modo Clássico */
-        body.theme-classic .dyn-text-primary { color: white !important; }
-        body.theme-classic .dyn-text-secondary { color: rgba(255,255,255,0.8) !important; }
-        body.theme-classic .dyn-text-muted { color: rgba(255,255,255,0.6) !important; }
-        body.theme-classic .dyn-text-accent { color: white !important; }
-        body.theme-classic .kpi-title, body.theme-classic .glass-chart-title { color: rgba(255,255,255,0.9) !important; border-bottom-color: rgba(255,255,255,0.2) !important; }
+        /* Textos e Badges Dinâmicos para o Fundo Branco */
+        body.theme-classic .dyn-text-primary { color: #0f172a !important; }
+        body.theme-classic .dyn-text-secondary { color: #475569 !important; }
+        body.theme-classic .dyn-text-muted { color: #64748b !important; }
+        body.theme-classic .dyn-text-accent { color: #004e92 !important; }
         
-        body.theme-classic .dyn-badge-aih { background-color: rgba(255,255,255,0.15) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; }
-        body.theme-classic .dyn-badge-int { background-color: rgba(74, 222, 128, 0.15) !important; color: #4ade80 !important; border-color: rgba(74, 222, 128, 0.3) !important; }
-        body.theme-classic .dyn-badge-sai { background-color: rgba(248, 113, 113, 0.15) !important; color: #f87171 !important; border-color: rgba(248, 113, 113, 0.3) !important; }
-        body.theme-classic .dyn-badge-cod { background-color: rgba(255,255,255,0.1) !important; color: white !important; }
-        body.theme-classic .dyn-tr-hover:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        body.theme-classic .dyn-badge-aih { background-color: #f1f5f9 !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dyn-badge-int { background-color: #d1fae5 !important; color: #065f46 !important; border-color: #a7f3d0 !important; }
+        body.theme-classic .dyn-badge-sai { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
+        body.theme-classic .dyn-badge-cod { background-color: #e0f2fe !important; color: #0369a1 !important; border: none !important; }
+        body.theme-classic .dyn-tr-hover:hover { background-color: #f8fafc !important; }
 
         /* ========================================================= */
         /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
@@ -185,22 +183,43 @@
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         
-        /* Overrides para Tema Clássico Azul na Tabela */
-        body.theme-classic table.dataTable thead th { background-color: rgba(255, 255, 255, 0.1) !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important; }
-        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
-        body.theme-classic table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
+        /* OVERRIDES PARA O TEMA CLÁSSICO NA TABELA */
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { 
+            background-color: #004e92 !important; 
+            color: white !important; 
+            border-bottom: none !important; 
+        }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        /* Tabela Controles */
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.8) !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button { color: rgba(255,255,255,0.8) !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border-color: rgba(255,255,255,0.4) !important; }
+        /* Tabela Controles (Theme Classic) */
+        body.theme-classic .dataTables_wrapper .dataTables_length, 
+        body.theme-classic .dataTables_wrapper .dataTables_filter, 
+        body.theme-classic .dataTables_wrapper .dataTables_info, 
+        body.theme-classic .dataTables_wrapper .dataTables_paginate { color: #475569 !important; }
+        
+        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #475569 !important; }
+        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { 
+            background: #004e92 !important; 
+            color: white !important; 
+            border-color: #004e92 !important; 
+        }
         
         .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; margin-top: 5px; transition: 0.3s; }
-        body.theme-classic .search-input { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .search-input { 
+            background: #ffffff !important; 
+            color: #0f172a !important; 
+            border: 1px solid #cbd5e1 !important; 
+        }
         
         .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
-        body.theme-classic .dt-button { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(255,255,255,0.4) !important; }
-        body.theme-classic .dt-button:hover { background: rgba(255,255,255,0.2) !important; }
+        body.theme-classic .dt-button { 
+            background: #ffffff !important; 
+            color: #004e92 !important; 
+            border: 1px solid #004e92 !important; 
+        }
+        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
 
         /* ========================================================= */
         /* MODAIS                                                    */
@@ -220,27 +239,34 @@
         .btn-added { background: #64748b; cursor: not-allowed; }
         .btn-fatura { background: #f59e0b; } .btn-fatura:hover { background: #d97706; }
 
-        /* Modal no Modo Clássico NII */
-        body.theme-classic .modal-overlay { background: rgba(0, 30, 60, 0.85); }
-        body.theme-classic .modal-content { background: #002244; border-color: rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        body.theme-classic .modal-header { background: rgba(255,255,255,0.05); border-bottom-color: rgba(255,255,255,0.2); }
-        body.theme-classic .tabela-itens { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
-        body.theme-classic .tabela-itens th { background: rgba(255,255,255,0.1); color: white; }
-        body.theme-classic .tabela-itens td { border-bottom-color: rgba(255,255,255,0.1); color: white; }
+        /* Modal no Modo Clássico NII (Sólido e Limpo) */
+        body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
+        body.theme-classic .modal-content { background: #ffffff; color: #1e293b; border: none; }
+        body.theme-classic .modal-header { background: #004e92; border: none; }
+        body.theme-classic .modal-header h2, body.theme-classic .modal-header p, body.theme-classic .modal-header button, body.theme-classic .modal-header .btn-theme { color: white !important; }
+        body.theme-classic .modal-header .dyn-badge-aih { background: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.4) !important; color: white !important; }
+        
+        body.theme-classic .tabela-itens { background: #ffffff !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .tabela-itens th { background: #f1f5f9 !important; color: #475569 !important; }
+        body.theme-classic .tabela-itens td { border-bottom-color: #f1f5f9 !important; color: #334155 !important; }
 
         /* Cores fixas de Status no Modal */
         .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3); }
         .bg-green-50-dark { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
         .text-green-700-dark { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
         
-        body.theme-classic .bg-blue-50-dark, body.theme-classic .bg-green-50-dark { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.2) !important; }
-        body.theme-classic .text-green-700-dark { color: white !important; text-shadow: none !important; }
+        body.theme-classic .bg-blue-50-dark { background: #eff6ff !important; border-color: #bfdbfe !important; }
+        body.theme-classic .bg-green-50-dark { background: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+        body.theme-classic .text-blue-800-dark { color: #1e40af !important; }
+        body.theme-classic .text-green-800-dark { color: #065f46 !important; }
+        body.theme-classic .text-blue-900-dark { color: #0f172a !important; }
+        body.theme-classic .text-green-700-dark { color: #059669 !important; text-shadow: none !important; }
 
         .collection-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
-        body.theme-classic .collection-bar { background: rgba(0, 34, 68, 0.95); border-top-color: rgba(255,255,255,0.2); }
+        body.theme-classic .collection-bar { background: #ffffff; border-top: 1px solid #e2e8f0; color: #1e293b; }
 
         .pages-display { font-family: monospace; color: #fbbf24; font-size: 1rem; margin-left: 10px; font-weight:bold; }
-        body.theme-classic .pages-display { color: #4ade80; }
+        body.theme-classic .pages-display { color: #d97706; }
         
         .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
@@ -297,10 +323,10 @@
                 <div class="flex gap-4 mb-6 flex-wrap">
                    <div class="flex-1 bg-blue-50-dark border p-4 rounded-xl transition">
                        <h4 class="dyn-text-accent text-xs font-bold uppercase mb-1">Procedimento Principal</h4>
-                       <p class="dyn-text-primary font-bold text-sm" id="modalProcPrincipal"></p>
+                       <p class="text-blue-900-dark font-bold text-sm" id="modalProcPrincipal"></p>
                    </div>
                    <div class="bg-green-50-dark border p-4 rounded-xl min-w-[200px] text-center shadow-sm transition">
-                       <h4 class="dyn-text-accent text-xs font-bold uppercase mb-1">Total Faturado (Prévia)</h4>
+                       <h4 class="text-green-800-dark text-xs font-bold uppercase mb-1">Total Faturado (Prévia)</h4>
                        <p class="text-green-700-dark font-black text-3xl" id="modalValorTotal">R$ 0,00</p>
                    </div>
                 </div>
@@ -348,23 +374,23 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl dyn-text-accent"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold dyn-text-primary'>Análise Interativa de Fichas</h1>
-                    <p class='dyn-text-secondary text-sm mt-1 opacity-80'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
+                    <h1 class='text-3xl font-bold text-white'>Análise Interativa de Fichas</h1>
+                    <p class='text-cyan-200 text-sm mt-1 opacity-80'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
                 
-                <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded dyn-text-primary font-bold transition flex items-center gap-2 border border-white/20" title="Alternar Tema (Portal Azul / Cyber Neon)">
+                <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
                     <i class="fas fa-magic"></i>
                 </button>
 
-                <div class="bg-black/20 px-4 py-2 rounded flex items-center gap-3 border border-white/10">
+                <div class="bg-black/20 px-4 py-2 rounded flex items-center gap-3 border border-white/10 btn-theme">
                     <span class="text-sm font-bold uppercase dyn-text-accent">Competência:</span>
-                    <select id="filtroCompetencia" class="bg-transparent dyn-text-primary font-bold outline-none cursor-pointer">
+                    <select id="filtroCompetencia" class="bg-transparent text-white font-bold outline-none cursor-pointer">
                         <option value="">Carregando...</option>
                     </select>
                 </div>
-                <a href="modulo_estrategico.html" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded dyn-text-primary font-bold transition flex items-center gap-2 border border-white/20"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_estrategico.html" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
@@ -386,7 +412,7 @@
                 <div class="flex justify-between items-center mb-8 relative z-10 pl-2">
                     <div>
                         <h2 class="text-2xl font-black tracking-wider uppercase dyn-text-primary"><i class="fas fa-bolt dyn-text-accent mr-2"></i> Inteligência de Faturamento</h2>
-                        <p class="dyn-text-secondary text-sm opacity-80 mt-1">Análise em tempo real do processador de PDFs</p>
+                        <p class="dyn-text-secondary text-sm mt-1">Análise em tempo real do processador de PDFs</p>
                     </div>
                 </div>
 
@@ -475,7 +501,7 @@ let chartProcObj = null;
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 // ==========================================
-// TEMA: CLÁSSICO NII (Azul/Vidro Branco) vs NEON CYBERPUNK
+// TEMA: CLÁSSICO NII (Azul/Branco) vs NEON CYBERPUNK
 // ==========================================
 function toggleTheme() {
     const body = document.body;
@@ -501,7 +527,8 @@ const alwaysShowLabels = {
         chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
             const value = data.datasets[0].data[index];
             ctx.font = 'bold 12px Inter';
-            ctx.fillStyle = '#ffffff'; // Sempre branco
+            // Cor das labels baseada no tema
+            ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(value, datapoint.x + 5, datapoint.y);
@@ -613,7 +640,7 @@ function atualizarBI(data) {
     arrEspec.sort((a,b) => b.qtd - a.qtd);
 
     let isClassic = document.body.classList.contains('theme-classic');
-    Chart.defaults.color = 'rgba(255,255,255,0.8)'; 
+    Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.8)'; 
 
     if(chartEspecObj) chartEspecObj.destroy();
     chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
@@ -623,8 +650,8 @@ function atualizarBI(data) {
             datasets: [{ 
                 label: 'Qtd. de AIHs', 
                 data: arrEspec.map(x => x.qtd), 
-                backgroundColor: isClassic ? 'rgba(255, 255, 255, 0.2)' : 'rgba(56, 189, 248, 0.3)',
-                borderColor: isClassic ? 'rgba(255, 255, 255, 0.8)' : '#38bdf8',
+                backgroundColor: isClassic ? '#0ea5e9' : 'rgba(56, 189, 248, 0.3)',
+                borderColor: isClassic ? '#0284c7' : '#38bdf8',
                 borderWidth: 1,
                 borderRadius: 4
             }]
@@ -655,8 +682,8 @@ function atualizarBI(data) {
             datasets: [{ 
                 label: 'Qtd. Lançada', 
                 data: top10.map(x => x.qtd), 
-                backgroundColor: isClassic ? 'rgba(255, 255, 255, 0.2)' : 'rgba(192, 132, 252, 0.3)',
-                borderColor: isClassic ? 'rgba(255, 255, 255, 0.8)' : '#c084fc',
+                backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
+                borderColor: isClassic ? '#7c3aed' : '#c084fc',
                 borderWidth: 1,
                 borderRadius: 4
             }]
@@ -844,10 +871,10 @@ function copyAllPages() {
 
 // INICIALIZAÇÃO E CHECAGEM DE TEMA SALVO
 document.addEventListener('DOMContentLoaded', () => {
-    // Por defeito carregamos o Tema Clássico NII, ou verificamos a preferência guardada
+    // Por defeito carregamos o Tema Clássico NII
     const savedTheme = localStorage.getItem('nii_theme');
     
-    if (savedTheme === 'classic' || !savedTheme) { // Se não tiver nada salvo, o clássico é o padrão!
+    if (savedTheme === 'classic' || !savedTheme) { 
         document.body.classList.add('theme-classic');
         localStorage.setItem('nii_theme', 'classic');
     }
