@@ -9,152 +9,174 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- ESTILO TELA (Deep Blue Padronizado) --- */
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (PADRÃO CYBERPUNK)                  */
+        /* ========================================================= */
         body { 
-            font-family: 'Roboto', sans-serif; 
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
-            color: #1e293b; 
-            margin: 0; 
-            min-height: 100vh;
-            padding-bottom: 40px;
-        }
-
-        /* Cabeçalho de Tela */
-        .header-bg { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
             color: white; 
-            padding: 20px 40px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 40px; min-height: 100vh;
+            transition: background 0.5s ease, color 0.5s ease;
         }
-        .header-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
-        /* Navegação de Abas */
-        .tabs-container { max-width: 1400px; margin: 0 auto 20px auto; padding: 0 20px; display: flex; gap: 10px; }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        /* CABEÇALHO DA TELA */
+        .header-bg { 
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: white; 
+            padding: 20px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; transition: 0.5s;
+        }
+        .header-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: 0.3s;}
+        .header-logo:hover { transform: scale(1.05); }
+        
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05);}
+
+        /* NAVEGAÇÃO ABAS NEON */
+        .tabs-container { max-width: 1400px; margin: 0 auto 20px auto; padding: 0 20px; display: flex; gap: 10px; position: relative; z-index: 10;}
         .tab-btn { 
-            padding: 12px 25px; 
-            background: rgba(0, 0, 0, 0.3); 
-            border-radius: 10px 10px 0 0; 
-            color: rgba(255,255,255,0.7); 
-            cursor: pointer; font-weight: 600; border: none; transition: all 0.2s;
-            backdrop-filter: blur(5px);
+            padding: 12px 25px; background: rgba(0, 0, 0, 0.4); border-radius: 10px 10px 0 0; 
+            color: #94a3b8; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;
+            cursor: pointer; font-weight: 600; transition: all 0.3s; backdrop-filter: blur(5px);
         }
-        .tab-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .tab-btn:hover { background: rgba(56, 189, 248, 0.1); color: white; }
         .tab-btn.active { 
-            background: #f3f4f6; color: #004e92; 
-            font-weight: 800; padding-bottom: 15px; 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.05); color: #38bdf8; font-weight: 800; padding-bottom: 15px; 
+            border-color: rgba(56,189,248,0.5); text-shadow: 0 0 8px rgba(56,189,248,0.5);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: 2px solid transparent;
         }
 
-        /* Layout Grid Principal */
-        .layout-grid {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        /* GRID PRINCIPAL */
+        .layout-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1;}
 
-        /* Histórico Lateral (Atualizado) */
-        .history-panel {
-            background: rgba(255,255,255,0.9);
-            border-radius: 12px;
-            padding: 20px;
-            height: fit-content;
-            max-height: 800px;
-            overflow-y: auto;
+        /* HISTÓRICO LATERAL VIDRO ESCURO */
+        .history-panel { 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 20px; height: fit-content; max-height: 800px; overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); transition: 0.5s;
         }
         
-        .history-item {
-            padding: 12px; 
-            border-bottom: 1px solid #eee; 
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 6px;
-        }
-        .history-item:hover { background: #e0f2fe; }
+        .history-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; }
+        .history-item:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); }
         
-        /* Área Clicável do Item */
         .history-info { flex: 1; cursor: pointer; }
-        .history-title { font-weight: 700; font-size: 0.9rem; color: #0f172a; display: block; margin-bottom: 2px;}
-        .history-date { font-size: 0.75rem; color: #64748b; }
+        .history-title { font-weight: 700; font-size: 0.9rem; color: #f8fafc; display: block; margin-bottom: 2px;}
+        .history-date { font-size: 0.75rem; color: #94a3b8; }
 
-        /* Botões de Ação (Só aparecem no Hover) */
-        .history-actions { 
-            display: flex; gap: 8px; 
-            opacity: 0; transition: opacity 0.2s; 
-        }
+        .history-actions { display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
         .history-item:hover .history-actions { opacity: 1; }
         
-        .btn-icon-action {
-            background: transparent; border: none; cursor: pointer; 
-            color: #64748b; padding: 4px; border-radius: 4px; transition: 0.2s;
-        }
-        .btn-icon-action:hover { background: rgba(0,0,0,0.1); color: #0f172a; }
-        .btn-delete:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+        .btn-icon-action { background: transparent; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 4px; transition: 0.2s; }
+        .btn-icon-action:hover { background: rgba(255,255,255,0.1); color: white; }
+        .btn-delete:hover { color: #f87171; background: rgba(239,68,68,0.2); }
 
-        /* Área de Conteúdo */
+        /* CONTEÚDO */
         .content-area { flex: 1; }
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Card de Cadastro */
-        .card-cadastro { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .card-cadastro { 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border-radius: 12px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end; }
-        .inp-std { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+        .inp-std { width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; outline: none; background: rgba(0,0,0,0.3); color: white; transition: 0.3s; }
+        .inp-std:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        select.inp-std option { background: #0f172a; color: white; }
 
-        /* --- ESTILOS DE IMPRESSÃO PADRONIZADOS --- */
-        .header-print { display: none; } /* Esconde na tela */
+        /* BARRA DE AÇÕES DOS FORMULÁRIOS */
+        .action-bar-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .header-bg { background: transparent !important; border-bottom-color: rgba(255,255,255,0.2) !important; box-shadow: none !important;}
+        body.theme-classic .header-bg h1 { color: white !important;}
+        body.theme-classic .header-bg p { color: rgba(255,255,255,0.8) !important;}
+        
+        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
+
+        /* Abas Clássicas */
+        body.theme-classic .tab-btn { background: rgba(0, 0, 0, 0.2) !important; color: rgba(255,255,255,0.7) !important; border: none !important; }
+        body.theme-classic .tab-btn:hover { background: rgba(255,255,255,0.1) !important; color: white !important; }
+        body.theme-classic .tab-btn.active { background: #f3f4f6 !important; color: #004e92 !important; box-shadow: 0 -4px 10px rgba(0,0,0,0.1) !important; text-shadow: none !important; }
+
+        /* Histórico Clássico */
+        body.theme-classic .history-panel { background: rgba(255,255,255,0.95) !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important; backdrop-filter: none !important;}
+        body.theme-classic .history-panel h3 { color: #1e3a8a !important; border-bottom-color: #e2e8f0 !important; }
+        body.theme-classic .history-item { border-bottom-color: #f1f5f9 !important; }
+        body.theme-classic .history-item:hover { background: #e0f2fe !important; border-color: #bae6fd !important; }
+        body.theme-classic .history-title { color: #0f172a !important; }
+        body.theme-classic .history-date { color: #64748b !important; }
+        body.theme-classic .btn-icon-action { color: #64748b !important; }
+        body.theme-classic .btn-icon-action:hover { background: rgba(0,0,0,0.05) !important; color: #0f172a !important; }
+        body.theme-classic .btn-delete:hover { color: #ef4444 !important; background: rgba(239,68,68,0.1) !important; }
+
+        /* Form Clássico */
+        body.theme-classic .card-cadastro { background: white !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important; backdrop-filter: none !important; }
+        body.theme-classic .card-cadastro h3 { color: #334155 !important; border-bottom-color: #e2e8f0 !important; }
+        body.theme-classic .card-cadastro label { color: #64748b !important; }
+        body.theme-classic .inp-std { background: white !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; }
+        body.theme-classic .inp-std:focus { border-color: #004e92 !important; box-shadow: 0 0 0 2px rgba(0,78,146,0.1) !important; }
+        body.theme-classic select.inp-std option { background: white !important; color: #1e293b !important; }
+        
+        body.theme-classic .action-bar-glass { background: white !important; border-color: #e2e8f0 !important; backdrop-filter: none !important; }
+
+        /* ========================================================= */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (FOLHA DIGITAL)                   */
+        /* ========================================================= */
+        .header-print { display: none; } 
         
         .paper-container {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            margin: 0 auto;
-            padding: 10mm;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            position: relative;
+            width: 210mm; min-height: 297mm; background: white; margin: 0 auto; padding: 10mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative; color: black;
         }
+        
+        /* Inputs que parecem texto */
+        input.editable { border: 1px solid #e2e8f0; padding: 4px; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #333; background: #f8fafc; border-radius: 4px; outline: none; transition: 0.2s;}
+        input.editable:focus { outline: 2px solid #38bdf8; background: white; }
+        body.theme-classic input.editable:focus { outline: 2px solid #004e92; }
 
-        /* Inputs editáveis que parecem texto na impressão */
-        input.editable {
-            border: 1px solid #e2e8f0; padding: 4px; width: 100%;
-            font-family: 'Courier New', Courier, monospace; font-size: 11px;
-            color: #333; background: #f8fafc; border-radius: 4px;
-        }
-        input.editable:focus { outline: 2px solid #004e92; background: white; }
+        /* Tabela da folha */
+        .soulmv-table { width: 100%; border-collapse: collapse; font-family: 'Courier New', Courier, monospace; font-size: 11px; }
+        .soulmv-table th { border-bottom: 1px dashed #000; text-align: left; padding: 5px 2px; font-weight: bold; }
+        .soulmv-table td { padding: 5px 2px; vertical-align: top; }
 
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-            body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: 'Arial', sans-serif; }
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: 'Arial', sans-serif; }
             
-            /* Oculta interface de sistema */
-            .header-bg, .tabs-container, .no-print, .btn-del, .history-panel, .layout-grid { display: block !important; }
-            .layout-grid { display: block; padding: 0; margin: 0; max-width: none; }
-            .history-panel { display: none !important; }
-            .header-bg, .tabs-container, .no-print { display: none !important; }
-            
-            .content-area { margin: 0; padding: 0; width: 100%; max-width: none; }
+            .header-bg, .tabs-container, .no-print, .btn-del, .history-panel, .layout-grid, .blob-1, .blob-2 { display: none !important; }
+            .layout-grid { display: block !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
+            .content-area { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; }
             .tab-content { display: none !important; }
             .tab-content.active { display: block !important; }
-            .paper-container { box-shadow: none; margin: 0; padding: 0; width: 100%; }
+            .paper-container { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
             
-            /* --- NOVO CABEÇALHO (PADRÃO FINANCEIRO) --- */
-            .header-print { 
-                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
-                padding-bottom: 10px; margin-bottom: 20px; 
-            }
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .header-print img { height: 50px; margin-right: 15px; }
             .header-info { flex: 1; text-align: center; }
             .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000; }
@@ -162,14 +184,8 @@
             .header-info p { margin: 0; font-size: 10pt; color: #000; }
             .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: #000; }
 
-            /* Remove bordas dos inputs */
-            input.editable { border: none !important; background: transparent !important; padding: 0; }
-            
-            /* Estilo da Tabela (Mantendo Fonte do Relatório) */
-            .soulmv-table { width: 100%; border-collapse: collapse; font-family: 'Courier New', Courier, monospace; font-size: 11px; }
-            .soulmv-table th { border-bottom: 1px dashed #000; text-align: left; padding: 5px 2px; font-weight: bold; }
-            .soulmv-table td { padding: 5px 2px; vertical-align: top; }
-            .soulmv-table tr { page-break-inside: avoid; }
+            input.editable { border: none !important; background: transparent !important; padding: 0 !important; color: black !important; }
+            .soulmv-table tr { page-break-inside: avoid; color: black !important; }
             
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
         }
@@ -177,17 +193,23 @@
 </head>
 <body>
 
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
     <div class="header-bg no-print">
         <div class="flex items-center gap-4">
-            <div class="bg-white/20 p-2 rounded-lg"><i class="fas fa-keyboard text-2xl"></i></div>
+            <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fas fa-keyboard text-2xl text-emerald-400"></i></div>
             <div>
-                <h1 class="text-xl font-bold">Módulo de Entrada de Dados</h1>
-                <p class="text-sm opacity-80">Cadastros e Lançamentos Manuais</p>
+                <h1 class="text-xl font-bold text-white">Módulo de Entrada de Dados</h1>
+                <p class="text-sm opacity-80 text-emerald-200">Cadastros e Lançamentos Manuais</p>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <img src="../logo.png" alt="Logo" class="header-logo">
-            <a href="painel_operacional.html" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded font-bold transition flex items-center gap-2">
+            <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon / Clássico)">
+                <i class="fas fa-magic"></i>
+            </button>
+            <img src="../logo.png" alt="Logo" class="header-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            <a href="modulo_operacional.html" class="btn-theme">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
         </div>
@@ -202,9 +224,9 @@
     <div class="layout-grid">
         
         <div class="history-panel no-print">
-            <h3 class="font-bold text-lg text-blue-900 mb-4 border-b pb-2"><i class="fas fa-history"></i> Histórico</h3>
+            <h3 class="font-bold text-lg text-cyan-400 mb-4 border-b border-white/10 pb-2"><i class="fas fa-history"></i> Histórico</h3>
             <div id="listaHistorico">
-                <p class="text-gray-500 text-sm">Carregando...</p>
+                <p class="text-gray-400 text-sm">Carregando...</p>
             </div>
         </div>
 
@@ -212,43 +234,42 @@
 
             <div id="tab-cadastros" class="tab-content">
                 <div class="card-cadastro">
-                    <h3 class="text-lg font-bold text-gray-700 mb-4 border-b pb-2">Cadastro Rápido</h3>
+                    <h3 class="text-lg font-bold text-white mb-4 border-b border-white/10 pb-2">Cadastro Rápido</h3>
                     <div class="form-grid">
                         <div>
-                            <label class="block text-sm font-bold text-gray-500">Nome</label>
+                            <label class="block text-sm font-bold text-gray-400 mb-1">Nome</label>
                             <input type="text" id="cadNome" class="inp-std">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-500">Tipo</label>
+                            <label class="block text-sm font-bold text-gray-400 mb-1">Tipo</label>
                             <select id="cadTipo" class="inp-std">
                                 <option value="FORNECEDOR">Fornecedor</option>
                                 <option value="MEDICO">Médico</option>
                             </select>
                         </div>
-                        <button class="bg-blue-600 text-white px-6 py-2 rounded font-bold" onclick="salvarCadastroFake()">Salvar</button>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold transition shadow" onclick="salvarCadastroFake()">Salvar</button>
                     </div>
                 </div>
             </div>
 
             <div id="tab-opme" class="tab-content active">
                 
-                <div class="flex justify-between items-center mb-4 no-print bg-white p-3 rounded shadow">
+                <div class="flex justify-between items-center mb-4 no-print action-bar-glass p-4 rounded-xl shadow-lg">
                     <div class="flex gap-2 w-full max-w-lg">
-                        <input type="text" id="tituloOpme" class="inp-std" placeholder="Nome do Relatório (Ex: Astramed Dez/25)" oninput="atualizarCabecalho()" style="background:#f8fafc;">
+                        <input type="text" id="tituloOpme" class="inp-std" placeholder="Nome do Relatório (Ex: Astramed Dez/25)" oninput="atualizarCabecalho()">
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-3">
                         <input type="hidden" id="idRelatorioAtual">
-                        
-                        <button onclick="salvarRelatorio('OPME')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-bold shadow"><i class="fas fa-save"></i> Salvar</button>
-                        <button onclick="adicionarLinhaOPME()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold shadow"><i class="fas fa-plus"></i> Item</button>
-                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold shadow"><i class="fas fa-print"></i> Imprimir</button>
+                        <button onclick="salvarRelatorio('OPME')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold shadow transition"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="adicionarLinhaOPME()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 font-bold shadow transition"><i class="fas fa-plus"></i> Item</button>
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold shadow transition"><i class="fas fa-print"></i> Imprimir</button>
                     </div>
                 </div>
 
-                <div class="paper-container">
+                <div class="paper-container rounded-xl">
                     
                     <div class="header-print">
-                        <img src="../logo.png" alt="Logo">
+                        <img src="../logo.png" alt="Logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
                         <div class="header-info">
                             <h1>Hospital Beneficente Santa Helena</h1>
                             <h2 id="print-title-opme">Relatório de Próteses por Fornecedor</h2>
@@ -262,7 +283,7 @@
 
                     <div style="margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:5px; font-family: 'Courier New', Courier, monospace;">
                         <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
-                            <div>Competência: <input type="text" id="compOpme" class="editable" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
+                            <div>Competência: <input type="text" id="compOpme" class="editable font-bold" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
                             <div>Responsável: <input type="text" class="editable" value="FRANCK" style="width:100px; display:inline;"></div>
                         </div>
                         <div style="display:flex; gap:10px;">
@@ -298,21 +319,21 @@
 
             <div id="tab-geral" class="tab-content">
                 
-                <div class="flex justify-between items-center mb-4 no-print bg-white p-3 rounded shadow">
+                <div class="flex justify-between items-center mb-4 no-print action-bar-glass p-4 rounded-xl shadow-lg">
                     <div class="flex gap-2 w-full max-w-lg">
-                        <input type="text" id="tituloGeral" class="inp-std" placeholder="Nome do Relatório (Ex: Plantão Extra)" oninput="atualizarCabecalho()" style="background:#f8fafc;">
+                        <input type="text" id="tituloGeral" class="inp-std" placeholder="Nome do Relatório (Ex: Plantão Extra)" oninput="atualizarCabecalho()">
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="salvarRelatorio('GERAL')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-bold shadow"><i class="fas fa-save"></i> Salvar</button>
-                        <button onclick="adicionarLinhaGeral()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold shadow"><i class="fas fa-plus"></i> Item</button>
-                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold shadow"><i class="fas fa-print"></i> Imprimir</button>
+                    <div class="flex gap-3">
+                        <button onclick="salvarRelatorio('GERAL')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold shadow transition"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="adicionarLinhaGeral()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 font-bold shadow transition"><i class="fas fa-plus"></i> Item</button>
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold shadow transition"><i class="fas fa-print"></i> Imprimir</button>
                     </div>
                 </div>
 
-                <div class="paper-container">
+                <div class="paper-container rounded-xl">
                     
                     <div class="header-print">
-                        <img src="../logo.png" alt="Logo">
+                        <img src="../logo.png" alt="Logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
                         <div class="header-info">
                             <h1>Hospital Beneficente Santa Helena</h1>
                             <h2 id="print-title-geral">Relatório Geral de Produção</h2>
@@ -326,7 +347,7 @@
 
                     <div style="margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:5px; font-family: 'Courier New', Courier, monospace;">
                         <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
-                            <div>Competência: <input type="text" id="compGeral" class="editable" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
+                            <div>Competência: <input type="text" id="compGeral" class="editable font-bold" value="12/2025" style="width:70px; display:inline;" oninput="atualizarCabecalho()"></div>
                             <div>Responsável: <input type="text" class="editable" value="FRANCK" style="width:100px; display:inline;"></div>
                         </div>
                         <div style="display:flex; gap:10px;">
@@ -368,10 +389,29 @@
 
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
+        // CONFIGURAÇÃO TEMA
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_ent', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_ent', 'classic');
+            }
+        }
+
         $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_ent');
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+            } else {
+                document.body.classList.remove('theme-classic');
+            }
+
             const agora = new Date();
             const strData = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
             $('.dataAtual').text(strData);
@@ -387,8 +427,7 @@
             $('#' + idAba).addClass('active');
             $(`button[onclick="abrirAba('${idAba}')"]`).addClass('active');
             
-            // Limpa o ID atual ao trocar de aba para evitar sobrescrever errad
-            $('#idRelatorioAtual').val('');
+            $('#idRelatorioAtual').val(''); // Evita sobrepor errado
         }
 
         function atualizarCabecalho() {
@@ -453,7 +492,7 @@
             else { 
                 alert("Salvo com sucesso!"); 
                 carregarHistorico(); 
-                $('#idRelatorioAtual').val(''); // Limpa ID após salvar para permitir novos
+                $('#idRelatorioAtual').val(''); 
             }
         }
 
@@ -485,7 +524,7 @@
             const { data } = await client.from('lancamentos_manuais').select('*').eq('id', id).single();
             if(!data) return;
 
-            $('#idRelatorioAtual').val(data.id); // Define ID para modo edição
+            $('#idRelatorioAtual').val(data.id); 
 
             if(data.tipo === 'OPME') {
                 abrirAba('tab-opme');
@@ -532,10 +571,10 @@
                     <td><input type="text" class="editable" value="${dados?.col3 || ''}"></td>
                     <td><input type="text" class="editable" value="${dados?.col4 || ''}"></td>
                     <td><input type="text" class="editable" value="${dados?.col5 || ''}" placeholder="ITEM"><input type="text" class="editable" value="${dados?.col6 || ''}" style="font-size:10px;"></td>
-                    <td><input type="number" class="editable qtd text-center" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
-                    <td><input type="number" class="editable val-unit text-right" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
-                    <td><input type="text" class="editable val-total text-right font-bold" value="${dados?.valTotal || '0,00'}" readonly></td>
-                    <td class="no-print text-center"><button class="btn-del text-red-500" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblOpme', '#totalGeralOpme')"><i class="fas fa-trash"></i></button></td>
+                    <td><input type="number" class="editable qtd text-center font-bold" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
+                    <td><input type="number" class="editable val-unit text-right font-mono" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralOpme')"></td>
+                    <td><input type="text" class="editable val-total text-right font-bold text-green-600 font-mono" value="${dados?.valTotal || '0,00'}" readonly></td>
+                    <td class="no-print text-center"><button class="btn-icon-action btn-delete" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblOpme', '#totalGeralOpme')"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `;
             $('#tblOpme tbody').append(row);
@@ -547,10 +586,10 @@
                     <td><input type="text" class="editable font-bold" value="${dados?.col1 || ''}" placeholder="DESCRIÇÃO"><br><input type="text" class="editable" value="${dados?.col2 || ''}" placeholder="Detalhe" style="font-size:10px;"></td>
                     <td><input type="text" class="editable" value="${dados?.col3 || ''}"></td>
                     <td><input type="text" class="editable" value="${dados?.col4 || ''}"></td>
-                    <td><input type="number" class="editable qtd text-center" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
-                    <td><input type="number" class="editable val-unit text-right" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
-                    <td><input type="text" class="editable val-total text-right font-bold" value="${dados?.valTotal || '0,00'}" readonly></td>
-                    <td class="no-print text-center"><button class="btn-del text-red-500" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblGeral', '#totalGeralGeral')"><i class="fas fa-trash"></i></button></td>
+                    <td><input type="number" class="editable qtd text-center font-bold" value="${dados?.qtd || 1}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
+                    <td><input type="number" class="editable val-unit text-right font-mono" value="${dados?.valUnit || 0}" oninput="calcTotal(this, '#totalGeralGeral')"></td>
+                    <td><input type="text" class="editable val-total text-right font-bold text-green-600 font-mono" value="${dados?.valTotal || '0,00'}" readonly></td>
+                    <td class="no-print text-center"><button class="btn-icon-action btn-delete" onclick="$(this).closest('tr').remove(); totalizarTabela('#tblGeral', '#totalGeralGeral')"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `;
             $('#tblGeral tbody').append(row);

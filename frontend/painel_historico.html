@@ -20,104 +20,263 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="dados_financeiros.js"></script>
 
     <style>
-        body { font-family: 'Roboto', sans-serif; background: #f3f4f6; color: #1e293b; margin: 0; min-height: 100vh; padding-bottom: 40px; }
-        
-        .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; padding: 20px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; 
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; padding: 30px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; transition: 0.5s; }
+        .header-mini-logo { height: 45px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
         .container { max-width: 1400px; margin: -20px auto 0; padding: 0 20px; position: relative; z-index: 10; }
         
-        /* BOTÃO VOLTAR E LOGO */
-        .header-mini-logo { height: 45px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.3s; }
-        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; border: 1px solid rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 8px; }
-        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
 
-        /* BARRA DE FILTROS POWER BI STYLE */
-        .filter-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        /* FILTROS (Container PowerBI Style) */
+        .filter-panel { 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 25px; transition: 0.5s; position: relative; z-index: 1;
+        }
         .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        .filter-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .filter-select { background: #f8fafc; border: 1px solid #cbd5e1; color: #1e293b; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; outline: none; width: 100%; transition: border-color 0.2s; height: 40px;}
-        .filter-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        
-        /* SELECT DESTACADO (MODO DE VISÃO) */
-        .select-modo { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; font-weight: 800; cursor: pointer; }
-        .select-modo:hover { background: #bae6fd; }
+        .filter-label { font-size: 0.75rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-select { 
+            background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); 
+            padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; outline: none; width: 100%; transition: 0.3s; height: 40px;
+        }
+        .filter-select:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .filter-select option { background: #0f172a; color: white; }
+
+        .select-modo { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); font-weight: 800; cursor: pointer; }
+        .select-modo:hover { background: rgba(56, 189, 248, 0.2); }
+        .select-modo option { background: #0f172a; color: white; }
 
         .btn-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; transition: 0.2s; cursor: pointer; border: none; height: 40px; }
-        .btn-clear { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-        .btn-clear:hover { background: #e2e8f0; color: #1e293b; }
-        .btn-print { background: #10b981; color: white; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
-        .btn-print:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3); }
+        .btn-clear { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .btn-clear:hover { background: rgba(255,255,255,0.2); }
+        .btn-print { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .btn-print:hover { background: rgba(16, 185, 129, 0.4); color: white; }
 
-        /* Select2 Ajustes */
-        .select2-container--default .select2-selection--multiple { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 40px; padding: 2px 4px; }
-        .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-top: 6px; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: #0369a1; margin-right: 5px; border-right: 1px solid #bae6fd; padding-right: 5px;}
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { background: transparent; color: #e11d48; }
+        /* Select2 Neon */
+        .select2-container--default .select2-selection--multiple { background-color: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 6px; min-height: 40px; padding: 2px 4px; transition: 0.3s; }
+        .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #38bdf8 !important; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: rgba(56, 189, 248, 0.2) !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white !important; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-top: 6px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 5px; border-right: 1px solid rgba(255,255,255,0.2) !important; padding-right: 5px;}
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { background: transparent !important; color: #f87171 !important; }
+        .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .select2-results__option { color: white !important; font-size: 0.85rem; }
+        .select2-results__option[aria-selected=true] { background-color: rgba(255,255,255,0.05) !important; }
+        .select2-results__option--highlighted[aria-selected] { background-color: #0ea5e9 !important; color: white !important; }
+        .select2-search__field { background: transparent !important; color: white !important; font-family: 'Inter', sans-serif; }
 
-        /* KPI / CARDS */
+        /* CARDS KPI DE VIDRO */
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .meta-card { background: white; padding: 20px 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; transition: transform 0.2s; border: 1px solid #e2e8f0; text-align: center; }
-        .meta-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-        .border-blue::before { background: #1e40af; } 
-        .border-green::before { background: #10b981; } 
-        .border-purple::before { background: #6d28d9; } 
-        .border-yellow::before { background: #b45309; }
-        .meta-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 6px; }
-        .meta-value { font-size: 1.8rem; font-weight: 900; color: #0f172a; line-height: 1.2; margin-bottom: 5px; }
-        .meta-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .meta-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 20px 15px; position: relative; z-index: 2; text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+        .meta-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+
+        .border-blue:hover { border-top-color: #38bdf8; border-left-color: #38bdf8; }
+        .border-green:hover { border-top-color: #34d399; border-left-color: #34d399; }
+        .border-purple:hover { border-top-color: #c084fc; border-left-color: #c084fc; }
+        .border-yellow:hover { border-top-color: #fbbf24; border-left-color: #fbbf24; }
+
+        .meta-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #cbd5e1; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .meta-value { font-size: 1.8rem; font-weight: 900; color: white; line-height: 1.2; margin-bottom: 5px; }
+
+        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5), 0 0 15px rgba(5,150,105,0.5); }
+        .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5), 0 0 15px rgba(147,51,234,0.5); }
+        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5), 0 0 15px rgba(217,119,6,0.5); }
 
         /* GRÁFICOS E TABELA */
         .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .chart-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.05rem; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .chart-box {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 25px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s;
+        }
+        .chart-box h4 { margin: 0 0 20px 0; font-size: 1.05rem; color: #f8fafc; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
 
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; }
-        table.dataTable thead th { background-color: #f8fafc !important; color: #334155 !important; font-weight: 800 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.75rem; border-bottom: 2px solid #cbd5e1 !important; text-align: left; }
-        table.dataTable tbody td { padding: 10px 10px !important; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.85rem; vertical-align: middle; }
-        .valor-formatado { font-weight: bold; color: #004e92; }
-        .badge-grupo { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
+        /* DATATABLES DARK/NEON */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 800 !important; text-transform: uppercase; padding: 12px 10px !important; font-size: 0.75rem; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; text-align: left; border-top: none !important;}
+        table.dataTable tbody td { padding: 10px 10px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.85rem; vertical-align: middle; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
 
-        /* IMPRESSÃO PERFEITA PARA PDF */
+        .valor-formatado { font-weight: bold; color: #38bdf8; }
+        .badge-grupo { background: rgba(56, 189, 248, 0.1); color: #7dd3fc; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { color: #94a3b8 !important; margin-bottom: 15px; }
+        .dataTables_length select, .dataTables_filter input { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; padding: 5px; outline: none; margin: 0 5px; }
+        .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
+        .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.2) !important; color: white !important; border-color: rgba(56, 189, 248, 0.5) !important; }
+
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #f3f4f6 !important; background-image: none !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; padding: 20px 0 !important; border: none !important; box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;}
+        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
+
+        /* Componentes Brancos */
+        body.theme-classic .filter-panel, body.theme-classic .meta-card, body.theme-classic .chart-box {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        }
+        body.theme-classic .filter-panel { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important; }
+
+        body.theme-classic .meta-card:hover { transform: translateY(-3px) !important; box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important; }
+        body.theme-classic .meta-card::before { display: block !important; content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        body.theme-classic .border-blue::before { background: #1e40af; } 
+        body.theme-classic .border-green::before { background: #10b981; } 
+        body.theme-classic .border-purple::before { background: #6d28d9; } 
+        body.theme-classic .border-yellow::before { background: #b45309; }
+
+        body.theme-classic .meta-title { color: #64748b !important; }
+        body.theme-classic .meta-value { color: #0f172a !important; text-shadow: none !important;}
+        body.theme-classic .meta-sub { color: #94a3b8 !important; }
+        body.theme-classic .chart-box h4 { color: #0f172a !important; border-bottom-color: #f1f5f9 !important; }
+
+        /* Filtros Clássicos */
+        body.theme-classic .filter-label { color: #64748b !important; }
+        body.theme-classic .filter-select { background: #f8fafc !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .filter-select:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important; }
+        body.theme-classic .select-modo { background: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; }
+        body.theme-classic .select-modo:hover { background: #bae6fd !important; }
+        body.theme-classic .btn-clear { background: #f1f5f9 !important; color: #475569 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .btn-clear:hover { background: #e2e8f0 !important; color: #1e293b !important; }
+        body.theme-classic .btn-print { background: #10b981 !important; color: white !important; border: none !important;}
+        body.theme-classic .btn-print:hover { background: #059669 !important; }
+
+        /* Select2 Clássico */
+        body.theme-classic .select2-container--default .select2-selection--multiple { background-color: #f8fafc !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #e0f2fe !important; border-color: #bae6fd !important; color: #0369a1 !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: #0369a1 !important; border-right-color: #bae6fd !important;}
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #e11d48 !important; }
+        body.theme-classic .select2-dropdown { background-color: white !important; border-color: #cbd5e1 !important; color: #1e293b !important;}
+        body.theme-classic .select2-results__option { color: #1e293b !important; }
+        body.theme-classic .select2-results__option[aria-selected=true] { background-color: #f1f5f9 !important; }
+        body.theme-classic .select2-results__option--highlighted[aria-selected] { background-color: #3b82f6 !important; color: white !important; }
+        body.theme-classic .select2-search__field { color: #1e293b !important; }
+
+        /* Datatables Clássico */
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f8fafc !important; color: #334155 !important; border-bottom: 2px solid #cbd5e1 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+
+        body.theme-classic .valor-formatado { color: #004e92 !important; }
+        body.theme-classic .badge-grupo { background: #e0f2fe !important; color: #0369a1 !important; border: none !important;}
+
+        body.theme-classic .dataTables_length, body.theme-classic .dataTables_filter, body.theme-classic .dataTables_info, body.theme-classic .dataTables_paginate { color: #475569 !important; }
+        body.theme-classic .dataTables_length select, body.theme-classic .dataTables_filter input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button { color: #475569 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
+        
+        body.theme-classic .dt-button { background: white !important; color: #10b981 !important; border-color: #10b981 !important; }
+        body.theme-classic .dt-button:hover { background: #10b981 !important; color: white !important; }
+
+        /* ========================================================= */
+        /* IMPRESSÃO PERFEITA PARA PDF                               */
+        /* ========================================================= */
         @media print {
             @page { margin: 10mm; size: A4 landscape; }
             body { background: white !important; font-size: 10pt; }
-            .header-bg { background: white !important; color: black !important; padding: 0; box-shadow: none; border-bottom: 2px solid #000; margin-bottom: 10px; }
+            .header-bg { background: white !important; color: black !important; padding: 0 !important; box-shadow: none !important; border-bottom: 2px solid #000 !important; margin-bottom: 10px !important; }
             .header-bg h1 { color: black !important; }
             .header-bg p { color: #333 !important; }
-            .filter-panel, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .btn-back { display: none !important; }
-            .container { margin-top: 10px; padding: 0; box-shadow: none; }
+            .filter-panel, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .btn-theme, .blob-1, .blob-2 { display: none !important; }
+            .container { margin-top: 10px !important; padding: 0 !important; box-shadow: none !important; }
+            
             .kpi-row { display: flex !important; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
-            .meta-card { border: 1px solid #ccc !important; box-shadow: none !important; padding: 10px !important; flex: 1; }
+            .meta-card { border: 1px solid #ccc !important; box-shadow: none !important; padding: 10px !important; flex: 1; background: transparent !important;}
+            .meta-card::before { display: none !important; }
+            .meta-title { color: #000 !important; font-size: 8pt !important; }
+            .meta-title i { display: none !important; }
+            .meta-value { color: #000 !important; font-size: 16pt !important; text-shadow: none !important;}
+            
             .charts-row { display: flex !important; gap: 15px; height: 250px; margin-bottom: 20px; page-break-inside: avoid; }
             canvas { max-height: 220px !important; }
-            .chart-box { border: 1px solid #ccc !important; padding: 10px !important; box-shadow: none !important; }
-            table.dataTable thead th { border-bottom: 1px solid #000 !important; color: #000 !important; }
-            table.dataTable tbody td { border-bottom: 1px solid #ccc !important; color: #000 !important; }
+            .chart-box { border: 1px solid #ccc !important; padding: 10px !important; box-shadow: none !important; background: transparent !important; flex: 1;}
+            .chart-box h4 { color: #000 !important; font-size: 9pt !important; margin: 0 0 10px 0 !important; border-bottom: 1px solid #000 !important; padding-bottom: 5px !important; }
+            
+            .chart-box:last-child { display: block !important; border: none !important; padding: 0 !important;}
+
+            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; color: black !important; }
+            table.dataTable thead th { background-color: #ddd !important; color: #000 !important; font-weight: 900 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; }
+            table.dataTable tbody td { color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 2px 4px !important; }
+            table.dataTable tbody tr:nth-child(even) { background-color: #eee !important; }
+            
+            .valor-formatado { color: #000 !important; }
+            .badge-grupo { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; padding: 1px 3px !important; font-size: 7pt !important;}
         }
     </style>
 </head>
 <body>
 
-    <div class='header-bg pb-12'>
-        <div class='max-w-7xl mx-auto flex justify-between items-center'>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg no-print'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
             <div class="flex items-center gap-4">
-                <i class="fa-solid fa-chart-line text-3xl text-white"></i>
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-line text-3xl text-emerald-400"></i></div>
                 <div>
-                    <h1 class='text-2xl font-bold text-white'>Painel Executivo de Faturamento SUS</h1>
-                    <p class='text-blue-200 text-sm'>Análise de Série Histórica - Hospital Beneficente Santa Helena</p>
+                    <h1 class='text-3xl font-bold text-white'>Painel Executivo de Faturamento SUS</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Análise de Série Histórica - Hospital Beneficente Santa Helena</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-5">
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon / Clássico)">
+                    <i class="fas fa-magic"></i>
+                </button>
                 <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
-                <a href="modulo_operacional.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_operacional.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
@@ -125,10 +284,9 @@
     <div class="container">
         
         <div class="filter-panel no-print">
-            
-            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4 border-b border-slate-100 pb-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end mb-4 border-b border-white/10 pb-4">
                 <div class="filter-group md:col-span-2">
-                    <label class="filter-label"><i class="fas fa-eye text-blue-500"></i> Informação dos Gráficos e Tabelas</label>
+                    <label class="filter-label"><i class="fas fa-eye text-blue-400"></i> Informação dos Gráficos e Tabelas</label>
                     <select id="filtroModoVisao" class="filter-select select-modo" onchange="aplicarFiltros()">
                         <option value="FINANCEIRO">📊 Visão Financeira (Valor Aprovado em R$)</option>
                         <option value="FISICO">👥 Visão Físico/Quantitativa (Volume Produzido)</option>
@@ -169,46 +327,46 @@
             </div>
             
             <div class="mt-4 filter-group">
-                <label class="filter-label"><i class="fas fa-search text-slate-400"></i> Agrupar Procedimentos Específicos (Múltipla Escolha)</label>
-                <select id="filtroProcedimento" class="filter-select" multiple="multiple"></select>
+                <label class="filter-label"><i class="fas fa-search dyn-text-muted"></i> Agrupar Procedimentos Específicos (Múltipla Escolha)</label>
+                <select id="filtroProcedimento" class="filter-select" multiple="multiple" style="width:100%;"></select>
             </div>
         </div>
 
         <div class="kpi-row">
             <div class="meta-card border-blue">
                 <div class="meta-title" id="tituloCard1">Faturamento Aprovado <i class="fas fa-coins text-blue-400"></i></div>
-                <div class="meta-value" id="kpiTotal">R$ 0,00</div>
+                <div class="meta-value neon-text-blue" id="kpiTotal">R$ 0,00</div>
             </div>
             
             <div class="meta-card border-green">
                 <div class="meta-title" id="tituloCard2">Volume Produzido <i class="fas fa-procedures text-green-400"></i></div>
-                <div class="meta-value" id="kpiQtd" style="color:#10b981;">0</div>
+                <div class="meta-value neon-text-green" id="kpiQtd">0</div>
             </div>
             
             <div class="meta-card border-purple">
                 <div class="meta-title" id="tituloCard3">Ticket Médio (SUS) <i class="fas fa-receipt text-purple-400"></i></div>
-                <div class="meta-value" id="kpiTicket" style="color:#6d28d9;">R$ 0,00</div>
+                <div class="meta-value neon-text-purple" id="kpiTicket">R$ 0,00</div>
             </div>
             
             <div class="meta-card border-yellow">
                 <div class="meta-title" id="labelTopProc">Maior Faturamento <i class="fas fa-star text-yellow-400"></i></div>
-                <div class="meta-value" id="kpiTopProc" style="font-size: 1rem; padding-top:10px; color:#b45309; word-wrap: break-word; white-space: normal; line-height: 1.3;">-</div>
+                <div class="meta-value neon-text-yellow" id="kpiTopProc" style="font-size: 1rem; padding-top:10px; word-wrap: break-word; white-space: normal; line-height: 1.3;">-</div>
             </div>
         </div>
 
-        <div class="charts-row">
-            <div class="chart-box">
-                <h4 id="tituloChartEvolucao"><i class="fas fa-chart-bar text-blue-600 mr-2"></i> Evolução no Período</h4>
+        <div class="charts-row no-print">
+            <div class="glass-chart-container">
+                <h4 id="tituloChartEvolucao" class="glass-chart-title border-none"><i class="fas fa-chart-bar text-blue-400 mr-2"></i> Evolução no Período</h4>
                 <div style="height:250px;"><canvas id="chartEvolucao"></canvas></div>
             </div>
-            <div class="chart-box">
-                <h4 id="tituloChartOrigem"><i class="fas fa-chart-bar text-orange-500 mr-2"></i> Origem de Produção</h4>
+            <div class="glass-chart-container">
+                <h4 id="tituloChartOrigem" class="glass-chart-title border-none"><i class="fas fa-chart-bar text-orange-400 mr-2"></i> Origem de Produção</h4>
                 <div style="height:250px;"><canvas id="chartOrigem"></canvas></div>
             </div>
         </div>
 
         <div class="chart-box" style="padding-top:10px;">
-            <h4 style="color:#0f172a;"><i class="fas fa-list-ul text-blue-600 mr-2"></i> Detalhamento Analítico Completo (SIGTAP)</h4>
+            <h4 class="no-print"><i class="fas fa-list-ul text-blue-400 mr-2"></i> Detalhamento Analítico Completo (SIGTAP)</h4>
             <table id="tabelaFinanceira" class="display compact hover" style="width:100%"></table>
         </div>
     </div>
@@ -221,7 +379,29 @@
         function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
         function formatNumber(val) { return new Intl.NumberFormat('pt-BR').format(val || 0); }
 
+        // ==========================================
+        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
+        // ==========================================
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_hist', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_hist', 'classic');
+            }
+            aplicarFiltros(); // Recalcula e repinta gráficos
+        }
+
         $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_hist');
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+            } else {
+                document.body.classList.remove('theme-classic');
+            }
+
             if (typeof DADOS_FINANCEIROS === 'undefined') {
                 alert("Erro: Arquivo 'dados_financeiros.js' não encontrado. Rode o script Python primeiro!");
                 return;
@@ -292,6 +472,7 @@
 
         function atualizarDashboard(dados) {
             const modoVisao = $('#filtroModoVisao').val(); // 'FINANCEIRO' ou 'FISICO'
+            const isClassic = document.body.classList.contains('theme-classic');
 
             let totalValor = 0; let totalQtd = 0;
             let mapEvolucao = {}; let mapOrigem = {}; let mapProcedimentos = {};
@@ -316,34 +497,34 @@
                 mapProcedimentos[proc].valor += d['Valor Aprovado'];
             });
 
-            // Lógica de Mutação dos Painéis Superiores baseada no Switch
+            // Lógica de Mutação dos Painéis Superiores
             if(modoVisao === 'FINANCEIRO') {
-                $('#tituloCard1').html('Faturamento Aprovado <i class="fas fa-coins text-blue-400"></i>');
-                $('#kpiTotal').text(formatCurrency(totalValor));
+                $('#tituloCard1').html(`Faturamento Aprovado <i class="fas fa-coins text-blue-400"></i>`);
+                $('#kpiTotal').text(formatCurrency(totalValor)).attr('class', 'meta-value neon-text-blue').css('color', isClassic ? '#0f172a' : '');
 
-                $('#tituloCard2').html('Volume Produzido <i class="fas fa-procedures text-green-400"></i>');
-                $('#kpiQtd').text(formatNumber(totalQtd));
+                $('#tituloCard2').html(`Volume Produzido <i class="fas fa-procedures text-green-400"></i>`);
+                $('#kpiQtd').text(formatNumber(totalQtd)).attr('class', 'meta-value neon-text-green').css('color', isClassic ? '#0f172a' : '');
 
-                $('#tituloCard3').html('Ticket Médio (SUS) <i class="fas fa-receipt text-purple-400"></i>');
-                $('#kpiTicket').text(formatCurrency(totalValor / (totalQtd || 1)));
+                $('#tituloCard3').html(`Ticket Médio (SUS) <i class="fas fa-receipt text-purple-400"></i>`);
+                $('#kpiTicket').text(formatCurrency(totalValor / (totalQtd || 1))).attr('class', 'meta-value neon-text-purple').css('color', isClassic ? '#0f172a' : '');
 
-                $('#labelTopProc').html('Maior Faturamento (R$) <i class="fas fa-star text-yellow-400"></i>');
-                $('#tituloChartEvolucao').html('<i class="fas fa-chart-bar text-blue-600 mr-2"></i> Evolução Financeira (R$)');
-                $('#tituloChartOrigem').html('<i class="fas fa-chart-bar text-orange-500 mr-2"></i> Dinheiro por Origem');
+                $('#labelTopProc').html(`Maior Faturamento (R$) <i class="fas fa-star text-yellow-400"></i>`);
+                $('#tituloChartEvolucao').html(`<i class="fas fa-chart-bar ${isClassic ? 'text-blue-600' : 'text-blue-400'} mr-2"></i> Evolução Financeira (R$)`);
+                $('#tituloChartOrigem').html(`<i class="fas fa-chart-bar ${isClassic ? 'text-orange-500' : 'text-orange-400'} mr-2"></i> Dinheiro por Origem`);
             } else {
-                $('#tituloCard1').html('Volume Físico Total <i class="fas fa-hashtag text-blue-400"></i>');
-                $('#kpiTotal').text(formatNumber(totalQtd));
+                $('#tituloCard1').html(`Volume Físico Total <i class="fas fa-hashtag text-blue-400"></i>`);
+                $('#kpiTotal').text(formatNumber(totalQtd)).attr('class', 'meta-value neon-text-blue').css('color', isClassic ? '#0f172a' : '');
 
-                $('#tituloCard2').html('Faturamento Ref. <i class="fas fa-coins text-green-400"></i>');
-                $('#kpiQtd').text(formatCurrency(totalValor)); // Mostra o valor como referência secundária
+                $('#tituloCard2').html(`Faturamento Ref. <i class="fas fa-coins text-green-400"></i>`);
+                $('#kpiQtd').text(formatCurrency(totalValor)).attr('class', 'meta-value neon-text-green').css('color', isClassic ? '#0f172a' : ''); 
 
                 let qtdProcsUnicos = Object.keys(mapProcedimentos).length;
-                $('#tituloCard3').html('Tipos de Procedimentos <i class="fas fa-list text-purple-400"></i>');
-                $('#kpiTicket').text(qtdProcsUnicos); // Mostra quantos procedimentos distintos compõem o filtro
+                $('#tituloCard3').html(`Tipos de Procedimentos <i class="fas fa-list text-purple-400"></i>`);
+                $('#kpiTicket').text(qtdProcsUnicos).attr('class', 'meta-value neon-text-purple').css('color', isClassic ? '#0f172a' : '');
 
-                $('#labelTopProc').html('Maior Produção (Qtd) <i class="fas fa-users text-yellow-400"></i>');
-                $('#tituloChartEvolucao').html('<i class="fas fa-chart-bar text-green-600 mr-2"></i> Evolução Quantitativa (Qtd)');
-                $('#tituloChartOrigem').html('<i class="fas fa-chart-bar text-emerald-500 mr-2"></i> Volume por Origem');
+                $('#labelTopProc').html(`Maior Produção (Qtd) <i class="fas fa-users text-yellow-400"></i>`);
+                $('#tituloChartEvolucao').html(`<i class="fas fa-chart-bar ${isClassic ? 'text-green-600' : 'text-emerald-400'} mr-2"></i> Evolução Quantitativa (Qtd)`);
+                $('#tituloChartOrigem').html(`<i class="fas fa-chart-bar ${isClassic ? 'text-emerald-500' : 'text-teal-400'} mr-2"></i> Volume por Origem`);
             }
 
             let topProc = "-"; let maxMetrica = -1; let arrayTabela = [];
@@ -358,7 +539,7 @@
             }
             
             let nomeLimpo = topProc.split(' - ').slice(1).join(' - ') || topProc;
-            $('#kpiTopProc').html(nomeLimpo.length > 50 ? nomeLimpo.substring(0, 50) + '...' : nomeLimpo);
+            $('#kpiTopProc').html(nomeLimpo.length > 50 ? nomeLimpo.substring(0, 50) + '...' : nomeLimpo).css('color', isClassic ? '#0f172a' : '');
 
             renderizarGraficos(mapEvolucao, mapOrigem, modoVisao);
             renderizarTabela(arrayTabela, modoVisao);
@@ -371,53 +552,58 @@
 
             let tooltipCallback = function(c) { return modoVisao === 'FINANCEIRO' ? formatCurrency(c.raw) : formatNumber(c.raw) + ' realizados'; };
 
-            // 1. Gráfico de Evolução (Tornado em Barras Verticais)
+            const isClassic = document.body.classList.contains('theme-classic');
+            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
+
+            // 1. Gráfico de Evolução 
             const ctx1 = document.getElementById('chartEvolucao').getContext('2d');
             if(chartEvolucao) chartEvolucao.destroy();
-            let corBarraEvolucao = modoVisao === 'FINANCEIRO' ? '#004e92' : '#10b981';
+            let corBarraEvolucao = modoVisao === 'FINANCEIRO' ? (isClassic ? '#004e92' : 'rgba(56, 189, 248, 0.6)') : (isClassic ? '#10b981' : 'rgba(52, 211, 153, 0.6)');
 
             chartEvolucao = new Chart(ctx1, {
                 type: 'bar',
                 data: { labels: labelsLinha, datasets: [{ data: valoresLinha, backgroundColor: corBarraEvolucao, borderRadius: 4 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: tooltipCallback } } }, scales: { y: { beginAtZero: true, ticks: { callback: function(v){ return modoVisao === 'FINANCEIRO' ? formatCurrency(v) : formatNumber(v); } } }, x: { grid: { display: false } } } }
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: tooltipCallback } } }, scales: { y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' }, ticks: { callback: function(v){ return modoVisao === 'FINANCEIRO' ? formatCurrency(v) : formatNumber(v); } } }, x: { grid: { display: false } } } }
             });
 
-            // 2. Gráfico de Origem (Tornado em Barras Horizontais)
+            // 2. Gráfico de Origem 
             const ctx2 = document.getElementById('chartOrigem').getContext('2d');
             if(chartOrigem) chartOrigem.destroy();
-            let coresOrigem = modoVisao === 'FINANCEIRO' ? ['#0284c7', '#f59e0b'] : ['#059669', '#d97706'];
+            let coresOrigem = modoVisao === 'FINANCEIRO' ? (isClassic ? ['#0284c7', '#f59e0b'] : ['rgba(56, 189, 248, 0.6)', 'rgba(251, 191, 36, 0.6)']) : (isClassic ? ['#059669', '#d97706'] : ['rgba(16, 185, 129, 0.6)', 'rgba(249, 115, 22, 0.6)']);
 
             chartOrigem = new Chart(ctx2, {
                 type: 'bar',
                 data: { labels: Object.keys(mapOrigem), datasets: [{ data: Object.values(mapOrigem), backgroundColor: coresOrigem, borderRadius: 4 }] },
                 options: { 
-                    indexAxis: 'y', // Faz as barras deitarem (ótimo para comparar Internacional vs Ambulatório)
+                    indexAxis: 'y', 
                     maintainAspectRatio: false, 
                     plugins: { legend: { display: false }, tooltip: { callbacks: { label: tooltipCallback } } },
-                    scales: { x: { beginAtZero: true, ticks: { callback: function(v){ return modoVisao === 'FINANCEIRO' ? formatCurrency(v) : formatNumber(v); } } }, y: { grid: { display: false } } }
+                    scales: { x: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' }, ticks: { callback: function(v){ return modoVisao === 'FINANCEIRO' ? formatCurrency(v) : formatNumber(v); } } }, y: { grid: { display: false } } }
                 }
             });
         }
 
         function renderizarTabela(dados, modoVisao) {
             if ($.fn.DataTable.isDataTable('#tabelaFinanceira')) $('#tabelaFinanceira').DataTable().destroy();
-            $('#tabelaFinanceira').empty(); // Limpa colunas antigas da memória
+            $('#tabelaFinanceira').empty(); 
 
-            // Constrói as colunas dinamicamente baseado na visão
+            const isClassic = document.body.classList.contains('theme-classic');
+            const fontName = isClassic ? '#1e293b' : 'white';
+            const fontQtd = isClassic ? '#059669' : '#34d399';
+            const fontValor = isClassic ? '#004e92' : '#38bdf8';
+
             let colunas = [
-                { title: "Procedimento", data: 'proc', render: d => `<b style="color:#1e293b; font-size: 0.8rem;">${d}</b>` },
+                { title: "Procedimento", data: 'proc', render: d => `<b style="color:${fontName}; font-size: 0.8rem;">${d}</b>` },
                 { title: "Grupo SUS", data: 'grp', render: d => `<span class="badge-grupo">${d.split(' - ')[1] || d}</span>` },
                 { title: "Origem", data: 'orig' },
-                { title: "Qtd. Realizada", data: 'qtd', render: $.fn.dataTable.render.number('.', ',', 0, ''), className: 'dt-body-center font-bold text-lg text-emerald-600' }
+                { title: "Qtd. Realizada", data: 'qtd', render: $.fn.dataTable.render.number('.', ',', 0, ''), className: `dt-body-center font-bold text-lg` }
             ];
 
-            // Se for financeiro, injeta as colunas de Dinheiro na tabela
             if(modoVisao === 'FINANCEIRO') {
-                colunas.push({ title: "Ticket (R$)", data: 'ticket', render: d => formatCurrency(d), className: 'dt-body-right' });
-                colunas.push({ title: "Total Aprovado (R$)", data: 'valor', render: d => `<span class="valor-formatado">${formatCurrency(d)}</span>`, className: 'dt-body-right text-lg' });
+                colunas.push({ title: "Ticket (R$)", data: 'ticket', render: d => formatCurrency(d), className: 'dt-body-right font-mono' });
+                colunas.push({ title: "Total Aprovado (R$)", data: 'valor', render: d => `<span class="valor-formatado font-mono" style="color:${fontValor};">${formatCurrency(d)}</span>`, className: 'dt-body-right text-lg' });
             }
 
-            // Define por qual coluna ordenar (Se Físico = Coluna Qtd. Se Financeiro = Coluna Valor)
             let ordemColuna = modoVisao === 'FINANCEIRO' ? 5 : 3;
 
             dataTableInstance = $('#tabelaFinanceira').DataTable({
@@ -426,11 +612,13 @@
                 pageLength: 10,
                 order: [[ordemColuna, 'desc']], 
                 language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                buttons: [ { extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel text-green-600"></i> Exportar para Excel' } ],
-                columns: colunas
+                buttons: [ { extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Exportar para Excel' } ],
+                columns: colunas,
+                createdRow: function(row, data, dataIndex) {
+                    $(row).find('td:eq(3)').css('color', fontQtd);
+                }
             });
         }
     </script>
 </body>
 </html>
- 
