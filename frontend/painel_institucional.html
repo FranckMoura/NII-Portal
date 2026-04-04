@@ -18,111 +18,183 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- PADRONIZAÇÃO VISUAL (Deep Blue + Glass) --- */
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
-            color: #1e293b; 
-            margin: 0; 
-            min-height: 100vh;
-            padding-bottom: 40px;
-        }
-        
-        /* CABEÇALHO (Glassmorphism) */
-        .header-bg { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
             color: white; 
-            padding: 20px 40px 60px 40px; /* Padding ajustado */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            margin: 0; min-height: 100vh; padding-bottom: 40px; 
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        /* CABEÇALHO */
+        .header-bg { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 40px 60px 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 30px; transition: 0.5s;
         }
         .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Título */
         .header-left { display: flex; align-items: center; gap: 20px; }
-        .header-icon { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .header-title h1 { margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .header-title p { margin: 2px 0 0; opacity: 0.9; font-size: 0.95rem; font-weight: 300; }
+        .header-icon { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .header-title h1 { margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .header-title p { margin: 2px 0 0; color: #94a3b8; font-size: 0.95rem; font-weight: 500; }
         
-        /* Área Direita (Logo + Botão) */
-        .header-right { display: flex; align-items: center; gap: 25px; }
+        .header-right { display: flex; align-items: center; gap: 20px; }
         .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
         .header-mini-logo:hover { transform: scale(1.05); }
 
-        .btn-back { 
-            background: rgba(255,255,255,0.15); color: white; padding: 10px 20px; 
-            border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px;
-        }
-        .btn-back:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
 
-        .header-print { display: none; }
-
-        /* --- ABAS --- */
-        .tabs-container { max-width: 1200px; margin: -55px auto 20px auto; padding: 0 20px; display: flex; gap: 8px; align-items: flex-end; }
+        /* --- ABAS NEON --- */
+        .tabs-container { max-width: 1200px; margin: -55px auto 20px auto; padding: 0 20px; display: flex; gap: 8px; align-items: flex-end; position: relative; z-index: 10; }
         .tab-btn { 
             padding: 14px 25px; 
-            background: rgba(0, 0, 0, 0.3); 
+            background: rgba(0, 0, 0, 0.4); 
             border-radius: 12px 12px 0 0; 
-            color: rgba(255,255,255,0.7); 
-            cursor: pointer; font-weight: 600; border: none; transition: all 0.2s; font-size: 0.95rem; backdrop-filter: blur(5px);
+            color: #94a3b8; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;
+            cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 0.95rem; backdrop-filter: blur(5px);
         }
-        .tab-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        .tab-btn.active { background: white; color: #004e92; padding-bottom: 18px; font-weight: 800; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
+        .tab-btn:hover { background: rgba(56, 189, 248, 0.1); color: white; }
+        .tab-btn.active { background: rgba(255,255,255,0.05); color: #38bdf8; border-color: rgba(56,189,248,0.5); padding-bottom: 18px; font-weight: 800; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); text-shadow: 0 0 8px rgba(56,189,248,0.5); border-bottom: 2px solid transparent;}
 
         /* --- CONTEÚDO --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .content-card { background: white; padding: 25px; border-radius: 16px; min-height: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .content-card { 
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 0 16px 16px 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 500px; transition: 0.5s; position: relative; z-index: 1;
+        }
 
-        .filter-bar { background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid #e2e8f0; }
+        .filter-bar { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .search-box { flex: 1; position: relative; }
-        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; }
-        .search-box input:focus { border-color: #004e92; box-shadow: 0 0 0 3px rgba(0,78,146,0.1); }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; }
+        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 1rem; outline: none; background: rgba(255,255,255,0.05); color: white; transition: 0.3s; }
+        .search-box input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
 
         .tab-content { display: none; animation: fadeIn 0.4s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h3.section-title { color: #f8fafc; font-size: 1.3rem; margin-bottom: 20px; font-weight: 800; border-left: 5px solid #38bdf8; padding-left: 10px; }
 
         /* --- DATA TABLES --- */
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; }
-        table.dataTable thead th { background-color: #004e92 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; padding: 14px 12px !important; font-size: 0.85rem; border-bottom: none !important; }
-        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.9rem; }
-        table.dataTable tbody tr:nth-child(even) { background-color: #f8fafc; }
-        table.dataTable tbody tr:hover { background-color: #e0f2fe; cursor: default; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; color: white !important; }
+        table.dataTable thead th { background-color: rgba(0,0,0,0.3) !important; color: #38bdf8 !important; font-weight: 700 !important; text-transform: uppercase; padding: 14px 12px !important; font-size: 0.85rem; border-bottom: 1px solid rgba(56,189,248,0.3) !important; border-top: none !important; }
+        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.9rem; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr:hover { background-color: rgba(255,255,255,0.05) !important; }
         
-        .dataTables_length { margin-bottom: 15px; font-size: 0.9rem; color: #475569; }
-        .dataTables_length select { border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px; margin: 0 5px; }
+        .dataTables_length { margin-bottom: 15px; font-size: 0.9rem; color: #94a3b8; }
+        .dataTables_length select { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 4px; margin: 0 5px; }
 
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-sim { background: #dcfce7; color: #166534; }
-        .badge-nao { background: #fee2e2; color: #991b1b; }
+        .badge-sim { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-nao { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        
+        body.theme-classic .header-bg { background: transparent !important; border-bottom-color: rgba(255,255,255,0.2) !important; box-shadow: none !important;}
+        body.theme-classic .header-icon { background: rgba(255,255,255,0.2) !important; color: white !important; border-color: transparent !important; }
+        body.theme-classic .header-title p { color: rgba(255,255,255,0.8) !important; }
+        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
+
+        /* Abas Clássicas */
+        body.theme-classic .tab-btn { background: rgba(0, 0, 0, 0.2) !important; color: rgba(255,255,255,0.7) !important; border: none !important; }
+        body.theme-classic .tab-btn:hover { background: rgba(255,255,255,0.1) !important; color: white !important; }
+        body.theme-classic .tab-btn.active { background: white !important; color: #004e92 !important; box-shadow: 0 -4px 10px rgba(0,0,0,0.1) !important; }
+
+        /* Cartão Principal Clássico */
+        body.theme-classic .content-card {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+            border-radius: 0 16px 16px 16px !important;
+        }
+
+        body.theme-classic h3.section-title { color: #0f172a !important; border-left-color: #004e92 !important; }
+        body.theme-classic .filter-bar { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .search-box input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .search-box input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.1) !important; }
+
+        /* Datatables Clássico */
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:nth-child(even) { background-color: #f8fafc !important; }
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #e0f2fe !important; }
+        
+        body.theme-classic .dataTables_length { color: #475569 !important; }
+        body.theme-classic .dataTables_length select { background: white !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+
+        body.theme-classic .badge-sim { background: #dcfce7 !important; color: #166534 !important; border: none !important; }
+        body.theme-classic .badge-nao { background: #fee2e2 !important; color: #991b1b !important; border: none !important; }
+
+        body.theme-classic .dt-button { background: white !important; color: #10b981 !important; border-color: #10b981 !important; }
+        body.theme-classic .dt-button:hover { background: #10b981 !important; color: white !important; }
+        body.theme-classic .dt-button.bg-blue-600 { color: #2563eb !important; border-color: #2563eb !important; }
+        body.theme-classic .dt-button.bg-blue-600:hover { background: #2563eb !important; color: white !important; }
 
         /* --- IMPRESSÃO --- */
+        .header-print { display: none; }
+        
         @media print {
             @page { margin: 10mm; size: A4 portrait; }
             body { background: white !important; color: #000 !important; font-size: 9pt !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .header-bg, .tabs-container, .filter-bar, .btn-back, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info { display: none !important; }
+            .header-bg, .tabs-container, .filter-bar, .btn-theme, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info, .blob-1, .blob-2 { display: none !important; }
             
             .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .header-print img { height: 50px; margin-right: 15px; }
-            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; }
-            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; }
-            .header-meta { margin-left: auto; text-align: right; font-size: 8pt; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: black;}
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: black;}
+            .header-meta { margin-left: auto; text-align: right; font-size: 8pt; color: black;}
 
-            .content-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
-            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; width: 100% !important; }
+            .content-card { box-shadow: none !important; border: none !important; padding: 0 !important; background: transparent !important; }
+            h3.section-title { color: black !important; border-left: none !important; padding-left: 0 !important; border-bottom: 1px solid black !important; padding-bottom: 5px !important; margin-bottom: 10px !important;}
+            
+            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; width: 100% !important; color: black !important;}
             table.dataTable thead th { background-color: #ddd !important; color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 5px !important; }
             table.dataTable tbody td { color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; }
-            #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; border-top: 1px solid #000; padding-top: 5px; }
+            
+            .badge { border: 1px solid black !important; background: transparent !important; color: black !important; padding: 1px 3px !important; }
+            
+            #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; border-top: 1px solid #000; padding-top: 5px; color: black; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header-bg">
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class="header-bg no-print">
         <div class="header-content">
             <div class="header-left">
                 <div class="header-icon"><i class="fas fa-hospital fa-2x"></i></div>
@@ -133,13 +205,16 @@
             </div>
             
             <div class="header-right">
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon / Clássico)">
+                    <i class="fas fa-magic"></i>
+                </button>
                 <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
-                <a href="index_v2.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_operacional.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
-    <div class="tabs-container">
+    <div class="tabs-container no-print">
         <button class="tab-btn active" onclick="abrirAba('tabServicos')"><i class="fas fa-notes-medical"></i> Serviços</button>
         <button class="tab-btn" onclick="abrirAba('tabMarcacoes')"><i class="fas fa-certificate"></i> Habilitações</button>
         <button class="tab-btn" onclick="abrirAba('tabLeitos')"><i class="fas fa-bed"></i> Leitos</button>
@@ -162,7 +237,7 @@
 
         <div class="content-card">
             
-            <div class="filter-bar">
+            <div class="filter-bar no-print">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="globalSearch" placeholder="Digite para filtrar (Nome, CBO, Código, Especialidade...)" onkeyup="filtrarTabela()">
@@ -170,7 +245,7 @@
             </div>
 
             <div id="tabServicos" class="tab-content active">
-                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Serviços Especializados</h3>
+                <h3 class="section-title">Serviços Especializados</h3>
                 <table id="tblServicos" class="display" style="width:100%">
                     <thead><tr><th>Serviço</th><th>Classificação</th><th>Amb. SUS</th><th>Hosp. SUS</th></tr></thead>
                     <tbody></tbody>
@@ -178,7 +253,7 @@
             </div>
 
             <div id="tabMarcacoes" class="tab-content">
-                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Habilitações e Incentivos</h3>
+                <h3 class="section-title">Habilitações e Incentivos</h3>
                 <table id="tblMarcacoes" class="display" style="width:100%">
                     <thead><tr><th>Comp.</th><th>Tipo</th><th>Descrição</th><th>Nº Leitos</th></tr></thead>
                     <tbody></tbody>
@@ -186,7 +261,7 @@
             </div>
 
             <div id="tabLeitos" class="tab-content">
-                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Capacidade Instalada (Leitos)</h3>
+                <h3 class="section-title">Capacidade Instalada (Leitos)</h3>
                 <table id="tblLeitos" class="display" style="width:100%">
                     <thead><tr><th>Cód</th><th>Tipo</th><th>Especialidade</th><th>Existentes</th><th>SUS</th></tr></thead>
                     <tbody></tbody>
@@ -194,8 +269,8 @@
             </div>
 
             <div id="tabProfissionais" class="tab-content">
-                <h3 style="color:#0f172a; font-size:1.3rem; margin-bottom:20px; font-weight:800; border-left:5px solid #004e92; padding-left:10px;">Corpo Clínico e Assistencial</h3>
-                <div id="loading-prof" style="text-align:center; padding:40px; color:#64748b;">
+                <h3 class="section-title">Corpo Clínico e Assistencial</h3>
+                <div id="loading-prof" style="text-align:center; padding:40px; color:#94a3b8;">
                     <i class="fas fa-spinner fa-spin fa-2x"></i><br><span style="margin-top:10px; display:block;">Carregando base de dados...</span>
                 </div>
                 <table id="tblProfissionais" class="display" style="width:100%; display:none;">
@@ -211,12 +286,34 @@
 
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        const SB_KEY = 'sb_publishable_o4-ci54177LQmQFsIl1-7g_sN5vp55n'; 
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
         let tabelaAtivaId = '#tblServicos';
 
+        // ==========================================
+        // TEMA CLARO / ESCURO (LÓGICA)
+        // ==========================================
+        function toggleTheme() {
+            const body = document.body;
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_inst', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_inst', 'classic');
+            }
+        }
+
         $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_inst');
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+            } else {
+                document.body.classList.remove('theme-classic');
+            }
+
             $('#print-data').text(new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'));
             carregarServicos();
             carregarMarcacoes();
@@ -269,17 +366,17 @@
                         extend: 'excelHtml5', 
                         title: nomeArquivo, 
                         text: '<i class="fas fa-file-excel"></i> Excel',
-                        className: 'bg-green-600 text-white px-3 py-1 rounded shadow hover:bg-green-700 font-bold border-none mr-2 text-sm' 
+                        className: 'dt-button' 
                     },
                     { 
                         text: '<i class="fas fa-print"></i> Imprimir', 
-                        className: 'bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 font-bold border-none text-sm',
+                        className: 'dt-button bg-blue-600',
                         action: function () { window.print(); } 
                     }
                 ],
                 language: { 
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
-                    lengthMenu: "Mostrar _MENU_ registros por página"
+                    lengthMenu: "Mostrar _MENU_ registros"
                 }
             };
         }
@@ -323,11 +420,11 @@
                 ...getDTConfig('Institucional_Leitos'),
                 data: data,
                 columns: [
-                    { data: 'codigo_leito', defaultContent: "-" },
+                    { data: 'codigo_leito', className:'font-mono', defaultContent: "-" },
                     { data: 'tipo_leito', defaultContent: "-" },
                     { data: 'especialidade', defaultContent: "-", width: "40%" },
-                    { data: 'existentes', defaultContent: "0" },
-                    { data: 'sus', defaultContent: "0" }
+                    { data: 'existentes', className:'text-center font-bold', defaultContent: "0" },
+                    { data: 'sus', className:'text-center font-bold', defaultContent: "0" }
                 ]
             });
         }
@@ -342,11 +439,11 @@
                 data: data,
                 deferRender: true,
                 columns: [
-                    { data: 'nome', defaultContent: "-", render: function(d){ return `<b style="color:#004e92">${d}</b>`} },
+                    { data: 'nome', defaultContent: "-", render: function(d){ return `<b style="color:inherit">${d}</b>`} },
                     { data: 'cbo', defaultContent: "-" },
-                    { data: 'ch_hosp_sus', defaultContent: "0" },
+                    { data: 'ch_hosp_sus', className:'text-center', defaultContent: "0" },
                     { data: 'vinculo', defaultContent: "-" },
-                    { data: 'atende_sus', defaultContent: "-" }
+                    { data: 'atende_sus', className:'text-center', defaultContent: "-" }
                 ]
             });
         }
