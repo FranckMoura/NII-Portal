@@ -17,138 +17,135 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === PADRÕES VISUAIS DO PORTAL === */
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
         body { 
-            font-family: 'Roboto', sans-serif; 
-            background: #f3f4f6; 
-            color: #1e293b; 
-            padding-bottom: 50px; 
-            margin: 0;
-        }
-
-        .header-bg { 
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; 
-            color: white !important; 
-            padding: 20px 40px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            margin-bottom: 30px; 
-        }
-
-        /* Estilo da Logo fornecido */
-        .header-mini-logo {
-            height: 40px;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
-        }
-
-        .btn-back { 
-            background: rgba(255,255,255,0.1); 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
             color: white; 
-            border: 1px solid rgba(255,255,255,0.3); 
-            padding: 10px 24px; 
-            border-radius: 8px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            text-decoration: none; 
-            font-size: 14px;
-        }
-        .btn-back:hover { 
-            background: rgba(255,255,255,0.2); 
-            transform: translateY(-1px);
-        }
-        
-        .btn-primary {
-            background: #3b82f6; 
-            color: white; 
-            padding: 10px 24px; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; 
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* === CONFIGURAÇÃO DATATABLES === */
-        .dt-button { 
-            background: #3b82f6 !important; 
-            color: white !important; 
-            border: none !important; 
-            border-radius: 6px !important; 
-            padding: 6px 16px !important; 
-            font-weight: bold !important; 
-            font-size: 0.75rem !important; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
-            transition: all 0.2s ease;
-        }
-        .dt-button:hover { 
-            background: #2563eb !important; 
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
         }
 
-        table.dataTable { 
-            width: 100% !important; 
-            border-collapse: collapse !important; 
-            margin-top: 15px !important;
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(14, 165, 233, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 40px; margin-bottom: 30px; transition: 0.5s; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.3s; }
+        .header-mini-logo:hover { transform: scale(1.05); }
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+
+        .btn-primary { background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 8px 20px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4); transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .btn-primary:hover { background: rgba(56, 189, 248, 0.4); color: white; }
+
+        /* Container de Vidro */
+        .cyber-container {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative; z-index: 1; transition: 0.5s; overflow: hidden;
         }
-        table.dataTable thead th { 
-            background-color: #004e92 !important; 
-            color: white !important; 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            padding: 14px 10px !important; 
-            border: none !important; 
-            white-space: nowrap; 
-            font-weight: 700;
-        }
-        table.dataTable tbody td { 
-            font-size: 0.8rem; 
-            color: #334155; 
-            padding: 10px 10px !important; 
-            border-bottom: 1px solid #e2e8f0; 
-        }
-        table.dataTable tbody tr:hover { 
-            background-color: #f1f5f9 !important; 
-        }
+
+        .loading { display: flex; justify-content: center; align-items: center; height: 250px; font-size: 1.2rem; color: #94a3b8; font-weight: 500; flex-direction: column; gap: 20px; }
+
+        /* DATATABLES DARK/NEON */
+        .dataTables_scrollBody { border-bottom: 1px solid rgba(255,255,255,0.1) !important; }
         
-        .loading { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 250px; 
-            font-size: 1.2rem; 
-            color: #64748b; 
-            font-weight: 500; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; margin-top: 15px !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; font-weight: 700 !important; text-transform: uppercase; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 14px 10px !important; font-size: 0.75rem; white-space: nowrap; }
+        table.dataTable tbody td { padding: 10px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.8rem; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        /* Estilização da linha de busca nativa do DataTables (thead) */
+        .table-search th { padding: 6px !important; background-color: rgba(255,255,255,0.02) !important; border-bottom: 1px solid rgba(56,189,248,0.3) !important; }
+        .table-search input { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 4px 8px; font-size: 12px; border-radius: 4px; width: 100%; outline: none; transition: 0.3s; }
+        .table-search input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+
+        .dataTables_length { color: #94a3b8 !important; margin-bottom: 15px; }
+        .dataTables_length select { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; padding: 5px; outline: none; margin: 0 5px; }
+        .dataTables_filter { color: #94a3b8 !important; margin-bottom: 15px; }
+        .dataTables_filter input { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; padding: 5px; outline: none; margin-left: 8px;}
+        .dataTables_info, .dataTables_paginate { color: #94a3b8 !important; margin-top: 15px; }
+        .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
+        .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.2) !important; color: white !important; border-color: rgba(56, 189, 248, 0.5) !important; }
+
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; margin-bottom: 15px; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+
+        /* Barras de Rolagem Personalizadas para modo escuro */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(56,189,248,0.5); }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
         
-        .table-search th { 
-            padding: 6px !important; 
-            background-color: #f1f5f9 !important; 
-            border-bottom: 2px solid #e2e8f0 !important;
+        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
+        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
+        body.theme-classic .btn-theme select option { background: white !important; color: #0f172a !important; }
+
+        body.theme-classic .btn-primary { background: #3b82f6 !important; color: white !important; border: none !important; }
+        body.theme-classic .btn-primary:hover { background: #2563eb !important; }
+
+        /* CONTAINER BRANCO */
+        body.theme-classic .cyber-container {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
         }
-        .table-search input {
-            border: 1px solid #cbd5e1;
-            padding: 4px 8px;
-            font-size: 12px;
-            border-radius: 4px;
-        }
+
+        /* DATATABLES CLÁSSICO */
+        body.theme-classic .dataTables_scrollBody { border-bottom: 1px solid #e2e8f0 !important; }
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
+
+        body.theme-classic .table-search th { background-color: #f1f5f9 !important; border-bottom: 2px solid #e2e8f0 !important; }
+        body.theme-classic .table-search input { background: #ffffff !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; }
+        body.theme-classic .table-search input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 2px rgba(0,78,146,0.1) !important; }
+
+        body.theme-classic .dataTables_length, body.theme-classic .dataTables_filter, body.theme-classic .dataTables_info, body.theme-classic .dataTables_paginate { color: #475569 !important; }
+        body.theme-classic .dataTables_length select, body.theme-classic .dataTables_filter input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button { color: #475569 !important; }
+        body.theme-classic .dataTables_paginate .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
+
+        body.theme-classic .dt-button { background: #3b82f6 !important; color: white !important; border: none !important; }
+        body.theme-classic .dt-button:hover { background: #2563eb !important; }
+
+        body.theme-classic ::-webkit-scrollbar-track { background: #f1f5f9; }
+        body.theme-classic ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+        body.theme-classic ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
 
     <div class='header-bg'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-2'>
@@ -157,29 +154,33 @@
                     <i class="fa-solid fa-database text-3xl text-white"></i>
                 </div>
                 <div>
-                    <h1 class='text-3xl font-black uppercase tracking-tight'>Base de Dados Legada</h1>
-                    <p class='text-gray-200 text-sm mt-1 font-medium'>Pesquisa histórica rápida nas bases de faturamento anteriores ao SoulMV.</p>
+                    <h1 class='text-3xl font-black uppercase tracking-tight text-white'>Base de Dados Legada</h1>
+                    <p class='text-cyan-200 text-sm mt-1 font-medium'>Pesquisa histórica rápida nas bases de faturamento anteriores ao SoulMV.</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="flex items-center gap-3 bg-white/10 border border-white/20 p-2 rounded-lg">
+                
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon/Clássico)">
+                    <i class="fas fa-magic"></i>
+                </button>
+
+                <div class="flex items-center gap-3 btn-theme" style="padding: 4px 10px;">
                     <span class="text-xs font-bold uppercase text-gray-200 ml-2">Tabela:</span>
                     <select id="filtroTabela" class="bg-transparent text-white rounded px-2 py-1 font-bold outline-none cursor-pointer text-sm">
-                        <option value="legado_int_oni" class="text-black">Sistema ONI (int_oni)</option>
-                        <option value="legado_int_dual" class="text-black">Sistema DUAL (int_dual)</option>
+                        <option value="legado_int_oni">Sistema ONI (int_oni)</option>
+                        <option value="legado_int_dual">Sistema DUAL (int_dual)</option>
                     </select>
                     <button onclick="buscarDados()" class="btn-primary">
                         <i class="fas fa-search"></i> Carregar Dados
                     </button>
                 </div>
                 
-                <div class="w-px h-10 bg-white/20"></div>
+                <div class="w-px h-10 bg-white/20 mx-2"></div>
 
                 <div class="flex items-center gap-3">
                     <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
-                    
-                    <a href="modulo_estrategico.html" class="btn-back">
+                    <a href="modulo_estrategico.html" class="btn-theme text-white">
                         <i class="fas fa-arrow-left"></i> Voltar
                     </a>
                 </div>
@@ -187,14 +188,14 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto bg-white p-7 rounded-2xl shadow-lg border border-gray-200">
+    <div class="max-w-[98%] mx-auto cyber-container">
         <div id="loader" class="loading" style="display:none;">
-            <i class="fas fa-circle-notch fa-spin text-5xl text-blue-600"></i>
-            <span class="font-bold">Baixando histórico do banco de dados legado...</span>
-            <p class="text-xs text-gray-500">(O carregamento inicial pode demorar devido ao volume de dados)</p>
+            <i class="fas fa-circle-notch fa-spin text-5xl text-cyan-400"></i>
+            <span class="font-bold text-white">Baixando histórico do banco de dados legado...</span>
+            <p class="text-xs" style="color: inherit;">(O carregamento inicial pode demorar devido ao volume de dados)</p>
         </div>
         
-        <div id="tabelaContainer" class="overflow-x-auto w-full" style="opacity:1;">
+        <div id="tabelaContainer" class="w-full" style="opacity:1;">
             <table id="tabelaDinamica" class="display compact w-full">
             </table>
         </div>
@@ -208,6 +209,29 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let dataTableInstancia;
+
+function toggleTheme() {
+    const body = document.body;
+    if (body.classList.contains('theme-classic')) {
+        body.classList.remove('theme-classic');
+        localStorage.setItem('nii_theme_leg', 'neon');
+    } else {
+        body.classList.add('theme-classic');
+        localStorage.setItem('nii_theme_leg', 'classic');
+    }
+    // Redesenha para ajustar colunas no modo escuro/claro
+    if(dataTableInstancia) { setTimeout(() => { dataTableInstancia.columns.adjust().draw(); }, 100); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('nii_theme_leg');
+    if (savedTheme === 'classic') { 
+        document.body.classList.add('theme-classic');
+    } else {
+        document.body.classList.remove('theme-classic');
+    }
+    buscarDados();
+});
 
 async function buscarDados() {
     const nomeTabela = document.getElementById('filtroTabela').value;
@@ -223,6 +247,7 @@ async function buscarDados() {
     }
 
     try {
+        // Limitando a 4000 pois as bases antigas são colossais
         const { data, error } = await client.from(nomeTabela).select('*').limit(4000);
         
         if (error) throw new Error(error.message);
@@ -235,25 +260,25 @@ async function buscarDados() {
                 title: k.replace(/_/g, ' '), 
                 data: k, 
                 defaultContent: "-",
-                className: isNameCol ? 'font-bold uppercase text-gray-900' : 'font-mono text-gray-600'
+                className: isNameCol ? 'font-bold uppercase text-cyan-300 classic:text-gray-900' : 'font-mono'
             }
         });
 
         let theadHtml = '<thead><tr>' + colunasParaDatatable.map(c => `<th>${c.title}</th>`).join('') + '</tr>';
-        theadHtml += '<tr class="table-search no-print">' + colunasParaDatatable.map(c => `<th><input type="text" placeholder="Filtrar..." class="w-full" /></th>`).join('') + '</tr></thead>';
+        theadHtml += '<tr class="table-search no-print">' + colunasParaDatatable.map(c => `<th><input type="text" placeholder="Filtrar..." /></th>`).join('') + '</tr></thead>';
         $('#tabelaDinamica').html(theadHtml);
 
         dataTableInstancia = $('#tabelaDinamica').DataTable({
             data: data,
             columns: colunasParaDatatable,
             pageLength: 20,
-            dom: 'Bfrtip',
+            dom: 'lBfrtip',
             orderCellsTop: true,
-            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_ registros" },
             buttons: [
-                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Resultado (Excel)', className: 'dt-button' }
+                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar (Excel)', className: 'dt-button' }
             ],
-            scrollX: true,
+            scrollX: true, // IMPORTANTÍSSIMO PARA MUITAS COLUNAS
             order: [], 
             initComplete: function () {
                 this.api().columns().every( function () {
@@ -267,14 +292,17 @@ async function buscarDados() {
 
         loader.style.display = 'none';
         container.style.opacity = '1';
+        
+        // Ajuste no css renderizado pela coluna ser dinâmica
+        if(document.body.classList.contains('theme-classic')) {
+            $('.classic\\:text-gray-900').css('color', '#1e293b');
+        }
 
     } catch (e) {
         console.error(e);
-        loader.innerHTML = `<span class="text-red-500 font-bold text-center"><i class="fas fa-exclamation-triangle text-5xl mb-3 block"></i>${e.message}</span>`;
+        loader.innerHTML = `<span class="text-red-400 font-bold text-center"><i class="fas fa-exclamation-triangle text-5xl mb-3 block"></i>${e.message}</span>`;
     }
 }
-
-document.addEventListener('DOMContentLoaded', buscarDados);
 </script>
 </body>
 </html>
