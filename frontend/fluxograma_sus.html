@@ -10,331 +10,424 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* 1. THE SETUP */
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
         * { box-sizing: border-box; }
         p { margin: 0; margin-bottom: 15px; }
 
         body {
-            background-color: #e2e8f0;
+            font-family: 'Lato', sans-serif;
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white;
             display: grid;
-            gap: 20px;
+            gap: 40px;
             grid-template-columns: 1fr;
             margin: 0;
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 60px 0;
             place-items: center;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        /* LUZES NEON NO FUNDO */
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -50px; right: -50px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        /* BOTÕES SUPERIORES */
+        .btn-floating-back {
+            position: fixed; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.1); color: white; text-decoration: none;
+            padding: 10px 20px; border-radius: 8px; font-family: 'Poppins', sans-serif;
+            font-weight: 600; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 9999; display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+        }
+        .btn-floating-back:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+        .btn-theme-toggle {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+            width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.3s; backdrop-filter: blur(5px); z-index: 9999;
+        }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+
+        /* SLIDE CONTAINER (Vidro Escuro) */
         .slide-container {
             align-items: center;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            font-family: 'Lato', sans-serif;
-            height: 720px;
-            justify-content: center;
-            overflow: hidden;
-            padding: 60px;
-            position: relative;
-            width: 1280px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            display: flex; flex-direction: column; justify-content: center;
+            height: 720px; width: 1280px; padding: 60px; position: relative; overflow: hidden;
+            transition: 0.5s;
         }
-
-        /* 1.1 BACKGROUND DESIGN (Subtle Bokeh/Gradients) */
-        .slide-container::before {
-            content: ''; position: absolute; top: -150px; right: -100px; width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(2, 132, 199, 0.04) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%; z-index: 0;
-        }
-
-        .slide-container::after {
-            content: ''; position: absolute; bottom: -200px; left: -150px; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(15, 23, 42, 0.02) 0%, rgba(255, 255, 255, 0) 70%);
-            border-radius: 50%; z-index: 0;
-        }
-
         .slide-container > * { position: relative; z-index: 1; }
 
-        /* 2. CONSISTENT TYPOGRAPHY */
-        .slide-container h1, .slide-container h2, .slide-container h3 { color: #0f172a; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 0; }
-        .slide-container p, .slide-container li, .slide-container .subtitle, .slide-container .number-label, .slide-container th, .slide-container td { color: #475569; font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.5; }
-        .slide-container h1 { font-size: 70px; }
-        .slide-container .slide-title { color: #0284c7; font-size: 40px; font-weight: 700; margin-bottom: 40px; text-align: left; width: 100%; }
-        .slide-container h3 { font-size: 28px; font-weight: 600; margin-bottom: 15px; }
+        /* TIPOGRAFIA NEON */
+        .slide-container h1, .slide-container h2, .slide-container h3 { color: #f8fafc; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 0; }
+        .slide-container p, .slide-container li, .slide-container .subtitle, .slide-container .number-label { color: #cbd5e1; font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.5; }
+        
+        .slide-container h1 { font-size: 70px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .slide-container h1 span { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        
+        .slide-container .slide-title { color: #38bdf8; font-size: 40px; font-weight: 700; margin-bottom: 40px; text-align: left; width: 100%; border-bottom: 1px solid rgba(56,189,248,0.3); padding-bottom: 15px;}
+        .slide-container h3 { font-size: 28px; font-weight: 600; margin-bottom: 15px; color: #38bdf8;}
         .slide-container .content-area { align-items: flex-start; display: flex; flex-direction: column; flex-grow: 1; justify-content: center; width: 100%; }
 
-        /* 3. LAYOUT DEFINITIONS */
-        .title-layout { text-align: center; padding: 60px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #f8fafc; max-width: 900px; }
-        .title-layout h1 span { color: #0284c7; }
-        .title-layout .subtitle { font-size: 24px; margin-top: 20px; }
+        /* MÓDULOS DE CONTEÚDO (Sub-vidros) */
+        .title-layout, .content-wrapper, .tile, .highlight-numbers-layout > div:first-child, .qa-layout .contact-info { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 16px; padding: 60px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
 
-        .table-layout { width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); }
+        .title-layout .subtitle { font-size: 24px; margin-top: 20px; color: #94a3b8;}
+
+        /* TABELAS NEON */
+        .table-layout { width: 100%; background-color: transparent; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .table-layout table { border-collapse: collapse; width: 100%; }
         .table-layout th, .table-layout td { padding: 14px 24px; text-align: left; }
-        .table-layout th { background-color: #0284c7; color: #ffffff; font-size: 18px; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; }
-        .table-layout td { border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 16px; }
-        .table-layout tr:nth-child(even) td { background-color: #f8fafc; }
+        .table-layout th { background-color: rgba(0,0,0,0.4); color: #38bdf8; font-size: 18px; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; border-bottom: 1px solid rgba(56,189,248,0.3); }
+        .table-layout td { border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; font-size: 16px; }
+        .table-layout tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
         .table-layout tr:last-child td { border-bottom: none; }
-        .table-layout td strong { color: #0f172a; }
+        .table-layout td strong { color: #38bdf8; }
 
+        /* TIMELINE NEON */
         .timeline-layout { align-items: stretch; display: flex; height: stretch; justify-content: space-between; position: relative; width: 100%; margin-top: 40px; }
-        .timeline-layout .timeline-line { background-color: #cbd5e1; height: 4px; left: 0; position: absolute; top: 50%; transform: translateY(-2px); width: 100%; z-index: 0; }
+        .timeline-layout .timeline-line { background-color: rgba(56, 189, 248, 0.2); height: 4px; left: 0; position: absolute; top: 50%; transform: translateY(-2px); width: 100%; z-index: 0; box-shadow: 0 0 10px rgba(56,189,248,0.3); }
         .timeline-item { position: relative; text-align: center; width: 23%; }
-        .timeline-item::after { background-color: #ffffff; border-radius: 50%; border: 4px solid #0284c7; content: ''; height: 24px; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 24px; z-index: 1; }
-        .timeline-item .content-wrapper { left: 0; position: absolute; width: 100%; background-color: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .timeline-item::after { background-color: #0f172a; border-radius: 50%; border: 4px solid #38bdf8; content: ''; height: 24px; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 24px; z-index: 1; box-shadow: 0 0 15px rgba(56,189,248,0.6); }
+        .timeline-item .content-wrapper { left: 0; position: absolute; width: 100%; padding: 20px; }
         .timeline-item:nth-child(odd) .content-wrapper { bottom: 50%; margin-bottom: 35px; }
         .timeline-item:nth-child(even) .content-wrapper { margin-top: 35px; top: 50%; }
-        .timeline-item h3 { color: #0284c7; font-size: 20px; margin-bottom: 8px; }
-        .timeline-item .responsavel { font-weight: 700; color: #0f172a; font-size: 16px; margin-bottom: 8px; }
+        .timeline-item .responsavel { font-weight: 700; color: #f8fafc; font-size: 16px; margin-bottom: 8px; }
         .timeline-item p { font-size: 14px; margin-bottom: 0; }
 
+        /* TILES NEON */
         .tiled-content { align-items: stretch; display: flex; gap: 40px; justify-content: center; width: 100%; }
-        .tile { align-items: center; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; padding: 40px 30px; text-align: center; }
-        .tile .icon { color: #0284c7; font-size: 50px; margin-bottom: 25px; }
-        .tile h3 { color: #0f172a; font-size: 22px; }
-        .tile .responsavel { font-weight: 700; color: #0284c7; font-size: 16px; margin-bottom: 15px; }
+        .tile { padding: 40px 30px; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; }
+        .tile .icon { color: #38bdf8; font-size: 50px; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        .tile h3 { color: #f8fafc; font-size: 22px; }
+        .tile .responsavel { font-weight: 700; color: #94a3b8; font-size: 16px; margin-bottom: 15px; }
 
+        /* BLEED IMAGE NEON */
         .slide-container.bleed-image-layout { align-items: start; display: grid; gap: 50px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; }
         .slide-container.bleed-image-layout > .content-container { padding: 60px 0 60px 60px; display: flex; flex-direction: column; height: 100%; justify-content: center; }
-        .slide-container.bleed-image-layout > .image-container { height: 100%; overflow: hidden; width: 100%; }
-        .slide-container.bleed-image-layout img.bleed-image-side { border-radius: 0 12px 12px 0; display: block; height: 720px; object-fit: cover; object-position: center; width: 100%; }
+        .slide-container.bleed-image-layout > .image-container { height: 100%; overflow: hidden; width: 100%; border-left: 1px solid rgba(255,255,255,0.05); }
+        .slide-container.bleed-image-layout img.bleed-image-side { border-radius: 0 20px 20px 0; display: block; height: 720px; object-fit: cover; object-position: center; width: 100%; filter: brightness(0.8) contrast(1.2); }
         .slide-container.bleed-image-layout .bleed-text-side { display: flex; flex-direction: column; justify-content: center; }
         .slide-container.bleed-image-layout .bleed-text-side p { margin-bottom: 20px; }
 
+        /* HIGHLIGHT NUMBERS NEON */
         .two-column.highlight-numbers-layout { align-items: center; display: flex; gap: 50px; width: 100%; }
-        .highlight-numbers-layout > div:first-child { flex: 0 0 40%; text-align: center; background-color: #f8fafc; padding: 60px 40px; border-radius: 16px; border: 1px solid #e2e8f0; }
-        .highlight-numbers-layout .number { color: #0284c7; font-size: 150px; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; margin-bottom: 10px; }
-        .highlight-numbers-layout .number-label { font-size: 24px; font-weight: 700; color: #0f172a; }
+        .highlight-numbers-layout > div:first-child { flex: 0 0 40%; padding: 60px 40px; }
+        .highlight-numbers-layout .number { color: #38bdf8; font-size: 150px; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 30px rgba(56,189,248,0.5); }
+        .highlight-numbers-layout .number-label { font-size: 24px; font-weight: 700; color: #f8fafc; }
 
+        /* QA LAYOUT NEON */
         .qa-layout { margin: 0 auto; text-align: center; width: 100%; align-self: center; }
-        .qa-layout h2 { font-size: 80px; color: #0284c7; margin-bottom: 20px; }
+        .qa-layout h2 { font-size: 80px; color: #38bdf8; margin-bottom: 20px; text-shadow: 0 0 20px rgba(56,189,248,0.5); }
         .qa-layout p { font-size: 24px; }
-        .qa-layout .contact-info { color: #0f172a; font-size: 20px; font-weight: 700; margin-top: 40px; padding: 20px; background-color: #f8fafc; border-radius: 8px; display: inline-block; }
-    
-        /* BOTÃO FLUTUANTE DE VOLTAR */
-        .btn-floating-back {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #0f172a;
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        .qa-layout .contact-info { color: #f8fafc; font-size: 20px; font-weight: 700; margin-top: 40px; padding: 20px; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco Original)                */
+        /* ========================================================= */
+        body.theme-classic { background: #e2e8f0 !important; background-image: none !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+
+        body.theme-classic .btn-floating-back { background: #0f172a !important; border-color: transparent !important; }
+        body.theme-classic .btn-floating-back:hover { background: #0284c7 !important; }
+        body.theme-classic .btn-theme-toggle { background: rgba(0,0,0,0.5) !important; border-color: transparent !important; }
+        body.theme-classic .btn-theme-toggle:hover { background: #0284c7 !important; }
+
+        body.theme-classic .slide-container { background: #ffffff !important; border: none !important; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; backdrop-filter: none !important; }
+        
+        body.theme-classic .slide-container h1, body.theme-classic .slide-container h2 { color: #0f172a !important; text-shadow: none !important;}
+        body.theme-classic .slide-container h3 { color: #0284c7 !important; text-shadow: none !important;}
+        body.theme-classic .slide-container p, body.theme-classic .slide-container li, body.theme-classic .slide-container .subtitle, body.theme-classic .slide-container .number-label { color: #475569 !important; }
+        
+        body.theme-classic .slide-container h1 span { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .slide-container .slide-title { color: #0284c7 !important; border-bottom: none !important; padding-bottom: 0 !important; }
+
+        body.theme-classic .title-layout, body.theme-classic .content-wrapper, body.theme-classic .tile, body.theme-classic .highlight-numbers-layout > div:first-child, body.theme-classic .qa-layout .contact-info { 
+            background: #f8fafc !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important;
         }
-        .btn-floating-back:hover {
-            background: #0284c7;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.3);
-        }
+
+        body.theme-classic .table-layout { border: 1px solid #e2e8f0 !important; background: #ffffff !important; }
+        body.theme-classic .table-layout th { background: #0284c7 !important; color: #ffffff !important; border-bottom: none !important; }
+        body.theme-classic .table-layout td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important; }
+        body.theme-classic .table-layout tr:nth-child(even) td { background: #f8fafc !important; }
+        body.theme-classic .table-layout td strong { color: #0f172a !important; }
+
+        body.theme-classic .timeline-layout .timeline-line { background: #cbd5e1 !important; box-shadow: none !important;}
+        body.theme-classic .timeline-item::after { background: #ffffff !important; border-color: #0284c7 !important; box-shadow: none !important; }
+        body.theme-classic .timeline-item .responsavel { color: #0f172a !important; }
+
+        body.theme-classic .tile .icon { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .tile h3 { color: #0f172a !important; }
+        body.theme-classic .tile .responsavel { color: #0284c7 !important; }
+
+        body.theme-classic .slide-container.bleed-image-layout img.bleed-image-side { filter: none !important; border-left: none !important; }
+
+        body.theme-classic .highlight-numbers-layout .number { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .highlight-numbers-layout .number-label { color: #0f172a !important; }
+
+        body.theme-classic .qa-layout h2 { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .qa-layout .contact-info { color: #0f172a !important; }
     </style>
 </head>
 <body>
 
-<a href="modulo_estrategico.html" class="btn-floating-back">
-    <i class="fas fa-arrow-left"></i> Voltar ao Painel
-</a>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
 
-<div class="slide-container" id="slide1">
-    <div class="title-layout">
-        <h1>FATURAMENTO - <span>SUS</span></h1>
-        <p class="subtitle">Pipeline SoulMV & Base de Conhecimento NII-Portal</p>
-    </div>
-</div>
+    <a href="modulo_estrategico.html" class="btn-floating-back">
+        <i class="fas fa-arrow-left"></i> Voltar ao Painel
+    </a>
 
-<div class="slide-container" id="slide2">
-    <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
-    <div class="content-area">
-        <div class="table-layout">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">Etapa</th>
-                        <th style="width: 45%;">Fase do Processo</th>
-                        <th style="width: 45%;">Responsáveis</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>01</strong></td>
-                        <td>RECEPÇÃO (Alta no Sistema)</td>
-                        <td>Equipe de Recepção</td>
-                    </tr>
-                    <tr>
-                        <td><strong>02</strong></td>
-                        <td>ARQUIVO (Montagem do Prontuário)</td>
-                        <td>Equipe de Arquivo / SAME</td>
-                    </tr>
-                    <tr>
-                        <td><strong>03</strong></td>
-                        <td>TRIAGEM (Sisreg / AIH / Exames)</td>
-                        <td>Alexandre</td>
-                    </tr>
-                    <tr>
-                        <td><strong>04</strong></td>
-                        <td>FATURAMENTO (Lançamento SoulMV)</td>
-                        <td>Cristina e Carlos</td>
-                    </tr>
-                    <tr>
-                        <td><strong>05</strong></td>
-                        <td>AUDITORIA (Conferência Minuciosa)</td>
-                        <td>Bianca</td>
-                    </tr>
-                    <tr>
-                        <td><strong>06</strong></td>
-                        <td>GESTÃO DE PENDÊNCIAS</td>
-                        <td>Franck</td>
-                    </tr>
-                    <tr>
-                        <td><strong>07</strong></td>
-                        <td>APOIO NIR (Autorizações / APACs)</td>
-                        <td>Kamila</td>
-                    </tr>
-                    <tr>
-                        <td><strong>08</strong></td>
-                        <td>FECHAMENTO & EXPORTAÇÃO</td>
-                        <td>Franck</td>
-                    </tr>
-                </tbody>
-            </table>
+    <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+        <i class="fas fa-sun"></i>
+    </button>
+
+    <div class="slide-container" id="slide1">
+        <div class="title-layout">
+            <h1>FATURAMENTO - <span>SUS</span></h1>
+            <p class="subtitle">Pipeline SoulMV & Base de Conhecimento NII-Portal</p>
         </div>
     </div>
-</div>
 
-<div class="slide-container" id="slide3">
-    <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
-    <div class="content-area">
-        <div class="timeline-layout">
-            <div class="timeline-line"></div>
-            <div class="timeline-item">
-                <div class="content-wrapper">
-                    <h3>1. Recepção/Arquivo</h3>
-                    <p class="responsavel">Resp: Recepção / Arquivo</p>
-                    <p>Início com a alta do paciente. Montagem física do prontuário e anexação de documentos oficiais.</p>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="content-wrapper">
-                    <h3>2. Triagem</h3>
-                    <p class="responsavel">Resp: Alexandre</p>
-                    <p>Consulta em sistemas externos (Sisreg para emissão de AIH) e impressão de exames cruciais.</p>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="content-wrapper">
-                    <h3>3. Lançamento</h3>
-                    <p class="responsavel">Resp: Cristina / Carlos</p>
-                    <p>Entrada oficial dos dados (Faturamento) no sistema hospitalar SoulMV.</p>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="content-wrapper">
-                    <h3>4. Auditoria Base</h3>
-                    <p class="responsavel">Resp: Bianca</p>
-                    <p>Verificação se os lançamentos realizados no SoulMV estão consistentes com o prontuário.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="slide-container" id="slide4">
-    <h2 class="slide-title">Análise Crítica e Resolução</h2>
-    <div class="content-area">
-        <div class="tiled-content">
-            <div class="tile">
-                <div class="icon"><i class="fa-solid fa-list-check"></i></div>
-                <h3>Auditoria Final</h3>
-                <p class="responsavel">Bianca</p>
-                <p>Conferência minuciosa dos dados. Contas auditadas e limpas (Sinal Verde) seguem direto para a etapa de Fechamento.</p>
-            </div>
-            <div class="tile">
-                <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h3>Pendências</h3>
-                <p class="responsavel">Franck</p>
-                <p>Triagem de contas com problemas (Falta de NF, erro na Descrição Cirúrgica). Resolução dos entraves operacionais.</p>
-            </div>
-            <div class="tile">
-                <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
-                <h3>Apoio NIR</h3>
-                <p class="responsavel">Kamila</p>
-                <p>Resolução de autorizações complexas (Ex: Planejamento Familiar), e estruturação de faturamento para Laqueaduras e APACs.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="slide-container bleed-image-layout" id="slide5">
-    <div class="content-container">
-        <h2 class="slide-title">O Papel Estratégico do NIR</h2>
+    <div class="slide-container" id="slide2">
+        <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
         <div class="content-area">
-            <div class="bleed-text-side">
-                <h3>Apoio Técnico e Autorizações (Etapa 7)</h3>
-                <p>O trabalho do Núcleo Interno de Regulação (NIR) atua como um verdadeiro destravador do faturamento SUS, sendo um pilar essencial para o fluxo.</p>
-                <p>Conduzido de forma ágil por <strong>Kamila</strong>, o gerenciamento de autorizações complexas — como Planejamento Familiar, Laqueaduras e APACs — alivia substancialmente a carga operacional da Coordenação.</p>
-                <p>Sua atuação proativa garante que os prontuários cheguem à etapa final redondos e totalmente aptos para a exportação.</p>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Etapa</th>
+                            <th style="width: 45%;">Fase do Processo</th>
+                            <th style="width: 45%;">Responsáveis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>01</strong></td>
+                            <td>RECEPÇÃO (Alta no Sistema)</td>
+                            <td>Equipe de Recepção</td>
+                        </tr>
+                        <tr>
+                            <td><strong>02</strong></td>
+                            <td>ARQUIVO (Montagem do Prontuário)</td>
+                            <td>Equipe de Arquivo / SAME</td>
+                        </tr>
+                        <tr>
+                            <td><strong>03</strong></td>
+                            <td>TRIAGEM (Sisreg / AIH / Exames)</td>
+                            <td>Alexandre</td>
+                        </tr>
+                        <tr>
+                            <td><strong>04</strong></td>
+                            <td>FATURAMENTO (Lançamento SoulMV)</td>
+                            <td>Cristina e Carlos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>05</strong></td>
+                            <td>AUDITORIA (Conferência Minuciosa)</td>
+                            <td>Bianca</td>
+                        </tr>
+                        <tr>
+                            <td><strong>06</strong></td>
+                            <td>GESTÃO DE PENDÊNCIAS</td>
+                            <td>Franck</td>
+                        </tr>
+                        <tr>
+                            <td><strong>07</strong></td>
+                            <td>APOIO NIR (Autorizações / APACs)</td>
+                            <td>Kamila</td>
+                        </tr>
+                        <tr>
+                            <td><strong>08</strong></td>
+                            <td>FECHAMENTO & EXPORTAÇÃO</td>
+                            <td>Franck</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <div class="image-container">
-        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="">
-    </div>
-</div>
 
-<div class="slide-container bleed-image-layout" id="slide6">
-    <div class="content-container">
-        <h2 class="slide-title">A Visão da Coordenação</h2>
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
         <div class="content-area">
-            <div class="bleed-text-side">
-                <h3>Validação & Exportação (Etapa Final)</h3>
-                <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
-                <p>Sob a responsabilidade de <strong>Franck Moura (Coordenação)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
-                <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
+            <div class="timeline-layout">
+                <div class="timeline-line"></div>
+                <div class="timeline-item">
+                    <div class="content-wrapper">
+                        <h3>1. Recepção/Arquivo</h3>
+                        <p class="responsavel">Resp: Recepção / Arquivo</p>
+                        <p>Início com a alta do paciente. Montagem física do prontuário e anexação de documentos oficiais.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="content-wrapper">
+                        <h3>2. Triagem</h3>
+                        <p class="responsavel">Resp: Alexandre</p>
+                        <p>Consulta em sistemas externos (Sisreg para emissão de AIH) e impressão de exames cruciais.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="content-wrapper">
+                        <h3>3. Lançamento</h3>
+                        <p class="responsavel">Resp: Cristina / Carlos</p>
+                        <p>Entrada oficial dos dados (Faturamento) no sistema hospitalar SoulMV.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="content-wrapper">
+                        <h3>4. Auditoria Base</h3>
+                        <p class="responsavel">Resp: Bianca</p>
+                        <p>Verificação se os lançamentos realizados no SoulMV estão consistentes com o prontuário.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="image-container">
-        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="">
-    </div>
-</div>
 
-<div class="slide-container" id="slide7">
-    <h2 class="slide-title">Métricas do Fluxo SUS</h2>
-    <div class="content-area">
-        <div class="two-column highlight-numbers-layout">
-            <div>
-                <div class="number">08</div>
-                <div class="number-label">Pilares de Processamento</div>
-            </div>
-            <div>
-                <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
-                <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
-                <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais e maximiza o repasse governamental.</p>
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Análise Crítica e Resolução</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                    <h3>Auditoria Final</h3>
+                    <p class="responsavel">Bianca</p>
+                    <p>Conferência minuciosa dos dados. Contas auditadas e limpas (Sinal Verde) seguem direto para a etapa de Fechamento.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Pendências</h3>
+                    <p class="responsavel">Franck</p>
+                    <p>Triagem de contas com problemas (Falta de NF, erro na Descrição Cirúrgica). Resolução dos entraves operacionais.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                    <h3>Apoio NIR</h3>
+                    <p class="responsavel">Kamila</p>
+                    <p>Resolução de autorizações complexas (Ex: Planejamento Familiar), e estruturação de faturamento para Laqueaduras e APACs.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="slide-container" id="slide8">
-    <div class="qa-layout">
-        <h2>Dúvidas Adicionais?</h2>
-        <p>Acesse as portarias, manuais do sistema e documentos no portal.</p>
-        <div class="contact-info">
-            <i class="fa-solid fa-server" style="margin-right: 10px; color: #0284c7;"></i> github.com/franckmoura/NII-Portal
+    <div class="slide-container bleed-image-layout" id="slide5">
+        <div class="content-container">
+            <h2 class="slide-title">O Papel Estratégico do NIR</h2>
+            <div class="content-area">
+                <div class="bleed-text-side">
+                    <h3>Apoio Técnico e Autorizações (Etapa 7)</h3>
+                    <p>O trabalho do Núcleo Interno de Regulação (NIR) atua como um verdadeiro destravador do faturamento SUS, sendo um pilar essencial para o fluxo.</p>
+                    <p>Conduzido de forma ágil por <strong style="color:inherit;">Kamila</strong>, o gerenciamento de autorizações complexas — como Planejamento Familiar, Laqueaduras e APACs — alivia substancialmente a carga operacional da Coordenação.</p>
+                    <p>Sua atuação proativa garante que os prontuários cheguem à etapa final redondos e totalmente aptos para a exportação.</p>
+                </div>
+            </div>
+        </div>
+        <div class="image-container">
+            <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="Hospital interior">
         </div>
     </div>
-</div>
 
+    <div class="slide-container bleed-image-layout" id="slide6">
+        <div class="content-container">
+            <h2 class="slide-title">A Visão da Coordenação</h2>
+            <div class="content-area">
+                <div class="bleed-text-side">
+                    <h3>Validação & Exportação (Etapa Final)</h3>
+                    <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
+                    <p>Sob a responsabilidade de <strong style="color:inherit;">Franck Moura (Coordenação)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
+                    <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="image-container">
+            <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="Data analysis">
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Métricas do Fluxo SUS</h2>
+        <div class="content-area">
+            <div class="two-column highlight-numbers-layout">
+                <div>
+                    <div class="number">08</div>
+                    <div class="number-label">Pilares de Processamento</div>
+                </div>
+                <div>
+                    <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
+                    <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
+                    <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais e maximiza o repasse governamental.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide8">
+        <div class="qa-layout">
+            <h2>Dúvidas Adicionais?</h2>
+            <p>Acesse as portarias, manuais do sistema e documentos no portal.</p>
+            <div class="contact-info">
+                <i class="fa-solid fa-server" style="margin-right: 10px; color: #0284c7;"></i> github.com/franckmoura/NII-Portal
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
+        // ==========================================
+        function toggleTheme() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_flux', 'neon');
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_flux', 'classic');
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('nii_theme_flux');
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            // Padrão Inicial: Escuro (Neon)
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
+            } else {
+                document.body.classList.remove('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
+            }
+        });
+    </script>
 </body>
 </html>

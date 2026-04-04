@@ -52,7 +52,66 @@
             position: relative; z-index: 2; transition: 0.5s;
         }
 
-        .login-logo { max-width: 220px; height: auto; display: block; margin: 0 auto 20px auto; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); transition: 0.5s; }
+        /* ========================================================= */
+        /* ANIMAÇÃO BATIMENTO CARDÍACO NA LOGO (LOGIN)               */
+        /* ========================================================= */
+        .login-logo-container {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 220px; /* Largura da logo */
+            height: 90px;
+        }
+
+        .login-logo { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            position: relative;
+            z-index: 2; 
+            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); 
+            transition: 0.5s; 
+        }
+
+        .ecg-line {
+            position: absolute;
+            top: 75%; /* Ajuste a altura para passar no meio do coração das mãos */
+            left: -10%; 
+            width: 120%; 
+            height: 30px; 
+            transform: translateY(-50%);
+            z-index: 1; /* Fica atrás da logo */
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .ecg-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .ecg-svg path {
+            fill: none;
+            stroke: #10b981; /* Verde esmeralda (monitor UTI) no Neon */
+            stroke-width: 2; 
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px #10b981);
+            
+            stroke-dasharray: 30 70; 
+            stroke-dashoffset: 100;
+            animation: monitorEcg 2.5s linear infinite;
+        }
+
+        @keyframes monitorEcg {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+        /* Fim ECG */
+        /* ========================================================= */
 
         h2 { margin: 0; color: #ffffff; font-weight: 800; font-size: 26px; letter-spacing: 0.5px; }
         p { color: #94a3b8; font-size: 14px; margin-top: 5px; margin-bottom: 25px; font-weight: 400; }
@@ -94,6 +153,9 @@
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         
+        /* Cor da linha do batimento no tema Clássico (Dourado vibrante) */
+        body.theme-classic .ecg-svg path { stroke: #fbbf24; filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8)); }
+
         body.theme-classic .login-card {
             background: #ffffff !important; border: 1px solid #e2e8f0 !important;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
@@ -126,7 +188,16 @@
 
     <div class="login-card">
         <div class="login-header">
-            <img src="../logo.png" alt="Hospital Santa Helena" class="login-logo">
+            
+            <div class="login-logo-container">
+                <div class="ecg-line">
+                    <svg viewBox="0 0 100 20" class="ecg-svg" preserveAspectRatio="none">
+                        <path d="M 0,10 L 16,10 L 18,3 L 21,18 L 24,2 L 27,15 L 30,10 L 100,10" pathLength="100"></path>
+                    </svg>
+                </div>
+                <img src="../logo.png" alt="Hospital Santa Helena" class="login-logo header-logo-img" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            </div>
+
             <h2>Portal NII</h2>
             <p>Entre com suas credenciais de acesso</p>
         </div>
