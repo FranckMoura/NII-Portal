@@ -22,7 +22,7 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; background: #f3f4f6; color: #1e293b; padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; }
-        .header-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: white; padding: 25px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header-bg { background: linear-gradient(135deg, #001528 0%, #004e92 100%); color: white; padding: 25px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
         
         .dt-button { background: #004e92 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; }
@@ -58,47 +58,46 @@
         .btn-copy:hover { transform: scale(1.05); }
 
         /* ========================================================= */
-        /* EFEITO GLASSMORPHISM & 3D NEON (CORRIGIDO)                */
+        /* EFEITO GLASSMORPHISM & 3D NEON (TEMA AZUL PORTAL)         */
         /* ========================================================= */
         .tab-btn { padding: 12px 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: #64748b; background: transparent; outline: none; }
-        .tab-btn:hover { color: #0ea5e9; }
-        .tab-btn.active { color: #0ea5e9; border-bottom-color: #0ea5e9; text-shadow: 0 0 8px rgba(14, 165, 233, 0.5); }
+        .tab-btn:hover { color: #004e92; }
+        .tab-btn.active { color: #004e92; border-bottom-color: #004e92; text-shadow: 0 0 8px rgba(0, 78, 146, 0.4); }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Container Cyberpunk */
+        /* Container Cyberpunk (Agora em tons de Azul do Portal) */
         .cyber-container {
-            background: #090b14;
+            background: linear-gradient(135deg, #001528 0%, #004e92 100%);
             border-radius: 16px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
             position: relative;
             overflow: hidden;
             z-index: 1;
         }
 
-        /* LUZES NEON NO FUNDO (O SEGREDO DO VIDRO) */
-        .blob-1 { position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: rgba(14, 165, 233, 0.4); border-radius: 50%; filter: blur(100px); z-index: 0; pointer-events: none; }
-        .blob-2 { position: absolute; bottom: -100px; right: -50px; width: 350px; height: 350px; background: rgba(168, 85, 247, 0.3); border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none; }
+        /* LUZES NEON NO FUNDO (Ajustadas para combinar com o azul) */
+        .blob-1 { position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: rgba(56, 189, 248, 0.5); border-radius: 50%; filter: blur(100px); z-index: 0; pointer-events: none; }
+        .blob-2 { position: absolute; bottom: -100px; right: -50px; width: 350px; height: 350px; background: rgba(14, 165, 233, 0.4); border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none; }
 
         /* Grade suave por cima das luzes */
         .cyber-container::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 30px 30px; z-index: 0; pointer-events: none;
         }
 
         /* Cards KPI de Vidro REAL (Glassmorphism) */
         .glass-card {
-            background: rgba(255, 255, 255, 0.02); /* Quase totalmente transparente */
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            /* Borda superior e esquerda mais claras para dar efeito de reflexo de luz no vidro */
             border-top: 1px solid rgba(255, 255, 255, 0.2); 
             border-left: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
@@ -107,21 +106,21 @@
             z-index: 2;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             transform-style: preserve-3d;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.01);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
 
         /* Efeito 3D no Hover */
         .glass-card:hover {
             transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
-            background: rgba(255, 255, 255, 0.05); /* Fica ligeiramente mais claro ao passar o mouse */
-            box-shadow: -15px 15px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(14, 165, 233, 0.5); /* Borda acende em azul */
-            border-left: 1px solid rgba(14, 165, 233, 0.5);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(14, 165, 233, 0.6); 
+            border-left: 1px solid rgba(14, 165, 233, 0.6);
         }
 
         /* Gráficos de Vidro */
         .glass-chart-container {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -139,12 +138,12 @@
         .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5), 0 0 15px rgba(147,51,234,0.5); }
         .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5), 0 0 15px rgba(217,119,6,0.5); }
 
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #e2e8f0; font-weight: bold; margin-bottom: 8px; }
         .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; }
         
         .glass-chart-title {
-            color: #f1f5f9; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;
+            color: #f8fafc; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px;
         }
 
         /* OTIMIZAÇÃO DE IMPRESSÃO DO MODAL */
@@ -470,7 +469,7 @@ function atualizarBI(data) {
     arrEspec.sort((a,b) => b.qtd - a.qtd);
 
     if(chartEspecObj) chartEspecObj.destroy();
-    Chart.defaults.color = '#94a3b8'; 
+    Chart.defaults.color = '#e2e8f0'; 
     
     chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
         type: 'bar',
