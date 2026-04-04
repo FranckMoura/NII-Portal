@@ -35,9 +35,67 @@
         .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         
-        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
-        .header-logo { display: inline-block; margin-bottom: 15px; }
-        .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; z-index: 2; }
+        
+        /* ========================================================= */
+        /* ANIMAÇÃO BATIMENTO CARDÍACO NA LOGO                       */
+        /* ========================================================= */
+        .logo-container {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-logo-img { 
+            height: 75px; 
+            width: auto;
+            display: block; 
+            position: relative;
+            z-index: 2; /* A imagem fica na frente, a linha passa por TRÁS (aparecendo só no buraco do coração) */
+            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); 
+        }
+
+        .ecg-line {
+            position: absolute;
+            top: 68%; /* Abaixado para alinhar perfeitamente com o centro das mãos */
+            left: -5%; /* Começa um pouco antes da imagem */
+            width: 110%; /* Estica um pouco além da imagem */
+            height: 25px; /* Altura delicada e realista */
+            transform: translateY(-50%);
+            z-index: 1; /* Mágica: Fica atrás da logo */
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .ecg-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .ecg-svg path {
+            fill: none;
+            stroke: #10b981; /* Verde esmeralda brilhante (monitor UTI) */
+            stroke-width: 1.5; /* Traço fino e elegante */
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 5px #10b981);
+            
+            /* Cria o efeito do rastro luminoso viajando na linha */
+            stroke-dasharray: 30 70; /* 30% de linha, 70% de vazio */
+            stroke-dashoffset: 100;
+            animation: monitorEcg 2.5s linear infinite;
+        }
+
+        @keyframes monitorEcg {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        /* Fim da Animação ECG */
+        /* ========================================================= */
 
         header h1 { font-weight: 800; margin-bottom: 5px; font-size: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: white;}
         header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); color: rgba(255,255,255,0.8); }
@@ -53,7 +111,7 @@
         }
         .logout-btn:hover { background: rgba(255,255,255,0.3); }
         
-        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; z-index: 1;}
+        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; z-index: 1; position: relative;}
         
         .welcome-msg { 
             display: table; margin: 0 auto 35px auto; 
@@ -87,7 +145,7 @@
         .menu-card h3 { font-size: 1.4rem; margin-bottom: 12px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
         .menu-card p { font-size: 0.95rem; color: #94a3b8; line-height: 1.5; margin: 0; font-weight: 400; }
         
-        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; background: transparent; margin-top: 40px; }
+        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; background: transparent; margin-top: 40px; position: relative; z-index: 1;}
 
         /* ICONES DINÂMICOS (NEON) */
         .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
@@ -101,6 +159,9 @@
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         
+        /* Cor da linha do batimento no tema Clássico (Dourado vibrante) */
+        body.theme-classic .ecg-svg path { stroke: #fbbf24; filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.8)); }
+
         body.theme-classic .welcome-msg { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); }
 
         body.theme-classic .menu-card {
@@ -133,7 +194,16 @@
         </button>
         <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         
-        <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
+        <div class="logo-container">
+            <div class="ecg-line">
+                <svg viewBox="0 0 100 20" class="ecg-svg" preserveAspectRatio="none">
+                    <path d="M 0,10 L 16,10 L 18,5 L 21,18 L 24,2 L 27,14 L 30,10 L 100,10" pathLength="100"></path>
+                </svg>
+            </div>
+            
+            <img src="../logo.png" alt="Hospital Santa Helena" class="header-logo-img" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+        </div>
+
         <h1>Hospital Beneficente Santa Helena</h1>
         <p>NII - Núcleo Interno de Informação</p>
     </header>
@@ -142,7 +212,6 @@
         <div class="welcome-msg" id="saudacao">Carregando...</div>
 
         <div class="menu-grid">
-            
             <a href="modulo_operacional.html" class="menu-card">
                 <div class="icon-box icon-blue"><i class="fas fa-cogs"></i></div>
                 <h3>Operacional</h3>
@@ -160,7 +229,6 @@
                 <h3>Estratégico</h3>
                 <p>Metas, Produção Cirúrgica, Arquivos e Simuladas.</p>
             </a>
-
         </div>
     </main>
 
