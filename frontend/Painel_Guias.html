@@ -271,7 +271,7 @@
         </div>
     </div>
 
-    <script>
+<script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
@@ -338,25 +338,38 @@
             carregarDadosDoSupabase();
         });
 
+        // =========================================================
+        // MOTOR DE BUSCA OTIMIZADO (PARALELO + LEVE)
+        // =========================================================
         async function carregarDadosDoSupabase() {
             try {
-                let allData = [];
-                let from = 0; 
-                let step = 1000; 
-                let keepFetching = true;
+                // 1. Descobre a quantidade exata de registros
+                const { count, error: countError } = await client
+                    .from('guias_unimed')
+                    .select('*', { count: 'exact', head: true });
 
-                while (keepFetching) {
-                    const { data, error } = await client.from('guias_unimed').select('*').range(from, from + step - 1);
-                    if (error) throw error;
-                    
-                    if (data && data.length > 0) {
-                        allData = allData.concat(data);
-                        from += step;
-                    }
-                    if (!data || data.length < step) {
-                        keepFetching = false;
-                    }
+                if (countError) throw countError;
+
+                $('#loader h3').text(`Download Rápido: ${count.toLocaleString('pt-BR')} Guias`);
+
+                // 2. Dispara requisições em paralelo (Apenas colunas leves, sem o JSON)
+                const step = 1000;
+                const promises = [];
+                for (let i = 0; i < count; i += step) {
+                    promises.push(
+                        client.from('guias_unimed')
+                              .select('id, beneficiario, carteirinha, guia, tipo, procedimento, codigo, especialidade, prestador, emissao')
+                              .range(i, i + step - 1)
+                    );
                 }
+
+                // Espera todas as conexões terminarem ao mesmo tempo
+                const results = await Promise.all(promises);
+                let allData = [];
+                results.forEach(res => {
+                    if (res.error) console.error(res.error);
+                    if (res.data) allData = allData.concat(res.data);
+                });
 
                 datasetLocal = allData;
                 $('#loader').hide();
@@ -410,7 +423,6 @@
                     { data: 'prestador', render: function(d) { return d ? `<span class="text-xs uppercase dyn-text-muted" title="${d}">${d.length > 20 ? d.substring(0,20)+'...' : d}</span>` : '-'; } },
                     { data: 'emissao' },
                     { data: null, render: function(data, type, row) {
-                        // Passa o ID da linha para buscar depois, não a string inteira
                         return `<button class="btn-detalhes" onclick="abrirModalPorId(${row.id})"><i class="fas fa-eye"></i> Detalhes</button>`;
                     }, className: "text-center" }
                 ],
@@ -444,32 +456,52 @@
             tabela.draw();
         }
 
-        function abrirModalPorId(id) {
-            const row = datasetLocal.find(d => d.id === id);
-            if(!row) return;
-
-            // Se os dados completos (todas as 25+ colunas) estiverem num JSON dentro de 'dados_completos'
-            let dadosDetalhes = row.dados_completos || row; 
-
+        // =========================================================
+        // DETALHAMENTO SOB DEMANDA (LAZY LOAD DO JSONB)
+        // =========================================================
+        async function abrirModalPorId(id) {
             const container = $('#modalConteudo');
-            container.empty();
+            
+            // Estado de Carregamento Temporário
+            container.html(`
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin text-4xl dyn-text-accent"></i>
+                    <p class="mt-4 dyn-text-muted">Buscando espelho da guia no servidor...</p>
+                </div>
+            `);
+            $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
 
-            const ignorar = ["id", "dados_completos"];
+            try {
+                // Vai ao banco APENAS para pegar os dados desta linha específica
+                const { data, error } = await client.from('guias_unimed').select('dados_completos').eq('id', id).single();
+                if(error) throw error;
 
-            for (const [chave, valor] of Object.entries(dadosDetalhes)) {
-                if (ignorar.includes(chave.toLowerCase())) continue;
+                let dadosDetalhes = data.dados_completos || {}; 
+                container.empty();
                 
-                let valFormatado = valor;
-                if (!valFormatado || valFormatado === "-") valFormatado = "<span class='dyn-text-muted italic'>Não informado</span>";
+                const ignorar = ["id", "dados_completos"];
 
-                container.append(`
-                    <div class="detalhe-item">
-                        <div class="detalhe-label">${chave.replace(/_/g, ' ')}</div>
-                        <div class="detalhe-valor">${valFormatado}</div>
+                for (const [chave, valor] of Object.entries(dadosDetalhes)) {
+                    if (ignorar.includes(chave.toLowerCase())) continue;
+                    
+                    let valFormatado = valor;
+                    if (!valFormatado || valFormatado === "-") valFormatado = "<span class='dyn-text-muted italic'>Não informado</span>";
+
+                    container.append(`
+                        <div class="detalhe-item">
+                            <div class="detalhe-label">${chave.replace(/_/g, ' ')}</div>
+                            <div class="detalhe-valor">${valFormatado}</div>
+                        </div>
+                    `);
+                }
+            } catch (e) {
+                container.html(`
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #ef4444;">
+                        <i class="fas fa-times-circle text-4xl"></i>
+                        <p class="mt-4 font-bold">Falha ao buscar os detalhes.</p>
                     </div>
                 `);
             }
-            $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
         }
 
         function fecharModal() { $('#modalDetalhes').fadeOut(200); }
