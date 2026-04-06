@@ -341,26 +341,55 @@
         const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trab", "04": "Acid. Trâns", "05": "Outras", "06": "Outros" };
 
         // =========================================================
-        // DICIONÁRIOS MESTRES DE PROCEDIMENTOS E CBO (Com Injeções do CSV)
+        // DICIONÁRIOS MESTRES DE PROCEDIMENTOS (Com Injeções Extra)
+        // Se precisar de mais algum, basta copiar a linha e alterar o código e o nome!
         // =========================================================
         const DIC_SIGTAP = { 
-            "0403010098": "PARTO CESARIANO", "0403010012": "PARTO NORMAL", "0409060135": "APENDICECTOMIA", 
-            "0802010164": "DIÁRIA UTI TIPO II", "0204030170": "HEMOGRAMA COMPLETO", "0202010473": "HEMOCULTURA", 
-            "0204020060": "DOSAGEM CREATININA", "0301060061": "ATENDIMENTO DE URGÊNCIA", "0301010072": "CONSULTA MÉDICA ESP",
-            "0204030030": "COAGULOGRAMA", "0204020116": "GLICEMIA", "0214010015": "GLICOSE", 
-            "0301010048": "ATENDIMENTO MÉDICO", "0204020230": "UREIA", "0204020205": "SÓDIO", "0204020191": "POTÁSSIO",
-            "0407040129": "HERNIOPLASTIA INGUINAL", "0409060070": "COLECISTECTOMIA", "0408050101": "OSTEOSSÍNTESE",
-            "0303140046": "TRATAMENTO DE DOENÇAS BACTERIANAS", "0303070064": "TRATAMENTO DE DOENÇAS DO ESÔFAGO/ESTÔMAGO",
-            "0411010042": "PARTO CESARIANO ALTO RISCO"
+            "0310010039": "PARTO NORMAL",
+            "0411010034": "PARTO CESARIANO",
+            "0303160063": "TTO. DE TRANSTORNOS RESPIRATORIOS/CARDIOVASCULARES NO PERIODO NEONATAL",
+            "0303160039": "TTO. DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL",
+            "0411010042": "PARTO CESARIANO C/ LAQUEADURA TUBARIA",
+            "0303140151": "TTO. DE PNEUMONIAS OU INFLUENZA (GRIPE)",
+            "0303100044": "TTO. DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ",
+            "0303010037": "TTO. DE OUTRAS DOENCAS BACTERIANAS",
+            "0415010012": "TRATAMENTO C/ CIRURGIAS MULTIPLAS",
+            "0303140046": "TTO. DE DOENCAS CRONICAS DAS VIAS AEREAS INFERIORES",
+            "0303160055": "TTO. DE TRANSTORNOS RELACIONADOS A DURACAO DA GESTACAO",
+            "0301060061": "ATENDIMENTO DE URGENCIA EM CLINICA MEDICA",
+            "0303060212": "TTO. DE INSUFICIENCIA CARDIACA",
+            "0303040149": "TTO. DE ACIDENTE VASCULAR CEREBRAL (AVC)",
+            "0409060070": "ESVAZIAMENTO DE UTERO POS-ABORTO POR AMIU",
+            "0409060135": "APENDICECTOMIA",
+            "0407040064": "HERNIOPLASTIA INCISIONAL",
+            "0407040030": "HERNIOPLASTIA UMBILICAL",
+            "0407040129": "HERNIOPLASTIA INGUINAL",
+            "0407010270": "TTO. CIRURGICO DE ACALASIA",
+            "0303060018": "TTO. DE ANEURISMA DA AORTA",
+            "0407020276": "FISTULECTOMIA / FISTULOTOMIA ANAL",
+            "0303020067": "TTO. DE DEFEITOS DA COAGULACAO",
+            "0409060046": "CURETAGEM SEMIOTICA C/ OU S/ DILATACAO DO COLO",
+            "0409070254": "OOFORECTOMIA / OOFORO-SALPINGECTOMIA",
+            "0802010164": "DIÁRIA UTI TIPO II",
+            "0204030170": "HEMOGRAMA COMPLETO",
+            "0202010473": "HEMOCULTURA",
+            "0204020060": "DOSAGEM CREATININA",
+            "0204030030": "COAGULOGRAMA",
+            "0204020116": "GLICEMIA",
+            "0214010015": "GLICOSE",
+            "0204020230": "UREIA",
+            "0204020205": "SODIO",
+            "0204020191": "POTASSIO"
         };
+
         const DIC_CBO = { 
             "225250": "Cirurgião Geral", "225125": "Clínico Geral", "225124": "Pediatra", 
             "225203": "Cirurgião Vascular", "225255": "Mastologista", "225225": "Cirurgião Pediátrico", 
             "225265": "Traumatologista", "223505": "Enfermeiro", "225120": "Cardiologista", "225270": "Ortopedista"
         };
 
-        // AS FUNÇÕES DE TRADUÇÃO (Corrigidas Definitivamente)
-        function traduzirFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; }
+        // AS FUNÇÕES DE TRADUÇÃO CORRIGIDAS
+        function getDictFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; }
         function getDictNome(cod, dic) { return dic[cod] ? `<span class="text-gray-400 font-normal">[${cod}]</span> ${dic[cod]}` : `<span class="text-gray-400 font-normal">[${cod}]</span> Sem Descrição`; }
 
         function alternarURV() {
@@ -522,7 +551,6 @@
                     atualizarPainelReativo(); return;
                 }
 
-                // BUSCA DO SP POR CHUNKS (Mapeamento Seguro e Blindado)
                 $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A mapear Itens SP... (Aguarde)`);
                 let aihs = [...new Set(MATRIZ_RD_BASE.map(d => d.n_aih).filter(Boolean))];
                 MATRIZ_SP_BASE = [];
@@ -566,23 +594,24 @@
             let procsRD = [...new Set(MATRIZ_RD_BASE.map(d => d.dados_completos?.PROC_REA).filter(Boolean))].sort();
             let cidsRD = [...new Set(MATRIZ_RD_BASE.map(d => d.diag_princ).filter(Boolean))].sort();
 
-            procsRD.forEach(p => $proc.append(new Option(traduzirFiltro(p, DIC_SIGTAP), p, false, false)));
+            procsRD.forEach(p => $proc.append(new Option(getDictFiltro(p, DIC_SIGTAP), p, false, false)));
             cidsRD.forEach(c => $cid.append(new Option(c, c, false, false)));
+
             $proc.select2({ placeholder: "Proc. Principal da Conta (RD)...", allowClear: true, closeOnSelect: false });
             $cid.select2({ placeholder: "Doenças (CID-10)...", allowClear: true, closeOnSelect: false });
 
             const $spProc = $('#filtro-sp-proc'); const $spCbo = $('#filtro-sp-cbo');
             $spProc.empty().prop('disabled', false); $spCbo.empty().prop('disabled', false);
 
-            // Blindagem extra para SPs vazios
             let cbosTratados = MATRIZ_SP_BASE.map(d => d.sp_cbo).filter(c => c && c.trim() !== "");
             let procsTratados = MATRIZ_SP_BASE.map(d => d.sp_proced).filter(p => p && p.trim() !== "");
 
             let procsSP = [...new Set(procsTratados)].sort();
             let cbosSP = [...new Set(cbosTratados)].sort();
 
-            procsSP.forEach(p => $spProc.append(new Option(traduzirFiltro(p, DIC_SIGTAP), p, false, false)));
-            cbosSP.forEach(c => $spCbo.append(new Option(traduzirFiltro(c, DIC_CBO), c, false, false)));
+            procsSP.forEach(p => $spProc.append(new Option(getDictFiltro(p, DIC_SIGTAP), p, false, false)));
+            cbosSP.forEach(c => $spCbo.append(new Option(getDictFiltro(c, DIC_CBO), c, false, false)));
+
             $spProc.select2({ placeholder: "Materiais/Exames nos Itens (SP)...", allowClear: true, closeOnSelect: false });
             $spCbo.select2({ placeholder: "Especialidade Médica (CBO)...", allowClear: true, closeOnSelect: false });
 
@@ -645,7 +674,7 @@
                     
                     tbodyHtml += `
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
-                            <td class="font-mono text-[0.8rem] truncate max-w-[200px]" title="${r.proc}">${pNome}</td>
+                            <td class="font-mono text-[0.8rem] truncate max-w-[200px]" title="${DIC_SIGTAP[r.proc]||r.proc}">${pNome}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
                             <td class="text-center font-bold text-orange-400">${r.q2}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
@@ -656,7 +685,7 @@
                 } else {
                     tbodyHtml += `
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
-                            <td class="font-mono text-[0.8rem] truncate max-w-[250px]" title="${r.proc}">${pNome}</td>
+                            <td class="font-mono text-[0.8rem] truncate max-w-[250px]" title="${DIC_SIGTAP[r.proc]||r.proc}">${pNome}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
