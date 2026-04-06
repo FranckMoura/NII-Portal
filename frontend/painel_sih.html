@@ -91,34 +91,39 @@
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
         /* ==================================================================== */
-        /* CSS INTELIGENTE E CORRIGIDO PARA IMPRESSÃO PERFEITA                  */
+        /* CSS BLINDADO PARA IMPRESSÃO PERFEITA NO CHROME/EDGE                  */
         /* ==================================================================== */
         @media print {
-            /* Força fundo branco e texto preto na página inteira */
-            html, body { background: white !important; color: black !important; min-height: auto !important; position: static !important; }
+            /* 1. Transforma o fundo inteiro em branco e tira cores escuras */
+            body, html { background: #FFFFFF !important; color: #000000 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             
-            /* Remove os elementos de fundo que causam ecrã em branco */
-            .blob-1, .blob-2, body::before { display: none !important; }
+            /* 2. Esconde menus interativos, bolhas de luz e fundos */
+            .no-print, .btn-theme, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate, button, .blob-1, .blob-2, body::before { display: none !important; }
             
-            /* Esconde menus, controlos do datatables e botões */
-            .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, button { display: none !important; }
+            /* 3. Formata os cartões de vidro para caixas com bordas sólidas */
+            .glass-card { background: #FFFFFF !important; border: 1px solid #000000 !important; color: #000000 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 20px !important; }
             
-            /* Formata as grelhas e cartões para não quebrarem o layout no papel */
-            .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; margin-bottom: 20px !important; }
-            #kpi-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
+            /* 4. Força os textos a ficarem pretos */
+            .text-white, .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { color: #000000 !important; text-shadow: none !important; }
+            .text-emerald-400, .text-blue-400, .text-orange-400, .text-red-400, .text-red-500 { color: #000000 !important; font-weight: bold !important; }
             
-            .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { text-shadow: none !important; color: black !important; }
+            /* 5. Tabelas robustas */
             table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ccc !important; color: black !important; padding: 6px !important; }
+            th, td { border: 1px solid #333 !important; color: #000000 !important; padding: 4px !important; }
             
-            /* Se estiver a imprimir o ESPELHO DA AIH (Modal) */
-            body.printing-modal * { visibility: hidden; }
-            body.printing-modal #espelho-modal, body.printing-modal #espelho-modal * { visibility: visible; }
-            body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; display: block; background: white !important; }
-            body.printing-modal .modal-content { border: none; box-shadow: none; padding: 0; margin: 0; background: white !important; color: black !important; }
-            body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 10px; }
-            body.printing-modal .aih-section { border-bottom: 2px solid black !important; margin-top: 20px; color: black !important; }
-            body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
+            /* 6. Layout Grid para os KPIs (lado a lado na folha) */
+            #kpi-grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+            #kpi-grid > div { flex: 1 1 20% !important; min-width: 150px !important; }
+            
+            /* ======================================= */
+            /* MODO: IMPRIMIR APENAS O ESPELHO DA AIH  */
+            /* ======================================= */
+            body.printing-modal .d-none-print { display: none !important; }
+            body.printing-modal .print-mode { position: relative !important; display: block !important; width: 100% !important; height: auto !important; background: #FFFFFF !important; }
+            body.printing-modal .modal-content { border: none !important; box-shadow: none !important; padding: 0 !important; max-height: none !important; max-width: 100% !important; }
+            body.printing-modal .aih-box { border: 1px solid #333 !important; padding: 5px !important; margin-bottom: 5px !important; }
+            body.printing-modal .aih-section { border-bottom: 2px solid #000 !important; margin-top: 15px !important; color: #000 !important; }
         }
     </style>
 </head>
@@ -191,7 +196,7 @@
         </div>
     </div>
 
-    <div class='header-bg shadow-lg mb-6 no-print'>
+    <div class='header-bg shadow-lg mb-6 d-none-print'>
         <div class='max-w-[98%] mx-auto px-4'>
             
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -205,7 +210,10 @@
                 
                 <div class="flex items-center flex-wrap gap-3">
                     <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
-                    <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg border border-pink-400/50 shadow text-sm flex items-center"><i class="fas fa-syringe mr-2"></i> Auditoria SP</a>
+                    
+                    <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg border border-pink-400/50 shadow text-sm flex items-center transition-colors">
+                        <i class="fas fa-syringe mr-2"></i> Auditoria de Itens (SP)
+                    </a>
 
                     <label class="relative inline-flex items-center cursor-pointer mr-2" title="Mostrar/Ocultar Cálculo URV">
                         <input type="checkbox" id="toggle-urv" class="sr-only peer" checked onchange="alternarURV()">
@@ -238,12 +246,12 @@
                         </select>
                     </div>
 
-                    <button onclick="baixarDadosCompletos()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg border border-blue-400/50 shadow"><i class="fas fa-bolt mr-2"></i> Atualizar</button>
-                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg border border-gray-400/50 shadow"><i class="fas fa-print mr-2"></i> Imprimir</button>
+                    <button onclick="baixarDadosCompletos()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg border border-blue-400/50 shadow transition-colors"><i class="fas fa-bolt mr-2"></i> Atualizar</button>
+                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg border border-gray-400/50 shadow transition-colors"><i class="fas fa-print mr-2"></i> Imprimir</button>
                 </div>
             </div>
 
-            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20 no-print">
+            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20">
                 <div>
                     <label class="block text-xs uppercase text-cyan-500 mb-1 font-bold"><i class="fas fa-stethoscope mr-1"></i> Filtrar Procedimento Principal</label>
                     <select id="filtro-proc" multiple="multiple" class="w-full"></select>
@@ -256,15 +264,15 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 relative z-10">
+    <div class="max-w-[98%] mx-auto px-4 relative z-10 d-none-print-wrapper">
         
         <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
-                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Faturação SUS</div>
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Faturação SUS (Ano Base)</div>
                 <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
             </div>
             <div class="glass-card p-5 text-center border-b-4 border-cyan-500">
-                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume AIHs</div>
+                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume AIHs (Ano Base)</div>
                 <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
             </div>
             <div class="glass-card p-5 text-center border-b-4 border-purple-500">
@@ -282,16 +290,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full table-auditoria" id="tabela-resumo">
                     <thead>
-                        <tr>
-                            <th>Procedimento (SIGTAP)</th>
-                            <th class="text-center bg-blue-900/20" id="th-qtd1">Qtd (Base)</th>
-                            <th class="text-center bg-orange-900/20 col-comp hidden" id="th-qtd2">Qtd (Comp)</th>
-                            <th class="text-center col-comp hidden">Δ Qtd</th>
-                            <th class="text-right bg-blue-900/20" id="th-val1">Valor (Base)</th>
-                            <th class="text-right bg-orange-900/20 col-comp hidden" id="th-val2">Valor (Comp)</th>
-                            <th class="text-right col-comp hidden">Δ % Valor</th>
-                        </tr>
-                    </thead>
+                        </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -299,7 +298,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="glass-card p-5 lg:col-span-1">
-                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-microscope mr-1 text-orange-400"></i> Auditoria de Blocos</div>
+                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-microscope mr-1 text-orange-400"></i> Auditoria de Blocos (Ano Base)</div>
                 <table class="w-full table-auditoria">
                     <thead><tr><th>Bloco Faturado</th><th class="text-center">Qtd</th><th class="text-right">Média</th><th class="text-right">Total</th></tr></thead>
                     <tbody id="auditoria-body"></tbody>
@@ -354,8 +353,28 @@
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
-        function imprimirPainelGeral() { document.body.classList.remove('printing-modal'); window.print(); }
-        function imprimirEspelhoAIH() { document.body.classList.add('printing-modal'); window.print(); setTimeout(() => document.body.classList.remove('printing-modal'), 1000); }
+        // MÁGICA DA IMPRESSÃO ISOLADA E CORRIGIDA
+        function imprimirPainelGeral() { 
+            window.print(); 
+        }
+
+        function imprimirEspelhoAIH() { 
+            // Adiciona classes para o CSS esconder a página base e focar no modal
+            $('.d-none-print').addClass('d-none-print-active');
+            $('.d-none-print-wrapper').addClass('d-none-print-active');
+            $('#espelho-modal').removeClass('modal-overlay').addClass('print-mode');
+            document.body.classList.add('printing-modal');
+            
+            window.print(); 
+            
+            // Restaura tudo após 1 segundo
+            setTimeout(() => {
+                document.body.classList.remove('printing-modal');
+                $('.d-none-print').removeClass('d-none-print-active');
+                $('.d-none-print-wrapper').removeClass('d-none-print-active');
+                $('#espelho-modal').addClass('modal-overlay').removeClass('print-mode');
+            }, 1000); 
+        }
 
         function abrirEspelhoAIH(numAih) {
             const row = MATRIZ_DADOS.find(d => d.n_aih === numAih || (d.dados_completos && d.dados_completos.N_AIH === numAih));
@@ -429,12 +448,12 @@
             }
             selectAno.value = "2026"; 
 
-            $('#filtro-proc, #filtro-cid').select2({ placeholder: "Aguardar Dados...", disabled: true, width: '100%' });
+            $('#filtro-proc, #filtro-cid').select2({ placeholder: "A aguardar Dados...", disabled: true, width: '100%' });
             
             baixarDadosCompletos();
         });
 
-        // MOTOR ASSÍNCRONO POR BLOCOS (PAGINAÇÃO) PARA NÃO TRAVAR O NAVEGADOR
+        // MOTOR ASSÍNCRONO POR BLOCOS (PAGINAÇÃO) PARA NÃO CONGELAR O NAVEGADOR
         async function fetchAnoPorBlocos(ano, mes, tituloStatus) {
             let matrizTemp = [];
             let temMais = true;
@@ -451,7 +470,7 @@
                 if (data && data.length > 0) {
                     matrizTemp = matrizTemp.concat(data);
                     inicio += data.length;
-                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A carregar ${tituloStatus}... (${matrizTemp.length} AIHs)`);
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A extrair ${tituloStatus}... (${matrizTemp.length} AIHs)`);
                     if (data.length < tamanhoLote) temMais = false;
                 } else {
                     temMais = false;
@@ -465,7 +484,7 @@
             const anoComp = $('#filtro-ano-comp').val();
             const mes = $('#filtro-mes').val();
             
-            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A iniciar extração...`);
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A iniciar nuvem...`);
             
             try {
                 // 1. Descarrega Ano Base
@@ -488,7 +507,7 @@
 
             } catch (err) {
                 console.error(err);
-                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Falha na Nuvem</span>`);
+                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Erro de Nuvem</span>`);
             }
         }
 
@@ -496,7 +515,6 @@
             const $proc = $('#filtro-proc'); const $cid = $('#filtro-cid');
             $proc.empty().prop('disabled', false); $cid.empty().prop('disabled', false);
 
-            // Junta os procedimentos de ambos os anos para garantir que o filtro funciona
             const todosOsDados = MATRIZ_DADOS.concat(MATRIZ_COMP);
             let procsUnicos = [...new Set(todosOsDados.map(d => d.dados_completos?.PROC_REA).filter(Boolean))].sort();
             let cidsUnicos = [...new Set(todosOsDados.map(d => d.diag_princ).filter(Boolean))].sort();
@@ -516,6 +534,7 @@
             const cidsEscolhidos = $('#filtro-cid').val() || [];
             const anoBase = $('#filtro-ano').val();
             const anoComp = $('#filtro-ano-comp').val();
+            const usouComp = anoComp !== "";
             const isClassic = document.body.classList.contains('theme-classic');
 
             // --- PROCESSA ANO BASE ---
@@ -538,7 +557,6 @@
             $('#kpi-ticket').text(dadosBase.length > 0 ? formatBRL(tVal / dadosBase.length) : 'R$ 0,00');
             $('#kpi-urv').text(formatBRL(tSh * 0.0956));
 
-            // Auditoria Secundária (Ano Base)
             const media = (v, q) => q > 0 ? formatBRL(v/q) : '-';
             const classCor = (q) => isClassic && q > 0 ? 'text-blue-700 font-bold' : (q > 0 ? 'text-blue-400 font-bold' : 'text-gray-500');
 
@@ -549,9 +567,94 @@
                 <tr><td class="font-bold">Diárias UTI</td><td class="text-center ${classCor(aud.uti.qtd)}">${aud.uti.qtd}</td><td class="text-right text-emerald-400">${media(aud.uti.val, aud.uti.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.uti.val)}</td></tr>
             `);
 
+            // --- PROCESSA A TABELA DE RESUMO E COMPARAÇÃO DINÂMICA ---
+            let dadosComp = MATRIZ_COMP;
+            if (procsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
+            if (cidsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => cidsEscolhidos.includes(d.diag_princ));
+
+            let resumoAgrupado = {};
+
+            dadosBase.forEach(d => {
+                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[proc].q1++;
+                resumoAgrupado[proc].v1 += parseFloat(d.val_tot || 0);
+            });
+
+            dadosComp.forEach(d => {
+                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[proc].q2++;
+                resumoAgrupado[proc].v2 += parseFloat(d.val_tot || 0);
+            });
+
+            // Constrói o cabeçalho dinamicamente
+            let theadHtml = '';
+            if (usouComp) {
+                theadHtml = `<tr>
+                    <th>Procedimento (SIGTAP)</th>
+                    <th class="text-center bg-blue-900/20">Qtd (${anoBase})</th>
+                    <th class="text-center bg-orange-900/20">Qtd (${anoComp})</th>
+                    <th class="text-center">Δ Qtd</th>
+                    <th class="text-right bg-blue-900/20">Valor (${anoBase})</th>
+                    <th class="text-right bg-orange-900/20">Valor (${anoComp})</th>
+                    <th class="text-right">Variação (R$)</th>
+                    <th class="text-right">Δ %</th>
+                </tr>`;
+            } else {
+                theadHtml = `<tr>
+                    <th>Procedimento (SIGTAP)</th>
+                    <th class="text-center bg-blue-900/20">Qtd (${anoBase})</th>
+                    <th class="text-right bg-blue-900/20">Valor (${anoBase})</th>
+                </tr>`;
+            }
+            $('#tabela-resumo thead').html(theadHtml);
+
+            // Constrói o corpo da tabela dinamicamente
+            let tbodyHtml = '';
+            Object.values(resumoAgrupado).sort((a,b) => b.v1 - a.v1).forEach(r => {
+                if (usouComp) {
+                    let varQtd = r.q1 - r.q2;
+                    let varVal = r.v1 - r.v2;
+                    let pctVal = r.v2 > 0 ? (varVal / r.v2) * 100 : (r.v1 > 0 ? 100 : 0);
+                    
+                    let corQtd = varQtd >= 0 ? 'text-emerald-400' : 'text-red-400';
+                    let corVal = varVal >= 0 ? 'text-emerald-400' : 'text-red-400';
+                    let sinalQtd = varQtd > 0 ? '+' : '';
+                    let sinalVal = varVal > 0 ? '+' : '';
+                    
+                    tbodyHtml += `
+                        <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
+                            <td class="font-mono text-sm">${r.proc}</td>
+                            <td class="text-center font-bold text-blue-400">${r.q1}</td>
+                            <td class="text-center font-bold text-orange-400">${r.q2}</td>
+                            <td class="text-center font-bold ${corQtd}">${sinalQtd}${varQtd}</td>
+                            <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
+                            <td class="text-right font-mono font-bold text-orange-400">${formatBRL(r.v2)}</td>
+                            <td class="text-right font-mono font-bold ${corVal}">${sinalVal}${formatBRL(varVal)}</td>
+                            <td class="text-right font-bold ${corVal}">${sinalVal}${pctVal.toFixed(1)}%</td>
+                        </tr>
+                    `;
+                } else {
+                    tbodyHtml += `
+                        <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
+                            <td class="font-mono text-sm">${r.proc}</td>
+                            <td class="text-center font-bold text-blue-400">${r.q1}</td>
+                            <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (Object.keys(resumoAgrupado).length === 0) {
+                tbodyHtml = `<tr><td colspan="8" class="text-center text-gray-500 py-4">Sem dados para exibir. Selecione os filtros acima.</td></tr>`;
+            }
+            $('#tabela-resumo tbody').html(tbodyHtml);
+
             // --- PROCESSA A TABELA ANALÍTICA (DataTables) ---
             if (dtTabela) dtTabela.destroy();
             let htmlTabela = '';
+            // Limita a 3000 linhas visuais para o navegador não bloquear (O Excel baixa tudo!)
             dadosBase.slice(0, 3000).forEach(d => {
                 const n = d.dados_completos?.N_AIH || '-';
                 const linkAih = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n}')" class="${isClassic ? 'text-blue-700 hover:text-blue-500' : 'text-blue-400 hover:text-blue-300'} underline decoration-blue-500/50"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n}</a>`;
@@ -561,68 +664,8 @@
                 <td class="text-right font-bold text-emerald-500">${formatBRL(d.val_tot)}</td></tr>`;
             });
             $('#tabela-aih tbody').html(htmlTabela);
-            dtTabela = $('#tabela-aih').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json' }, pageLength: 10, order: [[7, 'desc']], responsive: true, dom: 'lBrtip', buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Tabela Completa (Excel)', className: 'dt-button' }] });
+            dtTabela = $('#tabela-aih').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json' }, pageLength: 10, order: [[7, 'desc']], responsive: true, dom: 'lBrtip', buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Tabela Analítica (Excel)', className: 'dt-button' }] });
 
-            // --- PROCESSA A TABELA DE RESUMO E COMPARAÇÃO ---
-            let dadosComp = MATRIZ_COMP;
-            if (procsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
-            if (cidsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => cidsEscolhidos.includes(d.diag_princ));
-
-            let resumoAgrupado = {};
-
-            // Agrupa Ano Base
-            dadosBase.forEach(d => {
-                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
-                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
-                resumoAgrupado[proc].q1++;
-                resumoAgrupado[proc].v1 += parseFloat(d.val_tot || 0);
-            });
-
-            // Agrupa Ano Comparação
-            dadosComp.forEach(d => {
-                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
-                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
-                resumoAgrupado[proc].q2++;
-                resumoAgrupado[proc].v2 += parseFloat(d.val_tot || 0);
-            });
-
-            // Lógica de Visibilidade das Colunas de Comparação
-            const usouComp = anoComp !== "";
-            $('#th-qtd1').text(`Qtd (${anoBase})`); $('#th-val1').text(`Valor (${anoBase})`);
-            if(usouComp) {
-                $('.col-comp').removeClass('hidden');
-                $('#th-qtd2').text(`Qtd (${anoComp})`); $('#th-val2').text(`Valor (${anoComp})`);
-            } else {
-                $('.col-comp').addClass('hidden');
-            }
-
-            let htmlResumo = '';
-            Object.values(resumoAgrupado).sort((a,b) => b.v1 - a.v1).forEach(r => {
-                let varQtd = r.q1 - r.q2;
-                let pctVal = r.v2 > 0 ? ((r.v1 - r.v2) / r.v2) * 100 : (r.v1 > 0 ? 100 : 0);
-                
-                let htmlColComp = usouComp ? `
-                    <td class="text-center font-bold text-orange-400">${r.q2 > 0 ? r.q2 : '-'}</td>
-                    <td class="text-center font-bold ${varQtd >= 0 ? 'text-emerald-400' : 'text-red-400'}">${varQtd > 0 ? '+'+varQtd : varQtd}</td>
-                    <td class="text-right font-mono text-orange-400">${r.v2 > 0 ? formatBRL(r.v2) : '-'}</td>
-                    <td class="text-right font-bold ${pctVal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${pctVal > 0 ? '+'+pctVal.toFixed(1) : pctVal.toFixed(1)}%</td>
-                ` : '';
-
-                htmlResumo += `
-                    <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                        <td class="font-mono text-sm">${r.proc}</td>
-                        <td class="text-center font-bold text-blue-400">${r.q1}</td>
-                        ${htmlColComp}
-                        <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
-                    </tr>
-                `;
-            });
-
-            if (Object.keys(resumoAgrupado).length === 0) {
-                htmlResumo = `<tr><td colspan="7" class="text-center text-gray-500 py-4">Sem procedimentos para exibir. Selecione os filtros acima.</td></tr>`;
-            }
-
-            $('#tabela-resumo tbody').html(htmlResumo);
         }
     </script>
 </body>
