@@ -119,11 +119,13 @@
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
         /* ==================================================================== */
-        /* CSS INTELIGENTE PARA IMPRESSÃO                                       */
+        /* CSS INTELIGENTE PARA IMPRESSÃO (CORRIGIDO)                           */
         /* ==================================================================== */
         @media print {
-            body { background: white !important; color: black !important; }
-            .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, header { display: none !important; }
+            body { background: white !important; color: black !important; margin: 0; padding: 0; }
+            
+            /* Oculta apenas os menus, botões e barras de rolagem */
+            .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, button { display: none !important; }
             
             /* Formatação do Painel Geral para Impressão */
             .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; }
@@ -132,7 +134,7 @@
             th, td { border: 1px solid #ddd !important; color: black !important; }
             a { text-decoration: none !important; color: black !important; }
 
-            /* Modo de Impressão do Modal (Espelho) */
+            /* Modo de Impressão EXCLUSIVO do Modal (Espelho da AIH) */
             body.printing-modal * { visibility: hidden; }
             body.printing-modal #espelho-modal, body.printing-modal #espelho-modal * { visibility: visible; }
             body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; padding: 0; display: block; }
@@ -141,7 +143,7 @@
             body.printing-modal .aih-lbl { color: #555 !important; }
             body.printing-modal .aih-val { color: black !important; }
             body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-orange-400, body.printing-modal .text-red-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
-            body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; }
+            body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 10px; }
             body.printing-modal .aih-section { color: black !important; border-bottom: 2px solid black !important; margin-top: 20px; }
         }
     </style>
@@ -153,7 +155,7 @@
 
     <div id="urv-modal" class="modal-overlay">
         <div class="modal-content relative max-w-lg w-full">
-            <i class="fas fa-times close-modal" onclick="fecharModal('urv-modal')"></i>
+            <i class="fas fa-times close-modal no-print" onclick="fecharModal('urv-modal')"></i>
             <h2 class="text-xl font-bold mb-4 text-yellow-400 border-b border-gray-600 pb-2"><i class="fas fa-gavel mr-2"></i>A Tese da URV (9,56%)</h2>
             <p class="text-sm mb-3">Em 1994, durante a conversão do Cruzeiro Real para a URV (e posteriormente para o Real), o Ministério da Saúde aplicou um fator de conversão incorreto na Tabela SUS.</p>
             <p class="text-sm mb-3">Isso gerou uma defasagem histórica de <strong>9,56%</strong> nos repasses. Hospitais filantrópicos possuem o direito jurídico de cobrar essa diferença retroativamente do Governo Federal.</p>
@@ -166,7 +168,7 @@
 
     <div id="espelho-modal" class="modal-overlay">
         <div class="modal-content relative max-w-5xl w-full" id="area-impressao">
-            <i class="fas fa-times close-modal" onclick="fecharModal('espelho-modal')"></i>
+            <i class="fas fa-times close-modal no-print" onclick="fecharModal('espelho-modal')"></i>
             
             <div class="flex items-center justify-between mb-6 border-b border-gray-600/50 pb-4">
                 <div>
@@ -219,15 +221,10 @@
         </div>
     </div>
 
-    <div class='header-bg shadow-lg mb-6 no-print'>
+    <div class='header-bg shadow-lg mb-6'>
         <div class='max-w-[98%] mx-auto px-4'>
-            <div class="mb-4">
-                <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm">
-                    <i class="fas fa-arrow-left"></i> Voltar ao Gerencial
-                </a>
-            </div>
-
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 no-print">
                 <div class="flex items-center gap-4">
                     <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-line text-3xl text-cyan-400"></i></div>
                     <div>
@@ -236,7 +233,15 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center flex-wrap gap-3">
+                    <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar ao Gerencial
+                    </a>
+                    
+                    <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-pink-400/50 shadow text-sm flex items-center">
+                        <i class="fas fa-syringe mr-2"></i> Ir para Itens (SP)
+                    </a>
+
                     <label class="relative inline-flex items-center cursor-pointer mr-2" title="Mostrar/Ocultar Cálculo URV">
                         <input type="checkbox" id="toggle-urv" class="sr-only peer" checked onchange="alternarURV()">
                         <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500"></div>
@@ -273,7 +278,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20">
+            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20 no-print">
                 <div>
                     <label class="block text-xs uppercase tracking-wider text-cyan-500 mb-1 font-bold"><i class="fas fa-stethoscope mr-1"></i> Filtrar Procedimento Principal</label>
                     <select id="filtro-proc" multiple="multiple" class="w-full"></select>
@@ -286,7 +291,7 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 relative z-10 no-print">
+    <div class="max-w-[98%] mx-auto px-4 relative z-10">
         
         <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
@@ -307,7 +312,7 @@
             <div id="card-urv" class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
                 <div class="kpi-title justify-center">
                     <i class="fas fa-gavel text-yellow-400"></i> Pendência URV 
-                    <i class="fas fa-question-circle tooltip-icon ml-1" onclick="$('#urv-modal').addClass('active')" title="Clique para entender este cálculo"></i>
+                    <i class="fas fa-question-circle tooltip-icon ml-1 no-print" onclick="$('#urv-modal').addClass('active')" title="Clique para entender este cálculo"></i>
                 </div>
                 <div class="kpi-number neon-text-yellow" id="kpi-urv" title="VAL_SH * 9,56%">R$ 0,00</div>
             </div>
@@ -370,9 +375,6 @@
         const DIC_MORTE = { "0": "Não", "1": "Sim" };
         const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trabalho", "04": "Acid. Trânsito", "05": "Outras Lesões", "06": "Outros" };
 
-        // ========================================================
-        // FUNÇÃO DE OCULTAR/MOSTRAR A URV
-        // ========================================================
         function alternarURV() {
             const isChecked = document.getElementById('toggle-urv').checked;
             const cardURV = document.getElementById('card-urv');
@@ -504,7 +506,6 @@
             const savedTheme = localStorage.getItem('nii_theme_sih');
             if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
 
-            // Checa a preferência do usuário para a URV ao carregar a página
             const mostrarUrv = localStorage.getItem('nii_mostrar_urv');
             if (mostrarUrv === 'nao') {
                 document.getElementById('toggle-urv').checked = false;
@@ -521,6 +522,9 @@
             baixarMatrizDeDados();
         });
 
+        // ========================================================
+        // O NOVO MOTOR DE DOWNLOAD (RÁPIDO E EM LOTES)
+        // ========================================================
         async function baixarMatrizDeDados() {
             const ano = $('#filtro-ano').val();
             const mes = $('#filtro-mes').val();
@@ -529,12 +533,30 @@
             $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> ${txtStatus}`);
             
             try {
-                let query = supabaseClient.from('sih_sus_hsh').select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos').eq('ano_cmpt', ano);
-                if (mes !== "") query = query.eq('mes_cmpt', mes);
-                const { data, error } = await query.limit(30000); 
+                MATRIZ_DADOS = [];
+                let temMaisDados = true;
+                let tamanhoLote = 5000;
+                let inicioLote = 0;
 
-                if (error) throw error;
-                MATRIZ_DADOS = data || [];
+                // Baixa em blocos de 5.000 para não travar a memória do seu computador
+                while(temMaisDados) {
+                    let query = supabaseClient.from('sih_sus_hsh').select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos').eq('ano_cmpt', ano);
+                    if (mes !== "") query = query.eq('mes_cmpt', mes);
+                    
+                    const { data, error } = await query.range(inicioLote, inicioLote + tamanhoLote - 1); 
+
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        MATRIZ_DADOS = MATRIZ_DADOS.concat(data);
+                        inicioLote += data.length;
+                        $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Carregando... (${MATRIZ_DADOS.length} AIHs)`);
+                        
+                        if(data.length < tamanhoLote) { temMaisDados = false; }
+                    } else {
+                        temMaisDados = false;
+                    }
+                }
 
                 if (MATRIZ_DADOS.length === 0) {
                     $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem movimento.</span>`);
@@ -542,7 +564,7 @@
                     return;
                 }
 
-                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Matriz Carregada (${MATRIZ_DADOS.length} AIHs)</span>`);
+                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Matriz Pronta (${MATRIZ_DADOS.length} AIHs)</span>`);
                 preencherFiltrosSelect2();
                 atualizarPainelReativo();
 
@@ -622,7 +644,11 @@
             tbody.empty();
 
             let htmlTabela = '';
-            dadosFiltrados.forEach(d => {
+            
+            // Limitando a renderização visual a 5000 para não explodir a tela (O Excel baixa tudo!)
+            const dadosParaTabela = dadosFiltrados.slice(0, 5000);
+
+            dadosParaTabela.forEach(d => {
                 const n_aih = d.n_aih || d.dados_completos?.N_AIH || '-';
                 const dias_perm = d.dados_completos?.DIAS_PERM || '-';
                 const proc = d.dados_completos?.PROC_REA || '-';
