@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,6 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -15,7 +14,6 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -24,14 +22,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 0; margin-bottom: 20px; transition: 0.5s; }
-        
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 0; margin-bottom: 20px; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
 
         .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -43,7 +40,6 @@
         .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5); }
 
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
-        .btn-theme:hover { background: rgba(255,255,255,0.1); }
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
 
@@ -62,53 +58,29 @@
         .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 38px; }
         .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #0ea5e9 !important; border: none !important; color: white !important; padding: 2px 6px; margin-top: 6px; }
         .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white; }
-        .select2-search__field { color: white !important; }
         body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; color: white !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; }
         body.theme-classic .select2-dropdown { background-color: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-search__field { color: #1e293b !important; }
-        body.theme-classic .select2-results__option { color: #1e293b !important; }
 
-        .dataTables_wrapper { color: #94a3b8; padding-top: 10px; }
         table.dataTable { width: 100% !important; color: white !important; border-collapse: collapse !important;}
         table.dataTable thead th { border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; color: #38bdf8 !important; font-size: 0.75rem; text-transform: uppercase; }
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; }
-        table.dataTable tbody tr { background-color: transparent !important; }
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
         .dataTables_filter input, .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 4px; outline: none;}
         body.theme-classic .dataTables_filter input, body.theme-classic .dataTables_length select { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
-        .paginate_button { color: rgba(255,255,255,0.7) !important; }
-        .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border: 1px solid rgba(255,255,255,0.4) !important; border-radius: 6px; }
-        body.theme-classic .paginate_button { color: #475569 !important; }
-        body.theme-classic .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
         
-        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; transition: 0.2s; }
-        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; }
         body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
-        body.theme-classic .dt-button:hover { background: #059669 !important; }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 4px; }
-
-        .table-auditoria th { background: rgba(0,0,0,0.2); text-transform: uppercase; font-size: 0.7rem; color: #94a3b8; padding: 8px; text-align: left; }
-        .table-auditoria td { padding: 8px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        body.theme-classic .table-auditoria th { background: #f1f5f9; color: #475569; }
-        body.theme-classic .table-auditoria td { border-bottom: 1px solid #e2e8f0; color: #334155;}
-
-        /* MODAIS GERAIS */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
+        /* MODAIS */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; max-height: 90vh; overflow-y: auto; }
         body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; color: #334155; }
-        .close-modal { float: right; cursor: pointer; font-size: 1.5rem; color: #94a3b8; transition: 0.2s; }
-        .close-modal:hover { color: #ef4444; }
-
-        /* ESPELHO DA AIH (SIMULADA) */
+        
+        /* ESPELHO DA AIH */
         .aih-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
         .aih-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; }
         body.theme-classic .aih-box { background: #f8fafc; border: 1px solid #e2e8f0; }
@@ -119,32 +91,34 @@
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
         /* ==================================================================== */
-        /* CSS INTELIGENTE PARA IMPRESSÃO (CORRIGIDO)                           */
+        /* CSS INTELIGENTE E CORRIGIDO PARA IMPRESSÃO PERFEITA                  */
         /* ==================================================================== */
         @media print {
-            body { background: white !important; color: black !important; margin: 0; padding: 0; }
+            /* Força fundo branco e texto preto na página inteira */
+            html, body { background: white !important; color: black !important; min-height: auto !important; position: static !important; }
             
-            /* Oculta apenas os menus, botões e barras de rolagem */
+            /* Remove os elementos de fundo que causam ecrã em branco */
+            .blob-1, .blob-2, body::before { display: none !important; }
+            
+            /* Esconde menus, controlos do datatables e botões */
             .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, button { display: none !important; }
             
-            /* Formatação do Painel Geral para Impressão */
-            .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; }
+            /* Formata as grelhas e cartões para não quebrarem o layout no papel */
+            .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; margin-bottom: 20px !important; }
+            #kpi-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
+            
             .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { text-shadow: none !important; color: black !important; }
             table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ddd !important; color: black !important; }
-            a { text-decoration: none !important; color: black !important; }
-
-            /* Modo de Impressão EXCLUSIVO do Modal (Espelho da AIH) */
+            th, td { border: 1px solid #ccc !important; color: black !important; padding: 6px !important; }
+            
+            /* Se estiver a imprimir o ESPELHO DA AIH (Modal) */
             body.printing-modal * { visibility: hidden; }
             body.printing-modal #espelho-modal, body.printing-modal #espelho-modal * { visibility: visible; }
-            body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; padding: 0; display: block; }
-            body.printing-modal .modal-content { border: none; box-shadow: none; max-height: none; width: 100%; padding: 0; margin: 0; background: white !important; color: black !important; }
-            
-            body.printing-modal .aih-lbl { color: #555 !important; }
-            body.printing-modal .aih-val { color: black !important; }
-            body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-orange-400, body.printing-modal .text-red-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
+            body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; display: block; background: white !important; }
+            body.printing-modal .modal-content { border: none; box-shadow: none; padding: 0; margin: 0; background: white !important; color: black !important; }
             body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 10px; }
-            body.printing-modal .aih-section { color: black !important; border-bottom: 2px solid black !important; margin-top: 20px; }
+            body.printing-modal .aih-section { border-bottom: 2px solid black !important; margin-top: 20px; color: black !important; }
+            body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
         }
     </style>
 </head>
@@ -157,17 +131,13 @@
         <div class="modal-content relative max-w-lg w-full">
             <i class="fas fa-times close-modal no-print" onclick="fecharModal('urv-modal')"></i>
             <h2 class="text-xl font-bold mb-4 text-yellow-400 border-b border-gray-600 pb-2"><i class="fas fa-gavel mr-2"></i>A Tese da URV (9,56%)</h2>
-            <p class="text-sm mb-3">Em 1994, durante a conversão do Cruzeiro Real para a URV (e posteriormente para o Real), o Ministério da Saúde aplicou um fator de conversão incorreto na Tabela SUS.</p>
-            <p class="text-sm mb-3">Isso gerou uma defasagem histórica de <strong>9,56%</strong> nos repasses. Hospitais filantrópicos possuem o direito jurídico de cobrar essa diferença retroativamente do Governo Federal.</p>
-            <div class="bg-black/20 p-3 rounded border border-gray-600/50 mt-4">
-                <h3 class="font-bold text-cyan-400 text-xs uppercase mb-1">Como o painel calcula:</h3>
-                <p class="text-xs">A Justiça entende que o reajuste se aplica <strong>apenas aos Serviços Hospitalares (VAL_SH)</strong>, não incidindo sobre os honorários médicos (VAL_SP). O painel isola o VAL_SH das AIHs filtradas e aplica o fator de 0,0956 automaticamente.</p>
-            </div>
+            <p class="text-sm mb-3">Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na Tabela SUS.</p>
+            <p class="text-sm mb-3">Isto gerou uma defasagem histórica de <strong>9,56%</strong> nos repasses, aplicável apenas aos Serviços Hospitalares (VAL_SH).</p>
         </div>
     </div>
 
     <div id="espelho-modal" class="modal-overlay">
-        <div class="modal-content relative max-w-5xl w-full" id="area-impressao">
+        <div class="modal-content relative max-w-5xl w-full">
             <i class="fas fa-times close-modal no-print" onclick="fecharModal('espelho-modal')"></i>
             
             <div class="flex items-center justify-between mb-6 border-b border-gray-600/50 pb-4">
@@ -176,8 +146,8 @@
                     <p class="text-sm text-gray-400">Hospital Beneficente Santa Helena • Competência: <span id="esp-cmpt" class="font-bold"></span></p>
                     
                     <div class="flex gap-2 mt-3 no-print">
-                        <button onclick="imprimirEspelhoAIH()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500 transition-colors shadow"><i class="fas fa-print mr-1"></i> Imprimir PDF</button>
-                        <button onclick="exportarEspelhoExcel()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded border border-emerald-500 transition-colors shadow"><i class="fas fa-file-excel mr-1"></i> Baixar Excel</button>
+                        <button onclick="imprimirEspelhoAIH()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500"><i class="fas fa-print mr-1"></i> Imprimir PDF</button>
+                        <button onclick="exportarEspelhoExcel()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded border border-emerald-500"><i class="fas fa-file-excel mr-1"></i> Descarregar Excel</button>
                     </div>
                 </div>
                 <div class="text-right">
@@ -221,70 +191,65 @@
         </div>
     </div>
 
-    <div class='header-bg shadow-lg mb-6'>
+    <div class='header-bg shadow-lg mb-6 no-print'>
         <div class='max-w-[98%] mx-auto px-4'>
             
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 no-print">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <div class="flex items-center gap-4">
                     <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-line text-3xl text-cyan-400"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold text-white'>Gestão Estratégica SIH</h1>
-                        <p class='text-cyan-200 text-sm mt-1 opacity-80'>Visão Financeira e Jurídica Integrada <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">Aguardando...</span></p>
+                        <p class='text-cyan-200 text-sm mt-1 opacity-80'>Visão Financeira e Jurídica Integrada <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">A aguardar...</span></p>
                     </div>
                 </div>
                 
                 <div class="flex items-center flex-wrap gap-3">
-                    <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm">
-                        <i class="fas fa-arrow-left"></i> Voltar ao Gerencial
-                    </a>
-                    
-                    <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-pink-400/50 shadow text-sm flex items-center">
-                        <i class="fas fa-syringe mr-2"></i> Ir para Itens (SP)
-                    </a>
+                    <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+                    <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg border border-pink-400/50 shadow text-sm flex items-center"><i class="fas fa-syringe mr-2"></i> Auditoria SP</a>
 
                     <label class="relative inline-flex items-center cursor-pointer mr-2" title="Mostrar/Ocultar Cálculo URV">
                         <input type="checkbox" id="toggle-urv" class="sr-only peer" checked onchange="alternarURV()">
                         <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500"></div>
-                        <span class="ml-2 text-xs font-bold text-yellow-400 uppercase tracking-wider hidden md:block">URV</span>
+                        <span class="ml-2 text-xs font-bold text-yellow-400 uppercase hidden md:block">URV</span>
                     </label>
 
-                    <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
+                    <button onclick="toggleTheme()" class="btn-theme"><i class="fas fa-magic"></i></button>
 
                     <div class="btn-theme" style="padding: 4px 10px;">
-                        <span class="text-xs font-bold uppercase text-cyan-400 mr-2">Ano:</span>
+                        <span class="text-xs font-bold uppercase text-cyan-400 mr-2">Ano Base:</span>
                         <select id="filtro-ano" class="bg-transparent text-white font-bold outline-none"></select>
+                    </div>
+
+                    <div class="btn-theme" style="padding: 4px 10px;">
+                        <span class="text-xs font-bold uppercase text-orange-400 mr-2">Comparar c/:</span>
+                        <select id="filtro-ano-comp" class="bg-transparent text-white font-bold outline-none">
+                            <option value="">Nenhum</option>
+                        </select>
                     </div>
                     
                     <div class="btn-theme" style="padding: 4px 10px;">
                         <span class="text-xs font-bold uppercase text-cyan-400 mr-2">Mês:</span>
                         <select id="filtro-mes" class="bg-transparent text-white font-bold outline-none">
-                            <option value="">Todos os Meses</option>
-                            <option value="01">01 - Janeiro</option><option value="02">02 - Fevereiro</option>
-                            <option value="03">03 - Março</option><option value="04">04 - Abril</option>
-                            <option value="05">05 - Maio</option><option value="06">06 - Junho</option>
-                            <option value="07">07 - Julho</option><option value="08">08 - Agosto</option>
-                            <option value="09">09 - Setembro</option><option value="10">10 - Outubro</option>
-                            <option value="11">11 - Novembro</option><option value="12">12 - Dezembro</option>
+                            <option value="">Todos</option>
+                            <option value="01">01</option><option value="02">02</option><option value="03">03</option>
+                            <option value="04">04</option><option value="05">05</option><option value="06">06</option>
+                            <option value="07">07</option><option value="08">08</option><option value="09">09</option>
+                            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
                     </div>
 
-                    <button onclick="baixarMatrizDeDados()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-blue-400/50 shadow">
-                        <i class="fas fa-bolt mr-2"></i> Atualizar
-                    </button>
-
-                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-gray-400/50 shadow">
-                        <i class="fas fa-print mr-2"></i> Imprimir Painel
-                    </button>
+                    <button onclick="baixarDadosCompletos()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg border border-blue-400/50 shadow"><i class="fas fa-bolt mr-2"></i> Atualizar</button>
+                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg border border-gray-400/50 shadow"><i class="fas fa-print mr-2"></i> Imprimir</button>
                 </div>
             </div>
 
             <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20 no-print">
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-cyan-500 mb-1 font-bold"><i class="fas fa-stethoscope mr-1"></i> Filtrar Procedimento Principal</label>
+                    <label class="block text-xs uppercase text-cyan-500 mb-1 font-bold"><i class="fas fa-stethoscope mr-1"></i> Filtrar Procedimento Principal</label>
                     <select id="filtro-proc" multiple="multiple" class="w-full"></select>
                 </div>
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-emerald-500 mb-1 font-bold"><i class="fas fa-disease mr-1"></i> Filtrar Doenças (CID-10)</label>
+                    <label class="block text-xs uppercase text-emerald-500 mb-1 font-bold"><i class="fas fa-disease mr-1"></i> Filtrar Doenças (CID-10)</label>
                     <select id="filtro-cid" multiple="multiple" class="w-full"></select>
                 </div>
             </div>
@@ -295,62 +260,57 @@
         
         <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
-                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Fat. SUS (Valor Real)</div>
-                <div class="kpi-number neon-text-green" id="kpi-valor" title="Soma do VAL_TOT das AIHs filtradas">R$ 0,00</div>
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Faturação SUS</div>
+                <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
             </div>
-            
             <div class="glass-card p-5 text-center border-b-4 border-cyan-500">
-                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume de AIHs</div>
+                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume AIHs</div>
                 <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
             </div>
-            
             <div class="glass-card p-5 text-center border-b-4 border-purple-500">
-                <div class="kpi-title"><i class="fas fa-chart-line text-purple-400"></i> Ticket Médio Real / AIH</div>
-                <div class="kpi-number neon-text-purple" id="kpi-ticket" title="Faturamento SUS / Volume de AIHs">R$ 0,00</div>
+                <div class="kpi-title"><i class="fas fa-chart-line text-purple-400"></i> Ticket Médio</div>
+                <div class="kpi-number neon-text-purple" id="kpi-ticket">R$ 0,00</div>
             </div>
-            
             <div id="card-urv" class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
-                <div class="kpi-title justify-center">
-                    <i class="fas fa-gavel text-yellow-400"></i> Pendência URV 
-                    <i class="fas fa-question-circle tooltip-icon ml-1 no-print" onclick="$('#urv-modal').addClass('active')" title="Clique para entender este cálculo"></i>
-                </div>
-                <div class="kpi-number neon-text-yellow" id="kpi-urv" title="VAL_SH * 9,56%">R$ 0,00</div>
+                <div class="kpi-title justify-center"><i class="fas fa-gavel text-yellow-400"></i> Pendência URV <i class="fas fa-question-circle tooltip-icon ml-1 no-print" onclick="$('#urv-modal').addClass('active')"></i></div>
+                <div class="kpi-number neon-text-yellow" id="kpi-urv">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="glass-card p-5 mb-6" id="card-resumo">
+            <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start text-orange-400"><i class="fas fa-chart-bar mr-2"></i> Análise Comparativa e Resumo de Procedimentos</div>
+            <div class="overflow-x-auto">
+                <table class="w-full table-auditoria" id="tabela-resumo">
+                    <thead>
+                        <tr>
+                            <th>Procedimento (SIGTAP)</th>
+                            <th class="text-center bg-blue-900/20" id="th-qtd1">Qtd (Base)</th>
+                            <th class="text-center bg-orange-900/20 col-comp hidden" id="th-qtd2">Qtd (Comp)</th>
+                            <th class="text-center col-comp hidden">Δ Qtd</th>
+                            <th class="text-right bg-blue-900/20" id="th-val1">Valor (Base)</th>
+                            <th class="text-right bg-orange-900/20 col-comp hidden" id="th-val2">Valor (Comp)</th>
+                            <th class="text-right col-comp hidden">Δ % Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="glass-card p-5 lg:col-span-1">
-                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-microscope mr-1 text-orange-400"></i> Auditoria de Blocos (Secundários)</div>
+                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-microscope mr-1 text-orange-400"></i> Auditoria de Blocos</div>
                 <table class="w-full table-auditoria">
-                    <thead>
-                        <tr>
-                            <th>Bloco Faturado</th>
-                            <th class="text-center">Qtd. AIHs</th>
-                            <th class="text-right">Média (R$)</th>
-                            <th class="text-right">Total (R$)</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Bloco Faturado</th><th class="text-center">Qtd</th><th class="text-right">Média</th><th class="text-right">Total</th></tr></thead>
                     <tbody id="auditoria-body"></tbody>
                 </table>
-                <div class="mt-4 text-xs text-gray-500 italic">* Extraído do Resumo de Internação (RD). Identifica se houve cobrança do bloco na AIH.</div>
             </div>
 
             <div class="glass-card p-5 lg:col-span-2">
-                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-list-ul mr-1 text-blue-400"></i> Relação Analítica de AIHs (Faturamento Real)</div>
+                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-list-ul mr-1 text-blue-400"></i> Relação Analítica de AIHs (Ano Base)</div>
                 <div id="tabela-container">
                     <table id="tabela-aih" class="display w-full" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Nº AIH</th>
-                                <th>Permanência</th>
-                                <th>Proc. Principal</th>
-                                <th>SADT</th>
-                                <th>Sangue</th>
-                                <th>OPME</th>
-                                <th>UTI</th>
-                                <th>Valor Real Total</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Nº AIH</th><th>Perm.</th><th>Proc. Principal</th><th>SADT</th><th>Sangue</th><th>OPME</th><th>UTI</th><th>Total</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -363,7 +323,8 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
         const supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let MATRIZ_DADOS = []; 
+        let MATRIZ_DADOS = []; // Dados do Ano Base
+        let MATRIZ_COMP = [];  // Dados do Ano de Comparação
         let dtTabela = null;   
         let aihAtualNoModal = null; 
 
@@ -371,24 +332,21 @@
         const formatData = (val) => (val && val.length === 8 && !isNaN(val)) ? `${val.slice(6,8)}/${val.slice(4,6)}/${val.slice(0,4)}` : val;
 
         const DIC_SEXO = { "1": "Masculino", "3": "Feminino" };
-        const DIC_RACA = { "01": "Branca", "02": "Preta", "03": "Parda", "04": "Amarela", "05": "Indígena", "99": "Sem Informação" };
+        const DIC_RACA = { "01": "Branca", "02": "Preta", "03": "Parda", "04": "Amarela", "05": "Indígena", "99": "Sem Inf." };
         const DIC_MORTE = { "0": "Não", "1": "Sim" };
-        const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trabalho", "04": "Acid. Trânsito", "05": "Outras Lesões", "06": "Outros" };
+        const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trab", "04": "Acid. Trâns", "05": "Outras", "06": "Outros" };
 
         function alternarURV() {
             const isChecked = document.getElementById('toggle-urv').checked;
             const cardURV = document.getElementById('card-urv');
             const kpiGrid = document.getElementById('kpi-grid');
-            
             if (isChecked) {
                 cardURV.style.display = 'block';
-                kpiGrid.classList.remove('md:grid-cols-3');
-                kpiGrid.classList.add('md:grid-cols-4');
+                kpiGrid.classList.remove('md:grid-cols-3'); kpiGrid.classList.add('md:grid-cols-4');
                 localStorage.setItem('nii_mostrar_urv', 'sim');
             } else {
                 cardURV.style.display = 'none';
-                kpiGrid.classList.remove('md:grid-cols-4');
-                kpiGrid.classList.add('md:grid-cols-3');
+                kpiGrid.classList.remove('md:grid-cols-4'); kpiGrid.classList.add('md:grid-cols-3');
                 localStorage.setItem('nii_mostrar_urv', 'nao');
             }
         }
@@ -396,36 +354,21 @@
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
-        function imprimirPainelGeral() {
-            document.body.classList.remove('printing-modal');
-            window.print();
-        }
-
-        function imprimirEspelhoAIH() {
-            document.body.classList.add('printing-modal');
-            window.print();
-            setTimeout(() => document.body.classList.remove('printing-modal'), 1000);
-        }
+        function imprimirPainelGeral() { document.body.classList.remove('printing-modal'); window.print(); }
+        function imprimirEspelhoAIH() { document.body.classList.add('printing-modal'); window.print(); setTimeout(() => document.body.classList.remove('printing-modal'), 1000); }
 
         function abrirEspelhoAIH(numAih) {
             const row = MATRIZ_DADOS.find(d => d.n_aih === numAih || (d.dados_completos && d.dados_completos.N_AIH === numAih));
             if(!row || !row.dados_completos) return;
-
             const d = row.dados_completos;
             aihAtualNoModal = d; 
 
-            $('#esp-num').text(d.N_AIH || '-');
-            $('#esp-cmpt').text(`${d.MES_CMPT || '--'}/${d.ANO_CMPT || '----'}`);
+            $('#esp-num').text(d.N_AIH || '-'); $('#esp-cmpt').text(`${d.MES_CMPT || '--'}/${d.ANO_CMPT || '----'}`);
             $('#esp-valtot').text(formatBRL(d.VAL_TOT || 0));
-
-            $('#esp-cep').text(d.CEP || '-');
-            $('#esp-mun').text(d.MUNIC_RES || '-');
+            $('#esp-cep').text(d.CEP || '-'); $('#esp-mun').text(d.MUNIC_RES || '-');
             $('#esp-nasc').text(`${formatData(d.NASC) || '-'} (${d.IDADE || '-'} anos)`);
-            $('#esp-sexo').text(DIC_SEXO[d.SEXO] || d.SEXO || '-');
-            $('#esp-raca').text(DIC_RACA[d.RACA_COR] || d.RACA_COR || '-');
-
-            $('#esp-dtint').text(formatData(d.DT_INTER) || '-');
-            $('#esp-dtsai').text(formatData(d.DT_SAIDA) || '-');
+            $('#esp-sexo').text(DIC_SEXO[d.SEXO] || d.SEXO || '-'); $('#esp-raca').text(DIC_RACA[d.RACA_COR] || d.RACA_COR || '-');
+            $('#esp-dtint').text(formatData(d.DT_INTER) || '-'); $('#esp-dtsai').text(formatData(d.DT_SAIDA) || '-');
             $('#esp-dias').text(d.DIAS_PERM || '0');
             
             let car = DIC_CARATER[d.CAR_INT] || d.CAR_INT || '-';
@@ -433,16 +376,10 @@
             let obito = DIC_MORTE[d.MORTE] || '-';
             $('#esp-obito').html(d.MORTE === '1' ? `<span class="text-red-500 font-bold">SIM</span>` : obito);
 
-            $('#esp-proc').text(d.PROC_REA || '-');
-            $('#esp-cid1').text(d.DIAG_PRINC || '-');
-            $('#esp-cid2').text(d.DIAG_SECUN || 'Nenhum');
-
-            $('#esp-vsh').text(formatBRL(d.VAL_SH || 0));
-            $('#esp-vsp').text(formatBRL(d.VAL_SP || 0));
-            $('#esp-vsadt').text(formatBRL(d.VAL_SADT || 0));
-            $('#esp-vsan').text(formatBRL(d.VAL_SANGUE || 0));
-            $('#esp-vopme').text(formatBRL(d.VAL_ORTP || 0));
-            $('#esp-vuti').text(formatBRL(d.VAL_UTI || 0));
+            $('#esp-proc').text(d.PROC_REA || '-'); $('#esp-cid1').text(d.DIAG_PRINC || '-'); $('#esp-cid2').text(d.DIAG_SECUN || 'Nenhum');
+            $('#esp-vsh').text(formatBRL(d.VAL_SH || 0)); $('#esp-vsp').text(formatBRL(d.VAL_SP || 0));
+            $('#esp-vsadt').text(formatBRL(d.VAL_SADT || 0)); $('#esp-vsan').text(formatBRL(d.VAL_SANGUE || 0));
+            $('#esp-vopme').text(formatBRL(d.VAL_ORTP || 0)); $('#esp-vuti').text(formatBRL(d.VAL_UTI || 0));
 
             $('#espelho-modal').addClass('active');
         }
@@ -450,40 +387,15 @@
         function exportarEspelhoExcel() {
             if (!aihAtualNoModal) return;
             const d = aihAtualNoModal;
-            
             const planilhas_linhas = [
-                ["ESPELHO DA AIH - HOSPITAL BENEFICENTE SANTA HELENA"],
-                [],
-                ["IDENTIFICAÇÃO DO PACIENTE"],
-                ["Nº da AIH:", d.N_AIH],
-                ["Competência:", `${d.MES_CMPT}/${d.ANO_CMPT}`],
-                ["CEP:", d.CEP],
-                ["Município (IBGE):", d.MUNIC_RES],
-                ["Data de Nascimento:", formatData(d.NASC)],
-                ["Idade:", d.IDADE],
-                ["Sexo:", DIC_SEXO[d.SEXO] || d.SEXO],
-                ["Raça / Cor:", DIC_RACA[d.RACA_COR] || d.RACA_COR],
-                [],
-                ["INTERNAÇÃO E DADOS CLÍNICOS"],
-                ["Data de Internação:", formatData(d.DT_INTER)],
-                ["Data de Saída:", formatData(d.DT_SAIDA)],
-                ["Dias de Permanência:", d.DIAS_PERM],
-                ["Caráter da Internação:", DIC_CARATER[d.CAR_INT] || d.CAR_INT],
-                ["Óbito:", DIC_MORTE[d.MORTE] || d.MORTE],
-                ["Procedimento Realizado (SIGTAP):", d.PROC_REA],
-                ["CID-10 Principal:", d.DIAG_PRINC],
-                ["CID-10 Secundário:", d.DIAG_SECUN || ""],
-                [],
-                ["RESUMO FINANCEIRO (R$)"],
-                ["Serviços Hospitalares (SH):", parseFloat(d.VAL_SH || 0)],
-                ["Serviços Profissionais (SP):", parseFloat(d.VAL_SP || 0)],
-                ["SADT (Exames Complementares):", parseFloat(d.VAL_SADT || 0)],
-                ["Sangue e Hemoderivados:", parseFloat(d.VAL_SANGUE || 0)],
-                ["OPME (Órteses e Próteses):", parseFloat(d.VAL_ORTP || 0)],
-                ["Diárias de UTI:", parseFloat(d.VAL_UTI || 0)],
-                ["VALOR TOTAL APROVADO:", parseFloat(d.VAL_TOT || 0)]
+                ["ESPELHO DA AIH - HOSPITAL BENEFICENTE SANTA HELENA"], [],
+                ["IDENTIFICAÇÃO DO PACIENTE"], ["Nº da AIH:", d.N_AIH], ["Competência:", `${d.MES_CMPT}/${d.ANO_CMPT}`],
+                ["Nascimento:", formatData(d.NASC)], ["Idade:", d.IDADE], ["Sexo:", DIC_SEXO[d.SEXO] || d.SEXO], [],
+                ["INTERNAÇÃO"], ["Internação:", formatData(d.DT_INTER)], ["Saída:", formatData(d.DT_SAIDA)], ["Dias:", d.DIAS_PERM],
+                ["Óbito:", DIC_MORTE[d.MORTE] || d.MORTE], ["Proc:", d.PROC_REA], ["CID:", d.DIAG_PRINC], [],
+                ["VALORES (R$)"], ["SH:", parseFloat(d.VAL_SH || 0)], ["SP:", parseFloat(d.VAL_SP || 0)],
+                ["SADT:", parseFloat(d.VAL_SADT || 0)], ["TOTAL:", parseFloat(d.VAL_TOT || 0)]
             ];
-
             const worksheet = XLSX.utils.aoa_to_sheet(planilhas_linhas);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Espelho AIH");
@@ -493,11 +405,9 @@
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_sih', 'neon');
+                body.classList.remove('theme-classic'); localStorage.setItem('nii_theme_sih', 'neon');
             } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_sih', 'classic');
+                body.classList.add('theme-classic'); localStorage.setItem('nii_theme_sih', 'classic');
             }
             if (MATRIZ_DADOS.length > 0) atualizarPainelReativo();
         }
@@ -506,83 +416,90 @@
             const savedTheme = localStorage.getItem('nii_theme_sih');
             if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
 
-            const mostrarUrv = localStorage.getItem('nii_mostrar_urv');
-            if (mostrarUrv === 'nao') {
-                document.getElementById('toggle-urv').checked = false;
-                alternarURV();
+            if (localStorage.getItem('nii_mostrar_urv') === 'nao') {
+                document.getElementById('toggle-urv').checked = false; alternarURV();
             }
 
             const selectAno = document.getElementById('filtro-ano');
+            const selectComp = document.getElementById('filtro-ano-comp');
             const anoAtual = new Date().getFullYear();
-            for(let i = anoAtual; i >= 2010; i--) { selectAno.add(new Option(i, i)); }
+            for(let i = anoAtual; i >= 2000; i--) { 
+                selectAno.add(new Option(i, i)); 
+                selectComp.add(new Option(i, i)); 
+            }
             selectAno.value = "2026"; 
 
-            $('#filtro-proc, #filtro-cid').select2({ placeholder: "Aguardando Matriz...", disabled: true, width: '100%' });
+            $('#filtro-proc, #filtro-cid').select2({ placeholder: "Aguardar Dados...", disabled: true, width: '100%' });
             
-            baixarMatrizDeDados();
+            baixarDadosCompletos();
         });
 
-        // ========================================================
-        // O NOVO MOTOR DE DOWNLOAD (RÁPIDO E EM LOTES)
-        // ========================================================
-        async function baixarMatrizDeDados() {
-            const ano = $('#filtro-ano').val();
+        // MOTOR ASSÍNCRONO POR BLOCOS (PAGINAÇÃO) PARA NÃO TRAVAR O NAVEGADOR
+        async function fetchAnoPorBlocos(ano, mes, tituloStatus) {
+            let matrizTemp = [];
+            let temMais = true;
+            let inicio = 0;
+            let tamanhoLote = 5000;
+
+            while (temMais) {
+                let query = supabaseClient.from('sih_sus_hsh').select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos').eq('ano_cmpt', ano);
+                if (mes !== "") query = query.eq('mes_cmpt', mes);
+                
+                const { data, error } = await query.range(inicio, inicio + tamanhoLote - 1); 
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    matrizTemp = matrizTemp.concat(data);
+                    inicio += data.length;
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A carregar ${tituloStatus}... (${matrizTemp.length} AIHs)`);
+                    if (data.length < tamanhoLote) temMais = false;
+                } else {
+                    temMais = false;
+                }
+            }
+            return matrizTemp;
+        }
+
+        async function baixarDadosCompletos() {
+            const anoBase = $('#filtro-ano').val();
+            const anoComp = $('#filtro-ano-comp').val();
             const mes = $('#filtro-mes').val();
             
-            const txtStatus = mes === "" ? `Baixando Ano Todo (${ano})...` : `Baixando ${mes}/${ano}...`;
-            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> ${txtStatus}`);
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A iniciar extração...`);
             
             try {
-                MATRIZ_DADOS = [];
-                let temMaisDados = true;
-                let tamanhoLote = 5000;
-                let inicioLote = 0;
-
-                // Baixa em blocos de 5.000 para não travar a memória do seu computador
-                while(temMaisDados) {
-                    let query = supabaseClient.from('sih_sus_hsh').select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos').eq('ano_cmpt', ano);
-                    if (mes !== "") query = query.eq('mes_cmpt', mes);
-                    
-                    const { data, error } = await query.range(inicioLote, inicioLote + tamanhoLote - 1); 
-
-                    if (error) throw error;
-                    
-                    if (data && data.length > 0) {
-                        MATRIZ_DADOS = MATRIZ_DADOS.concat(data);
-                        inicioLote += data.length;
-                        $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Carregando... (${MATRIZ_DADOS.length} AIHs)`);
-                        
-                        if(data.length < tamanhoLote) { temMaisDados = false; }
-                    } else {
-                        temMaisDados = false;
-                    }
+                // 1. Descarrega Ano Base
+                MATRIZ_DADOS = await fetchAnoPorBlocos(anoBase, mes, anoBase);
+                
+                // 2. Descarrega Ano Comparação (Se selecionado)
+                MATRIZ_COMP = [];
+                if (anoComp !== "") {
+                    MATRIZ_COMP = await fetchAnoPorBlocos(anoComp, mes, anoComp);
                 }
 
-                if (MATRIZ_DADOS.length === 0) {
-                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem movimento.</span>`);
-                    atualizarPainelReativo(); 
-                    return;
+                if (MATRIZ_DADOS.length === 0 && MATRIZ_COMP.length === 0) {
+                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem registos.</span>`);
+                    atualizarPainelReativo(); return;
                 }
 
-                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Matriz Pronta (${MATRIZ_DADOS.length} AIHs)</span>`);
+                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Dados Prontos</span>`);
                 preencherFiltrosSelect2();
                 atualizarPainelReativo();
 
             } catch (err) {
                 console.error(err);
-                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Erro Conexão</span>`);
+                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Falha na Nuvem</span>`);
             }
         }
 
         function preencherFiltrosSelect2() {
-            const $proc = $('#filtro-proc');
-            const $cid = $('#filtro-cid');
+            const $proc = $('#filtro-proc'); const $cid = $('#filtro-cid');
+            $proc.empty().prop('disabled', false); $cid.empty().prop('disabled', false);
 
-            $proc.empty().prop('disabled', false);
-            $cid.empty().prop('disabled', false);
-
-            let procsUnicos = [...new Set(MATRIZ_DADOS.map(d => d.dados_completos?.PROC_REA).filter(Boolean))].sort();
-            let cidsUnicos = [...new Set(MATRIZ_DADOS.map(d => d.diag_princ).filter(Boolean))].sort();
+            // Junta os procedimentos de ambos os anos para garantir que o filtro funciona
+            const todosOsDados = MATRIZ_DADOS.concat(MATRIZ_COMP);
+            let procsUnicos = [...new Set(todosOsDados.map(d => d.dados_completos?.PROC_REA).filter(Boolean))].sort();
+            let cidsUnicos = [...new Set(todosOsDados.map(d => d.diag_princ).filter(Boolean))].sort();
 
             procsUnicos.forEach(p => $proc.append(new Option(p, p, false, false)));
             cidsUnicos.forEach(c => $cid.append(new Option(c, c, false, false)));
@@ -590,109 +507,122 @@
             $proc.select2({ placeholder: "Selecione Procedimentos...", allowClear: true, closeOnSelect: false });
             $cid.select2({ placeholder: "Selecione Doenças...", allowClear: true, closeOnSelect: false });
 
-            $proc.on('change', atualizarPainelReativo);
-            $cid.on('change', atualizarPainelReativo);
+            $proc.off('change').on('change', atualizarPainelReativo);
+            $cid.off('change').on('change', atualizarPainelReativo);
         }
 
         function atualizarPainelReativo() {
             const procsEscolhidos = $('#filtro-proc').val() || [];
             const cidsEscolhidos = $('#filtro-cid').val() || [];
+            const anoBase = $('#filtro-ano').val();
+            const anoComp = $('#filtro-ano-comp').val();
+            const isClassic = document.body.classList.contains('theme-classic');
 
-            let dadosFiltrados = MATRIZ_DADOS;
-            if (procsEscolhidos.length > 0) dadosFiltrados = dadosFiltrados.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
-            if (cidsEscolhidos.length > 0) dadosFiltrados = dadosFiltrados.filter(d => cidsEscolhidos.includes(d.diag_princ));
+            // --- PROCESSA ANO BASE ---
+            let dadosBase = MATRIZ_DADOS;
+            if (procsEscolhidos.length > 0) dadosBase = dadosBase.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
+            if (cidsEscolhidos.length > 0) dadosBase = dadosBase.filter(d => cidsEscolhidos.includes(d.diag_princ));
 
             let tVal = 0, tSh = 0;
             let aud = { sadt: { qtd: 0, val: 0 }, sangue: { qtd: 0, val: 0 }, opme: { qtd: 0, val: 0 }, uti: { qtd: 0, val: 0 } };
             
-            dadosFiltrados.forEach(d => {
-                tVal += parseFloat(d.val_tot || 0); 
-                tSh += parseFloat(d.val_sh || 0);
-                
-                let vSadt = parseFloat(d.dados_completos?.VAL_SADT || 0);
-                let vSangue = parseFloat(d.dados_completos?.VAL_SANGUE || 0);
-                let vOpme = parseFloat(d.dados_completos?.VAL_ORTP || 0);
-                let vUti = parseFloat(d.dados_completos?.VAL_UTI || 0);
-
-                if (vSadt > 0) { aud.sadt.qtd++; aud.sadt.val += vSadt; }
-                if (vSangue > 0) { aud.sangue.qtd++; aud.sangue.val += vSangue; }
-                if (vOpme > 0) { aud.opme.qtd++; aud.opme.val += vOpme; }
-                if (vUti > 0) { aud.uti.qtd++; aud.uti.val += vUti; }
+            dadosBase.forEach(d => {
+                tVal += parseFloat(d.val_tot || 0); tSh += parseFloat(d.val_sh || 0);
+                if (parseFloat(d.dados_completos?.VAL_SADT) > 0) { aud.sadt.qtd++; aud.sadt.val += parseFloat(d.dados_completos?.VAL_SADT); }
+                if (parseFloat(d.dados_completos?.VAL_SANGUE) > 0) { aud.sangue.qtd++; aud.sangue.val += parseFloat(d.dados_completos?.VAL_SANGUE); }
+                if (parseFloat(d.dados_completos?.VAL_ORTP) > 0) { aud.opme.qtd++; aud.opme.val += parseFloat(d.dados_completos?.VAL_ORTP); }
+                if (parseFloat(d.dados_completos?.VAL_UTI) > 0) { aud.uti.qtd++; aud.uti.val += parseFloat(d.dados_completos?.VAL_UTI); }
             });
 
-            const qtd = dadosFiltrados.length;
-            
-            $('#kpi-valor').text(formatBRL(tVal));
-            $('#kpi-aih').text(qtd.toLocaleString('pt-BR'));
-            $('#kpi-ticket').text(qtd > 0 ? formatBRL(tVal / qtd) : 'R$ 0,00');
+            $('#kpi-valor').text(formatBRL(tVal)); $('#kpi-aih').text(dadosBase.length.toLocaleString('pt-PT'));
+            $('#kpi-ticket').text(dadosBase.length > 0 ? formatBRL(tVal / dadosBase.length) : 'R$ 0,00');
             $('#kpi-urv').text(formatBRL(tSh * 0.0956));
 
-            const media = (valor, quant) => quant > 0 ? formatBRL(valor/quant) : '-';
-            const corQtd = (q) => q > 0 ? 'text-blue-400 font-bold' : 'text-gray-500';
-            const isClassic = document.body.classList.contains('theme-classic');
-            const classCor = (q) => isClassic && q > 0 ? 'text-blue-700 font-bold' : corQtd(q);
+            // Auditoria Secundária (Ano Base)
+            const media = (v, q) => q > 0 ? formatBRL(v/q) : '-';
+            const classCor = (q) => isClassic && q > 0 ? 'text-blue-700 font-bold' : (q > 0 ? 'text-blue-400 font-bold' : 'text-gray-500');
 
             $('#auditoria-body').html(`
                 <tr><td class="font-bold">Exames / SADT</td><td class="text-center ${classCor(aud.sadt.qtd)}">${aud.sadt.qtd}</td><td class="text-right text-emerald-400">${media(aud.sadt.val, aud.sadt.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sadt.val)}</td></tr>
                 <tr><td class="font-bold">Sangue</td><td class="text-center ${classCor(aud.sangue.qtd)}">${aud.sangue.qtd}</td><td class="text-right text-emerald-400">${media(aud.sangue.val, aud.sangue.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sangue.val)}</td></tr>
-                <tr><td class="font-bold">OPME (Órteses/Próteses)</td><td class="text-center ${classCor(aud.opme.qtd)}">${aud.opme.qtd}</td><td class="text-right text-emerald-400">${media(aud.opme.val, aud.opme.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.opme.val)}</td></tr>
+                <tr><td class="font-bold">OPME</td><td class="text-center ${classCor(aud.opme.qtd)}">${aud.opme.qtd}</td><td class="text-right text-emerald-400">${media(aud.opme.val, aud.opme.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.opme.val)}</td></tr>
                 <tr><td class="font-bold">Diárias UTI</td><td class="text-center ${classCor(aud.uti.qtd)}">${aud.uti.qtd}</td><td class="text-right text-emerald-400">${media(aud.uti.val, aud.uti.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.uti.val)}</td></tr>
             `);
 
+            // --- PROCESSA A TABELA ANALÍTICA (DataTables) ---
             if (dtTabela) dtTabela.destroy();
-            const tbody = $('#tabela-body');
-            tbody.empty();
-
             let htmlTabela = '';
-            
-            // Limitando a renderização visual a 5000 para não explodir a tela (O Excel baixa tudo!)
-            const dadosParaTabela = dadosFiltrados.slice(0, 5000);
+            dadosBase.slice(0, 3000).forEach(d => {
+                const n = d.dados_completos?.N_AIH || '-';
+                const linkAih = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n}')" class="${isClassic ? 'text-blue-700 hover:text-blue-500' : 'text-blue-400 hover:text-blue-300'} underline decoration-blue-500/50"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n}</a>`;
+                htmlTabela += `<tr><td>${linkAih}</td><td class="text-center">${d.dados_completos?.DIAS_PERM||'-'}</td><td class="font-mono text-xs">${d.dados_completos?.PROC_REA||'-'}</td>
+                <td class="text-right">${d.dados_completos?.VAL_SADT>0?formatBRL(d.dados_completos.VAL_SADT):'-'}</td><td class="text-right">${d.dados_completos?.VAL_SANGUE>0?formatBRL(d.dados_completos.VAL_SANGUE):'-'}</td>
+                <td class="text-right">${d.dados_completos?.VAL_ORTP>0?formatBRL(d.dados_completos.VAL_ORTP):'-'}</td><td class="text-right">${d.dados_completos?.VAL_UTI>0?formatBRL(d.dados_completos.VAL_UTI):'-'}</td>
+                <td class="text-right font-bold text-emerald-500">${formatBRL(d.val_tot)}</td></tr>`;
+            });
+            $('#tabela-aih tbody').html(htmlTabela);
+            dtTabela = $('#tabela-aih').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json' }, pageLength: 10, order: [[7, 'desc']], responsive: true, dom: 'lBrtip', buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Tabela Completa (Excel)', className: 'dt-button' }] });
 
-            dadosParaTabela.forEach(d => {
-                const n_aih = d.n_aih || d.dados_completos?.N_AIH || '-';
-                const dias_perm = d.dados_completos?.DIAS_PERM || '-';
-                const proc = d.dados_completos?.PROC_REA || '-';
+            // --- PROCESSA A TABELA DE RESUMO E COMPARAÇÃO ---
+            let dadosComp = MATRIZ_COMP;
+            if (procsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
+            if (cidsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => cidsEscolhidos.includes(d.diag_princ));
+
+            let resumoAgrupado = {};
+
+            // Agrupa Ano Base
+            dadosBase.forEach(d => {
+                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[proc].q1++;
+                resumoAgrupado[proc].v1 += parseFloat(d.val_tot || 0);
+            });
+
+            // Agrupa Ano Comparação
+            dadosComp.forEach(d => {
+                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[proc].q2++;
+                resumoAgrupado[proc].v2 += parseFloat(d.val_tot || 0);
+            });
+
+            // Lógica de Visibilidade das Colunas de Comparação
+            const usouComp = anoComp !== "";
+            $('#th-qtd1').text(`Qtd (${anoBase})`); $('#th-val1').text(`Valor (${anoBase})`);
+            if(usouComp) {
+                $('.col-comp').removeClass('hidden');
+                $('#th-qtd2').text(`Qtd (${anoComp})`); $('#th-val2').text(`Valor (${anoComp})`);
+            } else {
+                $('.col-comp').addClass('hidden');
+            }
+
+            let htmlResumo = '';
+            Object.values(resumoAgrupado).sort((a,b) => b.v1 - a.v1).forEach(r => {
+                let varQtd = r.q1 - r.q2;
+                let pctVal = r.v2 > 0 ? ((r.v1 - r.v2) / r.v2) * 100 : (r.v1 > 0 ? 100 : 0);
                 
-                let vSadt = parseFloat(d.dados_completos?.VAL_SADT || 0);
-                let vSangue = parseFloat(d.dados_completos?.VAL_SANGUE || 0);
-                let vOpme = parseFloat(d.dados_completos?.VAL_ORTP || 0);
-                let vUti = parseFloat(d.dados_completos?.VAL_UTI || 0);
+                let htmlColComp = usouComp ? `
+                    <td class="text-center font-bold text-orange-400">${r.q2 > 0 ? r.q2 : '-'}</td>
+                    <td class="text-center font-bold ${varQtd >= 0 ? 'text-emerald-400' : 'text-red-400'}">${varQtd > 0 ? '+'+varQtd : varQtd}</td>
+                    <td class="text-right font-mono text-orange-400">${r.v2 > 0 ? formatBRL(r.v2) : '-'}</td>
+                    <td class="text-right font-bold ${pctVal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${pctVal > 0 ? '+'+pctVal.toFixed(1) : pctVal.toFixed(1)}%</td>
+                ` : '';
 
-                const cSadt = vSadt > 0 ? `text-emerald-400 font-bold` : `text-gray-500`;
-                const cSangue = vSangue > 0 ? `text-emerald-400 font-bold` : `text-gray-500`;
-                const cOpme = vOpme > 0 ? `text-emerald-400 font-bold` : `text-gray-500`;
-                const cUti = vUti > 0 ? `text-emerald-400 font-bold` : `text-gray-500`;
-
-                const linkAih = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n_aih}')" class="text-blue-400 hover:text-blue-300 underline underline-offset-4 decoration-blue-500/50 transition-colors" title="Ver Espelho da AIH"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n_aih}</a>`;
-                const linkAihClassic = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n_aih}')" class="text-blue-700 hover:text-blue-500 underline underline-offset-4 decoration-blue-500/50 transition-colors" title="Ver Espelho da AIH"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n_aih}</a>`;
-
-                htmlTabela += `
-                    <tr>
-                        <td style="font-weight: bold;">${isClassic ? linkAihClassic : linkAih}</td>
-                        <td style="text-align: center;">${dias_perm} d</td>
-                        <td style="font-family: monospace; font-size: 0.75rem;">${proc}</td>
-                        <td class="text-right ${cSadt}">${formatBRL(vSadt)}</td>
-                        <td class="text-right ${cSangue}">${formatBRL(vSangue)}</td>
-                        <td class="text-right ${cOpme}">${formatBRL(vOpme)}</td>
-                        <td class="text-right ${cUti}">${formatBRL(vUti)}</td>
-                        <td style="text-align: right; font-weight: bold; color: #10b981;">${formatBRL(d.val_tot)}</td>
+                htmlResumo += `
+                    <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
+                        <td class="font-mono text-sm">${r.proc}</td>
+                        <td class="text-center font-bold text-blue-400">${r.q1}</td>
+                        ${htmlColComp}
+                        <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
                     </tr>
                 `;
             });
-            
-            $('#tabela-aih tbody').html(htmlTabela);
 
-            dtTabela = $('#tabela-aih').DataTable({
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
-                pageLength: 10,
-                lengthMenu: [5, 10, 25, 50, 100],
-                order: [[7, 'desc']], 
-                responsive: true,
-                dom: 'lBrtip',
-                buttons: [
-                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Tabela Completa (Excel)', className: 'dt-button', title: 'Relatorio_Auditoria_SIH_' + $('#filtro-ano').val() }
-                ]
-            });
+            if (Object.keys(resumoAgrupado).length === 0) {
+                htmlResumo = `<tr><td colspan="7" class="text-center text-gray-500 py-4">Sem procedimentos para exibir. Selecione os filtros acima.</td></tr>`;
+            }
+
+            $('#tabela-resumo tbody').html(htmlResumo);
         }
     </script>
 </body>
