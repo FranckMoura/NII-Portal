@@ -6,10 +6,18 @@
     <title>NII-Portal | Gestão Estratégica SIH</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -95,6 +103,12 @@
         body.theme-classic .paginate_button { color: #475569 !important; }
         body.theme-classic .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
 
+        /* Botão Exportar Excel */
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+        body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
+        body.theme-classic .dt-button:hover { background: #059669 !important; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 4px; }
@@ -162,6 +176,7 @@
                     <div class="btn-theme" style="padding: 4px 10px;">
                         <span class="text-xs font-bold uppercase text-cyan-400 mr-2">Mês:</span>
                         <select id="filtro-mes" class="bg-transparent text-white font-bold outline-none">
+                            <option value="">Todos os Meses</option>
                             <option value="01">01 - Janeiro</option><option value="02">02 - Fevereiro</option>
                             <option value="03">03 - Março</option><option value="04">04 - Abril</option>
                             <option value="05">05 - Maio</option><option value="06">06 - Junho</option>
@@ -267,11 +282,8 @@
 
         const formatBRL = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
-        // Funções do Modal URV
         function abrirModalURV() { document.getElementById('urv-modal').classList.add('active'); }
         function fecharModalURV() { document.getElementById('urv-modal').classList.remove('active'); }
-        
-        // Fecha modal clicando fora dele
         window.onclick = function(event) {
             const modal = document.getElementById('urv-modal');
             if (event.target == modal) { fecharModalURV(); }
@@ -307,15 +319,20 @@
             const ano = $('#filtro-ano').val();
             const mes = $('#filtro-mes').val();
             
-            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Baixando ${mes}/${ano}...`);
+            const txtStatus = mes === "" ? `Baixando Ano Todo (${ano})...` : `Baixando ${mes}/${ano}...`;
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> ${txtStatus}`);
             
             try {
-                const { data, error } = await supabaseClient
+                let query = supabaseClient
                     .from('sih_sus_hsh')
                     .select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos')
-                    .eq('ano_cmpt', ano)
-                    .eq('mes_cmpt', mes)
-                    .limit(5000); 
+                    .eq('ano_cmpt', ano);
+
+                if (mes !== "") {
+                    query = query.eq('mes_cmpt', mes);
+                }
+
+                const { data, error } = await query.limit(30000); 
 
                 if (error) throw error;
                 MATRIZ_DADOS = data || [];
@@ -374,7 +391,7 @@
             };
             
             dadosFiltrados.forEach(d => {
-                tVal += parseFloat(d.val_tot || 0); // VALOR REAL
+                tVal += parseFloat(d.val_tot || 0); 
                 tSh += parseFloat(d.val_sh || 0);
                 
                 let vSadt = parseFloat(d.dados_completos?.VAL_SADT || 0);
@@ -390,13 +407,11 @@
 
             const qtd = dadosFiltrados.length;
             
-            // KPIs Principais
             $('#kpi-valor').text(formatBRL(tVal));
             $('#kpi-aih').text(qtd.toLocaleString('pt-BR'));
             $('#kpi-ticket').text(qtd > 0 ? formatBRL(tVal / qtd) : 'R$ 0,00');
             $('#kpi-urv').text(formatBRL(tSh * 0.0956));
 
-            // Tabela de Auditoria Secundária
             const media = (valor, quant) => quant > 0 ? formatBRL(valor/quant) : '-';
             const corQtd = (q) => q > 0 ? 'text-blue-400 font-bold' : 'text-gray-500';
             const isClassic = document.body.classList.contains('theme-classic');
@@ -429,7 +444,6 @@
                 </tr>
             `);
 
-            // Tabela Analítica
             if (dtTabela) dtTabela.destroy();
             const tbody = $('#tabela-body');
             tbody.empty();
@@ -471,7 +485,16 @@
                 pageLength: 10,
                 lengthMenu: [5, 10, 25, 50, 100],
                 order: [[7, 'desc']], 
-                responsive: true
+                responsive: true,
+                dom: 'lBrtip', // Configuração essencial para ativar os botões
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel"></i> Exportar Excel',
+                        className: 'dt-button',
+                        title: 'Relatorio_Auditoria_SIH_' + $('#filtro-ano').val()
+                    }
+                ]
             });
         }
     </script>
