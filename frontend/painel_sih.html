@@ -42,7 +42,8 @@
         .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5); }
         .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5); }
 
-        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
 
@@ -57,7 +58,7 @@
         body.theme-classic .kpi-title { color: #64748b !important; }
         body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
 
-        /* Select2 & DataTables (Neon vs Classic) */
+        /* Select2 & DataTables */
         .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 38px; }
         .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #0ea5e9 !important; border: none !important; color: white !important; padding: 2px 6px; margin-top: 6px; }
         .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white; }
@@ -69,7 +70,7 @@
         body.theme-classic .select2-results__option { color: #1e293b !important; }
 
         .dataTables_wrapper { color: #94a3b8; padding-top: 10px; }
-        table.dataTable { width: 100% !important; color: white !important; }
+        table.dataTable { width: 100% !important; color: white !important; border-collapse: collapse !important;}
         table.dataTable thead th { border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; color: #38bdf8 !important; font-size: 0.75rem; text-transform: uppercase; }
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; }
         table.dataTable tbody tr { background-color: transparent !important; }
@@ -84,6 +85,7 @@
         .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border: 1px solid rgba(255,255,255,0.4) !important; border-radius: 6px; }
         body.theme-classic .paginate_button { color: #475569 !important; }
         body.theme-classic .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
+        
         .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; transition: 0.2s; }
         .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
         body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
@@ -117,23 +119,30 @@
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
         /* ==================================================================== */
-        /* CSS EXCLUSIVO PARA A IMPRESSÃO EM PDF DO ESPELHO DA AIH              */
+        /* CSS INTELIGENTE PARA IMPRESSÃO (PAINEL GERAL VS MODAL DA AIH)        */
         /* ==================================================================== */
         @media print {
-            body * { visibility: hidden; }
-            #espelho-modal, #espelho-modal * { visibility: visible; }
-            #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; padding: 0; display: block; }
-            .modal-content { border: none; box-shadow: none; max-height: none; width: 100%; padding: 0; margin: 0; background: white !important; color: black !important; }
+            body { background: white !important; color: black !important; }
+            .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, header { display: none !important; }
             
-            /* Ajustes finos de cores para o papel/PDF A4 */
-            .aih-lbl { color: #555 !important; }
-            .aih-val { color: black !important; }
-            .text-emerald-400, .text-blue-400, .text-orange-400, .text-red-400 { color: black !important; font-weight: bold; }
-            .aih-box { border: 1px solid #ccc !important; break-inside: avoid; }
-            .aih-section { color: black !important; border-bottom: 2px solid black !important; margin-top: 20px; }
+            /* Formatação do Painel Geral para Impressão */
+            .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; }
+            .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { text-shadow: none !important; color: black !important; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #ddd !important; color: black !important; }
+            a { text-decoration: none !important; color: black !important; }
+
+            /* Modo de Impressão do Modal (Espelho) */
+            body.printing-modal * { visibility: hidden; }
+            body.printing-modal #espelho-modal, body.printing-modal #espelho-modal * { visibility: visible; }
+            body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; padding: 0; display: block; }
+            body.printing-modal .modal-content { border: none; box-shadow: none; max-height: none; width: 100%; padding: 0; margin: 0; background: white !important; color: black !important; }
             
-            /* Remove botões e barras da vista de impressão */
-            .close-modal, .no-print { display: none !important; }
+            body.printing-modal .aih-lbl { color: #555 !important; }
+            body.printing-modal .aih-val { color: black !important; }
+            body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-orange-400, body.printing-modal .text-red-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
+            body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; }
+            body.printing-modal .aih-section { color: black !important; border-bottom: 2px solid black !important; margin-top: 20px; }
         }
     </style>
 </head>
@@ -165,7 +174,7 @@
                     <p class="text-sm text-gray-400">Hospital Beneficente Santa Helena • Competência: <span id="esp-cmpt" class="font-bold"></span></p>
                     
                     <div class="flex gap-2 mt-3 no-print">
-                        <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500 transition-colors shadow"><i class="fas fa-print mr-1"></i> Imprimir PDF</button>
+                        <button onclick="imprimirEspelhoAIH()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500 transition-colors shadow"><i class="fas fa-print mr-1"></i> Imprimir PDF</button>
                         <button onclick="exportarEspelhoExcel()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded border border-emerald-500 transition-colors shadow"><i class="fas fa-file-excel mr-1"></i> Baixar Excel</button>
                     </div>
                 </div>
@@ -212,6 +221,12 @@
 
     <div class='header-bg shadow-lg mb-6 no-print'>
         <div class='max-w-[98%] mx-auto px-4'>
+            <div class="mb-4">
+                <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Gerencial
+                </a>
+            </div>
+
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <div class="flex items-center gap-4">
                     <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-line text-3xl text-cyan-400"></i></div>
@@ -242,8 +257,12 @@
                         </select>
                     </div>
 
-                    <button onclick="baixarMatrizDeDados()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-blue-400/50">
+                    <button onclick="baixarMatrizDeDados()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-blue-400/50 shadow">
                         <i class="fas fa-bolt mr-2"></i> Atualizar
+                    </button>
+
+                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-gray-400/50 shadow">
+                        <i class="fas fa-print mr-2"></i> Imprimir Painel
                     </button>
                 </div>
             </div>
@@ -261,23 +280,29 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 relative z-10 no-print">
+    <div class="max-w-[98%] mx-auto px-4 relative z-10">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
                 <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Fat. SUS (Valor Real)</div>
                 <div class="kpi-number neon-text-green" id="kpi-valor" title="Soma do VAL_TOT das AIHs filtradas">R$ 0,00</div>
             </div>
+            
             <div class="glass-card p-5 text-center border-b-4 border-cyan-500">
                 <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume de AIHs</div>
                 <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
             </div>
+            
             <div class="glass-card p-5 text-center border-b-4 border-purple-500">
                 <div class="kpi-title"><i class="fas fa-chart-line text-purple-400"></i> Ticket Médio Real / AIH</div>
                 <div class="kpi-number neon-text-purple" id="kpi-ticket" title="Faturamento SUS / Volume de AIHs">R$ 0,00</div>
             </div>
+            
             <div class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
-                <div class="kpi-title justify-center"><i class="fas fa-gavel text-yellow-400"></i> Pendência URV <i class="fas fa-question-circle tooltip-icon ml-1" onclick="$('#urv-modal').addClass('active')"></i></div>
+                <div class="kpi-title justify-center">
+                    <i class="fas fa-gavel text-yellow-400"></i> Pendência URV 
+                    <i class="fas fa-question-circle tooltip-icon ml-1" onclick="$('#urv-modal').addClass('active')" title="Clique para entender este cálculo"></i>
+                </div>
                 <div class="kpi-number neon-text-yellow" id="kpi-urv" title="VAL_SH * 9,56%">R$ 0,00</div>
             </div>
         </div>
@@ -286,7 +311,14 @@
             <div class="glass-card p-5 lg:col-span-1">
                 <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-microscope mr-1 text-orange-400"></i> Auditoria de Blocos (Secundários)</div>
                 <table class="w-full table-auditoria">
-                    <thead><tr><th>Bloco Faturado</th><th class="text-center">Qtd. AIHs</th><th class="text-right">Média (R$)</th><th class="text-right">Total (R$)</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Bloco Faturado</th>
+                            <th class="text-center">Qtd. AIHs</th>
+                            <th class="text-right">Média (R$)</th>
+                            <th class="text-right">Total (R$)</th>
+                        </tr>
+                    </thead>
                     <tbody id="auditoria-body"></tbody>
                 </table>
                 <div class="mt-4 text-xs text-gray-500 italic">* Extraído do Resumo de Internação (RD). Identifica se houve cobrança do bloco na AIH.</div>
@@ -296,7 +328,18 @@
                 <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start"><i class="fas fa-list-ul mr-1 text-blue-400"></i> Relação Analítica de AIHs (Faturamento Real)</div>
                 <div id="tabela-container">
                     <table id="tabela-aih" class="display w-full" style="width:100%">
-                        <thead><tr><th>Nº AIH</th><th>Permanência</th><th>Proc. Principal</th><th>SADT</th><th>Sangue</th><th>OPME</th><th>UTI</th><th>Valor Real Total</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Nº AIH</th>
+                                <th>Permanência</th>
+                                <th>Proc. Principal</th>
+                                <th>SADT</th>
+                                <th>Sangue</th>
+                                <th>OPME</th>
+                                <th>UTI</th>
+                                <th>Valor Real Total</th>
+                            </tr>
+                        </thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -311,7 +354,7 @@
 
         let MATRIZ_DADOS = []; 
         let dtTabela = null;   
-        let aihAtualNoModal = null; // Guarda os dados da AIH aberta no momento
+        let aihAtualNoModal = null; 
 
         const formatBRL = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
         const formatData = (val) => (val && val.length === 8 && !isNaN(val)) ? `${val.slice(6,8)}/${val.slice(4,6)}/${val.slice(0,4)}` : val;
@@ -324,12 +367,25 @@
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
+        // MÁGICA DA IMPRESSÃO ISOLADA
+        function imprimirPainelGeral() {
+            document.body.classList.remove('printing-modal');
+            window.print();
+        }
+
+        function imprimirEspelhoAIH() {
+            document.body.classList.add('printing-modal');
+            window.print();
+            // Retira a classe após 1 segundo para voltar ao normal
+            setTimeout(() => document.body.classList.remove('printing-modal'), 1000);
+        }
+
         function abrirEspelhoAIH(numAih) {
             const row = MATRIZ_DADOS.find(d => d.n_aih === numAih || (d.dados_completos && d.dados_completos.N_AIH === numAih));
             if(!row || !row.dados_completos) return;
 
             const d = row.dados_completos;
-            aihAtualNoModal = d; // Salva a AIH para poder gerar o Excel depois
+            aihAtualNoModal = d; 
 
             $('#esp-num').text(d.N_AIH || '-');
             $('#esp-cmpt').text(`${d.MES_CMPT || '--'}/${d.ANO_CMPT || '----'}`);
@@ -364,14 +420,10 @@
             $('#espelho-modal').addClass('active');
         }
 
-        // ========================================================
-        // A MÁGICA DA EXPORTAÇÃO PARA EXCEL (via SheetJS)
-        // ========================================================
         function exportarEspelhoExcel() {
             if (!aihAtualNoModal) return;
             const d = aihAtualNoModal;
             
-            // Cria as linhas e colunas organizadas como no visual da tela
             const planilhas_linhas = [
                 ["ESPELHO DA AIH - HOSPITAL BENEFICENTE SANTA HELENA"],
                 [],

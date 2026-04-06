@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NII-Portal | Auditoria de Itens Secundários (SP)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(56, 189, 248, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 0; margin-bottom: 20px; transition: 0.5s; }
+        
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .kpi-number { font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; }
+
+        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5); }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5); }
+        .neon-text-pink { color: #f472b6; text-shadow: 0 0 5px rgba(244,114,182,0.5); }
+        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5); }
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .glass-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; backdrop-filter: none !important; }
+        body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-pink { color: #db2777 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-yellow { color: #d97706 !important; text-shadow: none !important; }
+        body.theme-classic .kpi-title { color: #64748b !important; }
+        body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
+
+        /* Select2 */
+        .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 38px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #f472b6 !important; border: none !important; color: white !important; padding: 2px 6px; margin-top: 6px; }
+        .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(244, 114, 182, 0.4) !important; color: white; }
+        .select2-search__field { color: white !important; }
+        body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #db2777 !important; color: white !important; }
+        body.theme-classic .select2-dropdown { background-color: white !important; border: 1px solid #cbd5e1 !important; }
+        body.theme-classic .select2-search__field { color: #1e293b !important; }
+        body.theme-classic .select2-results__option { color: #1e293b !important; }
+
+        /* DataTables */
+        .dataTables_wrapper { color: #94a3b8; padding-top: 10px; }
+        table.dataTable { width: 100% !important; color: white !important; }
+        table.dataTable thead th { border-bottom: 1px solid rgba(244, 114, 182, 0.3) !important; color: #f472b6 !important; font-size: 0.75rem; text-transform: uppercase; }
+        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #db2777 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #fdf2f8 !important; }
+        .dataTables_filter input, .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 4px; outline: none;}
+        body.theme-classic .dataTables_filter input, body.theme-classic .dataTables_length select { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
+        .paginate_button { color: rgba(255,255,255,0.7) !important; }
+        .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border: 1px solid rgba(255,255,255,0.4) !important; border-radius: 6px; }
+        body.theme-classic .paginate_button { color: #475569 !important; }
+        body.theme-classic .paginate_button.current { background: #db2777 !important; color: white !important; border-color: #db2777 !important; }
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+        body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
+        body.theme-classic .dt-button:hover { background: #059669 !important; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 4px; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 800px;}
+        body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; color: #334155; }
+        .close-modal { float: right; cursor: pointer; font-size: 1.5rem; color: #94a3b8; transition: 0.2s; }
+        .close-modal:hover { color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div id="itens-modal" class="modal-overlay">
+        <div class="modal-content relative">
+            <i class="fas fa-times close-modal" onclick="fecharModal()"></i>
+            <h2 class="text-2xl font-bold mb-2 text-white">Detalhamento da Conta (SP)</h2>
+            <p class="text-sm text-gray-400 mb-6 border-b border-gray-600/50 pb-4">
+                AIH Número: <span id="modal-aih-num" class="font-bold text-pink-400 font-mono text-lg ml-2"></span>
+            </p>
+            <table class="w-full text-left text-sm" id="modal-tabela">
+                <thead class="text-xs uppercase text-gray-400 border-b border-gray-700">
+                    <tr>
+                        <th class="pb-2">Cód. Procedimento</th>
+                        <th class="pb-2">CBO (Médico)</th>
+                        <th class="pb-2 text-center">Quantidade</th>
+                        <th class="pb-2 text-right">Valor Total (R$)</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-tbody" class="divide-y divide-gray-700/50"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class='header-bg shadow-lg mb-6'>
+        <div class='max-w-[98%] mx-auto px-4'>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-syringe text-3xl text-pink-400"></i></div>
+                    <div>
+                        <h1 class='text-3xl font-bold text-white'>Auditoria de Itens Secundários (SP)</h1>
+                        <p class='text-pink-200 text-sm mt-1 opacity-80'>
+                            Materiais, Exames, UTI e Honorários Médicos
+                            <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">Aguardando...</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
+
+                    <div class="btn-theme" style="padding: 4px 10px;">
+                        <span class="text-xs font-bold uppercase text-pink-400 mr-2">Ano:</span>
+                        <select id="filtro-ano" class="bg-transparent text-white font-bold outline-none"></select>
+                    </div>
+                    
+                    <div class="btn-theme" style="padding: 4px 10px;">
+                        <span class="text-xs font-bold uppercase text-pink-400 mr-2">Mês:</span>
+                        <select id="filtro-mes" class="bg-transparent text-white font-bold outline-none">
+                            <option value="">Todos os Meses</option>
+                            <option value="01">01 - Janeiro</option><option value="02">02 - Fevereiro</option>
+                            <option value="03">03 - Março</option><option value="04">04 - Abril</option>
+                            <option value="05">05 - Maio</option><option value="06">06 - Junho</option>
+                            <option value="07">07 - Julho</option><option value="08">08 - Agosto</option>
+                            <option value="09">09 - Setembro</option><option value="10">10 - Outubro</option>
+                            <option value="11">11 - Novembro</option><option value="12">12 - Dezembro</option>
+                        </select>
+                    </div>
+
+                    <button onclick="baixarMatrizSP()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-pink-400/50">
+                        <i class="fas fa-bolt mr-2"></i> Extrair Dados SP
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-pink-400 mb-1 font-bold"><i class="fas fa-user-md mr-1"></i> Filtrar Especialidade Médica (CBO)</label>
+                    <select id="filtro-cbo" multiple="multiple" class="w-full"></select>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-emerald-400 mb-1 font-bold"><i class="fas fa-pills mr-1"></i> Filtrar Exame ou Material (Cód. Procedimento)</label>
+                    <select id="filtro-proc" multiple="multiple" class="w-full"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4 relative z-10">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
+                <div class="kpi-title"><i class="fas fa-coins text-emerald-400"></i> Faturamento dos Itens Filtrados</div>
+                <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
+            </div>
+            
+            <div class="glass-card p-5 text-center border-b-4 border-pink-500">
+                <div class="kpi-title"><i class="fas fa-list-ol text-pink-400"></i> Qtd. de Lançamentos na Conta</div>
+                <div class="kpi-number neon-text-pink" id="kpi-linhas">0</div>
+            </div>
+            
+            <div class="glass-card p-5 text-center border-b-4 border-blue-500">
+                <div class="kpi-title"><i class="fas fa-syringe text-blue-400"></i> Volume Total de Itens</div>
+                <div class="kpi-number neon-text-blue" id="kpi-qtd" title="Soma da quantidade física dos itens">0</div>
+            </div>
+            
+            <div class="glass-card p-5 text-center border-b-4 border-yellow-500">
+                <div class="kpi-title"><i class="fas fa-chart-pie text-yellow-400"></i> Média de Valor p/ Item</div>
+                <div class="kpi-number neon-text-yellow" id="kpi-media">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 mb-8">
+            <div class="glass-card p-5">
+                <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start text-pink-400"><i class="fas fa-file-invoice mr-2"></i> Relação Analítica de Serviços Profissionais (SP)</div>
+                <div id="tabela-container">
+                    <table id="tabela-sp" class="display w-full" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Nº AIH</th>
+                                <th>Cód. Item/Exame</th>
+                                <th>CBO Médico</th>
+                                <th>Quantidade Física</th>
+                                <th>Valor Total Item</th>
+                                <th>Mês Cmpt.</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-xs text-gray-500 italic">* Dica: Clique no número da AIH para ver todos os exames e materiais lançados juntos dentro daquela mesma conta.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
+        const supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let MATRIZ_DADOS_SP = []; 
+        let dtTabela = null;   
+
+        const formatBRL = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_sp', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_sp', 'classic');
+            }
+            if (MATRIZ_DADOS_SP.length > 0) atualizarPainelSP();
+        }
+
+        $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_sp');
+            if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
+
+            const selectAno = document.getElementById('filtro-ano');
+            const anoAtual = new Date().getFullYear();
+            for(let i = anoAtual; i >= 2024; i--) { selectAno.add(new Option(i, i)); }
+            selectAno.value = "2026"; 
+
+            $('#filtro-cbo, #filtro-proc').select2({ placeholder: "Aguardando Extração...", disabled: true, width: '100%' });
+            
+            baixarMatrizSP();
+        });
+
+        async function baixarMatrizSP() {
+            const ano = $('#filtro-ano').val();
+            const mes = $('#filtro-mes').val();
+            
+            const txtStatus = mes === "" ? `Extraindo Ano Todo (${ano})...` : `Extraindo ${mes}/${ano}...`;
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> ${txtStatus}`);
+            
+            try {
+                let query = supabaseClient
+                    .from('sp_sus_hsh')
+                    .select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot, mes_cmpt')
+                    .eq('ano_cmpt', ano);
+
+                if (mes !== "") {
+                    query = query.eq('mes_cmpt', mes);
+                }
+
+                // O limite para o SP precisa ser gigante
+                const { data, error } = await query.limit(300000); 
+
+                if (error) throw error;
+                MATRIZ_DADOS_SP = data || [];
+
+                if (MATRIZ_DADOS_SP.length === 0) {
+                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem Itens Secundários.</span>`);
+                    atualizarPainelSP(); 
+                    return;
+                }
+
+                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Base SP Carregada (${MATRIZ_DADOS_SP.length} Itens)</span>`);
+                preencherFiltrosSP();
+                atualizarPainelSP();
+
+            } catch (err) {
+                console.error(err);
+                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Erro de Nuvem</span>`);
+            }
+        }
+
+        function preencherFiltrosSP() {
+            const $cbo = $('#filtro-cbo');
+            const $proc = $('#filtro-proc');
+
+            $cbo.empty().prop('disabled', false);
+            $proc.empty().prop('disabled', false);
+
+            let cbosUnicos = [...new Set(MATRIZ_DADOS_SP.map(d => d.sp_cbo).filter(Boolean))].sort();
+            let procsUnicos = [...new Set(MATRIZ_DADOS_SP.map(d => d.sp_proced).filter(Boolean))].sort();
+
+            cbosUnicos.forEach(p => $cbo.append(new Option(p, p, false, false)));
+            procsUnicos.forEach(c => $proc.append(new Option(c, c, false, false)));
+
+            $cbo.select2({ placeholder: "Selecione o CBO Médico...", allowClear: true, closeOnSelect: false });
+            $proc.select2({ placeholder: "Selecione Código do Material/Exame...", allowClear: true, closeOnSelect: false });
+
+            $cbo.on('change', atualizarPainelSP);
+            $proc.on('change', atualizarPainelSP);
+        }
+
+        function atualizarPainelSP() {
+            const cbosEscolhidos = $('#filtro-cbo').val() || [];
+            const procsEscolhidos = $('#filtro-proc').val() || [];
+
+            let dadosFiltrados = MATRIZ_DADOS_SP;
+            if (cbosEscolhidos.length > 0) dadosFiltrados = dadosFiltrados.filter(d => cbosEscolhidos.includes(d.sp_cbo));
+            if (procsEscolhidos.length > 0) dadosFiltrados = dadosFiltrados.filter(d => procsEscolhidos.includes(d.sp_proced));
+
+            let tVal = 0, tQtd = 0;
+            
+            dadosFiltrados.forEach(d => {
+                tVal += parseFloat(d.sp_val_tot || 0); 
+                tQtd += parseFloat(d.sp_qtd || 0);
+            });
+
+            const linhas = dadosFiltrados.length;
+            
+            $('#kpi-valor').text(formatBRL(tVal));
+            $('#kpi-linhas').text(linhas.toLocaleString('pt-BR'));
+            $('#kpi-qtd').text(tQtd.toLocaleString('pt-BR'));
+            $('#kpi-media').text(linhas > 0 ? formatBRL(tVal / linhas) : 'R$ 0,00');
+
+            if (dtTabela) dtTabela.destroy();
+            const tbody = $('#tabela-body');
+            tbody.empty();
+
+            let htmlTabela = '';
+            const isClassic = document.body.classList.contains('theme-classic');
+
+            // Limitamos a renderização visual a 5000 itens para não travar o navegador, mas a exportação vai com tudo.
+            const dadosTabela = dadosFiltrados.slice(0, 5000);
+
+            dadosTabela.forEach(d => {
+                const linkAih = `<a href="javascript:void(0)" onclick="abrirModalItensAIH('${d.n_aih}')" class="text-pink-400 hover:text-pink-300 underline underline-offset-4 decoration-pink-500/50 transition-colors font-mono" title="Ver todos os itens desta conta"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${d.n_aih}</a>`;
+                const linkAihClassic = `<a href="javascript:void(0)" onclick="abrirModalItensAIH('${d.n_aih}')" class="text-pink-700 hover:text-pink-500 underline underline-offset-4 decoration-pink-500/50 transition-colors font-mono" title="Ver todos os itens desta conta"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${d.n_aih}</a>`;
+
+                htmlTabela += `
+                    <tr>
+                        <td style="font-weight: bold;">${isClassic ? linkAihClassic : linkAih}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem;" class="text-emerald-400 font-bold">${d.sp_proced || '-'}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem;" class="text-blue-300">${d.sp_cbo || '-'}</td>
+                        <td style="text-align: center; font-weight: bold;">${d.sp_qtd || '0'}</td>
+                        <td style="text-align: right; font-weight: bold; color: #10b981;">${formatBRL(d.sp_val_tot)}</td>
+                        <td style="text-align: center;" class="text-gray-400">${d.mes_cmpt}</td>
+                    </tr>
+                `;
+            });
+            
+            $('#tabela-sp tbody').html(htmlTabela);
+
+            dtTabela = $('#tabela-sp').DataTable({
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+                pageLength: 15,
+                lengthMenu: [15, 50, 100, 500],
+                order: [[4, 'desc']], // Ordena pelo Valor do Item
+                responsive: true,
+                dom: 'lBrtip',
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Extrato SP (Excel)', className: 'dt-button', title: 'Relatorio_Auditoria_Itens_SP' }
+                ]
+            });
+        }
+
+        // ========================================================
+        // MODAL DOS ITENS DA MESMA AIH
+        // ========================================================
+        function fecharModal() { document.getElementById('itens-modal').classList.remove('active'); }
+        window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
+
+        function abrirModalItensAIH(n_aih) {
+            // Filtra TODOS os itens da Matriz original (sem filtro) que pertencem a essa AIH
+            const itensConta = MATRIZ_DADOS_SP.filter(d => d.n_aih === n_aih);
+            
+            $('#modal-aih-num').text(n_aih);
+            
+            let htmlModal = '';
+            let somaTotal = 0;
+
+            itensConta.sort((a, b) => b.sp_val_tot - a.sp_val_tot).forEach(d => {
+                somaTotal += parseFloat(d.sp_val_tot || 0);
+                htmlModal += `
+                    <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
+                        <td class="py-2 text-emerald-400 font-mono text-sm">${d.sp_proced || '-'}</td>
+                        <td class="py-2 text-blue-300 font-mono text-sm">${d.sp_cbo || '-'}</td>
+                        <td class="py-2 text-center text-gray-300">${d.sp_qtd || '0'}</td>
+                        <td class="py-2 text-right font-bold text-white">${formatBRL(d.sp_val_tot)}</td>
+                    </tr>
+                `;
+            });
+
+            // Linha do Total
+            htmlModal += `
+                <tr class="bg-gray-900/80">
+                    <td colspan="3" class="py-3 text-right font-bold text-gray-400 uppercase text-xs tracking-wider">Total Apurado nestes Itens (SP):</td>
+                    <td class="py-3 text-right font-bold text-pink-400 text-lg border-t border-pink-500/50">${formatBRL(somaTotal)}</td>
+                </tr>
+            `;
+
+            $('#modal-tbody').html(htmlModal);
+            $('#itens-modal').addClass('active');
+        }
+    </script>
+</body>
+</html>
