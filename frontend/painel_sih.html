@@ -94,31 +94,23 @@
         /* CSS BLINDADO PARA IMPRESSÃO PERFEITA NO CHROME/EDGE                  */
         /* ==================================================================== */
         @media print {
-            /* 1. Transforma o fundo inteiro em branco e tira cores escuras */
             body, html { background: #FFFFFF !important; color: #000000 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             
-            /* 2. Esconde menus interativos, bolhas de luz e fundos */
             .no-print, .btn-theme, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate, button, .blob-1, .blob-2, body::before { display: none !important; }
             
-            /* 3. Formata os cartões de vidro para caixas com bordas sólidas */
             .glass-card { background: #FFFFFF !important; border: 1px solid #000000 !important; color: #000000 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 20px !important; }
             
-            /* 4. Força os textos a ficarem pretos */
             .text-white, .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { color: #000000 !important; text-shadow: none !important; }
             .text-emerald-400, .text-blue-400, .text-orange-400, .text-red-400, .text-red-500 { color: #000000 !important; font-weight: bold !important; }
             
-            /* 5. Tabelas robustas */
             table { width: 100% !important; border-collapse: collapse !important; }
             th, td { border: 1px solid #333 !important; color: #000000 !important; padding: 4px !important; }
             
-            /* 6. Layout Grid para os KPIs (lado a lado na folha) */
             #kpi-grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
             #kpi-grid > div { flex: 1 1 20% !important; min-width: 150px !important; }
             
-            /* ======================================= */
-            /* MODO: IMPRIMIR APENAS O ESPELHO DA AIH  */
-            /* ======================================= */
+            /* MODO: IMPRIMIR APENAS O ESPELHO DA AIH */
             body.printing-modal .d-none-print { display: none !important; }
             body.printing-modal .print-mode { position: relative !important; display: block !important; width: 100% !important; height: auto !important; background: #FFFFFF !important; }
             body.printing-modal .modal-content { border: none !important; box-shadow: none !important; padding: 0 !important; max-height: none !important; max-width: 100% !important; }
@@ -210,9 +202,8 @@
                 
                 <div class="flex items-center flex-wrap gap-3">
                     <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
-                    
                     <a href="painel_sih_sp.html" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded-lg border border-pink-400/50 shadow text-sm flex items-center transition-colors">
-                        <i class="fas fa-syringe mr-2"></i> Auditoria de Itens (SP)
+                        <i class="fas fa-syringe mr-2"></i> Auditoria SP
                     </a>
 
                     <label class="relative inline-flex items-center cursor-pointer mr-2" title="Mostrar/Ocultar Cálculo URV">
@@ -251,7 +242,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20">
+            <div class="glass-card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20 no-print">
                 <div>
                     <label class="block text-xs uppercase text-cyan-500 mb-1 font-bold"><i class="fas fa-stethoscope mr-1"></i> Filtrar Procedimento Principal</label>
                     <select id="filtro-proc" multiple="multiple" class="w-full"></select>
@@ -286,7 +277,9 @@
         </div>
 
         <div class="glass-card p-5 mb-6" id="card-resumo">
-            <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start text-orange-400"><i class="fas fa-chart-bar mr-2"></i> Análise Comparativa e Resumo de Procedimentos</div>
+            <div class="kpi-title border-b border-gray-500/20 pb-2 mb-4 justify-start text-orange-400">
+                <i class="fas fa-chart-bar mr-2"></i> Análise Comparativa do Ticket Médio por Procedimento (A Prova para a Administração)
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full table-auditoria" id="tabela-resumo">
                     <thead>
@@ -322,8 +315,8 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
         const supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let MATRIZ_DADOS = []; // Dados do Ano Base
-        let MATRIZ_COMP = [];  // Dados do Ano de Comparação
+        let MATRIZ_DADOS = []; 
+        let MATRIZ_COMP = [];  
         let dtTabela = null;   
         let aihAtualNoModal = null; 
 
@@ -353,21 +346,13 @@
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
-        // MÁGICA DA IMPRESSÃO ISOLADA E CORRIGIDA
-        function imprimirPainelGeral() { 
-            window.print(); 
-        }
-
+        function imprimirPainelGeral() { window.print(); }
         function imprimirEspelhoAIH() { 
-            // Adiciona classes para o CSS esconder a página base e focar no modal
             $('.d-none-print').addClass('d-none-print-active');
             $('.d-none-print-wrapper').addClass('d-none-print-active');
             $('#espelho-modal').removeClass('modal-overlay').addClass('print-mode');
             document.body.classList.add('printing-modal');
-            
             window.print(); 
-            
-            // Restaura tudo após 1 segundo
             setTimeout(() => {
                 document.body.classList.remove('printing-modal');
                 $('.d-none-print').removeClass('d-none-print-active');
@@ -453,7 +438,7 @@
             baixarDadosCompletos();
         });
 
-        // MOTOR ASSÍNCRONO POR BLOCOS (PAGINAÇÃO) PARA NÃO CONGELAR O NAVEGADOR
+        // MOTOR DE PAGINAÇÃO ASSÍNCRONA
         async function fetchAnoPorBlocos(ano, mes, tituloStatus) {
             let matrizTemp = [];
             let temMais = true;
@@ -470,7 +455,7 @@
                 if (data && data.length > 0) {
                     matrizTemp = matrizTemp.concat(data);
                     inicio += data.length;
-                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A extrair ${tituloStatus}... (${matrizTemp.length} AIHs)`);
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A carregar ${tituloStatus}... (${matrizTemp.length} AIHs)`);
                     if (data.length < tamanhoLote) temMais = false;
                 } else {
                     temMais = false;
@@ -484,13 +469,11 @@
             const anoComp = $('#filtro-ano-comp').val();
             const mes = $('#filtro-mes').val();
             
-            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A iniciar nuvem...`);
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A conectar...`);
             
             try {
-                // 1. Descarrega Ano Base
                 MATRIZ_DADOS = await fetchAnoPorBlocos(anoBase, mes, anoBase);
                 
-                // 2. Descarrega Ano Comparação (Se selecionado)
                 MATRIZ_COMP = [];
                 if (anoComp !== "") {
                     MATRIZ_COMP = await fetchAnoPorBlocos(anoComp, mes, anoComp);
@@ -501,13 +484,13 @@
                     atualizarPainelReativo(); return;
                 }
 
-                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Dados Prontos</span>`);
+                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Base Carregada!</span>`);
                 preencherFiltrosSelect2();
                 atualizarPainelReativo();
 
             } catch (err) {
                 console.error(err);
-                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Erro de Nuvem</span>`);
+                $('#status').html(`<span class="text-red-400"><i class="fas fa-times-circle mr-1"></i> Falha no Banco</span>`);
             }
         }
 
@@ -537,7 +520,7 @@
             const usouComp = anoComp !== "";
             const isClassic = document.body.classList.contains('theme-classic');
 
-            // --- PROCESSA ANO BASE ---
+            // --- PROCESSA ANO BASE PARA OS KPIS ---
             let dadosBase = MATRIZ_DADOS;
             if (procsEscolhidos.length > 0) dadosBase = dadosBase.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
             if (cidsEscolhidos.length > 0) dadosBase = dadosBase.filter(d => cidsEscolhidos.includes(d.diag_princ));
@@ -557,17 +540,17 @@
             $('#kpi-ticket').text(dadosBase.length > 0 ? formatBRL(tVal / dadosBase.length) : 'R$ 0,00');
             $('#kpi-urv').text(formatBRL(tSh * 0.0956));
 
-            const media = (v, q) => q > 0 ? formatBRL(v/q) : '-';
+            const mediaAud = (v, q) => q > 0 ? formatBRL(v/q) : '-';
             const classCor = (q) => isClassic && q > 0 ? 'text-blue-700 font-bold' : (q > 0 ? 'text-blue-400 font-bold' : 'text-gray-500');
 
             $('#auditoria-body').html(`
-                <tr><td class="font-bold">Exames / SADT</td><td class="text-center ${classCor(aud.sadt.qtd)}">${aud.sadt.qtd}</td><td class="text-right text-emerald-400">${media(aud.sadt.val, aud.sadt.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sadt.val)}</td></tr>
-                <tr><td class="font-bold">Sangue</td><td class="text-center ${classCor(aud.sangue.qtd)}">${aud.sangue.qtd}</td><td class="text-right text-emerald-400">${media(aud.sangue.val, aud.sangue.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sangue.val)}</td></tr>
-                <tr><td class="font-bold">OPME</td><td class="text-center ${classCor(aud.opme.qtd)}">${aud.opme.qtd}</td><td class="text-right text-emerald-400">${media(aud.opme.val, aud.opme.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.opme.val)}</td></tr>
-                <tr><td class="font-bold">Diárias UTI</td><td class="text-center ${classCor(aud.uti.qtd)}">${aud.uti.qtd}</td><td class="text-right text-emerald-400">${media(aud.uti.val, aud.uti.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.uti.val)}</td></tr>
+                <tr><td class="font-bold">Exames / SADT</td><td class="text-center ${classCor(aud.sadt.qtd)}">${aud.sadt.qtd}</td><td class="text-right text-emerald-400">${mediaAud(aud.sadt.val, aud.sadt.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sadt.val)}</td></tr>
+                <tr><td class="font-bold">Sangue</td><td class="text-center ${classCor(aud.sangue.qtd)}">${aud.sangue.qtd}</td><td class="text-right text-emerald-400">${mediaAud(aud.sangue.val, aud.sangue.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.sangue.val)}</td></tr>
+                <tr><td class="font-bold">OPME</td><td class="text-center ${classCor(aud.opme.qtd)}">${aud.opme.qtd}</td><td class="text-right text-emerald-400">${mediaAud(aud.opme.val, aud.opme.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.opme.val)}</td></tr>
+                <tr><td class="font-bold">Diárias UTI</td><td class="text-center ${classCor(aud.uti.qtd)}">${aud.uti.qtd}</td><td class="text-right text-emerald-400">${mediaAud(aud.uti.val, aud.uti.qtd)}</td><td class="text-right font-mono">${formatBRL(aud.uti.val)}</td></tr>
             `);
 
-            // --- PROCESSA A TABELA DE RESUMO E COMPARAÇÃO DINÂMICA ---
+            // --- A MÁGICA: TABELA DE COMPARAÇÃO COM TICKET MÉDIO DA AIH ---
             let dadosComp = MATRIZ_COMP;
             if (procsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => procsEscolhidos.includes(d.dados_completos?.PROC_REA));
             if (cidsEscolhidos.length > 0) dadosComp = dadosComp.filter(d => cidsEscolhidos.includes(d.diag_princ));
@@ -588,51 +571,47 @@
                 resumoAgrupado[proc].v2 += parseFloat(d.val_tot || 0);
             });
 
-            // Constrói o cabeçalho dinamicamente
             let theadHtml = '';
             if (usouComp) {
                 theadHtml = `<tr>
                     <th>Procedimento (SIGTAP)</th>
                     <th class="text-center bg-blue-900/20">Qtd (${anoBase})</th>
                     <th class="text-center bg-orange-900/20">Qtd (${anoComp})</th>
-                    <th class="text-center">Δ Qtd</th>
-                    <th class="text-right bg-blue-900/20">Valor (${anoBase})</th>
-                    <th class="text-right bg-orange-900/20">Valor (${anoComp})</th>
-                    <th class="text-right">Variação (R$)</th>
-                    <th class="text-right">Δ %</th>
+                    <th class="text-right bg-blue-900/20">Média/AIH (${anoBase})</th>
+                    <th class="text-right bg-orange-900/20">Média/AIH (${anoComp})</th>
+                    <th class="text-right">Δ % Média</th>
                 </tr>`;
             } else {
                 theadHtml = `<tr>
                     <th>Procedimento (SIGTAP)</th>
                     <th class="text-center bg-blue-900/20">Qtd (${anoBase})</th>
-                    <th class="text-right bg-blue-900/20">Valor (${anoBase})</th>
+                    <th class="text-right bg-blue-900/20">Média/AIH (${anoBase})</th>
+                    <th class="text-right bg-blue-900/20">Total Financeiro (${anoBase})</th>
                 </tr>`;
             }
             $('#tabela-resumo thead').html(theadHtml);
 
-            // Constrói o corpo da tabela dinamicamente
             let tbodyHtml = '';
             Object.values(resumoAgrupado).sort((a,b) => b.v1 - a.v1).forEach(r => {
+                // Cálculo do Ticket Médio por Procedimento!
+                let media1 = r.q1 > 0 ? r.v1 / r.q1 : 0;
+                let media2 = r.q2 > 0 ? r.v2 / r.q2 : 0;
+
                 if (usouComp) {
-                    let varQtd = r.q1 - r.q2;
-                    let varVal = r.v1 - r.v2;
-                    let pctVal = r.v2 > 0 ? (varVal / r.v2) * 100 : (r.v1 > 0 ? 100 : 0);
+                    let varMedia = media1 - media2;
+                    let pctMedia = media2 > 0 ? (varMedia / media2) * 100 : (media1 > 0 ? 100 : 0);
                     
-                    let corQtd = varQtd >= 0 ? 'text-emerald-400' : 'text-red-400';
-                    let corVal = varVal >= 0 ? 'text-emerald-400' : 'text-red-400';
-                    let sinalQtd = varQtd > 0 ? '+' : '';
-                    let sinalVal = varVal > 0 ? '+' : '';
+                    let corMedia = varMedia >= 0 ? (varMedia === 0 ? 'text-gray-400' : 'text-emerald-400') : 'text-red-400';
+                    let sinalMedia = varMedia > 0 ? '+' : '';
                     
                     tbodyHtml += `
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
                             <td class="font-mono text-sm">${r.proc}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
                             <td class="text-center font-bold text-orange-400">${r.q2}</td>
-                            <td class="text-center font-bold ${corQtd}">${sinalQtd}${varQtd}</td>
-                            <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
-                            <td class="text-right font-mono font-bold text-orange-400">${formatBRL(r.v2)}</td>
-                            <td class="text-right font-mono font-bold ${corVal}">${sinalVal}${formatBRL(varVal)}</td>
-                            <td class="text-right font-bold ${corVal}">${sinalVal}${pctVal.toFixed(1)}%</td>
+                            <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
+                            <td class="text-right font-mono font-bold text-orange-400">${formatBRL(media2)}</td>
+                            <td class="text-right font-bold ${corMedia}">${sinalMedia}${pctMedia.toFixed(1)}%</td>
                         </tr>
                     `;
                 } else {
@@ -640,6 +619,7 @@
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
                             <td class="font-mono text-sm">${r.proc}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
+                            <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
                         </tr>
                     `;
@@ -647,14 +627,13 @@
             });
 
             if (Object.keys(resumoAgrupado).length === 0) {
-                tbodyHtml = `<tr><td colspan="8" class="text-center text-gray-500 py-4">Sem dados para exibir. Selecione os filtros acima.</td></tr>`;
+                tbodyHtml = `<tr><td colspan="6" class="text-center text-gray-500 py-4">Sem dados para exibir.</td></tr>`;
             }
             $('#tabela-resumo tbody').html(tbodyHtml);
 
-            // --- PROCESSA A TABELA ANALÍTICA (DataTables) ---
+            // --- TABELA ANALÍTICA ---
             if (dtTabela) dtTabela.destroy();
             let htmlTabela = '';
-            // Limita a 3000 linhas visuais para o navegador não bloquear (O Excel baixa tudo!)
             dadosBase.slice(0, 3000).forEach(d => {
                 const n = d.dados_completos?.N_AIH || '-';
                 const linkAih = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n}')" class="${isClassic ? 'text-blue-700 hover:text-blue-500' : 'text-blue-400 hover:text-blue-300'} underline decoration-blue-500/50"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n}</a>`;
