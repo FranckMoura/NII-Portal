@@ -14,13 +14,14 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
@@ -38,7 +39,7 @@
         .neon-text-pink { color: #f472b6; text-shadow: 0 0 5px rgba(244,114,182,0.5); }
         .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5); }
 
-        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
 
@@ -66,7 +67,7 @@
 
         /* DataTables */
         .dataTables_wrapper { color: #94a3b8; padding-top: 10px; }
-        table.dataTable { width: 100% !important; color: white !important; }
+        table.dataTable { width: 100% !important; color: white !important; border-collapse: collapse !important; }
         table.dataTable thead th { border-bottom: 1px solid rgba(244, 114, 182, 0.3) !important; color: #f472b6 !important; font-size: 0.75rem; text-transform: uppercase; }
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; }
         table.dataTable tbody tr { background-color: transparent !important; }
@@ -90,12 +91,38 @@
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 4px; }
         
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
+        /* Modais */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 800px;}
+        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 900px;}
         body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; color: #334155; }
         .close-modal { float: right; cursor: pointer; font-size: 1.5rem; color: #94a3b8; transition: 0.2s; }
         .close-modal:hover { color: #ef4444; }
+
+        /* Caixa de Perfil do Paciente Integrada */
+        .perfil-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        body.theme-classic .perfil-box { background: #f8fafc; border: 1px solid #cbd5e1; }
+        .perfil-item { display: flex; flex-direction: column; }
+        .perfil-lbl { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; }
+        .perfil-val { font-size: 0.95rem; color: white; font-weight: 600; }
+        body.theme-classic .perfil-val { color: #0f172a; }
+
+        /* CSS DE IMPRESSÃO */
+        @media print {
+            body, html { background: #FFFFFF !important; color: #000000 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print, .btn-theme, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate, button, .blob-1, .blob-2, body::before { display: none !important; }
+            .glass-card { background: #FFFFFF !important; border: 1px solid #000000 !important; color: #000000 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 20px !important; }
+            .text-white, .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow, .neon-text-pink { color: #000000 !important; text-shadow: none !important; }
+            .text-emerald-400, .text-blue-400, .text-orange-400, .text-red-400, .text-pink-400 { color: #000000 !important; font-weight: bold !important; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #333 !important; color: #000000 !important; padding: 4px !important; }
+            
+            body.printing-modal .d-none-print { display: none !important; }
+            body.printing-modal .print-mode { position: relative !important; display: block !important; width: 100% !important; height: auto !important; background: #FFFFFF !important; }
+            body.printing-modal .modal-content { border: none !important; box-shadow: none !important; padding: 0 !important; max-height: none !important; max-width: 100% !important; }
+            body.printing-modal .perfil-box { border: 1px solid #000 !important; }
+        }
     </style>
 </head>
 <body>
@@ -104,18 +131,35 @@
     <div class="blob-2"></div>
 
     <div id="itens-modal" class="modal-overlay">
-        <div class="modal-content relative">
-            <i class="fas fa-times close-modal" onclick="fecharModal()"></i>
-            <h2 class="text-2xl font-bold mb-2 text-white">Detalhamento da Conta (SP)</h2>
-            <p class="text-sm text-gray-400 mb-6 border-b border-gray-600/50 pb-4">
-                AIH Número: <span id="modal-aih-num" class="font-bold text-pink-400 font-mono text-lg ml-2"></span>
-            </p>
+        <div class="modal-content relative" id="area-impressao">
+            <i class="fas fa-times close-modal no-print" onclick="fecharModal()"></i>
+            
+            <div class="flex items-center justify-between mb-4 border-b border-gray-600/50 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Extrato de Conta Hospitalar</h2>
+                    <p class="text-sm text-gray-400">AIH: <span id="modal-aih-num" class="font-bold text-pink-400 font-mono text-lg"></span></p>
+                    <div class="flex gap-2 mt-2 no-print">
+                        <button onclick="imprimirModal()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500"><i class="fas fa-print mr-1"></i> Imprimir Extrato</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading-perfil" class="text-center text-pink-400 text-sm py-4"><i class="fas fa-spinner fa-spin mr-2"></i>A cruzar dados do paciente...</div>
+            <div id="perfil-paciente" class="perfil-box hidden">
+                <div class="perfil-item"><span class="perfil-lbl">Idade</span><span class="perfil-val" id="perf-idade">-</span></div>
+                <div class="perfil-item"><span class="perfil-lbl">Permanência</span><span class="perfil-val" id="perf-dias">-</span></div>
+                <div class="perfil-item"><span class="perfil-lbl">Data Internação</span><span class="perfil-val" id="perf-dtint">-</span></div>
+                <div class="perfil-item"><span class="perfil-lbl">CID Principal</span><span class="perfil-val text-emerald-400" id="perf-cid">-</span></div>
+            </div>
+
+            <h3 class="text-lg font-bold text-pink-400 mb-3 border-b border-pink-500/30 pb-1"><i class="fas fa-syringe mr-2"></i>Lançamentos na Conta (SP)</h3>
+            
             <table class="w-full text-left text-sm" id="modal-tabela">
                 <thead class="text-xs uppercase text-gray-400 border-b border-gray-700">
                     <tr>
-                        <th class="pb-2">Cód. Procedimento</th>
-                        <th class="pb-2">CBO (Médico)</th>
-                        <th class="pb-2 text-center">Quantidade</th>
+                        <th class="pb-2">Item Faturado (Procedimento)</th>
+                        <th class="pb-2">Especialidade (CBO)</th>
+                        <th class="pb-2 text-center">Qtd</th>
                         <th class="pb-2 text-right">Valor Total (R$)</th>
                     </tr>
                 </thead>
@@ -124,16 +168,25 @@
         </div>
     </div>
 
-    <div class='header-bg shadow-lg mb-6'>
+    <div class='header-bg shadow-lg mb-6 d-none-print'>
         <div class='max-w-[98%] mx-auto px-4'>
+            <div class="mb-4">
+                <a href="modulo_gerencial.html" class="btn-theme text-white border-white/20 hover:bg-white/10 text-sm">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Gerencial
+                </a>
+                <a href="painel_sih.html" class="btn-theme text-white border-cyan-400/50 hover:bg-cyan-900/30 text-sm ml-2">
+                    <i class="fas fa-chart-line mr-1 text-cyan-400"></i> Painel Geral (RD)
+                </a>
+            </div>
+
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <div class="flex items-center gap-4">
                     <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-syringe text-3xl text-pink-400"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold text-white'>Auditoria de Itens Secundários (SP)</h1>
                         <p class='text-pink-200 text-sm mt-1 opacity-80'>
-                            Materiais, Exames, UTI e Honorários Médicos
-                            <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">Aguardando...</span>
+                            Integração com Tabela SIGTAP e CBO 
+                            <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">Aguardar...</span>
                         </p>
                     </div>
                 </div>
@@ -160,7 +213,10 @@
                     </div>
 
                     <button onclick="baixarMatrizSP()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-pink-400/50">
-                        <i class="fas fa-bolt mr-2"></i> Extrair Dados SP
+                        <i class="fas fa-bolt mr-2"></i> Extrair Nuvem
+                    </button>
+                    <button onclick="imprimirPainel()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-gray-400/50">
+                        <i class="fas fa-print mr-2"></i> Imprimir
                     </button>
                 </div>
             </div>
@@ -178,9 +234,9 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 relative z-10">
+    <div class="max-w-[98%] mx-auto px-4 relative z-10 d-none-print-wrapper">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
                 <div class="kpi-title"><i class="fas fa-coins text-emerald-400"></i> Faturamento dos Itens Filtrados</div>
                 <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
@@ -192,8 +248,8 @@
             </div>
             
             <div class="glass-card p-5 text-center border-b-4 border-blue-500">
-                <div class="kpi-title"><i class="fas fa-syringe text-blue-400"></i> Volume Total de Itens</div>
-                <div class="kpi-number neon-text-blue" id="kpi-qtd" title="Soma da quantidade física dos itens">0</div>
+                <div class="kpi-title"><i class="fas fa-syringe text-blue-400"></i> Volume Total de Itens (Qtd)</div>
+                <div class="kpi-number neon-text-blue" id="kpi-qtd">0</div>
             </div>
             
             <div class="glass-card p-5 text-center border-b-4 border-yellow-500">
@@ -210,17 +266,17 @@
                         <thead>
                             <tr>
                                 <th>Nº AIH</th>
-                                <th>Cód. Item/Exame</th>
-                                <th>CBO Médico</th>
-                                <th>Quantidade Física</th>
-                                <th>Valor Total Item</th>
-                                <th>Mês Cmpt.</th>
+                                <th>Item (SIGTAP)</th>
+                                <th>Médico (CBO)</th>
+                                <th>Qtd</th>
+                                <th>Valor Total</th>
+                                <th>Mês</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <div class="mt-4 text-xs text-gray-500 italic">* Dica: Clique no número da AIH para ver todos os exames e materiais lançados juntos dentro daquela mesma conta.</div>
+                <div class="mt-4 text-xs text-gray-500 italic">* Dica: Clique no número da AIH para o robô cruzar os dados com o RD e abrir o Extrato de Conta.</div>
             </div>
         </div>
     </div>
@@ -235,14 +291,44 @@
 
         const formatBRL = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
+        // =========================================================================
+        // DICIONÁRIOS INTELIGENTES (Tradução Automática de Códigos para Textos)
+        // =========================================================================
+        const DIC_SIGTAP = {
+            "0403010098": "PARTO CESARIANO",
+            "0403010012": "PARTO NORMAL",
+            "0409060135": "APENDICECTOMIA",
+            "0802010164": "DIÁRIA DE UTI - TIPO II",
+            "0204030170": "HEMOGRAMA COMPLETO",
+            "0202010473": "HEMOCULTURA",
+            "0204020060": "DOSAGEM DE CREATININA",
+            // O sistema mostrará apenas o código se não encontrar neste mini-dicionário.
+            // Para adicionar mais, basta seguir o padrão "CÓDIGO": "NOME DO PROCEDIMENTO",
+        };
+
+        const DIC_CBO = {
+            "225250": "Méd. Cirurgião Geral",
+            "225125": "Méd. Clínico",
+            "225124": "Méd. Pediatra",
+            "225203": "Méd. Cirurgia Vascular",
+            "225255": "Méd. Mastologista",
+            "225225": "Méd. Cirurgião Pediátrico",
+            "225265": "Méd. Traumatologista",
+            "223505": "Enfermeiro",
+        };
+
+        function traduzirProc(cod) { return DIC_SIGTAP[cod] ? `<span class="text-gray-400">[${cod}]</span> ${DIC_SIGTAP[cod]}` : cod; }
+        function traduzirCBO(cod) { return DIC_CBO[cod] ? `<span class="text-gray-400">[${cod}]</span> ${DIC_CBO[cod]}` : cod; }
+        // Para os filtros (apenas texto simples)
+        function traduzirProcFiltro(cod) { return DIC_SIGTAP[cod] ? `${cod} - ${DIC_SIGTAP[cod]}` : cod; }
+        function traduzirCBOFiltro(cod) { return DIC_CBO[cod] ? `${cod} - ${DIC_CBO[cod]}` : cod; }
+
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_sp', 'neon');
+                body.classList.remove('theme-classic'); localStorage.setItem('nii_theme_sp', 'neon');
             } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_sp', 'classic');
+                body.classList.add('theme-classic'); localStorage.setItem('nii_theme_sp', 'classic');
             }
             if (MATRIZ_DADOS_SP.length > 0) atualizarPainelSP();
         }
@@ -256,41 +342,47 @@
             for(let i = anoAtual; i >= 2024; i--) { selectAno.add(new Option(i, i)); }
             selectAno.value = "2026"; 
 
-            $('#filtro-cbo, #filtro-proc').select2({ placeholder: "Aguardando Extração...", disabled: true, width: '100%' });
+            $('#filtro-cbo, #filtro-proc').select2({ placeholder: "A aguardar Extração...", disabled: true, width: '100%' });
             
             baixarMatrizSP();
         });
 
+        // PAGINAÇÃO ASSÍNCRONA PARA O SP (Para não crashar o navegador com 300.000 itens)
         async function baixarMatrizSP() {
             const ano = $('#filtro-ano').val();
             const mes = $('#filtro-mes').val();
             
-            const txtStatus = mes === "" ? `Extraindo Ano Todo (${ano})...` : `Extraindo ${mes}/${ano}...`;
-            $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> ${txtStatus}`);
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A preparar nuvem...`);
             
             try {
-                let query = supabaseClient
-                    .from('sp_sus_hsh')
-                    .select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot, mes_cmpt')
-                    .eq('ano_cmpt', ano);
+                MATRIZ_DADOS_SP = [];
+                let temMais = true;
+                let inicio = 0;
+                let tamanhoLote = 5000;
 
-                if (mes !== "") {
-                    query = query.eq('mes_cmpt', mes);
+                while (temMais) {
+                    let query = supabaseClient.from('sp_sus_hsh').select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot, mes_cmpt').eq('ano_cmpt', ano);
+                    if (mes !== "") query = query.eq('mes_cmpt', mes);
+                    
+                    const { data, error } = await query.range(inicio, inicio + tamanhoLote - 1); 
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        MATRIZ_DADOS_SP = MATRIZ_DADOS_SP.concat(data);
+                        inicio += data.length;
+                        $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A extrair itens... (${MATRIZ_DADOS_SP.length})`);
+                        if (data.length < tamanhoLote) temMais = false;
+                    } else {
+                        temMais = false;
+                    }
                 }
-
-                // O limite para o SP precisa ser gigante
-                const { data, error } = await query.limit(300000); 
-
-                if (error) throw error;
-                MATRIZ_DADOS_SP = data || [];
 
                 if (MATRIZ_DADOS_SP.length === 0) {
-                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem Itens Secundários.</span>`);
-                    atualizarPainelSP(); 
-                    return;
+                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem Itens (SP).</span>`);
+                    atualizarPainelSP(); return;
                 }
 
-                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Base SP Carregada (${MATRIZ_DADOS_SP.length} Itens)</span>`);
+                $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Base SP Pronta (${MATRIZ_DADOS_SP.length})</span>`);
                 preencherFiltrosSP();
                 atualizarPainelSP();
 
@@ -301,23 +393,20 @@
         }
 
         function preencherFiltrosSP() {
-            const $cbo = $('#filtro-cbo');
-            const $proc = $('#filtro-proc');
-
-            $cbo.empty().prop('disabled', false);
-            $proc.empty().prop('disabled', false);
+            const $cbo = $('#filtro-cbo'); const $proc = $('#filtro-proc');
+            $cbo.empty().prop('disabled', false); $proc.empty().prop('disabled', false);
 
             let cbosUnicos = [...new Set(MATRIZ_DADOS_SP.map(d => d.sp_cbo).filter(Boolean))].sort();
             let procsUnicos = [...new Set(MATRIZ_DADOS_SP.map(d => d.sp_proced).filter(Boolean))].sort();
 
-            cbosUnicos.forEach(p => $cbo.append(new Option(p, p, false, false)));
-            procsUnicos.forEach(c => $proc.append(new Option(c, c, false, false)));
+            cbosUnicos.forEach(p => $cbo.append(new Option(traduzirCBOFiltro(p), p, false, false)));
+            procsUnicos.forEach(c => $proc.append(new Option(traduzirProcFiltro(c), c, false, false)));
 
             $cbo.select2({ placeholder: "Selecione o CBO Médico...", allowClear: true, closeOnSelect: false });
-            $proc.select2({ placeholder: "Selecione Código do Material/Exame...", allowClear: true, closeOnSelect: false });
+            $proc.select2({ placeholder: "Selecione Material/Exame...", allowClear: true, closeOnSelect: false });
 
-            $cbo.on('change', atualizarPainelSP);
-            $proc.on('change', atualizarPainelSP);
+            $cbo.off('change').on('change', atualizarPainelSP);
+            $proc.off('change').on('change', atualizarPainelSP);
         }
 
         function atualizarPainelSP() {
@@ -329,97 +418,88 @@
             if (procsEscolhidos.length > 0) dadosFiltrados = dadosFiltrados.filter(d => procsEscolhidos.includes(d.sp_proced));
 
             let tVal = 0, tQtd = 0;
-            
-            dadosFiltrados.forEach(d => {
-                tVal += parseFloat(d.sp_val_tot || 0); 
-                tQtd += parseFloat(d.sp_qtd || 0);
-            });
-
+            dadosFiltrados.forEach(d => { tVal += parseFloat(d.sp_val_tot || 0); tQtd += parseFloat(d.sp_qtd || 0); });
             const linhas = dadosFiltrados.length;
             
-            $('#kpi-valor').text(formatBRL(tVal));
-            $('#kpi-linhas').text(linhas.toLocaleString('pt-BR'));
-            $('#kpi-qtd').text(tQtd.toLocaleString('pt-BR'));
-            $('#kpi-media').text(linhas > 0 ? formatBRL(tVal / linhas) : 'R$ 0,00');
+            $('#kpi-valor').text(formatBRL(tVal)); $('#kpi-linhas').text(linhas.toLocaleString('pt-BR'));
+            $('#kpi-qtd').text(tQtd.toLocaleString('pt-BR')); $('#kpi-media').text(linhas > 0 ? formatBRL(tVal / linhas) : 'R$ 0,00');
 
             if (dtTabela) dtTabela.destroy();
-            const tbody = $('#tabela-body');
-            tbody.empty();
-
             let htmlTabela = '';
             const isClassic = document.body.classList.contains('theme-classic');
 
-            // Limitamos a renderização visual a 5000 itens para não travar o navegador, mas a exportação vai com tudo.
-            const dadosTabela = dadosFiltrados.slice(0, 5000);
-
-            dadosTabela.forEach(d => {
-                const linkAih = `<a href="javascript:void(0)" onclick="abrirModalItensAIH('${d.n_aih}')" class="text-pink-400 hover:text-pink-300 underline underline-offset-4 decoration-pink-500/50 transition-colors font-mono" title="Ver todos os itens desta conta"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${d.n_aih}</a>`;
-                const linkAihClassic = `<a href="javascript:void(0)" onclick="abrirModalItensAIH('${d.n_aih}')" class="text-pink-700 hover:text-pink-500 underline underline-offset-4 decoration-pink-500/50 transition-colors font-mono" title="Ver todos os itens desta conta"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${d.n_aih}</a>`;
-
-                htmlTabela += `
-                    <tr>
-                        <td style="font-weight: bold;">${isClassic ? linkAihClassic : linkAih}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem;" class="text-emerald-400 font-bold">${d.sp_proced || '-'}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem;" class="text-blue-300">${d.sp_cbo || '-'}</td>
-                        <td style="text-align: center; font-weight: bold;">${d.sp_qtd || '0'}</td>
-                        <td style="text-align: right; font-weight: bold; color: #10b981;">${formatBRL(d.sp_val_tot)}</td>
-                        <td style="text-align: center;" class="text-gray-400">${d.mes_cmpt}</td>
-                    </tr>
-                `;
+            dadosFiltrados.slice(0, 5000).forEach(d => {
+                const linkAih = `<a href="javascript:void(0)" onclick="abrirModalItensAIH('${d.n_aih}')" class="${isClassic ? 'text-pink-700 hover:text-pink-500' : 'text-pink-400 hover:text-pink-300'} underline decoration-pink-500/50 font-mono"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${d.n_aih}</a>`;
+                htmlTabela += `<tr><td class="font-bold">${linkAih}</td>
+                    <td class="font-mono text-[0.8rem] font-bold text-emerald-400">${traduzirProc(d.sp_proced)}</td>
+                    <td class="font-mono text-[0.8rem] text-blue-300">${traduzirCBO(d.sp_cbo)}</td>
+                    <td class="text-center font-bold">${d.sp_qtd || '0'}</td><td class="text-right font-bold text-emerald-500">${formatBRL(d.sp_val_tot)}</td>
+                    <td class="text-center text-gray-400">${d.mes_cmpt}</td></tr>`;
             });
             
             $('#tabela-sp tbody').html(htmlTabela);
-
-            dtTabela = $('#tabela-sp').DataTable({
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
-                pageLength: 15,
-                lengthMenu: [15, 50, 100, 500],
-                order: [[4, 'desc']], // Ordena pelo Valor do Item
-                responsive: true,
-                dom: 'lBrtip',
-                buttons: [
-                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Extrato SP (Excel)', className: 'dt-button', title: 'Relatorio_Auditoria_Itens_SP' }
-                ]
-            });
+            dtTabela = $('#tabela-sp').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' }, pageLength: 15, lengthMenu: [15, 50, 100, 500], order: [[4, 'desc']], responsive: true, dom: 'lBrtip', buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Extrato SP (Excel)', className: 'dt-button', title: 'Relatorio_Auditoria_Itens_SP' }] });
         }
 
         // ========================================================
-        // MODAL DOS ITENS DA MESMA AIH
+        // A INTEGRAÇÃO (CROSS-QUERY SP + RD)
         // ========================================================
         function fecharModal() { document.getElementById('itens-modal').classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
-        function abrirModalItensAIH(n_aih) {
-            // Filtra TODOS os itens da Matriz original (sem filtro) que pertencem a essa AIH
+        function imprimirPainel() { window.print(); }
+        function imprimirModal() {
+            $('.d-none-print').addClass('d-none-print-active'); $('.d-none-print-wrapper').addClass('d-none-print-active');
+            $('#itens-modal').removeClass('modal-overlay').addClass('print-mode');
+            document.body.classList.add('printing-modal');
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('printing-modal');
+                $('.d-none-print').removeClass('d-none-print-active'); $('.d-none-print-wrapper').removeClass('d-none-print-active');
+                $('#itens-modal').addClass('modal-overlay').removeClass('print-mode');
+            }, 1000); 
+        }
+
+        async function abrirModalItensAIH(n_aih) {
+            // 1. Processa a lista do SP (RAM)
             const itensConta = MATRIZ_DADOS_SP.filter(d => d.n_aih === n_aih);
-            
             $('#modal-aih-num').text(n_aih);
             
-            let htmlModal = '';
-            let somaTotal = 0;
-
+            let htmlModal = ''; let somaTotal = 0;
             itensConta.sort((a, b) => b.sp_val_tot - a.sp_val_tot).forEach(d => {
                 somaTotal += parseFloat(d.sp_val_tot || 0);
-                htmlModal += `
-                    <tr class="border-b border-gray-700/50 hover:bg-gray-800/50 transition-colors">
-                        <td class="py-2 text-emerald-400 font-mono text-sm">${d.sp_proced || '-'}</td>
-                        <td class="py-2 text-blue-300 font-mono text-sm">${d.sp_cbo || '-'}</td>
-                        <td class="py-2 text-center text-gray-300">${d.sp_qtd || '0'}</td>
-                        <td class="py-2 text-right font-bold text-white">${formatBRL(d.sp_val_tot)}</td>
-                    </tr>
-                `;
+                htmlModal += `<tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
+                    <td class="py-2 text-emerald-400 font-mono text-sm">${traduzirProc(d.sp_proced)}</td>
+                    <td class="py-2 text-blue-300 font-mono text-sm">${traduzirCBO(d.sp_cbo)}</td>
+                    <td class="py-2 text-center text-gray-300">${d.sp_qtd || '0'}</td>
+                    <td class="py-2 text-right font-bold text-white">${formatBRL(d.sp_val_tot)}</td></tr>`;
             });
-
-            // Linha do Total
-            htmlModal += `
-                <tr class="bg-gray-900/80">
-                    <td colspan="3" class="py-3 text-right font-bold text-gray-400 uppercase text-xs tracking-wider">Total Apurado nestes Itens (SP):</td>
-                    <td class="py-3 text-right font-bold text-pink-400 text-lg border-t border-pink-500/50">${formatBRL(somaTotal)}</td>
-                </tr>
-            `;
-
+            htmlModal += `<tr class="bg-gray-900/80"><td colspan="3" class="py-3 text-right font-bold text-gray-400 uppercase text-xs">Total Apurado nestes Itens (SP):</td><td class="py-3 text-right font-bold text-pink-400 text-lg border-t border-pink-500/50">${formatBRL(somaTotal)}</td></tr>`;
+            
             $('#modal-tbody').html(htmlModal);
             $('#itens-modal').addClass('active');
+
+            // 2. Busca os dados reais do paciente na tabela do RD! (A Integração)
+            $('#perfil-paciente').addClass('hidden');
+            $('#loading-perfil').removeClass('hidden');
+
+            try {
+                const { data, error } = await supabaseClient.from('sih_sus_hsh').select('dados_completos').eq('n_aih', n_aih).single();
+                if (data && data.dados_completos) {
+                    const perf = data.dados_completos;
+                    $('#perf-idade').text(`${perf.IDADE || '-'} anos`);
+                    $('#perf-dias').text(`${perf.DIAS_PERM || '-'} dias`);
+                    $('#perf-dtint').text(perf.DT_INTER ? `${perf.DT_INTER.slice(6,8)}/${perf.DT_INTER.slice(4,6)}/${perf.DT_INTER.slice(0,4)}` : '-');
+                    $('#perf-cid').text(perf.DIAG_PRINC || '-');
+                    
+                    $('#loading-perfil').addClass('hidden');
+                    $('#perfil-paciente').removeClass('hidden');
+                } else {
+                    $('#loading-perfil').html('<i class="fas fa-info-circle mr-1"></i> Conta RD (Capa) ainda não importada.');
+                }
+            } catch(e) {
+                $('#loading-perfil').html('<i class="fas fa-info-circle mr-1"></i> Perfil não encontrado no Resumo.');
+            }
         }
     </script>
 </body>
