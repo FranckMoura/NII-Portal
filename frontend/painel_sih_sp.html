@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII-Portal | Gestão Estratégica e Auditoria SIH</title>
+    <title>NII-Portal | Gestão Estratégica Unificada (RD+SP)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -59,7 +59,7 @@
         .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #0ea5e9 !important; border: none !important; color: white !important; padding: 2px 6px; margin-top: 6px; }
         .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white; }
         body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; color: white !important; }
         body.theme-classic .select2-dropdown { background-color: white !important; border: 1px solid #cbd5e1 !important; }
 
         table.dataTable { width: 100% !important; color: white !important; border-collapse: collapse !important;}
@@ -71,15 +71,28 @@
         .dataTables_filter input, .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 4px; outline: none;}
         body.theme-classic .dataTables_filter input, body.theme-classic .dataTables_length select { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
         
-        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; }
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-left: 15px !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
         body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
+        body.theme-classic .dt-button:hover { background: #059669 !important; }
 
-        /* MODAIS */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 4px; }
+
+        .table-auditoria th { background: rgba(0,0,0,0.2); text-transform: uppercase; font-size: 0.7rem; color: #94a3b8; padding: 8px; text-align: left; }
+        .table-auditoria td { padding: 8px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        body.theme-classic .table-auditoria th { background: #f1f5f9; color: #475569; }
+        body.theme-classic .table-auditoria td { border-bottom: 1px solid #e2e8f0; color: #334155;}
+
+        /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
         body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; color: #334155; }
-        
+        .close-modal { float: right; cursor: pointer; font-size: 1.5rem; color: #94a3b8; transition: 0.2s; }
+        .close-modal:hover { color: #ef4444; }
+
         /* ESPELHO DA AIH */
         .aih-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
         .aih-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; }
@@ -90,23 +103,24 @@
         .aih-section { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 16px; font-size: 1rem; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 8px;}
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
+        /* IMPRESSÃO BLINDADA */
         @media print {
-            html, body { background: white !important; color: black !important; min-height: auto !important; position: static !important; }
-            .blob-1, .blob-2, body::before { display: none !important; }
-            .no-print, .btn-theme, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, button { display: none !important; }
-            .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; break-inside: avoid; margin-bottom: 20px !important; }
-            #kpi-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
-            .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow { text-shadow: none !important; color: black !important; }
+            body, html { background: #FFFFFF !important; color: #000000 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print, .btn-theme, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate, button, .blob-1, .blob-2, body::before { display: none !important; }
+            .glass-card { background: #FFFFFF !important; border: 1px solid #000000 !important; color: #000000 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 20px !important; }
+            .text-white, .kpi-title, .kpi-number, .neon-text-green, .neon-text-blue, .neon-text-purple, .neon-text-yellow, .neon-text-pink { color: #000000 !important; text-shadow: none !important; }
+            .text-emerald-400, .text-blue-400, .text-orange-400, .text-red-400, .text-pink-400 { color: #000000 !important; font-weight: bold !important; }
             table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ccc !important; color: black !important; padding: 6px !important; }
+            th, td { border: 1px solid #333 !important; color: #000000 !important; padding: 4px !important; }
+            #kpi-grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+            #kpi-grid > div { flex: 1 1 20% !important; min-width: 150px !important; }
             
-            body.printing-modal * { visibility: hidden; }
-            body.printing-modal #espelho-modal, body.printing-modal #espelho-modal * { visibility: visible; }
-            body.printing-modal #espelho-modal { position: absolute; left: 0; top: 0; width: 100%; display: block; background: white !important; }
-            body.printing-modal .modal-content { border: none; box-shadow: none; padding: 0; margin: 0; background: white !important; color: black !important; }
-            body.printing-modal .aih-box { border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 10px; }
-            body.printing-modal .aih-section { border-bottom: 2px solid black !important; margin-top: 20px; color: black !important; }
-            body.printing-modal .text-emerald-400, body.printing-modal .text-blue-400, body.printing-modal .text-red-500 { color: black !important; font-weight: bold; }
+            body.printing-modal .d-none-print { display: none !important; }
+            body.printing-modal .print-mode { position: relative !important; display: block !important; width: 100% !important; height: auto !important; background: #FFFFFF !important; }
+            body.printing-modal .modal-content { border: none !important; box-shadow: none !important; padding: 0 !important; max-height: none !important; max-width: 100% !important; }
+            body.printing-modal .aih-box { border: 1px solid #333 !important; padding: 5px !important; margin-bottom: 5px !important; }
+            body.printing-modal .aih-section { border-bottom: 2px solid #000 !important; margin-top: 15px !important; color: #000 !important; }
         }
     </style>
 </head>
@@ -117,7 +131,7 @@
 
     <div id="urv-modal" class="modal-overlay">
         <div class="modal-content relative max-w-lg w-full">
-            <i class="fas fa-times close-modal no-print" onclick="fecharModal('urv-modal')"></i>
+            <i class="fas fa-times close-modal no-print" onclick="fecharModal('urv-modal')" style="cursor:pointer; float:right;"></i>
             <h2 class="text-xl font-bold mb-4 text-yellow-400 border-b border-gray-600 pb-2"><i class="fas fa-gavel mr-2"></i>A Tese da URV (9,56%)</h2>
             <p class="text-sm mb-3">Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na Tabela SUS.</p>
             <p class="text-sm mb-3">Isto gerou uma defasagem histórica de <strong>9,56%</strong> nos repasses, aplicável apenas aos Serviços Hospitalares (VAL_SH).</p>
@@ -126,11 +140,11 @@
 
     <div id="espelho-modal" class="modal-overlay">
         <div class="modal-content relative max-w-6xl w-full">
-            <i class="fas fa-times close-modal no-print" onclick="fecharModal('espelho-modal')"></i>
+            <i class="fas fa-times close-modal no-print" onclick="fecharModal('espelho-modal')" style="cursor:pointer; float:right;"></i>
             
             <div class="flex items-center justify-between mb-6 border-b border-gray-600/50 pb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-white aih-val">Espelho Completo da AIH: <span id="esp-num" class="text-blue-400"></span></h2>
+                    <h2 class="text-2xl font-bold text-white aih-val">Extrato Unificado da AIH: <span id="esp-num" class="text-blue-400"></span></h2>
                     <p class="text-sm text-gray-400">Hospital Beneficente Santa Helena • Competência: <span id="esp-cmpt" class="font-bold"></span></p>
                     
                     <div class="flex gap-2 mt-3 no-print">
@@ -139,7 +153,7 @@
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-xs text-gray-400 uppercase tracking-wider">Valor Total Aprovado (RD)</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wider">Total Aprovado (RD)</div>
                     <div id="esp-valtot" class="text-3xl font-bold text-emerald-400 font-mono"></div>
                 </div>
             </div>
@@ -154,7 +168,7 @@
                         <div class="aih-box"><span class="aih-lbl">Saída (Dias)</span><span class="aih-val" id="esp-dtsai"></span></div>
                         <div class="aih-box"><span class="aih-lbl">Óbito</span><span class="aih-val" id="esp-obito"></span></div>
                         <div class="aih-box"><span class="aih-lbl">Caráter</span><span class="aih-val" id="esp-car"></span></div>
-                        <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Procedimento Principal (SIGTAP)</span><span class="aih-val font-mono text-blue-300 text-xs" id="esp-proc"></span></div>
+                        <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Procedimento (RD)</span><span class="aih-val font-mono text-blue-300 text-xs" id="esp-proc"></span></div>
                         <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Doença (CID)</span><span class="aih-val font-bold text-emerald-400" id="esp-cid1"></span></div>
                     </div>
                 </div>
@@ -168,11 +182,10 @@
                                     <th class="pb-2">Material / Exame / Ato</th>
                                     <th class="pb-2 text-center">CBO</th>
                                     <th class="pb-2 text-center">Qtd</th>
-                                    <th class="pb-2 text-right">R$</th>
+                                    <th class="pb-2 text-right">R$ Total</th>
                                 </tr>
                             </thead>
-                            <tbody id="modal-sp-body" class="divide-y divide-gray-700/50">
-                                </tbody>
+                            <tbody id="modal-sp-body" class="divide-y divide-gray-700/50"></tbody>
                         </table>
                     </div>
                 </div>
@@ -188,7 +201,7 @@
                     <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-chart-pie text-3xl text-cyan-400"></i></div>
                     <div>
                         <h1 class='text-3xl font-bold text-white'>Gestão Estratégica Unificada</h1>
-                        <p class='text-cyan-200 text-sm mt-1 opacity-80'>Auditoria Completa: Contas (RD) + Itens Secundários (SP) <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">A aguardar...</span></p>
+                        <p class='text-cyan-200 text-sm mt-1 opacity-80'>Auditoria de Contas (RD) e Itens (SP) <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">A aguardar...</span></p>
                     </div>
                 </div>
                 
@@ -226,14 +239,14 @@
                         </select>
                     </div>
 
-                    <button onclick="baixarDadosUnificados()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg border border-blue-400/50 shadow"><i class="fas fa-bolt mr-2"></i> Atualizar Dados</button>
-                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg border border-gray-400/50 shadow"><i class="fas fa-print mr-2"></i> Imprimir Painel</button>
+                    <button onclick="baixarDadosUnificados()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg border border-blue-400/50 shadow transition-colors"><i class="fas fa-bolt mr-2"></i> Atualizar Dados</button>
+                    <button onclick="imprimirPainelGeral()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg border border-gray-400/50 shadow transition-colors"><i class="fas fa-print mr-2"></i> Imprimir Painel</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-20 no-print mb-4">
                 <div class="glass-card p-4 border-l-4 border-l-cyan-500">
-                    <h3 class="text-xs font-bold text-cyan-400 uppercase mb-3"><i class="fas fa-file-medical mr-1"></i> Filtros da Conta (RD)</h3>
+                    <h3 class="text-xs font-bold text-cyan-400 uppercase mb-3"><i class="fas fa-file-medical mr-1"></i> Filtros da Conta Principal (RD)</h3>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[0.65rem] text-gray-400 mb-1">Procedimento Principal</label>
@@ -247,14 +260,14 @@
                 </div>
 
                 <div class="glass-card p-4 border-l-4 border-l-pink-500">
-                    <h3 class="text-xs font-bold text-pink-400 uppercase mb-3"><i class="fas fa-syringe mr-1"></i> Filtros de Lançamento (SP)</h3>
+                    <h3 class="text-xs font-bold text-pink-400 uppercase mb-3"><i class="fas fa-syringe mr-1"></i> Filtros de Lançamento Secundário (SP)</h3>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[0.65rem] text-gray-400 mb-1">Item / Material</label>
+                            <label class="block text-[0.65rem] text-gray-400 mb-1">Item / Material Faturado</label>
                             <select id="filtro-sp-proc" multiple="multiple" class="w-full"></select>
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] text-gray-400 mb-1">Especialidade (CBO)</label>
+                            <label class="block text-[0.65rem] text-gray-400 mb-1">Especialidade Médica (CBO)</label>
                             <select id="filtro-sp-cbo" multiple="multiple" class="w-full"></select>
                         </div>
                     </div>
@@ -267,11 +280,11 @@
         
         <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
-                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Faturação SUS (Ano Base)</div>
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Faturação (Ano Base)</div>
                 <div class="kpi-number neon-text-green" id="kpi-valor">R$ 0,00</div>
             </div>
             <div class="glass-card p-5 text-center border-b-4 border-cyan-500">
-                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> Volume AIHs Filtradas</div>
+                <div class="kpi-title"><i class="fas fa-hospital-user text-cyan-400"></i> AIHs Filtradas</div>
                 <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
             </div>
             <div class="glass-card p-5 text-center border-b-4 border-purple-500">
@@ -279,7 +292,7 @@
                 <div class="kpi-number neon-text-purple" id="kpi-ticket">R$ 0,00</div>
             </div>
             <div id="card-urv" class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
-                <div class="kpi-title justify-center"><i class="fas fa-gavel text-yellow-400"></i> Pendência URV <i class="fas fa-question-circle tooltip-icon ml-1 no-print" onclick="$('#urv-modal').addClass('active')"></i></div>
+                <div class="kpi-title justify-center"><i class="fas fa-gavel text-yellow-400"></i> URV <i class="fas fa-question-circle tooltip-icon ml-1 no-print" onclick="$('#urv-modal').addClass('active')"></i></div>
                 <div class="kpi-number neon-text-yellow" id="kpi-urv">R$ 0,00</div>
             </div>
         </div>
@@ -315,7 +328,6 @@
         let MATRIZ_RD_BASE = []; 
         let MATRIZ_RD_COMP = [];  
         let MATRIZ_SP_BASE = [];
-        let MATRIZ_SP_COMP = [];
 
         let dtTabela = null;   
         let aihAtualNoModal = null; 
@@ -328,24 +340,38 @@
         const DIC_MORTE = { "0": "Não", "1": "Sim" };
         const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trab", "04": "Acid. Trâns", "05": "Outras", "06": "Outros" };
 
-        // DICIONÁRIOS INTELIGENTES PARA TRADUZIR O CÓDIGO DA TABELA SP
-        const DIC_SIGTAP = { "0403010098": "PARTO CESARIANO", "0403010012": "PARTO NORMAL", "0409060135": "APENDICECTOMIA", "0802010164": "DIÁRIA UTI", "0204030170": "HEMOGRAMA COMPLETO", "0202010473": "HEMOCULTURA", "0204020060": "CREATININA" };
-        const DIC_CBO = { "225250": "Cirurgião Geral", "225125": "Clínico", "225124": "Pediatra", "225203": "Cirurgião Vascular", "225255": "Mastologista", "225225": "Cirurgião Pediátrico", "225265": "Traumatologista", "223505": "Enfermeiro" };
+        // =========================================================
+        // DICIONÁRIOS MESTRES DE PROCEDIMENTOS E CBO (Com Injeções do CSV)
+        // =========================================================
+        const DIC_SIGTAP = { 
+            "0403010098": "PARTO CESARIANO", "0403010012": "PARTO NORMAL", "0409060135": "APENDICECTOMIA", 
+            "0802010164": "DIÁRIA UTI TIPO II", "0204030170": "HEMOGRAMA COMPLETO", "0202010473": "HEMOCULTURA", 
+            "0204020060": "DOSAGEM CREATININA", "0301060061": "ATENDIMENTO DE URGÊNCIA", "0301010072": "CONSULTA MÉDICA ESP",
+            "0204030030": "COAGULOGRAMA", "0204020116": "GLICEMIA", "0214010015": "GLICOSE", 
+            "0301010048": "ATENDIMENTO MÉDICO", "0204020230": "UREIA", "0204020205": "SÓDIO", "0204020191": "POTÁSSIO",
+            "0407040129": "HERNIOPLASTIA INGUINAL", "0409060070": "COLECISTECTOMIA", "0408050101": "OSTEOSSÍNTESE",
+            "0303140046": "TRATAMENTO DE DOENÇAS BACTERIANAS", "0303070064": "TRATAMENTO DE DOENÇAS DO ESÔFAGO/ESTÔMAGO",
+            "0411010042": "PARTO CESARIANO ALTO RISCO"
+        };
+        const DIC_CBO = { 
+            "225250": "Cirurgião Geral", "225125": "Clínico Geral", "225124": "Pediatra", 
+            "225203": "Cirurgião Vascular", "225255": "Mastologista", "225225": "Cirurgião Pediátrico", 
+            "225265": "Traumatologista", "223505": "Enfermeiro", "225120": "Cardiologista", "225270": "Ortopedista"
+        };
 
-        function traduzir(cod, dict) { return dic[cod] ? `<span class="text-gray-500 font-normal">[${cod}]</span> ${dic[cod]}` : cod; }
-        function traduzirFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : cod; }
+        // AS FUNÇÕES DE TRADUÇÃO (Corrigidas Definitivamente)
+        function traduzirFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; }
+        function getDictNome(cod, dic) { return dic[cod] ? `<span class="text-gray-400 font-normal">[${cod}]</span> ${dic[cod]}` : `<span class="text-gray-400 font-normal">[${cod}]</span> Sem Descrição`; }
 
         function alternarURV() {
             const isChecked = document.getElementById('toggle-urv').checked;
             const cardURV = document.getElementById('card-urv');
             const kpiGrid = document.getElementById('kpi-grid');
             if (isChecked) {
-                cardURV.style.display = 'block';
-                kpiGrid.classList.remove('md:grid-cols-3'); kpiGrid.classList.add('md:grid-cols-4');
+                cardURV.style.display = 'block'; kpiGrid.classList.replace('md:grid-cols-3', 'md:grid-cols-4');
                 localStorage.setItem('nii_mostrar_urv', 'sim');
             } else {
-                cardURV.style.display = 'none';
-                kpiGrid.classList.remove('md:grid-cols-4'); kpiGrid.classList.add('md:grid-cols-3');
+                cardURV.style.display = 'none'; kpiGrid.classList.replace('md:grid-cols-4', 'md:grid-cols-3');
                 localStorage.setItem('nii_mostrar_urv', 'nao');
             }
         }
@@ -355,15 +381,13 @@
 
         function imprimirPainelGeral() { window.print(); }
         function imprimirEspelhoAIH() { 
-            $('.d-none-print').addClass('d-none-print-active');
-            $('.d-none-print-wrapper').addClass('d-none-print-active');
+            $('.d-none-print, .d-none-print-wrapper').addClass('d-none-print-active');
             $('#espelho-modal').removeClass('modal-overlay').addClass('print-mode');
             document.body.classList.add('printing-modal');
             window.print(); 
             setTimeout(() => {
                 document.body.classList.remove('printing-modal');
-                $('.d-none-print').removeClass('d-none-print-active');
-                $('.d-none-print-wrapper').removeClass('d-none-print-active');
+                $('.d-none-print, .d-none-print-wrapper').removeClass('d-none-print-active');
                 $('#espelho-modal').addClass('modal-overlay').removeClass('print-mode');
             }, 1000); 
         }
@@ -384,26 +408,22 @@
             let obito = DIC_MORTE[d.MORTE] || '-';
             $('#esp-obito').html(d.MORTE === '1' ? `<span class="text-red-500 font-bold">SIM</span>` : obito);
 
-            const procText = DIC_SIGTAP[d.PROC_REA] ? `${DIC_SIGTAP[d.PROC_REA]}` : d.PROC_REA;
-            $('#esp-proc').html(`[${d.PROC_REA}] ${procText}`); 
+            $('#esp-proc').html(getDictNome(d.PROC_REA, DIC_SIGTAP)); 
             $('#esp-cid1').text(d.DIAG_PRINC || '-');
 
-            // Mapeia os Itens SP dentro do modal
             const itensSP = MATRIZ_SP_BASE.filter(sp => sp.n_aih === numAih);
             let htmlSP = '';
             itensSP.sort((a,b) => b.sp_val_tot - a.sp_val_tot).forEach(sp => {
-                const pName = DIC_SIGTAP[sp.sp_proced] ? DIC_SIGTAP[sp.sp_proced] : sp.sp_proced;
-                const cName = DIC_CBO[sp.sp_cbo] ? DIC_CBO[sp.sp_cbo] : sp.sp_cbo;
                 htmlSP += `
                     <tr class="hover:bg-gray-800/30 transition-colors">
-                        <td class="py-1.5 font-mono text-emerald-400 text-xs truncate max-w-[150px]" title="${pName}">${pName}</td>
-                        <td class="py-1.5 text-center text-blue-300 text-[0.65rem] truncate max-w-[80px]" title="${cName}">${cName}</td>
+                        <td class="py-1.5 font-mono text-emerald-400 text-[0.7rem] truncate max-w-[200px]" title="${sp.sp_proced}">${getDictNome(sp.sp_proced, DIC_SIGTAP)}</td>
+                        <td class="py-1.5 text-center text-blue-300 text-[0.65rem] truncate max-w-[100px]">${getDictNome(sp.sp_cbo, DIC_CBO)}</td>
                         <td class="py-1.5 text-center text-gray-300 font-bold">${sp.sp_qtd}</td>
                         <td class="py-1.5 text-right font-mono font-bold text-white">${formatBRL(sp.sp_val_tot)}</td>
                     </tr>
                 `;
             });
-            if(itensSP.length === 0) htmlSP = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Nenhum item secundário registado nesta AIH.</td></tr>';
+            if(itensSP.length === 0) htmlSP = '<tr><td colspan="4" class="text-center py-4 text-gray-500 text-xs">Nenhum item secundário importado na base SP para esta AIH.</td></tr>';
             
             $('#modal-sp-body').html(htmlSP);
             $('#espelho-modal').addClass('active');
@@ -421,11 +441,11 @@
                 ["Procedimento:", d.PROC_REA, "", "Alta:", formatData(d.DT_SAIDA)],
                 ["Valor Total Aprovado (RD):", parseFloat(d.VAL_TOT || 0)], [],
                 ["LISTA DE ITENS E SERVIÇOS (SP)"],
-                ["Código Procedimento", "Código CBO", "Quantidade", "Valor Item (R$)"]
+                ["Código Procedimento", "Nome (Se mapeado)", "Código CBO", "Quantidade", "Valor Item (R$)"]
             ];
 
             itensSP.forEach(sp => {
-                planilhas_linhas.push([sp.sp_proced, sp.sp_cbo, sp.sp_qtd, parseFloat(sp.sp_val_tot || 0)]);
+                planilhas_linhas.push([sp.sp_proced, DIC_SIGTAP[sp.sp_proced] || "Sem Descrição", sp.sp_cbo, sp.sp_qtd, parseFloat(sp.sp_val_tot || 0)]);
             });
 
             const worksheet = XLSX.utils.aoa_to_sheet(planilhas_linhas);
@@ -447,17 +467,12 @@
         $(document).ready(function() {
             const savedTheme = localStorage.getItem('nii_theme_sih');
             if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
-
-            if (localStorage.getItem('nii_mostrar_urv') === 'nao') {
-                document.getElementById('toggle-urv').checked = false; alternarURV();
-            }
+            if (localStorage.getItem('nii_mostrar_urv') === 'nao') { document.getElementById('toggle-urv').checked = false; alternarURV(); }
 
             const selectAno = document.getElementById('filtro-ano');
             const selectComp = document.getElementById('filtro-ano-comp');
-            const anoAtual = new Date().getFullYear();
-            for(let i = anoAtual; i >= 2000; i--) { 
-                selectAno.add(new Option(i, i)); 
-                selectComp.add(new Option(i, i)); 
+            for(let i = new Date().getFullYear(); i >= 2000; i--) { 
+                selectAno.add(new Option(i, i)); selectComp.add(new Option(i, i)); 
             }
             selectAno.value = "2026"; 
 
@@ -466,23 +481,14 @@
             baixarDadosUnificados();
         });
 
-        // ========================================================
-        // O MOTOR DE EXTRAÇÃO DUPLA (RD + SP EM SIMULTÂNEO E EM BLOCOS)
-        // ========================================================
-        async function fetchTabela(tabela, anoReal, mes) {
+        async function fetchTabelaRD(ano, mes, tituloStatus) {
             let matrizTemp = [];
             let temMais = true;
             let inicio = 0;
             let tamanhoLote = 5000;
 
-            // Tratamento da Data: O RD tem ano '2026', o SP tem ano '26' (ou '2026', o Python ajustou, vamos tentar os dois)
-            let anoBusca = anoReal;
-            if (tabela === 'sp_sus_hsh' && anoReal.length === 4) {
-                // A nossa base SP foi tratada para suportar os 2
-            }
-
             while (temMais) {
-                let query = supabaseClient.from(tabela).select('*').in('ano_cmpt', [anoReal, anoReal.slice(2)]);
+                let query = supabaseClient.from('sih_sus_hsh').select('n_aih, dt_inter, dt_saida, diag_princ, val_tot, val_sh, val_sp, dados_completos').eq('ano_cmpt', ano);
                 if (mes !== "") query = query.eq('mes_cmpt', mes);
                 
                 const { data, error } = await query.range(inicio, inicio + tamanhoLote - 1); 
@@ -491,7 +497,7 @@
                 if (data && data.length > 0) {
                     matrizTemp = matrizTemp.concat(data);
                     inicio += data.length;
-                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> ${tabela.split('_')[0].toUpperCase()} ${anoReal}: ${matrizTemp.length} linhas...`);
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Capas de Contas (RD) ${tituloStatus}... (${matrizTemp.length})`);
                     if (data.length < tamanhoLote) temMais = false;
                 } else {
                     temMais = false;
@@ -508,11 +514,27 @@
             $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> A iniciar nuvem...`);
             
             try {
-                // Descarrega RD e SP do Ano Base
-                MATRIZ_RD_BASE = await fetchTabela('sih_sus_hsh', anoBase, mes);
-                MATRIZ_SP_BASE = await fetchTabela('sp_sus_hsh', anoBase, mes);
+                MATRIZ_RD_BASE = await fetchTabelaRD(anoBase, mes, anoBase);
                 
-                // Anexa os itens do SP dentro das AIHs do RD correspondente para acesso ultrarrápido
+                if (MATRIZ_RD_BASE.length === 0) {
+                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem registos na base de dados (RD).</span>`);
+                    MATRIZ_SP_BASE = [];
+                    atualizarPainelReativo(); return;
+                }
+
+                // BUSCA DO SP POR CHUNKS (Mapeamento Seguro e Blindado)
+                $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A mapear Itens SP... (Aguarde)`);
+                let aihs = [...new Set(MATRIZ_RD_BASE.map(d => d.n_aih).filter(Boolean))];
+                MATRIZ_SP_BASE = [];
+                const chunkSize = 200; 
+
+                for (let i = 0; i < aihs.length; i += chunkSize) {
+                    const chunk = aihs.slice(i, i + chunkSize);
+                    const { data, error } = await supabaseClient.from('sp_sus_hsh').select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot').in('n_aih', chunk);
+                    if (data) MATRIZ_SP_BASE = MATRIZ_SP_BASE.concat(data);
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A mapear Itens SP... ${Math.min(i + chunkSize, aihs.length)} de ${aihs.length} AIHs`);
+                }
+                
                 let mapaSP = {};
                 MATRIZ_SP_BASE.forEach(sp => {
                     if(!mapaSP[sp.n_aih]) mapaSP[sp.n_aih] = [];
@@ -522,15 +544,9 @@
                     rd.itens_sp = mapaSP[rd.n_aih] || [];
                 });
 
-                // Descarrega RD do Ano Comp (O SP do ano comp não é necessário para o Ticket Médio da AIH principal)
                 MATRIZ_RD_COMP = [];
                 if (anoComp !== "") {
-                    MATRIZ_RD_COMP = await fetchTabela('sih_sus_hsh', anoComp, mes);
-                }
-
-                if (MATRIZ_RD_BASE.length === 0) {
-                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem registos.</span>`);
-                    atualizarPainelReativo(); return;
+                    MATRIZ_RD_COMP = await fetchTabelaRD(anoComp, mes, anoComp);
                 }
 
                 $('#status').html(`<span class="text-emerald-400"><i class="fas fa-check-circle mr-1"></i> Sincronizado.</span>`);
@@ -544,7 +560,6 @@
         }
 
         function preencherFiltrosSelect2() {
-            // Filtros RD
             const $proc = $('#filtro-proc'); const $cid = $('#filtro-cid');
             $proc.empty().prop('disabled', false); $cid.empty().prop('disabled', false);
 
@@ -553,110 +568,74 @@
 
             procsRD.forEach(p => $proc.append(new Option(traduzirFiltro(p, DIC_SIGTAP), p, false, false)));
             cidsRD.forEach(c => $cid.append(new Option(c, c, false, false)));
+            $proc.select2({ placeholder: "Proc. Principal da Conta (RD)...", allowClear: true, closeOnSelect: false });
+            $cid.select2({ placeholder: "Doenças (CID-10)...", allowClear: true, closeOnSelect: false });
 
-            $proc.select2({ placeholder: "Selecione Proc. Principal...", allowClear: true, closeOnSelect: false });
-            $cid.select2({ placeholder: "Selecione Doenças...", allowClear: true, closeOnSelect: false });
-
-            // Filtros SP
             const $spProc = $('#filtro-sp-proc'); const $spCbo = $('#filtro-sp-cbo');
             $spProc.empty().prop('disabled', false); $spCbo.empty().prop('disabled', false);
 
-            let procsSP = [...new Set(MATRIZ_SP_BASE.map(d => d.sp_proced).filter(Boolean))].sort();
-            let cbosSP = [...new Set(MATRIZ_SP_BASE.map(d => d.sp_cbo).filter(Boolean))].sort();
+            // Blindagem extra para SPs vazios
+            let cbosTratados = MATRIZ_SP_BASE.map(d => d.sp_cbo).filter(c => c && c.trim() !== "");
+            let procsTratados = MATRIZ_SP_BASE.map(d => d.sp_proced).filter(p => p && p.trim() !== "");
+
+            let procsSP = [...new Set(procsTratados)].sort();
+            let cbosSP = [...new Set(cbosTratados)].sort();
 
             procsSP.forEach(p => $spProc.append(new Option(traduzirFiltro(p, DIC_SIGTAP), p, false, false)));
             cbosSP.forEach(c => $spCbo.append(new Option(traduzirFiltro(c, DIC_CBO), c, false, false)));
+            $spProc.select2({ placeholder: "Materiais/Exames nos Itens (SP)...", allowClear: true, closeOnSelect: false });
+            $spCbo.select2({ placeholder: "Especialidade Médica (CBO)...", allowClear: true, closeOnSelect: false });
 
-            $spProc.select2({ placeholder: "Pesquise Materiais ou Exames lançados...", allowClear: true, closeOnSelect: false });
-            $spCbo.select2({ placeholder: "Pesquise Especialidade Médica (CBO)...", allowClear: true, closeOnSelect: false });
-
-            // Triggers
             $('#filtro-proc, #filtro-cid, #filtro-sp-proc, #filtro-sp-cbo').off('change').on('change', atualizarPainelReativo);
         }
 
         function atualizarPainelReativo() {
-            // Valores dos Filtros
             const rdProcs = $('#filtro-proc').val() || [];
             const rdCids = $('#filtro-cid').val() || [];
             const spProcs = $('#filtro-sp-proc').val() || [];
             const spCbos = $('#filtro-sp-cbo').val() || [];
-            
-            const anoBase = $('#filtro-ano').val();
-            const anoComp = $('#filtro-ano-comp').val();
-            const usouComp = anoComp !== "";
-            const isClassic = document.body.classList.contains('theme-classic');
+            const anoBase = $('#filtro-ano').val(); const anoComp = $('#filtro-ano-comp').val();
+            const usouComp = anoComp !== ""; const isClassic = document.body.classList.contains('theme-classic');
 
-            // --- A MÁGICA DO FILTRO CRUZADO ---
             let dadosBase = MATRIZ_RD_BASE;
             
-            // 1. Filtra dados do RD (Capa)
             if (rdProcs.length > 0) dadosBase = dadosBase.filter(d => rdProcs.includes(d.dados_completos?.PROC_REA));
             if (rdCids.length > 0) dadosBase = dadosBase.filter(d => rdCids.includes(d.diag_princ));
-
-            // 2. Filtra pelas exigências do SP (A AIH deve conter os itens ou CBOs selecionados lá dentro)
-            if (spProcs.length > 0) {
-                dadosBase = dadosBase.filter(d => d.itens_sp.some(item => spProcs.includes(item.sp_proced)));
-            }
-            if (spCbos.length > 0) {
-                dadosBase = dadosBase.filter(d => d.itens_sp.some(item => spCbos.includes(item.sp_cbo)));
-            }
+            if (spProcs.length > 0) dadosBase = dadosBase.filter(d => (d.itens_sp || []).some(item => spProcs.includes(item.sp_proced)));
+            if (spCbos.length > 0) dadosBase = dadosBase.filter(d => (d.itens_sp || []).some(item => spCbos.includes(item.sp_cbo)));
 
             let tVal = 0, tSh = 0;
-            dadosBase.forEach(d => {
-                tVal += parseFloat(d.val_tot || 0); tSh += parseFloat(d.val_sh || 0);
-            });
+            dadosBase.forEach(d => { tVal += parseFloat(d.val_tot || 0); tSh += parseFloat(d.val_sh || 0); });
 
             $('#kpi-valor').text(formatBRL(tVal)); $('#kpi-aih').text(dadosBase.length.toLocaleString('pt-PT'));
             $('#kpi-ticket').text(dadosBase.length > 0 ? formatBRL(tVal / dadosBase.length) : 'R$ 0,00');
             $('#kpi-urv').text(formatBRL(tSh * 0.0956));
 
-            // --- TABELA DE TICKET MÉDIO (COMPARAÇÃO RD) ---
-            // A comparação só usa filtros do RD, porque os filtros SP do ano comp não foram carregados
             let dadosComp = MATRIZ_RD_COMP;
             if (rdProcs.length > 0) dadosComp = dadosComp.filter(d => rdProcs.includes(d.dados_completos?.PROC_REA));
             if (rdCids.length > 0) dadosComp = dadosComp.filter(d => rdCids.includes(d.diag_princ));
 
             let resumoAgrupado = {};
-
             dadosBase.forEach(d => {
-                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
-                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
-                resumoAgrupado[proc].q1++;
-                resumoAgrupado[proc].v1 += parseFloat(d.val_tot || 0);
+                let p = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[p]) resumoAgrupado[p] = { proc: p, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[p].q1++; resumoAgrupado[p].v1 += parseFloat(d.val_tot || 0);
             });
-
             dadosComp.forEach(d => {
-                let proc = d.dados_completos?.PROC_REA || 'Sem Cód';
-                if(!resumoAgrupado[proc]) resumoAgrupado[proc] = { proc: proc, q1: 0, v1: 0, q2: 0, v2: 0 };
-                resumoAgrupado[proc].q2++;
-                resumoAgrupado[proc].v2 += parseFloat(d.val_tot || 0);
+                let p = d.dados_completos?.PROC_REA || 'Sem Cód';
+                if(!resumoAgrupado[p]) resumoAgrupado[p] = { proc: p, q1: 0, v1: 0, q2: 0, v2: 0 };
+                resumoAgrupado[p].q2++; resumoAgrupado[p].v2 += parseFloat(d.val_tot || 0);
             });
 
-            let theadHtml = '';
-            if (usouComp) {
-                theadHtml = `<tr>
-                    <th>Procedimento (SIGTAP)</th>
-                    <th class="text-center bg-blue-900/20">Qtd (${anoBase})</th>
-                    <th class="text-center bg-orange-900/20">Qtd (${anoComp})</th>
-                    <th class="text-right bg-blue-900/20">Média/AIH (${anoBase})</th>
-                    <th class="text-right bg-orange-900/20">Média/AIH (${anoComp})</th>
-                    <th class="text-right">Δ % Média</th>
-                </tr>`;
-            } else {
-                theadHtml = `<tr>
-                    <th>Procedimento Principal (SIGTAP)</th>
-                    <th class="text-center bg-blue-900/20">Volume (${anoBase})</th>
-                    <th class="text-right bg-blue-900/20">Ticket Médio (${anoBase})</th>
-                    <th class="text-right bg-blue-900/20">Total Financeiro</th>
-                </tr>`;
-            }
+            let theadHtml = usouComp 
+                ? `<tr><th>Procedimento Principal (SIGTAP)</th><th class="text-center bg-blue-900/20">Qtd (${anoBase})</th><th class="text-center bg-orange-900/20">Qtd (${anoComp})</th><th class="text-right bg-blue-900/20">Média/AIH (${anoBase})</th><th class="text-right bg-orange-900/20">Média/AIH (${anoComp})</th><th class="text-right">Δ % Média</th></tr>` 
+                : `<tr><th>Procedimento Principal (SIGTAP)</th><th class="text-center bg-blue-900/20">Volume (${anoBase})</th><th class="text-right bg-blue-900/20">Ticket Médio (${anoBase})</th><th class="text-right bg-blue-900/20">Total Financeiro</th></tr>`;
             $('#tabela-resumo thead').html(theadHtml);
 
             let tbodyHtml = '';
             Object.values(resumoAgrupado).sort((a,b) => b.v1 - a.v1).forEach(r => {
-                let media1 = r.q1 > 0 ? r.v1 / r.q1 : 0;
-                let media2 = r.q2 > 0 ? r.v2 / r.q2 : 0;
-                const pNome = DIC_SIGTAP[r.proc] ? `<span class="text-gray-500">[${r.proc}]</span> ${DIC_SIGTAP[r.proc]}` : r.proc;
+                let media1 = r.q1 > 0 ? r.v1 / r.q1 : 0; let media2 = r.q2 > 0 ? r.v2 / r.q2 : 0;
+                const pNome = getDictNome(r.proc, DIC_SIGTAP);
 
                 if (usouComp) {
                     let varMedia = media1 - media2;
@@ -666,7 +645,7 @@
                     
                     tbodyHtml += `
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
-                            <td class="font-mono text-[0.8rem] truncate max-w-[200px]" title="${DIC_SIGTAP[r.proc]||r.proc}">${pNome}</td>
+                            <td class="font-mono text-[0.8rem] truncate max-w-[200px]" title="${r.proc}">${pNome}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
                             <td class="text-center font-bold text-orange-400">${r.q2}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
@@ -677,7 +656,7 @@
                 } else {
                     tbodyHtml += `
                         <tr class="border-b border-gray-700/50 hover:bg-gray-800/50">
-                            <td class="font-mono text-[0.8rem] truncate max-w-[250px]" title="${DIC_SIGTAP[r.proc]||r.proc}">${pNome}</td>
+                            <td class="font-mono text-[0.8rem] truncate max-w-[250px]" title="${r.proc}">${pNome}</td>
                             <td class="text-center font-bold text-blue-400">${r.q1}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(media1)}</td>
                             <td class="text-right font-mono font-bold text-blue-400">${formatBRL(r.v1)}</td>
@@ -687,27 +666,24 @@
             });
             $('#tabela-resumo tbody').html(tbodyHtml || `<tr><td colspan="6" class="text-center text-gray-500 py-4">Sem dados.</td></tr>`);
 
-            // --- TABELA ANALÍTICA UNIFICADA ---
             if (dtTabela) dtTabela.destroy();
             let htmlTabela = '';
             
             dadosBase.slice(0, 3000).forEach(d => {
                 const n = d.dados_completos?.N_AIH || '-';
                 const linkAih = `<a href="javascript:void(0)" onclick="abrirEspelhoAIH('${n}')" class="${isClassic ? 'text-blue-700' : 'text-blue-400'} underline decoration-blue-500/50 font-bold"><i class="fas fa-search-plus text-[0.6rem] mr-1"></i>${n}</a>`;
-                
                 const pName = DIC_SIGTAP[d.dados_completos?.PROC_REA] ? DIC_SIGTAP[d.dados_completos?.PROC_REA] : d.dados_completos?.PROC_REA;
 
                 htmlTabela += `<tr>
                     <td>${linkAih}</td>
-                    <td class="text-center">${d.dados_completos?.IDADE||'-'}a - ${DIC_SEXO[d.dados_completos?.SEXO]||'-'}</td>
-                    <td class="font-mono text-xs text-emerald-400 font-bold max-w-[200px] truncate" title="${pName}">${pName}</td>
-                    <td class="text-center font-bold text-pink-400"><i class="fas fa-syringe mr-1 text-[0.6rem]"></i>${d.itens_sp.length} itens</td>
+                    <td class="text-center text-xs">${d.dados_completos?.IDADE||'-'}a - ${DIC_SEXO[d.dados_completos?.SEXO]||'-'}</td>
+                    <td class="font-mono text-[0.7rem] text-emerald-400 font-bold max-w-[200px] truncate" title="${pName}">${pName}</td>
+                    <td class="text-center font-bold text-pink-400"><i class="fas fa-syringe mr-1 text-[0.6rem]"></i>${(d.itens_sp || []).length} itens</td>
                     <td class="text-right font-bold text-emerald-500">${formatBRL(d.val_tot)}</td>
                 </tr>`;
             });
             $('#tabela-aih tbody').html(htmlTabela);
             dtTabela = $('#tabela-aih').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json' }, pageLength: 10, order: [[4, 'desc']], responsive: true, dom: 'lBrtip', buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel Analítico', className: 'dt-button' }] });
-
         }
     </script>
 </body>
