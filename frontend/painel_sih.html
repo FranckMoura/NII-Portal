@@ -119,7 +119,7 @@
         body.theme-classic .aih-section { border-bottom-color: #e2e8f0; color: #004e92; }
 
         /* ==================================================================== */
-        /* CSS INTELIGENTE PARA IMPRESSÃO (PAINEL GERAL VS MODAL DA AIH)        */
+        /* CSS INTELIGENTE PARA IMPRESSÃO                                       */
         /* ==================================================================== */
         @media print {
             body { background: white !important; color: black !important; }
@@ -237,6 +237,12 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
+                    <label class="relative inline-flex items-center cursor-pointer mr-2" title="Mostrar/Ocultar Cálculo URV">
+                        <input type="checkbox" id="toggle-urv" class="sr-only peer" checked onchange="alternarURV()">
+                        <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500"></div>
+                        <span class="ml-2 text-xs font-bold text-yellow-400 uppercase tracking-wider hidden md:block">URV</span>
+                    </label>
+
                     <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
 
                     <div class="btn-theme" style="padding: 4px 10px;">
@@ -280,9 +286,9 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 relative z-10">
+    <div class="max-w-[98%] mx-auto px-4 relative z-10 no-print">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
                 <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Fat. SUS (Valor Real)</div>
                 <div class="kpi-number neon-text-green" id="kpi-valor" title="Soma do VAL_TOT das AIHs filtradas">R$ 0,00</div>
@@ -298,7 +304,7 @@
                 <div class="kpi-number neon-text-purple" id="kpi-ticket" title="Faturamento SUS / Volume de AIHs">R$ 0,00</div>
             </div>
             
-            <div class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
+            <div id="card-urv" class="glass-card p-5 text-center border-b-4 border-yellow-500 relative">
                 <div class="kpi-title justify-center">
                     <i class="fas fa-gavel text-yellow-400"></i> Pendência URV 
                     <i class="fas fa-question-circle tooltip-icon ml-1" onclick="$('#urv-modal').addClass('active')" title="Clique para entender este cálculo"></i>
@@ -364,10 +370,30 @@
         const DIC_MORTE = { "0": "Não", "1": "Sim" };
         const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trabalho", "04": "Acid. Trânsito", "05": "Outras Lesões", "06": "Outros" };
 
+        // ========================================================
+        // FUNÇÃO DE OCULTAR/MOSTRAR A URV
+        // ========================================================
+        function alternarURV() {
+            const isChecked = document.getElementById('toggle-urv').checked;
+            const cardURV = document.getElementById('card-urv');
+            const kpiGrid = document.getElementById('kpi-grid');
+            
+            if (isChecked) {
+                cardURV.style.display = 'block';
+                kpiGrid.classList.remove('md:grid-cols-3');
+                kpiGrid.classList.add('md:grid-cols-4');
+                localStorage.setItem('nii_mostrar_urv', 'sim');
+            } else {
+                cardURV.style.display = 'none';
+                kpiGrid.classList.remove('md:grid-cols-4');
+                kpiGrid.classList.add('md:grid-cols-3');
+                localStorage.setItem('nii_mostrar_urv', 'nao');
+            }
+        }
+
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) { event.target.classList.remove('active'); } }
 
-        // MÁGICA DA IMPRESSÃO ISOLADA
         function imprimirPainelGeral() {
             document.body.classList.remove('printing-modal');
             window.print();
@@ -376,7 +402,6 @@
         function imprimirEspelhoAIH() {
             document.body.classList.add('printing-modal');
             window.print();
-            // Retira a classe após 1 segundo para voltar ao normal
             setTimeout(() => document.body.classList.remove('printing-modal'), 1000);
         }
 
@@ -478,6 +503,13 @@
         $(document).ready(function() {
             const savedTheme = localStorage.getItem('nii_theme_sih');
             if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
+
+            // Checa a preferência do usuário para a URV ao carregar a página
+            const mostrarUrv = localStorage.getItem('nii_mostrar_urv');
+            if (mostrarUrv === 'nao') {
+                document.getElementById('toggle-urv').checked = false;
+                alternarURV();
+            }
 
             const selectAno = document.getElementById('filtro-ano');
             const anoAtual = new Date().getFullYear();
