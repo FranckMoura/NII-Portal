@@ -353,8 +353,19 @@
             "225265": "Traumatologista", "223505": "Enfermeiro", "225120": "Cardiologista", "225270": "Ortopedista"
         };
 
+        // Funções para Procedimentos (SIGTAP)
         function getDictFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; }
         function getDictNome(cod, dic) { return dic[cod] ? `<span class="text-gray-400 font-normal">[${cod}]</span> ${dic[cod]}` : `<span class="text-gray-400 font-normal">[${cod}]</span> Sem Descrição`; }
+
+        // NOVAS FUNÇÕES EXCLUSIVAS PARA O CBO (Deteta CNPJ/SADT)
+        function getDictFiltroCBO(cod, dic) { 
+            if (!cod || cod.trim() === "" || cod.trim() === "000000") return "CNPJ/CNES - Estabelecimento/SADT";
+            return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; 
+        }
+        function getDictNomeCBO(cod, dic) { 
+            if (!cod || cod.trim() === "" || cod.trim() === "000000") return `<span class="text-pink-400 font-bold" title="Faturado para o Hospital/CNPJ"><i class="fas fa-hospital mr-1"></i>Estabelecimento/SADT</span>`;
+            return dic[cod] ? `<span class="text-blue-300 font-normal">[${cod}]</span> ${dic[cod]}` : `<span class="text-blue-300 font-normal">[${cod}]</span> Sem Descrição`; 
+        }
 
         function alternarURV() {
             const isChecked = document.getElementById('toggle-urv').checked;
@@ -410,7 +421,7 @@
                 htmlSP += `
                     <tr class="hover:bg-gray-800/30 transition-colors">
                         <td class="py-1.5 font-mono text-emerald-400 text-[0.7rem] truncate max-w-[200px]" title="${DIC_SIGTAP[sp.sp_proced]||sp.sp_proced}">${getDictNome(sp.sp_proced, DIC_SIGTAP)}</td>
-                        <td class="py-1.5 text-center text-blue-300 text-[0.65rem] truncate max-w-[100px]" title="${DIC_CBO[sp.sp_cbo]||sp.sp_cbo}">${getDictNome(sp.sp_cbo, DIC_CBO)}</td>
+                        <td class="py-1.5 text-center text-[0.65rem] truncate max-w-[100px]">${getDictNomeCBO(sp.sp_cbo, DIC_CBO)}</td>
                         <td class="py-1.5 text-center text-gray-300 font-bold">${sp.sp_qtd}</td>
                         <td class="py-1.5 text-right font-mono font-bold text-white">${formatBRL(sp.sp_val_tot)}</td>
                     </tr>
@@ -438,7 +449,8 @@
             ];
 
             itensSP.forEach(sp => {
-                planilhas_linhas.push([sp.sp_proced, DIC_SIGTAP[sp.sp_proced] || "Sem Descrição", sp.sp_cbo, sp.sp_qtd, parseFloat(sp.sp_val_tot || 0)]);
+                let cboExcel = (!sp.sp_cbo || sp.sp_cbo.trim() === "" || sp.sp_cbo.trim() === "000000") ? "Estabelecimento/SADT" : sp.sp_cbo;
+                planilhas_linhas.push([sp.sp_proced, DIC_SIGTAP[sp.sp_proced] || "Sem Descrição", cboExcel, sp.sp_qtd, parseFloat(sp.sp_val_tot || 0)]);
             });
 
             const worksheet = XLSX.utils.aoa_to_sheet(planilhas_linhas);
@@ -550,7 +562,6 @@
 
                 for (let i = 0; i < aihs.length; i += chunkSize) {
                     const chunk = aihs.slice(i, i + chunkSize);
-                    // Aqui está o "Pulo do Gato" que traz os dados completos do SP para recuperar o CBO escondido
                     const { data, error } = await supabaseClient.from('sp_sus_hsh').select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot, dados_completos').in('n_aih', chunk);
                     if (data) {
                         data.forEach(item => {
@@ -606,14 +617,15 @@
             const $spProc = $('#filtro-sp-proc'); const $spCbo = $('#filtro-sp-cbo');
             $spProc.empty().prop('disabled', false); $spCbo.empty().prop('disabled', false);
 
-            let cbosTratados = MATRIZ_SP_BASE.map(d => d.sp_cbo).filter(c => c && c.trim() !== "");
+            // Mapeia CBOs vazios para "000000" no filtro
+            let cbosTratados = MATRIZ_SP_BASE.map(d => (!d.sp_cbo || d.sp_cbo.trim() === "") ? "000000" : d.sp_cbo);
             let procsTratados = MATRIZ_SP_BASE.map(d => d.sp_proced).filter(p => p && p.trim() !== "");
 
             let procsSP = [...new Set(procsTratados)].sort();
             let cbosSP = [...new Set(cbosTratados)].sort();
 
             procsSP.forEach(p => $spProc.append(new Option(getDictFiltro(p, DIC_SIGTAP), p, false, false)));
-            cbosSP.forEach(c => $spCbo.append(new Option(getDictFiltro(c, DIC_CBO), c, false, false)));
+            cbosSP.forEach(c => $spCbo.append(new Option(getDictFiltroCBO(c, DIC_CBO), c, false, false)));
 
             $spProc.select2({ placeholder: "Materiais/Exames nos Itens (SP)...", allowClear: true, closeOnSelect: false });
             $spCbo.select2({ placeholder: "Especialidade Médica (CBO)...", allowClear: true, closeOnSelect: false });
@@ -634,7 +646,14 @@
             if (rdProcs.length > 0) dadosBase = dadosBase.filter(d => rdProcs.includes(d.dados_completos?.PROC_REA));
             if (rdCids.length > 0) dadosBase = dadosBase.filter(d => rdCids.includes(d.diag_princ));
             if (spProcs.length > 0) dadosBase = dadosBase.filter(d => (d.itens_sp || []).some(item => spProcs.includes(item.sp_proced)));
-            if (spCbos.length > 0) dadosBase = dadosBase.filter(d => (d.itens_sp || []).some(item => spCbos.includes(item.sp_cbo)));
+            
+            // Filtro de CBO blindado para identificar os vazios e 000000 do Estabelecimento
+            if (spCbos.length > 0) {
+                dadosBase = dadosBase.filter(d => (d.itens_sp || []).some(item => {
+                    let cboDoItem = (!item.sp_cbo || item.sp_cbo.trim() === "") ? "000000" : item.sp_cbo;
+                    return spCbos.includes(cboDoItem);
+                }));
+            }
 
             let tVal = 0, tSh = 0;
             dadosBase.forEach(d => { tVal += parseFloat(d.val_tot || 0); tSh += parseFloat(d.val_sh || 0); });
