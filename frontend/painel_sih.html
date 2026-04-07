@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* TEMA NEON / GLASSMORPHISM */
         body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; min-height: 100vh; transition: 0.5s; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         
@@ -88,7 +89,7 @@
         /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; color: #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; width: 95%; max-width: 1100px; }
         body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; color: #334155; }
         .close-modal { float: right; cursor: pointer; font-size: 1.5rem; color: #94a3b8; transition: 0.2s; }
         .close-modal:hover { color: #ef4444; }
@@ -168,7 +169,7 @@
                         <div class="aih-box"><span class="aih-lbl">Saída (Dias)</span><span class="aih-val" id="esp-dtsai"></span></div>
                         <div class="aih-box"><span class="aih-lbl">Óbito</span><span class="aih-val" id="esp-obito"></span></div>
                         <div class="aih-box"><span class="aih-lbl">Caráter</span><span class="aih-val" id="esp-car"></span></div>
-                        <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Procedimento (RD)</span><span class="aih-val font-mono text-blue-300 text-xs" id="esp-proc"></span></div>
+                        <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Procedimento Principal (RD)</span><span class="aih-val font-mono text-blue-300 text-xs" id="esp-proc"></span></div>
                         <div class="aih-box" style="grid-column: span 2;"><span class="aih-lbl">Doença (CID)</span><span class="aih-val font-bold text-emerald-400" id="esp-cid1"></span></div>
                     </div>
                 </div>
@@ -340,55 +341,18 @@
         const DIC_MORTE = { "0": "Não", "1": "Sim" };
         const DIC_CARATER = { "01": "Eletiva", "02": "Urgência", "03": "Acid. Trab", "04": "Acid. Trâns", "05": "Outras", "06": "Outros" };
 
-        // =========================================================
-        // DICIONÁRIOS MESTRES DE PROCEDIMENTOS (Com Injeções Extra)
-        // Se precisar de mais algum, basta copiar a linha e alterar o código e o nome!
-        // =========================================================
-        const DIC_SIGTAP = { 
-            "0310010039": "PARTO NORMAL",
-            "0411010034": "PARTO CESARIANO",
-            "0303160063": "TTO. DE TRANSTORNOS RESPIRATORIOS/CARDIOVASCULARES NO PERIODO NEONATAL",
-            "0303160039": "TTO. DE OUTROS TRANSTORNOS ORIGINADOS NO PERIODO PERINATAL",
-            "0411010042": "PARTO CESARIANO C/ LAQUEADURA TUBARIA",
-            "0303140151": "TTO. DE PNEUMONIAS OU INFLUENZA (GRIPE)",
-            "0303100044": "TTO. DE INTERCORRENCIAS CLINICAS NA GRAVIDEZ",
-            "0303010037": "TTO. DE OUTRAS DOENCAS BACTERIANAS",
-            "0415010012": "TRATAMENTO C/ CIRURGIAS MULTIPLAS",
-            "0303140046": "TTO. DE DOENCAS CRONICAS DAS VIAS AEREAS INFERIORES",
-            "0303160055": "TTO. DE TRANSTORNOS RELACIONADOS A DURACAO DA GESTACAO",
-            "0301060061": "ATENDIMENTO DE URGENCIA EM CLINICA MEDICA",
-            "0303060212": "TTO. DE INSUFICIENCIA CARDIACA",
-            "0303040149": "TTO. DE ACIDENTE VASCULAR CEREBRAL (AVC)",
-            "0409060070": "ESVAZIAMENTO DE UTERO POS-ABORTO POR AMIU",
-            "0409060135": "APENDICECTOMIA",
-            "0407040064": "HERNIOPLASTIA INCISIONAL",
-            "0407040030": "HERNIOPLASTIA UMBILICAL",
-            "0407040129": "HERNIOPLASTIA INGUINAL",
-            "0407010270": "TTO. CIRURGICO DE ACALASIA",
-            "0303060018": "TTO. DE ANEURISMA DA AORTA",
-            "0407020276": "FISTULECTOMIA / FISTULOTOMIA ANAL",
-            "0303020067": "TTO. DE DEFEITOS DA COAGULACAO",
-            "0409060046": "CURETAGEM SEMIOTICA C/ OU S/ DILATACAO DO COLO",
-            "0409070254": "OOFORECTOMIA / OOFORO-SALPINGECTOMIA",
-            "0802010164": "DIÁRIA UTI TIPO II",
-            "0204030170": "HEMOGRAMA COMPLETO",
-            "0202010473": "HEMOCULTURA",
-            "0204020060": "DOSAGEM CREATININA",
-            "0204030030": "COAGULOGRAMA",
-            "0204020116": "GLICEMIA",
-            "0214010015": "GLICOSE",
-            "0204020230": "UREIA",
-            "0204020205": "SODIO",
-            "0204020191": "POTASSIO"
+        let DIC_SIGTAP = { 
+            "0403010098": "PARTO CESARIANO", "0403010012": "PARTO NORMAL", "0409060135": "APENDICECTOMIA", 
+            "0802010164": "DIÁRIA UTI TIPO II", "0204030170": "HEMOGRAMA COMPLETO", "0202010473": "HEMOCULTURA", 
+            "0204020060": "DOSAGEM CREATININA", "0301060061": "ATENDIMENTO DE URGÊNCIA", "0301010072": "CONSULTA MÉDICA ESP",
+            "0204030030": "COAGULOGRAMA", "0204020116": "GLICEMIA", "0214010015": "GLICOSE"
         };
-
-        const DIC_CBO = { 
+        let DIC_CBO = { 
             "225250": "Cirurgião Geral", "225125": "Clínico Geral", "225124": "Pediatra", 
             "225203": "Cirurgião Vascular", "225255": "Mastologista", "225225": "Cirurgião Pediátrico", 
             "225265": "Traumatologista", "223505": "Enfermeiro", "225120": "Cardiologista", "225270": "Ortopedista"
         };
 
-        // AS FUNÇÕES DE TRADUÇÃO CORRIGIDAS
         function getDictFiltro(cod, dic) { return dic[cod] ? `${cod} - ${dic[cod]}` : `${cod} - Sem Descrição`; }
         function getDictNome(cod, dic) { return dic[cod] ? `<span class="text-gray-400 font-normal">[${cod}]</span> ${dic[cod]}` : `<span class="text-gray-400 font-normal">[${cod}]</span> Sem Descrição`; }
 
@@ -445,8 +409,8 @@
             itensSP.sort((a,b) => b.sp_val_tot - a.sp_val_tot).forEach(sp => {
                 htmlSP += `
                     <tr class="hover:bg-gray-800/30 transition-colors">
-                        <td class="py-1.5 font-mono text-emerald-400 text-[0.7rem] truncate max-w-[200px]" title="${sp.sp_proced}">${getDictNome(sp.sp_proced, DIC_SIGTAP)}</td>
-                        <td class="py-1.5 text-center text-blue-300 text-[0.65rem] truncate max-w-[100px]">${getDictNome(sp.sp_cbo, DIC_CBO)}</td>
+                        <td class="py-1.5 font-mono text-emerald-400 text-[0.7rem] truncate max-w-[200px]" title="${DIC_SIGTAP[sp.sp_proced]||sp.sp_proced}">${getDictNome(sp.sp_proced, DIC_SIGTAP)}</td>
+                        <td class="py-1.5 text-center text-blue-300 text-[0.65rem] truncate max-w-[100px]" title="${DIC_CBO[sp.sp_cbo]||sp.sp_cbo}">${getDictNome(sp.sp_cbo, DIC_CBO)}</td>
                         <td class="py-1.5 text-center text-gray-300 font-bold">${sp.sp_qtd}</td>
                         <td class="py-1.5 text-right font-mono font-bold text-white">${formatBRL(sp.sp_val_tot)}</td>
                     </tr>
@@ -493,7 +457,34 @@
             if (MATRIZ_RD_BASE.length > 0) atualizarPainelReativo();
         }
 
-        $(document).ready(function() {
+        async function carregarDicionariosDaNuvem() {
+            $('#status').html(`<i class="fas fa-spinner fa-spin text-purple-400 mr-2"></i> A carregar Dicionários da Nuvem...`);
+            try {
+                let temMais = true; let inicio = 0; const lote = 1000;
+                while(temMais) {
+                    const { data, error } = await supabaseClient.from('dic_sigtap').select('cod, nome').range(inicio, inicio + lote - 1);
+                    if (data && data.length > 0) {
+                        data.forEach(d => DIC_SIGTAP[String(d.cod).trim()] = String(d.nome).trim());
+                        inicio += data.length;
+                        if (data.length < lote) temMais = false;
+                    } else { temMais = false; }
+                }
+
+                temMais = true; inicio = 0;
+                while(temMais) {
+                    const { data, error } = await supabaseClient.from('dic_cbo').select('cod, nome').range(inicio, inicio + lote - 1);
+                    if (data && data.length > 0) {
+                        data.forEach(d => DIC_CBO[String(d.cod).trim()] = String(d.nome).trim());
+                        inicio += data.length;
+                        if (data.length < lote) temMais = false;
+                    } else { temMais = false; }
+                }
+            } catch (e) {
+                console.warn("Aviso: Dicionários não carregados. A usar dicionário base.");
+            }
+        }
+
+        $(document).ready(async function() {
             const savedTheme = localStorage.getItem('nii_theme_sih');
             if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); }
             if (localStorage.getItem('nii_mostrar_urv') === 'nao') { document.getElementById('toggle-urv').checked = false; alternarURV(); }
@@ -507,6 +498,7 @@
 
             $('#filtro-proc, #filtro-cid, #filtro-sp-proc, #filtro-sp-cbo').select2({ placeholder: "Aguardar...", disabled: true, width: '100%' });
             
+            await carregarDicionariosDaNuvem();
             baixarDadosUnificados();
         });
 
@@ -526,7 +518,7 @@
                 if (data && data.length > 0) {
                     matrizTemp = matrizTemp.concat(data);
                     inicio += data.length;
-                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Capas de Contas (RD) ${tituloStatus}... (${matrizTemp.length})`);
+                    $('#status').html(`<i class="fas fa-spinner fa-spin text-blue-400 mr-2"></i> Capas (RD) ${tituloStatus}... (${matrizTemp.length})`);
                     if (data.length < tamanhoLote) temMais = false;
                 } else {
                     temMais = false;
@@ -546,7 +538,7 @@
                 MATRIZ_RD_BASE = await fetchTabelaRD(anoBase, mes, anoBase);
                 
                 if (MATRIZ_RD_BASE.length === 0) {
-                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem registos na base de dados (RD).</span>`);
+                    $('#status').html(`<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Sem registos (RD).</span>`);
                     MATRIZ_SP_BASE = [];
                     atualizarPainelReativo(); return;
                 }
@@ -558,8 +550,19 @@
 
                 for (let i = 0; i < aihs.length; i += chunkSize) {
                     const chunk = aihs.slice(i, i + chunkSize);
-                    const { data, error } = await supabaseClient.from('sp_sus_hsh').select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot').in('n_aih', chunk);
-                    if (data) MATRIZ_SP_BASE = MATRIZ_SP_BASE.concat(data);
+                    // Aqui está o "Pulo do Gato" que traz os dados completos do SP para recuperar o CBO escondido
+                    const { data, error } = await supabaseClient.from('sp_sus_hsh').select('n_aih, sp_proced, sp_cbo, sp_qtd, sp_val_tot, dados_completos').in('n_aih', chunk);
+                    if (data) {
+                        data.forEach(item => {
+                            if(!item.sp_cbo || item.sp_cbo.trim() === "") {
+                                item.sp_cbo = item.dados_completos?.SP_PF_CBO || "";
+                            }
+                            if(!item.sp_val_tot || item.sp_val_tot == 0) {
+                                item.sp_val_tot = parseFloat(item.dados_completos?.SP_VALATO || 0);
+                            }
+                        });
+                        MATRIZ_SP_BASE = MATRIZ_SP_BASE.concat(data);
+                    }
                     $('#status').html(`<i class="fas fa-spinner fa-spin text-pink-400 mr-2"></i> A mapear Itens SP... ${Math.min(i + chunkSize, aihs.length)} de ${aihs.length} AIHs`);
                 }
                 
