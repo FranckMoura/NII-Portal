@@ -149,7 +149,7 @@
             border-radius: 8px !important;
         }
         
-        body.theme-classic .card:hover { transform: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; } /* Tira o 3D */
+        body.theme-classic .card:hover { transform: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; } 
 
         body.theme-classic .filter-area label { color: #475569 !important; }
         body.theme-classic .filter-area select, body.theme-classic .filter-area input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
@@ -179,12 +179,12 @@
         body.theme-classic .dt-button:hover { background: #1e3a8a !important; color: white !important; }
 
         /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (A4 RETRATO - PRETO E BRANCO FORTE)*/
+        /* OTIMIZAÇÃO DE IMPRESSÃO (P&B FORTE, SEM ZEBRADO)          */
         /* ========================================================= */
         @media print {
             @page { margin: 10mm; size: A4 portrait; }
             
-            /* FORÇA TUDO PARA PRETO ABSOLUTO, FUNDO BRANCO E REMOVE SOMBRAS */
+            /* Força bruta: Tudo preto no branco absoluto, sem efeitos */
             * { 
                 background: transparent !important; 
                 color: #000000 !important; 
@@ -195,54 +195,62 @@
             }
             body, html { background: #FFFFFF !important; font-family: 'Arial', sans-serif !important; }
             
-            /* ESCONDE ELEMENTOS DA INTERFACE DE TELA */
+            /* Esconde elementos inúteis no papel */
             .header-bg, .btn-theme, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .module-nav, .dataTables_info, .blob-1, .blob-2 { display: none !important; }
             
-            /* CABEÇALHO DE IMPRESSÃO */
-            .header-print { display: flex !important; align-items: center; border-bottom: 3px solid #000000 !important; padding-bottom: 10px; margin-bottom: 20px; }
-            .header-print img { height: 50px; margin-right: 15px; }
+            /* Cabeçalho da Folha */
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000000 !important; padding-bottom: 10px; margin-bottom: 20px; }
+            .header-print img { height: 45px; margin-right: 15px; }
             .header-info { flex: 1; text-align: center; }
-            .header-info h1 { margin: 0; font-size: 16pt; font-weight: 900 !important; text-transform: uppercase; }
-            .header-info h2 { margin: 2px 0; font-size: 12pt; font-weight: bold !important; }
+            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900 !important; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold !important; }
             .header-meta { font-size: 9pt; text-align: right; line-height: 1.3; font-weight: bold !important; }
 
-            /* CARDS SUPERIORES */
-            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; margin-bottom: 20px !important; }
+            /* Cards Superiores - Forçados a aparecer com borda preta */
+            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px !important; width: 100% !important;}
             .card { 
-                padding: 12px !important; 
-                border: 2px solid #000000 !important; /* Borda grossa preta */
-                background: #FFFFFF !important;
-                break-inside: avoid;
+                padding: 10px !important; 
+                border: 1px solid #000000 !important; 
+                background-color: #FFFFFF !important; 
+                display: block !important;
+                page-break-inside: avoid;
                 border-radius: 4px !important;
             }
-            .card h3 { font-size: 10pt !important; font-weight: 900 !important; border: none !important; margin-bottom: 5px !important; text-transform: uppercase;}
-            .card p { font-size: 14pt !important; font-weight: 900 !important; margin-top: 2px !important; }
-            .card p span { font-weight: bold !important; font-size: 9pt !important; }
+            .card h3 { font-size: 9pt !important; font-weight: 900 !important; margin-bottom: 5px !important; text-transform: uppercase; color: #000 !important;}
             
-            /* TABELAS */
+            /* Controle de Tamanho: Valor Principal vs Cálculo */
+            .card p.val-principal { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; color: #000 !important; display: block !important; }
+            .card p.val-calc { font-size: 8pt !important; font-weight: normal !important; margin-top: 4px !important; color: #555555 !important; display: block !important; }
+            .card p.val-calc span { font-weight: bold !important; font-size: 8pt !important; color: #000 !important;}
+
+            /* Tabela - Clean Print (Fim do Zebrado) */
             .table-container { background: transparent !important; border: none !important; padding: 0 !important; }
             .table-container h2 { display: none !important; }
 
-            table.dataTable { border: 2px solid #000000 !important; margin-top: 0 !important; width: 100% !important; border-collapse: collapse !important; }
+            table.dataTable { border: 1px solid #000000 !important; margin-top: 0 !important; width: 100% !important; border-collapse: collapse !important; color: #000 !important; }
             table.dataTable thead th { 
-                background-color: #e5e5e5 !important; /* Fundo cinza claro para destacar cabeçalho */
+                background-color: #FFFFFF !important; 
+                color: #000000 !important;
                 font-weight: 900 !important; 
                 border: 1px solid #000000 !important; 
                 border-bottom: 2px solid #000000 !important;
-                font-size: 10pt !important; 
-                padding: 8px !important; 
+                font-size: 9pt !important; 
+                padding: 6px !important; 
                 text-align: left !important;
             }
             table.dataTable tbody td { 
-                border: 1px solid #000000 !important; 
-                font-size: 9pt !important; 
-                padding: 6px !important; 
-                font-weight: 600 !important; /* Deixa as letras das células mais escuras/fortes */
+                background-color: #FFFFFF !important;
+                border: 1px solid #cccccc !important; /* Linha divisória bem suave para P&B */
+                color: #000000 !important;
+                font-size: 8.5pt !important; 
+                padding: 4px 6px !important; 
             }
-            table.dataTable tbody tr:nth-child(even) { background-color: #f4f4f4 !important; } /* Zebrado suave na impressão */
-            table.dataTable tbody tr { background-color: #ffffff !important; }
             
-            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; font-weight: bold !important; border-top: 2px solid #000000 !important; padding-top: 5px; display: block !important; }
+            /* Anulação total de cores zebradas */
+            table.dataTable tbody tr { background-color: #FFFFFF !important; }
+            table.dataTable tbody tr:nth-child(even), table.dataTable tbody tr:nth-child(odd) { background-color: #FFFFFF !important; } 
+            
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; font-weight: bold !important; border-top: 1px solid #000000 !important; padding-top: 5px; display: block !important; color: #000 !important;}
         }
     </style>
 </head>
@@ -283,7 +291,7 @@
     </div>
 
     <div class="header-print">
-        <img src="../logo.png" alt="Logo">
+        <img src="../logo.png" alt="Logo HSH" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
         <div class="header-info">
             <h1>Hospital Beneficente Santa Helena</h1>
             <h2 id="print-title">Relatório Financeiro</h2>
@@ -306,15 +314,15 @@
         <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
             <div class='card border-l-4 border-blue-500'>
                 <h3>Receita Rateio (SP)</h3>
-                <p class='text-2xl font-bold neon-text-blue' id="card-med-rateio">R$ 0,00</p>
+                <p class='text-2xl font-bold neon-text-blue val-principal' id="card-med-rateio">R$ 0,00</p>
             </div>
             <div class='card border-l-4 border-orange-500'>
                 <h3>Produção Geral</h3>
-                <p class='text-2xl font-bold neon-text-yellow' id="card-med-prod">R$ 0,00</p>
+                <p class='text-2xl font-bold neon-text-yellow val-principal' id="card-med-prod">R$ 0,00</p>
             </div>
             <div class='card border-l-4 border-green-500'>
                 <h3>Total a Repassar</h3>
-                <p class='text-2xl font-bold neon-text-green' id="card-med-total">R$ 0,00</p>
+                <p class='text-2xl font-bold neon-text-green val-principal' id="card-med-total">R$ 0,00</p>
             </div>
         </div>
 
@@ -346,9 +354,8 @@
             </div>
             <div class="flex flex-col flex-1">
                 <label class="font-bold text-sm uppercase mb-1">Buscar (Grupo, Código, Descrição):</label>
-                <div class="relative search-box">
-                    <input type="text" id="txtSearchTerc" onkeyup="Terceiros.aplicarFiltroTexto()" placeholder="Filtrar...">
-                    <i class="fas fa-search"></i>
+                <div class="relative search-box flex">
+                    <input type="text" id="txtSearchTerc" onkeyup="Terceiros.aplicarFiltroTexto()" placeholder="Filtrar..." class="w-full">
                 </div>
             </div>
             <div class="flex flex-col">
@@ -365,17 +372,17 @@
         <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
             <div class='card border-l-4 border-blue-500'>
                 <h3>Faturamento Total (Filtro)</h3>
-                <p class='text-2xl font-bold neon-text-blue' id="card-terc-total">R$ 0,00</p>
+                <p class='text-2xl font-bold neon-text-blue val-principal' id="card-terc-total">R$ 0,00</p>
             </div>
             <div class='card border-l-4 border-cyan-500'>
                 <h3>SADT UTI ADULTO</h3>
-                <p class='text-2xl font-bold text-cyan-400' style="text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);" id="card-terc-uti-adulto">R$ 0,00</p>
-                <p class='text-xs mt-1' style="color:#94a3b8;"><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
+                <p class='text-2xl font-bold text-cyan-400 val-principal' style="text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);" id="card-terc-uti-adulto">R$ 0,00</p>
+                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
             </div>
             <div class='card border-l-4 border-pink-500'>
                 <h3>SADT UTI NEONATAL</h3>
-                <p class='text-2xl font-bold neon-text-pink' id="card-terc-uti-neo">R$ 0,00</p>
-                <p class='text-xs mt-1' style="color:#94a3b8;"><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
+                <p class='text-2xl font-bold neon-text-pink val-principal' id="card-terc-uti-neo">R$ 0,00</p>
+                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
             </div>
         </div>
 
@@ -418,7 +425,6 @@
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_fin_int', 'classic');
             }
-            // Não precisa redesenhar gráficos pois não há canvas aqui
         }
 
         const commonDTConfig = (filename) => ({
