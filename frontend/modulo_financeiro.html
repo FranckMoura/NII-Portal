@@ -179,38 +179,70 @@
         body.theme-classic .dt-button:hover { background: #1e3a8a !important; color: white !important; }
 
         /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (A4 RETRATO)                      */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (A4 RETRATO - PRETO E BRANCO FORTE)*/
         /* ========================================================= */
         @media print {
-            @page { margin: 5mm 10mm; size: A4 portrait; }
-            body { background: white !important; color: #000 !important; font-family: 'Arial', sans-serif !important; font-size: 9pt !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { margin: 10mm; size: A4 portrait; }
             
+            /* FORÇA TUDO PARA PRETO ABSOLUTO, FUNDO BRANCO E REMOVE SOMBRAS */
+            * { 
+                background: transparent !important; 
+                color: #000000 !important; 
+                text-shadow: none !important;
+                box-shadow: none !important;
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
+            body, html { background: #FFFFFF !important; font-family: 'Arial', sans-serif !important; }
+            
+            /* ESCONDE ELEMENTOS DA INTERFACE DE TELA */
             .header-bg, .btn-theme, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .module-nav, .dataTables_info, .blob-1, .blob-2 { display: none !important; }
             
-            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+            /* CABEÇALHO DE IMPRESSÃO */
+            .header-print { display: flex !important; align-items: center; border-bottom: 3px solid #000000 !important; padding-bottom: 10px; margin-bottom: 20px; }
             .header-print img { height: 50px; margin-right: 15px; }
             .header-info { flex: 1; text-align: center; }
-            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: black; }
-            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: black; }
-            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: black; }
+            .header-info h1 { margin: 0; font-size: 16pt; font-weight: 900 !important; text-transform: uppercase; }
+            .header-info h2 { margin: 2px 0; font-size: 12pt; font-weight: bold !important; }
+            .header-meta { font-size: 9pt; text-align: right; line-height: 1.3; font-weight: bold !important; }
 
-            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; margin-bottom: 15px !important; }
-            .card { padding: 5px 10px !important; box-shadow: none !important; border: 1px solid #000 !important; background: transparent !important;}
-            .card h3 { font-size: 8pt !important; color: #000 !important; border: none !important;}
-            .card p { font-size: 11pt !important; color: #000 !important; margin-top: 2px !important; text-shadow: none !important;}
+            /* CARDS SUPERIORES */
+            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; margin-bottom: 20px !important; }
+            .card { 
+                padding: 12px !important; 
+                border: 2px solid #000000 !important; /* Borda grossa preta */
+                background: #FFFFFF !important;
+                break-inside: avoid;
+                border-radius: 4px !important;
+            }
+            .card h3 { font-size: 10pt !important; font-weight: 900 !important; border: none !important; margin-bottom: 5px !important; text-transform: uppercase;}
+            .card p { font-size: 14pt !important; font-weight: 900 !important; margin-top: 2px !important; }
+            .card p span { font-weight: bold !important; font-size: 9pt !important; }
             
-            .table-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+            /* TABELAS */
+            .table-container { background: transparent !important; border: none !important; padding: 0 !important; }
             .table-container h2 { display: none !important; }
 
-            table.dataTable { border: 1px solid #000 !important; margin-top: 0 !important; color: black !important;}
-            table.dataTable thead th { background-color: #ddd !important; color: #000 !important; font-weight: 900 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 4px !important; }
-            table.dataTable tbody td { color: #000 !important; border: 1px solid #000 !important; font-size: 8pt !important; padding: 2px 4px !important; }
-            table.dataTable tbody tr:nth-child(even) { background-color: #eee !important; }
+            table.dataTable { border: 2px solid #000000 !important; margin-top: 0 !important; width: 100% !important; border-collapse: collapse !important; }
+            table.dataTable thead th { 
+                background-color: #e5e5e5 !important; /* Fundo cinza claro para destacar cabeçalho */
+                font-weight: 900 !important; 
+                border: 1px solid #000000 !important; 
+                border-bottom: 2px solid #000000 !important;
+                font-size: 10pt !important; 
+                padding: 8px !important; 
+                text-align: left !important;
+            }
+            table.dataTable tbody td { 
+                border: 1px solid #000000 !important; 
+                font-size: 9pt !important; 
+                padding: 6px !important; 
+                font-weight: 600 !important; /* Deixa as letras das células mais escuras/fortes */
+            }
+            table.dataTable tbody tr:nth-child(even) { background-color: #f4f4f4 !important; } /* Zebrado suave na impressão */
+            table.dataTable tbody tr { background-color: #ffffff !important; }
             
-            /* Remove cores na impressão */
-            .text-green-700, .text-blue-600, .text-cyan-600, .text-pink-600, .text-gray-800 { color: #000 !important; font-weight: 800 !important; text-shadow: none !important;}
-            
-            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
+            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; font-weight: bold !important; border-top: 2px solid #000000 !important; padding-top: 5px; display: block !important; }
         }
     </style>
 </head>
