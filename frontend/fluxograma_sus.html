@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxograma - FATURAMENTO SUS (NII)</title>
+    <title>Apresentação Executiva - FATURAMENTO SUS (NII)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,6 +15,8 @@
         /* ========================================================= */
         * { box-sizing: border-box; }
         p { margin: 0; margin-bottom: 15px; }
+        
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Lato', sans-serif;
@@ -23,7 +25,7 @@
             background-attachment: fixed;
             color: white;
             display: grid;
-            gap: 40px;
+            gap: 60px;
             grid-template-columns: 1fr;
             margin: 0;
             min-height: 100vh;
@@ -136,6 +138,7 @@
         .two-column.highlight-numbers-layout { align-items: center; display: flex; gap: 50px; width: 100%; }
         .highlight-numbers-layout > div:first-child { flex: 0 0 40%; padding: 60px 40px; }
         .highlight-numbers-layout .number { color: #38bdf8; font-size: 150px; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 30px rgba(56,189,248,0.5); }
+        .highlight-numbers-layout .number span { font-size: 80px; color: inherit; text-shadow: inherit; }
         .highlight-numbers-layout .number-label { font-size: 24px; font-weight: 700; color: #f8fafc; }
 
         /* QA LAYOUT NEON */
@@ -207,7 +210,7 @@
     <div class="slide-container" id="slide1">
         <div class="title-layout">
             <h1>FATURAMENTO - <span>SUS</span></h1>
-            <p class="subtitle">Pipeline SoulMV & Base de Conhecimento NII-Portal</p>
+            <p class="subtitle">Estratégia, Processos e Tecnologia Hospitalar</p>
         </div>
     </div>
 
@@ -357,7 +360,7 @@
                 <div class="bleed-text-side">
                     <h3>Validação & Exportação (Etapa Final)</h3>
                     <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
-                    <p>Sob a responsabilidade de <strong style="color:inherit;">Franck Moura (Coordenação)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
+                    <p>Sob a responsabilidade da <strong style="color:inherit;">Coordenação (Franck Moura)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
                     <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
                 </div>
             </div>
@@ -368,7 +371,48 @@
     </div>
 
     <div class="slide-container" id="slide7">
-        <h2 class="slide-title">Métricas do Fluxo SUS</h2>
+        <h2 class="slide-title">Recuperação de Receita: A Tese da URV</h2>
+        <div class="content-area">
+            <div class="two-column highlight-numbers-layout">
+                <div>
+                    <div class="number">9,56<span>%</span></div>
+                    <div class="number-label">Defasagem Histórica (1994)</div>
+                </div>
+                <div>
+                    <h3>O Fator de Conversão e o Passivo</h3>
+                    <p>Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na transição de Cruzeiros Reais para a nova moeda (Real) na Tabela SUS.</p>
+                    <p>Isso gerou uma perda contínua de <strong>9,56%</strong> nos repasses focados em Serviços Hospitalares (VAL_SH).</p>
+                    <p>O NII-Portal hoje possui a tecnologia para auditar e retroagir 26 anos de faturamento, consolidando a prova matemática exata desse passivo em segundos, municiando nosso Departamento Jurídico com dados blindados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Evolução do Faturamento: A Unificação SIGTAP</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
+                    <h3>Até 2007: Conta Fragmentada</h3>
+                    <p>Historicamente, a AIH era faturada "aos pedaços". Havia rubricas completamente separadas para o Serviço Hospitalar (SH), Honorários (SP) e Exames de rotina (SADT).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-box-archive"></i></div>
+                    <h3>2008: O "Pacote Fechado"</h3>
+                    <p>O Ministério da Saúde cria o SIGTAP. O valor dos exames de rotina (SADT) passou a ser <strong>embutido diretamente no valor do Serviço Hospitalar (SH)</strong> para otimizar o fluxo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-chart-pie"></i></div>
+                    <h3>O Reflexo na Auditoria</h3>
+                    <p>Isso explica a "ausência" de rubricas SADT após 2008. A inteligência do NII-Portal já compreende esse modelo de <em>Bundle</em>, garantindo transparência total no Ticket Médio da instituição.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Métricas de Excelência do Fluxo SUS</h2>
         <div class="content-area">
             <div class="two-column highlight-numbers-layout">
                 <div>
@@ -378,18 +422,18 @@
                 <div>
                     <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
                     <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
-                    <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais e maximiza o repasse governamental.</p>
+                    <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais, minimiza glosas e maximiza o repasse governamental.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="slide-container" id="slide8">
+    <div class="slide-container" id="slide10">
         <div class="qa-layout">
-            <h2>Dúvidas Adicionais?</h2>
-            <p>Acesse as portarias, manuais do sistema e documentos no portal.</p>
+            <h2>Gestão Orientada a Dados</h2>
+            <p>O Núcleo Interno de Informação (NII) à disposição da Diretoria.</p>
             <div class="contact-info">
-                <i class="fa-solid fa-server" style="margin-right: 10px; color: #0284c7;"></i> github.com/franckmoura/NII-Portal
+                <i class="fa-solid fa-server" style="margin-right: 10px; color: #0284c7;"></i> NII-Portal | Hospital Beneficente Santa Helena
             </div>
         </div>
     </div>
