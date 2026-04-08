@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apresentação Executiva - FATURAMENTO SUS (NII)</title>
+    <title>Base de Conhecimento - FATURAMENTO SUS (NII)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -24,13 +24,12 @@
             background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
             background-attachment: fixed;
             color: white;
-            display: grid;
-            gap: 60px;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin: 0;
             min-height: 100vh;
-            padding: 60px 0;
-            place-items: center;
+            padding: 80px 20px;
             transition: background 0.5s ease, color 0.5s ease;
         }
 
@@ -51,7 +50,7 @@
             padding: 10px 20px; border-radius: 8px; font-family: 'Poppins', sans-serif;
             font-weight: 600; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             z-index: 9999; display: flex; align-items: center; gap: 8px; transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); cursor: pointer;
         }
         .btn-floating-back:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
 
@@ -64,6 +63,96 @@
         }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
 
+        /* ========================================================= */
+        /* MENU DE CARDS PRINCIPAL                                   */
+        /* ========================================================= */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 70vh;
+            z-index: 10;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .menu-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 48px;
+            color: white;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        .menu-header h1 span { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        .menu-header p { color: #94a3b8; font-size: 18px; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            width: 100%;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.1);
+        }
+        .nav-card:hover::before { left: 200%; }
+
+        .nav-card i { font-size: 60px; color: #38bdf8; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5)); transition: 0.3s; }
+        .nav-card:hover i { transform: scale(1.1); color: #7dd3fc; }
+        
+        .nav-card h2 { font-family: 'Poppins', sans-serif; font-size: 24px; color: #f8fafc; margin-bottom: 15px; }
+        .nav-card p { color: #cbd5e1; font-size: 15px; line-height: 1.5; margin: 0; }
+
+        .nav-card.disabled { opacity: 0.5; cursor: not-allowed; }
+        .nav-card.disabled:hover { transform: none; background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .nav-card.disabled i { color: #64748b; filter: none; }
+
+        /* ========================================================= */
+        /* SEÇÕES DE CONTEÚDO (Slides Embutidos)                     */
+        /* ========================================================= */
+        .content-section {
+            display: none; /* Escondido por padrão, ativado via JS */
+            flex-direction: column;
+            gap: 60px;
+            width: 100%;
+            align-items: center;
+            z-index: 10;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
         /* SLIDE CONTAINER (Vidro Escuro) */
         .slide-container {
             align-items: center;
@@ -73,10 +162,9 @@
             border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
             display: flex; flex-direction: column; justify-content: center;
-            height: 720px; width: 1280px; padding: 60px; position: relative; overflow: hidden;
+            height: 720px; width: 1280px; max-width: 100%; padding: 60px; position: relative; overflow: hidden;
             transition: 0.5s;
         }
-        .slide-container > * { position: relative; z-index: 1; }
 
         /* TIPOGRAFIA NEON */
         .slide-container h1, .slide-container h2, .slide-container h3 { color: #f8fafc; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 0; }
@@ -154,9 +242,20 @@
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
 
         body.theme-classic .btn-floating-back { background: #0f172a !important; border-color: transparent !important; }
-        body.theme-classic .btn-floating-back:hover { background: #0284c7 !important; }
+        body.theme-classic .btn-floating-back:hover { background: #0284c7 !important; color: white !important;}
         body.theme-classic .btn-theme-toggle { background: rgba(0,0,0,0.5) !important; border-color: transparent !important; }
         body.theme-classic .btn-theme-toggle:hover { background: #0284c7 !important; }
+
+        body.theme-classic .menu-header h1 { color: #0f172a !important; text-shadow: none !important; }
+        body.theme-classic .menu-header h1 span { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .menu-header p { color: #475569 !important; }
+
+        body.theme-classic .nav-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
+        body.theme-classic .nav-card:hover { transform: translateY(-5px) !important; background: #f8fafc !important; border-color: #0284c7 !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }
+        body.theme-classic .nav-card i { color: #0284c7 !important; filter: none !important; }
+        body.theme-classic .nav-card h2 { color: #0f172a !important; }
+        body.theme-classic .nav-card p { color: #475569 !important; }
+        body.theme-classic .nav-card::before { display: none !important; }
 
         body.theme-classic .slide-container { background: #ffffff !important; border: none !important; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; backdrop-filter: none !important; }
         
@@ -199,236 +298,270 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <a href="modulo_estrategico.html" class="btn-floating-back">
-        <i class="fas fa-arrow-left"></i> Voltar ao Painel
+    <a href="#" id="btn-voltar" class="btn-floating-back" onclick="handleVoltar(event)">
+        <i class="fas fa-arrow-left"></i> <span id="txt-voltar">Voltar ao Painel</span>
     </a>
 
     <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
         <i class="fas fa-sun"></i>
     </button>
 
-    <div class="slide-container" id="slide1">
-        <div class="title-layout">
-            <h1>FATURAMENTO - <span>SUS</span></h1>
-            <p class="subtitle">Estratégia, Processos e Tecnologia Hospitalar</p>
+    <div id="menu-principal" class="menu-container">
+        <div class="menu-header">
+            <h1>Base de Conhecimento <span>NII</span></h1>
+            <p>Portal de Diretrizes, Processos e Manuais do Faturamento SUS</p>
         </div>
-    </div>
 
-    <div class="slide-container" id="slide2">
-        <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 10%;">Etapa</th>
-                            <th style="width: 45%;">Fase do Processo</th>
-                            <th style="width: 45%;">Responsáveis</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>01</strong></td>
-                            <td>RECEPÇÃO (Alta no Sistema)</td>
-                            <td>Equipe de Recepção</td>
-                        </tr>
-                        <tr>
-                            <td><strong>02</strong></td>
-                            <td>ARQUIVO (Montagem do Prontuário)</td>
-                            <td>Equipe de Arquivo / SAME</td>
-                        </tr>
-                        <tr>
-                            <td><strong>03</strong></td>
-                            <td>TRIAGEM (Sisreg / AIH / Exames)</td>
-                            <td>Alexandre</td>
-                        </tr>
-                        <tr>
-                            <td><strong>04</strong></td>
-                            <td>FATURAMENTO (Lançamento SoulMV)</td>
-                            <td>Cristina e Carlos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>05</strong></td>
-                            <td>AUDITORIA (Conferência Minuciosa)</td>
-                            <td>Bianca</td>
-                        </tr>
-                        <tr>
-                            <td><strong>06</strong></td>
-                            <td>GESTÃO DE PENDÊNCIAS</td>
-                            <td>Franck</td>
-                        </tr>
-                        <tr>
-                            <td><strong>07</strong></td>
-                            <td>APOIO NIR (Autorizações / APACs)</td>
-                            <td>Kamila</td>
-                        </tr>
-                        <tr>
-                            <td><strong>08</strong></td>
-                            <td>FECHAMENTO & EXPORTAÇÃO</td>
-                            <td>Franck</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="cards-grid">
+            <div class="nav-card" onclick="abrirSecao('sec-fluxograma')">
+                <i class="fa-solid fa-network-wired"></i>
+                <h2>Fluxograma SUS</h2>
+                <p>Mapeamento End-to-End: Recepção, Lançamento SoulMV, Auditoria e Exportação.</p>
+            </div>
+
+            <div class="nav-card" onclick="abrirSecao('sec-manuais')">
+                <i class="fa-solid fa-book-open"></i>
+                <h2>Manuais & Teses</h2>
+                <p>Diretrizes técnicas: Unificação SADT (Pacote Fechado) e Recuperação da URV (9,56%).</p>
+            </div>
+
+            <div class="nav-card disabled" title="Em breve">
+                <i class="fa-solid fa-lock"></i>
+                <h2>Auditoria Interna</h2>
+                <p>Módulo em desenvolvimento. Análises preditivas e regras de bloqueio.</p>
             </div>
         </div>
     </div>
 
-    <div class="slide-container" id="slide3">
-        <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
-        <div class="content-area">
-            <div class="timeline-layout">
-                <div class="timeline-line"></div>
-                <div class="timeline-item">
-                    <div class="content-wrapper">
-                        <h3>1. Recepção/Arquivo</h3>
-                        <p class="responsavel">Resp: Recepção / Arquivo</p>
-                        <p>Início com a alta do paciente. Montagem física do prontuário e anexação de documentos oficiais.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="content-wrapper">
-                        <h3>2. Triagem</h3>
-                        <p class="responsavel">Resp: Alexandre</p>
-                        <p>Consulta em sistemas externos (Sisreg para emissão de AIH) e impressão de exames cruciais.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="content-wrapper">
-                        <h3>3. Lançamento</h3>
-                        <p class="responsavel">Resp: Cristina / Carlos</p>
-                        <p>Entrada oficial dos dados (Faturamento) no sistema hospitalar SoulMV.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="content-wrapper">
-                        <h3>4. Auditoria Base</h3>
-                        <p class="responsavel">Resp: Bianca</p>
-                        <p>Verificação se os lançamentos realizados no SoulMV estão consistentes com o prontuário.</p>
-                    </div>
-                </div>
+
+    <div id="sec-fluxograma" class="content-section">
+        <div class="slide-container">
+            <div class="title-layout">
+                <h1>FATURAMENTO - <span>SUS</span></h1>
+                <p class="subtitle">Estratégia, Processos e Tecnologia Hospitalar</p>
             </div>
         </div>
-    </div>
 
-    <div class="slide-container" id="slide4">
-        <h2 class="slide-title">Análise Crítica e Resolução</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-list-check"></i></div>
-                    <h3>Auditoria Final</h3>
-                    <p class="responsavel">Bianca</p>
-                    <p>Conferência minuciosa dos dados. Contas auditadas e limpas (Sinal Verde) seguem direto para a etapa de Fechamento.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h3>Pendências</h3>
-                    <p class="responsavel">Franck</p>
-                    <p>Triagem de contas com problemas (Falta de NF, erro na Descrição Cirúrgica). Resolução dos entraves operacionais.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
-                    <h3>Apoio NIR</h3>
-                    <p class="responsavel">Kamila</p>
-                    <p>Resolução de autorizações complexas (Ex: Planejamento Familiar), e estruturação de faturamento para Laqueaduras e APACs.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="slide-container bleed-image-layout" id="slide5">
-        <div class="content-container">
-            <h2 class="slide-title">O Papel Estratégico do NIR</h2>
+        <div class="slide-container">
+            <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
             <div class="content-area">
-                <div class="bleed-text-side">
-                    <h3>Apoio Técnico e Autorizações (Etapa 7)</h3>
-                    <p>O trabalho do Núcleo Interno de Regulação (NIR) atua como um verdadeiro destravador do faturamento SUS, sendo um pilar essencial para o fluxo.</p>
-                    <p>Conduzido de forma ágil por <strong style="color:inherit;">Kamila</strong>, o gerenciamento de autorizações complexas — como Planejamento Familiar, Laqueaduras e APACs — alivia substancialmente a carga operacional da Coordenação.</p>
-                    <p>Sua atuação proativa garante que os prontuários cheguem à etapa final redondos e totalmente aptos para a exportação.</p>
+                <div class="table-layout">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">Etapa</th>
+                                <th style="width: 45%;">Fase do Processo</th>
+                                <th style="width: 45%;">Responsáveis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>01</strong></td>
+                                <td>RECEPÇÃO (Alta no Sistema)</td>
+                                <td>Equipe de Recepção</td>
+                            </tr>
+                            <tr>
+                                <td><strong>02</strong></td>
+                                <td>ARQUIVO (Montagem do Prontuário)</td>
+                                <td>Equipe de Arquivo / SAME</td>
+                            </tr>
+                            <tr>
+                                <td><strong>03</strong></td>
+                                <td>TRIAGEM (Sisreg / AIH / Exames)</td>
+                                <td>Alexandre</td>
+                            </tr>
+                            <tr>
+                                <td><strong>04</strong></td>
+                                <td>FATURAMENTO (Lançamento SoulMV)</td>
+                                <td>Cristina e Carlos</td>
+                            </tr>
+                            <tr>
+                                <td><strong>05</strong></td>
+                                <td>AUDITORIA (Conferência Minuciosa)</td>
+                                <td>Bianca</td>
+                            </tr>
+                            <tr>
+                                <td><strong>06</strong></td>
+                                <td>GESTÃO DE PENDÊNCIAS</td>
+                                <td>Franck</td>
+                            </tr>
+                            <tr>
+                                <td><strong>07</strong></td>
+                                <td>APOIO NIR (Autorizações / APACs)</td>
+                                <td>Kamila</td>
+                            </tr>
+                            <tr>
+                                <td><strong>08</strong></td>
+                                <td>FECHAMENTO & EXPORTAÇÃO</td>
+                                <td>Franck</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="image-container">
-            <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="Hospital interior">
-        </div>
-    </div>
 
-    <div class="slide-container bleed-image-layout" id="slide6">
-        <div class="content-container">
-            <h2 class="slide-title">A Visão da Coordenação</h2>
+        <div class="slide-container">
+            <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
             <div class="content-area">
-                <div class="bleed-text-side">
-                    <h3>Validação & Exportação (Etapa Final)</h3>
-                    <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
-                    <p>Sob a responsabilidade da <strong style="color:inherit;">Coordenação (Franck Moura)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
-                    <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
+                <div class="timeline-layout">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-item">
+                        <div class="content-wrapper">
+                            <h3>1. Recepção/Arquivo</h3>
+                            <p class="responsavel">Resp: Recepção / Arquivo</p>
+                            <p>Início com a alta do paciente. Montagem física do prontuário e anexação de documentos oficiais.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="content-wrapper">
+                            <h3>2. Triagem</h3>
+                            <p class="responsavel">Resp: Alexandre</p>
+                            <p>Consulta em sistemas externos (Sisreg para emissão de AIH) e impressão de exames cruciais.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="content-wrapper">
+                            <h3>3. Lançamento</h3>
+                            <p class="responsavel">Resp: Cristina / Carlos</p>
+                            <p>Entrada oficial dos dados (Faturamento) no sistema hospitalar SoulMV.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="content-wrapper">
+                            <h3>4. Auditoria Base</h3>
+                            <p class="responsavel">Resp: Bianca</p>
+                            <p>Verificação se os lançamentos realizados no SoulMV estão consistentes com o prontuário.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="image-container">
-            <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="Data analysis">
-        </div>
-    </div>
 
-    <div class="slide-container" id="slide7">
-        <h2 class="slide-title">Recuperação de Receita: A Tese da URV</h2>
-        <div class="content-area">
-            <div class="two-column highlight-numbers-layout">
-                <div>
-                    <div class="number">9,56<span>%</span></div>
-                    <div class="number-label">Defasagem Histórica (1994)</div>
+        <div class="slide-container">
+            <h2 class="slide-title">Análise Crítica e Resolução</h2>
+            <div class="content-area">
+                <div class="tiled-content">
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                        <h3>Auditoria Final</h3>
+                        <p class="responsavel">Bianca</p>
+                        <p>Conferência minuciosa dos dados. Contas auditadas e limpas (Sinal Verde) seguem direto para a etapa de Fechamento.</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h3>Pendências</h3>
+                        <p class="responsavel">Franck</p>
+                        <p>Triagem de contas com problemas (Falta de NF, erro na Descrição Cirúrgica). Resolução dos entraves operacionais.</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                        <h3>Apoio NIR</h3>
+                        <p class="responsavel">Kamila</p>
+                        <p>Resolução de autorizações complexas (Ex: Planejamento Familiar), e estruturação de faturamento para Laqueaduras e APACs.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3>O Fator de Conversão e o Passivo</h3>
-                    <p>Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na transição de Cruzeiros Reais para a nova moeda (Real) na Tabela SUS.</p>
-                    <p>Isso gerou uma perda contínua de <strong>9,56%</strong> nos repasses focados em Serviços Hospitalares (VAL_SH).</p>
-                    <p>O NII-Portal hoje possui a tecnologia para auditar e retroagir 26 anos de faturamento, consolidando a prova matemática exata desse passivo em segundos, municiando nosso Departamento Jurídico com dados blindados.</p>
+            </div>
+        </div>
+
+        <div class="slide-container bleed-image-layout">
+            <div class="content-container">
+                <h2 class="slide-title">O Papel Estratégico do NIR</h2>
+                <div class="content-area">
+                    <div class="bleed-text-side">
+                        <h3>Apoio Técnico e Autorizações (Etapa 7)</h3>
+                        <p>O trabalho do Núcleo Interno de Regulação (NIR) atua como um verdadeiro destravador do faturamento SUS, sendo um pilar essencial para o fluxo.</p>
+                        <p>Conduzido de forma ágil por <strong style="color:inherit;">Kamila</strong>, o gerenciamento de autorizações complexas — como Planejamento Familiar, Laqueaduras e APACs — alivia substancialmente a carga operacional da Coordenação.</p>
+                        <p>Sua atuação proativa garante que os prontuários cheguem à etapa final redondos e totalmente aptos para a exportação.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="image-container">
+                <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="Hospital interior">
+            </div>
+        </div>
+
+        <div class="slide-container bleed-image-layout">
+            <div class="content-container">
+                <h2 class="slide-title">A Visão da Coordenação</h2>
+                <div class="content-area">
+                    <div class="bleed-text-side">
+                        <h3>Validação & Exportação (Etapa Final)</h3>
+                        <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
+                        <p>Sob a responsabilidade da <strong style="color:inherit;">Coordenação (Franck Moura)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
+                        <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="image-container">
+                <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="Data analysis">
+            </div>
+        </div>
+
+        <div class="slide-container">
+            <h2 class="slide-title">Métricas de Excelência do Fluxo SUS</h2>
+            <div class="content-area">
+                <div class="two-column highlight-numbers-layout">
+                    <div>
+                        <div class="number">08</div>
+                        <div class="number-label">Pilares de Processamento</div>
+                    </div>
+                    <div>
+                        <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
+                        <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
+                        <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais, minimiza glosas e maximiza o repasse governamental.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="slide-container" id="slide8">
-        <h2 class="slide-title">Evolução do Faturamento: A Unificação SIGTAP</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
-                    <h3>Até 2007: Conta Fragmentada</h3>
-                    <p>Historicamente, a AIH era faturada "aos pedaços". Havia rubricas completamente separadas para o Serviço Hospitalar (SH), Honorários (SP) e Exames de rotina (SADT).</p>
-                </div>
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-box-archive"></i></div>
-                    <h3>2008: O "Pacote Fechado"</h3>
-                    <p>O Ministério da Saúde cria o SIGTAP. O valor dos exames de rotina (SADT) passou a ser <strong>embutido diretamente no valor do Serviço Hospitalar (SH)</strong> para otimizar o fluxo.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon"><i class="fa-solid fa-chart-pie"></i></div>
-                    <h3>O Reflexo na Auditoria</h3>
-                    <p>Isso explica a "ausência" de rubricas SADT após 2008. A inteligência do NII-Portal já compreende esse modelo de <em>Bundle</em>, garantindo transparência total no Ticket Médio da instituição.</p>
+    <div id="sec-manuais" class="content-section">
+        
+        <div class="slide-container">
+            <h2 class="slide-title">Recuperação de Receita: A Tese da URV</h2>
+            <div class="content-area">
+                <div class="two-column highlight-numbers-layout">
+                    <div>
+                        <div class="number">9,56<span>%</span></div>
+                        <div class="number-label">Defasagem Histórica (1994)</div>
+                    </div>
+                    <div>
+                        <h3>O Fator de Conversão e o Passivo</h3>
+                        <p>Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na transição de Cruzeiros Reais para a nova moeda (Real) na Tabela SUS.</p>
+                        <p>Isso gerou uma perda contínua de <strong>9,56%</strong> nos repasses focados em Serviços Hospitalares (VAL_SH).</p>
+                        <p>O NII-Portal hoje possui a tecnologia para auditar e retroagir 26 anos de faturamento, consolidando a prova matemática exata desse passivo em segundos, municiando nosso Departamento Jurídico com dados blindados.</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="slide-container" id="slide9">
-        <h2 class="slide-title">Métricas de Excelência do Fluxo SUS</h2>
-        <div class="content-area">
-            <div class="two-column highlight-numbers-layout">
-                <div>
-                    <div class="number">08</div>
-                    <div class="number-label">Pilares de Processamento</div>
-                </div>
-                <div>
-                    <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
-                    <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
-                    <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais, minimiza glosas e maximiza o repasse governamental.</p>
+        <div class="slide-container">
+            <h2 class="slide-title">Evolução do Faturamento: A Unificação SIGTAP</h2>
+            <div class="content-area">
+                <div class="tiled-content">
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
+                        <h3>Até 2007: Conta Fragmentada</h3>
+                        <p>Historicamente, a AIH era faturada "aos pedaços". Havia rubricas completamente separadas para o Serviço Hospitalar (SH), Honorários (SP) e Exames de rotina (SADT).</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-box-archive"></i></div>
+                        <h3>2008: O "Pacote Fechado"</h3>
+                        <p>O Ministério da Saúde cria o SIGTAP. O valor dos exames de rotina (SADT) passou a ser <strong>embutido diretamente no valor do Serviço Hospitalar (SH)</strong> para otimizar o fluxo.</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-chart-pie"></i></div>
+                        <h3>O Reflexo na Auditoria</h3>
+                        <p>Isso explica a "ausência" de rubricas SADT após 2008. A inteligência do NII-Portal já compreende esse modelo de <em>Bundle</em>, garantindo transparência total no Ticket Médio da instituição.</p>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <div class="slide-container" id="slide10">
+    <div class="slide-container" id="slide-contato" style="display: none; height: auto; min-height: 400px; margin-top: 50px;">
         <div class="qa-layout">
             <h2>Gestão Orientada a Dados</h2>
             <p>O Núcleo Interno de Informação (NII) à disposição da Diretoria.</p>
@@ -439,6 +572,47 @@
     </div>
 
     <script>
+        // ==========================================
+        // LÓGICA DE NAVEGAÇÃO DOS CARDS
+        // ==========================================
+        let secaoAtual = null;
+
+        function abrirSecao(idSecao) {
+            // Esconde o menu
+            document.getElementById('menu-principal').style.display = 'none';
+            
+            // Mostra a seção escolhida e o rodapé
+            document.getElementById(idSecao).style.display = 'flex';
+            document.getElementById('slide-contato').style.display = 'flex';
+            secaoAtual = idSecao;
+
+            // Altera o botão de voltar
+            const btnTxt = document.getElementById('txt-voltar');
+            btnTxt.innerText = 'Voltar ao Menu Inicial';
+            
+            // Scroll para o topo suavemente
+            window.scrollTo(0, 0);
+        }
+
+        function handleVoltar(event) {
+            event.preventDefault();
+            
+            if (secaoAtual !== null) {
+                // Se estiver dentro de uma seção, volta para o menu de cards
+                document.getElementById(secaoAtual).style.display = 'none';
+                document.getElementById('slide-contato').style.display = 'none';
+                document.getElementById('menu-principal').style.display = 'flex';
+                
+                // Restaura o texto do botão
+                document.getElementById('txt-voltar').innerText = 'Voltar ao Painel';
+                secaoAtual = null;
+                window.scrollTo(0, 0);
+            } else {
+                // Se já estiver no menu, volta para a página anterior do NII Portal
+                window.location.href = 'modulo_estrategico.html';
+            }
+        }
+
         // ==========================================
         // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
         // ==========================================
