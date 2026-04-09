@@ -1,113 +1,266 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Ambulatorial SIA - NII Portal</title>
     
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); color: white; min-height: 100vh; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
-        .kpi-number { font-size: 1.6rem; font-weight: 900; line-height: 1.1; }
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
+            padding: 0; margin: 0; min-height: 100vh;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
         
-        table.dataTable { color: white !important; }
-        table.dataTable thead th { border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; color: #38bdf8 !important; }
-        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .dataTables_filter input, .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; }
-        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+
+        .cyber-container {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative; z-index: 1; transition: 0.5s; margin-bottom: 20px;
+        }
+
+        .dyn-text-primary { color: #ffffff; }
+        .dyn-text-secondary { color: #bae6fd; } 
+        .dyn-text-muted { color: #94a3b8; } 
+        .dyn-text-accent { color: #38bdf8; } 
+        .dyn-badge-cod { background-color: rgba(22, 78, 99, 0.4); color: #67e8f9; }
+
+        /* KPIs */
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
+        .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.1; }
+
+        /* DATATABLES */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; font-size: 0.75rem; text-transform: uppercase; border-top: none !important; border-left: none !important; border-right: none !important;}
+        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; vertical-align: middle; }
+        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        .dataTables_filter input, .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 4px; outline: none; }
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; transition: 0.2s; }
+        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 4px; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
+        body.theme-classic .cyber-container { background: #ffffff !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; backdrop-filter: none !important; }
+        
+        body.theme-classic .dyn-text-primary { color: #0f172a !important; }
+        body.theme-classic .dyn-text-secondary { color: #475569 !important; }
+        body.theme-classic .dyn-text-muted { color: #64748b !important; }
+        body.theme-classic .dyn-text-accent { color: #004e92 !important; }
+        body.theme-classic .dyn-badge-cod { background-color: #e0f2fe !important; color: #0369a1 !important; border: none !important; }
+
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
+        body.theme-classic .dataTables_filter input, body.theme-classic .dataTables_length select { background: white !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
+        
+        body.theme-classic .dt-button { background: #10b981 !important; color: white !important; border: 1px solid #059669 !important; }
+        body.theme-classic .dt-button:hover { background: #059669 !important; }
+
+        /* OTIMIZAÇÃO DE IMPRESSÃO (A4 LIMPO) */
+        @media print {
+            body { background: white !important; color: black !important; }
+            body::before, .no-print { display: none !important; }
+            .cyber-container { box-shadow: none !important; border: 1px solid #CCC !important; width: 100% !important; background: white !important; color: black !important; }
+            * { text-shadow: none !important; }
+            h2, span, td, th, div, i { color: #000 !important; }
+            table th { border-bottom: 2px solid #000 !important; color: #000 !important; -webkit-print-color-adjust: exact; }
+            table td { border-bottom: 1px solid #CCC !important; }
+            .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+        }
     </style>
 </head>
-<body class="p-6">
+<body class="theme-classic">
 
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class='text-3xl font-bold text-white'><i class="fa-solid fa-stethoscope text-sky-400 mr-2"></i>Produção Ambulatorial (SIA)</h1>
-            <p class='text-cyan-200 text-sm mt-1'>Hospital Beneficente Santa Helena</p>
-        </div>
-        <div class="flex items-end gap-3">
+    <div class='header-bg no-print flex justify-between items-center'>
+        <div class="flex items-center gap-4">
+            <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-stethoscope text-3xl dyn-text-accent"></i></div>
             <div>
-                <label class="text-xs text-gray-400 block mb-1">Competência (Ano)</label>
-                <select id="filtroAno" class="bg-black/40 border border-white/20 rounded px-4 py-2 text-white outline-none">
-                    <option value="2024">2024</option>
+                <h1 class='text-3xl font-bold text-white'>Produção Ambulatorial (SIA)</h1>
+                <p class='text-cyan-200 text-sm mt-1 opacity-80'>Hospital Beneficente Santa Helena</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
+                <i class="fas fa-magic"></i>
+            </button>
+            <div class="bg-black/20 px-3 py-2 rounded flex items-center gap-2 border border-white/10 btn-theme">
+                <span class="text-xs font-bold uppercase dyn-text-accent">MÊS/ANO:</span>
+                <select id="selMes" class="bg-transparent text-white font-bold outline-none cursor-pointer text-sm">
+                    <option value="01">01</option><option value="02">02</option>
+                    <option value="03">03</option><option value="04">04</option>
+                    <option value="05" selected>05</option><option value="06">06</option>
+                    <option value="07">07</option><option value="08">08</option>
+                    <option value="09">09</option><option value="10">10</option>
+                    <option value="11">11</option><option value="12">12</option>
+                </select>
+                <span class="text-white font-bold">/</span>
+                <select id="selAno" class="bg-transparent text-white font-bold outline-none cursor-pointer text-sm">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024" selected>2024</option>
                     <option value="2023">2023</option>
                     <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
                 </select>
             </div>
-            <div>
-                <label class="text-xs text-gray-400 block mb-1">Mês</label>
-                <select id="filtroMes" class="bg-black/40 border border-white/20 rounded px-4 py-2 text-white outline-none">
-                    <option value="">Todos</option>
-                    <option value="01">01</option><option value="02">02</option><option value="03">03</option>
-                    <option value="04">04</option><option value="05" selected>05</option><option value="06">06</option>
-                </select>
-            </div>
-            <button onclick="carregarSIA()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-bolt mr-2"></i> Atualizar</button>
-            <a href="modulo_estrategico.html" class="bg-gray-700 text-white px-4 py-2 rounded-lg font-bold">Voltar</a>
+            <button id="btnBuscar" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-4 rounded-lg transition border border-sky-400/50"><i class="fas fa-search mr-2"></i> Atualizar</button>
+            <a href="modulo_estrategico.html" class="btn-theme hover:bg-white/20"><i class="fas fa-arrow-left"></i> Voltar</a>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="glass-card p-5 text-center border-b-4 border-emerald-500">
-            <div class="kpi-title"><i class="fas fa-file-invoice-dollar text-emerald-400 mr-1"></i> Total Faturado Aprovado</div>
-            <div class="kpi-number text-emerald-400" id="kpi-valor">R$ 0,00</div>
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="cyber-container !mb-0 text-center border-b-4 border-emerald-500">
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-2"></i> Total Aprovado (BPA/APAC)</div>
+                <div class="kpi-number text-emerald-400" id="kpi-valor">R$ 0,00</div>
+            </div>
+            <div class="cyber-container !mb-0 text-center border-b-4 border-sky-500">
+                <div class="kpi-title"><i class="fas fa-list mr-2"></i> Qtd. Procedimentos</div>
+                <div class="kpi-number text-sky-400" id="kpi-qtd">0</div>
+            </div>
+            <div class="cyber-container !mb-0 text-center border-b-4 border-purple-500">
+                <div class="kpi-title"><i class="fas fa-chart-line mr-2"></i> Ticket Médio</div>
+                <div class="kpi-number text-purple-400" id="kpi-ticket">R$ 0,00</div>
+            </div>
+            <div class="cyber-container !mb-0 text-center border-b-4 border-pink-500">
+                <div class="kpi-title"><i class="fas fa-users mr-2"></i> Média de Idade</div>
+                <div class="kpi-number text-pink-400" id="kpi-idade">0 anos</div>
+            </div>
         </div>
-        <div class="glass-card p-5 text-center border-b-4 border-sky-500">
-            <div class="kpi-title"><i class="fas fa-list text-sky-400 mr-1"></i> Quantidade de Procedimentos</div>
-            <div class="kpi-number text-sky-400" id="kpi-qtd">0</div>
-        </div>
-        <div class="glass-card p-5 text-center border-b-4 border-pink-500">
-            <div class="kpi-title"><i class="fas fa-users text-pink-400 mr-1"></i> Média de Idade (Anos)</div>
-            <div class="kpi-number text-pink-400" id="kpi-idade">0</div>
-        </div>
-    </div>
 
-    <div class="glass-card p-5 mb-8">
-        <h3 class="text-lg font-bold text-sky-400 mb-4"><i class="fas fa-table mr-2"></i>Relação de Produção BPA/APAC</h3>
-        <table id="tabela-sia" class="display w-full" style="width:100%">
-            <thead><tr><th>Procedimento</th><th>CBO</th><th>CID-10</th><th>Idade</th><th>Qtd Aprovada</th><th>Valor (R$)</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div class="cyber-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold dyn-text-primary uppercase tracking-wide"><i class="fas fa-table dyn-text-accent mr-2"></i> Relação Analítica de Produção Ambulatorial</h3>
+                <button onclick="window.print()" class="no-print bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded border border-gray-500 transition"><i class="fas fa-print mr-1"></i> Imprimir Painel</button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table id="tabela-sia" class="display w-full">
+                    <thead>
+                        <tr>
+                            <th class="w-24">Código Ato</th>
+                            <th>Procedimento (SIGTAP)</th>
+                            <th>Diagnóstico (CID)</th>
+                            <th>Executor / Especialidade</th>
+                            <th class="text-center">Idade</th>
+                            <th class="text-center">Qtd</th>
+                            <th class="text-right">Valor Aprovado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-sia">
+                        <tr><td colspan="7" class="text-center py-10 dyn-text-muted">Selecione o período e clique em Atualizar.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const sbUrl = 'https://voweywtzoldwfhgkniup.supabase.co';
-        const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
-        const db = window.supabase.createClient(sbUrl, sbKey);
+        const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0";
+        const clientDB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let dtTable = null;
-        const fmtMoeda = v => parseFloat(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-        async function carregarSIA() {
-            const ano = $('#filtroAno').val();
-            const mes = $('#filtroMes').val();
+        // Dicionários Simulados (Expansíveis)
+        const DIC_CID = { "Z302": "Vigilância de contracepção", "L97": "Úlcera dos membros inferiores", "K564": "Outras obstruções do intestino", "K938": "Outros transt. espec. dos órgãos digestivos", "T889": "Complicação não especificada de cuidados", "A90": "Dengue", "N390": "Infecção do trato urinário" };
+        const DIC_SIGTAP = { 
+            "0301010072": "CONSULTA MEDICA EM ATENCAO ESPECIALIZADA", 
+            "0204030170": "HEMOGRAMA COMPLETO",
+            "0211020036": "ELETROCARDIOGRAMA",
+            "0204020060": "DOSAGEM DE CREATININA",
+            "0205020143": "ULTRASSONOGRAFIA OBSTETRICA",
+            "0214010015": "TESTE RAPIDO PARA GRAVIDEZ"
+        };
+        const DIC_CBO = { "225125": "Médico Clínico", "225124": "Médico Pediatra", "225250": "Médico Cirurgião Geral", "225203": "Médico Cirurgião Vascular", "223505": "Enfermeiro" };
+
+        const fmtMoeda = v => parseFloat(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        const getDict = (cod, dic) => dic[cod] ? `<span class="dyn-text-primary font-semibold">${dic[cod]}</span>` : `<span class="dyn-text-secondary opacity-70">Não Mapeado</span>`;
+
+        // Sincronização de Temas
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic'); localStorage.setItem('nii_theme_menus', 'neon');
+            } else {
+                body.classList.add('theme-classic'); localStorage.setItem('nii_theme_menus', 'classic');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('nii_theme_menus');
+            if (savedTheme !== 'neon') document.body.classList.add('theme-classic');
+            else document.body.classList.remove('theme-classic');
+        });
+
+        document.getElementById('btnBuscar').addEventListener('click', async () => {
+            const ano = document.getElementById('selAno').value;
+            const mes = document.getElementById('selMes').value;
+            
+            const tbody = document.getElementById('tbody-sia');
+            if (dtTable) { dtTable.destroy(); }
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 dyn-text-accent"><i class="fas fa-spinner fa-spin text-3xl mb-3"></i><br>Baixando Produção Ambulatorial do Supabase...</td></tr>';
             
             $('#kpi-valor').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
-            $('#kpi-qtd').html('-');
-            $('#kpi-idade').html('-');
+            $('#kpi-qtd').html('-'); $('#kpi-ticket').html('-'); $('#kpi-idade').html('-');
 
-            let query = db.from('sia_sus_hsh').select('*').eq('ano_cmpt', ano);
-            if(mes) query = query.eq('mes_cmpt', mes);
+            // Busca os dados do SIA
+            const { data, error } = await clientDB.from('sia_sus_hsh').select('*').eq('ano_cmpt', ano).eq('mes_cmpt', mes).limit(5000);
             
-            const { data, error } = await query.limit(5000);
-            
-            if(error) { alert("Erro de conexão"); return; }
+            if(error) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-red-500 font-bold">Erro de conexão com o Banco de Dados.</td></tr>'; 
+                return; 
+            }
             if(!data || data.length === 0) {
-                $('#kpi-valor').text("R$ 0,00"); $('#tabela-sia tbody').empty(); return;
+                $('#kpi-valor').text("R$ 0,00"); $('#kpi-qtd').text("0"); $('#kpi-ticket').text("R$ 0,00"); $('#kpi-idade').text("0 anos");
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 dyn-text-muted">Nenhuma produção registrada para esta competência.</td></tr>'; 
+                return;
             }
 
             let totalValor = 0; let totalQtd = 0; let somaIdade = 0;
@@ -120,31 +273,50 @@
 
                 totalValor += val;
                 totalQtd += qtd;
-                somaIdade += idade;
+                somaIdade += (idade * qtd); // Média ponderada pela qtd
+                
+                const codProc = d.pa_proc_id || '-';
+                const codCid = d.pa_cidpri && d.pa_cidpri.trim() !== '0000' ? d.pa_cidpri : '-';
+                const cboCru = d.pa_cbo_prof || '-';
+                
+                // Tratamento Inteligente de Executor/CBO
+                let htmlExecutor = "";
+                if (!cboCru || cboCru.trim() === "" || cboCru === "000000") {
+                    htmlExecutor = `<div class="text-pink-600 font-bold italic text-[0.7rem] uppercase"><i class="fas fa-building mr-1"></i>Estabelecimento Próprio</div>`;
+                } else {
+                    htmlExecutor = `<div class="text-[0.65rem] dyn-text-muted font-mono mb-0.5">${cboCru}</div>${getDict(cboCru, DIC_CBO)}`;
+                }
 
-                htmlTr += `<tr>
-                    <td class="font-mono text-sky-200 text-sm">${d.pa_proc_id || '-'}</td>
-                    <td class="text-sm text-gray-400">${d.pa_cbo_prof || '-'}</td>
-                    <td class="font-bold text-pink-300 text-sm">${d.pa_cidpri || '-'}</td>
-                    <td class="text-center">${idade}</td>
-                    <td class="text-center font-bold text-white">${qtd}</td>
-                    <td class="text-right font-bold text-green-400">${fmtMoeda(val)}</td>
+                htmlTr += `<tr class="transition">
+                    <td class="font-mono dyn-badge-cod px-1 rounded text-center">${codProc}</td>
+                    <td class="text-xs uppercase">${getDict(codProc, DIC_SIGTAP)}</td>
+                    <td class="text-xs uppercase"><span class="font-mono text-pink-400 font-bold mr-1">${codCid}</span><br>${getDict(codCid, DIC_CID)}</td>
+                    <td class="text-left">${htmlExecutor}</td>
+                    <td class="text-center font-mono dyn-text-secondary">${idade}</td>
+                    <td class="text-center font-bold dyn-text-primary">${qtd}</td>
+                    <td class="text-right font-bold text-green-500 font-mono">${fmtMoeda(val)}</td>
                 </tr>`;
             });
 
+            // Atualiza KPIs
             $('#kpi-valor').text(fmtMoeda(totalValor));
             $('#kpi-qtd').text(totalQtd.toLocaleString('pt-BR'));
-            $('#kpi-idade').text(Math.round(somaIdade / data.length));
+            $('#kpi-ticket').text(fmtMoeda(totalQtd > 0 ? totalValor / totalQtd : 0));
+            $('#kpi-idade').text(totalQtd > 0 ? Math.round(somaIdade / totalQtd) + ' anos' : '0 anos');
 
-            if(dtTable) dtTable.destroy();
-            $('#tabela-sia tbody').html(htmlTr);
+            // Renderiza DataTable
+            tbody.innerHTML = htmlTr;
             dtTable = $('#tabela-sia').DataTable({ 
                 language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json' }, 
-                pageLength: 15, responsive: true, dom: 'Bfrtip', 
-                buttons: [{ extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar', className: 'dt-button' }] 
+                pageLength: 20, 
+                responsive: true, 
+                dom: '<"flex flex-wrap justify-between items-center mb-4"lfB>rt<"flex justify-between items-center mt-4"ip>',
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel mr-1"></i> Excel', className: 'dt-button' }
+                ],
+                order: [[6, 'desc']] // Ordena pelo valor aprovado
             });
-        }
-        $(document).ready(carregarSIA);
+        });
     </script>
 </body>
 </html>

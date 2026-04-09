@@ -62,8 +62,8 @@
         .icon-pink { color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
         .icon-teal { color: #2dd4bf; text-shadow: 0 0 10px rgba(45,212,191,0.5); border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.1); }
         .icon-yellow { color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.5); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
-        /* NOVO ÍCONE PARA A AUDITORIA */
         .icon-amber { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); }
+        .icon-green { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.1); }
 
         /* ========================================================= */
         /* MODO CLÁSSICO NII (Azul + Branco)                         */
@@ -90,6 +90,7 @@
         body.theme-classic .icon-teal { background: #ccfbf1 !important; color: #0f766e !important; border: none !important; text-shadow: none !important; }
         body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; }
         body.theme-classic .icon-amber { background: #ffedd5 !important; color: #ea580c !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-green { background: #dcfce7 !important; color: #16a34a !important; border: none !important; text-shadow: none !important; }
     </style>
 </head>
 <body>
@@ -118,11 +119,27 @@
                 </div>
             </a>
 
+            <a href="painel_sih.html" class="menu-card">
+                <div class="icon-box icon-amber"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="card-content">
+                    <h3>Gestão Estratégica SIH</h3>
+                    <p>Auditoria de conta fechada, repasses e Tese URV (9,56%).</p>
+                </div>
+            </a>
+
             <a href="espelho_aih.html" class="menu-card">
-                <div class="icon-box icon-amber"><i class="fa-solid fa-file-invoice"></i></div>
+                <div class="icon-box icon-teal"><i class="fa-solid fa-file-invoice"></i></div>
                 <div class="card-content">
                     <h3>Espelho da Conta AIH</h3>
                     <p>Auditoria detalhada de contas fechadas (SIH) e lançamentos secundários (SP).</p>
+                </div>
+            </a>
+
+            <a href="painel_sia.html" class="menu-card">
+                <div class="icon-box icon-green"><i class="fa-solid fa-stethoscope"></i></div>
+                <div class="card-content">
+                    <h3>Produção Ambulatorial SIA</h3>
+                    <p>Auditoria analítica de BPA/APAC, tickets médios e honorários.</p>
                 </div>
             </a>
 
