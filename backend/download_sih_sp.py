@@ -11,8 +11,8 @@ PREFIXO = "SP"  # Mudança de RD para SP (Serviços Profissionais)
 EXTENSAO = ".dbc"
 PASTA_DESTINO = "bases_spmt_brutas" # Pasta separada para não misturar com o RD
 
-# Baixar dados de 2024 a 2026 (Como o SP é gigantesco, recomendo baixar menos anos históricos)
-ANOS_PARA_BAIXAR = range(2024, 2027) 
+# Ajustado para baixar apenas o período de 2020 a 2026
+ANOS_PARA_BAIXAR = range(2020, 2027) 
 MESES_PARA_BAIXAR = range(1, 13)
 
 def conectar_ftp():
@@ -29,6 +29,7 @@ def iniciar_extracao():
     ftp = conectar_ftp()
 
     for ano in ANOS_PARA_BAIXAR:
+        # Como o ano inicial é 2020, todos os ficheiros estarão nesta pasta moderna
         pasta_ftp = "/dissemin/publicos/SIHSUS/200801_/Dados"
         
         try:
@@ -41,6 +42,7 @@ def iniciar_extracao():
         ano_abrev = str(ano)[-2:]
         
         for mes in MESES_PARA_BAIXAR:
+            # Trava de segurança: como estamos em Abril de 2026, não tenta baixar o futuro
             if ano == 2026 and mes > 4: 
                 continue
 
@@ -54,7 +56,7 @@ def iniciar_extracao():
                     print(f"⏭️ [OK] {nome_arquivo} já existe localmente.")
                     continue
 
-            print(f"⬇️ Baixando {nome_arquivo} (Aviso: Arquivos SP são muito maiores que os RD)...")
+            print(f"⬇️ Baixando {nome_arquivo} (Aguarde, arquivos de SP são pesados)...")
             
             try:
                 with open(caminho_local, "wb") as f:
@@ -69,5 +71,5 @@ def iniciar_extracao():
     print("\n🚀 Sincronização da base SP (Serviços Profissionais) concluída com sucesso!")
 
 if __name__ == "__main__":
-    print("--- 🏥 INICIANDO EXTRAÇÃO DE DADOS (ITENS SECUNDÁRIOS - SP) ---")
+    print("--- 🏥 INICIANDO EXTRAÇÃO HISTÓRICA (ITENS SECUNDÁRIOS - SP) ---")
     iniciar_extracao()
