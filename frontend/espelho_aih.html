@@ -264,23 +264,22 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0";
         const clientDB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // DICIONÁRIO EXPANDIDO DE EMERGÊNCIA (Caso a nuvem falhe, estes estarão sempre disponíveis)
+        // DICIONÁRIO EXPANDIDO DE EMERGÊNCIA (Totalmente limpo de "chutes")
         let DIC_CID = { "O800": "PARTO ÚNICO ESPONTÂNEO", "0800": "PARTO ÚNICO ESPONTÂNEO", "Z302": "Vigilância de contracepção", "L97": "Úlcera dos membros inferiores", "K564": "Outras obstruções do intestino", "K938": "Outros transt. espec. dos órgãos digestivos", "T889": "Complicação não especificada de cuidados", "A90": "Dengue", "N390": "Infecção do trato urinário" };
         
+        // CORREÇÕES APLICADAS AQUI: 0802010016 = DIÁRIA DE ACOMPANHANTE
         let DIC_SIGTAP = { 
             "0409060313": "LAQUEADURA TUBÁRIA NA MESMA INTERNAÇÃO DE PARTO NORMAL", 
             "0411010026": "CESARIANA EM GESTAÇÃO DE ALTO RISCO",
-            "0203020030": "EXAME ANATOMOPATOLOGICO", 
-            "0802010016": "DIARIA DE UTI TIPO II", 
+            "0203020030": "EXAME ANATOMOPATOLÓGICO", 
+            "0802010016": "DIÁRIA DE ACOMPANHANTE ADULTO (COM PERNOITE)", 
             "0409060135": "APENDICECTOMIA", 
-            "0303150050": "TRATAMENTO DE INFECÇÃO URINÁRIA",
             "0310010039": "PARTO NORMAL",
-            "0310010020": "ASSISTENCIA AO RECEM-NASCIDO NO MOMENTO DO NASCIMENTO",
-            "0301010145": "CONSULTA MEDICA EM ATENCAO PRIMARIA",
-            "0802010032": "DIARIA DE UNIDADE DE CUIDADO INTERMEDIARIO NEONATAL CONVENCIONAL - UCINCO",
-            "0801010047": "DIARIA DE ACOMPANHANTE",
-            "0214010279": "TESTE RAPIDO PARA SIFILIS",
-            "0202031179": "TRIAGEM NEONATAL BIOLOGICA / TESTE DO PEZINHO",
+            "0310010020": "ASSISTÊNCIA AO RECÉM-NASCIDO NO MOMENTO DO NASCIMENTO",
+            "0301010145": "CONSULTA MÉDICA EM ATENÇÃO PRIMÁRIA",
+            "0802010032": "DIÁRIA DE UNIDADE DE CUIDADO INTERMEDIÁRIO NEONATAL CONVENCIONAL - UCINCO",
+            "0214010279": "TESTE RÁPIDO PARA SÍFILIS",
+            "0202031179": "TRIAGEM NEONATAL BIOLÓGICA / TESTE DO PEZINHO",
             "0202120023": "TRIAGEM AUDITIVA NEONATAL / TESTE DA ORELHINHA"
         };
         
@@ -303,7 +302,7 @@
             }
         }
 
-        // FUNÇÃO QUE CARREGA OS DICIONÁRIOS REAIS DO SUPABASE (Igual ao Painel SIH)
+        // FUNÇÃO QUE CARREGA OS DICIONÁRIOS REAIS DO SUPABASE
         async function carregarDicionariosDaNuvem() {
             const statusDic = document.getElementById('status-dic');
             try {
@@ -344,7 +343,6 @@
             if (savedTheme !== 'neon') document.body.classList.add('theme-classic');
             else document.body.classList.remove('theme-classic');
             
-            // Dispara o download dos nomes assim que a página abre
             carregarDicionariosDaNuvem();
         });
 
@@ -416,10 +414,10 @@
             document.getElementById('lbl-dtalta').innerText = fmtData(d.DT_SAIDA);
             document.getElementById('lbl-valtot').innerText = fmtMoeda(d.VAL_TOT);
             
-            // Usa o dicionário dinâmico ou cai no "Não mapeado"
+            // Tratamento rigoroso: se não existe no dicionário, mostra "Descrição não mapeada"
             document.getElementById('lbl-cid').innerText = `${d.DIAG_PRINC||'-'} - ${DIC_CID[d.DIAG_PRINC]||'Descrição não mapeada'}`;
             document.getElementById('lbl-proc-cod').innerText = d.PROC_REA || '-';
-            document.getElementById('lbl-proc-nome').innerText = DIC_SIGTAP[d.PROC_REA]||'Descrição não mapeada no SIGTAP';
+            document.getElementById('lbl-proc-nome').innerText = DIC_SIGTAP[d.PROC_REA]||'Descrição não mapeada';
 
             const tbody = document.getElementById('tbody-itens');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 dyn-text-accent"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Consultando lançamentos detalhados (SP)...</td></tr>';
@@ -436,7 +434,7 @@
                     const sp = i.dados_completos || {};
                     const val = parseFloat(sp.SP_VALATO||0);
                     
-                    // Busca a descrição com fallback
+                    // Busca a descrição com fallback limpo (sem "inventar" nomes)
                     const procNome = DIC_SIGTAP[sp.SP_ATOPROF] || "Descrição não mapeada";
                     
                     let cboCru = sp.SP_PF_CBO;
@@ -445,7 +443,6 @@
                     
                     let htmlExecutor = "";
                     
-                    // LEITURA INTELIGENTE DE PROFISSIONAL VS TERCEIRIZADO
                     if (!cboCru || cboCru.trim() === "" || cboCru === "000000") {
                         if (cnesServico || cnpjPrestador) {
                             let idTerceiro = cnesServico ? `CNES: ${cnesServico}` : `CNPJ: ${cnpjPrestador}`;
