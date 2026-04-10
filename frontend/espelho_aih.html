@@ -80,7 +80,7 @@
         ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 3px; }
 
         /* ========================================================= */
-        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
+        /* MODO CLÁSSICO NII (Azul + Branco)                         */
         /* ========================================================= */
         body.theme-classic {
             background: #001528 !important;
@@ -149,6 +149,7 @@
             <div>
                 <h1 class='text-3xl font-bold text-white'>Espelho da Conta AIH</h1>
                 <p class='text-cyan-200 text-sm mt-1 opacity-80'>Hospital Beneficente Santa Helena</p>
+                <p id="status-dic" class='text-yellow-400 text-xs mt-1 font-bold'><i class="fas fa-spinner fa-spin mr-1"></i> Sincronizando Dicionários do Supabase...</p>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -263,16 +264,27 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0";
         const clientDB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const DIC_CID = { "Z302": "Vigilância de contracepção", "L97": "Úlcera dos membros inferiores", "K564": "Outras obstruções do intestino", "K938": "Outros transt. espec. dos órgãos digestivos", "T889": "Complicação não especificada de cuidados", "A90": "Dengue", "N390": "Infecção do trato urinário" };
-        const DIC_SIGTAP = { 
+        // DICIONÁRIO EXPANDIDO DE EMERGÊNCIA (Caso a nuvem falhe, estes estarão sempre disponíveis)
+        let DIC_CID = { "O800": "PARTO ÚNICO ESPONTÂNEO", "0800": "PARTO ÚNICO ESPONTÂNEO", "Z302": "Vigilância de contracepção", "L97": "Úlcera dos membros inferiores", "K564": "Outras obstruções do intestino", "K938": "Outros transt. espec. dos órgãos digestivos", "T889": "Complicação não especificada de cuidados", "A90": "Dengue", "N390": "Infecção do trato urinário" };
+        
+        let DIC_SIGTAP = { 
             "0409060313": "LAQUEADURA TUBÁRIA NA MESMA INTERNAÇÃO DE PARTO NORMAL", 
             "0411010026": "CESARIANA EM GESTAÇÃO DE ALTO RISCO",
             "0203020030": "EXAME ANATOMOPATOLOGICO", 
             "0802010016": "DIARIA DE UTI TIPO II", 
             "0409060135": "APENDICECTOMIA", 
-            "0303150050": "TRATAMENTO DE INFECÇÃO URINÁRIA" 
+            "0303150050": "TRATAMENTO DE INFECÇÃO URINÁRIA",
+            "0310010039": "PARTO NORMAL",
+            "0310010020": "ASSISTENCIA AO RECEM-NASCIDO NO MOMENTO DO NASCIMENTO",
+            "0301010145": "CONSULTA MEDICA EM ATENCAO PRIMARIA",
+            "0802010032": "DIARIA DE UNIDADE DE CUIDADO INTERMEDIARIO NEONATAL CONVENCIONAL - UCINCO",
+            "0801010047": "DIARIA DE ACOMPANHANTE",
+            "0214010279": "TESTE RAPIDO PARA SIFILIS",
+            "0202031179": "TRIAGEM NEONATAL BIOLOGICA / TESTE DO PEZINHO",
+            "0202120023": "TRIAGEM AUDITIVA NEONATAL / TESTE DA ORELHINHA"
         };
-        const DIC_CBO = { "225250": "Médico Cirurgião Geral", "225151": "Médico Anestesiologista", "225125": "Médico Clínico", "225124": "Médico Pediatra" };
+        
+        let DIC_CBO = { "225250": "Médico Cirurgião Geral", "225151": "Médico Anestesiologista", "225125": "Médico Clínico", "225124": "Médico Pediatra", "223505": "Enfermeiro(a)" };
 
         const fmtMoeda = v => parseFloat(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
         const fmtData = d => (d&&d.length===8) ? `${d.substr(6,2)}/${d.substr(4,2)}/${d.substr(0,4)}` : d;
@@ -291,10 +303,49 @@
             }
         }
 
+        // FUNÇÃO QUE CARREGA OS DICIONÁRIOS REAIS DO SUPABASE (Igual ao Painel SIH)
+        async function carregarDicionariosDaNuvem() {
+            const statusDic = document.getElementById('status-dic');
+            try {
+                let temMais = true; let inicio = 0; const lote = 1000;
+                
+                // Tenta carregar SIGTAP
+                while(temMais) {
+                    const { data, error } = await clientDB.from('dic_sigtap').select('cod, nome').range(inicio, inicio + lote - 1);
+                    if (data && data.length > 0) {
+                        data.forEach(d => DIC_SIGTAP[String(d.cod).trim()] = String(d.nome).trim());
+                        inicio += data.length;
+                        if (data.length < lote) temMais = false;
+                    } else { temMais = false; }
+                }
+
+                // Tenta carregar CBO
+                temMais = true; inicio = 0;
+                while(temMais) {
+                    const { data, error } = await clientDB.from('dic_cbo').select('cod, nome').range(inicio, inicio + lote - 1);
+                    if (data && data.length > 0) {
+                        data.forEach(d => DIC_CBO[String(d.cod).trim()] = String(d.nome).trim());
+                        inicio += data.length;
+                        if (data.length < lote) temMais = false;
+                    } else { temMais = false; }
+                }
+
+                if(statusDic) statusDic.innerHTML = `<i class="fas fa-check-circle text-green-400 mr-1"></i> Dicionários Sincronizados com a Nuvem`;
+                setTimeout(() => { if(statusDic) statusDic.style.opacity = '0'; }, 3000);
+
+            } catch (e) {
+                console.warn("Aviso: Dicionários não carregados da nuvem. Usando dicionário base de emergência.");
+                if(statusDic) statusDic.innerHTML = `<i class="fas fa-exclamation-triangle text-yellow-400 mr-1"></i> Usando Dicionário Base Offline`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('nii_theme_espelho');
             if (savedTheme !== 'neon') document.body.classList.add('theme-classic');
             else document.body.classList.remove('theme-classic');
+            
+            // Dispara o download dos nomes assim que a página abre
+            carregarDicionariosDaNuvem();
         });
 
         document.getElementById('btnBuscar').addEventListener('click', async () => {
@@ -365,6 +416,7 @@
             document.getElementById('lbl-dtalta').innerText = fmtData(d.DT_SAIDA);
             document.getElementById('lbl-valtot').innerText = fmtMoeda(d.VAL_TOT);
             
+            // Usa o dicionário dinâmico ou cai no "Não mapeado"
             document.getElementById('lbl-cid').innerText = `${d.DIAG_PRINC||'-'} - ${DIC_CID[d.DIAG_PRINC]||'Descrição não mapeada'}`;
             document.getElementById('lbl-proc-cod').innerText = d.PROC_REA || '-';
             document.getElementById('lbl-proc-nome').innerText = DIC_SIGTAP[d.PROC_REA]||'Descrição não mapeada no SIGTAP';
@@ -383,6 +435,8 @@
                 itens.forEach(i => {
                     const sp = i.dados_completos || {};
                     const val = parseFloat(sp.SP_VALATO||0);
+                    
+                    // Busca a descrição com fallback
                     const procNome = DIC_SIGTAP[sp.SP_ATOPROF] || "Descrição não mapeada";
                     
                     let cboCru = sp.SP_PF_CBO;
