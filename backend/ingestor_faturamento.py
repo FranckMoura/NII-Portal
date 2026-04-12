@@ -1,79 +1,108 @@
-import pandas as pd
 import os
+import glob
+import pdfplumber
+import re
 from supabase import create_client, Client
-from dotenv import load_dotenv
 
 # 1. Conexão com Supabase
-load_dotenv()
-url = os.getenv("SB_URL")
-key = os.getenv("SB_KEY")
+SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk"
 
-if not url or not key:
-    print("❌ Erro: Configure o arquivo .env com SB_URL e SB_KEY")
+try:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+except Exception as e:
+    print(f"❌ Erro ao conectar no Supabase: {e}")
     exit()
 
-supabase: Client = create_client(url, key)
+# 2. Pasta alvo com os PDFs
+PASTA_ALVO = r"C:\Users\DELL\OneDrive\NII-Portal-Cloud\backend\financeiro_soulmv"
 
-# 2. Ler o arquivo CSV enviado
-arquivo = 'R_PREV_REC_GLO_ESP_321.csv'
-print(f"📂 Processando arquivo: {arquivo}...")
+if not os.path.exists(PASTA_ALVO):
+    print(f"❌ Erro: A pasta {PASTA_ALVO} não foi encontrada.")
+    exit()
 
-# Lendo sem cabeçalho pois o arquivo tem estrutura irregular
-df = pd.read_csv(arquivo, header=None, encoding='latin-1', sep=',')
+# Pega todos os arquivos que começam com R_PREV_REC_GLO_ESP e terminam em .pdf
+arquivos = glob.glob(os.path.join(PASTA_ALVO, "R_PREV_REC_GLO_ESP_*.pdf"))
+
+if not arquivos:
+    print(f"❌ Nenhum arquivo PDF encontrado na pasta {PASTA_ALVO}.")
+    exit()
+
+print(f"✅ Encontrados {len(arquivos)} arquivos PDF para processar.\n")
 
 dados_para_enviar = []
-especialidade_atual = None
-competencia_atual = None
 
-# 3. Varrendo o arquivo linha por linha (Lógica "Mineradora")
-for i, linha in df.iterrows():
-    # A. Captura a Especialidade (Geralmente na coluna 1 e nome na 7/8)
-    if str(linha[1]).strip() == "Especialidade:":
-        part1 = str(linha[7]) if pd.notna(linha[7]) else ""
-        part2 = str(linha[8]) if pd.notna(linha[8]) else ""
-        especialidade_atual = f"{part1} {part2}".strip()
-        
-        # A competência costuma estar 4 linhas abaixo do cabeçalho da especialidade
-        try:
-            val_comp = df.iloc[i+4, 1]
-            if pd.notna(val_comp) and '/' in str(val_comp):
-                competencia_atual = str(val_comp)
-        except:
-            pass
-
-    # B. Captura o TOTAL quando aparece a linha "TOTAL DA ESPECIALIDADE"
-    # O valor real está na linha DEBAIXO (i+1)
-    if str(linha[5]).strip() == "TOTAL DA ESPECIALIDADE":
-        try:
-            prox_linha = df.iloc[i+1]
-            
-            # Pega o último valor válido da linha (que é o Valor Total)
-            valor_bruto = prox_linha.dropna().iloc[-1]
-            # Pega a quantidade (geralmente coluna 12, ou procuramos pelo valor numérico)
-            qtd_bruta = prox_linha[12] 
-            
-            # Limpeza de dinheiro (R$ 1.234,56 -> 1234.56)
-            valor_float = float(str(valor_bruto).replace('.', '').replace(',', '.'))
-            qtd_int = int(qtd_bruta)
-
-            item = {
-                "competencia": competencia_atual,
-                "especialidade": especialidade_atual,
-                "qtd_contas": qtd_int,
-                "valor_total": valor_float
-            }
-            dados_para_enviar.append(item)
-            print(f"   ✅ Detectado: {especialidade_atual} | R$ {valor_float:,.2f}")
-            
-        except Exception as e:
-            print(f"   ⚠️ Erro ao ler totais de {especialidade_atual}: {e}")
-
-# 4. Enviar para a Nuvem
-if dados_para_enviar:
+# 3. Lógica "Mineradora" em PDF
+for arquivo in arquivos:
+    nome_arq = os.path.basename(arquivo)
+    print(f"📂 Processando arquivo: {nome_arq}...")
+    
+    competencia_atual = None
+    especialidade_atual = None
+    
     try:
-        data = supabase.table("tb_faturamento_mensal").insert(dados_para_enviar).execute()
-        print(f"\n🚀 Sucesso! {len(dados_para_enviar)} registros financeiros atualizados no Painel.")
+        with pdfplumber.open(arquivo) as pdf:
+            for page in pdf.pages:
+                text = page.extract_text()
+                if not text: continue
+                
+                lines = text.split('\n')
+                
+                for i, line in enumerate(lines):
+                    
+                    # A. Captura a Competência (ex: 02/2026 -> 2026-02)
+                    if "Competência:" in line and not competencia_atual:
+                        match_comp = re.search(r'(\d{2}/\d{4})', line)
+                        if match_comp:
+                            mes, ano = match_comp.group(1).split('/')
+                            competencia_atual = f"{ano}-{mes}"
+                    
+                    # B. Captura a Especialidade
+                    if "Especialidade:" in line:
+                        match_esp = re.search(r'Especialidade:\s*\d+\s+(.+)', line)
+                        if match_esp:
+                            especialidade_atual = match_esp.group(1).strip()
+                    
+                    # C. Captura o Total da Especialidade
+                    if "TOTAL DA ESPECIALIDADE" in line:
+                        try:
+                            # Os valores costumam estar na linha logo abaixo
+                            if i + 1 < len(lines):
+                                prox_linha = lines[i+1].strip()
+                                
+                                # Extrai o valor financeiro (pega sempre o último valor com ,XX da linha)
+                                valores = re.findall(r'[\d\.]+\,\d{2}', prox_linha)
+                                if valores:
+                                    valor_str = valores[-1]
+                                    valor_float = float(valor_str.replace('.', '').replace(',', '.'))
+                                else:
+                                    valor_float = 0.0
+                                    
+                                # Extrai a quantidade (pega o primeiro número isolado da linha)
+                                match_qtd = re.search(r'\b(\d+)\b', prox_linha)
+                                qtd_int = int(match_qtd.group(1)) if match_qtd else 0
+                                
+                                if valor_float > 0 and competencia_atual and especialidade_atual:
+                                    dados_para_enviar.append({
+                                        "competencia": competencia_atual,
+                                        "especialidade": especialidade_atual,
+                                        "qtd_contas": qtd_int,
+                                        "valor_total": valor_float
+                                    })
+                                    print(f"   ✅ Detectado: {competencia_atual} | {especialidade_atual} | Qtd: {qtd_int} | R$ {valor_float:,.2f}")
+                        except Exception as e:
+                            print(f"   ⚠️ Erro ao ler totais de {especialidade_atual}: {e}")
+                            
+    except Exception as e:
+        print(f"❌ Erro ao ler o PDF {nome_arq}: {e}")
+
+# 4. Enviar para a Nuvem (Supabase)
+if dados_para_enviar:
+    print(f"\n☁️ Preparando para enviar {len(dados_para_enviar)} registros para o Supabase...")
+    try:
+        supabase.table("tb_faturamento_mensal").insert(dados_para_enviar).execute()
+        print(f"🚀 Sucesso! Banco atualizado com o faturamento mensal das especialidades.")
     except Exception as e:
         print(f"❌ Erro no Supabase: {e}")
 else:
-    print("Nenhum dado encontrado. Verifique se o layout do CSV mudou.")
+    print("\n⚠️ Nenhum dado encontrado. Verifique a estrutura dos PDFs.")

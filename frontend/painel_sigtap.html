@@ -25,147 +25,89 @@
         /* ========================================================= */
         /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
         /* ========================================================= */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed;
-            color: white; 
-            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; 
-            transition: background 0.5s ease, color 0.5s ease;
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; z-index: -1; pointer-events: none;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 30px; transition: 0.5s; }
-        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.3s; }
-
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-        
-        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 30px; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
 
-        .table-card {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative; z-index: 1; transition: 0.5s; min-height: 400px;
-        }
-
-        .filter-bar { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); transition: 0.5s; }
-        .search-box { flex: 1; position: relative; }
-        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 1rem; outline: none; background: rgba(0,0,0,0.3); color: white; transition: 0.3s; }
-        .search-box input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
-        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .table-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05); position: relative; z-index: 1; min-height: 400px; }
         
-        .dyn-text-muted { color: #94a3b8; font-weight: bold; }
+        .filter-bar { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .search-box { flex: 1; min-width: 300px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; outline: none; }
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .filter-select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 15px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; min-width: 200px; }
+        
+        .code-box { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
 
-        /* Botão Comparar */
-        .btn-compare { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: white; transition: 0.2s; }
+        .btn-compare { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: white; transition: 0.2s; white-space: nowrap;}
         .btn-compare:hover { border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
         .btn-compare.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
 
-        /* Barra Inferior (Lado a Lado) */
-        #compBar { position: fixed; bottom: -100px; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; transition: bottom 0.4s; display: flex; justify-content: space-between; align-items: center; z-index: 999; box-sizing: border-box; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
+        #compBar { position: fixed; bottom: -100px; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; transition: bottom 0.4s; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
         #compBar.visible { bottom: 0; }
-        .btn-go { background: #f59e0b; color: #fff; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
-        .btn-go:hover { transform: scale(1.05); }
+        .btn-go { background: #f59e0b; color: #fff; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
 
-        /* Modal Escuro/Neon */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(5px); }
-        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); color: white; margin: 3% auto; padding: 30px; width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); }
-        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #94a3b8; font-weight: bold; transition: 0.2s; }
-        .close-modal:hover { color: #f87171; }
-        
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); color: white; margin: 3% auto; padding: 30px; width: 95%; max-width: 1400px; max-height: 85vh; overflow-y: auto; border-radius: 16px; }
+        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #94a3b8; }
         table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table.compare-tbl th, table.compare-tbl td { border: 1px solid rgba(255,255,255,0.1); padding: 15px; vertical-align: top; }
         table.compare-tbl th { background: rgba(0,0,0,0.3); text-align: right; width: 180px; color: #38bdf8; font-weight: 800; }
 
-        /* DataTables Dark/Neon */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; text-transform: uppercase; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; font-size: 0.85rem; }
-        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.85rem; vertical-align: top; }
-        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; }
+        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.85rem; vertical-align: middle; }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
-        
-        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; }
-        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
+        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; }
 
-        /* ========================================================= */
-        /* TAGS DINÂMICAS (MUDAM DE COR COM O TEMA)                  */
-        /* ========================================================= */
+        /* TAGS E CORES DE CÁLCULO */
         .tag-detalhe { background-color: rgba(30, 58, 138, 0.4); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tag-fz { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
         .tag-opme-val { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .tag-opme-qtd { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        
-        .sub-valores { border-top: 1px solid rgba(255,255,255,0.1); }
+
         .texto-cir { color: #60a5fa; }
         .texto-ane { color: #c084fc; }
         .theme-adjust-bg-blue { background-color: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
         .theme-adjust-bg-purple { background-color: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); }
-
 
         /* ========================================================= */
         /* MODO CLÁSSICO NII (Azul + Branco)                         */
         /* ========================================================= */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
-        body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
+        body.theme-classic .table-card, body.theme-classic .filter-bar { background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important; }
+        body.theme-classic .search-box input, body.theme-classic .filter-select { background: #f8fafc !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
         
-        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
-        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
-        body.theme-classic .dyn-text-muted { color: #64748b !important; }
-
-        body.theme-classic .table-card, body.theme-classic .filter-bar {
-            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-            border-radius: 12px !important;
-        }
-
-        body.theme-classic .search-box input { background: #f8fafc !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .search-box input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.1) !important; background: white !important; }
-
-        /* Cores de Tags no Modo Clássico */
+        body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
         body.theme-classic .tag-detalhe { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+        body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         body.theme-classic .tag-opme-val { background-color: #ecfdf5; color: #059669; border-color: #a7f3d0; }
         body.theme-classic .tag-opme-qtd { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
-        
-        body.theme-classic .sub-valores { border-top-color: #e2e8f0; }
+
         body.theme-classic .texto-cir { color: #1d4ed8; }
         body.theme-classic .texto-ane { color: #7e22ce; }
         body.theme-classic .theme-adjust-bg-blue { background-color: #eff6ff !important; border-color: #bfdbfe !important; }
         body.theme-classic .theme-adjust-bg-purple { background-color: #faf5ff !important; border-color: #e9d5ff !important; }
 
-        /* Datatables Clássico */
         body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-
-        body.theme-classic .dt-button { background: white !important; color: #10b981 !important; border-color: #10b981 !important; }
-        body.theme-classic .dt-button:hover { background: #10b981 !important; color: white !important; }
-
-        /* Botão Comparar Clássico */
         body.theme-classic .btn-compare { background: white; border-color: #cbd5e1; color: #475569; }
-        body.theme-classic .btn-compare:hover { border-color: #004e92; color: #004e92; background: #f8fafc; }
         body.theme-classic .btn-compare.active { background: #004e92; color: white; border-color: #004e92; }
 
-        /* Modal Clássico */
         body.theme-classic .modal { background: rgba(0, 34, 68, 0.8) !important; }
-        body.theme-classic .modal-content { background: white !important; color: #1e293b !important; border: none !important; }
+        body.theme-classic .modal-content { background: white !important; color: #1e293b !important; }
         body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0 !important; }
         body.theme-classic table.compare-tbl th { background: #f8fafc !important; color: #004e92 !important; }
-        body.theme-classic .close-modal:hover { color: #ef4444 !important; }
-        body.theme-classic #compBar { background: white !important; color: #1e293b !important; border-top: 1px solid #e2e8f0 !important; }
 
         /* ========================================================= */
         /* OTIMIZAÇÃO DE IMPRESSÃO (A4 PAISAGEM)                     */
@@ -200,8 +142,6 @@
             table.compare-tbl th, table.compare-tbl td { padding: 8px; border: 1px solid #ccc !important; }
             table.compare-tbl th { background: #f8fafc !important; color: black !important;}
             
-            /* Forçar tags para impressão preta ou cinza se desejar (aqui mantemos cor por ser print-color-adjust exact) */
-            
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
         }
     </style>
@@ -216,25 +156,25 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-book-medical text-3xl text-emerald-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Catálogo SIGTAP</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada de Procedimentos e OPME</p>
+                    <h1 class='text-3xl font-bold text-white'>Catálogo SIGTAP & Fila Zero</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada DATASUS + Programa Fila Zero + OPME</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
+                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
                     <i class="fas fa-magic"></i>
                 </button>
-                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo">
-                <a href="modulo_operacional.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
+                <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
     <div class="header-print">
-        <img src="../logo.png" alt="Logo HSH">
+        <img src="../logo.png" alt="Logo HSH" onerror="this.style.display='none'">
         <div class="header-info">
             <h1>Hospital Beneficente Santa Helena</h1>
-            <h2>Relatório Comparativo SIGTAP</h2>
+            <h2>Relatório Comparativo SIGTAP x Fila Zero</h2>
             <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
         </div>
         <div class="header-meta">
@@ -244,28 +184,47 @@
 
     <div class="container no-print">
         <div class="filter-bar">
+            <select id="filtroGrupo" class="filter-select">
+                <option value="todos">Todos os Grupos</option>
+                <option value="01">Grupo 01: Promoção e Prevenção</option>
+                <option value="02">Grupo 02: Finalidade Diagnóstica</option>
+                <option value="03">Grupo 03: Procedimentos Clínicos</option>
+                <option value="04">Grupo 04: Procedimentos Cirúrgicos</option>
+                <option value="05">Grupo 05: Transplantes de Órgãos</option>
+                <option value="06">Grupo 06: Medicamentos</option>
+                <option value="07">Grupo 07: OPMEs (Órteses e Próteses)</option>
+                <option value="08">Grupo 08: Ações Complementares</option>
+            </select>
+
+            <select id="filtroOrigem" class="filter-select">
+                <option value="todos">Qualquer Origem</option>
+                <option value="sigtap">Apenas Tabela SUS Padrão</option>
+                <option value="filazero">Apenas Programa Fila Zero</option>
+            </select>
+            
             <div class="search-box">
-                <input type="text" id="customSearch" placeholder="Digite o código, nome do procedimento ou CID...">
+                <input type="text" id="customSearch" placeholder="Digite o código ou nome do procedimento...">
                 <i class="fas fa-search"></i>
             </div>
-            <div class="text-sm font-bold dyn-text-muted" id="contador-registros">Aguardando banco...</div>
+            <div class="text-sm font-bold text-gray-400 w-full md:w-auto text-right" id="contador-registros">Aguardando banco...</div>
         </div>
 
         <div class="table-card">
-            <div id="loading-msg" style="text-align:center; padding:50px;" class="dyn-text-muted">
+            <div id="loading-msg" style="text-align:center; padding:50px;">
                 <i class="fas fa-circle-notch fa-spin fa-3x text-blue-500 mb-4"></i><br>
-                <span id="status-text" class="font-bold text-lg">Sincronizando Catálogo...</span>
+                <span id="status-text" class="font-bold text-lg text-gray-400">Sincronizando Bancos (SIGTAP + OPME + FZ)...</span>
             </div>
             <table id="tabelaProc" class="display" style="width:100%; display:none">
                 <thead>
                     <tr>
-                        <th>Código</th>
-                        <th>Procedimento & Detalhes</th>
-                        <th class="text-right">Valor SH</th>
-                        <th class="text-right">Valor SP</th>
-                        <th class="text-right">Total</th>
-                        <th class="text-center">OPME</th>
-                        <th class="text-center">Ação</th>
+                        <th class="w-24">Código</th>
+                        <th>Procedimento & Regras Oficiais</th>
+                        <th class="text-right w-20">Valor SA</th>
+                        <th class="text-right w-20">Valor SH</th>
+                        <th class="text-right w-20">Valor SP</th>
+                        <th class="text-right w-24">Fila Zero</th>
+                        <th class="text-center w-24">OPMEs Vinculadas</th>
+                        <th class="text-center w-24">Ação</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -274,20 +233,17 @@
     </div>
 
     <div id="compBar" class="no-print">
-        <div>
-            <span id="compCount" class="font-bold text-xl text-yellow-400">0</span> itens selecionados. 
-            <button onclick="limparComp()" style="background:none; border:none; color:#94a3b8; cursor:pointer; text-decoration:underline; margin-left:15px; font-size: 0.9rem;">Limpar Seleção</button>
-        </div>
-        <button class="btn-go" onclick="abrirModal()"><i class="fas fa-columns mr-2"></i> COMPARAR LADO A LADO</button>
+        <div><span id="compCount" class="font-bold text-xl text-yellow-400">0</span> itens selecionados. <button onclick="limparComp()" style="background:none; color:#94a3b8; text-decoration:underline; font-size: 0.9rem; margin-left:15px;">Limpar Seleção</button></div>
+        <button class="btn-go" onclick="abrirModal()"><i class="fas fa-columns mr-2"></i> COMPARAR PROCEDIMENTOS</button>
     </div>
 
     <div id="modalComp" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="fecharModal()">&times;</span>
-            <h2 class="text-2xl font-bold mb-4 border-b border-white/20 pb-2 no-print" style="color: inherit;"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos</h2>
+            <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos</h2>
             
-            <button onclick="window.print()" class="no-print bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold transition mb-4">
-                <i class="fas fa-print mr-2"></i> Imprimir Relatório Oficial
+            <button onclick="window.print()" class="no-print bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition mb-5 shadow-lg border border-blue-400">
+                <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial
             </button>
             
             <div id="modalBody"></div>
@@ -300,118 +256,148 @@
 
     <script>
         var SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
-
+        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
         var dadosGlobais = [];
         var selecionados = [];
         var dataTableInstance = null;
+        var client = window.supabase.createClient(SB_URL, SB_KEY);
+        var brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // ==========================================
-        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
-        // ==========================================
         function toggleTheme() {
-            const body = document.body;
-            
-            if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_sig', 'neon');
-            } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_sig', 'classic');
-            }
-            
-            if (dadosGlobais.length > 0) {
-                if(dataTableInstance) dataTableInstance.draw();
-            }
+            document.body.classList.toggle('theme-classic');
+            localStorage.setItem('nii_theme_sig', document.body.classList.contains('theme-classic') ? 'classic' : 'neon');
         }
 
-        $(document).ready(async function() {
-            const savedTheme = localStorage.getItem('nii_theme_sig');
-            if (savedTheme === 'classic') { 
-                document.body.classList.add('theme-classic');
-            } else {
-                document.body.classList.remove('theme-classic');
-            }
+        // Filtro Duplo do DataTables
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var filtroOrigem = $('#filtroOrigem').val();
+            var filtroGrupo = $('#filtroGrupo').val();
+            
+            var fzValor = dadosGlobais[dataIndex].fz_valor;
+            var codigo = dadosGlobais[dataIndex].codigo;
 
+            var passaOrigem = true;
+            if (filtroOrigem === 'filazero' && fzValor <= 0) passaOrigem = false;
+            if (filtroOrigem === 'sigtap' && fzValor > 0) passaOrigem = false;
+
+            var passaGrupo = true;
+            if (filtroGrupo !== 'todos' && !codigo.startsWith(filtroGrupo)) passaGrupo = false;
+
+            return passaOrigem && passaGrupo;
+        });
+
+        $(document).ready(async function() {
+            if (localStorage.getItem('nii_theme_sig') === 'classic') document.body.classList.add('theme-classic');
+
+            // Data de impressão atualizada
             const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
             $('#print-data-emissao').text(hoje);
             $('#footer-data-rodape').text(hoje);
 
-            var client = window.supabase.createClient(SB_URL, SB_KEY);
-            
             try {
-                let allData = []; let from = 0; let step = 1000; let keepFetching = true;
+                $('#status-text').text("Baixando Tabela SIGTAP...");
+                const { data: sigtapData } = await client.from('sigtap_oficial').select('*');
+                
+                $('#status-text').text("Sincronizando Fila Zero...");
+                const { data: filaZeroData } = await client.from('fila_zero_procedimentos').select('*');
+                
+                $('#status-text').text("Cruzando Relações de OPME...");
+                const { data: opmeData } = await client.from('sigtap_opme').select('*');
 
-                while (keepFetching) {
-                    $('#status-text').text(`Baixando catálogo... (${allData.length} registros lidos)`);
-                    const { data, error } = await client.from('sigtap_unificada').select('*').range(from, from + step - 1);
-                    if (error) throw error;
-                    if (data && data.length > 0) { allData = allData.concat(data); from += step; }
-                    if (!data || data.length < step) { keepFetching = false; }
+                let mapFZ = {};
+                if(filaZeroData) filaZeroData.forEach(fz => { mapFZ[fz.codigo_sigtap] = fz; });
+
+                let mapOPME = {};
+                if(opmeData) {
+                    opmeData.forEach(o => {
+                        if(!mapOPME[o.codigo_principal]) mapOPME[o.codigo_principal] = [];
+                        mapOPME[o.codigo_principal].push({ codigo: o.codigo_opme, qtd: o.quantidade_maxima });
+                    });
                 }
 
-                dadosGlobais = allData;
+                let sigtapDict = {};
+                sigtapData.forEach(s => sigtapDict[s.codigo] = s);
+
+                dadosGlobais = sigtapData.map(item => {
+                    let fz = mapFZ[item.codigo];
+                    
+                    let compNome = item.complexidade === '1' || item.complexidade === 'AB' ? 'BÁSICA' : 
+                                   item.complexidade === '2' || item.complexidade === 'MC' ? 'MÉDIA' : 'ALTA';
+                    
+                    let sexoNome = item.sexo === 'M' ? 'Masc' : item.sexo === 'F' ? 'Fem' : 'Ambos';
+                    let idadeStr = item.idade_minima === 0 && item.idade_maxima === 9999 ? 'Sem limite' : `${item.idade_minima} a ${item.idade_maxima}a`;
+
+                    let opmesVinculadas = [];
+                    if (mapOPME[item.codigo]) {
+                        opmesVinculadas = mapOPME[item.codigo].map(op => {
+                            let detalhesOpme = sigtapDict[op.codigo];
+                            return {
+                                cod_opme: op.codigo,
+                                nome: detalhesOpme ? detalhesOpme.nome : 'MATERIAL NÃO ENCONTRADO',
+                                valor: detalhesOpme ? (detalhesOpme.valor_hospitalar + detalhesOpme.valor_ambulatorial) : 0,
+                                qtd_max: op.qtd
+                            };
+                        });
+                    }
+
+                    return {
+                        codigo: item.codigo,
+                        descricao: item.nome,
+                        valor_sa: item.valor_ambulatorial, // VALOR SA DE VOLTA!
+                        valor_sh: item.valor_hospitalar,
+                        valor_sp: item.valor_profissional,
+                        valor_total: item.valor_hospitalar + item.valor_profissional,
+                        regras: `Cmplx: ${compNome} | Sexo: ${sexoNome} | Idade: ${idadeStr}`,
+                        fz_valor: fz ? fz.valor_unitario : 0,
+                        compatibilidades: opmesVinculadas
+                    };
+                });
+
                 $('#loading-msg').hide();
                 $('#tabelaProc').show();
-                $('#contador-registros').html(`<i class="fas fa-database text-blue-400 mr-1"></i> ${dadosGlobais.length} itens catalogados`);
+                $('#contador-registros').html(`<i class="fas fa-database text-blue-400 mr-1"></i> ${dadosGlobais.length} itens unificados`);
 
                 dataTableInstance = $('#tabelaProc').DataTable({
                     data: dadosGlobais,
                     dom: 'lBrtip',
                     pageLength: 25,
-                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
-                    buttons: [{ extend: 'excelHtml5', className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Exportar para Excel' }],
+                    deferRender: true,
                     columns: [
-                        { data: 'codigo', className: 'font-mono', render: function(d) { return `<b style="color: inherit;">${d}</b>`; } },
+                        { data: 'codigo', className: 'font-mono text-center', render: function(d) { return `<b class="code-box px-2 py-1 rounded font-bold">${d}</b>`; } },
                         { 
                             data: 'descricao', 
                             render: function(d, type, row) { 
-                                let tags = '';
-                                if (row.detalhes) {
-                                    let items = row.detalhes.split(' | ');
-                                    tags = '<div class="mt-2 flex flex-wrap gap-1">' + items.map(x => `<span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider">${x}</span>`).join('') + '</div>';
-                                }
-                                return '<span class="font-bold text-sm" style="color:inherit;">' + d + '</span>' + tags; 
+                                let tags = row.regras.split(' | ').map(x => `<span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">${x}</span>`).join('');
+                                return '<div class="font-bold text-[0.85rem] mb-1">' + d + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
                             } 
                         },
-                        { data: 'valor_sh', className: 'text-right font-mono', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                        { data: 'valor_sa', className: 'text-right font-mono text-emerald-500 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                        { data: 'valor_sh', className: 'text-right font-mono text-blue-600 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                        { data: 'valor_sp', className: 'text-right font-mono text-purple-600 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                         { 
-                            data: 'valor_sp', 
-                            className: 'text-right font-mono',
-                            render: function(d, type, row) { 
-                                let base = '<span class="text-[0.95rem]">R$ ' + d.toFixed(2).replace('.',',') + '</span>';
-                                if (row.detalhes && row.detalhes.includes('Anestesia: S') && d > 0) {
-                                    let anes = d * 0.30;
-                                    let cir = d * 0.70;
-                                    base += `<div class="mt-1.5 pt-1.5 sub-valores text-[0.7rem] leading-tight">
-                                                <div class="mb-0.5"><b class="texto-cir">Cirurgião:</b> R$ ${cir.toFixed(2).replace('.',',')}</div>
-                                                <div><b class="texto-ane">Anestesista:</b> R$ ${anes.toFixed(2).replace('.',',')}</div>
-                                             </div>`;
-                                }
-                                return base;
-                            } 
+                            data: 'fz_valor', className: 'text-right font-mono', 
+                            render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="dyn-text-muted opacity-50">-</span>`; } 
                         },
-                        { data: 'valor_total', className: 'text-right font-mono', render: function(d) { return '<span style="color:#10b981; font-weight:900; font-size:1.05rem;">R$ '+d.toFixed(2).replace('.',',')+'</span>'; } },
                         { 
-                            data: 'compatibilidades',
-                            className: 'text-center',
+                            data: 'compatibilidades', className: 'text-center',
                             render: function(d) {
-                                var qtd = (d && d.length) ? d.length : 0;
-                                return qtd > 0 ? '<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-wrench"></i> '+qtd+' itens</span>' : '<span class="dyn-text-muted">-</span>';
+                                return d.length > 0 ? `<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-wrench"></i> ${d.length} OPME</span>` : `<span class="dyn-text-muted opacity-50">-</span>`;
                             }
                         },
                         {
-                            data: null,
-                            className: 'text-center',
+                            data: null, className: 'text-center',
                             render: function(d, type, row) {
-                                return '<button class="btn-compare" id="btn_'+row.codigo+'" onclick="toggle(\''+row.codigo+'\')"><i class="fas fa-plus"></i> Comparar</button>';
+                                return `<button class="btn-compare shadow-sm" id="btn_${row.codigo}" onclick="toggle('${row.codigo}')"><i class="fas fa-plus"></i> Comparar</button>`;
                             }
                         }
                     ],
-                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
                 });
 
+                // Ligando os Filtros
                 $('#customSearch').on('keyup', function() { dataTableInstance.search(this.value).draw(); });
+                $('#filtroOrigem').on('change', function() { dataTableInstance.draw(); });
+                $('#filtroGrupo').on('change', function() { dataTableInstance.draw(); });
 
             } catch (err) {
                 $('#status-text').html("<span style='color:red'>Erro de conexão: " + err.message + "</span>");
@@ -422,7 +408,7 @@
             var idx = selecionados.indexOf(cod);
             var btn = $('#btn_' + cod);
             if (idx === -1) {
-                if (selecionados.length >= 4) { alert("Limite máximo: 4 itens para comparação."); return; }
+                if (selecionados.length >= 4) { alert("Limite máximo: 4 itens."); return; }
                 selecionados.push(cod);
                 btn.addClass('active').html('<i class="fas fa-check"></i> Selecionado');
             } else {
@@ -441,65 +427,78 @@
             $('#compBar').removeClass('visible');
         };
 
+        // ==========================================
+        // GERAÇÃO DO MODAL DE COMPARAÇÃO
+        // ==========================================
         window.abrirModal = function() {
-            if (selecionados.length < 2) { alert("Selecione pelo menos 2 procedimentos para comparar."); return; }
+            if (selecionados.length < 2) { alert("Selecione pelo menos 2 procedimentos."); return; }
             var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
 
             const isClassic = document.body.classList.contains('theme-classic');
             const thColor = isClassic ? 'color:#004e92;' : 'color:#38bdf8;';
             const tdColor = isClassic ? 'color:#1e293b;' : 'color:white;';
-            const subColor = isClassic ? 'color:#64748b;' : 'color:#cbd5e1;';
-            const bgTot = isClassic ? 'background:#ecfdf5; color:#047857; border-bottom: 2px solid #10b981;' : 'background:rgba(16,185,129,0.1); color:#34d399; border-bottom: 2px solid #10b981;';
+            
+            const bgTotSigtap = isClassic ? 'background:#eff6ff; color:#1e40af; border-bottom: 2px solid #3b82f6;' : 'background:rgba(59,130,246,0.1); color:#60a5fa; border-bottom: 2px solid #3b82f6;';
+            const bgTotFZ = isClassic ? 'background:#fffbeb; color:#b45309; border-bottom: 2px solid #f59e0b;' : 'background:rgba(245,158,11,0.1); color:#fbbf24; border-bottom: 2px solid #f59e0b;';
 
             var h = '<table class="compare-tbl"><tbody>';
             
             h += `<tr><th style="${thColor}">Procedimento</th>`;
-            itens.forEach(function(i) { h += `<td style="${tdColor} font-weight:800; font-size:1rem;">${i.descricao}<br><span style="${subColor} font-size:0.85rem; font-weight:400;">Cód: ${i.codigo}</span></td>`; });
+            itens.forEach(function(i) { h += `<td style="${tdColor} font-weight:800; font-size:1rem;">${i.descricao}<br><span class="opacity-70 font-size:0.85rem; font-weight:400;">Cód: ${i.codigo}</span></td>`; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-info-circle"></i> Regras & Atributos</th>`;
-            itens.forEach(function(i) { 
-                let det = i.detalhes ? i.detalhes.split(' | ').map(x => `<span class="tag-detalhe text-[0.7rem] px-2 py-1 rounded m-0.5 inline-block"><b>${x.split(':')[0]}</b>:${x.split(':')[1]}</span>`).join('') : '-';
-                h += '<td>' + det + '</td>'; 
-            });
+            // ADICIONADO VALOR SA AQUI NO MODAL
+            h += `<tr><th style="${thColor}"><i class="fas fa-clinic-medical text-emerald-500"></i> Valor Ambulatorial (SA)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-medium font-mono text-emerald-500">` + brl.format(i.valor_sa) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-hospital"></i> Valor Hospitalar (SH)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-medium font-mono" style="${tdColor}">R$ ` + i.valor_sh.toFixed(2).replace('.',',') + '</td>'; });
+            h += `<tr><th style="${thColor}"><i class="fas fa-hospital text-blue-500"></i> Valor Hospitalar (SH)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-medium font-mono text-blue-500">` + brl.format(i.valor_sh) + '</td>'; });
             h += '</tr>';
-            
-            h += `<tr><th style="${thColor}"><i class="fas fa-user-md"></i> Valor Profissional (SP)</th>`;
+
+            // VALOR SP COM CÁLCULO 70/30 PARA O GRUPO 04
+            h += `<tr><th style="${thColor}"><i class="fas fa-user-md text-purple-500"></i> Valor Profissional (SP)</th>`;
             itens.forEach(function(i) { 
-                let text = `<td class="font-medium font-mono" style="${tdColor}">R$ ` + i.valor_sp.toFixed(2).replace('.',','); 
-                if (i.detalhes && i.detalhes.includes('Anestesia: S') && i.valor_sp > 0) {
-                    let anes = i.valor_sp * 0.30;
-                    let cir = i.valor_sp * 0.70;
-                    text += `<div class="mt-2 text-[0.8rem] space-y-1">
-                                <div class="px-2 py-1 rounded theme-adjust-bg-blue border"><b class="texto-cir">Cirurgião (70%):</b> R$ ${cir.toFixed(2).replace('.',',')}</div>
-                                <div class="px-2 py-1 rounded theme-adjust-bg-purple border"><b class="texto-ane">Anestesista (30%):</b> R$ ${anes.toFixed(2).replace('.',',')}</div>
-                             </div>`;
+                let spHtml = `<td class="font-medium font-mono text-purple-500">` + brl.format(i.valor_sp);
+                
+                // Regra Mágica: Se for Cirúrgico (Grupo 04) e tiver valor SP, calcula Cirurgião e Anestesista!
+                if (i.codigo.startsWith('04') && i.valor_sp > 0) {
+                    let cirurgiao = i.valor_sp * 0.70;
+                    let anestesista = i.valor_sp * 0.30;
+                    spHtml += `
+                    <div class="mt-2 text-[0.8rem] space-y-1">
+                        <div class="px-2 py-1 rounded theme-adjust-bg-blue border"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div>
+                        <div class="px-2 py-1 rounded theme-adjust-bg-purple border"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div>
+                    </div>`;
                 }
-                text += '</td>';
-                h += text;
+                
+                spHtml += `</td>`;
+                h += spHtml;
             });
             h += '</tr>';
-            
-            h += `<tr><th style="${thColor}"><i class="fas fa-coins text-green-500"></i> TOTAL</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono" style="${bgTot} font-weight:900; font-size:1.2rem;">R$ ` + i.valor_total.toFixed(2).replace('.',',') + '</td>'; });
+
+            h += `<tr><th style="${thColor}"><i class="fas fa-coins text-blue-500"></i> TOTAL SIGTAP (SUS)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono" style="${bgTotSigtap} font-weight:900; font-size:1.1rem;">` + brl.format(i.valor_total) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-tools text-orange-400"></i> Compatibilidade (OPME)</th>`;
+            h += `<tr><th style="${thColor}"><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO</th>`;
+            itens.forEach(function(i) { 
+                if(i.fz_valor > 0) h += `<td class="font-mono" style="${bgTotFZ} font-weight:900; font-size:1.2rem;">` + brl.format(i.fz_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle" style="${tdColor} font-size:1rem; opacity:0.5;">-</td>`;
+            });
+            h += '</tr>';
+
+            h += `<tr><th style="${thColor}"><i class="fas fa-tools text-orange-400"></i> Materiais (OPME)</th>`;
             itens.forEach(function(i) {
                 if (i.compatibilidades && i.compatibilidades.length > 0) {
                     h += '<td><ul class="list-none p-0 m-0 space-y-2">';
                     i.compatibilidades.forEach(function(op) { 
-                        let valFormatado = op.valor && op.valor > 0 ? '<span class="tag-opme-val float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">R$ ' + op.valor.toFixed(2).replace('.',',') + '</span>' : '';
-                        let qtdFormatado = op.qtd_max ? '<span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd Máx: ' + op.qtd_max + '</span>' : '';
-                        h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2" style="${tdColor}"><b style="color:#d97706">${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden">${qtdFormatado}${valFormatado}</div></li>`; 
+                        let valFormatado = op.valor > 0 ? `<span class="tag-opme-val float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">${brl.format(op.valor)}</span>` : '';
+                        h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2" style="${tdColor}"><b style="color:#d97706">${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
                     });
                     h += '</ul></td>';
                 } else {
-                    h += `<td><div class="text-center py-4" style="${subColor}"><i class="fas fa-ban text-2xl mb-2 block"></i>Sem OPME compatível</div></td>`;
+                    h += `<td class="text-center opacity-50" style="${tdColor}">Sem OPME</td>`;
                 }
             });
             h += '</tr>';

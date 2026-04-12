@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta SIGTAP - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%); color: white; min-height: 100vh; }
+        .cyber-container { background: white; color: #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; }
+        
+        table.dataTable { color: #334155 !important; border-collapse: collapse !important; width: 100% !important; }
+        table.dataTable thead th { background-color: #004e92 !important; color: white !important; padding: 12px; font-size: 0.85rem; text-transform: uppercase; border-bottom: none; }
+        table.dataTable tbody td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 0.85rem; }
+        table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        
+        .dataTables_filter input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 10px; outline: none; }
+        .dataTables_length select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px; outline: none; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white"><i class="fas fa-search-dollar text-cyan-300 mr-2"></i> Tabela SIGTAP Oficial</h1>
+                <p class="text-cyan-100 text-sm mt-1">Busca Unificada de Procedimentos DATASUS (SA, SH, SP)</p>
+            </div>
+            <a href="modulo_gerencial.html" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-4 py-2 rounded-lg transition"><i class="fas fa-arrow-left"></i> Voltar ao Módulo</a>
+        </div>
+
+        <div class="cyber-container">
+            <div id="loading" class="text-center py-12 font-bold text-blue-600">
+                <i class="fas fa-spinner fa-spin text-5xl mb-4"></i><br>
+                <span class="text-lg">Carregando ~5.000 procedimentos...</span>
+            </div>
+
+            <table id="tabelaSigtap" class="display" style="display:none; width:100%">
+                <thead>
+                    <tr>
+                        <th class="w-24 text-center">Código</th>
+                        <th>Descrição do Procedimento</th>
+                        <th class="w-16 text-center" title="Complexidade">Cmplx</th>
+                        <th class="w-28 text-right">Ambulatorial (SA)</th>
+                        <th class="w-28 text-right">Hospitalar (SH)</th>
+                        <th class="w-28 text-right">Profissional (SP)</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Chaves Injetadas
+        const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0";
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function carregarDados() {
+            try {
+                const { data, error } = await client.from('sigtap_oficial').select('*').order('nome');
+                if (error) throw error;
+
+                const tbody = $('#corpoTabela');
+                const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                if (data && data.length > 0) {
+                    // Mapeamento super rápido na memória em vez de append individual
+                    const rowsHTML = data.map(item => {
+                        let compColor = 'bg-gray-500';
+                        let compNome = item.complexidade;
+                        
+                        // Tradutor de Complexidade do DATASUS
+                        if (item.complexidade === '1' || item.complexidade === 'AB') { compColor = 'bg-green-500'; compNome = 'BÁSICA'; }
+                        if (item.complexidade === '2' || item.complexidade === 'MC') { compColor = 'bg-blue-500'; compNome = 'MÉDIA'; }
+                        if (item.complexidade === '3' || item.complexidade === 'AC') { compColor = 'bg-red-500'; compNome = 'ALTA'; }
+
+                        return `
+                            <tr>
+                                <td class="font-mono text-center font-bold text-blue-800 bg-blue-50 rounded">${item.codigo}</td>
+                                <td class="uppercase font-semibold text-xs">${item.nome}</td>
+                                <td class="text-center"><span class="px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm ${compColor}">${compNome || '-'}</span></td>
+                                <td class="font-mono text-right text-emerald-600 font-bold bg-emerald-50/50">${brl.format(item.valor_ambulatorial)}</td>
+                                <td class="font-mono text-right text-blue-600 font-bold bg-blue-50/50">${brl.format(item.valor_hospitalar)}</td>
+                                <td class="font-mono text-right text-purple-600 font-bold bg-purple-50/50">${brl.format(item.valor_profissional)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                    
+                    tbody.html(rowsHTML);
+                }
+                
+                $('#loading').hide();
+                $('#tabelaSigtap').show();
+                
+                // Inicializa a tabela otimizada
+                $('#tabelaSigtap').DataTable({
+                    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+                    pageLength: 15,
+                    deferRender: true, // O Segredo para não travar com 5k linhas
+                    responsive: true
+                });
+
+            } catch (err) {
+                console.error(err);
+                $('#loading').html('<div class="text-red-500"><i class="fas fa-exclamation-triangle text-3xl mb-2"></i><br>Erro de Permissão (RLS).<br><span class="text-sm">Vá ao SQL Editor do Supabase e rode: ALTER TABLE sigtap_oficial DISABLE ROW LEVEL SECURITY;</span></div>');
+            }
+        }
+        
+        carregarDados();
+    </script>
+</body>
+</html>
