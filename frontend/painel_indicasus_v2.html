@@ -502,6 +502,7 @@
             
             if (dadosFiltradosGlobais.length > 0) {
                 renderizarGraficos(dadosFiltradosGlobais);
+                aplicarFiltroSusLocal(); 
             }
         }
 
@@ -556,8 +557,8 @@
             return true;
         });
 
-$(document).ready(function() {
-            const savedTheme = localStorage.getItem('nii_theme_reg');
+        $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_ind');
             
             if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
@@ -662,7 +663,7 @@ $(document).ready(function() {
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
                 $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
-                $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca').text("Diárias Ocupadas");
+                $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca, #subEnfermaria').text("Diárias Ocupadas");
                 renderizarGraficos([]); renderizarTabelaPrincipal([]);
                 return;
             }
@@ -723,21 +724,45 @@ $(document).ready(function() {
             const mesSelecionado = $('#mesFilter').val();
             const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
 
-            const capUtiAd = 10 * diasNoMes;
-            const capUtin = 18 * diasNoMes;
-            const capUcinco = 4 * diasNoMes;
-            const capUcinca = 3 * diasNoMes;
+            // ==========================================
+            // CÁLCULO DE CAPACIDADE DINÂMICA (CNES Oficial)
+            // ==========================================
+            let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; // Padrão: TODOS (Capacidade Total Física)
+            
+            if (susFilterValue === 'SIM') {
+                // Apenas Leitos SUS
+                numUtiAd = 10; 
+                numUtin = 18; 
+                numUcinco = 4; 
+                numUcinca = 3; 
+                numEnf = 94; // (17 Cir + 14 Cli + 39 Obs Cir + 12 Obs Cli + 1 Ped Cir + 11 Ped Cli)
+            } else if (susFilterValue === 'NAO') {
+                // Apenas Leitos Particulares (Existente - SUS)
+                numUtiAd = 1; 
+                numUtin = 0; 
+                numUcinco = 0; 
+                numUcinca = 0; 
+                numEnf = 23; // 117 Total - 94 SUS = 23
+            }
+
+            const capUtiAd = numUtiAd * diasNoMes;
+            const capUtin = numUtin * diasNoMes;
+            const capUcinco = numUcinco * diasNoMes;
+            const capUcinca = numUcinca * diasNoMes;
+            const capEnf = numEnf * diasNoMes;
 
             const isClassic = document.body.classList.contains('theme-classic');
             const colorUti = isClassic ? '#1e40af' : '#38bdf8';
             const colorUtin = isClassic ? '#6d28d9' : '#c084fc';
             const colorUcinco = isClassic ? '#be185d' : '#f472b6';
             const colorUcinca = isClassic ? '#0f766e' : '#2dd4bf';
+            const colorEnf = isClassic ? '#b45309' : '#fbbf24';
 
             const txUtiAd = capUtiAd > 0 ? ((kpiUtiAdulto / capUtiAd) * 100).toFixed(1) : 0;
             const txUtin = capUtin > 0 ? ((kpiUtin / capUtin) * 100).toFixed(1) : 0;
             const txUcinco = capUcinco > 0 ? ((kpiUcinco / capUcinco) * 100).toFixed(1) : 0;
             const txUcinca = capUcinca > 0 ? ((kpiUcinca / capUcinca) * 100).toFixed(1) : 0;
+            const txEnf = capEnf > 0 ? ((kpiEnfermaria / capEnf) * 100).toFixed(1) : 0;
 
             $('#kpiUtiAdulto').text(kpiUtiAdulto);
             $('#subUtiAdulto').html(`Ocupação: <b style="color:${colorUti};">${txUtiAd}%</b> (Cap: ${capUtiAd})`);
@@ -751,8 +776,10 @@ $(document).ready(function() {
             $('#kpiUcinca').text(kpiUcinca);
             $('#subUcinca').html(`Ocupação: <b style="color:${colorUcinca};">${txUcinca}%</b> (Cap: ${capUcinca})`);
 
-            $('#kpiPacientes').text(dadosFiltradosGlobais.length);
             $('#kpiEnfermaria').text(kpiEnfermaria);
+            $('#subEnfermaria').html(`Ocupação: <b style="color:${colorEnf};">${txEnf}%</b> (Cap: ${capEnf})`);
+
+            $('#kpiPacientes').text(dadosFiltradosGlobais.length);
 
             renderizarGraficos(dadosFiltradosGlobais);
             renderizarTabelaPrincipal(dadosFiltradosGlobais);
