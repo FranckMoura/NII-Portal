@@ -524,7 +524,6 @@
             }
         }
 
-        // Função de peso para garantir que, no mesmo dia, o leito mais complexo vença
         const pesoLeito = (l) => {
             let text = String(l || "").toUpperCase();
             if (text.includes("UTI") || text === "UTIN") return 4;
@@ -535,6 +534,9 @@
 
         function aplicarFiltroSusLocal() {
             const susFilterValue = $('#susFilter').val(); 
+            const anoSelecionado = $('#anoFilter').val();
+            const mesSelecionado = String($('#mesFilter').val()).padStart(2, '0');
+            const prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`; // Ex: "2026-03"
             
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
@@ -555,9 +557,6 @@
                 const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
                 const dtInt = row.data_internacao || "SEM DATA";
                 
-                // =================================================================================
-                // O ESCUDO ANTI-DUPLICAÇÃO (Resolve o Bug "RN DE..." vs "Nome Registrado")
-                // =================================================================================
                 let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
                 let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
                 let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
@@ -566,7 +565,7 @@
                 if (cpfOk) key = "CPF_" + row.cpf.trim();
                 else if (cnsOk) key = "CNS_" + row.cns.trim();
                 else if (maeOk) key = "MAE_" + row.nome_mae.trim().toUpperCase() + "_" + dtInt;
-                else key = "NOME_" + nome + "_" + dtInt; // Fallback caso não tenha Mãe, CPF ou CNS
+                else key = "NOME_" + nome + "_" + dtInt;
                 
                 if (!map.has(key)) {
                     map.set(key, { 
@@ -580,7 +579,6 @@
                 
                 const p = map.get(key);
                 
-                // Se o novo nome não começar com RN, substitui o antigo para a tabela ficar bonita
                 if (nome && !nome.startsWith("RN DE ") && !nome.startsWith("RECEM NASCIDO")) {
                     p.nome_exibicao = nome;
                 }
@@ -588,9 +586,9 @@
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                 
-                if (!dataDia) return; 
+                // O ESCUDO DO MÊS: Ignora diárias que não pertencem ao mês que estamos filtrando
+                if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
-                // Se houver dois registros pro mesmo dia (ex: transferência ou bug), fica o mais complexo
                 let leitoAtual = row.tipo_leito;
                 if (p.dias_map.has(dataDia)) {
                     let leitoExistente = p.dias_map.get(dataDia);
@@ -601,6 +599,7 @@
                     p.dias_map.set(dataDia, leitoAtual);
                 }
 
+                // Salva a maior data global (pode ser de abril) para saber se teve alta
                 if (dataDia > p.max_date) {
                     p.max_date = dataDia;
                     p.data_extracao = row.data_extracao;
@@ -611,19 +610,18 @@
             });
 
             dadosFiltradosGlobais = Array.from(map.values()).map(p => {
-                p.nome_paciente = p.nome_exibicao; // Passa o nome corrigido para a tabela
+                p.nome_paciente = p.nome_exibicao; 
                 
                 let isAltaPadrao = false;
                 let evol = String(p.evolucao_clinica || "").toUpperCase();
                 
-                // Regra SUS: Alta a pedido, Evasão ou Alta Médica descontam o último dia. Óbito/Transf NÃO.
                 if (evol.includes("ALTA") && !evol.includes("ÓBITO") && !evol.includes("OBITO") && !evol.includes("TRANSF")) {
                     isAltaPadrao = true;
                 }
 
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     if (isAltaPadrao && dataDia === p.max_date) {
-                        continue; // O dia da alta não se cobra!
+                        continue; 
                     }
 
                     let leito = (leitoBruto || "").toUpperCase();
@@ -643,11 +641,8 @@
                 return p;
             });
 
-            const anoSelecionado = $('#anoFilter').val();
-            const mesSelecionado = $('#mesFilter').val();
             const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
 
-            // CÁLCULO DE CAPACIDADE DINÂMICA (CNES Oficial)
             let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; 
             
             if (susFilterValue === 'SIM') {
