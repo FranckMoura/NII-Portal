@@ -683,7 +683,8 @@
                 if (!map.has(key)) {
                     map.set(key, { 
                         ...row, 
-                        dias_contados: new Set(), 
+                        dias_map: new Map(), // NOVO: Mapeamento de diárias para checar a regra da ALTA
+                        max_date: "0000-00-00", 
                         dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0 
                     });
                 }
@@ -693,30 +694,49 @@
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                 
-                if (!dataDia || p.dias_contados.has(dataDia)) return; 
-                p.dias_contados.add(dataDia);
+                if (!dataDia || p.dias_map.has(dataDia)) return; 
+                p.dias_map.set(dataDia, row.tipo_leito);
 
-                let leito = (row.tipo_leito || "").toUpperCase();
-                if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                else if (leito === "UTIN") p.dias_utin++;
-                else if (leito === "UCINCO") p.dias_ucinco++;
-                else if (leito === "UCINCA") p.dias_ucinca++;
-                else p.dias_enf++;
-                
-                if (new Date(row.data_extracao) > new Date(p.data_extracao)) {
+                if (dataDia > p.max_date) {
+                    p.max_date = dataDia;
                     p.data_extracao = row.data_extracao;
-                    p.evolucao_clinica = row.evolucao_clinica;
+                    if(row.evolucao_clinica) p.evolucao_clinica = row.evolucao_clinica;
                     if(row.aih) p.aih = row.aih;
                     if(row.cod_solicitacao_sisreg) p.cod_solicitacao_sisreg = row.cod_solicitacao_sisreg;
                 }
             });
 
+            // NOVO: Cálculo das diárias aplicando a regra de Faturamento SUS (ALTA)
             dadosFiltradosGlobais = Array.from(map.values()).map(p => {
+                let isAltaPadrao = false;
+                let evol = String(p.evolucao_clinica || "").toUpperCase();
+                
+                // Regra SUS: Alta Médica, Alta a Pedido, Alta por Evasão -> Desconta o último dia.
+                // Óbito ou Transferência -> Conta todos os dias.
+                if (evol.includes("ALTA") && !evol.includes("ÓBITO") && !evol.includes("OBITO") && !evol.includes("TRANSF")) {
+                    isAltaPadrao = true;
+                }
+
+                for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
+                    // Remove a contagem do último dia se o paciente teve ALTA padrão
+                    if (isAltaPadrao && dataDia === p.max_date) {
+                        continue;
+                    }
+
+                    let leito = (leitoBruto || "").toUpperCase();
+                    if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
+                    else if (leito === "UTIN") p.dias_utin++;
+                    else if (leito === "UCINCO") p.dias_ucinco++;
+                    else if (leito === "UCINCA") p.dias_ucinca++;
+                    else p.dias_enf++;
+                }
+
                 kpiUtiAdulto += p.dias_uti_ad;
                 kpiUtin += p.dias_utin;
                 kpiUcinco += p.dias_ucinco;
                 kpiUcinca += p.dias_ucinca;
                 kpiEnfermaria += p.dias_enf;
+                
                 return p;
             });
 
@@ -724,25 +744,21 @@
             const mesSelecionado = $('#mesFilter').val();
             const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
 
-            // ==========================================
             // CÁLCULO DE CAPACIDADE DINÂMICA (CNES Oficial)
-            // ==========================================
-            let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; // Padrão: TODOS (Capacidade Total Física)
+            let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; 
             
             if (susFilterValue === 'SIM') {
-                // Apenas Leitos SUS
                 numUtiAd = 10; 
                 numUtin = 18; 
                 numUcinco = 4; 
                 numUcinca = 3; 
-                numEnf = 94; // (17 Cir + 14 Cli + 39 Obs Cir + 12 Obs Cli + 1 Ped Cir + 11 Ped Cli)
+                numEnf = 94; 
             } else if (susFilterValue === 'NAO') {
-                // Apenas Leitos Particulares (Existente - SUS)
                 numUtiAd = 1; 
                 numUtin = 0; 
                 numUcinco = 0; 
                 numUcinca = 0; 
-                numEnf = 23; // 117 Total - 94 SUS = 23
+                numEnf = 23; 
             }
 
             const capUtiAd = numUtiAd * diasNoMes;
