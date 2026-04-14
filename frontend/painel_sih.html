@@ -144,7 +144,7 @@
         });
 
         function formatarData(dataYMD) {
-            if(!dataYMD || dataYMD.length !== 8) return dataYMD;
+            if(!dataYMD || dataYMD.length !== 8) return dataYMD || '-';
             return `${dataYMD.substring(6,8)}/${dataYMD.substring(4,6)}/${dataYMD.substring(0,4)}`;
         }
 
@@ -154,7 +154,6 @@
             const mes = $('#mesFilter').val();
 
             try {
-                // Buscando TUDO. Como planificamos a tabela, podemos selecionar só o que queremos visualizar!
                 const { data, error } = await client.from('sih_sus_hsh')
                     .select('*')
                     .eq('ano_cmpt', ano)
@@ -182,16 +181,20 @@
                 dataTableInstance = $('#tabelaSih').DataTable({
                     data: rawDataGlobais,
                     pageLength: 25,
-                    order: [[7, 'desc']], // Ordena pelo mais caro
+                    order: [[7, 'desc']], 
                     columns: [
-                        { data: 'n_aih', className: 'font-mono font-bold text-blue-500' },
-                        { data: 'dt_inter', render: d => formatarData(d) },
-                        { data: 'dt_saida', render: d => formatarData(d) },
-                        { data: 'dias_perm', render: d => `${d || 0} dias` },
-                        { data: null, render: (d,t,r) => `${r.idade || '-'}a / ${r.sexo === '1' ? 'M' : (r.sexo === '3' ? 'F' : '?')}` },
-                        { data: 'diag_princ', className: 'font-mono font-bold text-orange-400' },
-                        { data: 'proc_rea', className: 'font-mono' },
-                        { data: 'val_tot', className: 'text-right font-mono font-bold text-emerald-500', render: d => brl.format(d) }
+                        { data: 'n_aih', className: 'font-mono font-bold text-blue-500', defaultContent: '-' },
+                        { data: 'dt_inter', render: d => formatarData(d), defaultContent: '-' },
+                        { data: 'dt_saida', render: d => formatarData(d), defaultContent: '-' },
+                        { data: 'dias_perm', render: d => `${d != null ? d : 0} dias`, defaultContent: '0 dias' },
+                        { data: null, render: (d,t,r) => {
+                            let idade = r.idade != null ? r.idade : '-';
+                            let sexo = r.sexo === '1' ? 'M' : (r.sexo === '3' ? 'F' : '?');
+                            return `${idade}a / ${sexo}`;
+                        }},
+                        { data: 'diag_princ', className: 'font-mono font-bold text-orange-400', defaultContent: '-' },
+                        { data: 'proc_rea', className: 'font-mono', defaultContent: '<span class="opacity-50">-</span>' },
+                        { data: 'val_tot', className: 'text-right font-mono font-bold text-emerald-500', render: d => brl.format(d || 0), defaultContent: 'R$ 0,00' }
                     ],
                     language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
                 });
@@ -200,34 +203,29 @@
 
             } catch (err) {
                 console.error(err);
-                alert("Erro ao buscar dados do Supabase.");
+                alert("Erro ao buscar dados do Supabase. Verifique o console.");
             }
         }
 
         // ==============================================================
-        // O EXPORTADOR CSV MESTRE (Baixa as 80+ colunas estruturadas!)
+        // EXPORTADOR CSV
         // ==============================================================
         function exportarCSV() {
             if(rawDataGlobais.length === 0) return alert('Não há dados para exportar neste mês.');
 
-            // Pega os cabeçalhos dinamicamente (ignora a coluna json velha)
             let headers = Object.keys(rawDataGlobais[0]).filter(k => k !== 'dados_completos');
-            
-            // Monta o CSV separando por ponto-e-vírgula para o Excel entender no Brasil
-            let csvContent = "\uFEFF" + headers.join(";") + "\n"; // \uFEFF força o UTF-8 (acentos)
+            let csvContent = "\uFEFF" + headers.join(";") + "\n"; 
 
             rawDataGlobais.forEach(row => {
                 let colunasStr = headers.map(key => {
                     let valor = row[key];
                     if (valor === null || valor === undefined) return '""';
-                    // Converte para string e lida com quebras de linha ou aspas internas
                     let strVal = String(valor).replace(/"/g, '""');
                     return `"${strVal}"`;
                 });
                 csvContent += colunasStr.join(";") + "\n";
             });
 
-            // Cria o gatilho de download do arquivo
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
