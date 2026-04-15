@@ -11,7 +11,6 @@
     <style>
         :root { --primary: #004e92; --dark: #1e293b; }
         
-        /* TEMA GLOBAL DARK NEON (PADRÃO) */
         body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; display: flex; flex-direction: column; min-height: 100vh; margin:0; transition: background 0.5s ease, color 0.5s ease; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         
@@ -57,18 +56,10 @@
         
         footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
 
-        /* ICONES DINÂMICOS (NEON) */
         .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .icon-pink { color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
         .icon-teal { color: #2dd4bf; text-shadow: 0 0 10px rgba(45,212,191,0.5); border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.1); }
-        .icon-yellow { color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.5); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
-        .icon-amber { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); }
-        .icon-green { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.1); }
         .icon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59,130,246,0.5); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
 
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII (Azul + Branco)                         */
-        /* ========================================================= */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
 
@@ -85,13 +76,8 @@
         body.theme-classic .card-content h3 { color: #1e293b !important; }
         body.theme-classic .card-content p { color: #64748b !important; }
         
-        /* Ícones Clássicos */
         body.theme-classic .logo-box { background: white; border: 1px solid #e2e8f0; }
-        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; }
         body.theme-classic .icon-teal { background: #ccfbf1 !important; color: #0f766e !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-amber { background: #ffedd5 !important; color: #ea580c !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-green { background: #dcfce7 !important; color: #16a34a !important; border: none !important; text-shadow: none !important; }
         body.theme-classic .icon-blue { background: #dbeafe !important; color: #1d4ed8 !important; border: none !important; text-shadow: none !important; }
     </style>
 </head>
@@ -129,51 +115,11 @@
                 </div>
             </a>
 
-            <a href="painel_sih.html" class="menu-card">
-                <div class="icon-box icon-amber"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <div class="card-content">
-                    <h3>Gestão Estratégica SIH</h3>
-                    <p>Auditoria de conta fechada, repasses e Tese URV (9,56%).</p>
-                </div>
-            </a>
-
-            <a href="espelho_aih.html" class="menu-card">
-                <div class="icon-box icon-teal"><i class="fa-solid fa-file-invoice"></i></div>
-                <div class="card-content">
-                    <h3>Espelho da Conta AIH</h3>
-                    <p>Auditoria detalhada de contas fechadas (SIH) e lançamentos secundários (SP).</p>
-                </div>
-            </a>
-
-            <a href="painel_sia.html" class="menu-card">
-                <div class="icon-box icon-green"><i class="fa-solid fa-stethoscope"></i></div>
-                <div class="card-content">
-                    <h3>Produção Ambulatorial SIA</h3>
-                    <p>Auditoria analítica de BPA/APAC, tickets médios e honorários.</p>
-                </div>
-            </a>
-
-            <a href="painel_faturamento_sp.html" class="menu-card">
-                <div class="icon-box icon-pink"><i class="fas fa-syringe"></i></div>
-                <div class="card-content">
-                    <h3>Faturamento SP (Itens Sec.)</h3>
-                    <p>Auditoria de OPMEs, Diárias UTI, Exames e Medicamentos.</p>
-                </div>
-            </a>
-
             <a href="modulo_financeiro.html" class="menu-card">
                 <div class="icon-box icon-teal"><i class="fas fa-coins"></i></div>
                 <div class="card-content">
                     <h3>Gestão Financeira Interna</h3>
                     <p>Repasses Médicos, SADT, Terceiros e Produção Geral.</p>
-                </div>
-            </a>
-            
-            <a href="painel_historico.html" class="menu-card">
-                <div class="icon-box icon-yellow"><i class="fas fa-chart-line"></i></div>
-                <div class="card-content">
-                    <h3>Série Histórica (Executivo)</h3>
-                    <p>Evolução financeira temporal e ticket médio SIGTAP.</p>
                 </div>
             </a>
         </div>
@@ -203,7 +149,6 @@
             const savedTheme = localStorage.getItem('nii_theme_menus');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             
-            // Padrão Inicial: Escuro (Neon)
             if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
                 if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }

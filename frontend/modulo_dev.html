@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Dev - NII</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #db2777; --dark: #1e293b; }
+        
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #1a0b1c 100%); background-attachment: fixed; color: white; display: flex; flex-direction: column; min-height: 100vh; margin:0; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(244, 114, 182, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 114, 182, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        
+        .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(244, 114, 182, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.1); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
+        .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); margin: 0 auto 15px auto; }
+        header h1 { font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: #f472b6;}
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; color: rgba(255,255,255,0.8); }
+        
+        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        
+        .btn-voltar { position: absolute; top: 20px; right: 20px; background: rgba(244,114,182,0.15); color: #f472b6; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; border: 1px solid rgba(244,114,182,0.3); display: flex; align-items: center; gap: 8px; transition: 0.2s; font-weight: bold;}
+        .btn-voltar:hover { background: rgba(244,114,182,0.3); }
+
+        main { flex: 1; max-width: 1000px; margin: 20px auto; padding: 0 20px; width: 100%; }
+        
+        .alert-banner { background: rgba(219, 39, 119, 0.1); border: 1px solid rgba(219, 39, 119, 0.3); border-radius: 12px; padding: 15px; text-align: center; color: #f472b6; margin-bottom: 30px; font-size: 0.9rem;}
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .menu-card {
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px dashed rgba(244, 114, 182, 0.3);
+            border-radius: 16px; padding: 25px; text-decoration: none; color: white;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            display: flex; align-items: center; gap: 20px; position: relative;
+        }
+        .menu-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(244, 114, 182, 0.05); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(244, 114, 182, 0.2);
+            border-style: solid; border-color: rgba(244, 114, 182, 0.6);
+        }
+
+        .tag-beta { position: absolute; top: -10px; right: 20px; background: #db2777; color: white; font-size: 0.6rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        
+        .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; }
+        
+        .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
+        .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
+        
+        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .icon-amber { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.5); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); }
+        .icon-teal { color: #2dd4bf; text-shadow: 0 0 10px rgba(45,212,191,0.5); border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.1); }
+        .icon-green { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.1); }
+        .icon-pink { color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
+        .icon-yellow { color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.5); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
+
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #1e1b4b 100%) !important; color: white !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .menu-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px dashed rgba(219, 39, 119, 0.4) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            backdrop-filter: blur(10px) !important; transform: none !important;
+        }
+        body.theme-classic .menu-card:hover {
+            transform: translateY(-5px) !important; background: rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important; border: 1px solid #db2777 !important;
+        }
+        body.theme-classic .card-content h3 { color: #1e293b !important; }
+        body.theme-classic .card-content p { color: #64748b !important; }
+        
+        body.theme-classic .icon-amber { background: #ffedd5 !important; color: #ea580c !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-teal { background: #ccfbf1 !important; color: #0f766e !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-green { background: #dcfce7 !important; color: #16a34a !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <header>
+        <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+            <i class="fas fa-sun"></i>
+        </button>
+        <a href="index_v2.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar ao Hub</a>
+        
+        <div class="header-logo"><img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
+        <h1>Laboratório NII</h1>
+        <p>Área restrita de desenvolvimento e homologação (Dev).</p>
+    </header>
+
+    <main>
+        
+        <div class="alert-banner">
+            <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> Os módulos abaixo encontram-se em fase "Beta". Podem ocorrer instabilidades durante os testes de ETL e Engenharia de Dados.
+        </div>
+
+        <div class="menu-grid">
+            <a href="painel_sih.html" class="menu-card">
+                <span class="tag-beta">Beta</span>
+                <div class="icon-box icon-amber"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="card-content">
+                    <h3>Gestão Estratégica SIH</h3>
+                    <p>Auditoria de conta fechada, repasses e Tese URV (9,56%).</p>
+                </div>
+            </a>
+
+            <a href="espelho_aih.html" class="menu-card">
+                <span class="tag-beta">Beta</span>
+                <div class="icon-box icon-teal"><i class="fa-solid fa-file-invoice"></i></div>
+                <div class="card-content">
+                    <h3>Espelho da Conta AIH</h3>
+                    <p>Auditoria detalhada de contas fechadas (SIH) e lançamentos secundários (SP).</p>
+                </div>
+            </a>
+
+            <a href="painel_sia.html" class="menu-card">
+                <span class="tag-beta">Beta</span>
+                <div class="icon-box icon-green"><i class="fa-solid fa-stethoscope"></i></div>
+                <div class="card-content">
+                    <h3>Produção Ambulatorial SIA</h3>
+                    <p>Auditoria analítica de BPA/APAC, tickets médios e honorários.</p>
+                </div>
+            </a>
+
+            <a href="painel_faturamento_sp.html" class="menu-card">
+                <span class="tag-beta">Beta</span>
+                <div class="icon-box icon-pink"><i class="fas fa-syringe"></i></div>
+                <div class="card-content">
+                    <h3>Faturamento SP (Itens Sec.)</h3>
+                    <p>Auditoria de OPMEs, Diárias UTI, Exames e Medicamentos.</p>
+                </div>
+            </a>
+            
+            <a href="painel_historico.html" class="menu-card">
+                <span class="tag-beta">Beta</span>
+                <div class="icon-box icon-yellow"><i class="fas fa-chart-line"></i></div>
+                <div class="card-content">
+                    <h3>Série Histórica (Executivo)</h3>
+                    <p>Evolução financeira temporal e ticket médio SIGTAP.</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura </p></footer>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'neon');
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_menus', 'classic');
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('nii_theme_menus');
+            const btnIcon = document.querySelector('#btn-theme-toggle i');
+            
+            if (savedTheme === 'classic') { 
+                document.body.classList.add('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
+            } else {
+                document.body.classList.remove('theme-classic');
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
+            }
+        });
+    </script>
+</body>
+</html>
