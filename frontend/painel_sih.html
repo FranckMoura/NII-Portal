@@ -33,19 +33,39 @@
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
 
+        /* Tabela DataTables */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap;}
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; vertical-align: top;}
         table.dataTable tbody td { padding: 10px 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; vertical-align: middle; white-space: nowrap;}
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.8) !important; margin-bottom: 10px; font-size: 0.85rem;}
         .dataTables_wrapper .dataTables_filter input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 6px; margin-left: 10px;}
 
+        /* CSS dos Filtros de Coluna Individuais */
+        .col-filter-input {
+            width: 100%;
+            margin-top: 8px;
+            padding: 5px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            font-weight: normal;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            outline: none;
+            display: block;
+            text-transform: none; /* Remove caixa alta do placeholder */
+        }
+        .col-filter-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.5); }
+
+        /* ColVis Menu */
         div.dt-button-collection { background-color: #0f172a !important; border: 1px solid #38bdf8 !important; border-radius: 8px; padding: 15px; width: 600px !important; max-height: 500px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 5px; z-index: 9999;}
         div.dt-button-collection .dt-button { background: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; margin: 0 !important; border-radius: 6px !important; flex: 1 1 calc(33.333% - 5px); font-size: 0.7rem !important; text-align: left !important; padding: 5px 10px !important;}
         div.dt-button-collection .dt-button:hover { background: rgba(255,255,255,0.1) !important; }
         div.dt-button-collection .dt-button.active { background: rgba(56, 189, 248, 0.2) !important; border-color: #38bdf8 !important; color: #38bdf8 !important; font-weight: bold;}
         
+        /* Tema Claro */
         body.theme-classic { background: #f8fafc; background-image: none; color: #0f172a;}
         body.theme-classic .header-bg { background: #004e92; border-bottom: none; }
         body.theme-classic .header-bg h1 { color: white; }
@@ -58,6 +78,10 @@
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
         body.theme-classic .dataTables_wrapper .dataTables_filter input { background: white; color: black; border-color: #cbd5e1; }
         body.theme-classic .dataTables_wrapper .dataTables_length, body.theme-classic .dataTables_wrapper .dataTables_filter, body.theme-classic .dataTables_wrapper .dataTables_info, body.theme-classic .dataTables_wrapper .dataTables_paginate { color: #475569 !important; }
+        
+        body.theme-classic .col-filter-input { background: white; color: black; border-color: #cbd5e1; }
+        body.theme-classic .col-filter-input:focus { border-color: #3b82f6; }
+
         body.theme-classic div.dt-button-collection { background-color: white !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 20px rgba(0,0,0,0.15);}
         body.theme-classic div.dt-button-collection .dt-button { background: #f8fafc !important; color: #334155 !important; border-color: #e2e8f0 !important; }
         body.theme-classic div.dt-button-collection .dt-button:hover { background: #e2e8f0 !important; }
@@ -126,7 +150,6 @@
     </div>
 
     <div class="container">
-        
         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
             <div class="kpi-card">
                 <div class="text-[0.65rem] md:text-xs font-bold uppercase text-gray-400 mb-1">Total de AIHs</div>
@@ -155,7 +178,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            
             <div class="cyber-container" style="margin-bottom:0;">
                 <div class="section-title"><i class="fas fa-chart-bar"></i> AIHs por Especialidade</div>
                 <div class="chart-wrapper">
@@ -201,6 +223,11 @@
         <div class="cyber-container">
             <div class="section-title"><i class="fas fa-database"></i> Explorador de Banco de Dados (Raw Data)</div>
             
+            <div class="bg-blue-900/30 border border-blue-500/30 p-3 rounded-lg text-sm text-blue-200 mb-4 flex items-center gap-3">
+                <i class="fas fa-info-circle text-2xl text-blue-400"></i>
+                <p><strong>Dica de Pesquisa Avançada:</strong> Use as caixas abaixo de cada título para filtrar colunas. Para buscar mais de um item ao mesmo tempo (ex: dois procedimentos diferentes), <strong>basta separar por vírgula</strong>.</p>
+            </div>
+
             <div id="loading" class="text-center py-10">
                 <i class="fas fa-spinner fa-spin text-4xl text-blue-400 mb-3"></i>
                 <p class="text-gray-400" id="loading-text">Processando inteligência de dados...</p>
@@ -222,9 +249,8 @@
         let chartTopProcsInst = null;
         let chartEspecInst = null;
 
-        // Dicionários Dinâmicos
         let dicProcedimentos = {};
-        let dicNacionalidades = {}; // Novo Dicionário Adicionado
+        let dicNacionalidades = {};
         
         const codigosParto = ['0310010039','0310010047','0411010034','0411010026','0411010042', '0411011026', '0411011042'];
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -237,10 +263,9 @@
             return c;
         }
 
-        // Nova função para retornar Nacionalidades traduzidas
         function getNacionalidadeName(code) {
             if (!code) return '-';
-            let c = String(code).trim().padStart(3, '0'); // Garante formato de 3 dígitos (ex: '010')
+            let c = String(code).trim().padStart(3, '0'); 
             if (dicNacionalidades[c]) return `${c} - ${dicNacionalidades[c]}`;
             return c;
         }
@@ -304,7 +329,6 @@
                     return;
                 }
 
-                // 1. SINCRONIZAÇÃO DE PROCEDIMENTOS (SIGTAP)
                 $('#loading-text').text("Sincronizando com Catálogo SIGTAP...");
                 const codigosUnicos = [...new Set(rawDataGlobais.map(r => String(r.proc_rea).trim()).filter(Boolean))];
                 
@@ -314,7 +338,6 @@
                     if (sigtapData) sigtapData.forEach(item => { dicProcedimentos[item.codigo] = item.nome; });
                 }
 
-                // 2. SINCRONIZAÇÃO DE NACIONALIDADES
                 $('#loading-text').text("Sincronizando com Catálogo de Nacionalidades...");
                 const nacUnicas = [...new Set(rawDataGlobais.map(r => {
                     if(!r.nacional) return null;
@@ -529,8 +552,8 @@
             });
         }
 
-// ==============================================================
-        // TABELA DINÂMICA (AGORA COM NACIONALIDADE TRADUZIDA)
+        // ==============================================================
+        // TABELA DINÂMICA (AGORA COM FILTROS DE COLUNA E SELEÇÃO MÚLTIPLA)
         // ==============================================================
         function montarTabelaColVis(dados) {
             if ($.fn.DataTable.isDataTable('#tabelaSih')) {
@@ -544,10 +567,8 @@
             const colunasPadrao = ['n_aih', 'dt_inter', 'dt_saida', 'dias_perm', 'idade', 'sexo', 'diag_princ', 'proc_rea', 'val_tot'];
 
             let configuracaoColunas = todasAsColunas.map(coluna => {
-                // 1. Cria um título amigável base
                 let titulo = coluna.toUpperCase().replace(/_/g, ' ');
                 
-                // 2. Renomeia colunas específicas para o Menu do DataTables ficar "Padrão MS"
                 if (coluna === 'nacional') titulo = 'NACIONALIDADE';
                 if (coluna === 'n_aih') titulo = 'Nº AIH';
                 if (coluna === 'proc_rea') titulo = 'PROCEDIMENTO REALIZADO';
@@ -562,7 +583,7 @@
 
                 return {
                     data: coluna,
-                    title: titulo, // Aplica o título limpo
+                    title: titulo, 
                     visible: colunasPadrao.includes(coluna),
                     defaultContent: '-',
                     render: function(d, type, row) {
@@ -577,10 +598,8 @@
                             }
                             if (coluna === 'sexo') return d === '1' ? 'Masculino' : (d === '3' ? 'Feminino' : d);
                             if (coluna === 'morte') return d === 1 || d === '1' ? '<span class="text-red-500 font-bold">Sim</span>' : 'Não';
-                            
-                            // Tradutores Oficiais
                             if (coluna === 'proc_rea' || coluna === 'proc_solic') return getProcName(d);
-                            if (coluna === 'nacional') return getNacionalidadeName(d); // Tradução aplicada
+                            if (coluna === 'nacional') return getNacionalidadeName(d); 
                         }
                         return d;
                     }
@@ -605,6 +624,31 @@
                 language: { 
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
                     buttons: { colvisRestore: "↺ Restaurar Padrão Inicial" }
+                },
+                // INJEÇÃO DE INTELIGÊNCIA: Filtros por Coluna + Regex Múltiplo (OR)
+                initComplete: function() {
+                    this.api().columns().every(function() {
+                        let column = this;
+                        let title = $(column.header()).text();
+                        
+                        // Cria o input de busca embaixo do título da coluna
+                        let input = $('<input type="text" placeholder="Filtrar..." class="col-filter-input" />')
+                            .appendTo($(column.header()))
+                            .on('click', function(e) {
+                                e.stopPropagation(); // Impede que a tabela ordene ao clicar para digitar
+                            })
+                            .on('keyup change clear', function() {
+                                let val = $(this).val();
+                                
+                                // MÁGICA: Divide por vírgula e transforma num "OR" do Regex
+                                // Ex: "cuiaba, varzea grande" vira "cuiaba|varzea grande"
+                                let searchRegex = val ? val.split(',').map(s => $.fn.dataTable.util.escapeRegex(s.trim())).join('|') : '';
+                                
+                                if (column.search() !== searchRegex) {
+                                    column.search(searchRegex, true, false).draw();
+                                }
+                            });
+                    });
                 }
             });
 
@@ -619,11 +663,8 @@
                 let colunasStr = headers.map(key => {
                     let valor = row[key];
                     if (valor === null || valor === undefined) return '""';
-                    
-                    // Aplica as traduções no momento de baixar o Excel/CSV
                     if(key === 'proc_rea' || key === 'proc_solic') valor = getProcName(valor);
                     if(key === 'nacional') valor = getNacionalidadeName(valor);
-
                     let strVal = String(valor).replace(/"/g, '""');
                     return `"${strVal}"`;
                 });
