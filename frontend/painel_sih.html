@@ -33,7 +33,6 @@
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
 
-        /* Tabela DataTables */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap;}
         table.dataTable tbody td { padding: 10px 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; vertical-align: middle; white-space: nowrap;}
@@ -42,13 +41,11 @@
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.8) !important; margin-bottom: 10px; font-size: 0.85rem;}
         .dataTables_wrapper .dataTables_filter input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 6px; margin-left: 10px;}
 
-        /* ColVis Menu */
         div.dt-button-collection { background-color: #0f172a !important; border: 1px solid #38bdf8 !important; border-radius: 8px; padding: 15px; width: 600px !important; max-height: 500px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 5px; z-index: 9999;}
         div.dt-button-collection .dt-button { background: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; margin: 0 !important; border-radius: 6px !important; flex: 1 1 calc(33.333% - 5px); font-size: 0.7rem !important; text-align: left !important; padding: 5px 10px !important;}
         div.dt-button-collection .dt-button:hover { background: rgba(255,255,255,0.1) !important; }
         div.dt-button-collection .dt-button.active { background: rgba(56, 189, 248, 0.2) !important; border-color: #38bdf8 !important; color: #38bdf8 !important; font-weight: bold;}
         
-        /* Tema Claro */
         body.theme-classic { background: #f8fafc; background-image: none; color: #0f172a;}
         body.theme-classic .header-bg { background: #004e92; border-bottom: none; }
         body.theme-classic .header-bg h1 { color: white; }
@@ -70,7 +67,6 @@
         .section-title { font-size: 1.1rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px; color: #38bdf8; display: flex; align-items: center; gap: 8px;}
         body.theme-classic .section-title { border-bottom-color: #e2e8f0; color: #004e92; }
 
-        /* Estilo do Modal Dossiê */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; width: 90%; max-width: 1000px; max-height: 90vh; overflow-y: auto; padding: 25px; position: relative; color: white;}
@@ -118,14 +114,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="bg-black/20 p-4 rounded-lg border border-white/10">
                     <h3 class="font-bold text-lg mb-3 text-emerald-400 border-b border-white/10 pb-2">Análise por Procedimento</h3>
-                    <div id="modalTabelaPartos" class="overflow-x-auto text-sm">
-                        </div>
+                    <div id="modalTabelaPartos" class="overflow-x-auto text-sm"></div>
                 </div>
 
                 <div class="bg-black/20 p-4 rounded-lg border border-white/10">
                     <h3 class="font-bold text-lg mb-3 text-orange-400 border-b border-white/10 pb-2">Origem das Mães (Municípios)</h3>
-                    <ul id="modalListaCidades" class="space-y-2 text-sm">
-                        </ul>
+                    <ul id="modalListaCidades" class="space-y-2 text-sm"></ul>
                 </div>
             </div>
         </div>
@@ -228,8 +222,10 @@
         let chartTopProcsInst = null;
         let chartEspecInst = null;
 
-        // Dicionário Dinâmico e Auxiliares
+        // Dicionários Dinâmicos
         let dicProcedimentos = {};
+        let dicNacionalidades = {}; // Novo Dicionário Adicionado
+        
         const codigosParto = ['0310010039','0310010047','0411010034','0411010026','0411010042', '0411011026', '0411011042'];
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         const formatNum = new Intl.NumberFormat('pt-BR');
@@ -238,6 +234,14 @@
             if (!code) return '-';
             let c = String(code).trim();
             if (dicProcedimentos[c]) return `${c} - ${dicProcedimentos[c]}`;
+            return c;
+        }
+
+        // Nova função para retornar Nacionalidades traduzidas
+        function getNacionalidadeName(code) {
+            if (!code) return '-';
+            let c = String(code).trim().padStart(3, '0'); // Garante formato de 3 dígitos (ex: '010')
+            if (dicNacionalidades[c]) return `${c} - ${dicNacionalidades[c]}`;
             return c;
         }
 
@@ -300,6 +304,7 @@
                     return;
                 }
 
+                // 1. SINCRONIZAÇÃO DE PROCEDIMENTOS (SIGTAP)
                 $('#loading-text').text("Sincronizando com Catálogo SIGTAP...");
                 const codigosUnicos = [...new Set(rawDataGlobais.map(r => String(r.proc_rea).trim()).filter(Boolean))];
                 
@@ -309,11 +314,24 @@
                     if (sigtapData) sigtapData.forEach(item => { dicProcedimentos[item.codigo] = item.nome; });
                 }
 
+                // 2. SINCRONIZAÇÃO DE NACIONALIDADES
+                $('#loading-text').text("Sincronizando com Catálogo de Nacionalidades...");
+                const nacUnicas = [...new Set(rawDataGlobais.map(r => {
+                    if(!r.nacional) return null;
+                    return String(r.nacional).trim().padStart(3, '0');
+                }).filter(Boolean))];
+
+                for (let i = 0; i < nacUnicas.length; i += 100) {
+                    const loteNac = nacUnicas.slice(i, i + 100);
+                    const { data: nacData } = await client.from('nacionalidade_sih').select('codigo, descricao').in('codigo', loteNac);
+                    if (nacData) nacData.forEach(item => { dicNacionalidades[item.codigo] = item.descricao; });
+                }
+
                 $('#loading-text').text("Montando interface...");
                 
                 atualizarKPIs(rawDataGlobais);
                 gerarGraficos(rawDataGlobais);
-                processarMaternidade(rawDataGlobais); // <--- A Magia da Maternidade
+                processarMaternidade(rawDataGlobais); 
                 montarTabelaColVis(rawDataGlobais);
 
             } catch (err) {
@@ -346,7 +364,6 @@
             const qtd = dados.length;
             const ticket = qtd > 0 ? (totGeral / qtd) : 0;
 
-            // Preenche exibição
             $('#kpiQtd').text(formatNum.format(qtd));
             $('#kpiDias').text(formatNum.format(diasTot));
             $('#kpiObitos').text(formatNum.format(obitos));
@@ -354,14 +371,10 @@
             $('#kpiTotal').text(formatBrl.format(totGeral));
             $('#kpiTicket').text(formatBrl.format(ticket));
 
-            // Tooltips de segurança caso faça overflow
             $('#kpiTotal').attr('title', formatBrl.format(totGeral));
             $('#kpiTicket').attr('title', formatBrl.format(ticket));
         }
 
-        // ==============================================================
-        // MÓDULO MATERNIDADE (O Dossiê)
-        // ==============================================================
         function processarMaternidade(dados) {
             let partos = dados.filter(r => codigosParto.includes(String(r.proc_rea).trim()));
             
@@ -378,7 +391,6 @@
                 fatPartos += v;
                 diasPartos += d;
                 
-                // Quebra por Procedimento
                 let cod = String(p.proc_rea).trim();
                 let nomeCompleto = getProcName(cod);
                 let nomeCurto = nomeCompleto.includes('-') ? nomeCompleto.split('-')[1].trim() : nomeCompleto;
@@ -388,19 +400,16 @@
                 tipos[nomeCurto].val += v;
                 tipos[nomeCurto].dias += d;
                 
-                // Origem (Código Cuiabá 510340)
                 let mun = String(p.munic_res || '').trim();
                 let nomeMun = (mun === '510340') ? 'CUIABÁ (Sede)' : (mun ? `Cód IBGE: ${mun}` : 'Desconhecido');
                 cidades[nomeMun] = (cidades[nomeMun] || 0) + 1;
             });
 
-            // Atualiza Resumo Tela Principal
             $('#matQtd').text(formatNum.format(totalPartos));
             $('#matFat').text(formatBrl.format(fatPartos));
             $('#matTicket').text(totalPartos > 0 ? formatBrl.format(fatPartos / totalPartos) : 'R$ 0,00');
             $('#matPerm').text(totalPartos > 0 ? (diasPartos / totalPartos).toFixed(1) + ' dias' : '0 dias');
 
-            // Preenche Modal - Tabela de Tipos
             let htmlTipos = `<table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="border-b border-white/20 text-gray-400">
@@ -426,7 +435,6 @@
             htmlTipos += `</tbody></table>`;
             $('#modalTabelaPartos').html(arrTipos.length > 0 ? htmlTipos : '<p class="text-gray-500">Sem registros no período.</p>');
 
-            // Preenche Modal - Cidades
             let htmlCidades = '';
             let arrCid = Object.keys(cidades).map(k => ({nome: k, qtd: cidades[k]})).sort((a,b) => b.qtd - a.qtd);
             arrCid.slice(0, 10).forEach(c => {
@@ -468,7 +476,6 @@
             const corBarrasBorda = isClassic ? 'rgba(30, 64, 175, 1)' : 'rgba(2, 132, 199, 1)';
             const coresEspec = isClassic ? ['#1e40af', '#be185d', '#0f766e', '#b45309', '#94a3b8'] : ['#38bdf8', '#f472b6', '#2dd4bf', '#fbbf24', '#94a3b8'];
 
-            // GRÁFICO 1: ESPECIALIDADES (Agora em Barras Verticais como pedido!)
             if (chartEspecInst) chartEspecInst.destroy();
             const ctx1 = document.getElementById('chartEspec').getContext('2d');
             chartEspecInst = new Chart(ctx1, {
@@ -492,7 +499,6 @@
                 }
             });
 
-            // GRÁFICO 3: TOP 10
             if (chartTopProcsInst) chartTopProcsInst.destroy();
             const ctx3 = document.getElementById('chartTopProcs').getContext('2d');
             chartTopProcsInst = new Chart(ctx3, {
@@ -524,7 +530,7 @@
         }
 
         // ==============================================================
-        // TABELA DINÂMICA (COLVIS)
+        // TABELA DINÂMICA (AGORA COM NACIONALIDADE TRADUZIDA)
         // ==============================================================
         function montarTabelaColVis(dados) {
             if ($.fn.DataTable.isDataTable('#tabelaSih')) {
@@ -555,7 +561,10 @@
                             }
                             if (coluna === 'sexo') return d === '1' ? 'Masculino' : (d === '3' ? 'Feminino' : d);
                             if (coluna === 'morte') return d === 1 || d === '1' ? '<span class="text-red-500 font-bold">Sim</span>' : 'Não';
+                            
+                            // Tradutores Oficiais
                             if (coluna === 'proc_rea' || coluna === 'proc_solic') return getProcName(d);
+                            if (coluna === 'nacional') return getNacionalidadeName(d); // <-- Nacionalidade Traduzida!
                         }
                         return d;
                     }
@@ -594,7 +603,11 @@
                 let colunasStr = headers.map(key => {
                     let valor = row[key];
                     if (valor === null || valor === undefined) return '""';
+                    
+                    // Aplica as traduções no momento de baixar o Excel/CSV
                     if(key === 'proc_rea' || key === 'proc_solic') valor = getProcName(valor);
+                    if(key === 'nacional') valor = getNacionalidadeName(valor);
+
                     let strVal = String(valor).replace(/"/g, '""');
                     return `"${strVal}"`;
                 });
