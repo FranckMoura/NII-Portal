@@ -12,9 +12,14 @@
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -55,11 +60,11 @@
             color: white;
             outline: none;
             display: block;
-            text-transform: none; /* Remove caixa alta do placeholder */
+            text-transform: none; 
         }
         .col-filter-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.5); }
 
-        /* ColVis Menu */
+        /* Estilização para o Menu ColVis */
         div.dt-button-collection { background-color: #0f172a !important; border: 1px solid #38bdf8 !important; border-radius: 8px; padding: 15px; width: 600px !important; max-height: 500px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 5px; z-index: 9999;}
         div.dt-button-collection .dt-button { background: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; margin: 0 !important; border-radius: 6px !important; flex: 1 1 calc(33.333% - 5px); font-size: 0.7rem !important; text-align: left !important; padding: 5px 10px !important;}
         div.dt-button-collection .dt-button:hover { background: rgba(255,255,255,0.1) !important; }
@@ -122,8 +127,8 @@
                     <span class="text-xs uppercase text-blue-200 mr-2">Mês:</span>
                     <select id="mesFilter" onchange="carregarDados()"></select>
                 </div>
-                <button onclick="exportarCSV()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center transition border border-green-400">
-                    <i class="fas fa-file-csv mr-2"></i> CSV Completo
+                <button onclick="exportarCSV()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg flex items-center transition border border-indigo-400" title="Ignora os filtros da tela e exporta todas as 80 colunas da competência selecionada">
+                    <i class="fas fa-database mr-2"></i> Baixar DB Bruto
                 </button>
                 <a href="../frontend/modulo_gerencial.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
@@ -225,7 +230,7 @@
             
             <div class="bg-blue-900/30 border border-blue-500/30 p-3 rounded-lg text-sm text-blue-200 mb-4 flex items-center gap-3">
                 <i class="fas fa-info-circle text-2xl text-blue-400"></i>
-                <p><strong>Dica de Pesquisa Avançada:</strong> Use as caixas abaixo de cada título para filtrar colunas. Para buscar mais de um item ao mesmo tempo (ex: dois procedimentos diferentes), <strong>basta separar por vírgula</strong>.</p>
+                <p><strong>Dica de Pesquisa Avançada:</strong> Use as caixas abaixo de cada título para filtrar colunas. Para buscar mais de um item ao mesmo tempo (ex: dois procedimentos diferentes), <strong>basta separar por vírgula</strong>. Use os novos botões ao lado para exportar ou imprimir os resultados que você filtrou!</p>
             </div>
 
             <div id="loading" class="text-center py-10">
@@ -553,7 +558,7 @@
         }
 
         // ==============================================================
-        // TABELA DINÂMICA (AGORA COM FILTROS DE COLUNA E SELEÇÃO MÚLTIPLA)
+        // TABELA DINÂMICA (COLVIS E BOTÕES DE EXPORTAÇÃO FILTRADA)
         // ==============================================================
         function montarTabelaColVis(dados) {
             if ($.fn.DataTable.isDataTable('#tabelaSih')) {
@@ -613,35 +618,52 @@
                 scrollX: true, 
                 order: [[ todasAsColunas.indexOf('val_tot'), 'desc' ]], 
                 dom: '<"flex flex-wrap justify-between items-center mb-4"lBf>rtip', 
+                // AQUI ESTÃO OS NOVOS BOTÕES DE EXPORTAÇÃO
                 buttons: [
                     {
                         extend: 'colvis',
-                        text: '<i class="fas fa-columns mr-2"></i> Personalizar Colunas',
+                        text: '<i class="fas fa-columns mr-2"></i> Colunas',
                         className: 'bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-md text-sm border-none ml-4',
                         postfixButtons: [ 'colvisRestore' ]
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel mr-2"></i> Excel',
+                        title: () => 'Exportacao_SIH_' + $('#mesFilter').val() + '_' + $('#anoFilter').val(),
+                        className: 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-md text-sm border-none ml-2',
+                        exportOptions: { columns: ':visible', modifier: { search: 'applied' } }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: '<i class="fas fa-file-csv mr-2"></i> CSV',
+                        title: () => 'Exportacao_SIH_' + $('#mesFilter').val() + '_' + $('#anoFilter').val(),
+                        className: 'bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded-md text-sm border-none ml-2',
+                        exportOptions: { columns: ':visible', modifier: { search: 'applied' } }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print mr-2"></i> Imprimir',
+                        title: () => 'Relatório SIH/SUS - Mês ' + $('#mesFilter').val() + ' Ano ' + $('#anoFilter').val(),
+                        className: 'bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md text-sm border-none ml-2',
+                        exportOptions: { columns: ':visible', modifier: { search: 'applied' } }
                     }
                 ],
                 language: { 
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
                     buttons: { colvisRestore: "↺ Restaurar Padrão Inicial" }
                 },
-                // INJEÇÃO DE INTELIGÊNCIA: Filtros por Coluna + Regex Múltiplo (OR)
                 initComplete: function() {
                     this.api().columns().every(function() {
                         let column = this;
                         let title = $(column.header()).text();
                         
-                        // Cria o input de busca embaixo do título da coluna
                         let input = $('<input type="text" placeholder="Filtrar..." class="col-filter-input" />')
                             .appendTo($(column.header()))
                             .on('click', function(e) {
-                                e.stopPropagation(); // Impede que a tabela ordene ao clicar para digitar
+                                e.stopPropagation(); 
                             })
                             .on('keyup change clear', function() {
                                 let val = $(this).val();
-                                
-                                // MÁGICA: Divide por vírgula e transforma num "OR" do Regex
-                                // Ex: "cuiaba, varzea grande" vira "cuiaba|varzea grande"
                                 let searchRegex = val ? val.split(',').map(s => $.fn.dataTable.util.escapeRegex(s.trim())).join('|') : '';
                                 
                                 if (column.search() !== searchRegex) {
@@ -655,6 +677,7 @@
             $('#loading').hide(); $('#tabelaSih').show();
         }
 
+        // Função mantida para quem precisa baixar o DUMP completo do banco de dados (ignorando os filtros da tela)
         function exportarCSV() {
             if(rawDataGlobais.length === 0) return alert('Não há dados para exportar.');
             let headers = Object.keys(rawDataGlobais[0]).filter(k => k !== 'dados_completos');
@@ -675,7 +698,7 @@
             const link = document.createElement("a");
             link.setAttribute("href", url);
             let n = mesFilter.value === "TODOS" ? "Ano_Inteiro" : mesFilter.value;
-            link.setAttribute("download", `Banco_Completo_SIH_${$('#anoFilter').val()}_${n}.csv`);
+            link.setAttribute("download", `DUMP_SIH_${$('#anoFilter').val()}_${n}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
