@@ -529,7 +529,7 @@
             });
         }
 
-        // ==============================================================
+// ==============================================================
         // TABELA DINÂMICA (AGORA COM NACIONALIDADE TRADUZIDA)
         // ==============================================================
         function montarTabelaColVis(dados) {
@@ -544,9 +544,25 @@
             const colunasPadrao = ['n_aih', 'dt_inter', 'dt_saida', 'dias_perm', 'idade', 'sexo', 'diag_princ', 'proc_rea', 'val_tot'];
 
             let configuracaoColunas = todasAsColunas.map(coluna => {
+                // 1. Cria um título amigável base
+                let titulo = coluna.toUpperCase().replace(/_/g, ' ');
+                
+                // 2. Renomeia colunas específicas para o Menu do DataTables ficar "Padrão MS"
+                if (coluna === 'nacional') titulo = 'NACIONALIDADE';
+                if (coluna === 'n_aih') titulo = 'Nº AIH';
+                if (coluna === 'proc_rea') titulo = 'PROCEDIMENTO REALIZADO';
+                if (coluna === 'proc_solic') titulo = 'PROCEDIMENTO SOLICITADO';
+                if (coluna === 'dt_inter') titulo = 'DT. INTERNAÇÃO';
+                if (coluna === 'dt_saida') titulo = 'DT. SAÍDA';
+                if (coluna === 'dias_perm') titulo = 'PERMANÊNCIA (DIAS)';
+                if (coluna === 'val_tot') titulo = 'VALOR TOTAL (R$)';
+                if (coluna === 'val_sh') titulo = 'VALOR SH (R$)';
+                if (coluna === 'val_sp') titulo = 'VALOR SP (R$)';
+                if (coluna === 'diag_princ') titulo = 'CID PRINCIPAL';
+
                 return {
                     data: coluna,
-                    title: coluna.toUpperCase().replace(/_/g, ' '), 
+                    title: titulo, // Aplica o título limpo
                     visible: colunasPadrao.includes(coluna),
                     defaultContent: '-',
                     render: function(d, type, row) {
@@ -564,7 +580,7 @@
                             
                             // Tradutores Oficiais
                             if (coluna === 'proc_rea' || coluna === 'proc_solic') return getProcName(d);
-                            if (coluna === 'nacional') return getNacionalidadeName(d); // <-- Nacionalidade Traduzida!
+                            if (coluna === 'nacional') return getNacionalidadeName(d); // Tradução aplicada
                         }
                         return d;
                     }
