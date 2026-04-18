@@ -1,0 +1,37 @@
+SELECT 
+    TO_CHAR(fat.dt_competencia, 'MM/YYYY') AS mes_competencia,
+    it.cd_prestador AS cod_prestador,
+    it.cd_procedimento AS codigo_sus,
+    ps.ds_procedimento AS descricao_procedimento,
+    
+    -- Somatórios (Agrupamento)
+    SUM(it.qt_lancamento) AS quantidade_total,
+    SUM(NVL(it.vl_sh, 0)) AS total_receita_hospitalar,
+    SUM(NVL(it.vl_sp, 0)) AS total_receita_profissional,
+    SUM(NVL(it.vl_sh, 0) + NVL(it.vl_sp, 0)) AS valor_total_faturado
+
+FROM DBAMV.REG_FAT reg
+INNER JOIN DBAMV.ATENDIME ate ON ate.cd_atendimento = reg.cd_atendimento
+LEFT JOIN DBAMV.REMESSA_FATURA rem ON rem.cd_remessa = reg.cd_remessa
+LEFT JOIN DBAMV.FATURA fat ON fat.cd_fatura = rem.cd_fatura
+INNER JOIN DBAMV.ITREG_FAT it ON it.cd_reg_fat = reg.cd_reg_fat
+LEFT JOIN DBAMV.PROCEDIMENTO_SUS ps ON ps.cd_procedimento = it.cd_procedimento
+
+WHERE 
+    -- 1. Destrava a segurança da Empresa
+    ate.cd_multi_empresa = 1
+    
+    -- 2. Filtro de Período (Ex: Primeiro Trimestre)
+    AND fat.dt_competencia >= TO_DATE('01/01/2026', 'DD/MM/YYYY')
+    AND fat.dt_competencia <= TO_DATE('31/03/2026 23:59:59', 'DD/MM/YYYY HH24:MI:SS')
+
+GROUP BY 
+    TO_CHAR(fat.dt_competencia, 'MM/YYYY'),
+    it.cd_prestador,
+    it.cd_procedimento,
+    ps.ds_procedimento
+
+-- Ordena do procedimento que deu mais dinheiro para o que deu menos
+ORDER BY 
+    mes_competencia DESC, 
+    valor_total_faturado DESC;

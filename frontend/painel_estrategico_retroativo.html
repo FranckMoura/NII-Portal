@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoria de UTIs/UCIs - NII Analytics</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #071529 100%); color: white; min-height: 100vh; }
+        .cyber-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .kpi-value { font-size: 1.8rem; font-weight: 900; line-height: 1.1; }
+        .kpi-occ { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); margin-left: 8px;}
+        
+        .nii-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+        .nii-table thead th { padding: 12px; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #38bdf8; }
+        .nii-table tbody tr { background: rgba(255, 255, 255, 0.02); transition: 0.2s; }
+        .nii-table td { padding: 12px; font-size: 0.8rem; }
+        
+        .alert-row { border-left: 4px solid #f43f5e !important; }
+        .row-utin { border-left: 4px solid #f472b6 !important; }
+        .row-uti-adulto { border-left: 4px solid #3b82f6 !important; }
+        .row-ucinco { border-left: 4px solid #fbbf24 !important; }
+        .row-ucinca { border-left: 4px solid #f97316 !important; }
+
+        select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; outline: none; cursor: pointer;}
+        select option { background: #001528; color: white; }
+        
+        #loader { position: fixed; inset: 0; background: #001528; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="loader">
+        <i class="fas fa-microchip fa-spin text-4xl text-blue-400 mb-4"></i>
+        <p class="text-blue-200 animate-pulse font-bold uppercase tracking-widest text-xs">Calculando Competência SIGTAP...</p>
+    </div>
+
+    <div class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+        <div>
+            <h1 class="text-3xl font-black tracking-tighter uppercase text-white">Auditoria de UTIs/UCIs <span class="text-blue-400">| Malha Fina</span></h1>
+            <p class="text-blue-300 opacity-80 text-sm">Controle de Diárias, Ocupação e Faturamento por Competência Mensal</p>
+        </div>
+        <div class="flex flex-wrap gap-3 items-end cyber-card p-4">
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Mês</label>
+                <select id="filtro-mes" onchange="processarAuditoria()">
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Ano</label>
+                <select id="filtro-ano" onchange="processarAuditoria()">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Filtro de Setor</label>
+                <select id="filtro-setor" onchange="renderizarTabela()">
+                    <option value="TODOS">Todos os Setores</option>
+                    <option value="UTIN">Somente UTI Neonatal (UTIN)</option>
+                    <option value="UTI_ADULTO">Somente UTI Adulto</option>
+                    <option value="UCINCO">Somente UCINCO</option>
+                    <option value="UCINCA">Somente UCINCA</option>
+                </select>
+            </div>
+            <button onclick="processarAuditoria()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-bold transition"><i class="fas fa-sync-alt mr-2"></i></button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" id="kpi-container">
+            <div class="cyber-card p-5 border-b-4 border-pink-500" id="card-utin">
+                <div class="flex justify-between items-start">
+                    <p class="text-[10px] font-black text-pink-400 uppercase">Perda UTIN (18 Leitos)</p>
+                    <span class="kpi-occ text-pink-300" id="occ-utin">0% Ocup.</span>
+                </div>
+                <div class="kpi-value mt-2" id="kpi-utin">R$ 0,00</div>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-utin">0 diárias perdidas a R$ 720,00</p>
+            </div>
+            
+            <div class="cyber-card p-5 border-b-4 border-blue-500" id="card-uti-a">
+                <div class="flex justify-between items-start">
+                    <p class="text-[10px] font-black text-blue-400 uppercase">Perda UTI ADULTO (10 Leitos)</p>
+                    <span class="kpi-occ text-blue-300" id="occ-uti-a">0% Ocup.</span>
+                </div>
+                <div class="kpi-value mt-2" id="kpi-uti-a">R$ 0,00</div>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-uti-a">0 diárias perdidas a R$ 600,00</p>
+            </div>
+
+            <div class="cyber-card p-5 border-b-4 border-yellow-500" id="card-uci">
+                <div class="flex justify-between items-start">
+                    <p class="text-[10px] font-black text-yellow-500 uppercase">Perda UCINCO/A (7 Leitos)</p>
+                    <span class="kpi-occ text-yellow-300" id="occ-uci">0% Ocup.</span>
+                </div>
+                <div class="kpi-value mt-2" id="kpi-uci">R$ 0,00</div>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-uci">0 diárias perdidas a R$ 300,00</p>
+            </div>
+
+            <div class="cyber-card p-5 bg-rose-600/10 border-b-4 border-rose-600">
+                <p class="text-[10px] font-black text-rose-500 uppercase">Total Geral Não Faturado</p>
+                <div class="kpi-value text-rose-500 mt-2" id="kpi-total">R$ 0,00</div>
+                <p class="text-[10px] text-rose-300 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i> Potencial de Recuperação</p>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xs uppercase text-blue-400 tracking-widest"><i class="fas fa-search-dollar mr-2"></i> Pacientes da Competência</h3>
+                <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full text-gray-400" id="txt-contador">0 registros</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="nii-table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Unidade</th>
+                            <th>Leito</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th class="text-center">Diárias no Mês</th>
+                            <th>Status AIH</th>
+                            <th class="text-right">Impacto Financeiro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SB_URL = "https://voweywtzoldwfhgkniup.supabase.co/";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
+        const client = supabase.createClient(SB_URL, SB_KEY);
+
+        const formatBRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // Tabela de Preços Oficiais SIGTAP
+        const PRECOS = { 'UTIN': 720.00, 'UTI_ADULTO': 600.00, 'UCINCO': 300.00, 'UCINCA': 300.00, 'OUTROS': 0 };
+        
+        // Capacidade Instalada Hospital Beneficente Santa Helena
+        const CAPACIDADE = { 'UTIN': 18, 'UTI_ADULTO': 10, 'UCINCO': 4, 'UCINCA': 3 };
+
+        let todosDados = [];
+
+        $(document).ready(() => {
+            const hoje = new Date();
+            // Define o select para o mês passado (competência fechada)
+            let mesFechado = hoje.getMonth() === 0 ? 12 : hoje.getMonth();
+            let anoFechado = hoje.getMonth() === 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
+            
+            $('#filtro-mes').val(mesFechado);
+            $('#filtro-ano').val(anoFechado);
+            
+            processarAuditoria();
+        });
+
+        // IMPORTANTE: Como os leitos vão de 1 a 10/18, assumimos que no banco eles tenham um prefixo para diferenciar.
+        // Ajuste as "includes" abaixo conforme a nomenclatura exata que o SOULMV exportou.
+        function identificarSetor(leito) {
+            if (!leito) return 'OUTROS';
+            const strLeito = String(leito).toUpperCase();
+
+            // Lógica baseada no prefixo ou nome do leito
+            if (strLeito.includes('UTIN') || strLeito.includes('NEO')) return 'UTIN';
+            if (strLeito.includes('UTIA') || strLeito.includes('ADULTO')) return 'UTI_ADULTO';
+            if (strLeito.includes('UCINCO')) return 'UCINCO';
+            if (strLeito.includes('UCINCA') || strLeito.includes('CANGURU')) return 'UCINCA';
+            
+            // Fallback caso venha só número (Exemplo de fallback, requer ajuste fino no seu banco)
+            const num = parseInt(leito);
+            if (num >= 300 && num <= 318) return 'UTIN'; 
+            if (num >= 400 && num <= 410) return 'UTI_ADULTO';
+            
+            return 'OUTROS';
+        }
+
+        function parseDataMv(str) {
+            if (!str) return null;
+            const partes = str.split(' ')[0].split('.');
+            return new Date(partes[2], partes[1] - 1, partes[0]);
+        }
+
+        async function processarAuditoria() {
+            $('#loader').fadeIn();
+            
+            try {
+                // Em produção com milhares de dados, o ideal é filtrar as datas direto no backend/Supabase.
+                // Aqui trazemos tudo para calcular a intersecção de datas via JS perfeitamente.
+                const { data, error } = await client.from('atendimentos_mv').select('*');
+                if (error) throw error;
+                todosDados = data;
+                
+                renderizarTabela();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                $('#loader').fadeOut();
+            }
+        }
+
+        function renderizarTabela() {
+            const mes = parseInt($('#filtro-mes').val());
+            const ano = parseInt($('#filtro-ano').val());
+            const setorFiltro = $('#filtro-setor').val();
+            
+            // Define o primeiro e o último segundo da competência (Mês Fechado)
+            const dIni = new Date(ano, mes - 1, 1);
+            const dFim = new Date(ano, mes, 0, 23, 59, 59); // Dia 0 do próximo mês = último dia do mês atual
+            const diasNoMes = dFim.getDate();
+
+            let totais = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0, FINANCEIRO: 0 };
+            let diariasPerdidas = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0 };
+            let diariasOcupadasGeral = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0 }; // Para Taxa de Ocupação
+            let registrosMostrados = 0;
+            
+            const container = $('#corpo-tabela').empty();
+
+            todosDados.forEach(row => {
+                const setor = identificarSetor(row.leito_atual);
+                if (setor === 'OUTROS') return;
+
+                const dataInt = parseDataMv(row.data_internacao);
+                const dataAlta = row.data_alta ? parseDataMv(row.data_alta) : new Date();
+
+                // LÓGICA DE CORTE DA COMPETÊNCIA
+                if (dataInt <= dFim && dataAlta >= dIni) {
+                    
+                    // Ajusta as datas para não contar dias fora do mês selecionado
+                    const dataEntradaEfetiva = dataInt < dIni ? dIni : dataInt;
+                    const dataSaidaEfetiva = dataAlta > dFim ? dFim : dataAlta;
+                    
+                    const diffTime = Math.abs(dataSaidaEfetiva - dataEntradaEfetiva);
+                    let diasNoPeriodo = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diasNoPeriodo === 0) diasNoPeriodo = 1;
+
+                    // Acumula diárias GERAIS (Com ou Sem AIH) para o cálculo de ocupação real
+                    diariasOcupadasGeral[setor] += diasNoPeriodo;
+
+                    const temAih = row.numero_aih && row.numero_aih.trim() !== "";
+                    let perdaItem = 0;
+
+                    // Acumula Perdas (Apenas pacientes SEM AIH)
+                    if (!temAih) {
+                        perdaItem = diasNoPeriodo * PRECOS[setor];
+                        totais[setor] += perdaItem;
+                        diariasPerdidas[setor] += diasNoPeriodo;
+                        totais.FINANCEIRO += perdaItem;
+                    }
+
+                    // Renderização da Tabela (Aplica o Filtro de Setor da UI)
+                    if (setorFiltro !== "TODOS" && setor !== setorFiltro) return;
+
+                    registrosMostrados++;
+                    let classeCor = 'alert-row';
+                    if (setor === 'UTIN') classeCor = 'row-utin';
+                    if (setor === 'UTI_ADULTO') classeCor = 'row-uti-adulto';
+                    if (setor === 'UCINCO') classeCor = 'row-ucinco';
+                    if (setor === 'UCINCA') classeCor = 'row-ucinca';
+
+                    container.append(`
+                        <tr class="${!temAih ? classeCor : ''} ${temAih ? 'opacity-40' : ''}">
+                            <td class="font-bold">${row.nome_paciente}</td>
+                            <td class="text-[10px] font-bold text-blue-300">${setor.replace('_', ' ')}</td>
+                            <td class="text-center font-mono">#${row.leito_atual}</td>
+                            <td>${row.data_internacao.split(' ')[0]}</td>
+                            <td>${row.data_alta ? row.data_alta.split(' ')[0] : 'Em Aberto'}</td>
+                            <td class="text-center font-black text-blue-400">${diasNoPeriodo}</td>
+                            <td>${temAih ? `<span class="text-emerald-500 font-mono text-[10px]">${row.numero_aih}</span>` : '<span class="text-rose-500 font-black">PENDENTE</span>'}</td>
+                            <td class="text-right font-mono font-bold ${perdaItem > 0 ? 'text-rose-400' : 'text-gray-600'}">${formatBRL.format(perdaItem)}</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            // CÁLCULO DAS TAXAS DE OCUPAÇÃO (Diárias Utilizadas / Capacidade Total Máxima do Mês)
+            const calcularOcupacao = (setor) => {
+                const capacidadeMaxima = CAPACIDADE[setor] * diasNoMes;
+                if (capacidadeMaxima === 0) return 0;
+                let taxa = (diariasOcupadasGeral[setor] / capacidadeMaxima) * 100;
+                return taxa > 100 ? 100 : taxa; // Limita a 100% caso haja erro de cadastro no banco
+            };
+
+            const occUTIN = calcularOcupacao('UTIN').toFixed(1);
+            const occUTIA = calcularOcupacao('UTI_ADULTO').toFixed(1);
+            
+            // Unindo UCINCO e UCINCA no KPI (Total de 7 leitos)
+            const capacidadeUCI = (CAPACIDADE.UCINCO + CAPACIDADE.UCINCA) * diasNoMes;
+            const occUCI = capacidadeUCI > 0 ? (((diariasOcupadasGeral.UCINCO + diariasOcupadasGeral.UCINCA) / capacidadeUCI) * 100).toFixed(1) : 0;
+
+            // Atualiza Interface (KPIs e Ocupação)
+            $('#occ-utin').text(`${occUTIN}% Ocup.`);
+            $('#kpi-utin').text(formatBRL.format(totais.UTIN));
+            $('#label-utin').text(`${diariasPerdidas.UTIN} diárias perdidas a R$ 720,00`);
+
+            $('#occ-uti-a').text(`${occUTIA}% Ocup.`);
+            $('#kpi-uti-a').text(formatBRL.format(totais.UTI_ADULTO));
+            $('#label-uti-a').text(`${diariasPerdidas.UTI_ADULTO} diárias perdidas a R$ 600,00`);
+
+            $('#occ-uci').text(`${occUCI}% Ocup.`);
+            $('#kpi-uci').text(formatBRL.format(totais.UCINCO + totais.UCINCA));
+            $('#label-uci').text(`${diariasPerdidas.UCINCO + diariasPerdidas.UCINCA} diárias perdidas a R$ 300,00`);
+
+            $('#kpi-total').text(formatBRL.format(totais.FINANCEIRO));
+            $('#txt-contador').text(`${registrosMostrados} registros mostrados`);
+
+            // Efeito visual de opacidade para focar no setor escolhido
+            if (setorFiltro === 'UTIN') { $('#card-uti-a, #card-uci').addClass('opacity-30'); $('#card-utin').removeClass('opacity-30'); }
+            else if (setorFiltro === 'UTI_ADULTO') { $('#card-utin, #card-uci').addClass('opacity-30'); $('#card-uti-a').removeClass('opacity-30'); }
+            else if (setorFiltro.includes('UCI')) { $('#card-utin, #card-uti-a').addClass('opacity-30'); $('#card-uci').removeClass('opacity-30'); }
+            else { $('.cyber-card').removeClass('opacity-30'); }
+        }
+    </script>
+</body>
+</html>

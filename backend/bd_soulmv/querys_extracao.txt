@@ -1,0 +1,61 @@
+SELECT 
+    P.CD_PACIENTE AS codigo_mv,
+    P.NM_PACIENTE AS nome_paciente,
+    P.NM_SOCIAL_PACIENTE AS nome_social,
+    P.NR_CPF AS cpf,
+    P.NR_CNS AS cns,
+    P.DT_NASCIMENTO AS data_nascimento,
+    P.TP_SEXO AS sexo,
+    P.NM_MAE AS nome_mae,
+    -- TO_CHAR transforma o número em texto para não dar erro na junção
+    NVL(TO_CHAR(P.NR_DDD_CELULAR), '') || NVL(TO_CHAR(P.NR_CELULAR), '') AS celular,
+    P.EMAIL AS email,
+    P.DS_ENDERECO || ', ' || NVL(TO_CHAR(P.NR_ENDERECO), 'S/N') AS endereco_completo,
+    P.NM_BAIRRO AS bairro,
+    P.NR_CEP AS cep,
+    P.CD_CIDADE AS codigo_ibge_cidade
+FROM DBAMV.PACIENTE P
+WHERE P.DT_CADASTRO >= TO_DATE('01/01/2023', 'DD/MM/YYYY') 
+   OR P.DT_ULTIMA_ATUALIZACAO >= TO_DATE('01/01/2023', 'DD/MM/YYYY');
+
+
+
+SELECT 
+    A.CD_ATENDIMENTO AS atendimento_mv,
+    A.CD_PACIENTE AS codigo_mv_paciente,
+    P.NM_PACIENTE AS nome_paciente,
+    A.DT_ATENDIMENTO AS data_internacao,
+    A.HR_ATENDIMENTO AS hora_internacao,
+    A.DT_ALTA AS data_alta,
+    A.CD_LEITO AS leito_atual,
+    A.NR_AUTORIZACAO_GESTOR AS numero_aih, -- A Chave de Ouro para cruzar com SISREG!
+    A.CD_CID AS cid_principal,
+    A.CD_PRESTADOR AS medico_responsavel,
+    A.SN_INTERNADO AS status_internado, -- 'S' ou 'N'
+    A.SN_OBITO AS indicativo_obito
+FROM DBAMV.ATENDIME A
+INNER JOIN DBAMV.PACIENTE P ON P.CD_PACIENTE = A.CD_PACIENTE
+-- Filtro: 1 é geralmente o código do convênio SUS no MV (verifique o código exato no seu hospital)
+WHERE A.CD_CONVENIO = 1 
+  AND A.TP_ATENDIMENTO = 'I' -- 'I' para Internação
+  AND A.DT_ATENDIMENTO >= TO_DATE('01/01/2024', 'DD/MM/YYYY');
+
+
+
+SELECT 
+    V.CD_ATENDIMENTO AS atendimento_mv,
+    V.CD_PACIENTE AS codigo_mv_paciente,
+    V.NM_PACIENTE AS nome_paciente,
+    V.DT_ATENDIMENTO AS data_atendimento,
+    V.DS_CON_PLA AS plano_sus,
+    V.TP_ATENDIMENTO AS tipo_atend, -- 'A' (Ambulatório), 'U' (Urgência)
+    V.NM_PRESTADOR AS medico_executante,
+    V.DS_DES_ATE AS destino_alta
+FROM DBAMV.V_R_ATENDIMENTOS_CONVENIO V
+WHERE V.CD_CONVENIO = 1 -- Convênio SUS
+  AND V.DT_ATENDIMENTO BETWEEN TO_DATE('01/01/2024', 'DD/MM/YYYY') AND TO_DATE('31/01/2024', 'DD/MM/YYYY');
+
+
+
+
+ORA-01722: invalid number

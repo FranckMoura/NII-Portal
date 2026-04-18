@@ -59,6 +59,7 @@
         .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
         .icon-teal { color: #2dd4bf; text-shadow: 0 0 10px rgba(45,212,191,0.5); border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.1); }
         .icon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59,130,246,0.5); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
+        .icon-rose { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); }
 
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
@@ -79,6 +80,7 @@
         body.theme-classic .logo-box { background: white; border: 1px solid #e2e8f0; }
         body.theme-classic .icon-teal { background: #ccfbf1 !important; color: #0f766e !important; border: none !important; text-shadow: none !important; }
         body.theme-classic .icon-blue { background: #dbeafe !important; color: #1d4ed8 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-rose { background: #ffe4e6 !important; color: #e11d48 !important; border: none !important; text-shadow: none !important; }
     </style>
 </head>
 <body>
@@ -107,6 +109,14 @@
                 </div>
             </a>
 
+            <a href="painel_estrategico_retroativo.html" class="menu-card">
+                <div class="icon-box icon-rose"><i class="fas fa-search-dollar"></i></div>
+                <div class="card-content">
+                    <h3>Auditoria Retroativa (Malha Fina)</h3>
+                    <p>Monitoramento de ocupação, diárias e AIHs não faturadas em UTIs.</p>
+                </div>
+            </a>
+
             <a href="dashboard.html" class="menu-card">
                 <div class="icon-box icon-blue"><i class="fas fa-chart-pie"></i></div>
                 <div class="card-content">
@@ -125,7 +135,7 @@
         </div>
     </main>
 
-    <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura </p></footer>
+    <footer><p>&copy; 2026 Hospital Beneficente Santa Helena - Desenvolvido por Franck Moura</p></footer>
 
     <script>
         function toggleTheme() {

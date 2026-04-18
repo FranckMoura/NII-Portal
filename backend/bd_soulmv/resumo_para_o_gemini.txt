@@ -1,0 +1,344 @@
+=== RESUMO DOS ARQUIVOS EXTRAÍDOS DO SOULMV ===
+
+=========================================
+📁 ARQUIVO CSV: ATENDIMENDO.CSV
+=========================================
+Total de linhas brutas: 22603
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""ATENDIMENTO_MV"",=""CODIGO_MV_PACIENTE"",=""NOME_PACIENTE"",=""DATA_INTERNACAO"",=""HORA_INTERNACAO"",=""DATA_ALTA"",=""LEITO_ATUAL"",=""NUMERO_AIH"",=""CID_PRINCIPAL"",=""MEDICO_RESPONSAVEL"",=""STATUS_INTERNADO"",=""INDICATIVO_OBITO"""
+"13015,7650,=""AARON FERREIRA DE OLIVEIRA "",17.02.2025 00:00:00,17.02.2025 17:59:00,18.02.2025 00:00:00,327,="""",="""",287,=""N"",="""""
+"70308,30730,=""ABDONILDA DA COSTA CAMPOS "",16.12.2025 00:00:00,16.12.2025 09:22:02,17.12.2025 00:00:00,40,="""",=""K802"",331,=""N"",=""N"""
+"50216,24105,=""ABEL HENDRICKS RODRIGUES DA SILVA"",09.09.2025 00:00:00,09.09.2025 06:39:00,10.09.2025 00:00:00,286,="""",="""",280,=""N"",="""""
+"86242,37843,=""ABENILSON THEODORO LOPES DE SOUZA"",07.03.2026 00:00:00,07.03.2026 15:42:00,08.03.2026 00:00:00,340,="""",="""",288,=""N"",="""""
+
+>>> ÚLTIMAS 5 LINHAS:
+"39462,18342,=""KAMILA SOUSA PORTO"",11.07.2025 00:00:00,11.07.2025 21:14:55,13.07.2025 00:00:00,77,="""",=""O230"",325,=""N"",=""N"""
+"40217,18342,=""KAMILA SOUSA PORTO"",16.07.2025 00:00:00,01.07.2025 03:06:00,18.07.2025 00:00:00,103,="""",=""O11"",776,=""N"",=""N"""
+"39200,6765,=""KAMILA THAYNE GONCALVES CAMARGO"",10.07.2025 00:00:00,10.07.2025 10:30:33,11.07.2025 00:00:00,97,="""",=""O800"",367,=""N"",=""N"""
+"25698,12825,=""KAMILA VITORIA DE ALMEIDA"",26.04.2025 00:00:00,26.04.2025 21:51:59,28.04.2025 00:00:00,114,="""",=""O800"",365,=""N"",=""N"""
+"75689,33772,=""KAMILA VITORIA PEREIRA DOS SANTOS"",14.01.2026 00:00:00,14.01.2026 15:25:17,16.01.2026 00:00:00,111,="""",=""O200"",359,=""N"",=""N"""
+
+
+=========================================
+📁 ARQUIVO CSV: PACIENTE.CSV
+=========================================
+Total de linhas brutas: 39401
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""CODIGO_MV"",=""NOME_PACIENTE"",=""NOME_SOCIAL"",=""CPF"",=""CNS"",=""DATA_NASCIMENTO"",=""SEXO"",=""NOME_MAE"",=""CELULAR"",=""EMAIL"",=""ENDERECO_COMPLETO"",=""BAIRRO"",=""CEP"",=""CODIGO_IBGE_CIDADE"""
+"4,=""URGENCIA TESTE"",="""",="""",=""721005905350008"",26.07.1989 02:00:00,=""F"",=""MAE DA URGENCIA TESTE"",="""",="""",""AVENIDA TENENTE-CORONEL DUARTE DE 2 A 790, 2"",=""CENTRO-NORTE"",=""78005500"",2696"
+"9,=""PACIENTE TESTE"",=""TESTE"",="""",=""216951461450005"",15.08.1983 02:00:00,=""F"",=""ZILDA"",="""",="""",""AVENIDA MARECHAL AC NOBRES CLIQUE E RETIRE, 1021"",=""CENTRO"",=""78470000"",19135"
+"11,=""PAULO CEZAR MACIEL"",="""",=""46831753043"",=""289950339150005"",11.08.1983 02:00:00,=""M"",=""MAFIIA"",="""",="""",""AVENIDA NOVE DE JULHO DE 1 A 1299, 1021"",=""BELA VISTA"",=""01313000"",9627"
+"24,=""TESTE MARIA PAULA "",="""",=""94282328665"",=""160562941250005"",25.11.2000 02:00:00,=""M"",=""MARIA"",="""",="""",""RUA DEPUTADO EMANUEL PINHEIRO DA SILVA PRIMO DE 105 A 99999, 2"",=""CRISTO REI"",=""78118015"",2509"
+
+>>> ÚLTIMAS 5 LINHAS:
+"39187,=""ADLAYNE MARIA FIGUEIREDO"",="""",=""01648445110"",=""704308547821796"",12.10.1985 02:00:00,=""F"",=""JOCINEI MARIA MOREIRA FIGUEIREDO"",=""119954909107"",="""",""RUA SAO VICENTE DE PAULA, 0"",=""PAZ"",=""78485000"",18989"
+"39195,=""MARIA DAVINA NUNES DE CARVALHO"",="""",=""20779380134"",=""704303544578195"",29.12.1955 02:00:00,=""F"",=""ADELINA NUNES DE ALMEIDA"",=""65999311032"",="""",""AVENIDA MRIO AUGUSTO VIEIRA, 269"",=""MORADA DO OURO"",=""78053734"",2696"
+"39202,=""EVA DOMINGAS DE GODOY"",="""",=""39524981149"",=""700506739788057"",18.12.1955 02:00:00,=""F"",=""MATILDES FERREIRA GODOY"",=""65996434188"",="""",""RUA MIL E QUINHENTOS, 21"",=""JARDIM IMPERIAL"",=""78075780"",2696"
+"39206,=""ORLANDO TAMBELLINO JUNIOR"",="""",=""68212585891"",=""705204476029373"",17.04.1952 02:00:00,=""M"",=""LAZARA BRAZ TAMBERLLINI"",=""65996642715"",="""",""RUA PIXINGUINHA, 0"",=""COSTA VERDE"",=""78128344"",2509"
+"39207,=""MARIA DE FATIMA DA SILVA"",="""",=""72987006187"",=""709003810587514"",11.04.1968 02:00:00,=""F"",=""MARIA DA PENHA"",=""65996494265"",="""",""RUA 8A, 0"",=""JARDIM RIO PRETO"",=""78306054"",20012"
+
+
+=========================================
+📜 ARQUIVO DE QUERY: querys SoulMV.txt
+=========================================
+SELECT 
+    fat.dt_competencia AS mes_competencia,
+    ate.cd_atendimento AS atendimento,
+    reg.nr_guia AS numero_aih,
+    pac.nm_paciente AS paciente,
+    TO_CHAR(ate.dt_atendimento, 'DD/MM/YYYY') AS data_internacao,
+    TO_CHAR(ate.dt_alta, 'DD/MM/YYYY') AS data_alta,
+    
+    -- Dados do Procedimento / Exame / OPME
+    it.cd_procedimento AS codigo_sus,
+    ps.ds_procedimento AS descricao_procedimento,
+    it.qt_lancamento AS quantidade,
+    
+    -- Quem executou (Pode ser o hospital, um médico ou clínica terceirizada)
+    it.cd_prestador AS cod_prestador_executante,
+    
+    -- Divisão Financeira Oficial do SUS (SH = Hospital | SP = Profissional)
+    NVL(it.vl_sh, 0) AS valor_hospitalar,
+    NVL(it.vl_sp, 0) AS valor_profissional,
+    (NVL(it.vl_sh, 0) + NVL(it.vl_sp, 0)) AS valor_total_item
+
+FROM DBAMV.REG_FAT reg
+INNER JOIN DBAMV.ATENDIME ate ON ate.cd_atendimento = reg.cd_atendimento
+INNER JOIN DBAMV.PACIENTE pac ON pac.cd_paciente = ate.cd_paciente
+LEFT JOIN DBAMV.REMESSA_FATURA rem ON rem.cd_remessa = reg.cd_remessa
+LEFT JOIN DBAMV.FATURA fat ON fat.cd_fatura = rem.cd_fatura
+
+-- Tabela Filha com os Detalhes Financeiros e Clínicos
+INNER JOIN DBAMV.ITREG_FAT it ON it.cd_reg_fat = reg.cd_reg_fat
+LEFT JOIN DBAMV.PROCEDIMENTO_SUS ps ON ps.cd_procedimento = it.cd_procedimento
+
+WHERE 
+    -- 1. Destrava a segurança informando a empresa do Hospital
+    ate.cd_multi_empresa = 1
+    
+    -- 2. Filtra a competência que você quer extrair (Ex: Janeiro a Março)
+    AND fat.dt_competencia >= TO_DATE('01/01/2026', 'DD/MM/YYYY')
+    AND fat.dt_competencia <= TO_DATE('31/03/2026 23:59:59', 'DD/MM/YYYY HH24:MI:SS')
+    
+    -- Opcional: Se quiser filtrar apenas contas já FECHADAS e prontas para envio
+    -- AND reg.sn_fechada = 'S'
+    
+ORDER BY 
+    fat.dt_competencia DESC, 
+    pac.nm_paciente ASC;
+
+
+=========================================
+📜 ARQUIVO DE QUERY: querys_extracao.txt
+=========================================
+SELECT 
+    P.CD_PACIENTE AS codigo_mv,
+    P.NM_PACIENTE AS nome_paciente,
+    P.NM_SOCIAL_PACIENTE AS nome_social,
+    P.NR_CPF AS cpf,
+    P.NR_CNS AS cns,
+    P.DT_NASCIMENTO AS data_nascimento,
+    P.TP_SEXO AS sexo,
+    P.NM_MAE AS nome_mae,
+    -- TO_CHAR transforma o número em texto para não dar erro na junção
+    NVL(TO_CHAR(P.NR_DDD_CELULAR), '') || NVL(TO_CHAR(P.NR_CELULAR), '') AS celular,
+    P.EMAIL AS email,
+    P.DS_ENDERECO || ', ' || NVL(TO_CHAR(P.NR_ENDERECO), 'S/N') AS endereco_completo,
+    P.NM_BAIRRO AS bairro,
+    P.NR_CEP AS cep,
+    P.CD_CIDADE AS codigo_ibge_cidade
+FROM DBAMV.PACIENTE P
+WHERE P.DT_CADASTRO >= TO_DATE('01/01/2023', 'DD/MM/YYYY') 
+   OR P.DT_ULTIMA_ATUALIZACAO >= TO_DATE('01/01/2023', 'DD/MM/YYYY');
+
+
+
+SELECT 
+    A.CD_ATENDIMENTO AS atendimento_mv,
+    A.CD_PACIENTE AS codigo_mv_paciente,
+    P.NM_PACIENTE AS nome_paciente,
+    A.DT_ATENDIMENTO AS data_internacao,
+    A.HR_ATENDIMENTO AS hora_internacao,
+    A.DT_ALTA AS data_alta,
+    A.CD_LEITO AS leito_atual,
+    A.NR_AUTORIZACAO_GESTOR AS numero_aih, -- A Chave de Ouro para cruzar com SISREG!
+    A.CD_CID AS cid_principal,
+    A.CD_PRESTADOR AS medico_responsavel,
+    A.SN_INTERNADO AS status_internado, -- 'S' ou 'N'
+    A.SN_OBITO AS indicativo_obito
+FROM DBAMV.ATENDIME A
+INNER JOIN DBAMV.PACIENTE P ON P.CD_PACIENTE = A.CD_PACIENTE
+-- Filtro: 1 é geralmente o código do convênio SUS no MV (verifique o código exato no seu hospital)
+WHERE A.CD_CONVENIO = 1 
+  AND A.TP_ATENDIMENTO = 'I' -- 'I' para Internação
+  AND A.DT_ATENDIMENTO >= TO_DATE('01/01/2024', 'DD/MM/YYYY');
+
+
+
+SELECT 
+    V.CD_ATENDIMENTO AS atendimento_mv,
+    V.CD_PACIENTE AS codigo_mv_paciente,
+    V.NM_PACIENTE AS nome_paciente,
+    V.DT_ATENDIMENTO AS data_atendimento,
+    V.DS_CON_PLA AS plano_sus,
+    V.TP_ATENDIMENTO AS tipo_atend, -- 'A' (Ambulatório), 'U' (Urgência)
+    V.NM_PRESTADOR AS medico_executante,
+    V.DS_DES_ATE AS destino_alta
+FROM DBAMV.V_R_ATENDIMENTOS_CONVENIO V
+WHERE V.CD_CONVENIO = 1 -- Convênio SUS
+  AND V.DT_ATENDIMENTO BETWEEN TO_DATE('01/01/2024', 'DD/MM/YYYY') AND TO_DATE('31/01/2024', 'DD/MM/YYYY');
+
+
+
+
+ORA-01722: invalid number
+
+
+
+=========================================
+📜 ARQUIVO DE QUERY: superquert_analitica.txt
+=========================================
+SELECT 
+    TO_CHAR(fat.dt_competencia, 'MM/YYYY') AS mes_competencia,
+    ate.cd_atendimento AS atendimento,
+    reg.nr_guia AS numero_aih,
+    pac.nm_paciente AS paciente,
+    TO_CHAR(ate.dt_atendimento, 'DD/MM/YYYY') AS data_internacao,
+    TO_CHAR(ate.dt_alta, 'DD/MM/YYYY') AS data_alta,
+    
+    it.cd_prestador AS cod_prestador_executante,
+    it.cd_procedimento AS codigo_sus,
+    ps.ds_procedimento AS descricao_procedimento,
+    
+    it.qt_lancamento AS qtd,
+    NVL(it.vl_sh, 0) AS valor_hospitalar,
+    NVL(it.vl_sp, 0) AS valor_profissional,
+    (NVL(it.vl_sh, 0) + NVL(it.vl_sp, 0)) AS valor_total_item
+
+FROM DBAMV.REG_FAT reg
+INNER JOIN DBAMV.ATENDIME ate ON ate.cd_atendimento = reg.cd_atendimento
+INNER JOIN DBAMV.PACIENTE pac ON pac.cd_paciente = ate.cd_paciente
+LEFT JOIN DBAMV.REMESSA_FATURA rem ON rem.cd_remessa = reg.cd_remessa
+LEFT JOIN DBAMV.FATURA fat ON fat.cd_fatura = rem.cd_fatura
+INNER JOIN DBAMV.ITREG_FAT it ON it.cd_reg_fat = reg.cd_reg_fat
+LEFT JOIN DBAMV.PROCEDIMENTO_SUS ps ON ps.cd_procedimento = it.cd_procedimento
+
+WHERE 
+    -- 1. Destrava a segurança da Empresa
+    ate.cd_multi_empresa = 1
+    
+    -- 2. Filtro de Período
+    AND fat.dt_competencia >= TO_DATE('01/01/2026', 'DD/MM/YYYY')
+    AND fat.dt_competencia <= TO_DATE('31/03/2026 23:59:59', 'DD/MM/YYYY HH24:MI:SS')
+
+-- Ordena cronologicamente e organiza os exames do mesmo paciente juntos
+ORDER BY 
+    fat.dt_competencia DESC, 
+    pac.nm_paciente ASC, 
+    it.cd_procedimento ASC;
+
+
+=========================================
+📜 ARQUIVO DE QUERY: superquert_sintetica.txt
+=========================================
+SELECT 
+    TO_CHAR(fat.dt_competencia, 'MM/YYYY') AS mes_competencia,
+    it.cd_prestador AS cod_prestador,
+    it.cd_procedimento AS codigo_sus,
+    ps.ds_procedimento AS descricao_procedimento,
+    
+    -- Somatórios (Agrupamento)
+    SUM(it.qt_lancamento) AS quantidade_total,
+    SUM(NVL(it.vl_sh, 0)) AS total_receita_hospitalar,
+    SUM(NVL(it.vl_sp, 0)) AS total_receita_profissional,
+    SUM(NVL(it.vl_sh, 0) + NVL(it.vl_sp, 0)) AS valor_total_faturado
+
+FROM DBAMV.REG_FAT reg
+INNER JOIN DBAMV.ATENDIME ate ON ate.cd_atendimento = reg.cd_atendimento
+LEFT JOIN DBAMV.REMESSA_FATURA rem ON rem.cd_remessa = reg.cd_remessa
+LEFT JOIN DBAMV.FATURA fat ON fat.cd_fatura = rem.cd_fatura
+INNER JOIN DBAMV.ITREG_FAT it ON it.cd_reg_fat = reg.cd_reg_fat
+LEFT JOIN DBAMV.PROCEDIMENTO_SUS ps ON ps.cd_procedimento = it.cd_procedimento
+
+WHERE 
+    -- 1. Destrava a segurança da Empresa
+    ate.cd_multi_empresa = 1
+    
+    -- 2. Filtro de Período (Ex: Primeiro Trimestre)
+    AND fat.dt_competencia >= TO_DATE('01/01/2026', 'DD/MM/YYYY')
+    AND fat.dt_competencia <= TO_DATE('31/03/2026 23:59:59', 'DD/MM/YYYY HH24:MI:SS')
+
+GROUP BY 
+    TO_CHAR(fat.dt_competencia, 'MM/YYYY'),
+    it.cd_prestador,
+    it.cd_procedimento,
+    ps.ds_procedimento
+
+-- Ordena do procedimento que deu mais dinheiro para o que deu menos
+ORDER BY 
+    mes_competencia DESC, 
+    valor_total_faturado DESC;
+
+
+=========================================
+📁 ARQUIVO CSV: tabelas.CSV
+=========================================
+Total de linhas brutas: 12055
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""ESQUEMA"",=""TABELA"",=""COLUNA"",=""TIPO_DADO"",=""TAMANHO"""
+"=""DBAMV"",=""AGENDA_TURMA_PACIENTE"",=""CD_AGENDA_TURMA"",=""NUMBER"",22"
+"=""DBAMV"",=""AGENDA_TURMA_PACIENTE"",=""CD_PACIENTE"",=""NUMBER"",22"
+"=""DBAMV"",=""AGENDA_TURMA_PACIENTE"",=""NM_PACIENTE"",=""VARCHAR2"",200"
+"=""DBAMV"",=""AGENDA_TURMA_PACIENTE"",=""CD_CONVENIO"",=""NUMBER"",22"
+
+>>> ÚLTIMAS 5 LINHAS:
+"=""DBAMV"",=""V_SUS_GUIAS_FATURADAS"",=""NM_PACIENTE"",=""VARCHAR2"",4000"
+"=""DBAMV"",=""V_SUS_GUIAS_FATURADAS"",=""CD_PROCEDIMENTO"",=""VARCHAR2"",10"
+"=""DBAMV"",=""V_SUS_GUIAS_FATURADAS"",=""DS_PROCEDIMENTO"",=""VARCHAR2"",4000"
+"=""DBAMV"",=""V_SUS_GUIAS_FATURADAS"",=""SN_FECHADA"",=""VARCHAR2"",1"
+"=""DBAMV"",=""V_SUS_GUIAS_FATURADAS"",=""SN_IMPRESSA"",=""VARCHAR2"",1"
+
+
+=========================================
+📁 ARQUIVO CSV: tabelas_faturamento.CSV
+=========================================
+Total de linhas brutas: 350
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""NOME_TABELA"",=""DESCRICAO_TABELA"",=""NOME_COLUNA"",=""TIPO_DADO"",=""TAMANHO"""
+"=""FATURA"",="""",=""CD_FATURA"",=""NUMBER"",22"
+"=""FATURA"",="""",=""DS_FATURA"",=""VARCHAR2"",40"
+"=""FATURA"",="""",=""CD_CONVENIO"",=""NUMBER"",22"
+"=""FATURA"",="""",=""DT_COMPETENCIA"",=""DATE"",7"
+
+>>> ÚLTIMAS 5 LINHAS:
+"=""REMESSA_FATURA"",="""",=""DS_PROTOCOLO_ENVIO_TISS"",=""VARCHAR2"",100"
+"=""REMESSA_FATURA"",="""",=""DS_PROTOCOLO_RECEB_TISS"",=""VARCHAR2"",100"
+"=""REMESSA_FATURA"",="""",=""CD_TIPO_ARQ_CTA_ENVIO"",=""NUMBER"",22"
+"=""REMESSA_FATURA"",="""",=""SN_FATURAMENTO_MASSIVO"",=""VARCHAR2"",1"
+"=""REMESSA_FATURA"",="""",=""SN_INTEGRADO_PIRAMIDE"",=""VARCHAR2"",1"
+
+
+=========================================
+📁 ARQUIVO CSV: tabelas_faturamento_analitica.CSV
+=========================================
+Total de linhas brutas: 55088
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""MES_COMPETENCIA"",=""ATENDIMENTO"",=""NUMERO_AIH"",=""PACIENTE"",=""DATA_INTERNACAO"",=""DATA_ALTA"",=""COD_PRESTADOR_EXECUTANTE"",=""CODIGO_SUS"",=""DESCRICAO_PROCEDIMENTO"",=""QTD"",=""VALOR_HOSPITALAR"",=""VALOR_PROFISSIONAL"",=""VALOR_TOTAL_ITEM"""
+"=""03/2026"",87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",,="""",="""",1,0,0,0"
+"=""03/2026"",87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",,="""",="""",1,0,0,0"
+"=""03/2026"",87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",,="""",="""",1,0,0,0"
+"=""03/2026"",87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",,="""",="""",1,0,0,0"
+
+>>> ÚLTIMAS 5 LINHAS:
+"=""01/2026"",70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",277,=""0303160055"",=""TRATAMENTO DE TRANSTORNOS RELACIONADOS C/ A DURACAO DA GESTACAO E C/ O CRESCIMENTO FETAL"",1,705.36,72.66,778.02"
+"=""01/2026"",70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",,=""0702040118"",=""CATETER DE ACESSO VENOSO CENTRAL POR INSERC?O PERIFERICA (PICC)"",1,243.52,0,243.52"
+"=""01/2026"",70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",1,=""0802010024"",=""DIARIA DE ACOMPANHANTE CRIANCA/ADOLESCENTE C/PERNOITE"",1,8,0,8"
+"=""01/2026"",70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",1,=""0802010024"",=""DIARIA DE ACOMPANHANTE CRIANCA/ADOLESCENTE C/PERNOITE"",1,8,0,8"
+"=""01/2026"",70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",1,=""0802010121"",=""DIARIA DE UNIDADE DE TERAPIA INTENSIVA NEONATAL - UTIN (TIPO II)"",20,12240,2160,14400"
+
+
+=========================================
+📁 ARQUIVO CSV: tabelas_faturamento_detalhada.CSV
+=========================================
+Total de linhas brutas: 55088
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""MES_COMPETENCIA"",=""ATENDIMENTO"",=""NUMERO_AIH"",=""PACIENTE"",=""DATA_INTERNACAO"",=""DATA_ALTA"",=""CODIGO_SUS"",=""DESCRICAO_PROCEDIMENTO"",=""QUANTIDADE"",=""COD_PRESTADOR_EXECUTANTE"",=""VALOR_HOSPITALAR"",=""VALOR_PROFISSIONAL"",=""VALOR_TOTAL_ITEM"""
+"01.03.2026 12:56:00,87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",="""",="""",1,,0,0,0"
+"01.03.2026 12:56:00,87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",="""",="""",1,,0,0,0"
+"01.03.2026 12:56:00,87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",="""",="""",1,,0,0,0"
+"01.03.2026 12:56:00,87616,="""",=""EDINA APARECIDA PEREIRA"",=""14/03/2026"",=""16/03/2026"",="""",="""",1,,0,0,0"
+
+>>> ÚLTIMAS 5 LINHAS:
+"01.01.2026 00:00:00,70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",=""0202020380"",=""HEMOGRAMA COMPLETO"",1,677,0,0,0"
+"01.01.2026 00:00:00,70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",=""0202030083"",=""DETERMINAC?O QUANTITATIVA DE PROTEINA C REATIVA"",1,677,0,0,0"
+"01.01.2026 00:00:00,70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",=""0202080153"",=""HEMOCULTURA"",1,677,0,0,0"
+"01.01.2026 00:00:00,70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",=""0202010201"",=""DOSAGEM DE BILIRRUBINA TOTAL E FRACOES"",1,677,0,0,0"
+"01.01.2026 00:00:00,70636,=""5126100994861"",=""ZOE MARIA DA SILVA CONCEICAO"",=""16/12/2025"",=""07/01/2026"",=""0202030083"",=""DETERMINAC?O QUANTITATIVA DE PROTEINA C REATIVA"",1,677,0,0,0"
+
+
+=========================================
+📁 ARQUIVO CSV: tabelas_faturamento_sintetica.CSV
+=========================================
+Total de linhas brutas: 1378
+
+>>> PRIMEIRAS 5 LINHAS:
+"=""MES_COMPETENCIA"",=""COD_PRESTADOR"",=""CODIGO_SUS"",=""DESCRICAO_PROCEDIMENTO"",=""QUANTIDADE_TOTAL"",=""TOTAL_RECEITA_HOSPITALAR"",=""TOTAL_RECEITA_PROFISSIONAL"",=""VALOR_TOTAL_FATURADO"""
+"=""03/2026"",1,=""0802010121"",=""DIARIA DE UNIDADE DE TERAPIA INTENSIVA NEONATAL - UTIN (TIPO II)"",203,124236,21924,146160"
+"=""03/2026"",,=""0408050160"",=""RECONSTRUC?OLIGAMENTAR INTRA-ARTICULAR DO JOELHO (CRUZADO ANTERIOR)"",10,61859.5,11303.2,73162.7"
+"=""03/2026"",1,=""0802010083"",=""DIARIA DE UNIDADE DE TERAPIA INTENSIVA ADULTO (UTI II)"",93,47430,8370,55800"
+"=""03/2026"",,=""0411010034"",=""OPERAC?O CESARIANA"",97,40355.14,15303.2,55658.34"
+
+>>> ÚLTIMAS 5 LINHAS:
+"=""01/2026"",570,="""",="""",1,0,0,0"
+"=""01/2026"",828,=""0202031179"",=""TESTE N?O TREPONEMICO P/ DETECC?O DE SIFILIS EM GESTANTES"",1,0,0,0"
+"=""01/2026"",677,=""0202010708"",=""DOSAGEM DE VITAMINA B12"",3,0,0,0"
+"=""01/2026"",677,=""0202060128"",=""DOSAGEM DE CALCITONINA"",1,0,0,0"
+"=""01/2026"",368,="""",="""",2,0,0,0"
+
+
