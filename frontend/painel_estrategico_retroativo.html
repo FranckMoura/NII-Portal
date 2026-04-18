@@ -83,6 +83,7 @@
                 </select>
             </div>
             <button onclick="processarAuditoria()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-bold transition"><i class="fas fa-sync-alt mr-2"></i></button>
+            <a href="modulo_gerencial.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-sm transition"><i class="fas fa-arrow-left mr-2"></i>Voltar</a>
         </div>
     </div>
 
@@ -94,7 +95,7 @@
                     <span class="kpi-occ text-pink-300" id="occ-utin">0% Ocup.</span>
                 </div>
                 <div class="kpi-value mt-2" id="kpi-utin">R$ 0,00</div>
-                <p class="text-[10px] text-gray-400 mt-1" id="label-utin">0 diárias perdidas a R$ 720,00</p>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-utin">0 diárias a R$ 720,00</p>
             </div>
             
             <div class="cyber-card p-5 border-b-4 border-blue-500" id="card-uti-a">
@@ -103,7 +104,7 @@
                     <span class="kpi-occ text-blue-300" id="occ-uti-a">0% Ocup.</span>
                 </div>
                 <div class="kpi-value mt-2" id="kpi-uti-a">R$ 0,00</div>
-                <p class="text-[10px] text-gray-400 mt-1" id="label-uti-a">0 diárias perdidas a R$ 600,00</p>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-uti-a">0 diárias a R$ 600,00</p>
             </div>
 
             <div class="cyber-card p-5 border-b-4 border-yellow-500" id="card-uci">
@@ -112,7 +113,7 @@
                     <span class="kpi-occ text-yellow-300" id="occ-uci">0% Ocup.</span>
                 </div>
                 <div class="kpi-value mt-2" id="kpi-uci">R$ 0,00</div>
-                <p class="text-[10px] text-gray-400 mt-1" id="label-uci">0 diárias perdidas a R$ 300,00</p>
+                <p class="text-[10px] text-gray-400 mt-1" id="label-uci">0 diárias a R$ 300,00</p>
             </div>
 
             <div class="cyber-card p-5 bg-rose-600/10 border-b-4 border-rose-600">
@@ -155,17 +156,13 @@
 
         const formatBRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // Tabela de Preços Oficiais SIGTAP
         const PRECOS = { 'UTIN': 720.00, 'UTI_ADULTO': 600.00, 'UCINCO': 300.00, 'UCINCA': 300.00, 'OUTROS': 0 };
-        
-        // Capacidade Instalada Hospital Beneficente Santa Helena
         const CAPACIDADE = { 'UTIN': 18, 'UTI_ADULTO': 10, 'UCINCO': 4, 'UCINCA': 3 };
 
         let todosDados = [];
 
         $(document).ready(() => {
             const hoje = new Date();
-            // Define o select para o mês passado (competência fechada)
             let mesFechado = hoje.getMonth() === 0 ? 12 : hoje.getMonth();
             let anoFechado = hoje.getMonth() === 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
             
@@ -175,25 +172,32 @@
             processarAuditoria();
         });
 
-        // IMPORTANTE: Como os leitos vão de 1 a 10/18, assumimos que no banco eles tenham um prefixo para diferenciar.
-        // Ajuste as "includes" abaixo conforme a nomenclatura exata que o SOULMV exportou.
+        // ==============================================================================
+        // CONFIGURAÇÃO DOS LEITOS: FRANCK, ALTERE OS NÚMEROS ABAIXO!
+        // ==============================================================================
         function identificarSetor(leito) {
             if (!leito) return 'OUTROS';
-            const strLeito = String(leito).toUpperCase();
-
-            // Lógica baseada no prefixo ou nome do leito
-            if (strLeito.includes('UTIN') || strLeito.includes('NEO')) return 'UTIN';
-            if (strLeito.includes('UTIA') || strLeito.includes('ADULTO')) return 'UTI_ADULTO';
-            if (strLeito.includes('UCINCO')) return 'UCINCO';
-            if (strLeito.includes('UCINCA') || strLeito.includes('CANGURU')) return 'UCINCA';
-            
-            // Fallback caso venha só número (Exemplo de fallback, requer ajuste fino no seu banco)
             const num = parseInt(leito);
-            if (num >= 300 && num <= 318) return 'UTIN'; 
-            if (num >= 400 && num <= 410) return 'UTI_ADULTO';
+
+            // Substitua os números abaixo pelos códigos exatos dos leitos de UTI do MV
+            // Exemplo: Se UTI Adulto é do leito 300 ao 309, coloque [300, 301, 302...]
+            
+            const array_UTI_ADULTO = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Exemplo de 10 leitos
+            const array_UTIN = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]; // Exemplo de 18 leitos
+            const array_UCINCO = [29, 30, 31, 32]; // Exemplo de 4 leitos
+            const array_UCINCA = [33, 34, 35]; // Exemplo de 3 leitos
+
+            if (array_UTI_ADULTO.includes(num)) return 'UTI_ADULTO';
+            if (array_UTIN.includes(num)) return 'UTIN';
+            if (array_UCINCO.includes(num)) return 'UCINCO';
+            if (array_UCINCA.includes(num)) return 'UCINCA';
+            
+            // Alternativa: Se as UTIs forem em bloco contínuo, você pode usar:
+            // if (num >= 300 && num <= 317) return 'UTIN';
             
             return 'OUTROS';
         }
+        // ==============================================================================
 
         function parseDataMv(str) {
             if (!str) return null;
@@ -205,8 +209,6 @@
             $('#loader').fadeIn();
             
             try {
-                // Em produção com milhares de dados, o ideal é filtrar as datas direto no backend/Supabase.
-                // Aqui trazemos tudo para calcular a intersecção de datas via JS perfeitamente.
                 const { data, error } = await client.from('atendimentos_mv').select('*');
                 if (error) throw error;
                 todosDados = data;
@@ -224,14 +226,13 @@
             const ano = parseInt($('#filtro-ano').val());
             const setorFiltro = $('#filtro-setor').val();
             
-            // Define o primeiro e o último segundo da competência (Mês Fechado)
             const dIni = new Date(ano, mes - 1, 1);
-            const dFim = new Date(ano, mes, 0, 23, 59, 59); // Dia 0 do próximo mês = último dia do mês atual
+            const dFim = new Date(ano, mes, 0, 23, 59, 59);
             const diasNoMes = dFim.getDate();
 
             let totais = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0, FINANCEIRO: 0 };
             let diariasPerdidas = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0 };
-            let diariasOcupadasGeral = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0 }; // Para Taxa de Ocupação
+            let diariasOcupadasGeral = { UTIN: 0, UTI_ADULTO: 0, UCINCO: 0, UCINCA: 0 };
             let registrosMostrados = 0;
             
             const container = $('#corpo-tabela').empty();
@@ -243,10 +244,8 @@
                 const dataInt = parseDataMv(row.data_internacao);
                 const dataAlta = row.data_alta ? parseDataMv(row.data_alta) : new Date();
 
-                // LÓGICA DE CORTE DA COMPETÊNCIA
                 if (dataInt <= dFim && dataAlta >= dIni) {
                     
-                    // Ajusta as datas para não contar dias fora do mês selecionado
                     const dataEntradaEfetiva = dataInt < dIni ? dIni : dataInt;
                     const dataSaidaEfetiva = dataAlta > dFim ? dFim : dataAlta;
                     
@@ -254,13 +253,11 @@
                     let diasNoPeriodo = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if (diasNoPeriodo === 0) diasNoPeriodo = 1;
 
-                    // Acumula diárias GERAIS (Com ou Sem AIH) para o cálculo de ocupação real
                     diariasOcupadasGeral[setor] += diasNoPeriodo;
 
                     const temAih = row.numero_aih && row.numero_aih.trim() !== "";
                     let perdaItem = 0;
 
-                    // Acumula Perdas (Apenas pacientes SEM AIH)
                     if (!temAih) {
                         perdaItem = diasNoPeriodo * PRECOS[setor];
                         totais[setor] += perdaItem;
@@ -268,7 +265,6 @@
                         totais.FINANCEIRO += perdaItem;
                     }
 
-                    // Renderização da Tabela (Aplica o Filtro de Setor da UI)
                     if (setorFiltro !== "TODOS" && setor !== setorFiltro) return;
 
                     registrosMostrados++;
@@ -293,22 +289,18 @@
                 }
             });
 
-            // CÁLCULO DAS TAXAS DE OCUPAÇÃO (Diárias Utilizadas / Capacidade Total Máxima do Mês)
             const calcularOcupacao = (setor) => {
                 const capacidadeMaxima = CAPACIDADE[setor] * diasNoMes;
                 if (capacidadeMaxima === 0) return 0;
                 let taxa = (diariasOcupadasGeral[setor] / capacidadeMaxima) * 100;
-                return taxa > 100 ? 100 : taxa; // Limita a 100% caso haja erro de cadastro no banco
+                return taxa > 100 ? 100 : taxa;
             };
 
             const occUTIN = calcularOcupacao('UTIN').toFixed(1);
             const occUTIA = calcularOcupacao('UTI_ADULTO').toFixed(1);
-            
-            // Unindo UCINCO e UCINCA no KPI (Total de 7 leitos)
             const capacidadeUCI = (CAPACIDADE.UCINCO + CAPACIDADE.UCINCA) * diasNoMes;
             const occUCI = capacidadeUCI > 0 ? (((diariasOcupadasGeral.UCINCO + diariasOcupadasGeral.UCINCA) / capacidadeUCI) * 100).toFixed(1) : 0;
 
-            // Atualiza Interface (KPIs e Ocupação)
             $('#occ-utin').text(`${occUTIN}% Ocup.`);
             $('#kpi-utin').text(formatBRL.format(totais.UTIN));
             $('#label-utin').text(`${diariasPerdidas.UTIN} diárias perdidas a R$ 720,00`);
@@ -324,7 +316,6 @@
             $('#kpi-total').text(formatBRL.format(totais.FINANCEIRO));
             $('#txt-contador').text(`${registrosMostrados} registros mostrados`);
 
-            // Efeito visual de opacidade para focar no setor escolhido
             if (setorFiltro === 'UTIN') { $('#card-uti-a, #card-uci').addClass('opacity-30'); $('#card-utin').removeClass('opacity-30'); }
             else if (setorFiltro === 'UTI_ADULTO') { $('#card-utin, #card-uci').addClass('opacity-30'); $('#card-uti-a').removeClass('opacity-30'); }
             else if (setorFiltro.includes('UCI')) { $('#card-utin, #card-uti-a').addClass('opacity-30'); $('#card-uci').removeClass('opacity-30'); }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Menu Principal</title>
+    <title>NII - Hub Central | Hospital Santa Helena</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,7 +35,7 @@
         .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         
-        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; z-index: 2; }
+        header { background: transparent; color: white; padding: 40px 20px 20px 20px; text-align: center; position: relative; z-index: 2; }
         
         /* ========================================================= */
         /* ANIMAÇÃO BATIMENTO CARDÍACO NA LOGO                       */
@@ -45,24 +45,24 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .header-logo-img { 
-            height: 75px; 
+            height: 80px; 
             width: auto;
             display: block; 
             position: relative;
             z-index: 2; 
-            filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); 
+            filter: contrast(1.4) drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
         }
 
         .ecg-line {
             position: absolute;
-            top: 68%; 
+            top: 70%; 
             left: -5%; 
             width: 110%; 
-            height: 25px; 
+            height: 30px; 
             transform: translateY(-50%);
             z-index: 1; 
             pointer-events: none;
@@ -74,10 +74,10 @@
         .ecg-svg path {
             fill: none;
             stroke: #10b981; 
-            stroke-width: 1.5; 
+            stroke-width: 1.8; 
             stroke-linecap: round;
             stroke-linejoin: round;
-            filter: drop-shadow(0 0 5px #10b981);
+            filter: drop-shadow(0 0 6px #10b981);
             stroke-dasharray: 30 70; 
             stroke-dashoffset: 100;
             animation: monitorEcg 2.5s linear infinite;
@@ -88,99 +88,118 @@
             100% { stroke-dashoffset: 0; }
         }
 
-        header h1 { font-weight: 800; margin-bottom: 5px; font-size: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: white;}
-        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); color: rgba(255,255,255,0.8); }
+        header h1 { font-weight: 800; margin-bottom: 8px; font-size: 1.8rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); color: white;}
+        header p { font-weight: 300; opacity: 0.9; font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); }
         
-        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
-        .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
         
         .logout-btn { 
             position: absolute; top: 20px; right: 20px; 
-            background: rgba(255,255,255,0.15); color: white; text-decoration: none; 
-            padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; transition: 0.2s; 
-            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05); color: white; text-decoration: none; 
+            padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;
+            transition: all 0.3s ease; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 8px;
         }
-        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        .logout-btn:hover { background: rgba(244, 63, 94, 0.2); border-color: rgba(244, 63, 94, 0.5); color: #fecdd3; transform: scale(1.02); }
         
-        main { flex: 1; max-width: 1100px; margin: 20px auto; padding: 0 20px; width: 100%; z-index: 1; position: relative;}
+        main { flex: 1; max-width: 1200px; margin: 20px auto 40px auto; padding: 0 20px; width: 100%; z-index: 1; position: relative;}
         
         .welcome-msg { 
-            display: table; margin: 0 auto 35px auto; 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            padding: 12px 40px; border-radius: 50px; color: white; 
+            display: table; margin: 0 auto 40px auto; 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 12px 40px; border-radius: 50px; color: #e2e8f0; 
             font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2); text-align: center;
             transition: 0.5s;
         }
         
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; justify-content: center; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; justify-content: center; }
         
         .menu-card { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px; padding: 40px 30px; text-decoration: none; color: white;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px; padding: 40px 30px; text-decoration: none; color: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden;
         }
-        .menu-card:hover { 
-            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
-            background: rgba(255, 255, 255, 0.08); 
-            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(56, 189, 248, 0.2);
-            border-top: 1px solid rgba(56, 189, 248, 0.6); border-left: 1px solid rgba(56, 189, 248, 0.6);
+        
+        .menu-card::before {
+            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg); transition: 0.7s;
         }
+
+        .menu-card:hover { 
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.05); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(56, 189, 248, 0.1);
+            border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        
+        .menu-card:hover::before { left: 200%; }
         
         /* Tema Dev (Rosa/Roxo) no hover */
         .menu-card.dev-card:hover {
-            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(244, 114, 182, 0.2);
-            border-top: 1px solid rgba(244, 114, 182, 0.6); border-left: 1px solid rgba(244, 114, 182, 0.6);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(244, 114, 182, 0.1);
+            border-top: 1px solid rgba(244, 114, 182, 0.4); border-left: 1px solid rgba(244, 114, 182, 0.3);
         }
 
-        .icon-box { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin-bottom: 25px; }
+        .icon-box { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 34px; margin-bottom: 25px; transition: 0.3s; }
+        .menu-card:hover .icon-box { transform: scale(1.1); }
 
-        .menu-card h3 { font-size: 1.4rem; margin-bottom: 12px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; }
-        .menu-card p { font-size: 0.95rem; color: #94a3b8; line-height: 1.5; margin: 0; font-weight: 400; }
+        .menu-card h3 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-card p { font-size: 0.9rem; color: #94a3b8; line-height: 1.5; margin: 0; font-weight: 400; }
         
-        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; background: transparent; margin-top: 40px; position: relative; z-index: 1;}
+        footer { text-align: center; padding: 30px; color: rgba(255,255,255,0.4); font-size: 0.8rem; background: transparent; margin-top: auto; position: relative; z-index: 1;}
 
         /* ICONES DINÂMICOS (NEON) */
-        .icon-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .icon-blue { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.1); }
-        .icon-green { color: #34d399; text-shadow: 0 0 10px rgba(52,211,153,0.5); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.1); }
-        .icon-yellow { color: #facc15; text-shadow: 0 0 10px rgba(250,204,21,0.5); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
-        .icon-pink { color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); }
+        .icon-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+        .icon-blue { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.6); border-color: rgba(56,189,248,0.2); background: rgba(56,189,248,0.05); }
+        .icon-green { color: #34d399; text-shadow: 0 0 15px rgba(52,211,153,0.6); border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); }
+        .icon-yellow { color: #facc15; text-shadow: 0 0 15px rgba(250,204,21,0.6); border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.05); }
+        .icon-pink { color: #f472b6; text-shadow: 0 0 15px rgba(244,114,182,0.6); border-color: rgba(244,114,182,0.2); background: rgba(244,114,182,0.05); }
 
         /* ========================================================= */
         /* MODO CLÁSSICO NII (Azul + Branco)                         */
         /* ========================================================= */
-        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: white !important; }
+        body.theme-classic { background: #f8fafc !important; background-image: none !important; color: #0f172a !important; }
+        body.theme-classic::before { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; opacity: 0.5; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         
-        body.theme-classic .ecg-svg path { stroke: #fbbf24; filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.8)); }
+        body.theme-classic header { background: #004e92; color: white; padding-bottom: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: -20px; }
+        body.theme-classic header p { color: rgba(255,255,255,0.9); }
+        body.theme-classic .ecg-svg path { stroke: #facc15; filter: none; }
 
-        body.theme-classic .welcome-msg { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); }
+        body.theme-classic .btn-theme-toggle, body.theme-classic .logout-btn { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        body.theme-classic .logout-btn:hover { background: white; color: #e11d48; }
+
+        body.theme-classic .welcome-msg { background: white; border: 1px solid #e2e8f0; color: #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-30px); }
 
         body.theme-classic .menu-card {
-            background: rgba(255, 255, 255, 0.95) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-            backdrop-filter: blur(10px) !important; transform: none !important;
+            background: white !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+            backdrop-filter: none !important; transform: none !important;
         }
         body.theme-classic .menu-card:hover {
-            transform: translateY(-8px) !important; background: rgba(255, 255, 255, 1) !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important; border-color: #004e92 !important;
+            transform: translateY(-5px) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important; border-color: #004e92 !important;
         }
         
         body.theme-classic .menu-card.dev-card:hover { border-color: #db2777 !important; }
 
-        body.theme-classic .menu-card h3 { color: #1e293b !important; }
+        body.theme-classic .menu-card h3 { color: #0f172a !important; }
         body.theme-classic .menu-card p { color: #64748b !important; }
         
-        body.theme-classic .icon-blue { background: #eff6ff !important; color: #2563eb !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
-        body.theme-classic .icon-green { background: #ecfdf5 !important; color: #059669 !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
-        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
-        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1) !important;}
+        body.theme-classic .icon-blue { background: #eff6ff !important; color: #2563eb !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-green { background: #ecfdf5 !important; color: #059669 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; }
+        
+        body.theme-classic footer { color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -192,7 +211,7 @@
         <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
             <i class="fas fa-sun"></i>
         </button>
-        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a>
         
         <div class="logo-container">
             <div class="ecg-line">
@@ -209,31 +228,31 @@
     </header>
 
     <main>
-        <div class="welcome-msg" id="saudacao">Carregando...</div>
+        <div class="welcome-msg" id="saudacao"><i class="fas fa-circle-notch fa-spin mr-2"></i> Inicializando Sistema...</div>
 
         <div class="menu-grid">
             <a href="modulo_operacional.html" class="menu-card">
                 <div class="icon-box icon-blue"><i class="fas fa-cogs"></i></div>
                 <h3>Operacional</h3>
-                <p>Regulação, IndicaSUS, SIGTAP e Dados Institucionais.</p>
+                <p>Regulação, IndicaSUS, SIGTAP e Censo Hospitalar.</p>
             </a>
 
             <a href="modulo_gerencial.html" class="menu-card">
                 <div class="icon-box icon-green"><i class="fas fa-chart-pie"></i></div>
                 <h3>Gerencial</h3>
-                <p>Faturamento SUS, Painel UTI e Gestão Financeira.</p>
+                <p>Faturamento SUS, Painel UTI, Auditoria e Finanças.</p>
             </a>
 
             <a href="modulo_estrategico.html" class="menu-card">
                 <div class="icon-box icon-yellow"><i class="fas fa-chess-knight"></i></div>
                 <h3>Estratégico</h3>
-                <p>Metas, Produção Cirúrgica, Arquivos e Simuladas.</p>
+                <p>Metas, Produção Cirúrgica, Arquivos e Relatórios.</p>
             </a>
 
             <a href="modulo_dev.html" class="menu-card dev-card">
                 <div class="icon-box icon-pink"><i class="fas fa-flask"></i></div>
                 <h3>Lab de Dados (Dev)</h3>
-                <p>Área de homologação: Auditorias SIH/SIA e Históricos.</p>
+                <p>Área de homologação: Automações, Scripts e Sincronização MV.</p>
             </a>
         </div>
     </main>
@@ -245,15 +264,26 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
         const client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: 'nii-auth-token', storage: window.localStorage } });
 
-        async function fazerLogout() { await client.auth.signOut(); window.location.href = "login.html"; }
+        async function fazerLogout() { 
+            await client.auth.signOut(); 
+            window.location.href = "login.html"; 
+        }
 
-        const hour = new Date().getHours();
-        const msgElement = document.getElementById('saudacao');
-        let greeting = 'Bem-vindo ao Portal de Dados.';
-        if (hour < 12) greeting = 'Bom dia! Selecione um módulo abaixo:';
-        else if (hour < 18) greeting = 'Boa tarde! Selecione um módulo abaixo:';
-        else greeting = 'Boa noite! Selecione um módulo abaixo:';
-        msgElement.innerText = greeting;
+        async function carregarSaudacao() {
+            const hour = new Date().getHours();
+            let periodo = 'Bom dia';
+            if (hour >= 12 && hour < 18) periodo = 'Boa tarde';
+            else if (hour >= 18) periodo = 'Boa noite';
+
+            try {
+                const { data: { user } } = await client.auth.getUser();
+                // Tenta pegar o nome do usuário logado (Se não tiver, usa 'Usuário')
+                const nomeUser = user && user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : 'Usuário';
+                document.getElementById('saudacao').innerHTML = `<strong>${periodo}, ${nomeUser}!</strong> Selecione um módulo abaixo:`;
+            } catch (error) {
+                document.getElementById('saudacao').innerHTML = `<strong>${periodo}!</strong> Selecione um módulo abaixo:`;
+            }
+        }
 
         function toggleTheme() {
             const body = document.body;
@@ -273,6 +303,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            carregarSaudacao();
+            
             const savedTheme = localStorage.getItem('nii_theme_menus');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             

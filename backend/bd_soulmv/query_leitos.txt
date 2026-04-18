@@ -1,0 +1,9 @@
+SELECT 
+    L.CD_LEITO AS codigo_leito,
+    L.DS_LEITO AS descricao_cama,
+    U.DS_UNID_INT AS nome_do_setor,
+    L.SN_ATIVO AS leito_ativo
+FROM DBAMV.LEITO L
+INNER JOIN DBAMV.UNID_INT U ON U.CD_UNID_INT = L.CD_UNID_INT
+WHERE L.SN_ATIVO = 'S' -- Traz apenas os leitos que estão funcionando hoje
+ORDER BY U.DS_UNID_INT, L.CD_LEITO;
