@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Itens Secundários SP - NII</title>
+    <title>Serviços Profissionais (SPMT/RDMT) - NII</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -37,7 +37,7 @@
             background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
             background-attachment: fixed;
             color: white; 
-            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; 
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; 
             transition: background 0.5s ease, color 0.5s ease;
         }
 
@@ -47,13 +47,13 @@
             background-size: 30px 30px; z-index: -1; pointer-events: none;
         }
 
-        /* LUZES NEON NO FUNDO */
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(245, 158, 11, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        /* LUZES NEON NO FUNDO (Cores ajustadas para SP - Laranja/Roxo) */
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(251, 146, 60, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(168, 85, 247, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
         .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
-        
-        /* Container de Vidro Genérico */
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+
         .cyber-container {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -62,7 +62,6 @@
             position: relative; z-index: 1; transition: 0.5s;
         }
 
-        /* Cards KPI de Vidro REAL */
         .glass-card {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -74,7 +73,7 @@
             transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
             background: rgba(255, 255, 255, 0.08); 
             box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
-            border-top: 1px solid rgba(192, 132, 252, 0.6); border-left: 1px solid rgba(192, 132, 252, 0.6);
+            border-top: 1px solid rgba(251, 146, 60, 0.6); border-left: 1px solid rgba(251, 146, 60, 0.6);
         }
 
         .glass-chart-container {
@@ -84,36 +83,24 @@
         }
 
         .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5), 0 0 15px rgba(5,150,105,0.5); }
         .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5), 0 0 15px rgba(147,51,234,0.5); }
-        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5), 0 0 15px rgba(217,119,6,0.5); }
+        .neon-text-orange { color: #fb923c; text-shadow: 0 0 5px rgba(251,146,60,0.5), 0 0 15px rgba(234,88,12,0.5); }
+        .neon-text-pink { color: #f472b6; text-shadow: 0 0 5px rgba(244,113,182,0.5), 0 0 15px rgba(219,39,119,0.5); }
 
         .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
-        .kpi-number { font-size: 1.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .kpi-number { font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
         .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
         
         .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
 
-        /* Customização Select2 para Dark Mode */
-        .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 38px; padding: 2px 4px; transition: 0.3s; }
-        .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #c084fc !important; box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.2); }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: rgba(192, 132, 252, 0.2) !important; color: white !important; border: 1px solid rgba(192, 132, 252, 0.4) !important; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 5px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2) !important; padding-right: 5px; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #f87171 !important; background: transparent !important; }
-        
-        .select2-dropdown { background: #0f172a !important; border: 1px solid rgba(192, 132, 252, 0.3) !important; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: white; }
-        .select2-results__option { font-size: 0.85rem; padding: 8px 12px; }
-        .select2-results__option[aria-selected=true] { background-color: rgba(255,255,255,0.05) !important; }
-        .select2-results__option--highlighted[aria-selected] { background-color: #a855f7 !important; color: white !important; }
-        .select2-search__field { background: transparent !important; color: white !important; font-family: 'Inter', sans-serif; margin-top: 7px; }
-
         /* ========================================================= */
-        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
+        /* MODO CLÁSSICO NII                                         */
         /* ========================================================= */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
         
-        /* CARTÕES BRANCOS */
         body.theme-classic .cyber-container, 
         body.theme-classic .glass-card, 
         body.theme-classic .glass-chart-container {
@@ -131,54 +118,60 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* Cores de texto dos cartões solidificadas no modo claro */
         body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
         body.theme-classic .neon-text-purple { color: #7e22ce !important; text-shadow: none !important; }
-        body.theme-classic .neon-text-yellow { color: #d97706 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-orange { color: #ea580c !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-pink { color: #db2777 !important; text-shadow: none !important; }
 
         body.theme-classic .kpi-title, body.theme-classic .kpi-sub { color: #64748b !important; }
         body.theme-classic .glass-chart-title { color: #0f172a !important; border-bottom-color: #f1f5f9 !important; }
 
-        /* Botões do Topo Gerais */
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
         .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
         .btn-theme select option { background: #0f172a; color: white; }
         body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
 
-        /* Select2 no Modo Clássico */
+        /* ========================================================= */
+        /* SELECT2 & DATATABLES                                      */
+        /* ========================================================= */
+        .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 38px; padding: 2px 4px; transition: 0.3s; }
+        .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #fb923c !important; box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.2); }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: rgba(251, 146, 60, 0.2) !important; border: 1px solid rgba(251, 146, 60, 0.4) !important; color: white !important; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 5px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2) !important; padding-right: 5px; }
+        .select2-search__field { color: white !important; font-family: 'Inter', sans-serif; margin-top: 7px; }
+        .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(251, 146, 60, 0.4) !important; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .select2-results__option { color: white !important; font-size: 0.85rem; padding: 8px 12px; }
+        .select2-results__option[aria-selected=true] { background-color: rgba(255,255,255,0.05) !important; }
+        .select2-results__option--highlighted[aria-selected] { background-color: #f97316 !important; color: white !important; }
+
         body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; color: white !important; border: none !important; }
-        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { border-right: 1px solid rgba(255,255,255,0.3) !important; }
-        body.theme-classic .select2-dropdown { background: white !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; border: none !important; color: white !important; }
+        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; border-right: 1px solid rgba(255,255,255,0.3) !important; }
+        body.theme-classic .select2-search__field { color: #1e293b !important; }
+        body.theme-classic .select2-dropdown { background-color: white !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         body.theme-classic .select2-results__option { color: #1e293b !important; }
         body.theme-classic .select2-results__option[aria-selected=true] { background-color: #f1f5f9 !important; }
         body.theme-classic .select2-results__option--highlighted[aria-selected] { background-color: #004e92 !important; color: white !important; }
-        body.theme-classic .select2-search__field { color: #1e293b !important; }
 
-        /* ========================================================= */
-        /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
-        /* ========================================================= */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; }
         table.dataTable tbody tr { background-color: transparent !important; }
 
-        /* Dark/Neon Table Defaults */
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #c084fc !important; border-bottom: 1px solid rgba(192, 132, 252, 0.3) !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #fb923c !important; border-bottom: 1px solid rgba(251, 146, 60, 0.3) !important; }
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         
-        /* Overrides para Tema Clássico na Tabela */
         body.theme-classic table.dataTable { color: #334155 !important; }
         body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        /* Tabela Controles */
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: rgba(255,255,255,0.8) !important; }
         .dataTables_wrapper .dataTables_paginate .paginate_button { color: rgba(255,255,255,0.8) !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(192, 132, 252, 0.2) !important; color: white !important; border-color: rgba(192, 132, 252, 0.5) !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(255,255,255,0.2) !important; color: white !important; border-color: rgba(255,255,255,0.4) !important; }
         
         body.theme-classic .dataTables_wrapper .dataTables_length, body.theme-classic .dataTables_wrapper .dataTables_filter, body.theme-classic .dataTables_wrapper .dataTables_info, body.theme-classic .dataTables_wrapper .dataTables_paginate, body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #475569 !important; }
         body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
@@ -186,16 +179,15 @@
         .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; margin-top: 5px; transition: 0.3s; }
         body.theme-classic .search-input { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
         
-        .dt-button { background: rgba(192, 132, 252, 0.1) !important; color: #c084fc !important; border: 1px solid rgba(192, 132, 252, 0.3) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
+        .dt-button { background: rgba(251, 146, 60, 0.1) !important; color: #fb923c !important; border: 1px solid rgba(251, 146, 60, 0.3) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
         body.theme-classic .dt-button { background: #ffffff !important; color: #004e92 !important; border: 1px solid #004e92 !important; }
         body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
 
-        /* Cores Específicas na Tabela */
-        .tb-proc-code { color: #c084fc; font-weight: bold; }
-        .tb-valor-total { color: #fbbf24; font-weight: bold; }
+        .tb-proc-code { color: #fb923c; font-weight: bold; }
+        .tb-valor-total { color: #34d399; font-weight: bold; }
         
         body.theme-classic .tb-proc-code { color: #334155; }
-        body.theme-classic .tb-valor-total { color: #7e22ce; }
+        body.theme-classic .tb-valor-total { color: #059669; }
     </style>
 </head>
 <body>
@@ -207,29 +199,28 @@
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
             
             <div class="flex items-center gap-4">
-                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-syringe text-3xl text-amber-400"></i></div>
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-user-doctor text-3xl text-orange-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Itens Secundários (SP)</h1>
-                    <p class='text-amber-200 text-sm mt-1 opacity-80'>
-                        Diárias de UTI, OPMEs, Medicamentos e Exames
+                    <h1 class='text-3xl font-bold text-white'>Serviços Profissionais (SP/RD)</h1>
+                    <p class='text-orange-200 text-sm mt-1 opacity-80'>
+                        Arquivos SPMT e RDMT do Tabnet/Datasus 
                         <span id="status" class="bg-black/20 border border-white/10 px-2 py-1 rounded-md text-xs font-bold text-white ml-2">Conectando...</span>
                     </p>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
-                
                 <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
                     <i class="fas fa-magic"></i>
                 </button>
 
                 <div class="btn-theme" style="padding: 4px 10px;">
-                    <span class="text-xs font-bold uppercase text-amber-400 mr-2">Ano:</span>
+                    <span class="text-xs font-bold uppercase text-orange-400 mr-2">Ano:</span>
                     <select id="anoFilter" onchange="carregarDadosAno()" class="bg-transparent text-white font-bold outline-none"></select>
                 </div>
                 
                 <div class="btn-theme" style="padding: 4px 10px;">
-                    <span class="text-xs font-bold uppercase text-amber-400 mr-2">Mês:</span>
+                    <span class="text-xs font-bold uppercase text-orange-400 mr-2">Mês:</span>
                     <select id="mesFilter" onchange="renderizar()" class="bg-transparent text-white font-bold outline-none"><option value="">Todos os Meses</option></select>
                 </div>
 
@@ -237,49 +228,65 @@
                     <select id="procFilter" multiple="multiple" style="width: 100%;"></select>
                 </div>
                 
-                <a href="painel_financeiro.html" class="btn-theme text-cyan-300 border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20"><i class="fas fa-file-invoice-dollar"></i> AIH</a>
+                <a href="painel_financeiro.html" class="btn-theme text-cyan-400 border-cyan-400/30 bg-cyan-400/10 hover:bg-cyan-400/20"><i class="fas fa-hospital"></i> SIH</a>
                 
-                <a href="modulo_operacional.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8 relative z-10">
             <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-search-dollar mr-1 text-purple-400"></i> Valor Total (SP)</div>
-                <div class="kpi-number neon-text-purple" id="kpValor">R$ 0,00</div>
-                <div class="kpi-sub">Soma de Secundários</div>
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-400"></i> Valor Total (SP+RD)</div>
+                <div class="kpi-number neon-text-green" id="kpValor">R$ 0,00</div>
+                <div class="kpi-sub">Faturamento Aprovado</div>
             </div>
             <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-box-open mr-1 text-yellow-400"></i> Qtd. Aprovada</div>
-                <div class="kpi-number neon-text-yellow" id="kpQtd">0</div>
-                <div class="kpi-sub">Unidades Faturadas</div>
+                <div class="kpi-title"><i class="fas fa-syringe mr-1 text-orange-400"></i> Qtd. Procedimentos</div>
+                <div class="kpi-number neon-text-orange" id="kpQtd">0</div>
+                <div class="kpi-sub">Quantidade Apresentada</div>
             </div>
             <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-tag mr-1 text-blue-400"></i> Ticket Médio (Por Item)</div>
-                <div class="kpi-number neon-text-blue" id="kpTicket">R$ 0,00</div>
-                <div class="kpi-sub">Valor / Qtd</div>
+                <div class="kpi-title"><i class="fas fa-user-md mr-1 text-purple-400"></i> Valor Profissional (SP)</div>
+                <div class="kpi-number neon-text-purple" id="kpValorSP">R$ 0,00</div>
+                <div class="kpi-sub">Honorários (SPMT)</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-hospital mr-1 text-blue-400"></i> Valor Hospitalar (RD)</div>
+                <div class="kpi-number neon-text-blue" id="kpValorSH">R$ 0,00</div>
+                <div class="kpi-sub">Serviços Hospitalares (RDMT)</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-chart-line mr-1 text-pink-400"></i> Ticket Médio (Item)</div>
+                <div class="kpi-number neon-text-pink" id="kpTicket">R$ 0,00</div>
+                <div class="kpi-sub">Valor Total / Quantidade</div>
             </div>
         </div>
 
-        <div class="glass-chart-container mb-8 relative z-10">
-            <div class="glass-chart-title border-none"><i class="fas fa-chart-line mr-2 text-purple-400"></i> Evolução Anual de Itens Secundários</div>
-            <div style="height:250px;"><canvas id="chartEvo"></canvas></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container md:col-span-2">
+                <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-orange-400"></i> Evolução: Valor Total x Qtd. Procedimentos</div>
+                <div style="height:300px;"><canvas id="chartEvo"></canvas></div>
+            </div>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-purple-400"></i> Composição (SH vs SP)</div>
+                <div style="height:300px;"><canvas id="chartPie"></canvas></div>
+            </div>
         </div>
 
         <div class="cyber-container mb-8">
-            <div class="glass-chart-title border-none mb-4"><i class="fas fa-table mr-2 text-purple-400"></i> Auditoria de Procedimentos SP (Pesquisa Cruzada)</div>
+            <div class="glass-chart-title border-none mb-4"><i class="fas fa-table mr-2 text-orange-400"></i> Detalhamento da Produção (SPMT e RDMT)</div>
             <table id="tabela" class="display" style="width:100%">
                 <thead>
                     <tr>
                         <th>Mês</th>
                         <th>Código</th>
-                        <th>Descrição do Item (Medicamentos, Diárias...)</th>
-                        <th class="text-center">Qtd Aprovada</th>
-                        <th class="text-right">V. Hosp</th>
-                        <th class="text-right">V. Prof</th>
+                        <th>Serviço / Procedimento</th>
+                        <th class="text-center">Quantidade</th>
+                        <th class="text-right">Valor Hospitalar (SH)</th>
+                        <th class="text-right">Valor Profissional (SP)</th>
                         <th class="text-right">Valor Total</th>
                     </tr>
                 </thead>
@@ -287,7 +294,7 @@
             </table>
         </div>
         
-        <div class="text-center text-slate-400 text-xs mb-8">Painel integrado ao NII Backend • Fonte: SIA/SIH Supabase</div>
+        <div class="text-center text-slate-400 text-xs mb-8">Painel integrado ao NII Backend • Fonte: SPMT / RDMT Supabase</div>
     </div>
 
     <script>
@@ -295,23 +302,19 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
-        let dadosAno = []; 
-        let chartEvo;
+        let dadosAno = []; let chartEvo, chartPie;
         const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         const mesesNome = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-        // ==========================================
-        // TEMA: CLÁSSICO NII (Azul/Branco) vs NEON CYBERPUNK
-        // ==========================================
         function toggleTheme() {
             const body = document.body;
             
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_sp', 'neon');
+                localStorage.setItem('nii_theme_fin', 'neon');
             } else {
                 body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_sp', 'classic');
+                localStorage.setItem('nii_theme_fin', 'classic');
             }
             
             if (dadosAno.length > 0) {
@@ -332,11 +335,10 @@
         }
 
         $(document).ready(function() { 
-            // Checa tema salvo (Por defeito: Clássico NII)
-            const savedTheme = localStorage.getItem('nii_theme_sp');
+            const savedTheme = localStorage.getItem('nii_theme_fin');
             if (savedTheme === 'classic' || !savedTheme) { 
                 document.body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_sp', 'classic');
+                localStorage.setItem('nii_theme_fin', 'classic');
             }
             
             setupAnos(); 
@@ -355,17 +357,22 @@
 
         async function carregarDadosAno() {
             const ano = document.getElementById('anoFilter').value;
-            $('#status').text("Sincronizando " + ano + "...");
+            $('#status').text("Baixando " + ano + "...");
             try {
-                const { data, error } = await client.from('faturamento_sp').select('*').gte('competencia_iso', `${ano}-01-01`).lte('competencia_iso', `${ano}-12-31`).order('valor_total', { ascending: false });
+                // ATENÇÃO: Substitua 'faturamento_sp' pelo nome exato da sua tabela SP/RD no Supabase
+                // Atualmente, mantivemos as mesmas colunas do faturamento SIH para não quebrar a lógica
+                const { data, error } = await client.from('faturamento_sp').select('*')
+                    .gte('competencia_iso', `${ano}-01-01`).lte('competencia_iso', `${ano}-12-31`)
+                    .order('valor_total', { ascending: false });
+                
                 if(error) throw error;
                 dadosAno = data || [];
-                $('#status').text(dadosAno.length ? "Online (" + dadosAno.length + " Itens)" : "Sem dados");
+                $('#status').text(dadosAno.length ? "Online (" + dadosAno.length + " reg)" : "Sem dados");
                 
                 atualizarComboMeses(); 
                 atualizarComboProcedimentos(); 
                 renderizar();
-            } catch (e) { console.error(e); $('#status').text("Erro"); }
+            } catch (e) { console.error(e); $('#status').text("Erro de Conexão"); }
         }
 
         function atualizarComboMeses() {
@@ -390,7 +397,6 @@
             
             if(dadosAno.length > 0) {
                 const procsPresentes = [...new Set(dadosAno.map(d => d.procedimento).filter(Boolean))].sort();
-                
                 procsPresentes.forEach(p => {
                     let code = getProcCode(p);
                     let desc = getProcDesc(p);
@@ -399,9 +405,9 @@
             }
 
             $selProc.select2({
-                placeholder: "Pesquise um ou mais itens...",
+                placeholder: "Selecione serviços ou procedimentos...",
                 allowClear: true,
-                language: { noResults: function() { return "Item não encontrado"; } }
+                language: { noResults: function() { return "Procedimento não encontrado"; } }
             }).on('change', renderizar); 
         }
 
@@ -415,23 +421,30 @@
                 dadosFiltrados = dadosFiltrados.filter(d => procsSelecionados.includes(getProcCode(d.procedimento)));
             }
 
-            let t = { v:0, q:0 };
-            dadosFiltrados.forEach(d => { t.v += d.valor_total||0; t.q += d.qtd_aprovada||0; });
-            $('#kpValor').text(brl.format(t.v)); $('#kpQtd').text(t.q.toLocaleString('pt-BR'));
+            let t = { v:0, q:0, h:0, p:0 };
+            dadosFiltrados.forEach(d => {
+                t.v += d.valor_total||0; 
+                // Assumindo que a coluna na sua tabela para QTD SP/RD seja 'quantidade' ou 'aih_aprovadas'
+                t.q += (d.quantidade || d.aih_aprovadas || 0); 
+                t.h += d.valor_serv_hosp||0; 
+                t.p += d.valor_serv_prof||0; 
+            });
+            
+            $('#kpValor').text(brl.format(t.v)); 
+            $('#kpQtd').text(t.q.toLocaleString('pt-BR'));
+            $('#kpValorSH').text(brl.format(t.h)); 
+            $('#kpValorSP').text(brl.format(t.p));
             $('#kpTicket').text(t.q ? brl.format(t.v/t.q) : 'R$ 0,00');
 
-            updateChart(dadosFiltrados);
+            updateCharts(dadosFiltrados);
 
             if ($.fn.DataTable.isDataTable('#tabela')) $('#tabela').DataTable().destroy();
             
             $('#tabela').DataTable({
-                data: dadosFiltrados, 
-                pageLength: 25, 
-                responsive: true,
-                dom: 'lBrtip',
-                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar Dados para Excel', className: 'dt-button' }],
+                data: dadosFiltrados, pageLength: 25, responsive: true, dom: 'lBrtip',
+                buttons: [{ extend: 'excel', text: '<i class="fas fa-file-excel"></i> Exportar para Excel', className: 'dt-button' }],
                 columns: [
-                    { data: 'competencia_fmt', width: '60px' },
+                    { data: 'competencia_fmt', width: '80px' },
                     { 
                         data: 'procedimento', 
                         width: '100px', 
@@ -440,17 +453,19 @@
                     },
                     { 
                         data: 'procedimento', 
-                        render: function(d, type) { 
+                        render: function(d, type, row) { 
                             let desc = getProcDesc(d);
-                            if (type === 'display' && desc.length > 60) {
-                                return `<span title="${desc}">${desc.substring(0,60)}...</span>`;
+                            if (type === 'display' && desc.length > 55) {
+                                return `<span title="${desc}">${desc.substring(0,55)}...</span>`;
                             }
                             return desc;
                         } 
                     },
-                    { data: 'qtd_aprovada', className: "text-center font-bold" },
-                    { data: 'valor_serv_hosp', className: "text-right font-mono", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                    { data: 'valor_serv_prof', className: "text-right font-mono", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: null, className: "text-center font-bold", render: function(data, type, row) {
+                        return row.quantidade || row.aih_aprovadas || 0;
+                    }},
+                    { data: 'valor_serv_hosp', className: "text-right font-mono text-blue-300", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'valor_serv_prof', className: "text-right font-mono text-purple-300", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_total', className: "text-right tb-valor-total font-mono", render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
                 order: [[6, 'desc']], language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
@@ -463,12 +478,13 @@
             });
         }
 
-        function updateChart(dados) {
+        function updateCharts(dados) {
             let grupos = {};
             dados.forEach(d => {
                 let m = d.competencia_iso.substring(5,7); let nome = mesesNome[parseInt(m)-1];
                 if(!grupos[nome]) grupos[nome] = {v:0, q:0};
-                grupos[nome].v += d.valor_total; grupos[nome].q += d.qtd_aprovada;
+                grupos[nome].v += d.valor_total||0; 
+                grupos[nome].q += (d.quantidade || d.aih_aprovadas || 0);
             });
             let lbls = Object.keys(grupos).sort((a,b) => mesesNome.indexOf(a) - mesesNome.indexOf(b));
             
@@ -479,8 +495,8 @@
             chartEvo = new Chart(document.getElementById('chartEvo').getContext('2d'), {
                 type: 'bar',
                 data: { labels: lbls, datasets: [
-                    { label: 'Valor (R$)', data: lbls.map(l=>grupos[l].v), backgroundColor: isClassic ? '#9C27B0' : 'rgba(192, 132, 252, 0.6)', order: 2, yAxisID: 'y', borderRadius: 4 },
-                    { label: 'Qtd. Aprovada', data: lbls.map(l=>grupos[l].q), type: 'line', borderColor: isClassic ? '#f97316' : '#fbbf24', backgroundColor: isClassic ? '#f97316' : '#fbbf24', borderWidth: 3, order: 1, yAxisID: 'y1', tension: 0.3 }
+                    { label: 'Valor Total (R$)', data: lbls.map(l=>grupos[l].v), backgroundColor: isClassic ? '#f97316' : 'rgba(251, 146, 60, 0.7)', order: 2, yAxisID: 'y', borderRadius: 4 },
+                    { label: 'Qtd. Proc', data: lbls.map(l=>grupos[l].q), type: 'line', borderColor: isClassic ? '#a855f7' : '#c084fc', backgroundColor: isClassic ? '#a855f7' : '#c084fc', borderWidth: 3, order: 1, yAxisID: 'y1', tension: 0.3 }
                 ]},
                 options: { 
                     animation: false, responsive:true, maintainAspectRatio:false, 
@@ -490,6 +506,14 @@
                         y1:{position:'right', grid:{display:false}}
                     } 
                 }
+            });
+
+            if(chartPie) chartPie.destroy();
+            let th = dados.reduce((a,d)=>a+(d.valor_serv_hosp||0),0); let tp = dados.reduce((a,d)=>a+(d.valor_serv_prof||0),0);
+            chartPie = new Chart(document.getElementById('chartPie').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: ['Valor Hospitalar (RD)', 'Valor Profissional (SP)'], datasets: [{ data: [th, tp], backgroundColor: isClassic ? ['#3b82f6', '#a855f7'] : ['rgba(59, 130, 246, 0.8)', 'rgba(168, 85, 247, 0.8)'], borderWidth: isClassic ? 2 : 0, borderColor: '#ffffff' }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, cutout:'70%' }
             });
         }
     </script>
