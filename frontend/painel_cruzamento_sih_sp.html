@@ -348,12 +348,11 @@
             "01": "CIRÚRGICO", "02": "OBSTÉTRICO", "03": "CLÍNICO", "07": "PEDIÁTRICO", "05": "PSIQUIÁTRICO"
         };
 
-        // Classificação Simples de Capítulos CID-10 para o Gráfico
         function getCapituloCID(cid) {
             if(!cid) return "NÃO INFORMADO";
             let letra = cid.charAt(0).toUpperCase();
             if(letra === 'A' || letra === 'B') return "Doenças Infecciosas/Parasitárias";
-            if(letra === 'C' || letra === 'D' && cid.charCodeAt(1) < 53) return "Neoplasias (Tumores)";
+            if(letra === 'C' || (letra === 'D' && cid.charCodeAt(1) < 53)) return "Neoplasias (Tumores)";
             if(letra === 'E') return "Doenças Endócrinas/Nutricionais";
             if(letra === 'I') return "Doenças do Aparelho Circulatório";
             if(letra === 'J') return "Doenças do Aparelho Respiratório";
@@ -410,8 +409,8 @@
             const mes = $('#mesFilter').val();
 
             try {
-                // Atualizamos o SELECT para buscar também o diag_princ
-                const { data, error } = await client.from('vw_cruzamento_sih_sp').select('*, diag_princ:sih_sus_hsh!inner(diag_princ)').eq('ano_cmpt', ano).eq('mes_cmpt', mes);
+                // AQUI ESTÁ A MUDANÇA (Removido o inner join que causava o erro)
+                const { data, error } = await client.from('vw_cruzamento_sih_sp').select('*').eq('ano_cmpt', ano).eq('mes_cmpt', mes);
                 if (error) throw error;
                 
                 let rawData = data || [];
@@ -458,7 +457,7 @@
                     else if (prefixo === '0206') docExecutante = '7877935';
                     else if (prefixo === '0211') docExecutante = '9162275';
                     else if (proc === '0214010279') docExecutante = '4130162';
-                    else if (prefixo === '0215' || proc.startsWith('0603')) docExecutante = '4069455'; // Correção do 0603 mantida
+                    else if (prefixo === '0215' || proc.startsWith('0603')) docExecutante = '4069455'; 
                     else if (prefixo === '0303') docExecutante = '2393433';
                 }
 
@@ -490,12 +489,9 @@
 
             rawData.forEach(row => {
                 if (!contasAgrupadasGlobais[row.n_aih]) {
-                    // Extração do CID seguro (a view retornou aninhado se usar inner join, ou nulo)
-                    let cid = row.sih_sus_hsh ? row.sih_sus_hsh.diag_princ : row.diag_princ;
-
                     contasAgrupadasGlobais[row.n_aih] = {
                         ...row, 
-                        cid: cid,
+                        cid: row.diag_princ, // AQUI ESTÁ A SEGUNDA MUDANÇA (Puxando direto da View)
                         itens_sp: []
                     };
                     totalValorRD += Number(row.rd_val_tot || 0);
@@ -520,7 +516,6 @@
                 if(uti) totalDiariasUTI += uti.qtd;
             });
 
-            // Atualiza KPIs Topo
             $('#kpiValorRD').text(formatBrl.format(totalValorRD));
             $('#kpiAih').text(arrayTabela.length.toLocaleString('pt-BR'));
             $('#kpiTicket').text(arrayTabela.length > 0 ? formatBrl.format(totalValorRD / arrayTabela.length) : "R$ 0,00");
@@ -534,7 +529,6 @@
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
 
-            // Gráfico 1: Especialidade
             let mapEspec = {};
             dados.forEach(d => {
                 let esp = dicEspecialidades[d.espec] || "OUTRO";
@@ -551,13 +545,11 @@
                 options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}, cutout:'65%' }
             });
 
-            // Gráfico 2: Capítulos CID
             let mapCid = {};
             dados.forEach(d => {
                 let cap = getCapituloCID(d.cid);
                 mapCid[cap] = (mapCid[cap] || 0) + 1;
             });
-            // Ordenar e pegar os 5 maiores
             let arrCid = Object.keys(mapCid).map(k => ({nome: k, qtd: mapCid[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 5);
 
             if(chartCID) chartCID.destroy();
