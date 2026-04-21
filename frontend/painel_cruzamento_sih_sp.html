@@ -3,29 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoria AIH SIH x SP - NII Cloud</title>
+    <title>Auditoria AIH (SIH x SP) - NII Cloud</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 50px; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; 
+            transition: background 0.5s ease, color 0.5s ease;
+        }
 
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; }
-        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
 
-        table.dataTable { width: 100% !important; color: white !important; }
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; font-size: 0.75rem; text-transform: uppercase; }
-        table.dataTable tbody td { padding: 10px 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8rem; }
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
         
+        .cyber-container {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative; z-index: 1; transition: 0.5s;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; position: relative; z-index: 2; text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+        .glass-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(14, 165, 233, 0.6); border-left: 1px solid rgba(14, 165, 233, 0.6);
+        }
+
+        .glass-chart-container {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s;
+        }
+
+        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5), 0 0 15px rgba(5,150,105,0.5); }
+        .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5), 0 0 15px rgba(147,51,234,0.5); }
+        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5), 0 0 15px rgba(217,119,6,0.5); }
+        .neon-text-red { color: #f87171; text-shadow: 0 0 5px rgba(248,113,113,0.5), 0 0 15px rgba(225,29,72,0.5); }
+
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
+        .kpi-number { font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
+
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
+        /* ========================================================= */
+        body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
+        
+        body.theme-classic .cyber-container, 
+        body.theme-classic .glass-card, 
+        body.theme-classic .glass-chart-container {
+            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-radius: 12px !important;
+        }
+        
+        body.theme-classic .glass-card:hover {
+            transform: translateY(-5px) !important; background: #ffffff !important; border-color: #cbd5e1 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-purple { color: #7e22ce !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-yellow { color: #d97706 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-red { color: #dc2626 !important; text-shadow: none !important; }
+        body.theme-classic .kpi-title, body.theme-classic .kpi-sub { color: #64748b !important; }
+        body.theme-classic .glass-chart-title { color: #0f172a !important; border-bottom-color: #f1f5f9 !important; }
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+        body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
+
+        /* ========================================================= */
+        /* DATATABLES & MODAL ESPECÍFICO DA AUDITORIA                */
+        /* ========================================================= */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
+
+        .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; margin-top: 5px; transition: 0.3s; }
+        body.theme-classic .search-input { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.9); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; width: 95%; max-width: 1300px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; color: white; }
@@ -38,9 +143,11 @@
         .sub-table th { background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-size: 0.7rem; padding: 10px; text-transform: uppercase; text-align: left; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
         .sub-table td { padding: 10px; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
+        #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+
         @media print {
             body { background: white !important; color: black !important; }
-            .header-bg, .no-print, .close-btn { display: none !important; }
+            .header-bg, .no-print, .close-btn, .cyber-container, .glass-card, .glass-chart-container, #painel-kpis-gerais { display: none !important; }
             .modal-overlay { display: block !important; position: static !important; background: white !important; }
             .modal-content { width: 100% !important; max-width: none !important; border: none !important; color: black !important; padding: 0 !important; }
             .resumo-box { background: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; grid-template-columns: repeat(4, 1fr) !important; }
@@ -53,23 +160,99 @@
 </head>
 <body>
 
-    <div id="loader" style="display:none;" class="fixed inset-0 bg-black/80 z-[9999] flex flex-col items-center justify-center">
+    <div id="loader" style="display:none;">
         <i class="fas fa-layer-group fa-spin text-5xl text-blue-400 mb-4"></i>
         <p class="text-blue-200 animate-pulse font-bold text-lg">Processando Auditoria AIH...</p>
     </div>
 
-    <div class='header-bg shadow-lg'>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg shadow-lg mb-8'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
-            <div>
-                <h1 class='text-3xl font-bold text-emerald-400'>Auditoria AIH (SIH x SP)</h1>
-                <p class='text-sm mt-1 opacity-70'>Conformidade de Faturamento e Produção Profissional</p>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-search text-3xl text-emerald-400"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Auditoria AIH (SIH x SP)</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Painel Estratégico de Conformidade e Detalhamento Oficial</p>
+                </div>
             </div>
+            
             <div class="flex items-center gap-3">
-                <select id="anoFilter" class="bg-black/40 border border-white/20 rounded px-4 py-1 text-sm outline-none" onchange="carregarDados()"></select>
-                <select id="mesFilter" class="bg-black/40 border border-white/20 rounded px-4 py-1 text-sm outline-none" onchange="carregarDados()"></select>
-                <a href="modulo_gerencial.html" class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded text-sm transition">Voltar</a>
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Ano:</span>
+                    <select id="anoFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none"></select>
+                </div>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Mês:</span>
+                    <select id="mesFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none"></select>
+                </div>
+                <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10" id="painel-kpis-gerais">
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-400"></i> Faturamento Analisado</div>
+                <div class="kpi-number neon-text-green" id="kpiValorRD">R$ 0,00</div>
+                <div class="kpi-sub">Total Geral (SIH)</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-hospital-user mr-1 text-cyan-400"></i> AIHs Aprovadas</div>
+                <div class="kpi-number neon-text-blue" id="kpiAih">0</div>
+                <div class="kpi-sub">Contas Cruzadas</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-chart-bar mr-1 text-purple-400"></i> Ticket Médio AIH</div>
+                <div class="kpi-number neon-text-purple" id="kpiTicket">R$ 0,00</div>
+                <div class="kpi-sub">Valor Médio por Internação</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title"><i class="fas fa-bed-pulse mr-1 text-orange-400"></i> Diárias UTI Faturadas</div>
+                <div class="kpi-number neon-text-yellow" id="kpiUti">0</div>
+                <div class="kpi-sub">Composição de Teto</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-orange-400"></i> Produção por Especialidade</div>
+                <div style="height:250px;"><canvas id="chartEspec"></canvas></div>
+            </div>
+            <div class="glass-chart-container md:col-span-2">
+                <div class="glass-chart-title"><i class="fas fa-virus mr-2 text-cyan-400"></i> Principais Causas (Capítulos CID-10)</div>
+                <div style="height:250px;"><canvas id="chartCID"></canvas></div>
+            </div>
+        </div>
+
+        <div class="cyber-container mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-emerald-400"><i class="fas fa-table mr-2"></i> Relação de Contas Cruzadas (SIH x SP)</h3>
+                <input type="text" id="globalSearch" class="search-input w-1/3" placeholder="Procurar por AIH, Procedimento, CID...">
+            </div>
+            
+            <table id="tabelaCruzamento" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ação</th>
+                        <th>Nº AIH</th>
+                        <th>Cód. CID-10</th>
+                        <th class="proc-col">Procedimento Principal (Capa RD)</th>
+                        <th class="text-center">Especialidade</th>
+                        <th class="text-center">Internamento</th>
+                        <th class="text-right">Valor Capa (R$)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
     </div>
 
     <div id="modalAih" class="modal-overlay">
@@ -149,31 +332,13 @@
         </div>
     </div>
 
-    <main class="max-w-[98%] mx-auto px-4">
-        <div class="cyber-container">
-            <table id="tabelaCruzamento" class="display">
-                <thead>
-                    <tr>
-                        <th class="text-center">Ação</th>
-                        <th>Nº AIH</th>
-                        <th>Procedimento Principal</th>
-                        <th class="text-center">Internação</th>
-                        <th class="text-center">Especialidade</th>
-                        <th class="text-center">Permanência</th>
-                        <th class="text-right">Valor Capa (R$)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </main>
-
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
         let tabelaInstancia = null;
+        let chartEspec = null, chartCID = null;
         let dicProcedimentos = {};
         let contasAgrupadasGlobais = {}; 
         
@@ -182,6 +347,34 @@
         const dicEspecialidades = {
             "01": "CIRÚRGICO", "02": "OBSTÉTRICO", "03": "CLÍNICO", "07": "PEDIÁTRICO", "05": "PSIQUIÁTRICO"
         };
+
+        // Classificação Simples de Capítulos CID-10 para o Gráfico
+        function getCapituloCID(cid) {
+            if(!cid) return "NÃO INFORMADO";
+            let letra = cid.charAt(0).toUpperCase();
+            if(letra === 'A' || letra === 'B') return "Doenças Infecciosas/Parasitárias";
+            if(letra === 'C' || letra === 'D' && cid.charCodeAt(1) < 53) return "Neoplasias (Tumores)";
+            if(letra === 'E') return "Doenças Endócrinas/Nutricionais";
+            if(letra === 'I') return "Doenças do Aparelho Circulatório";
+            if(letra === 'J') return "Doenças do Aparelho Respiratório";
+            if(letra === 'K') return "Doenças do Aparelho Digestivo";
+            if(letra === 'O') return "Gravidez, Parto e Puerpério";
+            if(letra === 'P') return "Afecções do Período Perinatal";
+            if(letra === 'S' || letra === 'T') return "Lesões, Envenenamentos (Traumas)";
+            return "Outras Causas Específicas";
+        }
+
+        function toggleTheme() { 
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_fin', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_fin', 'classic');
+            }
+            if (Object.keys(contasAgrupadasGlobais).length > 0) desenharGraficos(Object.values(contasAgrupadasGlobais));
+        }
 
         function fecharModal() { document.getElementById('modalAih').classList.remove('active'); }
 
@@ -192,6 +385,11 @@
         }
 
         $(document).ready(function() {
+            const savedTheme = localStorage.getItem('nii_theme_fin');
+            if (savedTheme === 'classic' || !savedTheme) { 
+                document.body.classList.add('theme-classic');
+            }
+
             const anoSel = $('#anoFilter');
             const mesSel = $('#mesFilter');
             for(let i = 2026; i >= 2024; i--) anoSel.append(`<option value="${i}">${i}</option>`);
@@ -200,6 +398,10 @@
             
             anoSel.val("2026"); mesSel.val("02");
             carregarDados();
+
+            $('#globalSearch').on('keyup', function() {
+                if(tabelaInstancia) tabelaInstancia.search(this.value).draw();
+            });
         });
 
         async function carregarDados() {
@@ -208,7 +410,8 @@
             const mes = $('#mesFilter').val();
 
             try {
-                const { data, error } = await client.from('vw_cruzamento_sih_sp').select('*').eq('ano_cmpt', ano).eq('mes_cmpt', mes);
+                // Atualizamos o SELECT para buscar também o diag_princ
+                const { data, error } = await client.from('vw_cruzamento_sih_sp').select('*, diag_princ:sih_sus_hsh!inner(diag_princ)').eq('ano_cmpt', ano).eq('mes_cmpt', mes);
                 if (error) throw error;
                 
                 let rawData = data || [];
@@ -232,16 +435,12 @@
 
         function agruparComoSisaih(itensBrutos, cmpt) {
             let mapa = {};
-            
             let itensFiltrados = [];
             let checkDuplicata = new Set();
 
             itensBrutos.forEach(item => {
                 let idUnico = `${item.ato_profissional}_${item.cbo_profissional}_${item.doc_profissional_pf}_${Number(item.valor_total_item).toFixed(2)}`;
-                if(!checkDuplicata.has(idUnico)) {
-                    checkDuplicata.add(idUnico);
-                    itensFiltrados.push(item);
-                }
+                if(!checkDuplicata.has(idUnico)) { checkDuplicata.add(idUnico); itensFiltrados.push(item); }
             });
 
             itensFiltrados.forEach(item => {
@@ -259,29 +458,23 @@
                     else if (prefixo === '0206') docExecutante = '7877935';
                     else if (prefixo === '0211') docExecutante = '9162275';
                     else if (proc === '0214010279') docExecutante = '4130162';
-                    else if (prefixo === '0215') docExecutante = '4069455';
+                    else if (prefixo === '0215' || proc.startsWith('0603')) docExecutante = '4069455'; // Correção do 0603 mantida
                     else if (prefixo === '0303') docExecutante = '2393433';
                 }
 
                 if (!mapa[proc]) {
                     mapa[proc] = {
-                        procedimento: proc,
-                        documento: docExecutante,
+                        procedimento: proc, documento: docExecutante,
                         cbo: (item.cbo_profissional === '000000' ? '' : item.cbo_profissional),
-                        qtd: 1,
-                        cmpt: cmpt,
-                        cnes_hospital: '2311682',
-                        valor: Number(item.valor_total_item || 0),
-                        tem_medico: !!cns
+                        qtd: 1, cmpt: cmpt, cnes_hospital: '2311682',
+                        valor: Number(item.valor_total_item || 0), tem_medico: !!cns
                     };
                 } else {
                     mapa[proc].valor += Number(item.valor_total_item || 0);
                     if (cns && !mapa[proc].tem_medico) {
-                        mapa[proc].documento = cns;
-                        mapa[proc].cbo = item.cbo_profissional;
-                        mapa[proc].tem_medico = true;
+                        mapa[proc].documento = cns; mapa[proc].cbo = item.cbo_profissional; mapa[proc].tem_medico = true;
                     }
-                    if (proc === '0802010032') mapa[proc].qtd += 1;
+                    if (proc === '0802010032' || proc.startsWith('0303')) mapa[proc].qtd += 1;
                 }
             });
 
@@ -292,11 +485,20 @@
 
         function processarEAgruparDados(rawData, cmpt) {
             contasAgrupadasGlobais = {}; 
+            let totalValorRD = 0;
+            let totalDiariasUTI = 0;
+
             rawData.forEach(row => {
                 if (!contasAgrupadasGlobais[row.n_aih]) {
+                    // Extração do CID seguro (a view retornou aninhado se usar inner join, ou nulo)
+                    let cid = row.sih_sus_hsh ? row.sih_sus_hsh.diag_princ : row.diag_princ;
+
                     contasAgrupadasGlobais[row.n_aih] = {
-                        ...row, itens_sp: []
+                        ...row, 
+                        cid: cid,
+                        itens_sp: []
                     };
+                    totalValorRD += Number(row.rd_val_tot || 0);
                 }
                 if (row.ato_profissional) {
                     contasAgrupadasGlobais[row.n_aih].itens_sp.push({
@@ -310,27 +512,82 @@
                 }
             });
 
-            Object.values(contasAgrupadasGlobais).forEach(c => {
+            let arrayTabela = Object.values(contasAgrupadasGlobais);
+            
+            arrayTabela.forEach(c => {
                 c.itens_sisaih = agruparComoSisaih(c.itens_sp, cmpt);
+                let uti = c.itens_sisaih.find(i => i.procedimento.startsWith('0802'));
+                if(uti) totalDiariasUTI += uti.qtd;
             });
 
-            montarTabelaDataTables(Object.values(contasAgrupadasGlobais));
+            // Atualiza KPIs Topo
+            $('#kpiValorRD').text(formatBrl.format(totalValorRD));
+            $('#kpiAih').text(arrayTabela.length.toLocaleString('pt-BR'));
+            $('#kpiTicket').text(arrayTabela.length > 0 ? formatBrl.format(totalValorRD / arrayTabela.length) : "R$ 0,00");
+            $('#kpiUti').text(totalDiariasUTI);
+
+            desenharGraficos(arrayTabela);
+            montarTabelaDataTables(arrayTabela);
+        }
+
+        function desenharGraficos(dados) {
+            let isClassic = document.body.classList.contains('theme-classic');
+            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
+
+            // Gráfico 1: Especialidade
+            let mapEspec = {};
+            dados.forEach(d => {
+                let esp = dicEspecialidades[d.espec] || "OUTRO";
+                mapEspec[esp] = (mapEspec[esp] || 0) + 1;
+            });
+            
+            if(chartEspec) chartEspec.destroy();
+            chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
+                type: 'doughnut',
+                data: { 
+                    labels: Object.keys(mapEspec), 
+                    datasets: [{ data: Object.values(mapEspec), backgroundColor: isClassic ? ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'] : ['#38bdf8', '#34d399', '#fbbf24', '#c084fc', '#f87171'], borderWidth: isClassic ? 2 : 0, borderColor: '#ffffff' }] 
+                },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}, cutout:'65%' }
+            });
+
+            // Gráfico 2: Capítulos CID
+            let mapCid = {};
+            dados.forEach(d => {
+                let cap = getCapituloCID(d.cid);
+                mapCid[cap] = (mapCid[cap] || 0) + 1;
+            });
+            // Ordenar e pegar os 5 maiores
+            let arrCid = Object.keys(mapCid).map(k => ({nome: k, qtd: mapCid[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 5);
+
+            if(chartCID) chartCID.destroy();
+            chartCID = new Chart(document.getElementById('chartCID').getContext('2d'), {
+                type: 'bar',
+                data: { 
+                    labels: arrCid.map(a => a.nome), 
+                    datasets: [{ label: 'Vol. AIH', data: arrCid.map(a => a.qtd), backgroundColor: isClassic ? '#004e92' : 'rgba(56, 189, 248, 0.6)', borderRadius: 4 }]
+                },
+                options: { 
+                    responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+                    scales: { y: { grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } }, x: { ticks: { maxRotation: 15, minRotation: 15 } } }
+                }
+            });
         }
 
         function montarTabelaDataTables(dados) {
-            if (tabelaInstancia) tabelaInstancia.destroy();
+            if (tabelaInstancia) { tabelaInstancia.destroy(); $('#tabelaCruzamento tbody').empty(); }
             tabelaInstancia = $('#tabelaCruzamento').DataTable({
                 data: dados,
                 columns: [
-                    { data: null, className: 'text-center', render: (d,t,r) => `<button onclick="abrirAuditoria('${r.n_aih}')" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold transition hover:bg-blue-500">Auditoria AIH</button>` },
+                    { data: null, className: 'text-center', render: (d,t,r) => `<button onclick="abrirAuditoria('${r.n_aih}')" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold transition hover:bg-blue-500">Auditar Conta</button>` },
                     { data: 'n_aih', className: 'font-mono font-bold text-emerald-400' },
+                    { data: 'cid', className: 'font-mono font-bold text-center text-orange-300', render: d => d || '-' },
                     { data: 'proc_principal', className: 'proc-col', render: d => getProcName(d) },
-                    { data: 'dt_inter', className: 'text-center', render: d => d.split('-').reverse().join('/') },
                     { data: 'espec', className: 'text-center font-bold', render: d => dicEspecialidades[d] || d },
-                    { data: 'dias_perm', className: 'text-center', render: d => d + ' d' },
-                    { data: 'rd_val_tot', className: 'text-right font-bold text-blue-300', render: d => formatBrl.format(d) }
+                    { data: 'dt_inter', className: 'text-center font-mono', render: d => d.split('-').reverse().join('/') },
+                    { data: 'rd_val_tot', className: 'text-right font-bold text-blue-300', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
-                order: [[6, 'desc']], pageLength: 15, dom: 'frtip',
+                order: [[6, 'desc']], pageLength: 15, dom: 'rtip',
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
             });
         }
@@ -341,7 +598,6 @@
             $('#modProcPrinc').text(getProcName(c.proc_principal));
             $('#modValorTotal').text(formatBrl.format(c.rd_val_tot));
 
-            // Preenchimento do Resumo com a coluna corrigida "espec"
             $('#resEspec').text(dicEspecialidades[c.espec] || c.espec);
             $('#resCarater').text(c.carater_atend === '01' ? 'ELETIVO' : 'URGÊNCIA');
             $('#resDias').text(c.dias_perm + " Dias");
