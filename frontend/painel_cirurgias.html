@@ -69,11 +69,6 @@
         .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
         .kpi-sub { font-size: 0.70rem; color: #94a3b8; font-weight: 500; }
         .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
-        .meta-badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; color: white; font-weight: 800; font-size: 0.7rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-
-        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5), 0 0 15px rgba(5,150,105,0.5); }
-        .neon-text-pink { color: #f472b6; text-shadow: 0 0 5px rgba(244,114,182,0.5), 0 0 15px rgba(190,24,93,0.5); }
-        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
 
         /* MODO CLÁSSICO */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
@@ -82,9 +77,6 @@
         body.theme-classic .cyber-container, body.theme-classic .glass-card, body.theme-classic .glass-chart-container {
             background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         }
-        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
-        body.theme-classic .neon-text-pink { color: #db2777 !important; text-shadow: none !important; }
-        body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
         body.theme-classic .kpi-title, body.theme-classic .kpi-sub { color: #64748b !important; }
         body.theme-classic .glass-chart-title { color: #0f172a !important; border-bottom-color: #f1f5f9 !important; }
 
@@ -140,7 +132,7 @@
 
     <div id="loader" style="display:none;">
         <i class="fas fa-layer-group fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-blue-200 animate-pulse font-bold text-lg">Processando Cirurgias...</p>
+        <p class="text-blue-200 animate-pulse font-bold text-lg" id="loader-text">Lendo Planilha e Cruzando com SIGTAP...</p>
     </div>
 
     <div class="blob-1"></div>
@@ -203,7 +195,7 @@
                     <tr>
                         <th width="80">Data</th>
                         <th width="140">Especialidade (SIGTAP)</th>
-                        <th width="100">Código</th>
+                        <th width="100">Código Cruzado</th>
                         <th>Procedimento</th>
                         <th width="150">Paciente</th>
                         <th width="150">Cirurgião</th>
@@ -234,6 +226,18 @@
         let chartEspec = null;
 
         const TERMOS_OBS_SECUNDARIOS = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA'];
+
+        // --- INTELIGÊNCIA DE BUSCA ---
+        // Função que cruza o nome do procedimento (Excel) com os nomes da tabela SIGTAP
+        function cruzarCodigoSigtap(nomeDoExcel, listaSigtap) {
+            if (!nomeDoExcel) return null;
+            
+            let nomeLimpo = nomeDoExcel.toUpperCase().trim();
+            // Tenta achar pelo nome exato ou parte do nome (ajuda bastante)
+            let match = listaSigtap.find(s => s.nome.toUpperCase().includes(nomeLimpo) || nomeLimpo.includes(s.nome.toUpperCase()));
+            
+            return match ? match.codigo : null;
+        }
 
         function mapearEspecialidade(cod, desc) {
             if (!cod || cod.length < 4) {
@@ -325,17 +329,32 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
-                const { data, error } = await client.from('cirurgias_detalhe')
+                // 1. Pega as Cirurgias do Excel
+                $('#loader-text').text("Buscando Cirurgias do Mês...");
+                const { data: cirurgiasData, error } = await client.from('cirurgias_detalhe')
                                               .select('*')
                                               .eq('convenio', 'SUS')
                                               .gte('data_cirurgia', d1)
                                               .lte('data_cirurgia', d2);
                 if (error) throw error;
                 
-                dadosOriginais = (data || []).map(d => {
+                // 2. Pega os Nomes da Tabela SIGTAP para fazer o cruzamento client-side
+                $('#loader-text').text("Cruzando nomes com SIGTAP...");
+                const { data: sigtapData } = await client.from('sigtap_oficial').select('codigo, nome');
+                
+                let sigtapList = sigtapData || [];
+
+                dadosOriginais = (cirurgiasData || []).map(d => {
+                    // Se o código não veio pronto do Python, o JS procura ele no SIGTAP
+                    let codCorreto = d.cod_tabela;
+                    if (!codCorreto || codCorreto === "null" || codCorreto === "") {
+                        codCorreto = cruzarCodigoSigtap(d.procedimento, sigtapList);
+                    }
+
                     return {
                         ...d,
-                        especialidade_oficial: mapearEspecialidade(d.cod_tabela, d.procedimento)
+                        cod_tabela: codCorreto,
+                        especialidade_oficial: mapearEspecialidade(codCorreto, d.procedimento)
                     }
                 });
 
@@ -347,20 +366,18 @@
 
         function atualizarResumoEGraficos(dadosFiltrados) {
             let mapEspec = {};
-            let mapProc = {}; // Mapa para o Rank individual
+            let mapProc = {}; 
             
             dadosFiltrados.forEach(d => {
                 let esp = d.especialidade_oficial;
                 mapEspec[esp] = (mapEspec[esp] || 0) + 1;
                 
-                // Nome limpo da cirurgia
                 let pNome = d.procedimento || "NÃO IDENTIFICADO";
-                // Limita tamanho para caber bonito
                 if(pNome.length > 60) pNome = pNome.substring(0, 60) + '...';
                 mapProc[pNome] = (mapProc[pNome] || 0) + 1;
             });
 
-            // 1. MONTA OS CARDS DE ESPECIALIDADE
+            // CARDS
             let arrEspec = Object.keys(mapEspec).map(k => ({nome: k, qtd: mapEspec[k]})).sort((a,b) => b.qtd - a.qtd);
             let htmlCards = `
                 <div class="glass-card">
@@ -381,7 +398,7 @@
             });
             $('#painel-resumo').html(htmlCards);
 
-            // 2. MONTA A LISTA (RANK) INDIVIDUAL DE PROCEDIMENTOS
+            // RANK (TOP PROCEDIMENTOS)
             let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
             $('#totalProcsDiff').text(arrProc.length + " tipos");
             
@@ -397,7 +414,7 @@
             if(arrProc.length === 0) htmlLista = '<li class="rank-item text-gray-500 justify-center">Nenhuma cirurgia no filtro atual.</li>';
             $('#listaRank').html(htmlLista);
 
-            // 3. DESENHA O GRÁFICO (DONUT)
+            // GRAFICO DONUT
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
             
