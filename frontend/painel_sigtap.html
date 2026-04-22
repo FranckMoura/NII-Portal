@@ -72,6 +72,7 @@
         .tag-fz { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
         .tag-opme-val { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .tag-opme-qtd { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tag-cid { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
 
         .texto-cir { color: #60a5fa; }
         .texto-ane { color: #c084fc; }
@@ -91,6 +92,7 @@
         body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         body.theme-classic .tag-opme-val { background-color: #ecfdf5; color: #059669; border-color: #a7f3d0; }
         body.theme-classic .tag-opme-qtd { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        body.theme-classic .tag-cid { background-color: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
 
         body.theme-classic .texto-cir { color: #1d4ed8; }
         body.theme-classic .texto-ane { color: #7e22ce; }
@@ -157,7 +159,7 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-book-medical text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold text-white'>Catálogo SIGTAP & Fila Zero</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada DATASUS + Programa Fila Zero + OPME</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada DATASUS + Programa Fila Zero + OPME + CID-10</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -203,7 +205,7 @@
             </select>
             
             <div class="search-box">
-                <input type="text" id="customSearch" placeholder="Digite o código ou nome do procedimento...">
+                <input type="text" id="customSearch" placeholder="Digite Código, Procedimento ou CID (Ex: K40, O82, G40)...">
                 <i class="fas fa-search"></i>
             </div>
             <div class="text-sm font-bold text-gray-400 w-full md:w-auto text-right" id="contador-registros">Aguardando banco...</div>
@@ -212,7 +214,7 @@
         <div class="table-card">
             <div id="loading-msg" style="text-align:center; padding:50px;">
                 <i class="fas fa-circle-notch fa-spin fa-3x text-blue-500 mb-4"></i><br>
-                <span id="status-text" class="font-bold text-lg text-gray-400">Sincronizando Bancos (SIGTAP + OPME + FZ)...</span>
+                <span id="status-text" class="font-bold text-lg text-gray-400">Sincronizando Bancos (SIGTAP + OPME + FZ + CID)...</span>
             </div>
             <table id="tabelaProc" class="display" style="width:100%; display:none">
                 <thead>
@@ -223,7 +225,7 @@
                         <th class="text-right w-20">Valor SH</th>
                         <th class="text-right w-20">Valor SP</th>
                         <th class="text-right w-24">Fila Zero</th>
-                        <th class="text-center w-24">OPMEs Vinculadas</th>
+                        <th class="text-center w-20">Anexos</th>
                         <th class="text-center w-24">Ação</th>
                     </tr>
                 </thead>
@@ -268,7 +270,7 @@
             localStorage.setItem('nii_theme_sig', document.body.classList.contains('theme-classic') ? 'classic' : 'neon');
         }
 
-        // Filtro Duplo do DataTables
+        // Filtro Duplo do DataTables (A busca no Search nativo já encontra o CID pois ele estará na coluna "oculta" ou no texto da regra)
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var filtroOrigem = $('#filtroOrigem').val();
             var filtroGrupo = $('#filtroGrupo').val();
@@ -289,7 +291,6 @@
         $(document).ready(async function() {
             if (localStorage.getItem('nii_theme_sig') === 'classic') document.body.classList.add('theme-classic');
 
-            // Data de impressão atualizada
             const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
             $('#print-data-emissao').text(hoje);
             $('#footer-data-rodape').text(hoje);
@@ -301,8 +302,11 @@
                 $('#status-text').text("Sincronizando Fila Zero...");
                 const { data: filaZeroData } = await client.from('fila_zero_procedimentos').select('*');
                 
-                $('#status-text').text("Cruzando Relações de OPME...");
+                $('#status-text').text("Cruzando OPMEs...");
                 const { data: opmeData } = await client.from('sigtap_opme').select('*');
+
+                $('#status-text').text("Cruzando CIDs Autorizados...");
+                const { data: cidData } = await client.from('vw_sigtap_cid').select('*'); // Nova View de CIDs!
 
                 let mapFZ = {};
                 if(filaZeroData) filaZeroData.forEach(fz => { mapFZ[fz.codigo_sigtap] = fz; });
@@ -312,6 +316,14 @@
                     opmeData.forEach(o => {
                         if(!mapOPME[o.codigo_principal]) mapOPME[o.codigo_principal] = [];
                         mapOPME[o.codigo_principal].push({ codigo: o.codigo_opme, qtd: o.quantidade_maxima });
+                    });
+                }
+
+                let mapCID = {};
+                if(cidData) {
+                    cidData.forEach(c => {
+                        if(!mapCID[c.codigo_procedimento]) mapCID[c.codigo_procedimento] = [];
+                        mapCID[c.codigo_procedimento].push({ cid: c.codigo_cid, nome: c.nome_cid, princ: c.status_principal });
                     });
                 }
 
@@ -340,16 +352,23 @@
                         });
                     }
 
+                    let cidsVinculados = mapCID[item.codigo] || [];
+                    // Cria uma string oculta para o DataTables poder pesquisar, 
+                    // com todos os CIDs (ex: "K40 K409 O82")
+                    let stringCidOculta = cidsVinculados.map(c => c.cid).join(' '); 
+
                     return {
                         codigo: item.codigo,
                         descricao: item.nome,
-                        valor_sa: item.valor_ambulatorial, // VALOR SA DE VOLTA!
+                        valor_sa: item.valor_ambulatorial, 
                         valor_sh: item.valor_hospitalar,
                         valor_sp: item.valor_profissional,
                         valor_total: item.valor_hospitalar + item.valor_profissional,
                         regras: `Cmplx: ${compNome} | Sexo: ${sexoNome} | Idade: ${idadeStr}`,
                         fz_valor: fz ? fz.valor_unitario : 0,
-                        compatibilidades: opmesVinculadas
+                        compatibilidades: opmesVinculadas,
+                        cids: cidsVinculados,
+                        search_extra: stringCidOculta // Campo usado só pra busca
                     };
                 });
 
@@ -365,10 +384,15 @@
                     columns: [
                         { data: 'codigo', className: 'font-mono text-center', render: function(d) { return `<b class="code-box px-2 py-1 rounded font-bold">${d}</b>`; } },
                         { 
-                            data: 'descricao', 
-                            render: function(d, type, row) { 
+                            data: null, 
+                            render: function(data, type, row) {
+                                // O type 'filter' injeta a string_extra de CIDs junto com a descrição para a busca funcionar
+                                if (type === 'filter') {
+                                    return row.descricao + ' ' + row.search_extra;
+                                }
+                                
                                 let tags = row.regras.split(' | ').map(x => `<span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">${x}</span>`).join('');
-                                return '<div class="font-bold text-[0.85rem] mb-1">' + d + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
+                                return '<div class="font-bold text-[0.85rem] mb-1">' + row.descricao + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
                             } 
                         },
                         { data: 'valor_sa', className: 'text-right font-mono text-emerald-500 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
@@ -379,9 +403,13 @@
                             render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="dyn-text-muted opacity-50">-</span>`; } 
                         },
                         { 
-                            data: 'compatibilidades', className: 'text-center',
-                            render: function(d) {
-                                return d.length > 0 ? `<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-wrench"></i> ${d.length} OPME</span>` : `<span class="dyn-text-muted opacity-50">-</span>`;
+                            data: null, className: 'text-center',
+                            render: function(data, type, row) {
+                                let badgeOpme = row.compatibilidades.length > 0 ? `<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm mb-1 block"><i class="fas fa-wrench"></i> ${row.compatibilidades.length} OPME</span>` : '';
+                                let badgeCid = row.cids.length > 0 ? `<span class="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm block"><i class="fas fa-virus"></i> ${row.cids.length} CIDs</span>` : '';
+                                
+                                if (!badgeOpme && !badgeCid) return `<span class="dyn-text-muted opacity-50">-</span>`;
+                                return `<div>${badgeOpme}${badgeCid}</div>`;
                             }
                         },
                         {
@@ -428,10 +456,10 @@
         };
 
         // ==========================================
-        // GERAÇÃO DO MODAL DE COMPARAÇÃO
+        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM CIDs
         // ==========================================
         window.abrirModal = function() {
-            if (selecionados.length < 2) { alert("Selecione pelo menos 2 procedimentos."); return; }
+            if (selecionados.length < 1) { alert("Selecione pelo menos 1 procedimento."); return; }
             var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
 
             const isClassic = document.body.classList.contains('theme-classic');
@@ -447,7 +475,6 @@
             itens.forEach(function(i) { h += `<td style="${tdColor} font-weight:800; font-size:1rem;">${i.descricao}<br><span class="opacity-70 font-size:0.85rem; font-weight:400;">Cód: ${i.codigo}</span></td>`; });
             h += '</tr>';
 
-            // ADICIONADO VALOR SA AQUI NO MODAL
             h += `<tr><th style="${thColor}"><i class="fas fa-clinic-medical text-emerald-500"></i> Valor Ambulatorial (SA)</th>`;
             itens.forEach(function(i) { h += `<td class="font-medium font-mono text-emerald-500">` + brl.format(i.valor_sa) + '</td>'; });
             h += '</tr>';
@@ -456,12 +483,9 @@
             itens.forEach(function(i) { h += `<td class="font-medium font-mono text-blue-500">` + brl.format(i.valor_sh) + '</td>'; });
             h += '</tr>';
 
-            // VALOR SP COM CÁLCULO 70/30 PARA O GRUPO 04
             h += `<tr><th style="${thColor}"><i class="fas fa-user-md text-purple-500"></i> Valor Profissional (SP)</th>`;
             itens.forEach(function(i) { 
                 let spHtml = `<td class="font-medium font-mono text-purple-500">` + brl.format(i.valor_sp);
-                
-                // Regra Mágica: Se for Cirúrgico (Grupo 04) e tiver valor SP, calcula Cirurgião e Anestesista!
                 if (i.codigo.startsWith('04') && i.valor_sp > 0) {
                     let cirurgiao = i.valor_sp * 0.70;
                     let anestesista = i.valor_sp * 0.30;
@@ -471,7 +495,6 @@
                         <div class="px-2 py-1 rounded theme-adjust-bg-purple border"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div>
                     </div>`;
                 }
-                
                 spHtml += `</td>`;
                 h += spHtml;
             });
@@ -491,14 +514,30 @@
             h += `<tr><th style="${thColor}"><i class="fas fa-tools text-orange-400"></i> Materiais (OPME)</th>`;
             itens.forEach(function(i) {
                 if (i.compatibilidades && i.compatibilidades.length > 0) {
-                    h += '<td><ul class="list-none p-0 m-0 space-y-2">';
+                    h += `<td><div style="max-height:150px; overflow-y:auto; padding-right:5px;"><ul class="list-none p-0 m-0 space-y-2">`;
                     i.compatibilidades.forEach(function(op) { 
                         let valFormatado = op.valor > 0 ? `<span class="tag-opme-val float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">${brl.format(op.valor)}</span>` : '';
                         h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2" style="${tdColor}"><b style="color:#d97706">${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
                     });
-                    h += '</ul></td>';
+                    h += '</ul></div></td>';
                 } else {
                     h += `<td class="text-center opacity-50" style="${tdColor}">Sem OPME</td>`;
+                }
+            });
+            h += '</tr>';
+
+            // NOVO BLOCO: CIDs COMPATÍVEIS NO MODAL
+            h += `<tr><th style="${thColor}"><i class="fas fa-virus text-purple-400"></i> CIDs Compatíveis</th>`;
+            itens.forEach(function(i) {
+                if (i.cids && i.cids.length > 0) {
+                    h += `<td><div style="max-height:150px; overflow-y:auto; padding-right:5px;"><ul class="list-none p-0 m-0 space-y-1">`;
+                    i.cids.forEach(function(c) { 
+                        let princTag = c.princ === 'S' ? `<span class="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] px-1 rounded ml-1" title="CID Principal" style="vertical-align: super;">P</span>` : '';
+                        h += `<li class="text-xs border-b border-dashed border-gray-500/30 pb-1 pt-1" style="${tdColor}"><b class="tag-cid px-1 rounded">${c.cid}</b> ${c.nome} ${princTag}</li>`; 
+                    });
+                    h += '</ul></div></td>';
+                } else {
+                    h += `<td class="text-center opacity-50" style="${tdColor}">Sem CIDs restritos</td>`;
                 }
             });
             h += '</tr>';
