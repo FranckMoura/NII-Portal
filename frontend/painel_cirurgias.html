@@ -120,13 +120,12 @@
         #painel-resumo { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
         #painel-resumo > div { flex: 1 1 calc(25% - 15px); min-width: 150px; }
         
-        /* ESTILOS DA LISTA AGRUPADA (RANK) */
         .rank-list { margin: 0; padding: 0; list-style: none; }
         .rank-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.80rem; align-items: center; }
         .rank-item:last-child { border-bottom: none; }
         body.theme-classic .rank-item { border-bottom-color: #e2e8f0; }
         .rank-qtd { font-weight: 900; padding: 2px 6px; border-radius: 6px; font-size: 0.70rem; }
-        body.theme-classic .rank-nome-procedimento { color: #334155; }
+        body.theme-classic .rank-nome { color: #334155; }
     </style>
 </head>
 <body>
@@ -145,7 +144,7 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-procedures text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold text-white'>Produção Cirúrgica</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Monitoramento de Especialidades Oficiais SUS</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Monitoramento de Metas SUS e Centro Cirúrgico</p>
                 </div>
             </div>
             
@@ -168,36 +167,49 @@
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="glass-chart-title border-none mb-2"><i class="fas fa-layer-group text-emerald-400 mr-2"></i> Resumo por Especialidade (Volume Processado)</div>
+        <div class="glass-chart-title border-none mb-2"><i class="fas fa-layer-group text-emerald-400 mr-2"></i> Resumo Analítico da Competência</div>
         <div id="painel-resumo"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
-            
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
             <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
                 <div style="height:250px;"><canvas id="chartEspec"></canvas></div>
             </div>
             
-            <div class="glass-chart-container md:col-span-2" style="max-height: 350px; overflow-y: auto;">
-                <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-rank">
-                    <span><i class="fas fa-list-ol mr-2 text-orange-400"></i> Detalhamento por Especialidade</span>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-bullseye mr-2 text-orange-400"></i> Acompanhamento de Metas</div>
+                <div style="height:250px;"><canvas id="chartMetas"></canvas></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
+                <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-proc">
+                    <span><i class="fas fa-list-ol mr-2 text-blue-400"></i> Ranking de Procedimentos</span>
                     <span id="totalProcsDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 tipos</span>
                 </div>
-                <div id="listaRank" class="pr-2 mt-2"></div>
+                <div id="listaProc" class="pr-2 mt-2"></div>
             </div>
-            
+
+            <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
+                <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-med">
+                    <span><i class="fas fa-user-md mr-2 text-emerald-400"></i> Produtividade por Cirurgião</span>
+                    <span id="totalMedDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 médicos</span>
+                </div>
+                <div id="listaMed" class="pr-2 mt-2"></div>
+            </div>
         </div>
 
         <div class="cyber-container mb-8">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-emerald-400"><i class="fas fa-table mr-2"></i> Relação de Procedimentos Realizados</h3>
+                <h3 class="font-bold text-lg text-emerald-400"><i class="fas fa-table mr-2"></i> Relação Oficial de Procedimentos</h3>
             </div>
             
             <table id="tabelaCirurgias" class="display" style="width:100%">
                 <thead>
                     <tr>
                         <th width="80">Data</th>
-                        <th width="140">Especialidade (SIGTAP)</th>
+                        <th width="140">Especialidade Macro</th>
                         <th width="100">Código Cruzado</th>
                         <th>Procedimento</th>
                         <th width="150">Paciente</th>
@@ -226,9 +238,27 @@
         
         let tabelaInstancia = null;
         let dadosOriginais = [];
-        let chartEspec = null;
+        let chartEspec = null, chartMetas = null;
 
-        const TERMOS_OBS_SECUNDARIOS = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA'];
+        const META_CIRURGIA = 148;
+        const META_OBSTETRICIA = 699;
+        
+        // --- A LISTA EXATA DE TERMOS DA OBSTETRÍCIA ---
+        const TERMOS_OBSTETRICIA = [
+            'CESARIANA', 
+            'CURETAGEM PÓS-ABORTAMENTO', 
+            'CURETAGEM PÓS ABORTAMENTO',
+            'CURETAGEM UTERINA', 
+            'CESAREA COM LAQUEADURA', 
+            'CERCLAGEM DO COLO UTERINO', 
+            'GRAVIDEZ ECTÓPICA', 
+            'GRAVIDEZ ECTOPICA',
+            'REVISAO DE COLO VAGINAL', 
+            'REVISÃO DE COLO VAGINAL',
+            'DRENAGEM HEMATOMA DE VULVA', 
+            'CURAGEM UTERINA',
+            'PARTO' // Garantia
+        ];
 
         function cruzarCodigoSigtap(nomeDoExcel, listaSigtap) {
             if (!nomeDoExcel) return null;
@@ -237,41 +267,19 @@
             return match ? match.codigo : null;
         }
 
+        // --- REGRA MACRO: CIRURGIA GERAL VS OBSTETRÍCIA ---
         function mapearEspecialidade(cod, desc) {
-            if (!cod || cod.length < 4) {
-                if (TERMOS_OBS_SECUNDARIOS.some(t => (desc||"").toUpperCase().includes(t))) return 'OBSTETRÍCIA';
-                return 'CIRURGIA GERAL';
-            }
-            const pre = cod.substring(0, 4);
+            let nomeProc = (desc || "").toUpperCase();
+            let pre = cod ? cod.substring(0, 4) : "";
+            
+            // 1. Regra Oficial SIGTAP
             if (pre === '0310' || pre === '0411') return 'OBSTETRÍCIA';
-            if (pre === '0401') return 'BUCOMAXILOFACIAL';
-            if (pre === '0403') return 'NEUROCIRURGIA';
-            if (pre === '0404') return 'CABEÇA E PESCOÇO';
-            if (pre === '0405') return 'OFTALMOLOGIA';
-            if (pre === '0406') return 'CARDIOVASCULAR';
-            if (pre === '0407') return 'APARELHO DIGESTIVO';
-            if (pre === '0408') return 'ORTOPEDIA';
-            if (pre === '0409') return 'UROLOGIA';
-            if (pre === '0410') return 'MASTOLOGIA';
-            if (pre === '0412') return 'CIRURGIA TORÁCICA';
-            if (pre === '0413') return 'CIRURGIA PLÁSTICA';
-            if (pre === '0415') return 'OUTRAS CIRURGIAS';
-            if (TERMOS_OBS_SECUNDARIOS.some(t => (desc||"").toUpperCase().includes(t))) return 'OBSTETRÍCIA';
+            
+            // 2. Regra por Nome (A sua lista)
+            if (TERMOS_OBSTETRICIA.some(t => nomeProc.includes(t))) return 'OBSTETRÍCIA';
+            
+            // 3. Todo o resto é Geral
             return 'CIRURGIA GERAL';
-        }
-
-        function getCorEspecialidade(especialidade) {
-            const isClassic = document.body.classList.contains('theme-classic');
-            switch(especialidade) {
-                case 'OBSTETRÍCIA': return isClassic ? '#ec4899' : '#f472b6'; 
-                case 'ORTOPEDIA': return isClassic ? '#b45309' : '#fbbf24'; 
-                case 'UROLOGIA': return isClassic ? '#6d28d9' : '#c084fc'; 
-                case 'CIRURGIA PLÁSTICA': return isClassic ? '#0f766e' : '#2dd4bf'; 
-                case 'APARELHO DIGESTIVO': return isClassic ? '#b91c1c' : '#f87171'; 
-                case 'BUCOMAXILOFACIAL': return isClassic ? '#047857' : '#34d399'; 
-                case 'CIRURGIA GERAL': return isClassic ? '#0284c7' : '#38bdf8'; 
-                default: return isClassic ? '#475569' : '#94a3b8'; 
-            }
         }
 
         function toggleTheme() { 
@@ -279,11 +287,11 @@
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
                 localStorage.setItem('nii_theme_cir', 'neon');
-                $('#header-lista-rank').css('background', '#001528');
+                $('#header-lista-proc, #header-lista-med').css('background', '#001528');
             } else {
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_cir', 'classic');
-                $('#header-lista-rank').css('background', '#ffffff');
+                $('#header-lista-proc, #header-lista-med').css('background', '#ffffff');
             }
             if (tabelaInstancia) {
                 let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
@@ -305,7 +313,7 @@
             const savedTheme = localStorage.getItem('nii_theme_cir');
             if (savedTheme === 'classic') {
                 document.body.classList.add('theme-classic');
-                $('#header-lista-rank').css('background', '#ffffff');
+                $('#header-lista-proc, #header-lista-med').css('background', '#ffffff');
             }
 
             const anoSel = $('#anoFilter');
@@ -365,108 +373,156 @@
         }
 
         function atualizarResumoEGraficos(dadosFiltrados) {
-            let mapEspec = {};
-            let mapProcByEspec = {}; // Agrupador de Procedimentos por Especialidade
+            let qtdCirurgia = 0;
+            let qtdObs = 0;
+
+            let mapProc = {}; // Agrupador de Procedimentos
+            let mapMed = {}; // Agrupador de Cirurgiões
             
             dadosFiltrados.forEach(d => {
                 let esp = d.especialidade_oficial;
-                mapEspec[esp] = (mapEspec[esp] || 0) + 1;
+                if (esp === 'OBSTETRÍCIA') qtdObs++;
+                else qtdCirurgia++;
                 
-                if(!mapProcByEspec[esp]) mapProcByEspec[esp] = {};
-                
+                // Procedimentos
                 let pNome = d.procedimento || "NÃO IDENTIFICADO";
-                if(pNome.length > 70) pNome = pNome.substring(0, 70) + '...';
-                mapProcByEspec[esp][pNome] = (mapProcByEspec[esp][pNome] || 0) + 1;
+                if(pNome.length > 50) pNome = pNome.substring(0, 50) + '...';
+                mapProc[pNome] = (mapProc[pNome] || 0) + 1;
+
+                // Médicos
+                let mNome = d.cirurgiao || "NÃO INFORMADO";
+                if(mNome.trim() === "NAN") mNome = "NÃO INFORMADO";
+                mapMed[mNome] = (mapMed[mNome] || 0) + 1;
             });
 
-            // 1. CARDS DO TOPO
-            let arrEspec = Object.keys(mapEspec).map(k => ({nome: k, qtd: mapEspec[k]})).sort((a,b) => b.qtd - a.qtd);
+            // 1. CARDS DO TOPO (KPIs e Metas)
+            let percCir = Math.round((qtdCirurgia / META_CIRURGIA) * 100) || 0;
+            let percObs = Math.round((qtdObs / META_OBSTETRICIA) * 100) || 0;
+            
+            const getMetaColor = (perc) => {
+                if(perc >= 100) return '#10b981'; 
+                if(perc >= 80) return '#f59e0b'; 
+                return '#ef4444'; 
+            }
+
             let htmlCards = `
-                <div class="glass-card">
-                    <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-clipboard-list mr-1"></i> Total do Período</div>
-                    <div class="kpi-number" style="color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${dadosFiltrados.length}</div>
-                    <div class="kpi-sub">Cirurgias Processadas</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
+                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
+                        <div class="meta-badge" style="background: ${getMetaColor(percCir)};">${percCir}%</div>
+                        <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-scalpel mr-1"></i> Cirurgia Geral (Meta: ${META_CIRURGIA})</div>
+                        <div class="kpi-number" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5);">${qtdCirurgia}</div>
+                        <div class="kpi-sub">Total Exceto Partos/Obstetrícia</div>
+                    </div>
+                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
+                        <div class="meta-badge" style="background: ${getMetaColor(percObs)};">${percObs}%</div>
+                        <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-baby mr-1"></i> Obstetrícia (Meta: ${META_OBSTETRICIA})</div>
+                        <div class="kpi-number" style="color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5);">${qtdObs}</div>
+                        <div class="kpi-sub">Maternidade e Curetagens</div>
+                    </div>
+                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
+                        <div class="kpi-title" style="color: #cbd5e1;"><i class="fas fa-clipboard-list mr-1"></i> Volume do Centro Cirúrgico</div>
+                        <div class="kpi-number" style="color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${dadosFiltrados.length}</div>
+                        <div class="kpi-sub">Total de Procedimentos</div>
+                    </div>
                 </div>
             `;
-            arrEspec.forEach(item => {
-                let cor = getCorEspecialidade(item.nome);
-                htmlCards += `
-                    <div class="glass-card" style="border-top-color: ${cor}40;">
-                        <div class="kpi-title" style="color: ${cor};">${item.nome}</div>
-                        <div class="kpi-number" style="color: ${cor}; text-shadow: 0 0 10px ${cor}50;">${item.qtd}</div>
-                        <div class="kpi-sub">Volume</div>
-                    </div>
-                `;
-            });
             $('#painel-resumo').html(htmlCards);
 
-            // 2. LISTA AGRUPADA (RANK)
-            let totalTiposUnicos = 0;
-            let htmlLista = '';
+            // 2. LISTAS AGRUPADAS
+            let corFundo = document.body.classList.contains('theme-classic') ? '#f1f5f9' : 'rgba(0,0,0,0.2)';
             
-            arrEspec.forEach(espec => {
-                let procMap = mapProcByEspec[espec.nome];
-                let arrProc = Object.keys(procMap).map(k => ({nome: k, qtd: procMap[k]})).sort((a,b) => b.qtd - a.qtd);
-                totalTiposUnicos += arrProc.length;
-                
-                let cor = getCorEspecialidade(espec.nome);
-                let corFundo = document.body.classList.contains('theme-classic') ? '#f1f5f9' : 'rgba(0,0,0,0.2)';
-                
-                htmlLista += `
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center px-3 py-2 rounded-t-lg border-b" style="background-color: ${corFundo}; border-color: ${cor}40;">
-                            <span class="font-bold text-[0.80rem] uppercase tracking-wider" style="color: ${cor};"><i class="fas fa-notes-medical mr-2"></i>${espec.nome}</span>
-                            <span class="text-[0.70rem] px-2 py-0.5 rounded font-bold" style="background:${cor}; color:white;">${espec.qtd}</span>
-                        </div>
-                        <ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 0 0 8px 8px;">
+            // RANK PROCEDIMENTOS
+            let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
+            $('#totalProcsDiff').text(arrProc.length + " tipos");
+            
+            let htmlListaProc = `<ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 8px;">`;
+            arrProc.forEach(proc => {
+                htmlListaProc += `
+                    <li class="rank-item">
+                        <span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);">${proc.nome}</span>
+                        <span class="rank-qtd" style="background: rgba(56,189,248,0.2); color: #38bdf8;">${proc.qtd}</span>
+                    </li>
                 `;
-                
-                arrProc.forEach(proc => {
-                    htmlLista += `
-                        <li class="rank-item">
-                            <span class="font-semibold rank-nome-procedimento text-gray-300" style="color:var(--tw-prose-body);">${proc.nome}</span>
-                            <span class="rank-qtd" style="background: ${cor}20; color: ${cor}; border: 1px solid ${cor}40;">${proc.qtd}</span>
-                        </li>
-                    `;
-                });
-                
-                htmlLista += `</ul></div>`;
             });
-            
-            if(arrEspec.length === 0) htmlLista = '<div class="text-center text-gray-500 mt-4">Nenhuma cirurgia no filtro atual.</div>';
-            
-            $('#listaRank').html(htmlLista);
-            $('#totalProcsDiff').text(totalTiposUnicos + " tipos de cirurgia");
+            htmlListaProc += `</ul>`;
+            $('#listaProc').html(arrProc.length > 0 ? htmlListaProc : '<div class="text-center text-gray-500 mt-4">Nenhuma cirurgia.</div>');
 
-            // 3. GRÁFICO DE BARRAS VERTICAIS (SUBSTITUIU A PIZZA)
+            // RANK MÉDICOS
+            let arrMed = Object.keys(mapMed).map(k => ({nome: k, qtd: mapMed[k]})).sort((a,b) => b.qtd - a.qtd);
+            $('#totalMedDiff').text(arrMed.length + " profissionais");
+            
+            let htmlListaMed = `<ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 8px;">`;
+            arrMed.forEach(med => {
+                htmlListaMed += `
+                    <li class="rank-item">
+                        <span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);"><i class="fas fa-user-md mr-2 text-gray-500"></i>${med.nome}</span>
+                        <span class="rank-qtd" style="background: rgba(16,185,129,0.2); color: #10b981;">${med.qtd}</span>
+                    </li>
+                `;
+            });
+            htmlListaMed += `</ul>`;
+            $('#listaMed').html(arrMed.length > 0 ? htmlListaMed : '<div class="text-center text-gray-500 mt-4">Nenhum cirurgião registrado.</div>');
+
+            // 3. GRÁFICOS
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
-            let coresBar = arrEspec.map(e => getCorEspecialidade(e.nome));
 
+            // Gráfico de Pizza (MIX)
             if(chartEspec) chartEspec.destroy();
             chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
-                type: 'bar',
+                type: 'doughnut',
                 data: { 
-                    labels: arrEspec.map(e => e.nome), 
+                    labels: ['Cirurgia Geral', 'Obstetrícia'], 
                     datasets: [{ 
-                        label: 'Volume',
-                        data: arrEspec.map(e => e.qtd), 
-                        backgroundColor: coresBar, 
-                        borderRadius: 4
+                        data: [qtdCirurgia, qtdObs], 
+                        backgroundColor: isClassic ? ['#0284c7', '#ec4899'] : ['#38bdf8', '#f472b6'], 
+                        borderWidth: isClassic ? 2 : 0, 
+                        borderColor: '#ffffff' 
                     }] 
                 },
                 options: { 
                     responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
                     plugins:{
-                        legend:{display:false},
-                        datalabels: { 
-                            color: isClassic ? '#0f172a' : '#ffffff', 
-                            anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } 
-                        } 
+                        legend:{position:'right', labels: { font: { size: 12 } }},
+                        datalabels: { display: false } 
+                    }, 
+                    cutout: '60%'
+                }
+            });
+
+            // Gráfico de Barras (METAS)
+            if(chartMetas) chartMetas.destroy();
+            chartMetas = new Chart(document.getElementById('chartMetas').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Cirurgia Geral', 'Obstetrícia'],
+                    datasets: [
+                        { 
+                            label: 'Realizado', 
+                            data: [qtdCirurgia, qtdObs], 
+                            backgroundColor: isClassic ? ['#0284c7', '#ec4899'] : ['rgba(56, 189, 248, 0.8)', 'rgba(244, 114, 182, 0.8)'],
+                            borderRadius: 6
+                        },
+                        { 
+                            label: 'Meta', 
+                            data: [META_CIRURGIA, META_OBSTETRICIA], 
+                            type: 'line', 
+                            borderColor: isClassic ? '#1e293b' : '#f8fafc', 
+                            borderWidth: 2, 
+                            pointStyle: 'rectRot', 
+                            pointRadius: 6 
+                        }
+                    ]
+                },
+                options: { 
+                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
+                    plugins:{
+                        legend:{position:'bottom'},
+                        datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } }
                     },
                     scales: { 
-                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...arrEspec.map(e=>e.qtd), 1) * 1.2 }, 
-                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: {size: 9} } } 
+                        y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } }
                     }
                 }
             });
@@ -479,6 +535,8 @@
                 $('#tabelaCirurgias tbody').empty(); 
             }
             
+            const isClassic = document.body.classList.contains('theme-classic');
+
             tabelaInstancia = $('#tabelaCirurgias').DataTable({
                 data: dados,
                 orderCellsTop: true,
@@ -488,7 +546,8 @@
                         data: 'especialidade_oficial', 
                         className: 'font-bold text-[11px]', 
                         render: function(d) {
-                            return `<span style="color:${getCorEspecialidade(d)};">${d}</span>`;
+                            let cor = d === 'OBSTETRÍCIA' ? (isClassic ? '#ec4899' : '#f472b6') : (isClassic ? '#0284c7' : '#38bdf8');
+                            return `<span style="color:${cor};">${d}</span>`;
                         }
                     },
                     { data: 'cod_tabela', className: 'font-mono text-cyan-400 font-bold', render: d => d || '-' },
@@ -500,7 +559,7 @@
                         } 
                     },
                     { data: 'paciente', render: d => `<span class="font-bold">${d}</span>` },
-                    { data: 'cirurgiao', className: 'dyn-text-secondary', render: d => (d && !d.includes('NÃO INFORMADO')) ? d : '-' }
+                    { data: 'cirurgiao', className: 'dyn-text-secondary font-semibold', render: d => (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-' }
                 ],
                 order: [[0, 'desc']], pageLength: 15, dom: 'lBrtip',
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
@@ -526,7 +585,7 @@
                             if (i === 2) textVal = d || "-"; 
                             if (i === 3) textVal = d; 
                             if (i === 4) textVal = d; 
-                            if (i === 5) textVal = (d && !d.includes('NÃO INFORMADO')) ? d : '-'; 
+                            if (i === 5) textVal = (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-'; 
 
                             if(textVal && textVal !== '-' && uniqueVals.indexOf(textVal) === -1) {
                                 uniqueVals.push(textVal);
