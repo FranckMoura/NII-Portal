@@ -109,25 +109,25 @@
         
         .dyn-tr-hover:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
 
+        /* NOVA CLASSE PARA LINHA MARCADA COMO IMPRESSA */
+        .row-printed { opacity: 0.4; background-color: rgba(0,0,0,0.4) !important; text-decoration: line-through; }
+        body.theme-classic .row-printed { opacity: 0.5; background-color: #e2e8f0 !important; }
+
         /* ========================================================= */
         /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
         /* ========================================================= */
         
-        /* Fundo Azul mantido firmemente */
         body.theme-classic {
             background: #001528 !important;
             background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important;
         }
 
-        /* Desliga as luzes neon cibernéticas */
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
 
-        /* Abas brancas puras no header azul */
         body.theme-classic .tab-btn { color: rgba(255,255,255,0.6) !important; }
         body.theme-classic .tab-btn:hover { color: white !important; }
         body.theme-classic .tab-btn.active { color: white !important; border-bottom-color: white !important; text-shadow: none !important; }
 
-        /* CARTÕES E CONTAINERS BRANCOS (Estilo Material Design) */
         body.theme-classic .cyber-container, 
         body.theme-classic .glass-card, 
         body.theme-classic .glass-chart-container {
@@ -139,7 +139,6 @@
             border-radius: 12px !important;
         }
         
-        /* Sem efeito 3D bizarro, apenas eleva suavemente */
         body.theme-classic .glass-card:hover {
             transform: translateY(-5px) !important;
             background: #ffffff !important;
@@ -147,7 +146,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
         }
 
-        /* Cores de texto sem neon, solidificadas */
         body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
         body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
         body.theme-classic .neon-text-purple { color: #7e22ce !important; text-shadow: none !important; }
@@ -158,7 +156,6 @@
             border-bottom-color: #f1f5f9 !important; 
         }
 
-        /* Textos e Badges Dinâmicos para o Fundo Branco */
         body.theme-classic .dyn-text-primary { color: #0f172a !important; }
         body.theme-classic .dyn-text-secondary { color: #475569 !important; }
         body.theme-classic .dyn-text-muted { color: #64748b !important; }
@@ -176,14 +173,12 @@
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; }
-        table.dataTable tbody tr { background-color: transparent !important; }
+        table.dataTable tbody tr { background-color: transparent !important; transition: all 0.3s; }
 
-        /* Dark/Neon Table Defaults */
         table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
         table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         
-        /* OVERRIDES PARA O TEMA CLÁSSICO NA TABELA */
         body.theme-classic table.dataTable { color: #334155 !important; }
         body.theme-classic table.dataTable thead th { 
             background-color: #004e92 !important; 
@@ -193,7 +188,6 @@
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        /* Tabela Controles (Theme Classic) */
         body.theme-classic .dataTables_wrapper .dataTables_length, 
         body.theme-classic .dataTables_wrapper .dataTables_filter, 
         body.theme-classic .dataTables_wrapper .dataTables_info, 
@@ -222,7 +216,7 @@
         body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
 
         /* ========================================================= */
-        /* MODAIS                                                    */
+        /* MODAIS E BOTÕES                                           */
         /* ========================================================= */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; transition: 0.3s; }
         .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; width: 95%; max-width: 950px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.7); overflow: hidden; animation: popIn 0.3s; color: white;}
@@ -238,8 +232,11 @@
         .btn-add { background: #10b981; } .btn-add:hover { background: #059669; }
         .btn-added { background: #64748b; cursor: not-allowed; }
         .btn-fatura { background: #f59e0b; } .btn-fatura:hover { background: #d97706; }
+        
+        /* Novo Botão Visualizado (Lido/Impresso) */
+        .btn-check { background: #64748b; } .btn-check:hover { background: #475569; }
+        .btn-checked { background: #10b981; } .btn-checked:hover { background: #059669; }
 
-        /* Modal no Modo Clássico NII (Sólido e Limpo) */
         body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
         body.theme-classic .modal-content { background: #ffffff; color: #1e293b; border: none; }
         body.theme-classic .modal-header { background: #004e92; border: none; }
@@ -250,7 +247,6 @@
         body.theme-classic .tabela-itens th { background: #f1f5f9 !important; color: #475569 !important; }
         body.theme-classic .tabela-itens td { border-bottom-color: #f1f5f9 !important; color: #334155 !important; }
 
-        /* Cores fixas de Status no Modal */
         .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3); }
         .bg-green-50-dark { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
         .text-green-700-dark { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
@@ -271,7 +267,6 @@
         .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
 
-        /* OTIMIZAÇÃO DE IMPRESSÃO (Força Fundo Branco) */
         @media print {
             body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
             body.printing-modal { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
@@ -379,7 +374,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                
                 <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
                     <i class="fas fa-magic"></i>
                 </button>
@@ -462,7 +456,7 @@
                             <th>Procedimento Principal</th>
                             <th style="width: 60px;">Internação</th>
                             <th style="width: 60px;">Saída</th>
-                            <th class="no-print" style="width: 180px; text-align:center;">Ações</th>
+                            <th class="no-print" style="width: 200px; text-align:center;">Ações</th>
                         </tr>
                         <tr class="table-search no-print"></tr>
                     </thead>
@@ -480,7 +474,7 @@
             <span id="pageList" class="pages-display">Nenhuma página</span>
         </div>
         <div>
-            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Tudo</button>
+            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Fila</button>
             <button class="btn-copy" onclick="copyAllPages()" id="btnCopy"><i class="fas fa-copy mr-1"></i> COPIAR LISTA</button>
         </div>
     </div>
@@ -497,15 +491,12 @@ let dadosIndiceGlobal = [];
 let linkPdfAtual = ""; 
 let chartEspecObj = null;
 let chartProcObj = null;
+let mesCorrenteStorageKey = ""; // Guarda o nome do cache do mês atual (ex: impressas_02/2026)
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-// ==========================================
-// TEMA: CLÁSSICO NII (Azul/Branco) vs NEON CYBERPUNK
-// ==========================================
 function toggleTheme() {
     const body = document.body;
-    
     if (body.classList.contains('theme-classic')) {
         body.classList.remove('theme-classic');
         localStorage.setItem('nii_theme', 'neon');
@@ -513,10 +504,7 @@ function toggleTheme() {
         body.classList.add('theme-classic');
         localStorage.setItem('nii_theme', 'classic');
     }
-    
-    if (dadosIndiceGlobal.length > 0) {
-        atualizarBI(dadosIndiceGlobal);
-    }
+    if (dadosIndiceGlobal.length > 0) atualizarBI(dadosIndiceGlobal);
 }
 
 const alwaysShowLabels = {
@@ -527,7 +515,6 @@ const alwaysShowLabels = {
         chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
             const value = data.datasets[0].data[index];
             ctx.font = 'bold 12px Inter';
-            // Cor das labels baseada no tema
             ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
@@ -702,6 +689,38 @@ function atualizarBI(data) {
     });
 }
 
+// --- LÓGICA DE PERSISTÊNCIA (PÁGINAS LIDAS/IMPRESSAS) ---
+function getPaginasImpressas() {
+    let mem = localStorage.getItem(mesCorrenteStorageKey);
+    return mem ? JSON.parse(mem) : [];
+}
+
+function salvarPaginasImpressas(arrayPaginas) {
+    localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayPaginas));
+}
+
+function toggleLeitura(pagina, btnElement) {
+    let impressas = getPaginasImpressas();
+    let isImpresso = impressas.includes(pagina);
+    
+    let tr = $(btnElement).closest('tr');
+
+    if (isImpresso) {
+        // Desmarcar
+        impressas = impressas.filter(p => p !== pagina);
+        $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
+        tr.removeClass('row-printed');
+    } else {
+        // Marcar
+        impressas.push(pagina);
+        $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
+        tr.addClass('row-printed');
+    }
+    
+    salvarPaginasImpressas(impressas);
+}
+
+
 async function carregarDados() {
     const jsonStr = document.getElementById('filtroCompetencia').value;
     if(!jsonStr) return;
@@ -710,6 +729,9 @@ async function carregarDados() {
     const competencia = infos.comp;
     linkPdfAtual = infos.pdf;
     const linkJson = infos.json;
+    
+    // Define a chave única do cache para este mês específico (Ex: nii_impressas_02/2026)
+    mesCorrenteStorageKey = "nii_impressas_" + competencia;
 
     const loaderText = document.getElementById('loading-text');
     const loader = document.getElementById('loader');
@@ -731,6 +753,9 @@ async function carregarDados() {
             else { $('#tabelaIndice thead .table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); }
         });
 
+        // Carrega a memória de impressões
+        let paginasLidas = getPaginasImpressas();
+
         dtIndice = $('#tabelaIndice').DataTable({
             data: dadosIndiceGlobal,
             pageLength: 20,
@@ -741,6 +766,12 @@ async function carregarDados() {
                 { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
                 { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
             ],
+            createdRow: function(row, data, dataIndex) {
+                // Ao criar a linha, pinta de cinza/riscado se já estiver na memória
+                if (paginasLidas.includes(data.PAGINA)) {
+                    $(row).addClass('row-printed');
+                }
+            },
             columns: [
                 { data: 'PAGINA', className: 'text-center font-bold dyn-text-accent' },
                 { data: 'NOME', className: 'uppercase font-bold dyn-text-primary' },
@@ -752,10 +783,15 @@ async function carregarDados() {
                 { data: 'DT_INT', render: d => `<span class="dyn-badge-int px-1 rounded border">${d}</span>` },
                 { data: 'DT_SAI', render: d => `<span class="dyn-badge-sai px-1 rounded border">${d}</span>` },
                 {
-                    data: null, className: 'text-center no-print w-40', orderable: false,
+                    data: null, className: 'text-center no-print w-48', orderable: false,
                     render: function(d, type, row, meta) {
+                        let isLida = paginasLidas.includes(row.PAGINA);
+                        let btnClasse = isLida ? 'btn-checked' : 'btn-check';
+                        let btnText = isLida ? '<i class="fas fa-check-circle"></i> Lida' : '<i class="fas fa-check-circle"></i>';
+
                         return `
                         <div class="flex gap-1 justify-center">
+                            <button onclick="toggleLeitura(${row.PAGINA}, this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
                             <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-external-link-alt"></i></button>
                             <button onclick="addPage(${row.PAGINA}, this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
                             <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Ver Conta Médica"><i class="fas fa-list-alt"></i></button>
@@ -869,18 +905,16 @@ function copyAllPages() {
     } else { alert('Adicione páginas à fila primeiro.'); }
 }
 
-// INICIALIZAÇÃO E CHECAGEM DE TEMA SALVO
 document.addEventListener('DOMContentLoaded', () => {
-    // Por defeito carregamos o Tema Clássico NII
-const savedTheme = localStorage.getItem('nii_theme_reg');
-            
-            if (savedTheme === 'classic') { 
-                document.body.classList.add('theme-classic');
-            } else {
-                document.body.classList.remove('theme-classic');
-            }
+    const savedTheme = localStorage.getItem('nii_theme');
+    if (savedTheme === 'classic') { 
+        document.body.classList.add('theme-classic');
+    } else {
+        document.body.classList.remove('theme-classic');
+    }
     inicializarDropdown();
 });
+
 document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
 
 </script>
