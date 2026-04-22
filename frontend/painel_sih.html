@@ -256,6 +256,7 @@
 
         let dicProcedimentos = {};
         let dicNacionalidades = {};
+        let dicMunicipios = {}; // DICIONÁRIO NOVO PARA CIDADES!
         
         const codigosParto = ['0310010039','0310010047','0411010034','0411010026','0411010042', '0411011026', '0411011042'];
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -272,6 +273,14 @@
             if (!code) return '-';
             let c = String(code).trim().padStart(3, '0'); 
             if (dicNacionalidades[c]) return `${c} - ${dicNacionalidades[c]}`;
+            return c;
+        }
+
+        // Função Nova: Buscar Nome da Cidade
+        function getMunicipioName(code) {
+            if (!code) return '-';
+            let c = String(code).trim();
+            if (dicMunicipios[c]) return `${c} - ${dicMunicipios[c]}`;
             return c;
         }
 
@@ -355,6 +364,16 @@
                     if (nacData) nacData.forEach(item => { dicNacionalidades[item.codigo] = item.descricao; });
                 }
 
+                // BUSCA NOVA: MUNICÍPIOS IBGE!
+                $('#loading-text').text("Decodificando Cidades do IBGE...");
+                const municUnicos = [...new Set(rawDataGlobais.map(r => String(r.munc_res || '').trim()).filter(Boolean))];
+
+                for (let i = 0; i < municUnicos.length; i += 100) {
+                    const loteMun = municUnicos.slice(i, i + 100);
+                    const { data: munData } = await client.from('tb_municipios').select('codigo_ibge, nome').in('codigo_ibge', loteMun);
+                    if (munData) munData.forEach(item => { dicMunicipios[item.codigo_ibge] = item.nome; });
+                }
+
                 $('#loading-text').text("Montando interface...");
                 
                 atualizarKPIs(rawDataGlobais);
@@ -428,8 +447,8 @@
                 tipos[nomeCurto].val += v;
                 tipos[nomeCurto].dias += d;
                 
-                let mun = String(p.munic_res || '').trim();
-                let nomeMun = (mun === '510340') ? 'CUIABÁ (Sede)' : (mun ? `Cód IBGE: ${mun}` : 'Desconhecido');
+                let munCode = String(p.munc_res || '').trim();
+                let nomeMun = getMunicipioName(munCode); 
                 cidades[nomeMun] = (cidades[nomeMun] || 0) + 1;
             });
 
@@ -558,7 +577,7 @@
         }
 
         // ==============================================================
-        // TABELA DINÂMICA (COLVIS E BOTÕES DE EXPORTAÇÃO FILTRADA)
+        // TABELA DINÂMICA
         // ==============================================================
         function montarTabelaColVis(dados) {
             if ($.fn.DataTable.isDataTable('#tabelaSih')) {
@@ -569,7 +588,8 @@
             const excludedCols = ['dados_completos', 'id'];
             let todasAsColunas = Object.keys(dados[0]).filter(k => !excludedCols.includes(k));
 
-            const colunasPadrao = ['n_aih', 'dt_inter', 'dt_saida', 'dias_perm', 'idade', 'sexo', 'diag_princ', 'proc_rea', 'val_tot'];
+            // Mantive os mesmos campos que já tinham na tela, adicionei a coluna de Muncípio (munc_res) para ela aparecer traduzida!
+            const colunasPadrao = ['n_aih', 'dt_inter', 'dt_saida', 'dias_perm', 'munc_res', 'idade', 'sexo', 'diag_princ', 'proc_rea', 'val_tot'];
 
             let configuracaoColunas = todasAsColunas.map(coluna => {
                 let titulo = coluna.toUpperCase().replace(/_/g, ' ');
@@ -585,6 +605,7 @@
                 if (coluna === 'val_sh') titulo = 'VALOR SH (R$)';
                 if (coluna === 'val_sp') titulo = 'VALOR SP (R$)';
                 if (coluna === 'diag_princ') titulo = 'CID PRINCIPAL';
+                if (coluna === 'munc_res') titulo = 'MUNICÍPIO RESIDÊNCIA'; // NOVO!
 
                 return {
                     data: coluna,
@@ -605,6 +626,9 @@
                             if (coluna === 'morte') return d === 1 || d === '1' ? '<span class="text-red-500 font-bold">Sim</span>' : 'Não';
                             if (coluna === 'proc_rea' || coluna === 'proc_solic') return getProcName(d);
                             if (coluna === 'nacional') return getNacionalidadeName(d); 
+                            
+                            // Traduz o código IBGE para o Nome da Cidade na Tabela!
+                            if (coluna === 'munc_res' || coluna === 'munc_mov') return getMunicipioName(d);
                         }
                         return d;
                     }
@@ -618,7 +642,6 @@
                 scrollX: true, 
                 order: [[ todasAsColunas.indexOf('val_tot'), 'desc' ]], 
                 dom: '<"flex flex-wrap justify-between items-center mb-4"lBf>rtip', 
-                // AQUI ESTÃO OS NOVOS BOTÕES DE EXPORTAÇÃO
                 buttons: [
                     {
                         extend: 'colvis',
@@ -677,7 +700,7 @@
             $('#loading').hide(); $('#tabelaSih').show();
         }
 
-        // Função mantida para quem precisa baixar o DUMP completo do banco de dados (ignorando os filtros da tela)
+        // Função de Exportação Bruta
         function exportarCSV() {
             if(rawDataGlobais.length === 0) return alert('Não há dados para exportar.');
             let headers = Object.keys(rawDataGlobais[0]).filter(k => k !== 'dados_completos');
@@ -688,6 +711,7 @@
                     if (valor === null || valor === undefined) return '""';
                     if(key === 'proc_rea' || key === 'proc_solic') valor = getProcName(valor);
                     if(key === 'nacional') valor = getNacionalidadeName(valor);
+                    if(key === 'munc_res' || key === 'munc_mov') valor = getMunicipioName(valor); // Exportar cidade descrita!
                     let strVal = String(valor).replace(/"/g, '""');
                     return `"${strVal}"`;
                 });
@@ -697,7 +721,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            let n = mesFilter.value === "TODOS" ? "Ano_Inteiro" : mesFilter.value;
+            let n = $('#mesFilter').val() === "TODOS" ? "Ano_Inteiro" : $('#mesFilter').val();
             link.setAttribute("download", `DUMP_SIH_${$('#anoFilter').val()}_${n}.csv`);
             document.body.appendChild(link);
             link.click();
