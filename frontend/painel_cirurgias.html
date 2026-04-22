@@ -58,21 +58,16 @@
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
-        .glass-card:hover {
-            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
-            background: rgba(255, 255, 255, 0.08); 
-            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
-        }
 
         .glass-chart-container {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
             border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s;
+            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s; display: flex; flex-direction: column;
         }
 
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px; }
         .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
-        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .kpi-sub { font-size: 0.70rem; color: #94a3b8; font-weight: 500; }
         .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
         .meta-badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; color: white; font-weight: 800; font-size: 0.7rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
@@ -130,10 +125,15 @@
 
         #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
 
-        @media print {
-            body { background: white !important; color: black !important; }
-            .header-bg, .no-print, .cyber-container, .glass-card, .glass-chart-container { display: none !important; }
-        }
+        #painel-resumo { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
+        #painel-resumo > div { flex: 1 1 calc(25% - 15px); min-width: 150px; }
+        
+        .rank-list { margin: 0; padding: 0; list-style: none; overflow-y: auto; flex: 1; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; align-items: center; }
+        .rank-item:last-child { border-bottom: none; }
+        body.theme-classic .rank-item { border-bottom-color: #f1f5f9; }
+        .rank-qtd { background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: bold; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
+        body.theme-classic .rank-qtd { background: #e0f2fe; color: #0284c7; }
     </style>
 </head>
 <body>
@@ -152,7 +152,7 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-procedures text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold text-white'>Produção Cirúrgica</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Monitoramento de Especialidades e Metas SUS</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Monitoramento de Especialidades Oficiais SUS</p>
                 </div>
             </div>
             
@@ -175,34 +175,21 @@
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10" id="painel-kpis-gerais">
-            <div class="glass-card">
-                <div id="badgeCir" class="meta-badge" style="background: #ccc;">0%</div>
-                <div class="kpi-title"><i class="fas fa-scalpel mr-1 text-emerald-400"></i> Cirurgia Geral / Outras (Meta: 148)</div>
-                <div class="kpi-number neon-text-green" id="kpCirurgia">0</div>
-                <div class="kpi-sub">Total Exceto Partos/Obstetrícia</div>
-            </div>
-            <div class="glass-card">
-                <div id="badgeObs" class="meta-badge" style="background: #ccc;">0%</div>
-                <div class="kpi-title"><i class="fas fa-baby mr-1 text-pink-400"></i> Obstetrícia (Meta: 699)</div>
-                <div class="kpi-number neon-text-pink" id="kpObstetricia">0</div>
-                <div class="kpi-sub">Partos e Procedimentos (0310, 0411)</div>
-            </div>
-            <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-clipboard-list mr-1 text-blue-400"></i> Total do Centro Cirúrgico</div>
-                <div class="kpi-number neon-text-blue" id="kpTotal">0</div>
-                <div class="kpi-sub">Procedimentos Processados</div>
-            </div>
-        </div>
+        <div class="glass-chart-title border-none mb-2"><i class="fas fa-layer-group text-emerald-400 mr-2"></i> Resumo por Especialidade (Volume Processado)</div>
+        <div id="painel-resumo"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> Produção por Especialidade (SIGTAP)</div>
-                <div style="height:250px;"><canvas id="chartEspec"></canvas></div>
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
+                <div style="height:220px;"><canvas id="chartEspec"></canvas></div>
             </div>
-            <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-bullseye mr-2 text-orange-400"></i> Acompanhamento de Metas</div>
-                <div style="height:250px;"><canvas id="chartMetas"></canvas></div>
+            
+            <div class="glass-chart-container md:col-span-2">
+                <div class="glass-chart-title flex justify-between">
+                    <span><i class="fas fa-list-ol mr-2 text-orange-400"></i> Top Procedimentos (Rank Geral)</span>
+                    <span id="totalProcsDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 tipos</span>
+                </div>
+                <ul class="rank-list" id="listaRank"></ul>
             </div>
         </div>
 
@@ -243,29 +230,18 @@
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
         let tabelaInstancia = null;
-        let chartEspec = null, chartMetas = null;
         let dadosOriginais = [];
+        let chartEspec = null;
 
-        const META_CIRURGIA = 148;
-        const META_OBSTETRICIA = 699;
         const TERMOS_OBS_SECUNDARIOS = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA'];
 
-        // ==============================================================
-        // MOTOR DE ESPECIALIDADES (VIA CÓDIGO SIGTAP MS)
-        // ==============================================================
         function mapearEspecialidade(cod, desc) {
             if (!cod || cod.length < 4) {
-                // Fallback se faltar o código: tenta pelo nome
                 if (TERMOS_OBS_SECUNDARIOS.some(t => (desc||"").toUpperCase().includes(t))) return 'OBSTETRÍCIA';
                 return 'CIRURGIA GERAL';
             }
-            
             const pre = cod.substring(0, 4);
-            
-            // A Regra de Ouro da Obstetrícia: Partos (0310) e Cir. Obstétricas (0411)
             if (pre === '0310' || pre === '0411') return 'OBSTETRÍCIA';
-            
-            // Outras Cirurgias SUS Oficiais
             if (pre === '0401') return 'BUCOMAXILOFACIAL';
             if (pre === '0403') return 'NEUROCIRURGIA';
             if (pre === '0404') return 'CABEÇA E PESCOÇO';
@@ -278,10 +254,22 @@
             if (pre === '0412') return 'CIRURGIA TORÁCICA';
             if (pre === '0413') return 'CIRURGIA PLÁSTICA';
             if (pre === '0415') return 'OUTRAS CIRURGIAS';
-            
-            // Failsafe
             if (TERMOS_OBS_SECUNDARIOS.some(t => (desc||"").toUpperCase().includes(t))) return 'OBSTETRÍCIA';
-            return 'CIRURGIA GERAL / OUTRAS';
+            return 'CIRURGIA GERAL';
+        }
+
+        function getCorEspecialidade(especialidade) {
+            const isClassic = document.body.classList.contains('theme-classic');
+            switch(especialidade) {
+                case 'OBSTETRÍCIA': return isClassic ? '#ec4899' : '#f472b6'; 
+                case 'ORTOPEDIA': return isClassic ? '#b45309' : '#fbbf24'; 
+                case 'UROLOGIA': return isClassic ? '#6d28d9' : '#c084fc'; 
+                case 'CIRURGIA PLÁSTICA': return isClassic ? '#0f766e' : '#2dd4bf'; 
+                case 'APARELHO DIGESTIVO': return isClassic ? '#b91c1c' : '#f87171'; 
+                case 'BUCOMAXILOFACIAL': return isClassic ? '#047857' : '#34d399'; 
+                case 'CIRURGIA GERAL': return isClassic ? '#0284c7' : '#38bdf8'; 
+                default: return isClassic ? '#475569' : '#94a3b8'; 
+            }
         }
 
         function toggleTheme() { 
@@ -295,7 +283,8 @@
             }
             if (tabelaInstancia) {
                 let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
-                atualizarDashboard(dadosVisiveis);
+                atualizarResumoEGraficos(dadosVisiveis);
+                tabelaInstancia.draw(false); 
             }
         }
 
@@ -343,7 +332,6 @@
                                               .lte('data_cirurgia', d2);
                 if (error) throw error;
                 
-                // Mapear especialidade antes de renderizar
                 dadosOriginais = (data || []).map(d => {
                     return {
                         ...d,
@@ -357,58 +345,72 @@
             finally { $('#loader').fadeOut(); }
         }
 
-        function atualizarDashboard(dadosFiltrados) {
-            let qtdCirurgia = 0;
-            let qtdObs = 0;
-
-            dadosFiltrados.forEach(d => {
-                if (d.especialidade_oficial === 'OBSTETRÍCIA') {
-                    qtdObs++;
-                } else {
-                    // Tudo que NÃO é parto, vai compor o montante da Cirurgia Geral
-                    qtdCirurgia++;
-                }
-            });
-
-            $('#kpCirurgia').text(qtdCirurgia);
-            $('#kpObstetricia').text(qtdObs);
-            $('#kpTotal').text(dadosFiltrados.length);
-
-            let percCir = Math.round((qtdCirurgia / META_CIRURGIA) * 100) || 0;
-            let percObs = Math.round((qtdObs / META_OBSTETRICIA) * 100) || 0;
-            
-            const getMetaColor = (perc) => {
-                if(perc >= 100) return '#10b981'; // Verde
-                if(perc >= 80) return '#f59e0b'; // Amarelo
-                return '#ef4444'; // Vermelho
-            }
-
-            $('#badgeCir').text(percCir + '%').css('background', getMetaColor(percCir));
-            $('#badgeObs').text(percObs + '%').css('background', getMetaColor(percObs));
-
-            desenharGraficos(dadosFiltrados, qtdCirurgia, qtdObs);
-        }
-
-        function desenharGraficos(dados, qtdCirurgia, qtdObs) {
-            let isClassic = document.body.classList.contains('theme-classic');
-            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
-
-            // Gráfico 1: Especialidades (Donut)
+        function atualizarResumoEGraficos(dadosFiltrados) {
             let mapEspec = {};
-            dados.forEach(d => {
+            let mapProc = {}; // Mapa para o Rank individual
+            
+            dadosFiltrados.forEach(d => {
                 let esp = d.especialidade_oficial;
                 mapEspec[esp] = (mapEspec[esp] || 0) + 1;
+                
+                // Nome limpo da cirurgia
+                let pNome = d.procedimento || "NÃO IDENTIFICADO";
+                // Limita tamanho para caber bonito
+                if(pNome.length > 60) pNome = pNome.substring(0, 60) + '...';
+                mapProc[pNome] = (mapProc[pNome] || 0) + 1;
             });
+
+            // 1. MONTA OS CARDS DE ESPECIALIDADE
+            let arrEspec = Object.keys(mapEspec).map(k => ({nome: k, qtd: mapEspec[k]})).sort((a,b) => b.qtd - a.qtd);
+            let htmlCards = `
+                <div class="glass-card">
+                    <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-clipboard-list mr-1"></i> Total do Período</div>
+                    <div class="kpi-number" style="color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${dadosFiltrados.length}</div>
+                    <div class="kpi-sub">Cirurgias Processadas</div>
+                </div>
+            `;
+            arrEspec.forEach(item => {
+                let cor = getCorEspecialidade(item.nome);
+                htmlCards += `
+                    <div class="glass-card" style="border-top-color: ${cor}40;">
+                        <div class="kpi-title" style="color: ${cor};">${item.nome}</div>
+                        <div class="kpi-number" style="color: ${cor}; text-shadow: 0 0 10px ${cor}50;">${item.qtd}</div>
+                        <div class="kpi-sub">Volume</div>
+                    </div>
+                `;
+            });
+            $('#painel-resumo').html(htmlCards);
+
+            // 2. MONTA A LISTA (RANK) INDIVIDUAL DE PROCEDIMENTOS
+            let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
+            $('#totalProcsDiff').text(arrProc.length + " tipos");
             
+            let htmlLista = '';
+            arrProc.forEach(proc => {
+                htmlLista += `
+                    <li class="rank-item">
+                        <span class="font-bold text-gray-200" style="color:var(--tw-prose-body);">${proc.nome}</span>
+                        <span class="rank-qtd">${proc.qtd}</span>
+                    </li>
+                `;
+            });
+            if(arrProc.length === 0) htmlLista = '<li class="rank-item text-gray-500 justify-center">Nenhuma cirurgia no filtro atual.</li>';
+            $('#listaRank').html(htmlLista);
+
+            // 3. DESENHA O GRÁFICO (DONUT)
+            let isClassic = document.body.classList.contains('theme-classic');
+            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
+            
+            let coresPie = arrEspec.map(e => getCorEspecialidade(e.nome));
+
             if(chartEspec) chartEspec.destroy();
             chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
                 type: 'doughnut',
                 data: { 
-                    labels: Object.keys(mapEspec), 
+                    labels: arrEspec.map(e => e.nome), 
                     datasets: [{ 
-                        data: Object.values(mapEspec), 
-                        backgroundColor: isClassic ? ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#0f766e'] 
-                                                   : ['#38bdf8', '#34d399', '#fbbf24', '#c084fc', '#f87171', '#2dd4bf'], 
+                        data: arrEspec.map(e => e.qtd), 
+                        backgroundColor: coresPie, 
                         borderWidth: isClassic ? 2 : 0, 
                         borderColor: '#ffffff' 
                     }] 
@@ -416,47 +418,10 @@
                 options: { 
                     responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
                     plugins:{
-                        legend:{position:'right', labels: { font: { size: 10 } }},
-                        datalabels: { display: false } // Esconde o numero pra não poluir o donut
+                        legend:{position:'bottom', labels: { font: { size: 10 } }},
+                        datalabels: { display: false } 
                     }, 
                     cutout: '65%'
-                }
-            });
-
-            // Gráfico 2: Metas (Barras)
-            if(chartMetas) chartMetas.destroy();
-            chartMetas = new Chart(document.getElementById('chartMetas').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Geral / Outras', 'Obstetrícia'],
-                    datasets: [
-                        { 
-                            label: 'Realizado', 
-                            data: [qtdCirurgia, qtdObs], 
-                            backgroundColor: isClassic ? ['#10b981', '#ec4899'] : ['rgba(16, 185, 129, 0.7)', 'rgba(236, 72, 153, 0.7)'],
-                            borderRadius: 6
-                        },
-                        { 
-                            label: 'Meta', 
-                            data: [META_CIRURGIA, META_OBSTETRICIA], 
-                            type: 'line', 
-                            borderColor: isClassic ? '#1e293b' : '#f8fafc', 
-                            borderWidth: 2, 
-                            pointStyle: 'rectRot', 
-                            pointRadius: 6 
-                        }
-                    ]
-                },
-                options: { 
-                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
-                    plugins:{
-                        legend:{position:'bottom'},
-                        datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } }
-                    },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } },
-                        x: { grid: { display: false } }
-                    }
                 }
             });
         }
@@ -468,8 +433,6 @@
                 $('#tabelaCirurgias tbody').empty(); 
             }
             
-            const isClassic = document.body.classList.contains('theme-classic');
-
             tabelaInstancia = $('#tabelaCirurgias').DataTable({
                 data: dados,
                 orderCellsTop: true,
@@ -479,22 +442,21 @@
                         data: 'especialidade_oficial', 
                         className: 'font-bold text-[11px]', 
                         render: function(d) {
-                            let cor = d === 'OBSTETRÍCIA' ? (isClassic ? '#ec4899' : '#f472b6') : (isClassic ? '#10b981' : '#34d399');
-                            return `<span style="color:${cor};">${d}</span>`;
+                            return `<span style="color:${getCorEspecialidade(d)};">${d}</span>`;
                         }
                     },
                     { data: 'cod_tabela', className: 'font-mono text-cyan-400 font-bold', render: d => d || '-' },
                     { 
                         data: 'procedimento', 
                         render: function(d, type) { 
-                            if(type === 'display' && d && d.length > 40) return `<span title="${d}">${d.substring(0, 40)}...</span>`;
+                            if(type === 'display' && d && d.length > 50) return `<span title="${d}">${d.substring(0, 50)}...</span>`;
                             return d || '-';
                         } 
                     },
                     { data: 'paciente', render: d => `<span class="font-bold">${d}</span>` },
                     { data: 'cirurgiao', className: 'dyn-text-secondary', render: d => (d && !d.includes('NÃO INFORMADO')) ? d : '-' }
                 ],
-                order: [[0, 'desc']], pageLength: 25, dom: 'lBrtip',
+                order: [[0, 'desc']], pageLength: 15, dom: 'lBrtip',
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 buttons: [
                     { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados para Excel', className: 'dt-button' }
@@ -538,13 +500,11 @@
                 }
             });
 
-            // ATUALIZAÇÃO REATIVA DO DASHBOARD AO FILTRAR TABELA
             tabelaInstancia.on('draw', function () {
                 let dadosFiltradosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
-                atualizarDashboard(dadosFiltradosVisiveis);
+                atualizarResumoEGraficos(dadosFiltradosVisiveis);
             });
             
-            // Força um draw inicial para pintar a tela
             tabelaInstancia.draw();
         }
     </script>
