@@ -23,9 +23,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
-        /* ========================================================= */
         body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; transition: background 0.5s ease, color 0.5s ease; scroll-behavior: smooth; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
 
@@ -33,7 +30,6 @@
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
         .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
-        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.3s; }
         
         #loading { position: fixed; inset: 0; background: rgba(0, 21, 40, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; font-weight: bold; backdrop-filter: blur(10px); }
 
@@ -65,9 +61,7 @@
         .bg-enf { background-color: rgba(251, 191, 36, 0.2); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
         .badge { padding: 4px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; min-width: 35px; text-align: center; }
 
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
-        /* ========================================================= */
+        /* MODO CLÁSSICO */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         body.theme-classic .header-bg { border-bottom-color: rgba(255,255,255,0.2) !important; }
@@ -103,9 +97,7 @@
         .btn-theme select option { background: #0f172a; color: white; }
         body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
 
-        /* ========================================================= */
         /* DATATABLES */
-        /* ========================================================= */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 12px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; text-align: center;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px 8px !important; color: white !important; text-align: center;}
@@ -524,19 +516,11 @@
             }
         }
 
-        const pesoLeito = (l) => {
-            let text = String(l || "").toUpperCase();
-            if (text.includes("UTI") || text === "UTIN") return 4;
-            if (text.includes("UCINCO")) return 3;
-            if (text.includes("UCINCA")) return 2;
-            return 1;
-        };
-
         function aplicarFiltroSusLocal() {
             const susFilterValue = $('#susFilter').val(); 
             const anoSelecionado = $('#anoFilter').val();
             const mesSelecionado = String($('#mesFilter').val()).padStart(2, '0');
-            const prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`; // Ex: "2026-03"
+            const prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`; 
             
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
@@ -578,7 +562,6 @@
                 }
                 
                 const p = map.get(key);
-                
                 if (nome && !nome.startsWith("RN DE ") && !nome.startsWith("RECEM NASCIDO")) {
                     p.nome_exibicao = nome;
                 }
@@ -586,20 +569,13 @@
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                 
-                // O ESCUDO DO MÊS: Ignora diárias que não pertencem ao mês que estamos filtrando
                 if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
                 let leitoAtual = row.tipo_leito;
-                if (p.dias_map.has(dataDia)) {
-                    let leitoExistente = p.dias_map.get(dataDia);
-                    if (pesoLeito(leitoAtual) > pesoLeito(leitoExistente)) {
-                        p.dias_map.set(dataDia, leitoAtual);
-                    }
-                } else {
-                    p.dias_map.set(dataDia, leitoAtual);
-                }
+                // O Python agora resolve a regra de transferência e só envia 1 leito por dia.
+                // Em caso de resíduos ou múltiplas rodadas, aceitamos a foto que chegar pois já foi limpa.
+                p.dias_map.set(dataDia, leitoAtual);
 
-                // Salva a maior data global (pode ser de abril) para saber se teve alta
                 if (dataDia > p.max_date) {
                     p.max_date = dataDia;
                     p.data_extracao = row.data_extracao;
@@ -620,6 +596,7 @@
                 }
 
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
+                    // Se o paciente teve alta hoje, o dia da alta NÃO conta diária.
                     if (isAltaPadrao && dataDia === p.max_date) {
                         continue; 
                     }
