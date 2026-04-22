@@ -89,9 +89,7 @@
         .btn-theme select option { background: #0f172a; color: white; }
         body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
 
-        /* ========================================================= */
-        /* DATATABLES & MODAL ESPECÍFICO DA AUDITORIA                */
-        /* ========================================================= */
+        /* DATATABLES */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
@@ -102,9 +100,7 @@
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        /* ========================================================= */
-        /* SELECT2 - ESTILIZAÇÃO COMPLETA (NEON vs CLASSIC)          */
-        /* ========================================================= */
+        /* SELECT2 */
         .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 28px; padding: 2px; transition: 0.3s; }
         .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #38bdf8 !important; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
         .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: rgba(56, 189, 248, 0.2) !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white !important; border-radius: 4px; padding: 0px 4px; font-size: 0.65rem; font-weight: 600; margin-top: 3px; }
@@ -116,7 +112,6 @@
         .select2-results__option[aria-selected=true] { background-color: rgba(255,255,255,0.05) !important; }
         .select2-results__option--highlighted[aria-selected] { background-color: #0ea5e9 !important; color: white !important; }
 
-        /* Select2 Classic Mode Override */
         body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
         body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; border: none !important; color: white !important; }
         body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; border-right: 1px solid rgba(255,255,255,0.3) !important; }
@@ -352,7 +347,11 @@
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_fin', 'classic');
             }
-            if (Object.keys(contasAgrupadasGlobais).length > 0) desenharGraficos(Object.values(contasAgrupadasGlobais));
+            if (tabelaInstancia) {
+                // Ao trocar de tema com a tabela montada, redesenha usando os dados visíveis
+                let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
+                desenharGraficos(dadosVisiveis);
+            }
         }
 
         function fecharModal() { document.getElementById('modalAih').classList.remove('active'); }
@@ -466,10 +465,28 @@
             return final;
         }
 
-        function processarEAgruparDados(rawData, cmpt) {
-            contasAgrupadasGlobais = {}; 
+        // ==============================================================
+        // ATUALIZAÇÃO REATIVA DO DASHBOARD
+        // ==============================================================
+        function atualizarDashboardEstrategico(dadosFiltrados) {
             let totalValorRD = 0;
             let totalItensSP = 0; 
+
+            dadosFiltrados.forEach(c => {
+                totalValorRD += Number(c.rd_val_tot || 0);
+                if(c.itens_sisaih) totalItensSP += c.itens_sisaih.length;
+            });
+
+            $('#kpiValorRD').text(formatBrl.format(totalValorRD));
+            $('#kpiAih').text(dadosFiltrados.length.toLocaleString('pt-BR'));
+            $('#kpiTicket').text(dadosFiltrados.length > 0 ? formatBrl.format(totalValorRD / dadosFiltrados.length) : "R$ 0,00");
+            $('#kpiItens').text(totalItensSP.toLocaleString('pt-BR'));
+
+            desenharGraficos(dadosFiltrados);
+        }
+
+        function processarEAgruparDados(rawData, cmpt) {
+            contasAgrupadasGlobais = {}; 
 
             rawData.forEach(row => {
                 if (!contasAgrupadasGlobais[row.n_aih]) {
@@ -478,7 +495,6 @@
                         cid: row.diag_princ,
                         itens_sp: []
                     };
-                    totalValorRD += Number(row.rd_val_tot || 0);
                 }
                 if (row.ato_profissional) {
                     contasAgrupadasGlobais[row.n_aih].itens_sp.push({
@@ -496,15 +512,10 @@
             
             arrayTabela.forEach(c => {
                 c.itens_sisaih = agruparComoSisaih(c.itens_sp, cmpt);
-                totalItensSP += c.itens_sisaih.length;
             });
 
-            $('#kpiValorRD').text(formatBrl.format(totalValorRD));
-            $('#kpiAih').text(arrayTabela.length.toLocaleString('pt-BR'));
-            $('#kpiTicket').text(arrayTabela.length > 0 ? formatBrl.format(totalValorRD / arrayTabela.length) : "R$ 0,00");
-            $('#kpiItens').text(totalItensSP.toLocaleString('pt-BR'));
-
-            desenharGraficos(arrayTabela);
+            // O DataTables vai disparar o evento 'draw' logo após ser montado, 
+            // o que atualizará os KPIs e Gráficos automaticamente.
             montarTabelaDataTables(arrayTabela);
         }
 
@@ -526,13 +537,13 @@
                     datasets: [{ data: Object.values(mapEspec), backgroundColor: isClassic ? '#0284c7' : 'rgba(56, 189, 248, 0.7)', borderRadius: 6 }] 
                 },
                 options: { 
-                    responsive:true, maintainAspectRatio:false, 
+                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
                     plugins:{
                         legend:{display:false},
                         datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } }
                     }, 
                     scales: { 
-                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...Object.values(mapEspec)) * 1.2 }, 
+                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...Object.values(mapEspec), 1) * 1.2 }, 
                         x: { grid: { display: false } } 
                     } 
                 }
@@ -554,13 +565,13 @@
                     datasets: [{ label: 'Vol. AIH', data: arrProc.map(a => a.qtd), backgroundColor: isClassic ? '#f59e0b' : 'rgba(251, 191, 36, 0.7)', borderRadius: 6 }]
                 },
                 options: { 
-                    responsive:true, maintainAspectRatio:false, 
+                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
                     plugins:{
                         legend:{display:false},
                         datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } }
                     },
                     scales: { 
-                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...arrProc.map(a=>a.qtd)) * 1.2 }, 
+                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...arrProc.map(a=>a.qtd), 1) * 1.2 }, 
                         x: { grid: { display: false }, ticks: { maxRotation: 15, minRotation: 15, font: {size: 10} } } 
                     }
                 }
@@ -568,7 +579,11 @@
         }
 
         function montarTabelaDataTables(dados) {
-            if (tabelaInstancia) { tabelaInstancia.destroy(); $('#tabelaCruzamento tbody').empty(); }
+            if (tabelaInstancia) { 
+                tabelaInstancia.off('draw'); // Desliga o evento anterior
+                tabelaInstancia.destroy(); 
+                $('#tabelaCruzamento tbody').empty(); 
+            }
             
             tabelaInstancia = $('#tabelaCruzamento').DataTable({
                 data: dados,
@@ -630,10 +645,17 @@
                         select.select2({
                             placeholder: "Filtrar...",
                             allowClear: true,
-                            language: { noResults: () => "Nada encontrado" }
+                            language: { noResults: () => "Nada" }
                         });
                     });
                 }
+            });
+
+            // ATENÇÃO: O EVENTO MÁGICO DE ATUALIZAÇÃO EM TEMPO REAL!
+            tabelaInstancia.on('draw', function () {
+                // Pega os dados que passaram pelos filtros (pesquisa global ou coluna)
+                let dadosFiltradosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
+                atualizarDashboardEstrategico(dadosFiltradosVisiveis);
             });
         }
 
