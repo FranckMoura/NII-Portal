@@ -120,12 +120,13 @@
         #painel-resumo { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
         #painel-resumo > div { flex: 1 1 calc(25% - 15px); min-width: 150px; }
         
-        .rank-list { margin: 0; padding: 0; list-style: none; overflow-y: auto; flex: 1; }
-        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; align-items: center; }
+        /* ESTILOS DA LISTA AGRUPADA (RANK) */
+        .rank-list { margin: 0; padding: 0; list-style: none; }
+        .rank-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.80rem; align-items: center; }
         .rank-item:last-child { border-bottom: none; }
-        body.theme-classic .rank-item { border-bottom-color: #f1f5f9; }
-        .rank-qtd { background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: bold; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
-        body.theme-classic .rank-qtd { background: #e0f2fe; color: #0284c7; }
+        body.theme-classic .rank-item { border-bottom-color: #e2e8f0; }
+        .rank-qtd { font-weight: 900; padding: 2px 6px; border-radius: 6px; font-size: 0.70rem; }
+        body.theme-classic .rank-nome-procedimento { color: #334155; }
     </style>
 </head>
 <body>
@@ -171,18 +172,20 @@
         <div id="painel-resumo"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+            
             <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
-                <div style="height:220px;"><canvas id="chartEspec"></canvas></div>
+                <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
+                <div style="height:250px;"><canvas id="chartEspec"></canvas></div>
             </div>
             
-            <div class="glass-chart-container md:col-span-2">
-                <div class="glass-chart-title flex justify-between">
-                    <span><i class="fas fa-list-ol mr-2 text-orange-400"></i> Top Procedimentos (Rank Geral)</span>
+            <div class="glass-chart-container md:col-span-2" style="max-height: 350px; overflow-y: auto;">
+                <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-rank">
+                    <span><i class="fas fa-list-ol mr-2 text-orange-400"></i> Detalhamento por Especialidade</span>
                     <span id="totalProcsDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 tipos</span>
                 </div>
-                <ul class="rank-list" id="listaRank"></ul>
+                <div id="listaRank" class="pr-2 mt-2"></div>
             </div>
+            
         </div>
 
         <div class="cyber-container mb-8">
@@ -227,15 +230,10 @@
 
         const TERMOS_OBS_SECUNDARIOS = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA'];
 
-        // --- INTELIGÊNCIA DE BUSCA ---
-        // Função que cruza o nome do procedimento (Excel) com os nomes da tabela SIGTAP
         function cruzarCodigoSigtap(nomeDoExcel, listaSigtap) {
             if (!nomeDoExcel) return null;
-            
             let nomeLimpo = nomeDoExcel.toUpperCase().trim();
-            // Tenta achar pelo nome exato ou parte do nome (ajuda bastante)
             let match = listaSigtap.find(s => s.nome.toUpperCase().includes(nomeLimpo) || nomeLimpo.includes(s.nome.toUpperCase()));
-            
             return match ? match.codigo : null;
         }
 
@@ -281,9 +279,11 @@
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
                 localStorage.setItem('nii_theme_cir', 'neon');
+                $('#header-lista-rank').css('background', '#001528');
             } else {
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_cir', 'classic');
+                $('#header-lista-rank').css('background', '#ffffff');
             }
             if (tabelaInstancia) {
                 let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
@@ -303,7 +303,10 @@
 
         $(document).ready(function() {
             const savedTheme = localStorage.getItem('nii_theme_cir');
-            if (savedTheme === 'classic') document.body.classList.add('theme-classic');
+            if (savedTheme === 'classic') {
+                document.body.classList.add('theme-classic');
+                $('#header-lista-rank').css('background', '#ffffff');
+            }
 
             const anoSel = $('#anoFilter');
             const mesSel = $('#mesFilter');
@@ -329,7 +332,6 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
-                // 1. Pega as Cirurgias do Excel
                 $('#loader-text').text("Buscando Cirurgias do Mês...");
                 const { data: cirurgiasData, error } = await client.from('cirurgias_detalhe')
                                               .select('*')
@@ -338,14 +340,12 @@
                                               .lte('data_cirurgia', d2);
                 if (error) throw error;
                 
-                // 2. Pega os Nomes da Tabela SIGTAP para fazer o cruzamento client-side
                 $('#loader-text').text("Cruzando nomes com SIGTAP...");
                 const { data: sigtapData } = await client.from('sigtap_oficial').select('codigo, nome');
                 
                 let sigtapList = sigtapData || [];
 
                 dadosOriginais = (cirurgiasData || []).map(d => {
-                    // Se o código não veio pronto do Python, o JS procura ele no SIGTAP
                     let codCorreto = d.cod_tabela;
                     if (!codCorreto || codCorreto === "null" || codCorreto === "") {
                         codCorreto = cruzarCodigoSigtap(d.procedimento, sigtapList);
@@ -366,18 +366,20 @@
 
         function atualizarResumoEGraficos(dadosFiltrados) {
             let mapEspec = {};
-            let mapProc = {}; 
+            let mapProcByEspec = {}; // Agrupador de Procedimentos por Especialidade
             
             dadosFiltrados.forEach(d => {
                 let esp = d.especialidade_oficial;
                 mapEspec[esp] = (mapEspec[esp] || 0) + 1;
                 
+                if(!mapProcByEspec[esp]) mapProcByEspec[esp] = {};
+                
                 let pNome = d.procedimento || "NÃO IDENTIFICADO";
-                if(pNome.length > 60) pNome = pNome.substring(0, 60) + '...';
-                mapProc[pNome] = (mapProc[pNome] || 0) + 1;
+                if(pNome.length > 70) pNome = pNome.substring(0, 70) + '...';
+                mapProcByEspec[esp][pNome] = (mapProcByEspec[esp][pNome] || 0) + 1;
             });
 
-            // CARDS
+            // 1. CARDS DO TOPO
             let arrEspec = Object.keys(mapEspec).map(k => ({nome: k, qtd: mapEspec[k]})).sort((a,b) => b.qtd - a.qtd);
             let htmlCards = `
                 <div class="glass-card">
@@ -398,47 +400,74 @@
             });
             $('#painel-resumo').html(htmlCards);
 
-            // RANK (TOP PROCEDIMENTOS)
-            let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
-            $('#totalProcsDiff').text(arrProc.length + " tipos");
-            
+            // 2. LISTA AGRUPADA (RANK)
+            let totalTiposUnicos = 0;
             let htmlLista = '';
-            arrProc.forEach(proc => {
+            
+            arrEspec.forEach(espec => {
+                let procMap = mapProcByEspec[espec.nome];
+                let arrProc = Object.keys(procMap).map(k => ({nome: k, qtd: procMap[k]})).sort((a,b) => b.qtd - a.qtd);
+                totalTiposUnicos += arrProc.length;
+                
+                let cor = getCorEspecialidade(espec.nome);
+                let corFundo = document.body.classList.contains('theme-classic') ? '#f1f5f9' : 'rgba(0,0,0,0.2)';
+                
                 htmlLista += `
-                    <li class="rank-item">
-                        <span class="font-bold text-gray-200" style="color:var(--tw-prose-body);">${proc.nome}</span>
-                        <span class="rank-qtd">${proc.qtd}</span>
-                    </li>
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center px-3 py-2 rounded-t-lg border-b" style="background-color: ${corFundo}; border-color: ${cor}40;">
+                            <span class="font-bold text-[0.80rem] uppercase tracking-wider" style="color: ${cor};"><i class="fas fa-notes-medical mr-2"></i>${espec.nome}</span>
+                            <span class="text-[0.70rem] px-2 py-0.5 rounded font-bold" style="background:${cor}; color:white;">${espec.qtd}</span>
+                        </div>
+                        <ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 0 0 8px 8px;">
                 `;
+                
+                arrProc.forEach(proc => {
+                    htmlLista += `
+                        <li class="rank-item">
+                            <span class="font-semibold rank-nome-procedimento text-gray-300" style="color:var(--tw-prose-body);">${proc.nome}</span>
+                            <span class="rank-qtd" style="background: ${cor}20; color: ${cor}; border: 1px solid ${cor}40;">${proc.qtd}</span>
+                        </li>
+                    `;
+                });
+                
+                htmlLista += `</ul></div>`;
             });
-            if(arrProc.length === 0) htmlLista = '<li class="rank-item text-gray-500 justify-center">Nenhuma cirurgia no filtro atual.</li>';
+            
+            if(arrEspec.length === 0) htmlLista = '<div class="text-center text-gray-500 mt-4">Nenhuma cirurgia no filtro atual.</div>';
+            
             $('#listaRank').html(htmlLista);
+            $('#totalProcsDiff').text(totalTiposUnicos + " tipos de cirurgia");
 
-            // GRAFICO DONUT
+            // 3. GRÁFICO DE BARRAS VERTICAIS (SUBSTITUIU A PIZZA)
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
-            
-            let coresPie = arrEspec.map(e => getCorEspecialidade(e.nome));
+            let coresBar = arrEspec.map(e => getCorEspecialidade(e.nome));
 
             if(chartEspec) chartEspec.destroy();
             chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
-                type: 'doughnut',
+                type: 'bar',
                 data: { 
                     labels: arrEspec.map(e => e.nome), 
                     datasets: [{ 
+                        label: 'Volume',
                         data: arrEspec.map(e => e.qtd), 
-                        backgroundColor: coresPie, 
-                        borderWidth: isClassic ? 2 : 0, 
-                        borderColor: '#ffffff' 
+                        backgroundColor: coresBar, 
+                        borderRadius: 4
                     }] 
                 },
                 options: { 
                     responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
                     plugins:{
-                        legend:{position:'bottom', labels: { font: { size: 10 } }},
-                        datalabels: { display: false } 
-                    }, 
-                    cutout: '65%'
+                        legend:{display:false},
+                        datalabels: { 
+                            color: isClassic ? '#0f172a' : '#ffffff', 
+                            anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } 
+                        } 
+                    },
+                    scales: { 
+                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...arrEspec.map(e=>e.qtd), 1) * 1.2 }, 
+                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: {size: 9} } } 
+                    }
                 }
             });
         }
