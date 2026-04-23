@@ -113,6 +113,12 @@
         .row-printed { opacity: 0.4; background-color: rgba(0,0,0,0.4) !important; text-decoration: line-through; }
         body.theme-classic .row-printed { opacity: 0.5; background-color: #e2e8f0 !important; }
 
+        /* Estilo para Select Personalizado no Cabeçalho da Tabela */
+        .custom-filter-select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; outline: none; margin-left: 15px; }
+        .custom-filter-select option { background: #0f172a; color: white; }
+        body.theme-classic .custom-filter-select { background: #ffffff; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .custom-filter-select option { background: white; color: #0f172a; }
+
         /* ========================================================= */
         /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
         /* ========================================================= */
@@ -233,7 +239,6 @@
         .btn-added { background: #64748b; cursor: not-allowed; }
         .btn-fatura { background: #f59e0b; } .btn-fatura:hover { background: #d97706; }
         
-        /* Novo Botão Visualizado (Lido/Impresso) */
         .btn-check { background: #64748b; } .btn-check:hover { background: #475569; }
         .btn-checked { background: #10b981; } .btn-checked:hover { background: #059669; }
 
@@ -444,6 +449,18 @@
 
         <div id="aba-indice" class="tab-content active w-full" style="opacity:0;">
             <div class="cyber-container">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg dyn-text-primary"><i class="fas fa-list mr-2 dyn-text-accent"></i> Tabela de Fichas (Espelhos)</h3>
+                    <div>
+                        <span class="text-sm font-bold uppercase dyn-text-muted mr-2"><i class="fas fa-filter"></i> Status de Impressão:</span>
+                        <select id="filtroImpressao" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
+                            <option value="todos">Mostrar Todas</option>
+                            <option value="pendentes">Apenas PENDENTES</option>
+                            <option value="impressas">Apenas IMPRESSAS</option>
+                        </select>
+                    </div>
+                </div>
+
                 <table id="tabelaIndice" class="display compact w-full">
                     <thead>
                         <tr>
@@ -470,11 +487,11 @@
     <div id="barra-impressao" class="collection-bar no-print" style="display:none;">
         <div>
             <i class="fas fa-print dyn-text-accent mr-2"></i>
-            <strong>Fila de Impressão:</strong>
+            <strong>Fila de Impressão Atual:</strong>
             <span id="pageList" class="pages-display">Nenhuma página</span>
         </div>
         <div>
-            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Fila</button>
+            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Fila Atual</button>
             <button class="btn-copy" onclick="copyAllPages()" id="btnCopy"><i class="fas fa-copy mr-1"></i> COPIAR LISTA</button>
         </div>
     </div>
@@ -491,7 +508,7 @@ let dadosIndiceGlobal = [];
 let linkPdfAtual = ""; 
 let chartEspecObj = null;
 let chartProcObj = null;
-let mesCorrenteStorageKey = ""; // Guarda o nome do cache do mês atual (ex: impressas_02/2026)
+let mesCorrenteStorageKey = ""; 
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -689,7 +706,7 @@ function atualizarBI(data) {
     });
 }
 
-// --- LÓGICA DE PERSISTÊNCIA (PÁGINAS LIDAS/IMPRESSAS) ---
+// --- LÓGICA DE PERSISTÊNCIA ---
 function getPaginasImpressas() {
     let mem = localStorage.getItem(mesCorrenteStorageKey);
     return mem ? JSON.parse(mem) : [];
@@ -699,25 +716,45 @@ function salvarPaginasImpressas(arrayPaginas) {
     localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayPaginas));
 }
 
+// Função nativa do botão de "Lido" (O Olho)
 function toggleLeitura(pagina, btnElement) {
     let impressas = getPaginasImpressas();
     let isImpresso = impressas.includes(pagina);
-    
     let tr = $(btnElement).closest('tr');
 
     if (isImpresso) {
-        // Desmarcar
         impressas = impressas.filter(p => p !== pagina);
         $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
         tr.removeClass('row-printed');
     } else {
-        // Marcar
         impressas.push(pagina);
         $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
         tr.addClass('row-printed');
     }
-    
     salvarPaginasImpressas(impressas);
+    aplicarFiltroImpressao(); // Se o filtro estiver ativo, remove da tela instantaneamente
+}
+
+// FILTRO DO DATATABLES
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    if (settings.nTable.id !== 'tabelaIndice') return true;
+    
+    let filtroValue = $('#filtroImpressao').val();
+    if (filtroValue === 'todos') return true;
+
+    let paginasLidas = getPaginasImpressas();
+    let paginaDaLinha = parseInt(data[0]); // A primeira coluna é a Página
+
+    if (filtroValue === 'pendentes') {
+        return !paginasLidas.includes(paginaDaLinha); // Só mostra as que NÃO estão na lista
+    } else if (filtroValue === 'impressas') {
+        return paginasLidas.includes(paginaDaLinha); // Só mostra as que ESTÃO na lista
+    }
+    return true;
+});
+
+function aplicarFiltroImpressao() {
+    if(dtIndice) dtIndice.draw();
 }
 
 
@@ -730,7 +767,6 @@ async function carregarDados() {
     linkPdfAtual = infos.pdf;
     const linkJson = infos.json;
     
-    // Define a chave única do cache para este mês específico (Ex: nii_impressas_02/2026)
     mesCorrenteStorageKey = "nii_impressas_" + competencia;
 
     const loaderText = document.getElementById('loading-text');
@@ -753,7 +789,6 @@ async function carregarDados() {
             else { $('#tabelaIndice thead .table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); }
         });
 
-        // Carrega a memória de impressões
         let paginasLidas = getPaginasImpressas();
 
         dtIndice = $('#tabelaIndice').DataTable({
@@ -767,7 +802,6 @@ async function carregarDados() {
                 { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
             ],
             createdRow: function(row, data, dataIndex) {
-                // Ao criar a linha, pinta de cinza/riscado se já estiver na memória
                 if (paginasLidas.includes(data.PAGINA)) {
                     $(row).addClass('row-printed');
                 }
@@ -791,7 +825,7 @@ async function carregarDados() {
 
                         return `
                         <div class="flex gap-1 justify-center">
-                            <button onclick="toggleLeitura(${row.PAGINA}, this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
+                            <button id="btn-read-${row.PAGINA}" onclick="toggleLeitura(${row.PAGINA}, this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
                             <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-external-link-alt"></i></button>
                             <button onclick="addPage(${row.PAGINA}, this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
                             <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Ver Conta Médica"><i class="fas fa-list-alt"></i></button>
@@ -807,6 +841,7 @@ async function carregarDados() {
                         if (that.search() !== this.value) { that.search(this.value).draw(); }
                     });
                 });
+                aplicarFiltroImpressao(); // Força o filtro se a pessoa trocar de mês e já estiver em "Pendentes"
             }
         });
 
@@ -886,15 +921,33 @@ function imprimirModal() {
 let collectedPages = [];
 function addPage(pageNumber, btn) {
     if (!collectedPages.includes(pageNumber)) {
-        collectedPages.push(pageNumber); collectedPages.sort((a,b)=>a-b);
+        collectedPages.push(pageNumber); 
+        collectedPages.sort((a,b)=>a-b);
         $('#pageList').text(collectedPages.join(', '));
         $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
+
+        // MÁGICA AQUI: Ao adicionar à fila, automaticamente marca como LIDO!
+        let impressas = getPaginasImpressas();
+        if(!impressas.includes(pageNumber)) {
+            impressas.push(pageNumber);
+            salvarPaginasImpressas(impressas);
+            
+            // Atualiza o visual do botão de "Lido" e da linha da tabela
+            let btnLido = document.getElementById('btn-read-' + pageNumber);
+            if(btnLido) {
+                $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
+                $(btnLido).closest('tr').addClass('row-printed');
+            }
+            aplicarFiltroImpressao(); // Se a tabela estiver filtrada por pendentes, ele some da tela
+        }
     }
 }
+
 function clearPages() {
     collectedPages = []; $('#pageList').text("Nenhuma página");
     $('.btn-added').html('<i class="fas fa-print"></i>').removeClass('btn-added');
 }
+
 function copyAllPages() {
     if (collectedPages.length > 0) {
         navigator.clipboard.writeText(collectedPages.join(',')).then(() => {
