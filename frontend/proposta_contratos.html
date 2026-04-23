@@ -48,7 +48,7 @@
         .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 6px; width: 60px; text-align: center; font-weight: bold; outline: none; }
         .print-qtd { display: none; }
 
-        /* SELECT2 TEMA NEON (Corrigido) */
+        /* SELECT2 TEMA NEON */
         .select2-container--default .select2-selection--single { background-color: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 8px; height: 42px !important; display: flex !important; align-items: center !important; }
         .select2-container--default .select2-selection--single .select2-selection__rendered { color: white !important; font-weight: 600; font-size: 0.9rem; }
         .select2-dropdown { background-color: #0f172a !important; border: 1px solid #38bdf8 !important; }
@@ -74,7 +74,6 @@
         body.theme-classic .cart-table td { border-bottom-color: #f1f5f9; color: #334155; }
         body.theme-classic .input-qtd, body.theme-classic select { background: white; color: #0f172a; border-color: #cbd5e1; }
         
-        /* SELECT2 CLÁSSICO */
         body.theme-classic .select2-container--default .select2-selection--single { background-color: white !important; border-color: #cbd5e1 !important; }
         body.theme-classic .select2-container--default .select2-selection--single .select2-selection__rendered { color: #0f172a !important; }
         body.theme-classic .select2-dropdown { background-color: white !important; border-color: #cbd5e1 !important; }
@@ -91,47 +90,37 @@
             @page { size: A4 portrait; margin: 10mm; }
             body { background: white !important; color: black !important; font-size: 8pt !important; }
             
-            /* Oculta tudo que não é documento */
             .no-print, .blob-1, .blob-2, .header-bg, #sidebar-historico, .input-qtd { display: none !important; }
             
-            /* Remove fundos escuros */
             .cyber-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px !important;}
             
-            /* Mostra Cabeçalho de Impressão */
             .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
             .print-header-visible h2 { font-size: 14pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
             .print-header-visible h3 { font-size: 10pt; font-weight: bold; margin: 5px 0; color: black !important;}
             .print-header-visible p { font-size: 8pt; color: black !important; margin: 0;}
 
-            /* Título da Proposta */
             #prop-titulo { border: none !important; background: transparent !important; color: black !important; font-size: 12pt !important; font-weight: bold !important; padding: 0 !important; margin-bottom: 15px !important; text-align: center; width: 100%; }
 
-            /* KPIs no Topo (Lado a Lado Pequeno) */
             .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 15px !important; }
             .glass-card { background: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1; text-align: center; }
             .kpi-title { color: black !important; font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
             .kpi-title i, .glass-card .text-xs { display: none !important; }
             .kpi-number { color: black !important; font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
             
-            /* Tabela P&B */
             .cart-table { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
             .cart-table th { background-color: #e5e7eb !important; color: black !important; font-size: 7pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 4px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
             .cart-table td { background-color: white !important; color: black !important; font-size: 7pt !important; border: 1px solid black !important; padding: 4px !important; font-weight: normal !important;}
             
-            /* Força texto preto em todas as células (anulando classes Tailwind) */
             .cart-table td, .cart-table td span, .cart-table td div { color: black !important; text-shadow: none !important; }
             
-            /* Linhas de Grupo e Subtotal */
-            .cart-table .group-header td { background-color: #d1d5db !important; font-weight: bold !important; border-top: 2px solid black !important; border-bottom: 2px solid black !important; text-align: left !important; color: black !important; -webkit-print-color-adjust: exact;}
-            .cart-table .subtotal-row td { background-color: #f3f4f6 !important; font-weight: bold !important; border-top: 1px solid black !important; color: black !important; -webkit-print-color-adjust: exact;}
+            /* Linhas com a correção solicitada pelo VS Code */
+            .cart-table .group-header td { background-color: #d1d5db !important; font-weight: bold !important; border-top: 2px solid black !important; border-bottom: 2px solid black !important; text-align: left !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cart-table .subtotal-row td { background-color: #f3f4f6 !important; font-weight: bold !important; border-top: 1px solid black !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-            /* Mostra a qtd estática */
             .print-qtd { display: inline !important; font-weight: bold !important; color: black !important; }
             
-            /* Oculta Coluna de Ação */
             .cart-table th:nth-child(8), .cart-table td:nth-child(8) { display: none !important; }
 
-            /* Larguras Exatas para Retrato */
             .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 12% !important; text-align: center !important;} 
             .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 36% !important; text-align: left !important;} 
             .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 8% !important; text-align: center !important;}  
@@ -418,7 +407,7 @@
                     let subQtd = 0, subSig = 0, subFz = 0;
                     list.sort((a,b) => (catalogoGlobal[b.codigo].val_fz * b.qtd) - (catalogoGlobal[a.codigo].val_fz * a.qtd));
 
-                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="8" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2"></i> COMPLEXIDADE: ${compx}</td></tr>`);
+                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="8" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2 no-print"></i> COMPLEXIDADE: ${compx}</td></tr>`);
                     
                     list.forEach(item => {
                         let info = catalogoGlobal[item.codigo];
