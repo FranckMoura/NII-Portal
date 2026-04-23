@@ -125,6 +125,9 @@
         .shortcut-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .shortcut-icon img { width: 30px; height: 30px; object-fit: contain;}
 
+        /* RODAPÉ */
+        footer { margin-top: auto; padding-top: 40px; padding-bottom: 10px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; }
+
         /* ========================================================= */
         /* MODO CLÁSSICO NII                                         */
         /* ========================================================= */
@@ -158,6 +161,8 @@
 
         body.theme-classic .shortcut-card { background: white; border-color: #e2e8f0; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
         body.theme-classic .shortcut-card:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
+
+        body.theme-classic footer { color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -335,6 +340,10 @@
 
         </div>
 
+        <footer>
+            <p>&copy; 2026 Hospital Beneficente Santa Helena - Desenvolvido por Franck Moura</p>
+        </footer>
+
     </main>
 
     <script>
@@ -361,7 +370,6 @@
 
         async function carregarResumoCentral() {
             try {
-                // 1. Acha a Competência mais recente baseada nas simuladas que você enviou
                 const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
                 
                 let anoAtual = new Date().getFullYear();
@@ -381,7 +389,6 @@
                 const dataFimObj = new Date(anoAtual, parseInt(mesAtual), 0); 
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
-                // --- 1. FATURAMENTO PROJETADO ---
                 const { data: sihData } = await client.from('sih_sus_hsh').select('val_tot').eq('ano_cmpt', anoAtual).eq('mes_cmpt', mesAtual);
                 let fatTotal = 0;
                 if (sihData) {
@@ -390,26 +397,24 @@
                 $('#kpi-fat').text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fatTotal));
                 $('#kpi-fat-sub').html('<i class="fas fa-check-circle"></i> SIH Atualizado');
 
-                // --- 2. CIRURGIAS (META 148) ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
                     const termosObs = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA', 'CERCLAGEM', 'ECTÓPICA', 'ECTOPICA', 'CURAGEM', 'REVISAO', 'REVISÃO'];
                     cirData.forEach(c => {
                         let isObs = termosObs.some(t => (c.procedimento||'').toUpperCase().includes(t));
-                        if (!isObs) qtdCir++; // Conta apenas as Cirurgias Gerais
+                        if (!isObs) qtdCir++; 
                     });
                 }
                 let percCir = Math.round((qtdCir / 148) * 100) || 0;
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% da Meta de 148`);
 
-                // --- 3. OCUPAÇÃO UTIN (INDICASUS) ---
                 const { data: utinData } = await client.from('indicasus_leitos').select('id').eq('tipo_leito', 'UTIN').gte('data_extracao', d1).lte('data_extracao', d2);
                 let ocupUtin = 0;
                 let diasNoMes = dataFimObj.getDate();
                 if (utinData) {
-                    let capUtin = 18 * diasNoMes; // 18 Leitos x Qtd Dias do Mês
+                    let capUtin = 18 * diasNoMes; 
                     ocupUtin = Math.round((utinData.length / capUtin) * 100);
                     if (ocupUtin > 100) ocupUtin = 100;
                 }
@@ -417,7 +422,6 @@
                 let utinColor = ocupUtin >= 90 ? 'text-red-500' : 'text-orange-500';
                 $('#kpi-utin-sub').html(`<i class="fas fa-exclamation-circle"></i> ${utinData ? utinData.length : 0} diárias consumidas`).addClass(utinColor);
 
-                // --- 4. FICHAS PENDENTES (SIMULADAS) ---
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
                     const dadosFichas = await responseJson.json();
@@ -452,7 +456,7 @@
                 if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
 
-            carregarResumoCentral(); // Dispara a mágica dos dados reais!
+            carregarResumoCentral(); 
         });
     </script>
 </body>
