@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NII - Hub Central | Hospital Santa Helena</title>
+    <title>NII Portal - Hub Central</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root { --primary: #004e92; --dark: #1e293b; --light: #f8f9fa; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        /* TEMA GLOBAL DARK NEON (PADRÃO) */
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON                                     */
+        /* ========================================================= */
         body { 
-            font-family: 'Inter', sans-serif; 
-            background: #001528;
+            font-family: 'Inter', sans-serif; background: #001528;
             background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed;
-            color: white; 
-            display: flex; flex-direction: column; min-height: 100vh; 
+            color: white; margin: 0; min-height: 100vh; overflow-x: hidden;
             transition: background 0.5s ease, color 0.5s ease;
         }
 
@@ -31,175 +28,136 @@
             background-size: 30px 30px; z-index: -1; pointer-events: none;
         }
 
-        /* LUZES NEON NO FUNDO */
-        .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        
-        header { background: transparent; color: white; padding: 40px 20px 20px 20px; text-align: center; position: relative; z-index: 2; }
-        
+        .blob-1 { position: fixed; top: -100px; left: -100px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 450px; height: 450px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
         /* ========================================================= */
-        /* ANIMAÇÃO BATIMENTO CARDÍACO NA LOGO                       */
+        /* SIDEBAR (MENU LATERAL APRIMORADO)                         */
         /* ========================================================= */
-        .logo-container {
-            position: relative;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 15, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            transition: 0.5s;
+            z-index: 50;
+        }
+        
+        .sidebar-header { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-logo { height: 55px; margin: 0 auto 10px auto; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
+        
+        .nav-menu { flex: 1; padding: 20px 15px; overflow-y: auto; }
+        
+        .nav-item {
+            display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px;
+            color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 6px; transition: 0.3s;
+            border: 1px solid transparent;
+        }
+        .nav-item i { font-size: 1.1rem; width: 24px; text-align: center; margin-top: 3px; transition: 0.3s; }
+        .nav-logo { width: 24px; height: 24px; object-fit: contain; margin-top: 2px; transition: 0.3s; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); border-radius: 4px;}
+        
+        .nav-text { display: flex; flex-direction: column; }
+        .nav-title { font-weight: 700; font-size: 0.85rem; color: #cbd5e1; transition: 0.3s;}
+        .nav-desc { font-weight: 400; font-size: 0.65rem; color: #64748b; line-height: 1.2; margin-top: 2px; transition: 0.3s;}
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(56, 189, 248, 0.1); 
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.05);
+        }
+        .nav-item:hover .nav-title, .nav-item.active .nav-title { color: #38bdf8; }
+        .nav-item:hover .nav-desc, .nav-item.active .nav-desc { color: #bae6fd; opacity: 0.8; }
+        .nav-item.active i, .nav-item:hover i { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
+        .nav-item.active .nav-logo, .nav-item:hover .nav-logo { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5)); }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; }
+
+        /* ========================================================= */
+        /* ÁREA CENTRAL (MAIN CONTENT)                               */
+        /* ========================================================= */
+        .main-content {
+            margin-left: 300px;
+            padding: 30px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: 0.5s;
+        }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+
+        .cyber-container {
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 25px;
         }
 
-        .header-logo-img { 
-            height: 80px; 
-            width: auto;
-            display: block; 
-            position: relative;
-            z-index: 2; 
-            filter: contrast(1.4) drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+            transition: all 0.4s;
         }
+        .glass-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
+        
+        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); }
+        .kpi-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 5px; }
+        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 5px;}
 
-        .ecg-line {
-            position: absolute;
-            top: 70%; 
-            left: -5%; 
-            width: 110%; 
-            height: 30px; 
-            transform: translateY(-50%);
-            z-index: 1; 
-            pointer-events: none;
-            overflow: visible;
+        .shortcut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .shortcut-card {
+            display: flex; align-items: center; gap: 15px; padding: 20px;
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; text-decoration: none; color: white; transition: 0.3s;
         }
-
-        .ecg-svg { width: 100%; height: 100%; overflow: visible; }
-
-        .ecg-svg path {
-            fill: none;
-            stroke: #10b981; 
-            stroke-width: 1.8; 
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            filter: drop-shadow(0 0 6px #10b981);
-            stroke-dasharray: 30 70; 
-            stroke-dashoffset: 100;
-            animation: monitorEcg 2.5s linear infinite;
-        }
-
-        @keyframes monitorEcg {
-            0% { stroke-dashoffset: 100; }
-            100% { stroke-dashoffset: 0; }
-        }
-
-        header h1 { font-weight: 800; margin-bottom: 8px; font-size: 1.8rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); color: white;}
-        header p { font-weight: 300; opacity: 0.9; font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.5); color: rgba(255,255,255,0.8); }
-        
-        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); }
-        .btn-theme-toggle:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
-        
-        .logout-btn { 
-            position: absolute; top: 20px; right: 20px; 
-            background: rgba(255,255,255,0.05); color: white; text-decoration: none; 
-            padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;
-            transition: all 0.3s ease; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .logout-btn:hover { background: rgba(244, 63, 94, 0.2); border-color: rgba(244, 63, 94, 0.5); color: #fecdd3; transform: scale(1.02); }
-        
-        main { flex: 1; max-width: 1200px; margin: 20px auto 40px auto; padding: 0 20px; width: 100%; z-index: 1; position: relative;}
-        
-        .welcome-msg { 
-            display: table; margin: 0 auto 40px auto; 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            padding: 12px 40px; border-radius: 50px; color: #e2e8f0; 
-            font-size: 1.05rem; font-weight: 500; letter-spacing: 0.5px; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2); text-align: center;
-            transition: 0.5s;
-        }
-        
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; justify-content: center; }
-        
-        .menu-card { 
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); border-left: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px; padding: 40px 30px; text-decoration: none; color: white;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden;
-        }
-        
-        .menu-card::before {
-            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-20deg); transition: 0.7s;
-        }
-
-        .menu-card:hover { 
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.05); 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(56, 189, 248, 0.1);
-            border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.3);
-        }
-        
-        .menu-card:hover::before { left: 200%; }
-        
-        /* Tema Dev (Rosa/Roxo) no hover */
-        .menu-card.dev-card:hover {
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(244, 114, 182, 0.1);
-            border-top: 1px solid rgba(244, 114, 182, 0.4); border-left: 1px solid rgba(244, 114, 182, 0.3);
-        }
-
-        .icon-box { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 34px; margin-bottom: 25px; transition: 0.3s; }
-        .menu-card:hover .icon-box { transform: scale(1.1); }
-
-        .menu-card h3 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 1px; }
-        .menu-card p { font-size: 0.9rem; color: #94a3b8; line-height: 1.5; margin: 0; font-weight: 400; }
-        
-        footer { text-align: center; padding: 30px; color: rgba(255,255,255,0.4); font-size: 0.8rem; background: transparent; margin-top: auto; position: relative; z-index: 1;}
-
-        /* ICONES DINÂMICOS (NEON) */
-        .icon-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
-        .icon-blue { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.6); border-color: rgba(56,189,248,0.2); background: rgba(56,189,248,0.05); }
-        .icon-green { color: #34d399; text-shadow: 0 0 15px rgba(52,211,153,0.6); border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); }
-        .icon-yellow { color: #facc15; text-shadow: 0 0 15px rgba(250,204,21,0.6); border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.05); }
-        .icon-pink { color: #f472b6; text-shadow: 0 0 15px rgba(244,114,182,0.6); border-color: rgba(244,114,182,0.2); background: rgba(244,114,182,0.05); }
+        .shortcut-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+        .shortcut-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .shortcut-icon img { width: 30px; height: 30px; object-fit: contain;}
 
         /* ========================================================= */
-        /* MODO CLÁSSICO NII (Azul + Branco)                         */
+        /* MODO CLÁSSICO NII                                         */
         /* ========================================================= */
-        body.theme-classic { background: #f8fafc !important; background-image: none !important; color: #0f172a !important; }
-        body.theme-classic::before { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; opacity: 0.5; }
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         
-        body.theme-classic header { background: #004e92; color: white; padding-bottom: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: -20px; }
-        body.theme-classic header p { color: rgba(255,255,255,0.9); }
-        body.theme-classic .ecg-svg path { stroke: #facc15; filter: none; }
-
-        body.theme-classic .btn-theme-toggle, body.theme-classic .logout-btn { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-        body.theme-classic .logout-btn:hover { background: white; color: #e11d48; }
-
-        body.theme-classic .welcome-msg { background: white; border: 1px solid #e2e8f0; color: #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-30px); }
-
-        body.theme-classic .menu-card {
-            background: white !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-            backdrop-filter: none !important; transform: none !important;
-        }
-        body.theme-classic .menu-card:hover {
-            transform: translateY(-5px) !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important; border-color: #004e92 !important;
-        }
+        body.theme-classic .sidebar { background: #004e92; border-right: none; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+        body.theme-classic .sidebar-header { border-bottom-color: rgba(255,255,255,0.1); }
+        body.theme-classic .sidebar-footer { border-top-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
         
-        body.theme-classic .menu-card.dev-card:hover { border-color: #db2777 !important; }
+        body.theme-classic .nav-title { color: rgba(255,255,255,0.9); }
+        body.theme-classic .nav-desc { color: rgba(255,255,255,0.6); }
+        body.theme-classic .nav-item i { color: rgba(255,255,255,0.6); }
+        body.theme-classic .nav-logo { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+        
+        body.theme-classic .nav-item:hover, body.theme-classic .nav-item.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); box-shadow: none; }
+        body.theme-classic .nav-item:hover .nav-title, body.theme-classic .nav-item.active .nav-title { color: white; }
+        body.theme-classic .nav-item:hover .nav-desc, body.theme-classic .nav-item.active .nav-desc { color: rgba(255,255,255,0.9); }
+        body.theme-classic .nav-item:hover i, body.theme-classic .nav-item.active i { color: white; text-shadow: none; }
+        body.theme-classic .nav-item:hover .nav-logo, body.theme-classic .nav-item.active .nav-logo { filter: drop-shadow(0 2px 5px rgba(255,255,255,0.3)); }
 
-        body.theme-classic .menu-card h3 { color: #0f172a !important; }
-        body.theme-classic .menu-card p { color: #64748b !important; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
+        body.theme-classic .glass-card:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
         
-        body.theme-classic .icon-blue { background: #eff6ff !important; color: #2563eb !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-green { background: #ecfdf5 !important; color: #059669 !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-yellow { background: #fef3c7 !important; color: #d97706 !important; border: none !important; text-shadow: none !important; }
-        body.theme-classic .icon-pink { background: #fce7f3 !important; color: #db2777 !important; border: none !important; text-shadow: none !important; }
+        body.theme-classic .kpi-title { color: #64748b; }
+        body.theme-classic .kpi-sub { color: #94a3b8; }
         
-        body.theme-classic footer { color: #94a3b8; }
+        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
+        body.theme-classic .btn-theme:hover { background: #f8fafc; border-color: #004e92; }
+
+        body.theme-classic .shortcut-card { background: white; border-color: #e2e8f0; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
+        body.theme-classic .shortcut-card:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
     </style>
 </head>
 <body>
@@ -207,83 +165,182 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <header>
-        <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
-            <i class="fas fa-sun"></i>
-        </button>
-        <a href="#" onclick="fazerLogout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a>
-        
-        <div class="logo-container">
-            <div class="ecg-line">
-                <svg viewBox="0 0 100 20" class="ecg-svg" preserveAspectRatio="none">
-                    <path d="M 0,10 L 16,10 L 18,5 L 21,18 L 24,2 L 27,14 L 30,10 L 100,10" pathLength="100"></path>
-                </svg>
-            </div>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            <h2 class="text-white font-bold tracking-wide text-lg">Portal NII</h2>
+            <p class="text-[0.65rem] text-blue-200 opacity-80 uppercase tracking-widest mt-1">Coordenação Faturamento SUS</p>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-2">Visão Geral</div>
             
-            <img src="../logo.png" alt="Hospital Santa Helena" class="header-logo-img" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <div class="nav-text">
+                    <span class="nav-title">Hub Central</span>
+                    <span class="nav-desc">Painel de comando e resumo executivo</span>
+                </div>
+            </a>
+            
+            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Gestão & Faturamento</div>
+            
+            <a href="modulo_gerencial.html" class="nav-item">
+                <img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Módulo Gerencial</span>
+                    <span class="nav-desc">Repasses médicos, SADT e Painéis SIH</span>
+                </div>
+            </a>
+            
+            <a href="painel_simuladas.html" class="nav-item">
+                <img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Fichas & Espelhos</span>
+                    <span class="nav-desc">Fila de impressão e auditoria de simuladas</span>
+                </div>
+            </a>
+
+            <a href="painel_cruzamento_sih_sp.html" class="nav-item">
+                <i class="fas fa-search-dollar"></i>
+                <div class="nav-text">
+                    <span class="nav-title">Auditoria SIH x SP</span>
+                    <span class="nav-desc">Cruzamento de capa de lote e itens detalhados</span>
+                </div>
+            </a>
+            
+            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Monitoramento de Operação</div>
+            
+            <a href="painel_regulacao.html" class="nav-item">
+                <img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Regulação SISREG</span>
+                    <span class="nav-desc">Monitoramento em tempo real das autorizações</span>
+                </div>
+            </a>
+
+            <a href="painel_indicasus_v2.html" class="nav-item">
+                <img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Auditoria IndicaSUS</span>
+                    <span class="nav-desc">Monitoramento de ocupação e diárias de leitos</span>
+                </div>
+            </a>
+
+            <a href="painel_cirurgias.html" class="nav-item">
+                <img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Produção Cirúrgica</span>
+                    <span class="nav-desc">Acompanhamento de metas e especialidades</span>
+                </div>
+            </a>
+
+            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Tabelas e Catálogos</div>
+            
+            <a href="painel_sigtap.html" class="nav-item">
+                <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';">
+                <div class="nav-text">
+                    <span class="nav-title">Catálogo SIGTAP</span>
+                    <span class="nav-desc">Pesquisa unificada, regras de OPME e CIDs</span>
+                </div>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme w-full justify-center">
+                <i class="fas fa-sun"></i> Alternar Tema
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="top-bar">
+            <div>
+                <h1 class="text-3xl font-black mb-1">Visão Geral do Hospital</h1>
+                <p class="text-gray-400 text-sm">Resumo da competência atual e atalhos de produtividade.</p>
+            </div>
+            <div class="text-right">
+                <div class="text-sm font-bold text-blue-400 uppercase" id="current-date">Sincronizando Banco...</div>
+                <div class="text-xs text-gray-500 mt-1">Hospital Beneficente Santa Helena</div>
+            </div>
         </div>
 
-        <h1>Hospital Beneficente Santa Helena</h1>
-        <p>NII - Núcleo Interno de Informação</p>
-    </header>
+        <div class="cyber-container">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 border-b border-white/10 pb-2">Status da Competência</h3>
+            <div class="kpi-grid">
+                
+                <div class="glass-card">
+                    <i class="fas fa-file-invoice-dollar kpi-icon text-emerald-500"></i>
+                    <div class="kpi-title">Faturamento SUS Projetado</div>
+                    <div class="kpi-number text-emerald-400" id="kpi-fat"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-emerald-500" id="kpi-fat-sub">Lendo base SIH...</div>
+                </div>
 
-    <main>
-        <div class="welcome-msg" id="saudacao"><i class="fas fa-circle-notch fa-spin mr-2"></i> Inicializando Sistema...</div>
+                <div class="glass-card">
+                    <i class="fas fa-scalpel kpi-icon text-blue-500"></i>
+                    <div class="kpi-title">Cirurgias (Meta 148)</div>
+                    <div class="kpi-number text-blue-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-cir-sub">Lendo base Cirúrgica...</div>
+                </div>
 
-        <div class="menu-grid">
-            <a href="modulo_operacional.html" class="menu-card">
-                <div class="icon-box icon-blue"><i class="fas fa-cogs"></i></div>
-                <h3>Operacional</h3>
-                <p>Regulação, IndicaSUS, SIGTAP e Censo Hospitalar.</p>
-            </a>
+                <div class="glass-card">
+                    <i class="fas fa-bed kpi-icon text-orange-500"></i>
+                    <div class="kpi-title">Ocupação UTIN</div>
+                    <div class="kpi-number text-orange-400" id="kpi-utin"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-orange-500" id="kpi-utin-sub">Lendo diárias IndicaSUS...</div>
+                </div>
 
-            <a href="modulo_gerencial.html" class="menu-card">
-                <div class="icon-box icon-green"><i class="fas fa-chart-pie"></i></div>
-                <h3>Gerencial</h3>
-                <p>Faturamento SUS, Painel UTI, Auditoria e Finanças.</p>
-            </a>
+                <div class="glass-card">
+                    <i class="fas fa-print kpi-icon text-pink-500"></i>
+                    <div class="kpi-title">Fichas Pendentes</div>
+                    <div class="kpi-number text-pink-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Lendo fila de Simuladas...</div>
+                </div>
 
-            <a href="modulo_estrategico.html" class="menu-card">
-                <div class="icon-box icon-yellow"><i class="fas fa-chess-knight"></i></div>
-                <h3>Estratégico</h3>
-                <p>Metas, Produção Cirúrgica, Arquivos e Relatórios.</p>
-            </a>
-
-            <a href="modulo_dev.html" class="menu-card dev-card">
-                <div class="icon-box icon-pink"><i class="fas fa-flask"></i></div>
-                <h3>Lab de Dados (Dev)</h3>
-                <p>Área de homologação: Automações, Scripts e Sincronização MV.</p>
-            </a>
+            </div>
         </div>
+
+        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 pl-2">Atalhos Frequentes</h3>
+        <div class="shortcut-grid">
+            
+            <a href="painel_simuladas.html" class="shortcut-card">
+                <div class="shortcut-icon bg-pink-500/20 border border-pink-500/30">
+                    <img src="../logo_sisaih.png" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-print text-pink-400\'></i>';">
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-1">Imprimir Fichas</h4>
+                    <p class="text-xs text-gray-400">Acesse a fila de impressão e auditoria básica das simuladas.</p>
+                </div>
+            </a>
+
+            <a href="painel_cruzamento_sih_sp.html" class="shortcut-card">
+                <div class="shortcut-icon bg-blue-500/20 border border-blue-500/30"><i class="fas fa-search-dollar text-blue-400"></i></div>
+                <div>
+                    <h4 class="font-bold text-lg mb-1">Auditar Contas (AIH)</h4>
+                    <p class="text-xs text-gray-400">Cruze valores da Capa RD com os Itens de serviço SP.</p>
+                </div>
+            </a>
+
+            <a href="painel_sigtap.html" class="shortcut-card">
+                <div class="shortcut-icon bg-emerald-500/20 border border-emerald-500/30">
+                    <img src="../logo_sigtap.png" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical text-emerald-400\'></i>';">
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-1">Consultar Valores</h4>
+                    <p class="text-xs text-gray-400">Pesquise preços, regras no SIGTAP e CIDs compatíveis.</p>
+                </div>
+            </a>
+
+        </div>
+
     </main>
-
-    <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</p></footer>
 
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk'; 
-        const client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: 'nii-auth-token', storage: window.localStorage } });
-
-        async function fazerLogout() { 
-            await client.auth.signOut(); 
-            window.location.href = "login.html"; 
-        }
-
-        async function carregarSaudacao() {
-            const hour = new Date().getHours();
-            let periodo = 'Bom dia';
-            if (hour >= 12 && hour < 18) periodo = 'Boa tarde';
-            else if (hour >= 18) periodo = 'Boa noite';
-
-            try {
-                const { data: { user } } = await client.auth.getUser();
-                // Tenta pegar o nome do usuário logado (Se não tiver, usa 'Usuário')
-                const nomeUser = user && user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : 'Usuário';
-                document.getElementById('saudacao').innerHTML = `<strong>${periodo}, ${nomeUser}!</strong> Selecione um módulo abaixo:`;
-            } catch (error) {
-                document.getElementById('saudacao').innerHTML = `<strong>${periodo}!</strong> Selecione um módulo abaixo:`;
-            }
-        }
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
 
         function toggleTheme() {
             const body = document.body;
@@ -291,21 +348,100 @@
             
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_menus', 'neon');
+                localStorage.setItem('nii_theme_hub', 'neon');
                 btnIcon.classList.remove('fa-moon');
                 btnIcon.classList.add('fa-sun');
             } else {
                 body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_menus', 'classic');
+                localStorage.setItem('nii_theme_hub', 'classic');
                 btnIcon.classList.remove('fa-sun');
                 btnIcon.classList.add('fa-moon');
             }
         }
 
+        async function carregarResumoCentral() {
+            try {
+                // 1. Acha a Competência mais recente baseada nas simuladas que você enviou
+                const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
+                
+                let anoAtual = new Date().getFullYear();
+                let mesAtual = String(new Date().getMonth() + 1).padStart(2, '0');
+                let compString = `${mesAtual}/${anoAtual}`;
+                let linkJson = null;
+
+                if (compData && compData.length > 0) {
+                    compString = compData[0].competencia_arquivo;
+                    linkJson = compData[0].link_indice;
+                    [mesAtual, anoAtual] = compString.split('/');
+                }
+
+                document.getElementById('current-date').innerText = `Competência Ativa: ${compString}`;
+
+                const d1 = `${anoAtual}-${mesAtual}-01`;
+                const dataFimObj = new Date(anoAtual, parseInt(mesAtual), 0); 
+                const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+
+                // --- 1. FATURAMENTO PROJETADO ---
+                const { data: sihData } = await client.from('sih_sus_hsh').select('val_tot').eq('ano_cmpt', anoAtual).eq('mes_cmpt', mesAtual);
+                let fatTotal = 0;
+                if (sihData) {
+                    sihData.forEach(r => fatTotal += Number(r.val_tot || 0));
+                }
+                $('#kpi-fat').text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fatTotal));
+                $('#kpi-fat-sub').html('<i class="fas fa-check-circle"></i> SIH Atualizado');
+
+                // --- 2. CIRURGIAS (META 148) ---
+                const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
+                let qtdCir = 0;
+                if (cirData) {
+                    const termosObs = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA', 'CERCLAGEM', 'ECTÓPICA', 'ECTOPICA', 'CURAGEM', 'REVISAO', 'REVISÃO'];
+                    cirData.forEach(c => {
+                        let isObs = termosObs.some(t => (c.procedimento||'').toUpperCase().includes(t));
+                        if (!isObs) qtdCir++; // Conta apenas as Cirurgias Gerais
+                    });
+                }
+                let percCir = Math.round((qtdCir / 148) * 100) || 0;
+                $('#kpi-cir').text(qtdCir);
+                $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% da Meta de 148`);
+
+                // --- 3. OCUPAÇÃO UTIN (INDICASUS) ---
+                const { data: utinData } = await client.from('indicasus_leitos').select('id').eq('tipo_leito', 'UTIN').gte('data_extracao', d1).lte('data_extracao', d2);
+                let ocupUtin = 0;
+                let diasNoMes = dataFimObj.getDate();
+                if (utinData) {
+                    let capUtin = 18 * diasNoMes; // 18 Leitos x Qtd Dias do Mês
+                    ocupUtin = Math.round((utinData.length / capUtin) * 100);
+                    if (ocupUtin > 100) ocupUtin = 100;
+                }
+                $('#kpi-utin').text(ocupUtin + '%');
+                let utinColor = ocupUtin >= 90 ? 'text-red-500' : 'text-orange-500';
+                $('#kpi-utin-sub').html(`<i class="fas fa-exclamation-circle"></i> ${utinData ? utinData.length : 0} diárias consumidas`).addClass(utinColor);
+
+                // --- 4. FICHAS PENDENTES (SIMULADAS) ---
+                if (linkJson) {
+                    const responseJson = await fetch(linkJson);
+                    const dadosFichas = await responseJson.json();
+                    let totalFichas = dadosFichas.length;
+                    
+                    let impressas = JSON.parse(localStorage.getItem("nii_impressas_" + compString) || "[]");
+                    let lidas = impressas.length;
+                    let pendentes = totalFichas - lidas;
+                    
+                    $('#kpi-print').text(pendentes);
+                    $('#kpi-print-sub').html(`<i class="fas fa-clock"></i> ${lidas} de ${totalFichas} concluídas`);
+                } else {
+                    $('#kpi-print').text('-');
+                    $('#kpi-print-sub').html('<i class="fas fa-times"></i> Sem arquivo base');
+                }
+
+            } catch(e) {
+                console.error("Erro ao carregar resumo central:", e);
+                $('#current-date').text('Modo Offline');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            carregarSaudacao();
-            
-            const savedTheme = localStorage.getItem('nii_theme_menus');
+            const savedTheme = localStorage.getItem('nii_theme_hub');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             
             if (savedTheme === 'classic') { 
@@ -315,6 +451,8 @@
                 document.body.classList.remove('theme-classic');
                 if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
+
+            carregarResumoCentral(); // Dispara a mágica dos dados reais!
         });
     </script>
 </body>
