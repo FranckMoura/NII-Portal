@@ -249,9 +249,9 @@
 
                 <div class="glass-card">
                     <i class="fas fa-ambulance kpi-icon text-pink-500"></i>
-                    <div class="kpi-title">Fila de Regulação (SISREG)</div>
+                    <div class="kpi-title">Fila de Regulação (Urgência)</div>
                     <div class="kpi-number text-pink-400" id="kpi-sisreg"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo solicitações do município...</div>
+                    <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </div>
 
                 <div class="glass-card card-expandido">
@@ -376,7 +376,7 @@
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                // --- 1. TOTAL DE AIHS (Fichas) ---
+                // --- 1. TOTAL DE AIHS ---
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
                     const dadosFichas = await responseJson.json();
@@ -396,7 +396,7 @@
                     $('#kpi-aih-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
                 }
 
-                // --- 2. CIRURGIAS (META 148) ---
+                // --- 2. CIRURGIAS ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
@@ -410,36 +410,36 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 3. SISREG (PENDENTES REAIS - ESPELHO DO PAINEL) ---
-                // Agora o robô baixa todas as solicitações do mês
+                // --- 3. SISREG (SÓ PENDENTES + URGÊNCIA) ---
                 let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
-                    const { data, error } = await client.from('regulacao').select('status').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
+                    const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
                     if (error) throw error;
                     if (data && data.length > 0) { allSisregData = allSisregData.concat(data); from += step; }
                     if (!data || data.length < step) keepFetching = false;
                 }
 
-                // E filtra apenas aquelas que a regra de negócio considera "PENDENTE" (Exatamente como na linha 490 do painel_regulacao.html)
-                let pendentesSisreg = 0;
+                let pendentesUrgencia = 0;
                 allSisregData.forEach(d => {
                     let st = (d.status || "").toUpperCase();
-                    // Se NÃO contém a palavra aprovado, nem autorizado, nem negado, nem cancelado... É porque está pendente!
-                    if (!st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO')) {
-                        pendentesSisreg++;
-                    }
+                    let carater = (d.carater_internacao || "").toUpperCase();
+                    
+                    let isPendente = !st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO');
+                    let isUrgencia = carater.includes('URG');
+                    
+                    if (isPendente && isUrgencia) pendentesUrgencia++;
                 });
 
-                $('#kpi-sisreg').text(pendentesSisreg);
-                if(pendentesSisreg > 0) {
-                    $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Requerem ação no sistema`);
+                $('#kpi-sisreg').text(pendentesUrgencia);
+                if(pendentesUrgencia > 0) {
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Atenção à fila do município`);
                     $('#kpi-sisreg').removeClass('text-emerald-400').addClass('text-pink-400');
                 } else {
-                    $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Fila zerada`);
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Nenhuma urgência na fila`);
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS - SÓ SUS NA UTI ADULTO 10 LEITOS) ---
+                // --- 4. INDICASUS ---
                 const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito, internacao_sus').gte('data_extracao', d1).lte('data_extracao', d2);
                 let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
                 
@@ -447,8 +447,6 @@
                     leitosData.forEach(l => {
                         let t = l.tipo_leito || "";
                         let isSus = (l.internacao_sus || "").toUpperCase().includes("SIM");
-                        
-                        // Alteração: Apenas leitos SUS entram na conta da UTI Adulto
                         if (t === 'UTI ADULTO' && isSus) utiAd++;
                         else if (t === 'UTIN') utin++;
                         else if (t === 'UCINCO') ucinco++;
@@ -456,7 +454,6 @@
                     });
                 }
 
-                // Alteração: O Divisor da UTI Adulto agora é 10!
                 let txUtiAd = Math.min(Math.round((utiAd / (10 * diasNoMes)) * 100) || 0, 100);
                 let txUtin = Math.min(Math.round((utin / (18 * diasNoMes)) * 100) || 0, 100);
                 let txUcinco = Math.min(Math.round((ucinco / (4 * diasNoMes)) * 100) || 0, 100);
