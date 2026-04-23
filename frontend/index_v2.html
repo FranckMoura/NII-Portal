@@ -100,13 +100,19 @@
             margin-bottom: 25px;
         }
 
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        /* GRID PRINCIPAL (Dashboard Superior) */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* 3 colunas base */
+            gap: 20px; 
+        }
         
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
             transition: all 0.4s;
+            display: flex; flex-direction: column; justify-content: center;
         }
         .glass-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
         
@@ -115,6 +121,15 @@
         .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 5px; }
         .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 5px;}
 
+        /* Card Expandido para Leitos */
+        .card-expandido { grid-column: span 2; } /* Ocupa 2 colunas no grid de 3 */
+        .leitos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; }
+        .leito-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; text-align: center; }
+        .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .leito-num { font-size: 1.5rem; font-weight: 900; }
+        .leito-meta { font-size: 0.65rem; color: #64748b; margin-top: 2px;}
+
+        /* Atalhos Rápidos */
         .shortcut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .shortcut-card {
             display: flex; align-items: center; gap: 15px; padding: 20px;
@@ -125,7 +140,6 @@
         .shortcut-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .shortcut-icon img { width: 30px; height: 30px; object-fit: contain;}
 
-        /* RODAPÉ */
         footer { margin-top: auto; padding-top: 40px; padding-bottom: 10px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; }
 
         /* ========================================================= */
@@ -156,6 +170,8 @@
         body.theme-classic .kpi-title { color: #64748b; }
         body.theme-classic .kpi-sub { color: #94a3b8; }
         
+        body.theme-classic .leito-box { background: white; border-color: #cbd5e1; }
+        
         body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
         body.theme-classic .btn-theme:hover { background: #f8fafc; border-color: #004e92; }
 
@@ -179,77 +195,20 @@
 
         <nav class="nav-menu">
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-2">Visão Geral</div>
-            
-            <a href="#" class="nav-item active">
-                <i class="fas fa-home"></i>
-                <div class="nav-text">
-                    <span class="nav-title">Hub Central</span>
-                    <span class="nav-desc">Painel de comando e resumo executivo</span>
-                </div>
-            </a>
+            <a href="#" class="nav-item active"><i class="fas fa-home"></i><div class="nav-text"><span class="nav-title">Hub Central</span><span class="nav-desc">Painel de comando executivo</span></div></a>
             
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Gestão & Faturamento</div>
-            
-            <a href="modulo_gerencial.html" class="nav-item">
-                <img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Módulo Gerencial</span>
-                    <span class="nav-desc">Repasses médicos, SADT e Painéis SIH</span>
-                </div>
-            </a>
-            
-            <a href="painel_simuladas.html" class="nav-item">
-                <img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Fichas & Espelhos</span>
-                    <span class="nav-desc">Fila de impressão e auditoria de simuladas</span>
-                </div>
-            </a>
-
-            <a href="painel_cruzamento_sih_sp.html" class="nav-item">
-                <i class="fas fa-search-dollar"></i>
-                <div class="nav-text">
-                    <span class="nav-title">Auditoria SIH x SP</span>
-                    <span class="nav-desc">Cruzamento de capa de lote e itens detalhados</span>
-                </div>
-            </a>
+            <a href="modulo_gerencial.html" class="nav-item"><img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line\'></i>';"><div class="nav-text"><span class="nav-title">Módulo Gerencial</span><span class="nav-desc">Repasses e Painéis SIH</span></div></a>
+            <a href="painel_simuladas.html" class="nav-item"><img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf\'></i>';"><div class="nav-text"><span class="nav-title">Fichas & Espelhos</span><span class="nav-desc">Auditoria de simuladas</span></div></a>
+            <a href="painel_cruzamento_sih_sp.html" class="nav-item"><i class="fas fa-search-dollar"></i><div class="nav-text"><span class="nav-title">Auditoria SIH x SP</span><span class="nav-desc">Cruzamento de capa e itens</span></div></a>
             
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Monitoramento de Operação</div>
-            
-            <a href="painel_regulacao.html" class="nav-item">
-                <img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Regulação SISREG</span>
-                    <span class="nav-desc">Monitoramento em tempo real das autorizações</span>
-                </div>
-            </a>
-
-            <a href="painel_indicasus_v2.html" class="nav-item">
-                <img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Auditoria IndicaSUS</span>
-                    <span class="nav-desc">Monitoramento de ocupação e diárias de leitos</span>
-                </div>
-            </a>
-
-            <a href="painel_cirurgias.html" class="nav-item">
-                <img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Produção Cirúrgica</span>
-                    <span class="nav-desc">Acompanhamento de metas e especialidades</span>
-                </div>
-            </a>
+            <a href="painel_regulacao.html" class="nav-item"><img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';"><div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de autorizações</span></div></a>
+            <a href="painel_indicasus_v2.html" class="nav-item"><img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';"><div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de leitos</span></div></a>
+            <a href="painel_cirurgias.html" class="nav-item"><img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';"><div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Metas e especialidades</span></div></a>
 
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Tabelas e Catálogos</div>
-            
-            <a href="painel_sigtap.html" class="nav-item">
-                <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';">
-                <div class="nav-text">
-                    <span class="nav-title">Catálogo SIGTAP</span>
-                    <span class="nav-desc">Pesquisa unificada, regras de OPME e CIDs</span>
-                </div>
-            </a>
-
+            <a href="painel_sigtap.html" class="nav-item"><img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';"><div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, regras e OPMEs</span></div></a>
         </nav>
 
         <div class="sidebar-footer">
@@ -273,35 +232,64 @@
         </div>
 
         <div class="cyber-container">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 border-b border-white/10 pb-2">Status da Competência</h3>
-            <div class="kpi-grid">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 border-b border-white/10 pb-2">Status Operacional (Painel Rápido)</h3>
+            
+            <div class="dashboard-grid">
                 
                 <div class="glass-card">
                     <i class="fas fa-file-invoice-dollar kpi-icon text-emerald-500"></i>
-                    <div class="kpi-title">Faturamento SUS Projetado</div>
-                    <div class="kpi-number text-emerald-400" id="kpi-fat"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-emerald-500" id="kpi-fat-sub">Lendo base SIH...</div>
+                    <div class="kpi-title">Total de AIHs (Fichas)</div>
+                    <div class="kpi-number text-emerald-400" id="kpi-aih"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-emerald-500" id="kpi-aih-sub">Lendo base de Simuladas...</div>
                 </div>
 
                 <div class="glass-card">
                     <i class="fas fa-scalpel kpi-icon text-blue-500"></i>
-                    <div class="kpi-title">Cirurgias (Meta 148)</div>
+                    <div class="kpi-title">Cirurgias SUS (Meta 148)</div>
                     <div class="kpi-number text-blue-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-cir-sub">Lendo base Cirúrgica...</div>
                 </div>
 
                 <div class="glass-card">
-                    <i class="fas fa-bed kpi-icon text-orange-500"></i>
-                    <div class="kpi-title">Ocupação UTIN</div>
-                    <div class="kpi-number text-orange-400" id="kpi-utin"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-orange-500" id="kpi-utin-sub">Lendo diárias IndicaSUS...</div>
+                    <i class="fas fa-ambulance kpi-icon text-pink-500"></i>
+                    <div class="kpi-title">Fila de Regulação (SISREG)</div>
+                    <div class="kpi-number text-pink-400" id="kpi-sisreg"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo solicitações do município...</div>
                 </div>
 
+                <div class="glass-card card-expandido">
+                    <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
+                    <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS)</div>
+                    
+                    <div class="leitos-grid">
+                        <div class="leito-box">
+                            <div class="leito-nome">UTI Adulto</div>
+                            <div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-spinner fa-spin text-sm"></i></div>
+                            <div class="leito-meta">Meta: 11 Leitos</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UTIN (Neo)</div>
+                            <div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-spinner fa-spin text-sm"></i></div>
+                            <div class="leito-meta">Meta: 18 Leitos</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UCINCo</div>
+                            <div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-spinner fa-spin text-sm"></i></div>
+                            <div class="leito-meta">Meta: 4 Leitos</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UCINCa</div>
+                            <div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-spinner fa-spin text-sm"></i></div>
+                            <div class="leito-meta">Meta: 3 Leitos</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="glass-card">
-                    <i class="fas fa-print kpi-icon text-pink-500"></i>
-                    <div class="kpi-title">Fichas Pendentes</div>
-                    <div class="kpi-number text-pink-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Lendo fila de Simuladas...</div>
+                    <i class="fas fa-print kpi-icon text-yellow-500"></i>
+                    <div class="kpi-title">Impressão Pendente</div>
+                    <div class="kpi-number text-yellow-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Verificando fichas...</div>
                 </div>
 
             </div>
@@ -370,6 +358,7 @@
 
         async function carregarResumoCentral() {
             try {
+                // 1. LÊ A COMPETÊNCIA ATUAL (A partir da Tabela Simuladas)
                 const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
                 
                 let anoAtual = new Date().getFullYear();
@@ -388,15 +377,30 @@
                 const d1 = `${anoAtual}-${mesAtual}-01`;
                 const dataFimObj = new Date(anoAtual, parseInt(mesAtual), 0); 
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+                const diasNoMes = dataFimObj.getDate();
 
-                const { data: sihData } = await client.from('sih_sus_hsh').select('val_tot').eq('ano_cmpt', anoAtual).eq('mes_cmpt', mesAtual);
-                let fatTotal = 0;
-                if (sihData) {
-                    sihData.forEach(r => fatTotal += Number(r.val_tot || 0));
+                // --- 1. TOTAL DE AIHS (Substituindo o "Faturamento") ---
+                if (linkJson) {
+                    const responseJson = await fetch(linkJson);
+                    const dadosFichas = await responseJson.json();
+                    let totalFichas = dadosFichas.length;
+                    
+                    $('#kpi-aih').text(new Intl.NumberFormat('pt-BR').format(totalFichas));
+                    $('#kpi-aih-sub').html('<i class="fas fa-check-circle"></i> Espelhos Gerados');
+                    
+                    // Aproveita que já leu o JSON para calcular as Impressões Pendentes!
+                    let impressas = JSON.parse(localStorage.getItem("nii_impressas_" + compString) || "[]");
+                    let lidas = impressas.length;
+                    let pendentes = totalFichas - lidas;
+                    
+                    $('#kpi-print').text(pendentes);
+                    $('#kpi-print-sub').html(`<i class="fas fa-check-double"></i> ${lidas} já impressas`);
+                } else {
+                    $('#kpi-aih, #kpi-print').text('-');
+                    $('#kpi-aih-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
                 }
-                $('#kpi-fat').text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fatTotal));
-                $('#kpi-fat-sub').html('<i class="fas fa-check-circle"></i> SIH Atualizado');
 
+                // --- 2. CIRURGIAS (META 148) ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
@@ -408,35 +412,43 @@
                 }
                 let percCir = Math.round((qtdCir / 148) * 100) || 0;
                 $('#kpi-cir').text(qtdCir);
-                $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% da Meta de 148`);
+                $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                const { data: utinData } = await client.from('indicasus_leitos').select('id').eq('tipo_leito', 'UTIN').gte('data_extracao', d1).lte('data_extracao', d2);
-                let ocupUtin = 0;
-                let diasNoMes = dataFimObj.getDate();
-                if (utinData) {
-                    let capUtin = 18 * diasNoMes; 
-                    ocupUtin = Math.round((utinData.length / capUtin) * 100);
-                    if (ocupUtin > 100) ocupUtin = 100;
-                }
-                $('#kpi-utin').text(ocupUtin + '%');
-                let utinColor = ocupUtin >= 90 ? 'text-red-500' : 'text-orange-500';
-                $('#kpi-utin-sub').html(`<i class="fas fa-exclamation-circle"></i> ${utinData ? utinData.length : 0} diárias consumidas`).addClass(utinColor);
-
-                if (linkJson) {
-                    const responseJson = await fetch(linkJson);
-                    const dadosFichas = await responseJson.json();
-                    let totalFichas = dadosFichas.length;
-                    
-                    let impressas = JSON.parse(localStorage.getItem("nii_impressas_" + compString) || "[]");
-                    let lidas = impressas.length;
-                    let pendentes = totalFichas - lidas;
-                    
-                    $('#kpi-print').text(pendentes);
-                    $('#kpi-print-sub').html(`<i class="fas fa-clock"></i> ${lidas} de ${totalFichas} concluídas`);
+                // --- 3. SISREG (PENDENTES) ---
+                const { data: sisregData } = await client.from('regulacao').select('id').eq('status_solicitacao', 'PENDENTE').not('codigo_solicitacao', 'is', null);
+                let totalRegulacao = sisregData ? sisregData.length : 0;
+                $('#kpi-sisreg').text(totalRegulacao);
+                if(totalRegulacao > 0) {
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Requerem ação no sistema`);
                 } else {
-                    $('#kpi-print').text('-');
-                    $('#kpi-print-sub').html('<i class="fas fa-times"></i> Sem arquivo base');
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Fila zerada`);
+                    $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
+
+                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS) ---
+                const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito').gte('data_extracao', d1).lte('data_extracao', d2);
+                let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
+                
+                if (leitosData) {
+                    leitosData.forEach(l => {
+                        let t = l.tipo_leito || "";
+                        if (t === 'UTI ADULTO') utiAd++;
+                        else if (t === 'UTIN') utin++;
+                        else if (t === 'UCINCO') ucinco++;
+                        else if (t === 'UCINCA') ucinca++;
+                    });
+                }
+
+                // Cálculo Exato: Ocupação Real / (Leitos Credenciados x Dias do Mês)
+                let txUtiAd = Math.min(Math.round((utiAd / (11 * diasNoMes)) * 100) || 0, 100);
+                let txUtin = Math.min(Math.round((utin / (18 * diasNoMes)) * 100) || 0, 100);
+                let txUcinco = Math.min(Math.round((ucinco / (4 * diasNoMes)) * 100) || 0, 100);
+                let txUcinca = Math.min(Math.round((ucinca / (3 * diasNoMes)) * 100) || 0, 100);
+
+                $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
+                $('#taxa-utin').text(txUtin + '%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
+                $('#taxa-ucinco').text(txUcinco + '%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
+                $('#taxa-ucinca').text(txUcinca + '%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
 
             } catch(e) {
                 console.error("Erro ao carregar resumo central:", e);
