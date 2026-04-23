@@ -100,10 +100,9 @@
             margin-bottom: 25px;
         }
 
-        /* GRID PRINCIPAL (Dashboard Superior) */
         .dashboard-grid { 
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* 3 colunas base */
+            grid-template-columns: repeat(3, 1fr); 
             gap: 20px; 
         }
         
@@ -121,15 +120,13 @@
         .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 5px; }
         .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 5px;}
 
-        /* Card Expandido para Leitos */
-        .card-expandido { grid-column: span 2; } /* Ocupa 2 colunas no grid de 3 */
+        .card-expandido { grid-column: span 2; } 
         .leitos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; }
         .leito-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; text-align: center; }
         .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 5px; }
         .leito-num { font-size: 1.5rem; font-weight: 900; }
         .leito-meta { font-size: 0.65rem; color: #64748b; margin-top: 2px;}
 
-        /* Atalhos Rápidos */
         .shortcut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .shortcut-card {
             display: flex; align-items: center; gap: 15px; padding: 20px;
@@ -265,7 +262,7 @@
                         <div class="leito-box">
                             <div class="leito-nome">UTI Adulto</div>
                             <div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta">Meta: 11 Leitos</div>
+                            <div class="leito-meta">Meta: 10 Leitos (SUS)</div>
                         </div>
                         <div class="leito-box">
                             <div class="leito-nome">UTIN (Neo)</div>
@@ -358,7 +355,7 @@
 
         async function carregarResumoCentral() {
             try {
-                // 1. LÊ A COMPETÊNCIA ATUAL (A partir da Tabela Simuladas)
+                // 1. LÊ A COMPETÊNCIA ATUAL
                 const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
                 
                 let anoAtual = new Date().getFullYear();
@@ -379,7 +376,7 @@
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                // --- 1. TOTAL DE AIHS (Substituindo o "Faturamento") ---
+                // --- 1. TOTAL DE AIHS (Fichas) ---
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
                     const dadosFichas = await responseJson.json();
@@ -388,7 +385,6 @@
                     $('#kpi-aih').text(new Intl.NumberFormat('pt-BR').format(totalFichas));
                     $('#kpi-aih-sub').html('<i class="fas fa-check-circle"></i> Espelhos Gerados');
                     
-                    // Aproveita que já leu o JSON para calcular as Impressões Pendentes!
                     let impressas = JSON.parse(localStorage.getItem("nii_impressas_" + compString) || "[]");
                     let lidas = impressas.length;
                     let pendentes = totalFichas - lidas;
@@ -414,33 +410,39 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 3. SISREG (PENDENTES) ---
-                const { data: sisregData } = await client.from('regulacao').select('id').eq('status_solicitacao', 'PENDENTE').not('codigo_solicitacao', 'is', null);
+                // --- 3. SISREG (PENDENTES REAIS) ---
+                // Alteração: Buscando por status aproximado e sem bloquear quem não tem código gerado
+                const { data: sisregData } = await client.from('regulacao').select('status_solicitacao').ilike('status_solicitacao', '%PENDENTE%');
                 let totalRegulacao = sisregData ? sisregData.length : 0;
+                
                 $('#kpi-sisreg').text(totalRegulacao);
                 if(totalRegulacao > 0) {
                     $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Requerem ação no sistema`);
+                    $('#kpi-sisreg').removeClass('text-emerald-400').addClass('text-pink-400');
                 } else {
                     $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Fila zerada`);
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS) ---
-                const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito').gte('data_extracao', d1).lte('data_extracao', d2);
+                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS - SÓ SUS NA UTI ADULTO) ---
+                const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito, internacao_sus').gte('data_extracao', d1).lte('data_extracao', d2);
                 let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
                 
                 if (leitosData) {
                     leitosData.forEach(l => {
                         let t = l.tipo_leito || "";
-                        if (t === 'UTI ADULTO') utiAd++;
+                        let isSus = (l.internacao_sus || "").toUpperCase().includes("SIM");
+                        
+                        // Alteração: Apenas leitos classificados como SUS entram na conta da UTI Adulto
+                        if (t === 'UTI ADULTO' && isSus) utiAd++;
                         else if (t === 'UTIN') utin++;
                         else if (t === 'UCINCO') ucinco++;
                         else if (t === 'UCINCA') ucinca++;
                     });
                 }
 
-                // Cálculo Exato: Ocupação Real / (Leitos Credenciados x Dias do Mês)
-                let txUtiAd = Math.min(Math.round((utiAd / (11 * diasNoMes)) * 100) || 0, 100);
+                // Alteração: O Divisor da UTI Adulto agora é 10!
+                let txUtiAd = Math.min(Math.round((utiAd / (10 * diasNoMes)) * 100) || 0, 100);
                 let txUtin = Math.min(Math.round((utin / (18 * diasNoMes)) * 100) || 0, 100);
                 let txUcinco = Math.min(Math.round((ucinco / (4 * diasNoMes)) * 100) || 0, 100);
                 let txUcinca = Math.min(Math.round((ucinca / (3 * diasNoMes)) * 100) || 0, 100);
