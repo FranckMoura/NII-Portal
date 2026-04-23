@@ -60,13 +60,17 @@
         .btn-danger:hover { background: #ef4444; color: white; }
 
         /* Tabela do Carrinho */
-        .cart-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .cart-table th { background: rgba(0,0,0,0.3); padding: 12px; color: #38bdf8; font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
-        .cart-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; vertical-align: middle; }
+        .cart-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed;}
+        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px 8px; color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); word-wrap: break-word;}
+        .cart-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; vertical-align: middle; word-wrap: break-word; white-space: normal;}
         .cart-table tr:hover { background: rgba(255,255,255,0.02); }
         
-        .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px; border-radius: 6px; width: 80px; text-align: center; font-weight: bold; outline: none; transition: 0.3s;}
+        .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px; border-radius: 6px; width: 100%; text-align: center; font-weight: bold; outline: none; transition: 0.3s;}
         .input-qtd:focus { border-color: #38bdf8; box-shadow: 0 0 5px rgba(56, 189, 248, 0.5); }
+        .print-qtd { display: none; } 
+
+        .select-complexidade { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0 8px; border-radius: 6px; font-weight: 600; outline: none; font-size: 0.8rem;}
+        .select-complexidade option { background: #0f172a; color: white; }
 
         /* SELECT2 TEMA ESCURO */
         .select2-container--default .select2-selection--single { background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; height: 42px; display: flex; align-items: center; }
@@ -89,7 +93,8 @@
         
         body.theme-classic .cart-table th { background: #f1f5f9; color: #0f172a; border-bottom-color: #cbd5e1; }
         body.theme-classic .cart-table td { border-bottom-color: #f1f5f9; color: #334155; }
-        body.theme-classic .input-qtd { background: white; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .input-qtd, body.theme-classic .select-complexidade { background: white; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .select-complexidade option { background: white; color: #0f172a; }
         
         body.theme-classic .select2-container--default .select2-selection--single { background-color: white; border-color: #cbd5e1; }
         body.theme-classic .select2-container--default .select2-selection--single .select2-selection__rendered { color: #0f172a; }
@@ -100,16 +105,40 @@
 
         #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
 
+        /* ========================================================= */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (RETRATO A4 PERFEITO)             */
+        /* ========================================================= */
         @media print {
-            body { background: white !important; color: black !important; font-size: 10pt; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white !important; color: black !important; font-size: 8pt; margin: 0; padding: 0;}
+            
             .no-print, .header-bg, .blob-1, .blob-2 { display: none !important; }
-            .cyber-container { box-shadow: none; border: none; padding: 0; margin-bottom: 20px;}
-            .glass-card { border: 1px solid #ccc; background: white !important; break-inside: avoid; }
-            .kpi-title { color: black !important; }
-            .kpi-number { color: black !important; font-size: 18pt;}
-            .cart-table th { background: #eee !important; color: black !important; border-bottom: 2px solid black !important; }
-            .cart-table td { border-bottom: 1px solid #ccc !important; color: black !important;}
-            .input-qtd { border: none !important; background: transparent !important; color: black !important; }
+            
+            .cyber-container { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 15px !important;}
+            .glass-card { border: 1px solid #ccc !important; background: white !important; break-inside: avoid !important; padding: 10px !important;}
+            
+            .kpi-title { color: black !important; font-size: 7pt !important; margin-bottom: 2px !important;}
+            .kpi-number { color: black !important; font-size: 14pt !important; margin: 0 !important;}
+            
+            .cart-table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; }
+            .cart-table th { background: #eee !important; color: black !important; border-bottom: 2px solid black !important; padding: 4px !important; font-size: 7pt !important;}
+            .cart-table td { border-bottom: 1px solid #ccc !important; color: black !important; padding: 4px !important; font-size: 7pt !important; vertical-align: middle !important;}
+            
+            /* O SEGREDO DO MODO RETRATO: Ajuste exato das colunas */
+            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 12% !important; } /* Codigo */
+            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 34% !important; } /* Proc (Flexivel) */
+            .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 8% !important; }  /* Qtd */
+            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 11% !important; } /* Unit Sig */
+            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 11% !important; } /* Unit FZ */
+            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 12% !important; } /* Tot Sig */
+            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 12% !important; } /* Tot FZ */
+            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { display: none !important; } /* Acao invisivel */
+
+            .cart-table .subtotal-row td { background-color: #f8f8f8 !important; border-top: 1px solid black !important; font-size: 7.5pt !important;}
+            .cart-table .group-header td { background-color: #ddd !important; border-bottom: 1px solid black !important; border-top: 2px solid black !important; font-size: 8pt !important;}
+
+            .input-qtd { display: none !important; }
+            .print-qtd { display: inline !important; font-weight: bold;}
         }
     </style>
 </head>
@@ -134,16 +163,17 @@
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
-                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print mr-2"></i> Imprimir / PDF</button>
+                <button onclick="exportarExcel()" class="btn-action bg-emerald-600 hover:bg-emerald-700 shadow"><i class="fas fa-file-excel mr-2"></i> Exportar Excel</button>
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600 shadow"><i class="fas fa-print mr-2"></i> Imprimir / PDF</button>
                 <a href="modulo_gerencial.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 mb-6 hidden print:block text-center border-b-2 border-black pb-4">
-        <h2 class="text-2xl font-black uppercase">Hospital Beneficente Santa Helena</h2>
-        <h3 class="text-lg font-bold">Proposta de Prestação de Serviços (Metas Físicas e Financeiras)</h3>
-        <p class="text-sm mt-2" id="print-date"></p>
+    <div class="max-w-[98%] mx-auto px-4 mb-4 hidden print:block text-center border-b-2 border-black pb-2">
+        <h2 class="text-xl font-black uppercase">Hospital Beneficente Santa Helena</h2>
+        <h3 class="text-md font-bold">Proposta de Prestação de Serviços - Metas Físicas e Financeiras</h3>
+        <p class="text-xs mt-1" id="print-date"></p>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
@@ -175,16 +205,26 @@
             <h3 class="font-bold text-lg mb-4 text-emerald-400 border-b border-white/10 pb-2"><i class="fas fa-search-plus mr-2"></i> Adicionar Procedimento à Proposta</h3>
             
             <div class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1">
+                <div class="flex-1 w-full">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Buscar no Catálogo Unificado</label>
                     <select id="select-procedimento" class="w-full">
                         <option value="">Aguarde, carregando catálogos...</option>
                     </select>
                 </div>
-                <div class="w-32">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Quantidade</label>
+                
+                <div class="w-48">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Nível de Complexidade</label>
+                    <select id="input-complexidade" class="select-complexidade w-full h-[42px]">
+                        <option value="MEDIA">Média Complexidade</option>
+                        <option value="ALTA">Alta Complexidade</option>
+                    </select>
+                </div>
+
+                <div class="w-24">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Metas (Qtd)</label>
                     <input type="number" id="input-qtd-add" value="1" min="1" class="input-qtd w-full text-lg h-[42px]">
                 </div>
+
                 <button onclick="adicionarAoCarrinho()" class="btn-action h-[42px] flex items-center justify-center gap-2 px-8">
                     <i class="fas fa-plus-circle"></i> Inserir
                 </button>
@@ -192,7 +232,7 @@
         </div>
 
         <div class="cyber-container">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2 no-print">
                 <h3 class="font-bold text-lg text-blue-400"><i class="fas fa-file-contract mr-2"></i> Itens da Proposta</h3>
                 <button onclick="limparProposta()" class="text-red-500 hover:text-red-400 text-sm font-bold no-print"><i class="fas fa-trash-alt mr-1"></i> Limpar Tudo</button>
             </div>
@@ -201,14 +241,14 @@
                 <table class="cart-table">
                     <thead>
                         <tr>
-                            <th style="width: 120px;">Código</th>
-                            <th>Procedimento</th>
-                            <th style="width: 100px;" class="text-center">Meta Fís.</th>
-                            <th style="width: 130px;" class="text-right">Unit. SIGTAP</th>
-                            <th style="width: 130px;" class="text-right">Unit. Fila Zero</th>
-                            <th style="width: 150px;" class="text-right">Total SIGTAP</th>
-                            <th style="width: 150px;" class="text-right">Total F. Zero</th>
-                            <th style="width: 60px;" class="text-center no-print">Ação</th>
+                            <th style="width: 12%;">Código</th>
+                            <th style="width: 35%;">Procedimento</th>
+                            <th style="width: 8%;" class="text-center">Meta</th>
+                            <th style="width: 11%;" class="text-right">Unit. SIGTAP</th>
+                            <th style="width: 11%;" class="text-right">Unit. F. Zero</th>
+                            <th style="width: 10%;" class="text-right">Total SIGTAP</th>
+                            <th style="width: 10%;" class="text-right">Total F. Zero</th>
+                            <th style="width: 3%;" class="text-center no-print"><i class="fas fa-cog"></i></th>
                         </tr>
                     </thead>
                     <tbody id="tbody-proposta">
@@ -229,8 +269,8 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
-        let catalogoGlobal = {}; // { '0407030026': { nome, val_sigtap, val_fz } }
-        let propostaCarrinho = []; // Array de { codigo, qtd }
+        let catalogoGlobal = {}; 
+        let propostaCarrinho = []; // [{ codigo, qtd, complexidade }]
 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -249,7 +289,7 @@
             const savedTheme = localStorage.getItem('nii_theme_prop');
             if (savedTheme === 'classic') document.body.classList.add('theme-classic');
             
-            document.getElementById('print-date').innerText = "Gerado em: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
+            document.getElementById('print-date').innerText = "Data da Emissão: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
 
             carregarCatalogos();
         });
@@ -257,12 +297,10 @@
         async function carregarCatalogos() {
             $('#loader').fadeIn();
             try {
-                // 1. Baixa o SIGTAP Inteiro
                 $('#loader-text').text("Baixando Tabela Oficial SIGTAP...");
                 const { data: sigtapData, error: err1 } = await client.from('sigtap_oficial').select('codigo, nome, valor_hospitalar, valor_profissional');
                 if (err1) throw err1;
 
-                // 2. Baixa o Fila Zero
                 $('#loader-text').text("Integrando Fila Zero...");
                 const { data: fzData, error: err2 } = await client.from('fila_zero_procedimentos').select('codigo_sigtap, valor_unitario');
                 if (err2) throw err2;
@@ -272,7 +310,6 @@
                     fzData.forEach(f => { mapFZ[f.codigo_sigtap] = Number(f.valor_unitario || 0); });
                 }
 
-                // 3. Monta o Dicionário e prepara o Select2
                 let optionsHtml = '<option value="">Selecione ou digite o código/nome...</option>';
                 
                 sigtapData.forEach(item => {
@@ -280,21 +317,18 @@
                     let valSP = Number(item.valor_profissional || 0);
                     let totalSigtap = valSH + valSP;
                     
-                    let valFz = mapFZ[item.codigo] || 0; // Se não tiver no FZ, assume 0
+                    let valFz = mapFZ[item.codigo] || 0; 
                     
-                    // Salva na memória global para buscas rápidas
                     catalogoGlobal[item.codigo] = {
                         nome: item.nome,
                         val_sigtap: totalSigtap,
                         val_fz: valFz
                     };
 
-                    // O Option mostra o código, o nome, e avisa visualmente se tem valor no Fila Zero
                     let labelFZ = valFz > 0 ? ` [FZ: ${formatBrl.format(valFz)}]` : '';
                     optionsHtml += `<option value="${item.codigo}">${item.codigo} - ${item.nome}${labelFZ}</option>`;
                 });
 
-                // Injeta no HTML e Inicia o Select2
                 const selectEl = $('#select-procedimento');
                 selectEl.html(optionsHtml);
                 selectEl.select2({
@@ -312,11 +346,12 @@
         }
 
         // ==============================================================
-        // LÓGICA DO CARRINHO (PROPOSTA)
+        // LÓGICA DO CARRINHO COM SEPARAÇÃO DE COMPLEXIDADE
         // ==============================================================
 
         function adicionarAoCarrinho() {
             let cod = $('#select-procedimento').val();
+            let compx = $('#input-complexidade').val(); // MEDIA ou ALTA
             let qtdInput = parseInt($('#input-qtd-add').val()) || 1;
 
             if (!cod) {
@@ -324,36 +359,33 @@
                 return;
             }
 
-            // Verifica se já existe na proposta
-            let existente = propostaCarrinho.find(i => i.codigo === cod);
+            // Busca se já existe na mesma categoria de complexidade
+            let existente = propostaCarrinho.find(i => i.codigo === cod && i.complexidade === compx);
             if (existente) {
-                // Se já tem, só soma a quantidade
                 existente.qtd += qtdInput;
             } else {
-                // Adiciona novo
-                propostaCarrinho.push({ codigo: cod, qtd: qtdInput });
+                propostaCarrinho.push({ codigo: cod, complexidade: compx, qtd: qtdInput });
             }
 
-            // Reseta inputs
             $('#select-procedimento').val(null).trigger('change');
             $('#input-qtd-add').val(1);
 
             renderizarTabelaProposta();
         }
 
-        function removerItem(codigo) {
-            propostaCarrinho = propostaCarrinho.filter(i => i.codigo !== codigo);
+        function removerItem(codigo, complexidade) {
+            propostaCarrinho = propostaCarrinho.filter(i => !(i.codigo === codigo && i.complexidade === complexidade));
             renderizarTabelaProposta();
         }
 
-        function atualizarQtdLinha(codigo, novaQtdStr) {
+        function atualizarQtdLinha(codigo, complexidade, novaQtdStr) {
             let novaQtd = parseInt(novaQtdStr);
-            if (isNaN(novaQtd) || novaQtd <= 0) novaQtd = 1; // Proteção contra zeros/negativos
+            if (isNaN(novaQtd) || novaQtd <= 0) novaQtd = 1; 
 
-            let item = propostaCarrinho.find(i => i.codigo === codigo);
+            let item = propostaCarrinho.find(i => i.codigo === codigo && i.complexidade === complexidade);
             if (item) {
                 item.qtd = novaQtd;
-                renderizarTabelaProposta(); // Recalcula tudo
+                renderizarTabelaProposta(); 
             }
         }
 
@@ -362,6 +394,58 @@
                 propostaCarrinho = [];
                 renderizarTabelaProposta();
             }
+        }
+
+        function exportarExcel() {
+            if (propostaCarrinho.length === 0) {
+                alert("A proposta está vazia. Adicione itens antes de exportar.");
+                return;
+            }
+
+            // CSV Formatado para Excel PT-BR
+            let csvContent = "\uFEFF" + "CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;VLR_UNIT_FILAZERO;TOTAL_SIGTAP;TOTAL_FILAZERO\n";
+            
+            propostaCarrinho.forEach(item => {
+                let info = catalogoGlobal[item.codigo];
+                let subSigtap = info.val_sigtap * item.qtd;
+                let subFz = info.val_fz * item.qtd;
+                
+                // Transforma ponto em virgula
+                let numSig = info.val_sigtap.toFixed(2).replace('.', ',');
+                let numFz = info.val_fz.toFixed(2).replace('.', ',');
+                let totSig = subSigtap.toFixed(2).replace('.', ',');
+                let totFz = subFz.toFixed(2).replace('.', ',');
+                
+                let compxFormatada = item.complexidade === 'MEDIA' ? 'MÉDIA COMPLEXIDADE' : 'ALTA COMPLEXIDADE';
+
+                let row = [
+                    `="${item.codigo}"`, 
+                    `"${info.nome}"`,
+                    `"${compxFormatada}"`,
+                    item.qtd,
+                    `"${numSig}"`,
+                    `"${numFz}"`,
+                    `"${totSig}"`,
+                    `"${totFz}"`
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            // Linha Final de Totais
+            let totGeralQtd = $('#kpi-qtd').text();
+            let totGeralSig = $('#kpi-sigtap').text().replace('R$', '').replace(/\./g, '').trim(); 
+            let totGeralFz = $('#kpi-fz').text().replace('R$', '').replace(/\./g, '').trim();
+            
+            csvContent += `\n"TOTAIS";"";"";${totGeralQtd};;"";"${totGeralSig}";"${totGeralFz}"\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Proposta_Contratual_SUS_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function renderizarTabelaProposta() {
@@ -374,48 +458,89 @@
 
             if (propostaCarrinho.length === 0) {
                 tbody.html(`<tr id="linha-vazia"><td colspan="8" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
-            } else {
-                // Ordena por maior valor total (FZ)
-                propostaCarrinho.sort((a,b) => {
-                    let valA = catalogoGlobal[a.codigo].val_fz * a.qtd;
-                    let valB = catalogoGlobal[b.codigo].val_fz * b.qtd;
-                    return valB - valA;
-                });
+                $('#kpi-qtd').text(0);
+                $('#kpi-sigtap').text('R$ 0,00');
+                $('#kpi-fz').text('R$ 0,00');
+                $('#kpi-diff').text('R$ 0,00');
+                return;
+            }
 
-                propostaCarrinho.forEach(item => {
+            // Separa os Arrays para renderizar as categorias
+            let arrMedia = propostaCarrinho.filter(i => i.complexidade === 'MEDIA');
+            let arrAlta = propostaCarrinho.filter(i => i.complexidade === 'ALTA');
+
+            function renderizarGrupo(lista, titulo, iconeColor) {
+                if (lista.length === 0) return;
+
+                // CABEÇALHO DO GRUPO (Média ou Alta)
+                tbody.append(`
+                    <tr class="group-header bg-blue-900/40 border-y border-blue-500/30">
+                        <td colspan="8" class="py-2 px-3 font-black text-${iconeColor}-400 uppercase tracking-widest text-xs">
+                            <i class="fas fa-layer-group mr-2 text-${iconeColor}-500"></i> ${titulo}
+                        </td>
+                    </tr>
+                `);
+
+                let subQtd = 0;
+                let subSigtap = 0;
+                let subFz = 0;
+
+                // Ordena do mais caro (FZ) pro mais barato dentro do grupo
+                lista.sort((a,b) => (catalogoGlobal[b.codigo].val_fz * b.qtd) - (catalogoGlobal[a.codigo].val_fz * a.qtd));
+
+                lista.forEach(item => {
                     let info = catalogoGlobal[item.codigo];
                     
-                    let subSigtap = info.val_sigtap * item.qtd;
-                    let subFz = info.val_fz * item.qtd;
+                    let sSig = info.val_sigtap * item.qtd;
+                    let sFz = info.val_fz * item.qtd;
 
-                    totGeralQtd += item.qtd;
-                    totGeralSigtap += subSigtap;
-                    totGeralFz += subFz;
+                    subQtd += item.qtd;
+                    subSigtap += sSig;
+                    subFz += sFz;
 
-                    // Cor de destaque se tiver FZ
                     let corFzClass = info.val_fz > 0 ? "text-orange-400 font-bold" : "text-gray-500";
                     let rowHtml = `
-                        <tr>
+                        <tr class="hover:bg-white/5 transition">
                             <td class="font-mono text-cyan-400 font-bold">${item.codigo}</td>
                             <td class="font-semibold text-gray-200" style="color:var(--tw-prose-body);">${info.nome}</td>
                             <td class="text-center">
-                                <input type="number" min="1" value="${item.qtd}" class="input-qtd no-print" onchange="atualizarQtdLinha('${item.codigo}', this.value)">
-                                <span class="hidden print:inline font-bold">${item.qtd}</span>
+                                <input type="number" min="1" value="${item.qtd}" class="input-qtd no-print w-16 px-1" onchange="atualizarQtdLinha('${item.codigo}', '${item.complexidade}', this.value)">
+                                <span class="print-qtd">${item.qtd}</span>
                             </td>
                             <td class="text-right font-mono text-gray-400">${formatBrl.format(info.val_sigtap)}</td>
                             <td class="text-right font-mono ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(info.val_fz) : '-'}</td>
-                            <td class="text-right font-mono font-bold text-emerald-400">${formatBrl.format(subSigtap)}</td>
-                            <td class="text-right font-mono font-bold ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(subFz) : '-'}</td>
+                            <td class="text-right font-mono font-bold text-emerald-400">${formatBrl.format(sSig)}</td>
+                            <td class="text-right font-mono font-bold ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(sFz) : '-'}</td>
                             <td class="text-center no-print">
-                                <button onclick="removerItem('${item.codigo}')" class="btn-danger" title="Remover"><i class="fas fa-trash-alt"></i></button>
+                                <button onclick="removerItem('${item.codigo}', '${item.complexidade}')" class="btn-danger" title="Remover"><i class="fas fa-trash-alt"></i></button>
                             </td>
                         </tr>
                     `;
                     tbody.append(rowHtml);
                 });
+
+                // SUBTOTAL DO GRUPO
+                tbody.append(`
+                    <tr class="subtotal-row bg-white/5 font-bold text-[0.85rem]">
+                        <td colspan="2" class="text-right text-gray-400 uppercase pt-3 pb-3">Subtotal ${titulo}:</td>
+                        <td class="text-center text-white pt-3 pb-3">${subQtd}</td>
+                        <td colspan="2" class="pt-3 pb-3"></td>
+                        <td class="text-right text-emerald-400 pt-3 pb-3">${formatBrl.format(subSigtap)}</td>
+                        <td class="text-right text-orange-400 pt-3 pb-3">${formatBrl.format(subFz)}</td>
+                        <td class="no-print pt-3 pb-3"></td>
+                    </tr>
+                `);
+
+                totGeralQtd += subQtd;
+                totGeralSigtap += subSigtap;
+                totGeralFz += subFz;
             }
 
-            // Atualiza os KPIs Globais
+            // Renderiza as categorias
+            renderizarGrupo(arrMedia, "Média Complexidade", "blue");
+            renderizarGrupo(arrAlta, "Alta Complexidade", "purple");
+
+            // Atualiza os KPIs
             $('#kpi-qtd').text(totGeralQtd);
             $('#kpi-sigtap').text(formatBrl.format(totGeralSigtap));
             $('#kpi-fz').text(formatBrl.format(totGeralFz));
