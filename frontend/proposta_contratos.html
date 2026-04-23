@@ -8,235 +8,115 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* TEMA GLOBAL DARK NEON */
-        body { 
-            font-family: 'Inter', sans-serif; background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 90px; 
-            transition: background 0.5s ease, color 0.5s ease;
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; z-index: -1; pointer-events: none;
-        }
-
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
-
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 90px; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 40px; margin-bottom: 20px; }
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px; text-align: center; }
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 2rem; font-weight: 900; }
+        .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
+        .cart-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px; color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
+        .cart-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; vertical-align: middle; }
+        .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 6px; width: 60px; text-align: center; font-weight: bold; outline: none; }
         
-        .cyber-container {
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative; z-index: 1; transition: 0.5s; margin-bottom: 25px;
-        }
+        /* Sidebar de Histórico */
+        #sidebar-historico { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: #001528; border-left: 1px solid rgba(56, 189, 248, 0.3); z-index: 1000; transition: 0.4s; padding: 25px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); overflow-y: auto; }
+        #sidebar-historico.active { right: 0; }
+        .prop-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .prop-item:hover { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 20px; position: relative; z-index: 2; text-align: center;
-            transition: all 0.4s; display: flex; flex-direction: column; justify-content: center;
-        }
-
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
-        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px;}
-
-        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; outline: none;}
-        .btn-theme:hover { background: rgba(255,255,255,0.1); }
-        .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer;}
-        .btn-action:hover { background: #0284c7; }
-        .btn-danger { background: rgba(239,68,68,0.2); color: #ef4444; padding: 5px 10px; border-radius: 6px; transition: 0.2s;}
-        .btn-danger:hover { background: #ef4444; color: white; }
-
-        /* Tabela do Carrinho */
-        .cart-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed;}
-        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px 8px; color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); word-wrap: break-word;}
-        .cart-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; vertical-align: middle; word-wrap: break-word; white-space: normal;}
-        .cart-table tr:hover { background: rgba(255,255,255,0.02); }
-        
-        .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px; border-radius: 6px; width: 100%; text-align: center; font-weight: bold; outline: none; transition: 0.3s;}
-        .input-qtd:focus { border-color: #38bdf8; box-shadow: 0 0 5px rgba(56, 189, 248, 0.5); }
-        .print-qtd { display: none; } 
-
-        .select-complexidade { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0 8px; border-radius: 6px; font-weight: 600; outline: none; font-size: 0.8rem;}
-        .select-complexidade option { background: #0f172a; color: white; }
-
-        /* SELECT2 TEMA ESCURO */
-        .select2-container--default .select2-selection--single { background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; height: 42px; display: flex; align-items: center; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { color: white; font-weight: 500; font-size: 0.9rem;}
-        .select2-dropdown { background-color: #0f172a; border: 1px solid #38bdf8; }
-        .select2-results__option { color: white; font-size: 0.85rem; }
-        .select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: rgba(56,189,248,0.2); color: #38bdf8; }
-        .select2-search__field { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 4px; }
-
-        /* MODO CLÁSSICO */
-        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
-        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
-        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
-        body.theme-classic .header-bg p { color: #dbeafe; }
-        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; }
-        body.theme-classic .kpi-title { color: #64748b; }
-        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
-        body.theme-classic .btn-theme:hover { background: #f8fafc; }
-        
-        body.theme-classic .cart-table th { background: #f1f5f9; color: #0f172a; border-bottom-color: #cbd5e1; }
-        body.theme-classic .cart-table td { border-bottom-color: #f1f5f9; color: #334155; }
-        body.theme-classic .input-qtd, body.theme-classic .select-complexidade { background: white; color: #0f172a; border-color: #cbd5e1; }
-        body.theme-classic .select-complexidade option { background: white; color: #0f172a; }
-        
-        body.theme-classic .select2-container--default .select2-selection--single { background-color: white; border-color: #cbd5e1; }
-        body.theme-classic .select2-container--default .select2-selection--single .select2-selection__rendered { color: #0f172a; }
-        body.theme-classic .select2-dropdown { background-color: white; border-color: #cbd5e1; }
-        body.theme-classic .select2-results__option { color: #334155; }
-        body.theme-classic .select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: #f1f5f9; color: #0f172a; }
-        body.theme-classic .select2-search__field { background: white !important; color: black !important; }
-
-        #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (RETRATO A4 PERFEITO)             */
-        /* ========================================================= */
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            body { background: white !important; color: black !important; font-size: 8pt; margin: 0; padding: 0;}
-            
-            .no-print, .header-bg, .blob-1, .blob-2 { display: none !important; }
-            
-            .cyber-container { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 15px !important;}
-            .glass-card { border: 1px solid #ccc !important; background: white !important; break-inside: avoid !important; padding: 10px !important;}
-            
-            .kpi-title { color: black !important; font-size: 7pt !important; margin-bottom: 2px !important;}
-            .kpi-number { color: black !important; font-size: 14pt !important; margin: 0 !important;}
-            
-            .cart-table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; }
-            .cart-table th { background: #eee !important; color: black !important; border-bottom: 2px solid black !important; padding: 4px !important; font-size: 7pt !important;}
-            .cart-table td { border-bottom: 1px solid #ccc !important; color: black !important; padding: 4px !important; font-size: 7pt !important; vertical-align: middle !important;}
-            
-            /* O SEGREDO DO MODO RETRATO: Ajuste exato das colunas */
-            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 12% !important; } /* Codigo */
-            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 34% !important; } /* Proc (Flexivel) */
-            .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 8% !important; }  /* Qtd */
-            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 11% !important; } /* Unit Sig */
-            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 11% !important; } /* Unit FZ */
-            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 12% !important; } /* Tot Sig */
-            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 12% !important; } /* Tot FZ */
-            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { display: none !important; } /* Acao invisivel */
-
-            .cart-table .subtotal-row td { background-color: #f8f8f8 !important; border-top: 1px solid black !important; font-size: 7.5pt !important;}
-            .cart-table .group-header td { background-color: #ddd !important; border-bottom: 1px solid black !important; border-top: 2px solid black !important; font-size: 8pt !important;}
-
-            .input-qtd { display: none !important; }
-            .print-qtd { display: inline !important; font-weight: bold;}
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .cyber-container { border: none !important; box-shadow: none !important; }
+            .cart-table th { background: #f0f0f0 !important; color: black !important; border-bottom: 2px solid black !important; }
+            .cart-table td { border-bottom: 1px solid #ccc !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="loader" style="display:none;">
-        <i class="fas fa-layer-group fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-blue-200 animate-pulse font-bold text-lg" id="loader-text">Sincronizando Catálogos...</p>
+    <div id="loader" style="display:none; position: fixed; inset: 0; background: rgba(0,21,40,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
+        <i class="fas fa-sync fa-spin text-5xl text-blue-400 mb-4"></i>
+        <p class="text-white font-bold" id="loader-text">Processando...</p>
     </div>
 
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
+    <div id="sidebar-historico">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-blue-400"><i class="fas fa-history mr-2"></i> Minhas Propostas</h3>
+            <button onclick="toggleHistorico()" class="text-white hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
+        </div>
+        <div id="lista-propostas">
+            <p class="text-gray-500 text-center py-10">Buscando propostas...</p>
+        </div>
+    </div>
 
     <div class='header-bg shadow-lg no-print'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-signature text-3xl text-emerald-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold'>Gerador de Propostas</h1>
-                    <p class='text-sm mt-1 opacity-80'>Cálculo de metas físicas e financeiras (SIGTAP x Fila Zero)</p>
+                    <h1 class='text-2xl font-bold'>Gerador de Propostas</h1>
+                    <p class='text-xs opacity-70'>Salve, edite e exporte suas metas contratuais</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
-                <button onclick="exportarExcel()" class="btn-action bg-emerald-600 hover:bg-emerald-700 shadow"><i class="fas fa-file-excel mr-2"></i> Exportar Excel</button>
-                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600 shadow"><i class="fas fa-print mr-2"></i> Imprimir / PDF</button>
-                <a href="modulo_gerencial.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+            <div class="flex items-center gap-2">
+                <button onclick="novaProposta()" class="btn-action bg-gray-600 hover:bg-gray-700"><i class="fas fa-file"></i> Novo</button>
+                <button onclick="salvarProposta()" class="btn-action bg-blue-600 hover:bg-blue-700"><i class="fas fa-save"></i> Salvar Proposta</button>
+                <button onclick="toggleHistorico()" class="btn-action bg-purple-600 hover:bg-purple-700"><i class="fas fa-folder-open"></i> Abrir Salvas</button>
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir</button>
+                <a href="modulo_gerencial.html" class="btn-theme p-3 rounded-lg bg-black/20 border border-white/10"><i class="fas fa-arrow-left"></i></a>
             </div>
         </div>
-    </div>
-
-    <div class="max-w-[98%] mx-auto px-4 mb-4 hidden print:block text-center border-b-2 border-black pb-2">
-        <h2 class="text-xl font-black uppercase">Hospital Beneficente Santa Helena</h2>
-        <h3 class="text-md font-bold">Proposta de Prestação de Serviços - Metas Físicas e Financeiras</h3>
-        <p class="text-xs mt-1" id="print-date"></p>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-list-ol text-blue-400 mr-1"></i> Quantidade Total</div>
-                <div class="kpi-number text-blue-400" id="kpi-qtd">0</div>
-                <div class="text-xs text-gray-400">Procedimentos na Proposta</div>
-            </div>
-            <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-hospital text-emerald-400 mr-1"></i> Total SIGTAP (SH+SP)</div>
-                <div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div>
-                <div class="text-xs text-gray-400">Tabela Oficial SUS</div>
-            </div>
-            <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-star text-orange-400 mr-1"></i> Total FILA ZERO</div>
-                <div class="kpi-number text-orange-400" id="kpi-fz">R$ 0,00</div>
-                <div class="text-xs text-gray-400">Tabela de Referência</div>
-            </div>
-            <div class="glass-card">
-                <div class="kpi-title"><i class="fas fa-chart-line text-purple-400 mr-1"></i> Diferença / Gap</div>
-                <div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div>
-                <div class="text-xs text-gray-400">Fila Zero - SIGTAP</div>
-            </div>
+        <div class="mb-6 no-print">
+            <label class="text-xs font-bold text-gray-400 uppercase">Nome da Proposta:</label>
+            <input type="text" id="prop-titulo" placeholder="Ex: Proposta Mutirão de Cirurgias - Abril/2026" class="w-full bg-black/30 border border-white/10 p-3 rounded-lg text-xl font-bold text-emerald-400 outline-none focus:border-emerald-500">
+            <input type="hidden" id="prop-id">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass-card"><div class="kpi-title">Qtd Total</div><div class="kpi-number text-blue-400" id="kpi-qtd">0</div></div>
+            <div class="glass-card"><div class="kpi-title">Total SIGTAP</div><div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Total FILA ZERO</div><div class="kpi-number text-orange-400" id="kpi-fz">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Diferença</div><div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div></div>
         </div>
 
         <div class="cyber-container no-print">
-            <h3 class="font-bold text-lg mb-4 text-emerald-400 border-b border-white/10 pb-2"><i class="fas fa-search-plus mr-2"></i> Adicionar Procedimento à Proposta</h3>
-            
             <div class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Buscar no Catálogo Unificado</label>
-                    <select id="select-procedimento" class="w-full">
-                        <option value="">Aguarde, carregando catálogos...</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Adicionar Procedimento</label>
+                    <select id="select-procedimento" class="w-full"></select>
                 </div>
-                
                 <div class="w-48">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Nível de Complexidade</label>
-                    <select id="input-complexidade" class="select-complexidade w-full h-[42px]">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Complexidade</label>
+                    <select id="input-complexidade" class="w-full bg-black/40 border border-white/20 p-2 rounded-lg text-sm h-[42px]">
                         <option value="MEDIA">Média Complexidade</option>
                         <option value="ALTA">Alta Complexidade</option>
                     </select>
                 </div>
-
                 <div class="w-24">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 text-center">Metas (Qtd)</label>
-                    <input type="number" id="input-qtd-add" value="1" min="1" class="input-qtd w-full text-lg h-[42px]">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Qtd</label>
+                    <input type="number" id="input-qtd-add" value="1" min="1" class="input-qtd h-[42px] w-full text-lg">
                 </div>
-
-                <button onclick="adicionarAoCarrinho()" class="btn-action h-[42px] flex items-center justify-center gap-2 px-8">
-                    <i class="fas fa-plus-circle"></i> Inserir
-                </button>
+                <button onclick="adicionarAoCarrinho()" class="btn-action h-[42px] px-8"><i class="fas fa-plus"></i></button>
             </div>
         </div>
 
         <div class="cyber-container">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2 no-print">
-                <h3 class="font-bold text-lg text-blue-400"><i class="fas fa-file-contract mr-2"></i> Itens da Proposta</h3>
-                <button onclick="limparProposta()" class="text-red-500 hover:text-red-400 text-sm font-bold no-print"><i class="fas fa-trash-alt mr-1"></i> Limpar Tudo</button>
-            </div>
-
             <div class="overflow-x-auto">
                 <table class="cart-table">
                     <thead>
@@ -248,20 +128,13 @@
                             <th style="width: 11%;" class="text-right">Unit. F. Zero</th>
                             <th style="width: 10%;" class="text-right">Total SIGTAP</th>
                             <th style="width: 10%;" class="text-right">Total F. Zero</th>
-                            <th style="width: 3%;" class="text-center no-print"><i class="fas fa-cog"></i></th>
+                            <th style="width: 3%;" class="text-center no-print"></th>
                         </tr>
                     </thead>
-                    <tbody id="tbody-proposta">
-                        <tr id="linha-vazia">
-                            <td colspan="8" class="text-center py-8 text-gray-500 font-bold">
-                                Nenhuma meta definida. Busque e adicione procedimentos acima.
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tbody-proposta"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -270,283 +143,131 @@
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
         let catalogoGlobal = {}; 
-        let propostaCarrinho = []; // [{ codigo, qtd, complexidade }]
-
+        let propostaCarrinho = []; 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        function toggleTheme() {
-            const body = document.body;
-            if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_prop', 'neon');
-            } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_prop', 'classic');
-            }
-        }
-
-        $(document).ready(function() {
-            const savedTheme = localStorage.getItem('nii_theme_prop');
-            if (savedTheme === 'classic') document.body.classList.add('theme-classic');
-            
-            document.getElementById('print-date').innerText = "Data da Emissão: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
-
-            carregarCatalogos();
-        });
+        $(document).ready(function() { carregarCatalogos(); });
 
         async function carregarCatalogos() {
-            $('#loader').fadeIn();
+            $('#loader').css('display', 'flex');
             try {
-                $('#loader-text').text("Baixando Tabela Oficial SIGTAP...");
-                const { data: sigtapData, error: err1 } = await client.from('sigtap_oficial').select('codigo, nome, valor_hospitalar, valor_profissional');
-                if (err1) throw err1;
+                const { data: sigtap } = await client.from('sigtap_oficial').select('codigo, nome, valor_hospitalar, valor_profissional');
+                const { data: fz } = await client.from('fila_zero_procedimentos').select('codigo_sigtap, valor_unitario');
+                let mapFZ = {}; if (fz) fz.forEach(f => mapFZ[f.codigo_sigtap] = Number(f.valor_unitario || 0));
 
-                $('#loader-text').text("Integrando Fila Zero...");
-                const { data: fzData, error: err2 } = await client.from('fila_zero_procedimentos').select('codigo_sigtap, valor_unitario');
-                if (err2) throw err2;
-
-                let mapFZ = {};
-                if (fzData) {
-                    fzData.forEach(f => { mapFZ[f.codigo_sigtap] = Number(f.valor_unitario || 0); });
-                }
-
-                let optionsHtml = '<option value="">Selecione ou digite o código/nome...</option>';
-                
-                sigtapData.forEach(item => {
-                    let valSH = Number(item.valor_hospitalar || 0);
-                    let valSP = Number(item.valor_profissional || 0);
-                    let totalSigtap = valSH + valSP;
-                    
-                    let valFz = mapFZ[item.codigo] || 0; 
-                    
-                    catalogoGlobal[item.codigo] = {
-                        nome: item.nome,
-                        val_sigtap: totalSigtap,
-                        val_fz: valFz
-                    };
-
-                    let labelFZ = valFz > 0 ? ` [FZ: ${formatBrl.format(valFz)}]` : '';
-                    optionsHtml += `<option value="${item.codigo}">${item.codigo} - ${item.nome}${labelFZ}</option>`;
+                let options = '<option value="">Buscar...</option>';
+                sigtap.forEach(item => {
+                    let totalSig = Number(item.valor_hospitalar || 0) + Number(item.valor_profissional || 0);
+                    catalogoGlobal[item.codigo] = { nome: item.nome, val_sigtap: totalSig, val_fz: mapFZ[item.codigo] || 0 };
+                    options += `<option value="${item.codigo}">${item.codigo} - ${item.nome}</option>`;
                 });
-
-                const selectEl = $('#select-procedimento');
-                selectEl.html(optionsHtml);
-                selectEl.select2({
-                    placeholder: "Ex: 0407030261 ou COLECISTECTOMIA",
-                    allowClear: true,
-                    language: { noResults: () => "Procedimento não encontrado" }
-                });
-
-            } catch (err) {
-                console.error("Erro ao baixar dados:", err);
-                alert("Erro ao sincronizar tabelas.");
-            } finally {
-                $('#loader').fadeOut();
-            }
+                $('#select-procedimento').html(options).select2();
+            } finally { $('#loader').hide(); }
         }
 
-        // ==============================================================
-        // LÓGICA DO CARRINHO COM SEPARAÇÃO DE COMPLEXIDADE
-        // ==============================================================
+        function toggleHistorico() { 
+            $('#sidebar-historico').toggleClass('active'); 
+            if($('#sidebar-historico').hasClass('active')) buscarPropostasSalvas();
+        }
+
+        function novaProposta() {
+            if(!confirm("Deseja limpar a tela e iniciar uma nova proposta?")) return;
+            propostaCarrinho = []; $('#prop-id').val(''); $('#prop-titulo').val(''); renderizarTabelaProposta();
+        }
 
         function adicionarAoCarrinho() {
             let cod = $('#select-procedimento').val();
-            let compx = $('#input-complexidade').val(); // MEDIA ou ALTA
-            let qtdInput = parseInt($('#input-qtd-add').val()) || 1;
-
-            if (!cod) {
-                alert("Selecione um procedimento primeiro.");
-                return;
-            }
-
-            // Busca se já existe na mesma categoria de complexidade
-            let existente = propostaCarrinho.find(i => i.codigo === cod && i.complexidade === compx);
-            if (existente) {
-                existente.qtd += qtdInput;
-            } else {
-                propostaCarrinho.push({ codigo: cod, complexidade: compx, qtd: qtdInput });
-            }
-
-            $('#select-procedimento').val(null).trigger('change');
-            $('#input-qtd-add').val(1);
-
+            let comp = $('#input-complexidade').val();
+            let qtd = parseInt($('#input-qtd-add').val()) || 1;
+            if (!cod) return;
+            let ext = propostaCarrinho.find(i => i.codigo === cod && i.complexidade === comp);
+            if (ext) ext.qtd += qtd; else propostaCarrinho.push({ codigo: cod, complexidade: comp, qtd: qtd });
             renderizarTabelaProposta();
         }
 
-        function removerItem(codigo, complexidade) {
-            propostaCarrinho = propostaCarrinho.filter(i => !(i.codigo === codigo && i.complexidade === complexidade));
-            renderizarTabelaProposta();
-        }
+        async function salvarProposta() {
+            let titulo = $('#prop-titulo').val();
+            let id = $('#prop-id').val();
+            if (!titulo) return alert("Dê um nome para a proposta antes de salvar!");
+            if (propostaCarrinho.length === 0) return alert("Adicione itens à proposta!");
 
-        function atualizarQtdLinha(codigo, complexidade, novaQtdStr) {
-            let novaQtd = parseInt(novaQtdStr);
-            if (isNaN(novaQtd) || novaQtd <= 0) novaQtd = 1; 
-
-            let item = propostaCarrinho.find(i => i.codigo === codigo && i.complexidade === complexidade);
-            if (item) {
-                item.qtd = novaQtd;
-                renderizarTabelaProposta(); 
-            }
-        }
-
-        function limparProposta() {
-            if(confirm("Tem certeza que deseja apagar toda a proposta atual?")) {
-                propostaCarrinho = [];
-                renderizarTabelaProposta();
-            }
-        }
-
-        function exportarExcel() {
-            if (propostaCarrinho.length === 0) {
-                alert("A proposta está vazia. Adicione itens antes de exportar.");
-                return;
-            }
-
-            // CSV Formatado para Excel PT-BR
-            let csvContent = "\uFEFF" + "CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;VLR_UNIT_FILAZERO;TOTAL_SIGTAP;TOTAL_FILAZERO\n";
+            $('#loader').css('display', 'flex'); $('#loader-text').text("Salvando no Supabase...");
             
-            propostaCarrinho.forEach(item => {
-                let info = catalogoGlobal[item.codigo];
-                let subSigtap = info.val_sigtap * item.qtd;
-                let subFz = info.val_fz * item.qtd;
-                
-                // Transforma ponto em virgula
-                let numSig = info.val_sigtap.toFixed(2).replace('.', ',');
-                let numFz = info.val_fz.toFixed(2).replace('.', ',');
-                let totSig = subSigtap.toFixed(2).replace('.', ',');
-                let totFz = subFz.toFixed(2).replace('.', ',');
-                
-                let compxFormatada = item.complexidade === 'MEDIA' ? 'MÉDIA COMPLEXIDADE' : 'ALTA COMPLEXIDADE';
+            let obj = {
+                titulo: titulo,
+                itens_json: propostaCarrinho,
+                valor_total_sigtap: parseFloat($('#kpi-sigtap').text().replace(/\D/g,''))/100,
+                valor_total_fz: parseFloat($('#kpi-fz').text().replace(/\D/g,''))/100,
+                qtd_total: parseInt($('#kpi-qtd').text()),
+                atualizado_em: new Date()
+            };
 
-                let row = [
-                    `="${item.codigo}"`, 
-                    `"${info.nome}"`,
-                    `"${compxFormatada}"`,
-                    item.qtd,
-                    `"${numSig}"`,
-                    `"${numFz}"`,
-                    `"${totSig}"`,
-                    `"${totFz}"`
-                ];
-                csvContent += row.join(";") + "\n";
+            try {
+                let res;
+                if (id) res = await client.from('propostas_contratos').update(obj).eq('id', id);
+                else res = await client.from('propostas_contratos').insert([obj]).select();
+                
+                if (res.error) throw res.error;
+                if (!id) $('#prop-id').val(res.data[0].id);
+                alert("✅ Proposta salva com sucesso!");
+            } catch(e) { console.error(e); alert("Erro ao salvar."); }
+            finally { $('#loader').hide(); }
+        }
+
+        async function buscarPropostasSalvas() {
+            const { data } = await client.from('propostas_contratos').select('*').order('atualizado_em', { ascending: false });
+            let html = '';
+            data.forEach(p => {
+                html += `<div class="prop-item" onclick="carregarProposta('${p.id}')">
+                    <div class="font-bold text-emerald-400">${p.titulo}</div>
+                    <div class="text-xs text-gray-400 mt-1">${new Date(p.atualizado_em).toLocaleDateString()} - ${p.qtd_total} itens</div>
+                    <div class="text-xs font-bold text-orange-400 mt-1">Total FZ: ${formatBrl.format(p.valor_total_fz)}</div>
+                </div>`;
             });
+            $('#lista-propostas').html(html || '<p class="text-center text-gray-500">Nenhuma salva.</p>');
+        }
 
-            // Linha Final de Totais
-            let totGeralQtd = $('#kpi-qtd').text();
-            let totGeralSig = $('#kpi-sigtap').text().replace('R$', '').replace(/\./g, '').trim(); 
-            let totGeralFz = $('#kpi-fz').text().replace('R$', '').replace(/\./g, '').trim();
-            
-            csvContent += `\n"TOTAIS";"";"";${totGeralQtd};;"";"${totGeralSig}";"${totGeralFz}"\n`;
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Proposta_Contratual_SUS_${new Date().getTime()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        async function carregarProposta(id) {
+            const { data } = await client.from('propostas_contratos').select('*').eq('id', id).single();
+            if (data) {
+                propostaCarrinho = data.itens_json;
+                $('#prop-id').val(data.id);
+                $('#prop-titulo').val(data.titulo);
+                renderizarTabelaProposta();
+                toggleHistorico();
+            }
         }
 
         function renderizarTabelaProposta() {
-            const tbody = $('#tbody-proposta');
-            tbody.empty();
+            const tbody = $('#tbody-proposta'); tbody.empty();
+            let tQtd = 0, tSig = 0, tFz = 0;
 
-            let totGeralQtd = 0;
-            let totGeralSigtap = 0;
-            let totGeralFz = 0;
-
-            if (propostaCarrinho.length === 0) {
-                tbody.html(`<tr id="linha-vazia"><td colspan="8" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
-                $('#kpi-qtd').text(0);
-                $('#kpi-sigtap').text('R$ 0,00');
-                $('#kpi-fz').text('R$ 0,00');
-                $('#kpi-diff').text('R$ 0,00');
-                return;
-            }
-
-            // Separa os Arrays para renderizar as categorias
-            let arrMedia = propostaCarrinho.filter(i => i.complexidade === 'MEDIA');
-            let arrAlta = propostaCarrinho.filter(i => i.complexidade === 'ALTA');
-
-            function renderizarGrupo(lista, titulo, iconeColor) {
-                if (lista.length === 0) return;
-
-                // CABEÇALHO DO GRUPO (Média ou Alta)
-                tbody.append(`
-                    <tr class="group-header bg-blue-900/40 border-y border-blue-500/30">
-                        <td colspan="8" class="py-2 px-3 font-black text-${iconeColor}-400 uppercase tracking-widest text-xs">
-                            <i class="fas fa-layer-group mr-2 text-${iconeColor}-500"></i> ${titulo}
-                        </td>
-                    </tr>
-                `);
-
-                let subQtd = 0;
-                let subSigtap = 0;
-                let subFz = 0;
-
-                // Ordena do mais caro (FZ) pro mais barato dentro do grupo
-                lista.sort((a,b) => (catalogoGlobal[b.codigo].val_fz * b.qtd) - (catalogoGlobal[a.codigo].val_fz * a.qtd));
-
-                lista.forEach(item => {
+            ['MEDIA', 'ALTA'].forEach(compx => {
+                let list = propostaCarrinho.filter(i => i.complexidade === compx);
+                if (list.length === 0) return;
+                tbody.append(`<tr class="bg-blue-900/30"><td colspan="8" class="p-2 text-xs font-bold text-blue-300">COMPLEXIDADE: ${compx}</td></tr>`);
+                list.forEach(item => {
                     let info = catalogoGlobal[item.codigo];
-                    
-                    let sSig = info.val_sigtap * item.qtd;
-                    let sFz = info.val_fz * item.qtd;
-
-                    subQtd += item.qtd;
-                    subSigtap += sSig;
-                    subFz += sFz;
-
-                    let corFzClass = info.val_fz > 0 ? "text-orange-400 font-bold" : "text-gray-500";
-                    let rowHtml = `
-                        <tr class="hover:bg-white/5 transition">
-                            <td class="font-mono text-cyan-400 font-bold">${item.codigo}</td>
-                            <td class="font-semibold text-gray-200" style="color:var(--tw-prose-body);">${info.nome}</td>
-                            <td class="text-center">
-                                <input type="number" min="1" value="${item.qtd}" class="input-qtd no-print w-16 px-1" onchange="atualizarQtdLinha('${item.codigo}', '${item.complexidade}', this.value)">
-                                <span class="print-qtd">${item.qtd}</span>
-                            </td>
-                            <td class="text-right font-mono text-gray-400">${formatBrl.format(info.val_sigtap)}</td>
-                            <td class="text-right font-mono ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(info.val_fz) : '-'}</td>
-                            <td class="text-right font-mono font-bold text-emerald-400">${formatBrl.format(sSig)}</td>
-                            <td class="text-right font-mono font-bold ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(sFz) : '-'}</td>
-                            <td class="text-center no-print">
-                                <button onclick="removerItem('${item.codigo}', '${item.complexidade}')" class="btn-danger" title="Remover"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.append(rowHtml);
+                    let sSig = info.val_sigtap * item.qtd, sFz = info.val_fz * item.qtd;
+                    tQtd += item.qtd; tSig += sSig; tFz += sFz;
+                    tbody.append(`<tr>
+                        <td class="font-mono text-cyan-400">${item.codigo}</td>
+                        <td class="font-semibold">${info.nome}</td>
+                        <td class="text-center"><input type="number" value="${item.qtd}" class="input-qtd no-print" onchange="atualizarQtd('${item.codigo}','${compx}',this.value)"></td>
+                        <td class="text-right">${formatBrl.format(info.val_sigtap)}</td>
+                        <td class="text-right text-orange-400">${formatBrl.format(info.val_fz)}</td>
+                        <td class="text-right text-emerald-400 font-bold">${formatBrl.format(sSig)}</td>
+                        <td class="text-right text-orange-400 font-bold">${formatBrl.format(sFz)}</td>
+                        <td class="text-center no-print"><button onclick="remover('${item.codigo}','${compx}')" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                    </tr>`);
                 });
+            });
 
-                // SUBTOTAL DO GRUPO
-                tbody.append(`
-                    <tr class="subtotal-row bg-white/5 font-bold text-[0.85rem]">
-                        <td colspan="2" class="text-right text-gray-400 uppercase pt-3 pb-3">Subtotal ${titulo}:</td>
-                        <td class="text-center text-white pt-3 pb-3">${subQtd}</td>
-                        <td colspan="2" class="pt-3 pb-3"></td>
-                        <td class="text-right text-emerald-400 pt-3 pb-3">${formatBrl.format(subSigtap)}</td>
-                        <td class="text-right text-orange-400 pt-3 pb-3">${formatBrl.format(subFz)}</td>
-                        <td class="no-print pt-3 pb-3"></td>
-                    </tr>
-                `);
-
-                totGeralQtd += subQtd;
-                totGeralSigtap += subSigtap;
-                totGeralFz += subFz;
-            }
-
-            // Renderiza as categorias
-            renderizarGrupo(arrMedia, "Média Complexidade", "blue");
-            renderizarGrupo(arrAlta, "Alta Complexidade", "purple");
-
-            // Atualiza os KPIs
-            $('#kpi-qtd').text(totGeralQtd);
-            $('#kpi-sigtap').text(formatBrl.format(totGeralSigtap));
-            $('#kpi-fz').text(formatBrl.format(totGeralFz));
-            $('#kpi-diff').text(formatBrl.format(totGeralFz - totGeralSigtap));
+            $('#kpi-qtd').text(tQtd); $('#kpi-sigtap').text(formatBrl.format(tSig)); $('#kpi-fz').text(formatBrl.format(tFz)); $('#kpi-diff').text(formatBrl.format(tFz - tSig));
         }
 
+        function atualizarQtd(c, m, v) { let i = propostaCarrinho.find(x=>x.codigo===c && x.complexidade===m); if(i) i.qtd = parseInt(v); renderizarTabelaProposta(); }
+        function remover(c, m) { propostaCarrinho = propostaCarrinho.filter(x=>!(x.codigo===c && x.complexidade===m)); renderizarTabelaProposta(); }
     </script>
 </body>
 </html>
