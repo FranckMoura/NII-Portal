@@ -410,13 +410,28 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 3. SISREG (PENDENTES REAIS) ---
-                // Alteração: Buscando por status aproximado e sem bloquear quem não tem código gerado
-                const { data: sisregData } = await client.from('regulacao').select('status_solicitacao').ilike('status_solicitacao', '%PENDENTE%');
-                let totalRegulacao = sisregData ? sisregData.length : 0;
-                
-                $('#kpi-sisreg').text(totalRegulacao);
-                if(totalRegulacao > 0) {
+                // --- 3. SISREG (PENDENTES REAIS - ESPELHO DO PAINEL) ---
+                // Agora o robô baixa todas as solicitações do mês
+                let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
+                while (keepFetching) {
+                    const { data, error } = await client.from('regulacao').select('status').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
+                    if (error) throw error;
+                    if (data && data.length > 0) { allSisregData = allSisregData.concat(data); from += step; }
+                    if (!data || data.length < step) keepFetching = false;
+                }
+
+                // E filtra apenas aquelas que a regra de negócio considera "PENDENTE" (Exatamente como na linha 490 do painel_regulacao.html)
+                let pendentesSisreg = 0;
+                allSisregData.forEach(d => {
+                    let st = (d.status || "").toUpperCase();
+                    // Se NÃO contém a palavra aprovado, nem autorizado, nem negado, nem cancelado... É porque está pendente!
+                    if (!st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO')) {
+                        pendentesSisreg++;
+                    }
+                });
+
+                $('#kpi-sisreg').text(pendentesSisreg);
+                if(pendentesSisreg > 0) {
                     $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Requerem ação no sistema`);
                     $('#kpi-sisreg').removeClass('text-emerald-400').addClass('text-pink-400');
                 } else {
@@ -424,7 +439,7 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS - SÓ SUS NA UTI ADULTO) ---
+                // --- 4. INDICASUS (OCUPAÇÃO DOS LEITOS - SÓ SUS NA UTI ADULTO 10 LEITOS) ---
                 const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito, internacao_sus').gte('data_extracao', d1).lte('data_extracao', d2);
                 let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
                 
@@ -433,7 +448,7 @@
                         let t = l.tipo_leito || "";
                         let isSus = (l.internacao_sus || "").toUpperCase().includes("SIM");
                         
-                        // Alteração: Apenas leitos classificados como SUS entram na conta da UTI Adulto
+                        // Alteração: Apenas leitos SUS entram na conta da UTI Adulto
                         if (t === 'UTI ADULTO' && isSus) utiAd++;
                         else if (t === 'UTIN') utin++;
                         else if (t === 'UCINCO') ucinco++;
