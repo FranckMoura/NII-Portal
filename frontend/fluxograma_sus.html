@@ -1,296 +1,112 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base de Conhecimento - FATURAMENTO SUS (NII)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Base de Conhecimento SUS - NII</title>
     
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
-        /* ========================================================= */
-        * { box-sizing: border-box; }
-        p { margin: 0; margin-bottom: 15px; }
+        /* TEMA GLOBAL DARK NEON */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; display: flex; flex-direction: column; min-height: 100vh; margin:0; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         
-        html { scroll-behavior: smooth; }
+        .blob-1 { position: fixed; top: -100px; left: -100px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
-        body {
-            font-family: 'Lato', sans-serif;
-            background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            min-height: 100vh;
-            padding: 80px 20px;
-            transition: background 0.5s ease, color 0.5s ease;
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; z-index: -1; pointer-events: none;
-        }
-
-        /* LUZES NEON NO FUNDO */
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 600px; height: 600px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: -50px; right: -50px; width: 500px; height: 500px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
-
-        /* BOTÕES SUPERIORES */
-        .btn-floating-back {
-            position: fixed; top: 20px; left: 20px;
-            background: rgba(255,255,255,0.1); color: white; text-decoration: none;
-            padding: 10px 20px; border-radius: 8px; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 9999; display: flex; align-items: center; gap: 8px; transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); cursor: pointer;
-        }
-        .btn-floating-back:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
-
-        .btn-theme-toggle {
-            position: fixed; top: 20px; right: 20px;
-            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-            width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.3s; backdrop-filter: blur(5px); z-index: 9999;
-        }
+        header { background: transparent; color: white; padding: 30px 20px 10px 20px; text-align: center; position: relative; }
+        .header-logo img { height: 70px; display: block; filter: contrast(1.4) drop-shadow(0 2px 3px rgba(0,0,0,0.5)); margin: 0 auto 15px auto; }
+        header h1 { font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); color: white;}
+        header p { font-weight: 300; opacity: 0.9; font-size: 0.95rem; color: rgba(255,255,255,0.8); }
+        
+        .btn-theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-
-        /* ========================================================= */
-        /* MENU DE CARDS PRINCIPAL                                   */
-        /* ========================================================= */
-        .menu-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 1200px;
-            min-height: 70vh;
-            z-index: 10;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .menu-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .menu-header h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 48px;
-            color: white;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-        }
-        .menu-header h1 span { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
-        .menu-header p { color: #94a3b8; font-size: 18px; }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 40px;
-            width: 100%;
-        }
-
-        .nav-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 40px 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-card::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-20deg); transition: 0.5s;
-        }
-
-        .nav-card:hover {
-            transform: translateY(-10px);
-            background: rgba(56, 189, 248, 0.08);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.1);
-        }
-        .nav-card:hover::before { left: 200%; }
-
-        .nav-card i { font-size: 60px; color: #38bdf8; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5)); transition: 0.3s; }
-        .nav-card:hover i { transform: scale(1.1); color: #7dd3fc; }
         
-        .nav-card h2 { font-family: 'Poppins', sans-serif; font-size: 24px; color: #f8fafc; margin-bottom: 15px; }
-        .nav-card p { color: #cbd5e1; font-size: 15px; line-height: 1.5; margin: 0; }
+        .btn-voltar { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-voltar:hover { background: rgba(255,255,255,0.3); }
 
-        .nav-card.disabled { opacity: 0.5; cursor: not-allowed; }
-        .nav-card.disabled:hover { transform: none; background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-        .nav-card.disabled i { color: #64748b; filter: none; }
+        main { flex: 1; max-width: 1000px; margin: 20px auto; padding: 0 20px; width: 100%; }
+        
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px; }
 
-        /* ========================================================= */
-        /* SEÇÕES DE CONTEÚDO (Slides Embutidos)                     */
-        /* ========================================================= */
-        .content-section {
-            display: none; /* Escondido por padrão, ativado via JS */
-            flex-direction: column;
-            gap: 60px;
-            width: 100%;
-            align-items: center;
-            z-index: 10;
-            animation: fadeIn 0.5s ease;
+        .search-box { width: 100%; padding: 12px 20px 12px 45px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; font-size: 1rem; outline: none; transition: 0.3s; }
+        .search-box:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .menu-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 25px; text-decoration: none; color: white; cursor: pointer;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; gap: 20px;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(56, 189, 248, 0.6); border-left: 1px solid rgba(56, 189, 248, 0.6);
         }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* SLIDE CONTAINER (Vidro Escuro) */
-        .slide-container {
-            align-items: center;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-            display: flex; flex-direction: column; justify-content: center;
-            height: 720px; width: 1280px; max-width: 100%; padding: 60px; position: relative; overflow: hidden;
-            transition: 0.5s;
-        }
-
-        /* TIPOGRAFIA NEON */
-        .slide-container h1, .slide-container h2, .slide-container h3 { color: #f8fafc; font-weight: 700; font-family: 'Poppins', sans-serif; margin: 0; }
-        .slide-container p, .slide-container li, .slide-container .subtitle, .slide-container .number-label { color: #cbd5e1; font-family: 'Lato', sans-serif; font-size: 18px; line-height: 1.5; }
+        .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
         
-        .slide-container h1 { font-size: 70px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .slide-container h1 span { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        .icon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59,130,246,0.5); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
+        .icon-orange { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); }
+        .icon-emerald { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
+        .icon-purple { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1); }
+        .icon-pink { color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.5); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1); }
+
+        .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
+        .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
+
+        /* MODAIS DE CONTEÚDO */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px;}
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); width: 100%; max-width: 800px; max-height: 90vh; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; animation: slideDown 0.3s ease-out;}
+        .modal-header { background: rgba(0,0,0,0.3); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 800; color: white; margin: 0;}
+        .modal-close { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: #f43f5e; }
         
-        .slide-container .slide-title { color: #38bdf8; font-size: 40px; font-weight: 700; margin-bottom: 40px; text-align: left; width: 100%; border-bottom: 1px solid rgba(56,189,248,0.3); padding-bottom: 15px;}
-        .slide-container h3 { font-size: 28px; font-weight: 600; margin-bottom: 15px; color: #38bdf8;}
-        .slide-container .content-area { align-items: flex-start; display: flex; flex-direction: column; flex-grow: 1; justify-content: center; width: 100%; }
+        .modal-body { padding: 25px; overflow-y: auto; color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; }
+        .modal-body h3 { color: #38bdf8; font-weight: 700; font-size: 1.1rem; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;}
+        .modal-body h3:first-child { margin-top: 0; }
+        .modal-body p { margin-bottom: 15px; }
+        .modal-body ul { list-style-type: disc; margin-left: 20px; margin-bottom: 15px; }
+        .modal-body li { margin-bottom: 5px; }
+        .modal-body .highlight { background: rgba(56, 189, 248, 0.1); border-left: 3px solid #38bdf8; padding: 10px; margin-bottom: 15px; border-radius: 0 4px 4px 0;}
 
-        /* MÓDULOS DE CONTEÚDO (Sub-vidros) */
-        .title-layout, .content-wrapper, .tile, .highlight-numbers-layout > div:first-child, .qa-layout .contact-info { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 16px; padding: 60px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+        footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
 
-        .title-layout .subtitle { font-size: 24px; margin-top: 20px; color: #94a3b8;}
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* TABELAS NEON */
-        .table-layout { width: 100%; background-color: transparent; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .table-layout table { border-collapse: collapse; width: 100%; }
-        .table-layout th, .table-layout td { padding: 14px 24px; text-align: left; }
-        .table-layout th { background-color: rgba(0,0,0,0.4); color: #38bdf8; font-size: 18px; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; border-bottom: 1px solid rgba(56,189,248,0.3); }
-        .table-layout td { border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; font-size: 16px; }
-        .table-layout tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
-        .table-layout tr:last-child td { border-bottom: none; }
-        .table-layout td strong { color: #38bdf8; }
-
-        /* TIMELINE NEON */
-        .timeline-layout { align-items: stretch; display: flex; height: stretch; justify-content: space-between; position: relative; width: 100%; margin-top: 40px; }
-        .timeline-layout .timeline-line { background-color: rgba(56, 189, 248, 0.2); height: 4px; left: 0; position: absolute; top: 50%; transform: translateY(-2px); width: 100%; z-index: 0; box-shadow: 0 0 10px rgba(56,189,248,0.3); }
-        .timeline-item { position: relative; text-align: center; width: 23%; }
-        .timeline-item::after { background-color: #0f172a; border-radius: 50%; border: 4px solid #38bdf8; content: ''; height: 24px; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 24px; z-index: 1; box-shadow: 0 0 15px rgba(56,189,248,0.6); }
-        .timeline-item .content-wrapper { left: 0; position: absolute; width: 100%; padding: 20px; }
-        .timeline-item:nth-child(odd) .content-wrapper { bottom: 50%; margin-bottom: 35px; }
-        .timeline-item:nth-child(even) .content-wrapper { margin-top: 35px; top: 50%; }
-        .timeline-item .responsavel { font-weight: 700; color: #f8fafc; font-size: 16px; margin-bottom: 8px; }
-        .timeline-item p { font-size: 14px; margin-bottom: 0; }
-
-        /* TILES NEON */
-        .tiled-content { align-items: stretch; display: flex; gap: 40px; justify-content: center; width: 100%; }
-        .tile { padding: 40px 30px; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; }
-        .tile .icon { color: #38bdf8; font-size: 50px; margin-bottom: 25px; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
-        .tile h3 { color: #f8fafc; font-size: 22px; }
-        .tile .responsavel { font-weight: 700; color: #94a3b8; font-size: 16px; margin-bottom: 15px; }
-
-        /* BLEED IMAGE NEON */
-        .slide-container.bleed-image-layout { align-items: start; display: grid; gap: 50px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; }
-        .slide-container.bleed-image-layout > .content-container { padding: 60px 0 60px 60px; display: flex; flex-direction: column; height: 100%; justify-content: center; }
-        .slide-container.bleed-image-layout > .image-container { height: 100%; overflow: hidden; width: 100%; border-left: 1px solid rgba(255,255,255,0.05); }
-        .slide-container.bleed-image-layout img.bleed-image-side { border-radius: 0 20px 20px 0; display: block; height: 720px; object-fit: cover; object-position: center; width: 100%; filter: brightness(0.8) contrast(1.2); }
-        .slide-container.bleed-image-layout .bleed-text-side { display: flex; flex-direction: column; justify-content: center; }
-        .slide-container.bleed-image-layout .bleed-text-side p { margin-bottom: 20px; }
-
-        /* HIGHLIGHT NUMBERS NEON */
-        .two-column.highlight-numbers-layout { align-items: center; display: flex; gap: 50px; width: 100%; }
-        .highlight-numbers-layout > div:first-child { flex: 0 0 40%; padding: 60px 40px; }
-        .highlight-numbers-layout .number { color: #38bdf8; font-size: 150px; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 30px rgba(56,189,248,0.5); }
-        .highlight-numbers-layout .number span { font-size: 80px; color: inherit; text-shadow: inherit; }
-        .highlight-numbers-layout .number-label { font-size: 24px; font-weight: 700; color: #f8fafc; }
-
-        /* QA LAYOUT NEON */
-        .qa-layout { margin: 0 auto; text-align: center; width: 100%; align-self: center; }
-        .qa-layout h2 { font-size: 80px; color: #38bdf8; margin-bottom: 20px; text-shadow: 0 0 20px rgba(56,189,248,0.5); }
-        .qa-layout p { font-size: 24px; }
-        .qa-layout .contact-info { color: #f8fafc; font-size: 20px; font-weight: 700; margin-top: 40px; padding: 20px; }
-
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII (Azul + Branco Original)                */
-        /* ========================================================= */
-        body.theme-classic { background: #e2e8f0 !important; background-image: none !important; }
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
-
-        body.theme-classic .btn-floating-back { background: #0f172a !important; border-color: transparent !important; }
-        body.theme-classic .btn-floating-back:hover { background: #0284c7 !important; color: white !important;}
-        body.theme-classic .btn-theme-toggle { background: rgba(0,0,0,0.5) !important; border-color: transparent !important; }
-        body.theme-classic .btn-theme-toggle:hover { background: #0284c7 !important; }
-
-        body.theme-classic .menu-header h1 { color: #0f172a !important; text-shadow: none !important; }
-        body.theme-classic .menu-header h1 span { color: #0284c7 !important; text-shadow: none !important; }
-        body.theme-classic .menu-header p { color: #475569 !important; }
-
-        body.theme-classic .nav-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important; }
-        body.theme-classic .nav-card:hover { transform: translateY(-5px) !important; background: #f8fafc !important; border-color: #0284c7 !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }
-        body.theme-classic .nav-card i { color: #0284c7 !important; filter: none !important; }
-        body.theme-classic .nav-card h2 { color: #0f172a !important; }
-        body.theme-classic .nav-card p { color: #475569 !important; }
-        body.theme-classic .nav-card::before { display: none !important; }
-
-        body.theme-classic .slide-container { background: #ffffff !important; border: none !important; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; backdrop-filter: none !important; }
+        body.theme-classic .btn-theme-toggle, body.theme-classic .btn-voltar { background: white; color: #004e92; border-color: #cbd5e1; }
+        body.theme-classic header h1 { color: #004e92; text-shadow: none; }
+        body.theme-classic header p { color: #64748b; }
         
-        body.theme-classic .slide-container h1, body.theme-classic .slide-container h2 { color: #0f172a !important; text-shadow: none !important;}
-        body.theme-classic .slide-container h3 { color: #0284c7 !important; text-shadow: none !important;}
-        body.theme-classic .slide-container p, body.theme-classic .slide-container li, body.theme-classic .slide-container .subtitle, body.theme-classic .slide-container .number-label { color: #475569 !important; }
+        body.theme-classic .cyber-container { background: white; border-color: #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .search-box { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
         
-        body.theme-classic .slide-container h1 span { color: #0284c7 !important; text-shadow: none !important; }
-        body.theme-classic .slide-container .slide-title { color: #0284c7 !important; border-bottom: none !important; padding-bottom: 0 !important; }
-
-        body.theme-classic .title-layout, body.theme-classic .content-wrapper, body.theme-classic .tile, body.theme-classic .highlight-numbers-layout > div:first-child, body.theme-classic .qa-layout .contact-info { 
-            background: #f8fafc !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important;
-        }
-
-        body.theme-classic .table-layout { border: 1px solid #e2e8f0 !important; background: #ffffff !important; }
-        body.theme-classic .table-layout th { background: #0284c7 !important; color: #ffffff !important; border-bottom: none !important; }
-        body.theme-classic .table-layout td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important; }
-        body.theme-classic .table-layout tr:nth-child(even) td { background: #f8fafc !important; }
-        body.theme-classic .table-layout td strong { color: #0f172a !important; }
-
-        body.theme-classic .timeline-layout .timeline-line { background: #cbd5e1 !important; box-shadow: none !important;}
-        body.theme-classic .timeline-item::after { background: #ffffff !important; border-color: #0284c7 !important; box-shadow: none !important; }
-        body.theme-classic .timeline-item .responsavel { color: #0f172a !important; }
-
-        body.theme-classic .tile .icon { color: #0284c7 !important; text-shadow: none !important; }
-        body.theme-classic .tile h3 { color: #0f172a !important; }
-        body.theme-classic .tile .responsavel { color: #0284c7 !important; }
-
-        body.theme-classic .slide-container.bleed-image-layout img.bleed-image-side { filter: none !important; border-left: none !important; }
-
-        body.theme-classic .highlight-numbers-layout .number { color: #0284c7 !important; text-shadow: none !important; }
-        body.theme-classic .highlight-numbers-layout .number-label { color: #0f172a !important; }
-
-        body.theme-classic .qa-layout h2 { color: #0284c7 !important; text-shadow: none !important; }
-        body.theme-classic .qa-layout .contact-info { color: #0f172a !important; }
+        body.theme-classic .menu-card { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; transform: none !important; }
+        body.theme-classic .menu-card:hover { transform: translateY(-5px) !important; border-color: #004e92 !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+        body.theme-classic .card-content h3 { color: #1e293b !important; }
+        body.theme-classic .card-content p { color: #64748b !important; }
+        
+        body.theme-classic .modal-overlay { background: rgba(255, 255, 255, 0.8); }
+        body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        body.theme-classic .modal-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        body.theme-classic .modal-header h2 { color: #004e92; }
+        body.theme-classic .modal-body { color: #334155; }
+        body.theme-classic .modal-body h3 { color: #004e92; border-bottom-color: #e2e8f0; }
+        body.theme-classic .modal-body .highlight { background: #eff6ff; border-left-color: #3b82f6; }
+        
+        body.theme-classic footer { color: #64748b; }
     </style>
 </head>
 <body>
@@ -298,324 +114,240 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <a href="#" id="btn-voltar" class="btn-floating-back" onclick="handleVoltar(event)">
-        <i class="fas fa-arrow-left"></i> <span id="txt-voltar">Voltar ao Painel</span>
-    </a>
-
-    <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
-        <i class="fas fa-sun"></i>
-    </button>
-
-    <div id="menu-principal" class="menu-container">
-        <div class="menu-header">
-            <h1>Base de Conhecimento <span>NII</span></h1>
-            <p>Portal de Diretrizes, Processos e Manuais do Faturamento SUS</p>
-        </div>
-
-        <div class="cards-grid">
-            <div class="nav-card" onclick="abrirSecao('sec-fluxograma')">
-                <i class="fa-solid fa-network-wired"></i>
-                <h2>Fluxograma SUS</h2>
-                <p>Mapeamento End-to-End: Recepção, Lançamento SoulMV, Auditoria e Exportação.</p>
-            </div>
-
-            <div class="nav-card" onclick="abrirSecao('sec-manuais')">
-                <i class="fa-solid fa-book-open"></i>
-                <h2>Manuais & Teses</h2>
-                <p>Diretrizes técnicas: Unificação SADT (Pacote Fechado) e Recuperação da URV (9,56%).</p>
-            </div>
-
-            <div class="nav-card disabled" title="Em breve">
-                <i class="fa-solid fa-lock"></i>
-                <h2>Auditoria Interna</h2>
-                <p>Módulo em desenvolvimento. Análises preditivas e regras de bloqueio.</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="sec-fluxograma" class="content-section">
-        <div class="slide-container">
-            <div class="title-layout">
-                <h1>FATURAMENTO - <span>SUS</span></h1>
-                <p class="subtitle">Estratégia, Processos e Tecnologia Hospitalar</p>
-            </div>
-        </div>
-
-        <div class="slide-container">
-            <h2 class="slide-title">Visão Geral do Processo (SoulMV)</h2>
-            <div class="content-area">
-                <div class="table-layout">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 10%;">Etapa</th>
-                                <th style="width: 45%;">Fase do Processo</th>
-                                <th style="width: 45%;">Responsáveis</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>01</strong></td>
-                                <td>RECEPÇÃO (Alta no Sistema)</td>
-                                <td>Equipe de Recepção</td>
-                            </tr>
-                            <tr>
-                                <td><strong>02</strong></td>
-                                <td>ARQUIVO (Montagem do Prontuário)</td>
-                                <td>Equipe de Arquivo / SAME</td>
-                            </tr>
-                            <tr>
-                                <td><strong>03</strong></td>
-                                <td>TRIAGEM (Sisreg / AIH / Exames)</td>
-                                <td>Alexandre</td>
-                            </tr>
-                            <tr>
-                                <td><strong>04</strong></td>
-                                <td>FATURAMENTO (Lançamento SoulMV)</td>
-                                <td>Cristina e Carlos</td>
-                            </tr>
-                            <tr>
-                                <td><strong>05</strong></td>
-                                <td>AUDITORIA (Conferência Minuciosa)</td>
-                                <td>Bianca</td>
-                            </tr>
-                            <tr>
-                                <td><strong>06</strong></td>
-                                <td>GESTÃO DE PENDÊNCIAS</td>
-                                <td>Franck</td>
-                            </tr>
-                            <tr>
-                                <td><strong>07</strong></td>
-                                <td>APOIO NIR (Autorizações / APACs)</td>
-                                <td>Kamila</td>
-                            </tr>
-                            <tr>
-                                <td><strong>08</strong></td>
-                                <td>FECHAMENTO & EXPORTAÇÃO</td>
-                                <td>Franck</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-container">
-            <h2 class="slide-title">Fase de Preparação e Lançamento</h2>
-            <div class="content-area">
-                <div class="timeline-layout">
-                    <div class="timeline-line"></div>
-                    <div class="timeline-item">
-                        <div class="content-wrapper">
-                            <h3>1. Recepção/Arquivo</h3>
-                            <p class="responsavel">Resp: Recepção / Arquivo</p>
-                            <p>Início com a alta do paciente. Montagem física do prontuário e anexação de documentos oficiais.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="content-wrapper">
-                            <h3>2. Triagem</h3>
-                            <p class="responsavel">Resp: Alexandre</p>
-                            <p>Consulta em sistemas externos (Sisreg para emissão de AIH) e impressão de exames cruciais.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="content-wrapper">
-                            <h3>3. Lançamento</h3>
-                            <p class="responsavel">Resp: Cristina / Carlos</p>
-                            <p>Entrada oficial dos dados (Faturamento) no sistema hospitalar SoulMV.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="content-wrapper">
-                            <h3>4. Auditoria Base</h3>
-                            <p class="responsavel">Resp: Bianca</p>
-                            <p>Verificação se os lançamentos realizados no SoulMV estão consistentes com o prontuário.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-container">
-            <h2 class="slide-title">Análise Crítica e Resolução</h2>
-            <div class="content-area">
-                <div class="tiled-content">
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-list-check"></i></div>
-                        <h3>Auditoria Final</h3>
-                        <p class="responsavel">Bianca</p>
-                        <p>Conferência minuciosa dos dados. Contas auditadas e limpas (Sinal Verde) seguem direto para a etapa de Fechamento.</p>
-                    </div>
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        <h3>Pendências</h3>
-                        <p class="responsavel">Franck</p>
-                        <p>Triagem de contas com problemas (Falta de NF, erro na Descrição Cirúrgica). Resolução dos entraves operacionais.</p>
-                    </div>
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
-                        <h3>Apoio NIR</h3>
-                        <p class="responsavel">Kamila</p>
-                        <p>Resolução de autorizações complexas (Ex: Planejamento Familiar), e estruturação de faturamento para Laqueaduras e APACs.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="slide-container bleed-image-layout">
-            <div class="content-container">
-                <h2 class="slide-title">O Papel Estratégico do NIR</h2>
-                <div class="content-area">
-                    <div class="bleed-text-side">
-                        <h3>Apoio Técnico e Autorizações (Etapa 7)</h3>
-                        <p>O trabalho do Núcleo Interno de Regulação (NIR) atua como um verdadeiro destravador do faturamento SUS, sendo um pilar essencial para o fluxo.</p>
-                        <p>Conduzido de forma ágil por <strong style="color:inherit;">Kamila</strong>, o gerenciamento de autorizações complexas — como Planejamento Familiar, Laqueaduras e APACs — alivia substancialmente a carga operacional da Coordenação.</p>
-                        <p>Sua atuação proativa garante que os prontuários cheguem à etapa final redondos e totalmente aptos para a exportação.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="image-container">
-                <img class="bleed-image-side" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800" alt="Hospital interior">
-            </div>
-        </div>
-
-        <div class="slide-container bleed-image-layout">
-            <div class="content-container">
-                <h2 class="slide-title">A Visão da Coordenação</h2>
-                <div class="content-area">
-                    <div class="bleed-text-side">
-                        <h3>Validação & Exportação (Etapa Final)</h3>
-                        <p>O momento mais crítico do processo garante que todo o serviço prestado pelo Hospital seja convertido em faturamento aprovado pelo SUS.</p>
-                        <p>Sob a responsabilidade da <strong style="color:inherit;">Coordenação (Franck Moura)</strong>, é feita a consolidação dos dados do SoulMV, validação rigorosa das regras do SIGTAP, consistência e exportação dos arquivos para o <strong>SISAIH01</strong>.</p>
-                        <p>Também inclui o mapeamento analítico, emissão de relatórios estratégicos e o cálculo de repasses médicos.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="image-container">
-                <img class="bleed-image-side" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="Data analysis">
-            </div>
-        </div>
-
-        <div class="slide-container">
-            <h2 class="slide-title">Métricas de Excelência do Fluxo SUS</h2>
-            <div class="content-area">
-                <div class="two-column highlight-numbers-layout">
-                    <div>
-                        <div class="number">08</div>
-                        <div class="number-label">Pilares de Processamento</div>
-                    </div>
-                    <div>
-                        <h3>Controle End-to-End (SoulMV -> SISAIH01)</h3>
-                        <p>A correta estruturação do faturamento SUS exige disciplina em todas as fases, desde o balcão da recepção até o envio final dos dados no SISAIH01.</p>
-                        <p>Com essa definição clara de responsabilidades (Alexandre, Cristina, Carlos, Bianca, Kamila e Franck), a instituição assegura conformidade com as portarias ministeriais, minimiza glosas e maximiza o repasse governamental.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="sec-manuais" class="content-section">
+    <header>
+        <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme-toggle" title="Alternar Tema (Neon/Clássico)">
+            <i class="fas fa-sun"></i>
+        </button>
+        <a href="modulo_gerencial.html" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
         
-        <div class="slide-container">
-            <h2 class="slide-title">Recuperação de Receita: A Tese da URV</h2>
-            <div class="content-area">
-                <div class="two-column highlight-numbers-layout">
-                    <div>
-                        <div class="number">9,56<span>%</span></div>
-                        <div class="number-label">Defasagem Histórica (1994)</div>
-                    </div>
-                    <div>
-                        <h3>O Fator de Conversão e o Passivo</h3>
-                        <p>Em 1994, o Ministério da Saúde aplicou um fator de conversão incorreto na transição de Cruzeiros Reais para a nova moeda (Real) na Tabela SUS.</p>
-                        <p>Isso gerou uma perda contínua de <strong>9,56%</strong> nos repasses focados em Serviços Hospitalares (VAL_SH).</p>
-                        <p>O NII-Portal hoje possui a tecnologia para auditar e retroagir 26 anos de faturamento, consolidando a prova matemática exata desse passivo em segundos, municiando nosso Departamento Jurídico com dados blindados.</p>
-                    </div>
+        <div class="header-logo"><img src="../logo.png" alt="Hospital Beneficente Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
+        <h1>Base de Conhecimento e Guias SUS</h1>
+        <p>Manuais, Portarias e Regras Oficiais de Faturamento Hospitalar.</p>
+    </header>
+
+    <main>
+        <div class="cyber-container">
+            <div style="position: relative;">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-box" placeholder="Busque por 'Portaria', 'AIH', 'Mutirão'..." onkeyup="filtrarCards()">
+            </div>
+        </div>
+
+        <div class="menu-grid" id="card-grid">
+            
+            <div class="menu-card" data-titulo="Dicionário do Faturista Siglas SUS AIH APAC SIGTAP" onclick="abrirModal('modal-dicionario')">
+                <div class="icon-box icon-emerald"><i class="fas fa-spell-check"></i></div>
+                <div class="card-content">
+                    <h3>Dicionário do Faturista</h3>
+                    <p>Tradução das principais siglas do SUS: AIH, BPA, APAC, FPO, MAC.</p>
                 </div>
             </div>
-        </div>
 
-        <div class="slide-container">
-            <h2 class="slide-title">Evolução do Faturamento: A Unificação SIGTAP</h2>
-            <div class="content-area">
-                <div class="tiled-content">
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
-                        <h3>Até 2007: Conta Fragmentada</h3>
-                        <p>Historicamente, a AIH era faturada "aos pedaços". Havia rubricas completamente separadas para o Serviço Hospitalar (SH), Honorários (SP) e Exames de rotina (SADT).</p>
-                    </div>
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-box-archive"></i></div>
-                        <h3>2008: O "Pacote Fechado"</h3>
-                        <p>O Ministério da Saúde cria o SIGTAP. O valor dos exames de rotina (SADT) passou a ser <strong>embutido diretamente no valor do Serviço Hospitalar (SH)</strong> para otimizar o fluxo.</p>
-                    </div>
-                    <div class="tile">
-                        <div class="icon"><i class="fa-solid fa-chart-pie"></i></div>
-                        <h3>O Reflexo na Auditoria</h3>
-                        <p>Isso explica a "ausência" de rubricas SADT após 2008. A inteligência do NII-Portal já compreende esse modelo de <em>Bundle</em>, garantindo transparência total no Ticket Médio da instituição.</p>
-                    </div>
+            <div class="menu-card" data-titulo="Regras Práticas de Faturamento Cirurgias Múltiplas UTI Diárias" onclick="abrirModal('modal-regras')">
+                <div class="icon-box icon-orange"><i class="fas fa-list-check"></i></div>
+                <div class="card-content">
+                    <h3>Regras Práticas SIH</h3>
+                    <p>Faturamento de Cirurgias Múltiplas, Diárias e regras de UTI.</p>
                 </div>
             </div>
+
+            <div class="menu-card" data-titulo="Principais Portarias SUS Legislação Leis Financiamento Fila Zero" onclick="abrirModal('modal-portarias')">
+                <div class="icon-box icon-blue"><i class="fas fa-balance-scale"></i></div>
+                <div class="card-content">
+                    <h3>Portarias e Decretos</h3>
+                    <p>Portarias de Consolidação e o Programa Fila Zero (Dec. 1.083/24).</p>
+                </div>
+            </div>
+
+            <div class="menu-card" data-titulo="Manuais Oficiais DATASUS Ministério da Saúde SISAIH TABWIN" onclick="abrirModal('modal-manuais')">
+                <div class="icon-box icon-purple"><i class="fas fa-book-medical"></i></div>
+                <div class="card-content">
+                    <h3>Manuais Oficiais</h3>
+                    <p>Consultas ao Manual do SIH/SUS e uso prático do TABWIN.</p>
+                </div>
+            </div>
+
+            <div class="menu-card" data-titulo="Hospital Amigo da Criança IHAC Portaria 1.153 Parto Incremento" onclick="abrirModal('modal-amigo-crianca')">
+                <div class="icon-box icon-pink"><i class="fas fa-baby-carriage"></i></div>
+                <div class="card-content">
+                    <h3>Hosp. Amigo da Criança</h3>
+                    <p>Regras de faturamento e incremento financeiro (Port. 1.153/2014).</p>
+                </div>
+            </div>
+
+            <div class="menu-card" data-titulo="Mutirão da Saúde da Mulher Programa Agora Tem Especialistas SIA SIH" onclick="abrirModal('modal-mutirao-mulher')">
+                <div class="icon-box icon-rose"><i class="fas fa-female"></i></div>
+                <div class="card-content">
+                    <h3>Mutirão Saúde da Mulher</h3>
+                    <p>Diretrizes de registro no SIA e SIH para o programa (Março/2026).</p>
+                </div>
+            </div>
+
         </div>
+    </main>
 
-    </div>
+    <div id="modal-dicionario" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-spell-check mr-2"></i> Dicionário de Siglas do SUS</h2>
+                <button class="modal-close" onclick="fecharModal('modal-dicionario')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">O domínio do faturamento começa pelo vocabulário. Entenda o que o DATASUS quer dizer com cada sigla.</div>
+                
+                <h3>Sistemas e Instrumentos</h3>
+                <ul>
+                    <li><b>SIH/SUS:</b> Sistema de Informação Hospitalar. Onde processamos as internações.</li>
+                    <li><b>SIA/SUS:</b> Sistema de Informação Ambulatorial. Onde processamos consultas e exames.</li>
+                    <li><b>AIH:</b> Autorização de Internação Hospitalar. Garante o repasse financeiro.</li>
+                    <li><b>APAC:</b> Autorização de Procedimentos Ambulatoriais de Alta Complexidade.</li>
+                    <li><b>BPA:</b> Boletim de Produção Ambulatorial.</li>
+                </ul>
 
-    <div class="slide-container" id="slide-contato" style="display: none; height: auto; min-height: 400px; margin-top: 50px;">
-        <div class="qa-layout">
-            <h2>Gestão Orientada a Dados</h2>
-            <p>O Núcleo Interno de Informação (NII) à disposição da Diretoria.</p>
-            <div class="contact-info">
-                <i class="fa-solid fa-server" style="margin-right: 10px; color: #0284c7;"></i> NII-Portal | Hospital Beneficente Santa Helena
+                <h3>Gestão e Tabelas</h3>
+                <ul>
+                    <li><b>SIGTAP:</b> Sistema de Gerenciamento da Tabela de Procedimentos. A "Bíblia" do SUS.</li>
+                    <li><b>CNES:</b> Cadastro Nacional de Estabelecimentos de Saúde.</li>
+                    <li><b>CBO:</b> Classificação Brasileira de Ocupações.</li>
+                    <li><b>FPO:</b> Ficha de Programação Orçamentária.</li>
+                </ul>
+
+                <h3>Financiamento</h3>
+                <ul>
+                    <li><b>MAC:</b> Média e Alta Complexidade (Teto financeiro fixo).</li>
+                    <li><b>FAEC:</b> Fundo de Ações Estratégicas e Compensação (Recurso extrateto).</li>
+                </ul>
             </div>
         </div>
     </div>
+
+    <div id="modal-regras" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-list-check mr-2"></i> Regras Práticas do SIH/SUS</h2>
+                <button class="modal-close" onclick="fecharModal('modal-regras')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Competência de Produção x Processamento</h3>
+                <p><b>Produção:</b> É o mês em que o paciente efetivamente teve alta. Exemplo: Alta em 15/03/2026.<br>
+                <b>Processamento:</b> É o mês de envio do arquivo para a Secretaria de Saúde.</p>
+
+                <h3>2. Cirurgias Múltiplas e Sequenciais</h3>
+                <div class="highlight">Não se paga 100% de tudo quando feito no mesmo ato anestésico!</div>
+                <ul>
+                    <li><b>Múltiplas:</b> Procedimento principal a 100%, segundo a 75% e terceiro a 50% do Serviço Hospitalar (SH). Máximo de 3 cirurgias por AIH.</li>
+                    <li><b>Sequenciais:</b> Mesma doença, vias de acesso diferentes.</li>
+                </ul>
+
+                <h3>3. Contagem de Diárias (Enfermaria e UTI)</h3>
+                <ul>
+                    <li>O SUS não paga diária no dia da saída/óbito. (Internou dia 10 e saiu dia 12 = 2 diárias).</li>
+                    <li>É obrigatório lançar o "Procedimento Especial" correspondente à Diária de UTI no SISAIH01.</li>
+                </ul>
+
+                <h3>4. Rejeição x Glosa</h3>
+                <p><b>Rejeição:</b> Ocorre no validador municipal (SIHD). Ex: Falta do Cartão SUS.<br>
+                <b>Glosa:</b> Ocorre na fase de Auditoria Médica. Ex: Falta de justificativa no prontuário.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-portarias" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale mr-2"></i> Portarias e Decretos Essenciais</h2>
+                <button class="modal-close" onclick="fecharModal('modal-portarias')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">O embasamento legal das cobranças e dos programas governamentais de repasse extra.</div>
+
+                <h3>Portaria de Consolidação nº 01/2017</h3>
+                <p>Consolida as normas sobre os direitos, deveres, regras de OPME e identificação (Cartão Nacional de Saúde).</p>
+
+                <h3>Portaria de Consolidação nº 06/2017</h3>
+                <p>Regulamenta as transferências financeiras, teto MAC e pagamentos extrateto (FAEC).</p>
+
+                <h3>Portaria GM/MS nº 3.410/2013 (Contratualização)</h3>
+                <p>Estabelece o recebimento de parcela pré-fixada baseada no cumprimento de metas qualitativas e físicas para hospitais filantrópicos.</p>
+
+                <h3>Decreto Estadual nº 1.083/2024 - Fila Zero (MT)</h3>
+                <p>Institui o Programa Estadual de Cirurgias Eletivas em Mato Grosso ("Fila Zero"). Permite remuneração complementar aos hospitais prestadores baseada em uma tabela referencial própria do estado para zerar a fila de espera da regulação.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-manuais" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-book-medical mr-2"></i> Manuais Oficiais (DATASUS)</h2>
+                <button class="modal-close" onclick="fecharModal('modal-manuais')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <h3>Manual Técnico do SIH/SUS</h3>
+                <p>Guia de preenchimento da AIH: Autorização, Laudo Médico, regras da CID-10 e motivos de alta (transferência, óbito, cura).</p>
+
+                <h3>Tabela SIGTAP</h3>
+                <p>Ferramenta primária de consulta. Indica tempo de permanência, CBOs permitidas e CIDs compatíveis.</p>
+
+                <h3>TABWIN / TABNET</h3>
+                <p>Ferramenta do Ministério da Saúde para ler os arquivos de retorno (RD e ER). Fundamental para tabular glosas do mês e criar planos de ação.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-amigo-crianca" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-baby-carriage mr-2"></i> Hospital Amigo da Criança (IHAC)</h2>
+                <button class="modal-close" onclick="fecharModal('modal-amigo-crianca')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">Orientações baseadas na <b>Portaria nº 1.153/2014</b>, que define os critérios de habilitação e incremento financeiro.</div>
+                
+                <h3>Habilitação CNES</h3>
+                <p>Para ter direito aos incrementos financeiros, o hospital deve possuir a habilitação <b>14.16 (Hospital Amigo da Criança)</b> ativa no CNES, além do comitê de aleitamento materno formalizado.</p>
+
+                <h3>Tabela de Incrementos (Assistência ao Parto)</h3>
+                <ul>
+                    <li><b>03.10.01.003-9</b> (Parto Normal): <b>+17%</b> de Incremento.</li>
+                    <li><b>04.11.01.003-4</b> (Parto Cesariano): <b>+8,5%</b> de Incremento.</li>
+                    <li><b>03.10.01.004-7</b> (Parto Normal - Alto Risco): <b>+5%</b> de Incremento.</li>
+                    <li><b>04.11.01.002-6</b> (Parto Cesariano - Alto Risco): <b>+2,5%</b> de Incremento.</li>
+                </ul>
+
+                <h3>Atendimento ao Recém Nascido</h3>
+                <p>A portaria garante <b>+17%</b> de incremento no valor do procedimento <b>03.10.01.005-5</b> (Atendimento ao Recém Nascido em Sala de Parto) realizado nas dependências habilitadas.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-mutirao-mulher" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-female mr-2"></i> Mutirão Saúde da Mulher</h2>
+                <button class="modal-close" onclick="fecharModal('modal-mutirao-mulher')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">Instrutivo de registro (Portaria SAES/MS nº 3.935/2026) para os atendimentos concentrados nos dias <b>21 e 22 de março de 2026</b>.</div>
+                
+                <h3>Regras de Faturamento no SIH</h3>
+                <ul>
+                    <li><b>Identificação:</b> As contas deste mutirão devem ser processadas sob o Tipo de Financiamento <b>Fundo de Ações Estratégicas e Compensação (FAEC)</b>.</li>
+                    <li><b>Controle:</b> Utilizar a Autorização de Internação Hospitalar (AIH) na numeração específica destinada para procedimentos de mutirão eletivo.</li>
+                    <li><b>Exigência SIGTAP:</b> Os códigos lançados devem respeitar integralmente a CBO do profissional médico e a disponibilidade de leitos operacionais informados no CNES no mês 03/2026.</li>
+                </ul>
+
+                <h3>Escopo de Procedimentos</h3>
+                <p>A estratégia abrange o rol de <b>1.279 procedimentos cirúrgicos</b> do programa "Agora Tem Especialistas", que podem receber financiamento extra para custeio desde que corretamente identificados e isolados da produção MAC regular do hospital.</p>
+
+                <p class="text-sm text-yellow-500 mt-4"><i class="fas fa-exclamation-triangle"></i> Atenção faturistas: O não isolamento desta produção em AIHs/APACs específicas fará com que os valores consumam o teto físico-financeiro regular do hospital em vez da verba extra disponibilizada pelo Ministério da Saúde.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 Hospital Beneficente Santa Helena - Desenvolvido por Franck Moura</p></footer>
 
     <script>
-        // ==========================================
-        // LÓGICA DE NAVEGAÇÃO DOS CARDS
-        // ==========================================
-        let secaoAtual = null;
-
-        function abrirSecao(idSecao) {
-            // Esconde o menu
-            document.getElementById('menu-principal').style.display = 'none';
-            
-            // Mostra a seção escolhida e o rodapé
-            document.getElementById(idSecao).style.display = 'flex';
-            document.getElementById('slide-contato').style.display = 'flex';
-            secaoAtual = idSecao;
-
-            // Altera o botão de voltar
-            const btnTxt = document.getElementById('txt-voltar');
-            btnTxt.innerText = 'Voltar ao Menu Inicial';
-            
-            // Scroll para o topo suavemente
-            window.scrollTo(0, 0);
-        }
-
-        function handleVoltar(event) {
-            event.preventDefault();
-            
-            if (secaoAtual !== null) {
-                // Se estiver dentro de uma seção, volta para o menu de cards
-                document.getElementById(secaoAtual).style.display = 'none';
-                document.getElementById('slide-contato').style.display = 'none';
-                document.getElementById('menu-principal').style.display = 'flex';
-                
-                // Restaura o texto do botão
-                document.getElementById('txt-voltar').innerText = 'Voltar ao Painel';
-                secaoAtual = null;
-                window.scrollTo(0, 0);
-            } else {
-                // Se já estiver no menu, volta para a página anterior do NII Portal
-                window.location.href = 'modulo_estrategico.html';
-            }
-        }
-
-        // ==========================================
-        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
-        // ==========================================
         function toggleTheme() {
             const body = document.body;
             const btnIcon = document.querySelector('#btn-theme-toggle i');
@@ -637,7 +369,6 @@
             const savedTheme = localStorage.getItem('nii_theme_flux');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             
-            // Padrão Inicial: Escuro (Neon)
             if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
                 if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
@@ -646,6 +377,34 @@
                 if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
         });
+
+        function abrirModal(id) {
+            $('#' + id).css('display', 'flex').hide().fadeIn(200);
+        }
+
+        function fecharModal(id) {
+            $('#' + id).fadeOut(200);
+        }
+
+        $('.modal-overlay').click(function(e) {
+            if (e.target === this) {
+                $(this).fadeOut(200);
+            }
+        });
+
+        function filtrarCards() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('menu-card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let tituloInfo = cards[i].getAttribute('data-titulo').toLowerCase();
+                if (tituloInfo.includes(input)) {
+                    cards[i].style.display = "flex";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
     </script>
 </body>
 </html>
