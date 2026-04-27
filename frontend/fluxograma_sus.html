@@ -37,8 +37,7 @@
         .search-box:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
 
-        /* GRID DE RESUMOS */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;}
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         
         .menu-card {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
@@ -54,12 +53,14 @@
         }
         
         .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        
         .icon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59,130,246,0.5); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
         .icon-orange { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); }
         .icon-emerald { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
         .icon-purple { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1); }
         .icon-pink { color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.5); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1); }
-        .icon-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+        .icon-rose { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); }
+        .icon-teal { color: #14b8a6; text-shadow: 0 0 10px rgba(20, 184, 166, 0.5); border-color: rgba(20, 184, 166, 0.3); background: rgba(20, 184, 166, 0.1); }
 
         .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
         .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
@@ -195,6 +196,14 @@
                 </div>
             </div>
 
+            <div class="menu-card" data-titulo="Programa Agora Tem Especialistas Nota Informativa 125 Habilitações CNES 38" onclick="abrirModal('modal-agora-especialistas')">
+                <div class="icon-box icon-teal"><i class="fas fa-stethoscope"></i></div>
+                <div class="card-content">
+                    <h3>Agora Tem Especialistas</h3>
+                    <p>Habilitações CNES e regras para o novo programa (Nota Inf. 125/2025).</p>
+                </div>
+            </div>
+
         </div>
 
         <h2 class="text-xl font-bold mt-10 mb-4 text-blue-400 border-b border-white/10 pb-2"><i class="fas fa-file-pdf mr-2"></i> Acervo de Documentos Oficiais na Íntegra</h2>
@@ -230,6 +239,17 @@
                         <div class="pdf-text">
                             <h4>Nota Técnica - Mutirão Saúde da Mulher</h4>
                             <p>Orientações oficiais do Ministério da Saúde sobre como registrar e cobrar a produção do mutirão.</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+                <div class="pdf-item" onclick="abrirPdf('Nota Inf. 125/2025 - Agora Tem Especialistas', '../documentos/Nota_Informativa_125.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Nota Informativa 125/2025 - Agora Tem Especialistas</h4>
+                            <p>Diretrizes sobre as novas habilitações do CNES (Série 38) para registro e financiamento do programa.</p>
                         </div>
                     </div>
                     <button class="btn-ler">Ler Documento</button>
@@ -366,6 +386,33 @@
                 <p class="text-sm text-yellow-500 mt-4"><i class="fas fa-exclamation-triangle"></i> Atenção faturistas: O não isolamento desta produção em AIHs/APACs específicas fará com que os valores consumam o teto físico-financeiro regular do hospital.</p>
                 
                 <button onclick="fecharModal('modal-mutirao-mulher'); abrirPdf('Nota Técnica - Mutirão da Mulher', '../documentos/Instrutivo  Mutirão Saúde da Mulher.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Nota Técnica Oficial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-agora-especialistas" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-stethoscope mr-2"></i> Programa Agora Tem Especialistas</h2>
+                <button class="modal-close" onclick="fecharModal('modal-agora-especialistas')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">Orientações com base na <b>Nota Informativa Nº 125/2025-CGSI/DRAC/SAES/MS</b> sobre as habilitações do programa criado pelas Portarias SAES/MS nº 3.199 e 3.200/2025.</div>
+                
+                <h3>Habilitações Específicas no CNES</h3>
+                <p>Para registrar, processar e garantir o financiamento da produção assistencial neste programa, foram criadas as seguintes habilitações exclusivas:</p>
+                <ul>
+                    <li><b>38.02</b> - Agora Tem Especialistas - Modalidade 1</li>
+                    <li><b>38.03</b> - Agora Tem Especialistas - Modalidade 2 - Equipes Volantes</li>
+                    <li><b>38.04</b> - Agora Tem Especialistas - Modalidade 3 - Unidades Móveis</li>
+                    <li><b>38.05</b> - Agora Tem Especialistas - Componente Créditos Financeiros</li>
+                    <li><b>38.06</b> - Agora Tem Especialistas - Componente Ressarcimento ao SUS</li>
+                </ul>
+
+                <h3>Regras de Faturamento</h3>
+                <p>Estas habilitações são de <b>aplicação exclusiva</b> ao Programa "Agora Tem Especialistas". A produção registrada nos sistemas de faturamento deverá estar rigorosamente vinculada à habilitação do estabelecimento de saúde para que os pagamentos sejam validados e não consumam o teto MAC regular de forma indevida.</p>
+                
+                <button onclick="fecharModal('modal-agora-especialistas'); abrirPdf('Nota Inf. 125/2025', '../documentos/Nota_Informativa_125.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Nota Informativa Oficial</button>
             </div>
         </div>
     </div>
