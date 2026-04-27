@@ -37,7 +37,8 @@
         .search-box:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        /* GRID DE RESUMOS */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;}
         
         .menu-card {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
@@ -53,15 +54,30 @@
         }
         
         .icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        
         .icon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59,130,246,0.5); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
         .icon-orange { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); }
         .icon-emerald { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
         .icon-purple { color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1); }
         .icon-pink { color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.5); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1); }
+        .icon-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
 
         .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
         .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
+
+        /* LISTA DE PDFs OFICIAIS */
+        .pdf-list { display: flex; flex-direction: column; gap: 12px; }
+        .pdf-item {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s; cursor: pointer;
+        }
+        .pdf-item:hover { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; transform: translateX(5px); }
+        .pdf-info { display: flex; align-items: center; gap: 15px; }
+        .pdf-info i { font-size: 2rem; color: #ef4444; }
+        .pdf-text h4 { font-weight: 700; font-size: 1.05rem; color: white; margin-bottom: 2px;}
+        .pdf-text p { font-size: 0.8rem; color: #94a3b8; }
+        .btn-ler { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); color: white;}
+        .pdf-item:hover .btn-ler { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
 
         /* MODAIS DE CONTEÚDO */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px;}
@@ -79,6 +95,9 @@
         .modal-body li { margin-bottom: 5px; }
         .modal-body .highlight { background: rgba(56, 189, 248, 0.1); border-left: 3px solid #38bdf8; padding: 10px; margin-bottom: 15px; border-radius: 0 4px 4px 0;}
 
+        .btn-pdf-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 8px 15px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; margin-top: 10px; text-decoration: none;}
+        .btn-pdf-link:hover { background: rgba(239, 68, 68, 0.4); color: white; }
+
         footer { text-align: center; padding: 25px; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
 
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -95,9 +114,14 @@
         
         body.theme-classic .menu-card { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; transform: none !important; }
         body.theme-classic .menu-card:hover { transform: translateY(-5px) !important; border-color: #004e92 !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-        body.theme-classic .card-content h3 { color: #1e293b !important; }
-        body.theme-classic .card-content p { color: #64748b !important; }
+        body.theme-classic .card-content h3, body.theme-classic .pdf-text h4 { color: #1e293b !important; }
+        body.theme-classic .card-content p, body.theme-classic .pdf-text p { color: #64748b !important; }
         
+        body.theme-classic .pdf-item { background: #f8fafc; border-color: #cbd5e1; }
+        body.theme-classic .pdf-item:hover { background: #eff6ff; border-color: #3b82f6; }
+        body.theme-classic .btn-ler { background: white; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .pdf-item:hover .btn-ler { background: #004e92; color: white; border-color: #004e92; }
+
         body.theme-classic .modal-overlay { background: rgba(255, 255, 255, 0.8); }
         body.theme-classic .modal-content { background: white; border: 1px solid #cbd5e1; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         body.theme-classic .modal-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
@@ -105,6 +129,8 @@
         body.theme-classic .modal-body { color: #334155; }
         body.theme-classic .modal-body h3 { color: #004e92; border-bottom-color: #e2e8f0; }
         body.theme-classic .modal-body .highlight { background: #eff6ff; border-left-color: #3b82f6; }
+        body.theme-classic .btn-pdf-link { background: white; border-color: #ef4444; color: #ef4444; }
+        body.theme-classic .btn-pdf-link:hover { background: #ef4444; color: white; }
         
         body.theme-classic footer { color: #64748b; }
     </style>
@@ -122,7 +148,7 @@
         
         <div class="header-logo"><img src="../logo.png" alt="Hospital Beneficente Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'"></div>
         <h1>Base de Conhecimento e Guias SUS</h1>
-        <p>Manuais, Portarias e Regras Oficiais de Faturamento Hospitalar.</p>
+        <p>Resumos práticos e documentos originais de faturamento.</p>
     </header>
 
     <main>
@@ -132,6 +158,8 @@
                 <input type="text" id="searchInput" class="search-box" placeholder="Busque por 'Portaria', 'AIH', 'Mutirão'..." onkeyup="filtrarCards()">
             </div>
         </div>
+
+        <h2 class="text-xl font-bold mb-4 text-emerald-400 border-b border-white/10 pb-2"><i class="fas fa-bolt mr-2"></i> Resumos Rápidos (Guias NII)</h2>
 
         <div class="menu-grid" id="card-grid">
             
@@ -148,22 +176,6 @@
                 <div class="card-content">
                     <h3>Regras Práticas SIH</h3>
                     <p>Faturamento de Cirurgias Múltiplas, Diárias e regras de UTI.</p>
-                </div>
-            </div>
-
-            <div class="menu-card" data-titulo="Principais Portarias SUS Legislação Leis Financiamento Fila Zero" onclick="abrirModal('modal-portarias')">
-                <div class="icon-box icon-blue"><i class="fas fa-balance-scale"></i></div>
-                <div class="card-content">
-                    <h3>Portarias e Decretos</h3>
-                    <p>Portarias de Consolidação e o Programa Fila Zero (Dec. 1.083/24).</p>
-                </div>
-            </div>
-
-            <div class="menu-card" data-titulo="Manuais Oficiais DATASUS Ministério da Saúde SISAIH TABWIN" onclick="abrirModal('modal-manuais')">
-                <div class="icon-box icon-purple"><i class="fas fa-book-medical"></i></div>
-                <div class="card-content">
-                    <h3>Manuais Oficiais</h3>
-                    <p>Consultas ao Manual do SIH/SUS e uso prático do TABWIN.</p>
                 </div>
             </div>
 
@@ -184,7 +196,71 @@
             </div>
 
         </div>
+
+        <h2 class="text-xl font-bold mt-10 mb-4 text-blue-400 border-b border-white/10 pb-2"><i class="fas fa-file-pdf mr-2"></i> Acervo de Documentos Oficiais na Íntegra</h2>
+        
+        <div class="cyber-container" style="padding: 20px;">
+            <div class="pdf-list">
+                
+                <div class="pdf-item" onclick="abrirPdf('Manual Técnico do SIH/SUS (Janeiro 2017)', '../documentos/MANUAL_SIH_janeiro_2017.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Manual do Sistema de Informação Hospitalar (SIH/SUS)</h4>
+                            <p>Manual completo do DATASUS ensinando a preencher, processar e validar as contas (AIHs).</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+                <div class="pdf-item" onclick="abrirPdf('Portaria 1.153/2014 - Hospital Amigo da Criança', '../documentos/portaria hosp amigo da crianca.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Portaria 1.153/2014 - Hospital Amigo da Criança</h4>
+                            <p>Redefine os critérios da Iniciativa Hospital Amigo da Criança e os incrementos de parto.</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+                <div class="pdf-item" onclick="abrirPdf('Instrutivo - Mutirão Saúde da Mulher', '../documentos/Instrutivo  Mutirão Saúde da Mulher.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Nota Técnica - Mutirão Saúde da Mulher</h4>
+                            <p>Orientações oficiais do Ministério da Saúde sobre como registrar e cobrar a produção do mutirão.</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+                <div class="pdf-item" onclick="abrirPdf('Decreto Fila Zero (Mato Grosso)', '../documentos/procedimentos fila zero 2025.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Tabela Fila Zero 2025 (MT)</h4>
+                            <p>Lista de procedimentos e valores de repasse estadual complementar para zerar a fila de cirurgias.</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+            </div>
+        </div>
+
     </main>
+
+    <div id="modalPdfViewer" class="modal-overlay">
+        <div class="modal-content" style="max-width: 1000px; height: 90vh;">
+            <div class="modal-header">
+                <h2 id="pdfTitle"><i class="fas fa-file-pdf mr-2"></i> Visualizador de Documentos</h2>
+                <button class="modal-close" onclick="fecharModal('modalPdfViewer')"><i class="fas fa-times"></i></button>
+            </div>
+            <iframe id="iframePdf" src="" style="width:100%; height:100%; border:none; background:#f1f5f9;"></iframe>
+        </div>
+    </div>
+
 
     <div id="modal-dicionario" class="modal-overlay">
         <div class="modal-content">
@@ -210,12 +286,6 @@
                     <li><b>CNES:</b> Cadastro Nacional de Estabelecimentos de Saúde.</li>
                     <li><b>CBO:</b> Classificação Brasileira de Ocupações.</li>
                     <li><b>FPO:</b> Ficha de Programação Orçamentária.</li>
-                </ul>
-
-                <h3>Financiamento</h3>
-                <ul>
-                    <li><b>MAC:</b> Média e Alta Complexidade (Teto financeiro fixo).</li>
-                    <li><b>FAEC:</b> Fundo de Ações Estratégicas e Compensação (Recurso extrateto).</li>
                 </ul>
             </div>
         </div>
@@ -244,53 +314,8 @@
                     <li>O SUS não paga diária no dia da saída/óbito. (Internou dia 10 e saiu dia 12 = 2 diárias).</li>
                     <li>É obrigatório lançar o "Procedimento Especial" correspondente à Diária de UTI no SISAIH01.</li>
                 </ul>
-
-                <h3>4. Rejeição x Glosa</h3>
-                <p><b>Rejeição:</b> Ocorre no validador municipal (SIHD). Ex: Falta do Cartão SUS.<br>
-                <b>Glosa:</b> Ocorre na fase de Auditoria Médica. Ex: Falta de justificativa no prontuário.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-portarias" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-balance-scale mr-2"></i> Portarias e Decretos Essenciais</h2>
-                <button class="modal-close" onclick="fecharModal('modal-portarias')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="highlight">O embasamento legal das cobranças e dos programas governamentais de repasse extra.</div>
-
-                <h3>Portaria de Consolidação nº 01/2017</h3>
-                <p>Consolida as normas sobre os direitos, deveres, regras de OPME e identificação (Cartão Nacional de Saúde).</p>
-
-                <h3>Portaria de Consolidação nº 06/2017</h3>
-                <p>Regulamenta as transferências financeiras, teto MAC e pagamentos extrateto (FAEC).</p>
-
-                <h3>Portaria GM/MS nº 3.410/2013 (Contratualização)</h3>
-                <p>Estabelece o recebimento de parcela pré-fixada baseada no cumprimento de metas qualitativas e físicas para hospitais filantrópicos.</p>
-
-                <h3>Decreto Estadual nº 1.083/2024 - Fila Zero (MT)</h3>
-                <p>Institui o Programa Estadual de Cirurgias Eletivas em Mato Grosso ("Fila Zero"). Permite remuneração complementar aos hospitais prestadores baseada em uma tabela referencial própria do estado para zerar a fila de espera da regulação.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-manuais" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-book-medical mr-2"></i> Manuais Oficiais (DATASUS)</h2>
-                <button class="modal-close" onclick="fecharModal('modal-manuais')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <h3>Manual Técnico do SIH/SUS</h3>
-                <p>Guia de preenchimento da AIH: Autorização, Laudo Médico, regras da CID-10 e motivos de alta (transferência, óbito, cura).</p>
-
-                <h3>Tabela SIGTAP</h3>
-                <p>Ferramenta primária de consulta. Indica tempo de permanência, CBOs permitidas e CIDs compatíveis.</p>
-
-                <h3>TABWIN / TABNET</h3>
-                <p>Ferramenta do Ministério da Saúde para ler os arquivos de retorno (RD e ER). Fundamental para tabular glosas do mês e criar planos de ação.</p>
+                
+                <button onclick="fecharModal('modal-regras'); abrirPdf('Manual Técnico do SIH/SUS', '../documentos/MANUAL_SIH_janeiro_2017.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Manual do SIH Completo</button>
             </div>
         </div>
     </div>
@@ -315,8 +340,7 @@
                     <li><b>04.11.01.002-6</b> (Parto Cesariano - Alto Risco): <b>+2,5%</b> de Incremento.</li>
                 </ul>
 
-                <h3>Atendimento ao Recém Nascido</h3>
-                <p>A portaria garante <b>+17%</b> de incremento no valor do procedimento <b>03.10.01.005-5</b> (Atendimento ao Recém Nascido em Sala de Parto) realizado nas dependências habilitadas.</p>
+                <button onclick="fecharModal('modal-amigo-crianca'); abrirPdf('Portaria 1.153/2014', '../documentos/portaria hosp amigo da crianca.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Portaria Oficial</button>
             </div>
         </div>
     </div>
@@ -334,13 +358,14 @@
                 <ul>
                     <li><b>Identificação:</b> As contas deste mutirão devem ser processadas sob o Tipo de Financiamento <b>Fundo de Ações Estratégicas e Compensação (FAEC)</b>.</li>
                     <li><b>Controle:</b> Utilizar a Autorização de Internação Hospitalar (AIH) na numeração específica destinada para procedimentos de mutirão eletivo.</li>
-                    <li><b>Exigência SIGTAP:</b> Os códigos lançados devem respeitar integralmente a CBO do profissional médico e a disponibilidade de leitos operacionais informados no CNES no mês 03/2026.</li>
                 </ul>
 
                 <h3>Escopo de Procedimentos</h3>
                 <p>A estratégia abrange o rol de <b>1.279 procedimentos cirúrgicos</b> do programa "Agora Tem Especialistas", que podem receber financiamento extra para custeio desde que corretamente identificados e isolados da produção MAC regular do hospital.</p>
 
-                <p class="text-sm text-yellow-500 mt-4"><i class="fas fa-exclamation-triangle"></i> Atenção faturistas: O não isolamento desta produção em AIHs/APACs específicas fará com que os valores consumam o teto físico-financeiro regular do hospital em vez da verba extra disponibilizada pelo Ministério da Saúde.</p>
+                <p class="text-sm text-yellow-500 mt-4"><i class="fas fa-exclamation-triangle"></i> Atenção faturistas: O não isolamento desta produção em AIHs/APACs específicas fará com que os valores consumam o teto físico-financeiro regular do hospital.</p>
+                
+                <button onclick="fecharModal('modal-mutirao-mulher'); abrirPdf('Nota Técnica - Mutirão da Mulher', '../documentos/Instrutivo  Mutirão Saúde da Mulher.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Nota Técnica Oficial</button>
             </div>
         </div>
     </div>
@@ -378,20 +403,36 @@
             }
         });
 
+        // Controle dos Modais
         function abrirModal(id) {
             $('#' + id).css('display', 'flex').hide().fadeIn(200);
         }
 
         function fecharModal(id) {
             $('#' + id).fadeOut(200);
+            if (id === 'modalPdfViewer') {
+                setTimeout(() => $('#iframePdf').attr('src', ''), 200); // Limpa o iframe ao fechar para parar carregamento
+            }
         }
 
+        // Abre o PDF no Leitor
+        function abrirPdf(titulo, url) {
+            $('#pdfTitle').html(`<i class="fas fa-file-pdf mr-2 text-red-500"></i> ${titulo}`);
+            $('#iframePdf').attr('src', url);
+            abrirModal('modalPdfViewer');
+        }
+
+        // Fechar ao clicar fora
         $('.modal-overlay').click(function(e) {
             if (e.target === this) {
                 $(this).fadeOut(200);
+                if ($(this).attr('id') === 'modalPdfViewer') {
+                    setTimeout(() => $('#iframePdf').attr('src', ''), 200);
+                }
             }
         });
 
+        // Filtrar Cards
         function filtrarCards() {
             let input = document.getElementById('searchInput').value.toLowerCase();
             let cards = document.getElementsByClassName('menu-card');
