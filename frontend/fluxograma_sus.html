@@ -61,6 +61,7 @@
         .icon-pink { color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.5); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1); }
         .icon-rose { color: #f43f5e; text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); }
         .icon-teal { color: #14b8a6; text-shadow: 0 0 10px rgba(20, 184, 166, 0.5); border-color: rgba(20, 184, 166, 0.3); background: rgba(20, 184, 166, 0.1); }
+        .icon-cyan { color: #06b6d4; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); border-color: rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1); }
 
         .card-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: white; }
         .card-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin: 0; }
@@ -156,7 +157,7 @@
         <div class="cyber-container">
             <div style="position: relative;">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-box" placeholder="Busque por 'Portaria', 'AIH', 'Mutirão'..." onkeyup="filtrarCards()">
+                <input type="text" id="searchInput" class="search-box" placeholder="Busque por 'Portaria', 'AIH', 'Mutirão', 'Decreto'..." onkeyup="filtrarCards()">
             </div>
         </div>
 
@@ -201,6 +202,14 @@
                 <div class="card-content">
                     <h3>Agora Tem Especialistas</h3>
                     <p>Habilitações CNES e regras para o novo programa (Nota Inf. 125/2025).</p>
+                </div>
+            </div>
+
+            <div class="menu-card" data-titulo="Tabela SUS Mato Grosso Decreto 2005 MAC Fila Zero Financiamento" onclick="abrirModal('modal-tabela-sus-mt')">
+                <div class="icon-box icon-cyan"><i class="fas fa-file-invoice-dollar"></i></div>
+                <div class="card-content">
+                    <h3>Tabela SUS MT (Dec. 2.005)</h3>
+                    <p>Institui a Tabela Estadual para contratualização e financiamento MAC.</p>
                 </div>
             </div>
 
@@ -261,6 +270,17 @@
                         <div class="pdf-text">
                             <h4>Tabela Fila Zero 2025 (MT)</h4>
                             <p>Lista de procedimentos e valores de repasse estadual complementar para zerar a fila de cirurgias.</p>
+                        </div>
+                    </div>
+                    <button class="btn-ler">Ler Documento</button>
+                </div>
+
+                <div class="pdf-item" onclick="abrirPdf('Decreto 2.005/2026 - Tabela SUS MT', '../documentos/diario_oficial_2026-04-27_suplemento_completo.pdf')">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="pdf-text">
+                            <h4>Decreto 2.005/2026 - Tabela SUS Mato Grosso</h4>
+                            <p>Institui a tabela estadual de procedimentos MAC e regras para a contratualização e Programa Fila Zero.</p>
                         </div>
                     </div>
                     <button class="btn-ler">Ler Documento</button>
@@ -413,6 +433,31 @@
                 <p>Estas habilitações são de <b>aplicação exclusiva</b> ao Programa "Agora Tem Especialistas". A produção registrada nos sistemas de faturamento deverá estar rigorosamente vinculada à habilitação do estabelecimento de saúde para que os pagamentos sejam validados e não consumam o teto MAC regular de forma indevida.</p>
                 
                 <button onclick="fecharModal('modal-agora-especialistas'); abrirPdf('Nota Inf. 125/2025', '../documentos/Nota_Informativa_125.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Nota Informativa Oficial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-tabela-sus-mt" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-invoice-dollar mr-2"></i> Tabela SUS Mato Grosso</h2>
+                <button class="modal-close" onclick="fecharModal('modal-tabela-sus-mt')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="highlight">O <b>Decreto Nº 2.005, de 27 de abril de 2026</b>, institui a Tabela SUS Mato Grosso como referência estadual de financiamento.</div>
+
+                <h3>Objetivo da Tabela Estadual</h3>
+                <p>Estabelecer parâmetros próprios para o financiamento de procedimentos de Média e Alta Complexidade (MAC) no âmbito do Estado de Mato Grosso, garantindo valores atualizados para a prestação de serviços.</p>
+
+                <h3>Onde se Aplica?</h3>
+                <ul>
+                    <li><b>Contratualização:</b> Serve como base e parâmetro financeiro para os contratos firmados entre a Secretaria de Estado de Saúde (SES-MT) e os hospitais prestadores.</li>
+                    <li><b>Programa Fila Zero:</b> Atua em conjunto com as diretrizes do programa estadual para acelerar a realização de cirurgias e reduzir a fila de espera.</li>
+                </ul>
+
+                <p class="text-sm text-blue-400 mt-4"><i class="fas fa-info-circle"></i> Dica: Consulte a tabela anexa ao decreto para verificar os novos valores estaduais em comparação à tabela SIGTAP nacional.</p>
+
+                <button onclick="fecharModal('modal-tabela-sus-mt'); abrirPdf('Decreto 2.005/2026', '../documentos/diario_oficial_2026-04-27_suplemento_completo.pdf')" class="btn-pdf-link"><i class="fas fa-file-pdf"></i> Consultar Decreto Oficial</button>
             </div>
         </div>
     </div>
