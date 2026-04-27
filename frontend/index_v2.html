@@ -106,16 +106,24 @@
             gap: 20px; 
         }
         
+        /* CARD INTERATIVO (Linkado) */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
             transition: all 0.4s;
             display: flex; flex-direction: column; justify-content: center;
+            text-decoration: none; cursor: pointer;
         }
-        .glass-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
+        .glass-card:hover { 
+            transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(56, 189, 248, 0.5);
+        }
         
-        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); }
+        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); transition: 0.4s;}
+        .glass-card:hover .kpi-icon { opacity: 0.15; transform: rotate(0deg) scale(1.1); }
+        
         .kpi-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
         .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 5px; }
         .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 5px;}
@@ -162,7 +170,7 @@
 
         body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
-        body.theme-classic .glass-card:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card:hover { background: #ffffff; border-color: #004e92; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
         body.theme-classic .kpi-title { color: #64748b; }
         body.theme-classic .kpi-sub { color: #94a3b8; }
@@ -233,30 +241,30 @@
             
             <div class="dashboard-grid">
                 
-                <div class="glass-card">
+                <a href="painel_simuladas.html" class="glass-card" title="Acessar Fichas e Simuladas">
                     <i class="fas fa-file-invoice-dollar kpi-icon text-emerald-500"></i>
-                    <div class="kpi-title">Total de AIHs (Fichas)</div>
+                    <div class="kpi-title">Total de AIHs (Fichas) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-emerald-400" id="kpi-aih"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-emerald-500" id="kpi-aih-sub">Lendo base de Simuladas...</div>
-                </div>
+                </a>
 
-                <div class="glass-card">
+                <a href="painel_cirurgias.html" class="glass-card" title="Acessar Produção Cirúrgica">
                     <i class="fas fa-scalpel kpi-icon text-blue-500"></i>
-                    <div class="kpi-title">Cirurgias SUS (Meta 148)</div>
+                    <div class="kpi-title">Cirurgias SUS (Meta 148) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-blue-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-cir-sub">Lendo base Cirúrgica...</div>
-                </div>
+                </a>
 
-                <div class="glass-card">
+                <a href="painel_regulacao.html" class="glass-card" title="Acessar Fila de Regulação">
                     <i class="fas fa-ambulance kpi-icon text-pink-500"></i>
-                    <div class="kpi-title">Fila de Regulação (Urgência)</div>
+                    <div class="kpi-title">Fila de Regulação (Urgência) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-pink-400" id="kpi-sisreg"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
-                </div>
+                </a>
 
-                <div class="glass-card card-expandido">
+                <a href="painel_indicasus_v2.html" class="glass-card card-expandido" title="Acessar Auditoria IndicaSUS">
                     <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
-                    <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS)</div>
+                    <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     
                     <div class="leitos-grid">
                         <div class="leito-box">
@@ -280,14 +288,14 @@
                             <div class="leito-meta">Meta: 3 Leitos</div>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="glass-card">
+                <a href="painel_simuladas.html" class="glass-card" title="Acessar Impressão de Fichas">
                     <i class="fas fa-print kpi-icon text-yellow-500"></i>
-                    <div class="kpi-title">Impressão Pendente</div>
+                    <div class="kpi-title">Impressão Pendente <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-yellow-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-print-sub">Verificando fichas...</div>
-                </div>
+                </a>
 
             </div>
         </div>
