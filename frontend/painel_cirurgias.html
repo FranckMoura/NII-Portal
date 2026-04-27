@@ -243,21 +243,12 @@
         const META_CIRURGIA = 148;
         const META_OBSTETRICIA = 699;
         
-        // --- A LISTA EXATA DE TERMOS DA OBSTETRÍCIA ---
+        // LISTA DE TERMOS DA OBSTETRÍCIA PARA CASOS ONDE NÃO HÁ CÓDIGO
         const TERMOS_OBSTETRICIA = [
-            'CESARIANA', 
-            'CURETAGEM PÓS-ABORTAMENTO', 
-            'CURETAGEM PÓS ABORTAMENTO',
-            'CURETAGEM UTERINA', 
-            'CESAREA COM LAQUEADURA', 
-            'CERCLAGEM DO COLO UTERINO', 
-            'GRAVIDEZ ECTÓPICA', 
-            'GRAVIDEZ ECTOPICA',
-            'REVISAO DE COLO VAGINAL', 
-            'REVISÃO DE COLO VAGINAL',
-            'DRENAGEM HEMATOMA DE VULVA', 
-            'CURAGEM UTERINA',
-            'PARTO' // Garantia
+            'CESARIANA', 'CURETAGEM PÓS-ABORTAMENTO', 'CURETAGEM PÓS ABORTAMENTO',
+            'CURETAGEM UTERINA', 'CESAREA COM LAQUEADURA', 'CERCLAGEM DO COLO UTERINO', 
+            'GRAVIDEZ ECTÓPICA', 'GRAVIDEZ ECTOPICA', 'REVISAO DE COLO VAGINAL', 
+            'REVISÃO DE COLO VAGINAL', 'DRENAGEM HEMATOMA DE VULVA', 'CURAGEM UTERINA', 'PARTO'
         ];
 
         function cruzarCodigoSigtap(nomeDoExcel, listaSigtap) {
@@ -267,15 +258,15 @@
             return match ? match.codigo : null;
         }
 
-        // --- REGRA MACRO: CIRURGIA GERAL VS OBSTETRÍCIA ---
+        // REGRA MACRO: CIRURGIA GERAL VS OBSTETRÍCIA
         function mapearEspecialidade(cod, desc) {
             let nomeProc = (desc || "").toUpperCase();
-            let pre = cod ? cod.substring(0, 4) : "";
+            let pre = cod ? String(cod).substring(0, 4) : "";
             
             // 1. Regra Oficial SIGTAP
             if (pre === '0310' || pre === '0411') return 'OBSTETRÍCIA';
             
-            // 2. Regra por Nome (A sua lista)
+            // 2. Regra por Nome (Backup)
             if (TERMOS_OBSTETRICIA.some(t => nomeProc.includes(t))) return 'OBSTETRÍCIA';
             
             // 3. Todo o resto é Geral
@@ -355,7 +346,7 @@
 
                 dadosOriginais = (cirurgiasData || []).map(d => {
                     let codCorreto = d.cod_tabela;
-                    if (!codCorreto || codCorreto === "null" || codCorreto === "") {
+                    if (!codCorreto || codCorreto === "null" || codCorreto === "" || codCorreto === "None") {
                         codCorreto = cruzarCodigoSigtap(d.procedimento, sigtapList);
                     }
 
@@ -376,20 +367,18 @@
             let qtdCirurgia = 0;
             let qtdObs = 0;
 
-            let mapProc = {}; // Agrupador de Procedimentos
-            let mapMed = {}; // Agrupador de Cirurgiões
+            let mapProc = {}; 
+            let mapMed = {}; 
             
             dadosFiltrados.forEach(d => {
                 let esp = d.especialidade_oficial;
                 if (esp === 'OBSTETRÍCIA') qtdObs++;
                 else qtdCirurgia++;
                 
-                // Procedimentos
                 let pNome = d.procedimento || "NÃO IDENTIFICADO";
                 if(pNome.length > 50) pNome = pNome.substring(0, 50) + '...';
                 mapProc[pNome] = (mapProc[pNome] || 0) + 1;
 
-                // Médicos
                 let mNome = d.cirurgiao || "NÃO INFORMADO";
                 if(mNome.trim() === "NAN") mNome = "NÃO INFORMADO";
                 mapMed[mNome] = (mapMed[mNome] || 0) + 1;
@@ -408,13 +397,13 @@
             let htmlCards = `
                 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
                     <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
-                        <div class="meta-badge" style="background: ${getMetaColor(percCir)};">${percCir}%</div>
+                        <div class="meta-badge" style="background: ${getMetaColor(percCir)}; border-radius: 6px; padding: 2px 8px; font-weight: bold; position: absolute; top: 10px; right: 10px;">${percCir}%</div>
                         <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-scalpel mr-1"></i> Cirurgia Geral (Meta: ${META_CIRURGIA})</div>
                         <div class="kpi-number" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5);">${qtdCirurgia}</div>
                         <div class="kpi-sub">Total Exceto Partos/Obstetrícia</div>
                     </div>
                     <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
-                        <div class="meta-badge" style="background: ${getMetaColor(percObs)};">${percObs}%</div>
+                        <div class="meta-badge" style="background: ${getMetaColor(percObs)}; border-radius: 6px; padding: 2px 8px; font-weight: bold; position: absolute; top: 10px; right: 10px;">${percObs}%</div>
                         <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-baby mr-1"></i> Obstetrícia (Meta: ${META_OBSTETRICIA})</div>
                         <div class="kpi-number" style="color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5);">${qtdObs}</div>
                         <div class="kpi-sub">Maternidade e Curetagens</div>
@@ -431,7 +420,6 @@
             // 2. LISTAS AGRUPADAS
             let corFundo = document.body.classList.contains('theme-classic') ? '#f1f5f9' : 'rgba(0,0,0,0.2)';
             
-            // RANK PROCEDIMENTOS
             let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
             $('#totalProcsDiff').text(arrProc.length + " tipos");
             
@@ -447,7 +435,6 @@
             htmlListaProc += `</ul>`;
             $('#listaProc').html(arrProc.length > 0 ? htmlListaProc : '<div class="text-center text-gray-500 mt-4">Nenhuma cirurgia.</div>');
 
-            // RANK MÉDICOS
             let arrMed = Object.keys(mapMed).map(k => ({nome: k, qtd: mapMed[k]})).sort((a,b) => b.qtd - a.qtd);
             $('#totalMedDiff').text(arrMed.length + " profissionais");
             
@@ -467,7 +454,6 @@
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
 
-            // Gráfico de Pizza (MIX)
             if(chartEspec) chartEspec.destroy();
             chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
                 type: 'doughnut',
@@ -490,7 +476,6 @@
                 }
             });
 
-            // Gráfico de Barras (METAS)
             if(chartMetas) chartMetas.destroy();
             chartMetas = new Chart(document.getElementById('chartMetas').getContext('2d'), {
                 type: 'bar',
@@ -550,7 +535,7 @@
                             return `<span style="color:${cor};">${d}</span>`;
                         }
                     },
-                    { data: 'cod_tabela', className: 'font-mono text-cyan-400 font-bold', render: d => d || '-' },
+                    { data: 'cod_tabela', className: 'font-mono text-cyan-400 font-bold', render: d => (d && d !== "null") ? d : '-' },
                     { 
                         data: 'procedimento', 
                         render: function(d, type) { 
@@ -582,7 +567,7 @@
                             var textVal = "";
                             if (i === 0) textVal = formataDataISO(d); 
                             if (i === 1) textVal = d; 
-                            if (i === 2) textVal = d || "-"; 
+                            if (i === 2) textVal = (d && d !== "null") ? d : "-"; 
                             if (i === 3) textVal = d; 
                             if (i === 4) textVal = d; 
                             if (i === 5) textVal = (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-'; 
