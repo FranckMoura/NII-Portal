@@ -70,6 +70,7 @@
         /* TAGS E CORES DE CÁLCULO */
         .tag-detalhe { background-color: rgba(30, 58, 138, 0.4); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
         .tag-fz { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+        .tag-fz-nova { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
         .tag-opme-val { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .tag-opme-qtd { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .tag-cid { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
@@ -90,6 +91,7 @@
         body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
         body.theme-classic .tag-detalhe { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
         body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
+        body.theme-classic .tag-fz-nova { background-color: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
         body.theme-classic .tag-opme-val { background-color: #ecfdf5; color: #059669; border-color: #a7f3d0; }
         body.theme-classic .tag-opme-qtd { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
         body.theme-classic .tag-cid { background-color: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
@@ -158,8 +160,8 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-book-medical text-3xl text-emerald-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Catálogo SIGTAP & Fila Zero</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada DATASUS + Programa Fila Zero + OPME + CID-10</p>
+                    <h1 class='text-3xl font-bold text-white'>Catálogo SIGTAP & Tabelas MT</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Tabela Unificada DATASUS + Programa Fila Zero (Atual e 2026) + OPME + CID-10</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -176,7 +178,7 @@
         <img src="../logo.png" alt="Logo HSH" onerror="this.style.display='none'">
         <div class="header-info">
             <h1>Hospital Beneficente Santa Helena</h1>
-            <h2>Relatório Comparativo SIGTAP x Fila Zero</h2>
+            <h2>Relatório Comparativo SIGTAP x Tabelas de Repasse MT</h2>
             <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
         </div>
         <div class="header-meta">
@@ -201,7 +203,8 @@
             <select id="filtroOrigem" class="filter-select">
                 <option value="todos">Qualquer Origem</option>
                 <option value="sigtap">Apenas Tabela SUS Padrão</option>
-                <option value="filazero">Apenas Programa Fila Zero</option>
+                <option value="filazero">Apenas Fila Zero (Atual)</option>
+                <option value="mt2026">Apenas Tabela MT 2026</option>
             </select>
             
             <div class="search-box">
@@ -214,7 +217,7 @@
         <div class="table-card">
             <div id="loading-msg" style="text-align:center; padding:50px;">
                 <i class="fas fa-circle-notch fa-spin fa-3x text-blue-500 mb-4"></i><br>
-                <span id="status-text" class="font-bold text-lg text-gray-400">Sincronizando Bancos (SIGTAP + OPME + FZ + CID)...</span>
+                <span id="status-text" class="font-bold text-lg text-gray-400">Sincronizando Bancos (SIGTAP + Tabelas MT + OPME + CID)...</span>
             </div>
             <table id="tabelaProc" class="display" style="width:100%; display:none">
                 <thead>
@@ -224,7 +227,8 @@
                         <th class="text-right w-20">Valor SA</th>
                         <th class="text-right w-20">Valor SH</th>
                         <th class="text-right w-20">Valor SP</th>
-                        <th class="text-right w-24">Fila Zero</th>
+                        <th class="text-right w-24">Fila Zero (Atual)</th>
+                        <th class="text-right w-24">Tabela MT 2026</th>
                         <th class="text-center w-20">Anexos</th>
                         <th class="text-center w-24">Ação</th>
                     </tr>
@@ -242,7 +246,7 @@
     <div id="modalComp" class="modal">
         <div class="modal-content">
             <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
-            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos</h2>
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos e Financiamento</h2>
             
             <button onclick="window.print()" class="no-print bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition mb-5 shadow-lg border border-blue-400">
                 <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial
@@ -258,7 +262,7 @@
 
     <script>
         var SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
+        var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFub24iLCJpYXQiOjE3NjgxMDE1OTUsImV4cCI6MjA4MzY3NzU5NX0.aLtDv7A7_k41ag2CCQDb-PYcOE6UxJqhyl_g_PVtKl0';
         var dadosGlobais = [];
         var selecionados = [];
         var dataTableInstance = null;
@@ -270,17 +274,19 @@
             localStorage.setItem('nii_theme_sig', document.body.classList.contains('theme-classic') ? 'classic' : 'neon');
         }
 
-        // Filtro Duplo do DataTables (A busca no Search nativo já encontra o CID pois ele estará na coluna "oculta" ou no texto da regra)
+        // Filtro Triplo do DataTables 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var filtroOrigem = $('#filtroOrigem').val();
             var filtroGrupo = $('#filtroGrupo').val();
             
             var fzValor = dadosGlobais[dataIndex].fz_valor;
+            var mt2026Valor = dadosGlobais[dataIndex].mt2026_valor;
             var codigo = dadosGlobais[dataIndex].codigo;
 
             var passaOrigem = true;
             if (filtroOrigem === 'filazero' && fzValor <= 0) passaOrigem = false;
-            if (filtroOrigem === 'sigtap' && fzValor > 0) passaOrigem = false;
+            if (filtroOrigem === 'mt2026' && mt2026Valor <= 0) passaOrigem = false;
+            if (filtroOrigem === 'sigtap' && fzValor > 0 && mt2026Valor > 0) passaOrigem = false;
 
             var passaGrupo = true;
             if (filtroGrupo !== 'todos' && !codigo.startsWith(filtroGrupo)) passaGrupo = false;
@@ -297,19 +303,25 @@
 
             try {
                 $('#status-text').text("Baixando Tabela SIGTAP...");
-                const { data: sigtapData } = await client.from('sigtap_oficial').select('*');
+                const { data: sigtapDataRaw } = await client.from('sigtap_oficial').select('*');
                 
-                $('#status-text').text("Sincronizando Fila Zero...");
+                $('#status-text').text("Sincronizando Fila Zero (Atual)...");
                 const { data: filaZeroData } = await client.from('fila_zero_procedimentos').select('*');
                 
+                $('#status-text').text("Sincronizando Nova Tabela MT 2026...");
+                const { data: mt2026Data } = await client.from('tabela_sus_mt_2026').select('*');
+
                 $('#status-text').text("Cruzando OPMEs...");
                 const { data: opmeData } = await client.from('sigtap_opme').select('*');
 
                 $('#status-text').text("Cruzando CIDs Autorizados...");
-                const { data: cidData } = await client.from('vw_sigtap_cid').select('*'); // Nova View de CIDs!
+                const { data: cidData } = await client.from('vw_sigtap_cid').select('*'); 
 
                 let mapFZ = {};
                 if(filaZeroData) filaZeroData.forEach(fz => { mapFZ[fz.codigo_sigtap] = fz; });
+
+                let mapMT2026 = {};
+                if(mt2026Data) mt2026Data.forEach(mt => { mapMT2026[mt.codigo_sigtap] = mt.valor_unitario; });
 
                 let mapOPME = {};
                 if(opmeData) {
@@ -327,11 +339,16 @@
                     });
                 }
 
-                let sigtapDict = {};
-                sigtapData.forEach(s => sigtapDict[s.codigo] = s);
+                // Processamento e limpeza de dados baseados em regras internas
+                const procedimentos_a_excluir = ['0303100010', '0303100044', '0310010039', '0310010047', '0411010026', '0411010034', '0411010042', '0411020013', '0411020048'];
+                let sigtapFiltrado = sigtapDataRaw.filter(item => !procedimentos_a_excluir.includes(item.codigo));
 
-                dadosGlobais = sigtapData.map(item => {
+                let sigtapDict = {};
+                sigtapFiltrado.forEach(s => sigtapDict[s.codigo] = s);
+
+                dadosGlobais = sigtapFiltrado.map(item => {
                     let fz = mapFZ[item.codigo];
+                    let mt2026 = mapMT2026[item.codigo];
                     
                     let compNome = item.complexidade === '1' || item.complexidade === 'AB' ? 'BÁSICA' : 
                                    item.complexidade === '2' || item.complexidade === 'MC' ? 'MÉDIA' : 'ALTA';
@@ -353,8 +370,6 @@
                     }
 
                     let cidsVinculados = mapCID[item.codigo] || [];
-                    // Cria uma string oculta para o DataTables poder pesquisar, 
-                    // com todos os CIDs (ex: "K40 K409 O82")
                     let stringCidOculta = cidsVinculados.map(c => c.cid).join(' '); 
 
                     return {
@@ -366,9 +381,10 @@
                         valor_total: item.valor_hospitalar + item.valor_profissional,
                         regras: `Cmplx: ${compNome} | Sexo: ${sexoNome} | Idade: ${idadeStr}`,
                         fz_valor: fz ? fz.valor_unitario : 0,
+                        mt2026_valor: mt2026 || 0,
                         compatibilidades: opmesVinculadas,
                         cids: cidsVinculados,
-                        search_extra: stringCidOculta // Campo usado só pra busca
+                        search_extra: stringCidOculta 
                     };
                 });
 
@@ -386,11 +402,9 @@
                         { 
                             data: null, 
                             render: function(data, type, row) {
-                                // O type 'filter' injeta a string_extra de CIDs junto com a descrição para a busca funcionar
                                 if (type === 'filter') {
                                     return row.descricao + ' ' + row.search_extra;
                                 }
-                                
                                 let tags = row.regras.split(' | ').map(x => `<span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">${x}</span>`).join('');
                                 return '<div class="font-bold text-[0.85rem] mb-1">' + row.descricao + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
                             } 
@@ -401,6 +415,10 @@
                         { 
                             data: 'fz_valor', className: 'text-right font-mono', 
                             render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="dyn-text-muted opacity-50">-</span>`; } 
+                        },
+                        { 
+                            data: 'mt2026_valor', className: 'text-right font-mono', 
+                            render: function(d) { return d > 0 ? `<span class="tag-fz-nova font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="dyn-text-muted opacity-50">-</span>`; } 
                         },
                         { 
                             data: null, className: 'text-center',
@@ -468,6 +486,7 @@
             
             const bgTotSigtap = isClassic ? 'background:#eff6ff; color:#1e40af; border-bottom: 2px solid #3b82f6;' : 'background:rgba(59,130,246,0.1); color:#60a5fa; border-bottom: 2px solid #3b82f6;';
             const bgTotFZ = isClassic ? 'background:#fffbeb; color:#b45309; border-bottom: 2px solid #f59e0b;' : 'background:rgba(245,158,11,0.1); color:#fbbf24; border-bottom: 2px solid #f59e0b;';
+            const bgTotFZ2026 = isClassic ? 'background:#fdf2f8; color:#db2777; border-bottom: 2px solid #ec4899;' : 'background:rgba(236,72,153,0.1); color:#f472b6; border-bottom: 2px solid #ec4899;';
 
             var h = '<table class="compare-tbl"><tbody>';
             
@@ -504,9 +523,16 @@
             itens.forEach(function(i) { h += `<td class="font-mono" style="${bgTotSigtap} font-weight:900; font-size:1.1rem;">` + brl.format(i.valor_total) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO</th>`;
+            h += `<tr><th style="${thColor}"><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO (ATUAL)</th>`;
             itens.forEach(function(i) { 
                 if(i.fz_valor > 0) h += `<td class="font-mono" style="${bgTotFZ} font-weight:900; font-size:1.2rem;">` + brl.format(i.fz_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle" style="${tdColor} font-size:1rem; opacity:0.5;">-</td>`;
+            });
+            h += '</tr>';
+
+            h += `<tr><th style="${thColor}"><i class="fas fa-rocket text-pink-500"></i> TOTAL TABELA MT (2026)</th>`;
+            itens.forEach(function(i) { 
+                if(i.mt2026_valor > 0) h += `<td class="font-mono" style="${bgTotFZ2026} font-weight:900; font-size:1.2rem;">` + brl.format(i.mt2026_valor) + '</td>'; 
                 else h += `<td class="font-mono text-center align-middle" style="${tdColor} font-size:1rem; opacity:0.5;">-</td>`;
             });
             h += '</tr>';
@@ -526,7 +552,6 @@
             });
             h += '</tr>';
 
-            // NOVO BLOCO: CIDs COMPATÍVEIS NO MODAL
             h += `<tr><th style="${thColor}"><i class="fas fa-virus text-purple-400"></i> CIDs Compatíveis</th>`;
             itens.forEach(function(i) {
                 if (i.cids && i.cids.length > 0) {
