@@ -22,9 +22,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
-        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON */
         body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: background 0.5s ease, color 0.5s ease; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
@@ -67,7 +65,6 @@
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; }
 
-        /* TAGS E CORES DE CÁLCULO */
         .tag-detalhe { background-color: rgba(30, 58, 138, 0.4); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
         .tag-fz { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
         .tag-fz-nova { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
@@ -80,9 +77,7 @@
         .theme-adjust-bg-blue { background-color: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
         .theme-adjust-bg-purple { background-color: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); }
 
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII (Azul + Branco)                         */
-        /* ========================================================= */
+        /* MODO CLÁSSICO */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; color: #1e293b !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         body.theme-classic .table-card, body.theme-classic .filter-bar { background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important; }
@@ -113,9 +108,7 @@
         body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0 !important; }
         body.theme-classic table.compare-tbl th { background: #f8fafc !important; color: #004e92 !important; }
 
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (A4 PAISAGEM)                     */
-        /* ========================================================= */
+        /* IMPRESSÃO */
         .header-print { display: none; }
         #print-footer { display: none; }
         
@@ -274,7 +267,6 @@
             localStorage.setItem('nii_theme_sig', document.body.classList.contains('theme-classic') ? 'classic' : 'neon');
         }
 
-        // Filtro Triplo do DataTables 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var filtroOrigem = $('#filtroOrigem').val();
             var filtroGrupo = $('#filtroGrupo').val();
@@ -302,63 +294,84 @@
             $('#footer-data-rodape').text(hoje);
 
             try {
+                // TRATAMENTO ANTI-FALHA DE COMUNICAÇÃO:
                 $('#status-text').text("Baixando Tabela SIGTAP...");
-                const { data: sigtapDataRaw } = await client.from('sigtap_oficial').select('*');
+                const { data: sigtapDataRaw, error: err1 } = await client.from('sigtap_oficial').select('*');
+                if (err1) throw new Error("Erro na tabela SIGTAP: " + err1.message);
                 
                 $('#status-text').text("Sincronizando Fila Zero (Atual)...");
-                const { data: filaZeroData } = await client.from('fila_zero_procedimentos').select('*');
+                const { data: filaZeroData, error: err2 } = await client.from('fila_zero_procedimentos').select('*');
+                if (err2) throw new Error("Erro na Fila Zero: " + err2.message);
                 
                 $('#status-text').text("Sincronizando Nova Tabela MT 2026...");
-                const { data: mt2026Data } = await client.from('tabela_sus_mt_2026').select('*');
+                const { data: mt2026Data, error: err3 } = await client.from('tabela_sus_mt_2026').select('*');
+                if (err3) throw new Error("Erro na Tabela MT 2026: " + err3.message);
 
                 $('#status-text').text("Cruzando OPMEs...");
-                const { data: opmeData } = await client.from('sigtap_opme').select('*');
+                const { data: opmeData, error: err4 } = await client.from('sigtap_opme').select('*');
+                if (err4) throw new Error("Erro OPME: " + err4.message);
 
                 $('#status-text').text("Cruzando CIDs Autorizados...");
-                const { data: cidData } = await client.from('vw_sigtap_cid').select('*'); 
+                const { data: cidData, error: err5 } = await client.from('vw_sigtap_cid').select('*'); 
+                if (err5) throw new Error("Erro CIDs: " + err5.message);
 
                 let mapFZ = {};
-                if(filaZeroData) filaZeroData.forEach(fz => { mapFZ[fz.codigo_sigtap] = fz; });
+                if(filaZeroData) filaZeroData.forEach(fz => { 
+                    // Correção: Formata o código do banco como texto de 10 dígitos para evitar conflito com bigints
+                    let cod = String(fz.codigo_sigtap).padStart(10, '0');
+                    mapFZ[cod] = fz; 
+                });
 
                 let mapMT2026 = {};
-                if(mt2026Data) mt2026Data.forEach(mt => { mapMT2026[mt.codigo_sigtap] = mt.valor_unitario; });
+                if(mt2026Data) mt2026Data.forEach(mt => { 
+                    let cod = String(mt.codigo_sigtap).padStart(10, '0');
+                    mapMT2026[cod] = mt.valor_unitario; 
+                });
 
                 let mapOPME = {};
                 if(opmeData) {
                     opmeData.forEach(o => {
-                        if(!mapOPME[o.codigo_principal]) mapOPME[o.codigo_principal] = [];
-                        mapOPME[o.codigo_principal].push({ codigo: o.codigo_opme, qtd: o.quantidade_maxima });
+                        let codPrincipal = String(o.codigo_principal).padStart(10, '0');
+                        let codOpme = String(o.codigo_opme).padStart(10, '0');
+                        if(!mapOPME[codPrincipal]) mapOPME[codPrincipal] = [];
+                        mapOPME[codPrincipal].push({ codigo: codOpme, qtd: o.quantidade_maxima });
                     });
                 }
 
                 let mapCID = {};
                 if(cidData) {
                     cidData.forEach(c => {
-                        if(!mapCID[c.codigo_procedimento]) mapCID[c.codigo_procedimento] = [];
-                        mapCID[c.codigo_procedimento].push({ cid: c.codigo_cid, nome: c.nome_cid, princ: c.status_principal });
+                        let cod = String(c.codigo_procedimento).padStart(10, '0');
+                        if(!mapCID[cod]) mapCID[cod] = [];
+                        mapCID[cod].push({ cid: c.codigo_cid, nome: c.nome_cid, princ: c.status_principal });
                     });
                 }
 
-                // Processamento e limpeza de dados baseados em regras internas
                 const procedimentos_a_excluir = ['0303100010', '0303100044', '0310010039', '0310010047', '0411010026', '0411010034', '0411010042', '0411020013', '0411020048'];
-                let sigtapFiltrado = sigtapDataRaw.filter(item => !procedimentos_a_excluir.includes(item.codigo));
+                
+                // Evita o "TypeError: filter is not a function" blindando a variável contra valores nulos.
+                let dadosSeguros = sigtapDataRaw || [];
+                let sigtapFiltrado = dadosSeguros.filter(item => !procedimentos_a_excluir.includes(String(item.codigo).padStart(10, '0')));
 
                 let sigtapDict = {};
-                sigtapFiltrado.forEach(s => sigtapDict[s.codigo] = s);
+                sigtapFiltrado.forEach(s => {
+                    let codStr = String(s.codigo).padStart(10, '0');
+                    sigtapDict[codStr] = s;
+                });
 
                 dadosGlobais = sigtapFiltrado.map(item => {
-                    let fz = mapFZ[item.codigo];
-                    let mt2026 = mapMT2026[item.codigo];
+                    let codReal = String(item.codigo).padStart(10, '0');
+                    let fz = mapFZ[codReal];
+                    let mt2026 = mapMT2026[codReal];
                     
                     let compNome = item.complexidade === '1' || item.complexidade === 'AB' ? 'BÁSICA' : 
                                    item.complexidade === '2' || item.complexidade === 'MC' ? 'MÉDIA' : 'ALTA';
-                    
                     let sexoNome = item.sexo === 'M' ? 'Masc' : item.sexo === 'F' ? 'Fem' : 'Ambos';
                     let idadeStr = item.idade_minima === 0 && item.idade_maxima === 9999 ? 'Sem limite' : `${item.idade_minima} a ${item.idade_maxima}a`;
 
                     let opmesVinculadas = [];
-                    if (mapOPME[item.codigo]) {
-                        opmesVinculadas = mapOPME[item.codigo].map(op => {
+                    if (mapOPME[codReal]) {
+                        opmesVinculadas = mapOPME[codReal].map(op => {
                             let detalhesOpme = sigtapDict[op.codigo];
                             return {
                                 cod_opme: op.codigo,
@@ -369,11 +382,11 @@
                         });
                     }
 
-                    let cidsVinculados = mapCID[item.codigo] || [];
+                    let cidsVinculados = mapCID[codReal] || [];
                     let stringCidOculta = cidsVinculados.map(c => c.cid).join(' '); 
 
                     return {
-                        codigo: item.codigo,
+                        codigo: codReal,
                         descricao: item.nome,
                         valor_sa: item.valor_ambulatorial, 
                         valor_sh: item.valor_hospitalar,
@@ -440,13 +453,14 @@
                     language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
                 });
 
-                // Ligando os Filtros
                 $('#customSearch').on('keyup', function() { dataTableInstance.search(this.value).draw(); });
                 $('#filtroOrigem').on('change', function() { dataTableInstance.draw(); });
                 $('#filtroGrupo').on('change', function() { dataTableInstance.draw(); });
 
             } catch (err) {
-                $('#status-text').html("<span style='color:red'>Erro de conexão: " + err.message + "</span>");
+                // Altera o spinner para um ícone de erro e mostra a mensagem real do banco de dados
+                $('#loading-msg i').removeClass('fa-circle-notch fa-spin text-blue-500').addClass('fa-exclamation-triangle text-red-500');
+                $('#status-text').html(`<span style='color:#ef4444'>Falha ao sincronizar: ${err.message}</span><br><span class='text-sm text-gray-400 mt-2 block'>Verifique a sua conexão ou certifique-se de que a tabela "tabela_sus_mt_2026" não está bloqueada pelo RLS no Supabase.</span>`);
             }
         });
 
@@ -473,9 +487,6 @@
             $('#compBar').removeClass('visible');
         };
 
-        // ==========================================
-        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM CIDs
-        // ==========================================
         window.abrirModal = function() {
             if (selecionados.length < 1) { alert("Selecione pelo menos 1 procedimento."); return; }
             var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
