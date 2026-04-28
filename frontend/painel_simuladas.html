@@ -456,7 +456,7 @@
                         <select id="filtroImpressao" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
                             <option value="todos">Mostrar Todas</option>
                             <option value="pendentes">Apenas PENDENTES</option>
-                            <option value="impressas">Apenas IMPRESSAS</option>
+                            <option value="impressas">Apenas LIDADAS/IMPRESSAS</option>
                         </select>
                     </div>
                 </div>
@@ -487,7 +487,7 @@
     <div id="barra-impressao" class="collection-bar no-print" style="display:none;">
         <div>
             <i class="fas fa-print dyn-text-accent mr-2"></i>
-            <strong>Fila de Impressão Atual:</strong>
+            <strong>Fila de Impressão Atual (Páginas):</strong>
             <span id="pageList" class="pages-display">Nenhuma página</span>
         </div>
         <div>
@@ -508,6 +508,8 @@ let dadosIndiceGlobal = [];
 let linkPdfAtual = ""; 
 let chartEspecObj = null;
 let chartProcObj = null;
+
+// NOVA Chave de Cache isolada para as AIHs
 let mesCorrenteStorageKey = ""; 
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -706,33 +708,33 @@ function atualizarBI(data) {
     });
 }
 
-// --- LÓGICA DE PERSISTÊNCIA ---
-function getPaginasImpressas() {
+// --- NOVA LÓGICA DE PERSISTÊNCIA (Baseado em AIH) ---
+function getAihsLidas() {
     let mem = localStorage.getItem(mesCorrenteStorageKey);
     return mem ? JSON.parse(mem) : [];
 }
 
-function salvarPaginasImpressas(arrayPaginas) {
-    localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayPaginas));
+function salvarAihsLidas(arrayAihs) {
+    localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayAihs));
 }
 
 // Função nativa do botão de "Lido" (O Olho)
-function toggleLeitura(pagina, btnElement) {
-    let impressas = getPaginasImpressas();
-    let isImpresso = impressas.includes(pagina);
+function toggleLeitura(chaveUnica, btnElement) {
+    let lidas = getAihsLidas();
+    let isLido = lidas.includes(chaveUnica);
     let tr = $(btnElement).closest('tr');
 
-    if (isImpresso) {
-        impressas = impressas.filter(p => p !== pagina);
+    if (isLido) {
+        lidas = lidas.filter(c => c !== chaveUnica);
         $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
         tr.removeClass('row-printed');
     } else {
-        impressas.push(pagina);
+        lidas.push(chaveUnica);
         $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
         tr.addClass('row-printed');
     }
-    salvarPaginasImpressas(impressas);
-    aplicarFiltroImpressao(); // Se o filtro estiver ativo, remove da tela instantaneamente
+    salvarAihsLidas(lidas);
+    aplicarFiltroImpressao(); 
 }
 
 // FILTRO DO DATATABLES
@@ -742,13 +744,17 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     let filtroValue = $('#filtroImpressao').val();
     if (filtroValue === 'todos') return true;
 
-    let paginasLidas = getPaginasImpressas();
-    let paginaDaLinha = parseInt(data[0]); // A primeira coluna é a Página
+    let lidas = getAihsLidas();
+    
+    // Recupera a chave exata da linha atual no JSON
+    let aihOriginal = dadosIndiceGlobal[dataIndex].AIH;
+    let pagOriginal = dadosIndiceGlobal[dataIndex].PAGINA;
+    let chaveDaLinha = (aihOriginal && aihOriginal.trim() !== '-' && aihOriginal.trim() !== '') ? aihOriginal.trim() : 'PAG_' + pagOriginal;
 
     if (filtroValue === 'pendentes') {
-        return !paginasLidas.includes(paginaDaLinha); // Só mostra as que NÃO estão na lista
+        return !lidas.includes(chaveDaLinha); 
     } else if (filtroValue === 'impressas') {
-        return paginasLidas.includes(paginaDaLinha); // Só mostra as que ESTÃO na lista
+        return lidas.includes(chaveDaLinha); 
     }
     return true;
 });
@@ -756,7 +762,6 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
 function aplicarFiltroImpressao() {
     if(dtIndice) dtIndice.draw();
 }
-
 
 async function carregarDados() {
     const jsonStr = document.getElementById('filtroCompetencia').value;
@@ -767,7 +772,8 @@ async function carregarDados() {
     linkPdfAtual = infos.pdf;
     const linkJson = infos.json;
     
-    mesCorrenteStorageKey = "nii_impressas_" + competencia;
+    // Chave renovada e específica para o controle de AIH
+    mesCorrenteStorageKey = "nii_lidas_aih_" + competencia;
 
     const loaderText = document.getElementById('loading-text');
     const loader = document.getElementById('loader');
@@ -789,20 +795,22 @@ async function carregarDados() {
             else { $('#tabelaIndice thead .table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); }
         });
 
-        let paginasLidas = getPaginasImpressas();
+        let lidasIniciais = getAihsLidas();
 
         dtIndice = $('#tabelaIndice').DataTable({
             data: dadosIndiceGlobal,
             pageLength: 20,
             dom: 'lBrtip',
             orderCellsTop: true,
-            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
             buttons: [
                 { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
                 { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
             ],
             createdRow: function(row, data, dataIndex) {
-                if (paginasLidas.includes(data.PAGINA)) {
+                // Lógica de Trava de Segurança da Chave
+                let chaveRow = (data.AIH && data.AIH.trim() !== '-' && data.AIH.trim() !== '') ? data.AIH.trim() : 'PAG_' + data.PAGINA;
+                if (lidasIniciais.includes(chaveRow)) {
                     $(row).addClass('row-printed');
                 }
             },
@@ -819,15 +827,17 @@ async function carregarDados() {
                 {
                     data: null, className: 'text-center no-print w-48', orderable: false,
                     render: function(d, type, row, meta) {
-                        let isLida = paginasLidas.includes(row.PAGINA);
+                        
+                        let chaveUnique = (row.AIH && row.AIH.trim() !== '-' && row.AIH.trim() !== '') ? row.AIH.trim() : 'PAG_' + row.PAGINA;
+                        let isLida = lidasIniciais.includes(chaveUnique);
                         let btnClasse = isLida ? 'btn-checked' : 'btn-check';
                         let btnText = isLida ? '<i class="fas fa-check-circle"></i> Lida' : '<i class="fas fa-check-circle"></i>';
 
                         return `
                         <div class="flex gap-1 justify-center">
-                            <button id="btn-read-${row.PAGINA}" onclick="toggleLeitura(${row.PAGINA}, this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
+                            <button id="btn-read-${chaveUnique}" onclick="toggleLeitura('${chaveUnique}', this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
                             <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-external-link-alt"></i></button>
-                            <button onclick="addPage(${row.PAGINA}, this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
+                            <button onclick="addPage(${row.PAGINA}, '${chaveUnique}', this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
                             <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Ver Conta Médica"><i class="fas fa-list-alt"></i></button>
                         </div>
                         `;
@@ -841,7 +851,7 @@ async function carregarDados() {
                         if (that.search() !== this.value) { that.search(this.value).draw(); }
                     });
                 });
-                aplicarFiltroImpressao(); // Força o filtro se a pessoa trocar de mês e já estiver em "Pendentes"
+                aplicarFiltroImpressao(); 
             }
         });
 
@@ -919,26 +929,26 @@ function imprimirModal() {
 }
 
 let collectedPages = [];
-function addPage(pageNumber, btn) {
+function addPage(pageNumber, chaveUnique, btn) {
     if (!collectedPages.includes(pageNumber)) {
+        // A Fila de Impressão continua usando a Página, pois a impressora precisa disso!
         collectedPages.push(pageNumber); 
         collectedPages.sort((a,b)=>a-b);
         $('#pageList').text(collectedPages.join(', '));
         $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
 
-        // MÁGICA AQUI: Ao adicionar à fila, automaticamente marca como LIDO!
-        let impressas = getPaginasImpressas();
-        if(!impressas.includes(pageNumber)) {
-            impressas.push(pageNumber);
-            salvarPaginasImpressas(impressas);
+        // MÁGICA AQUI: Ao adicionar à fila, automaticamente marca a AIH como LIDA no banco de memória!
+        let lidas = getAihsLidas();
+        if(!lidas.includes(chaveUnique)) {
+            lidas.push(chaveUnique);
+            salvarAihsLidas(lidas);
             
-            // Atualiza o visual do botão de "Lido" e da linha da tabela
-            let btnLido = document.getElementById('btn-read-' + pageNumber);
+            let btnLido = document.getElementById('btn-read-' + chaveUnique);
             if(btnLido) {
                 $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
                 $(btnLido).closest('tr').addClass('row-printed');
             }
-            aplicarFiltroImpressao(); // Se a tabela estiver filtrada por pendentes, ele some da tela
+            aplicarFiltroImpressao(); 
         }
     }
 }
