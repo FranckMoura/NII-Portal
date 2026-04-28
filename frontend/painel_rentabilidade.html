@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de Rentabilidade - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* TEMA GLOBAL DARK NEON */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 60px; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(56, 189, 248, 0.2); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 30px; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
+
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+        
+        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); }
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 1.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; }
+        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+        .filter-select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 15px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; width: 100%; transition: 0.3s;}
+        .filter-select:focus { border-color: #f472b6; box-shadow: 0 0 10px rgba(244, 114, 182, 0.3); }
+        .filter-select option { background: #0f172a; color: white; }
+
+        .chart-wrapper { position: relative; height: 350px; width: 100%; }
+
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; }
+        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.85rem; vertical-align: middle; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        
+        .val-sigtap { color: #38bdf8; font-family: monospace; font-weight: bold; }
+        .val-fz { color: #fbbf24; font-family: monospace; font-weight: bold; }
+        .val-mt { color: #f472b6; font-family: monospace; font-weight: bold; }
+
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
+        body.theme-classic .kpi-title { color: #64748b; }
+        body.theme-classic .filter-select { background: white; color: #1e293b; border-color: #cbd5e1; }
+        body.theme-classic .filter-select option { background: white; color: #1e293b; }
+        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
+        
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom: 2px solid #cbd5e1 !important;}
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+
+        body.theme-classic .val-sigtap { color: #0284c7; }
+        body.theme-classic .val-fz { color: #d97706; }
+        body.theme-classic .val-mt { color: #db2777; }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:flex; position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <i class="fas fa-chart-line fa-spin text-5xl text-pink-400 mb-4"></i>
+        <p class="text-pink-200 font-bold" id="loader-text">Processando Rentabilidade...</p>
+    </div>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg no-print'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-trophy text-3xl text-pink-400"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Ranking de Rentabilidade</h1>
+                    <p class='text-pink-200 text-sm mt-1 opacity-80'>Curva ABC e análise financeira cruzada de procedimentos</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
+                <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="glass-card">
+                <i class="fas fa-arrow-trend-up kpi-icon text-pink-500"></i>
+                <div class="kpi-title">Maior Receita (Tabela MT 2026)</div>
+                <div class="kpi-number text-pink-400" id="kpi-top-mt">R$ 0,00</div>
+                <div class="kpi-sub" id="kpi-top-mt-nome">Aguardando filtros...</div>
+            </div>
+            <div class="glass-card">
+                <i class="fas fa-star kpi-icon text-yellow-500"></i>
+                <div class="kpi-title">Maior Receita (Fila Zero Atual)</div>
+                <div class="kpi-number text-yellow-400" id="kpi-top-fz">R$ 0,00</div>
+                <div class="kpi-sub" id="kpi-top-fz-nome">Aguardando filtros...</div>
+            </div>
+            <div class="glass-card">
+                <i class="fas fa-hospital kpi-icon text-blue-500"></i>
+                <div class="kpi-title">Maior Diferença (MT 2026 x SIGTAP)</div>
+                <div class="kpi-number text-emerald-400" id="kpi-maior-gap">R$ 0,00</div>
+                <div class="kpi-sub" id="kpi-maior-gap-nome">Aguardando filtros...</div>
+            </div>
+        </div>
+
+        <div class="cyber-container">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Grupo SIGTAP:</label>
+                    <select id="filtroGrupo" class="filter-select" onchange="aplicarFiltros()">
+                        <option value="todos">Todos os Grupos</option>
+                        <option value="01">01 - Promoção e Prevenção em Saúde</option>
+                        <option value="02">02 - Procedimentos com Finalidade Diagnóstica</option>
+                        <option value="03">03 - Procedimentos Clínicos</option>
+                        <option value="04">04 - Procedimentos Cirúrgicos</option>
+                        <option value="05">05 - Transplantes de Órgãos, Tecidos e Células</option>
+                        <option value="06">06 - Medicamentos</option>
+                        <option value="07">07 - Órteses, Próteses e Materiais Especiais (OPME)</option>
+                        <option value="08">08 - Ações Complementares</option>
+                    </select>
+                </div>
+                
+                <div class="w-full md:w-48">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Complexidade:</label>
+                    <select id="filtroComplexidade" class="filter-select" onchange="aplicarFiltros()">
+                        <option value="todos">Todas as Complexidades</option>
+                        <option value="Alta">Alta Complexidade (AC)</option>
+                        <option value="Média">Média Complexidade (MC)</option>
+                        <option value="Básica">Atenção Básica (AB)</option>
+                    </select>
+                </div>
+
+                <div class="w-full md:w-64">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Basear Ranking Em:</label>
+                    <select id="filtroRanking" class="filter-select border-pink-400/50" onchange="aplicarFiltros()">
+                        <option value="mt2026">Nova Tabela MT 2026</option>
+                        <option value="filazero">Programa Fila Zero Atual</option>
+                        <option value="sigtap">Tabela SIGTAP (Padrão)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-container">
+            <h2 class="text-xl font-bold mb-6"><i class="fas fa-chart-bar mr-2 text-pink-400"></i> Top 10 Procedimentos mais Rentáveis</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-center font-bold text-sm text-gray-300 uppercase tracking-widest mb-2 border-b border-white/10 pb-2">Média Complexidade (MC)</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartMedia"></canvas>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-center font-bold text-sm text-gray-300 uppercase tracking-widest mb-2 border-b border-white/10 pb-2">Alta Complexidade (AC)</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartAlta"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-container">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-list-ol mr-2 text-blue-400"></i> Base Analítica Refinada</h2>
+            <table id="tabelaRanking" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="w-24">Código</th>
+                        <th>Procedimento</th>
+                        <th class="text-center">Cmplx.</th>
+                        <th class="text-right">Val. SIGTAP (Total)</th>
+                        <th class="text-right">Val. Fila Zero</th>
+                        <th class="text-right">Val. Tabela MT</th>
+                        <th class="text-right">Diferença (MT - SIGTAP)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // Supabase Init
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        let dadosGlobais = [];
+        let dadosFiltrados = [];
+        let chartMediaInstance = null;
+        let chartAltaInstance = null;
+        let dtRanking = null;
+
+        // Códigos que não entram na contabilização financeira do ranking
+        const procedimentos_a_excluir = ['0303100010', '0303100044', '0310010039', '0310010047', '0411010026', '0411010034', '0411010042', '0411020013', '0411020048'];
+
+        function toggleTheme() {
+            document.body.classList.toggle('theme-classic');
+            let isClassic = document.body.classList.contains('theme-classic');
+            localStorage.setItem('nii_theme_rent', isClassic ? 'classic' : 'neon');
+            
+            // Atualiza a cor das fontes dos gráficos dinamicamente
+            Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
+            if (chartMediaInstance) chartMediaInstance.update();
+            if (chartAltaInstance) chartAltaInstance.update();
+        }
+
+        $(document).ready(async function() {
+            const isClassic = localStorage.getItem('nii_theme_rent') === 'classic';
+            if (isClassic) document.body.classList.add('theme-classic');
+            
+            Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            try {
+                // Fetch Data
+                const { data: sigtapData, error: e1 } = await client.from('sigtap_oficial').select('codigo, nome, valor_hospitalar, valor_profissional, complexidade');
+                if (e1) throw e1;
+
+                const { data: fzData, error: e2 } = await client.from('fila_zero_procedimentos').select('codigo_sigtap, valor_unitario');
+                if (e2) throw e2;
+
+                const { data: mtData, error: e3 } = await client.from('tabela_sus_mt_2026').select('codigo_sigtap, valor_unitario');
+                if (e3) throw e3;
+
+                // Map FZ and MT
+                let mapFZ = {};
+                fzData.forEach(i => mapFZ[String(i.codigo_sigtap).padStart(10, '0')] = i.valor_unitario);
+                
+                let mapMT = {};
+                mtData.forEach(i => mapMT[String(i.codigo_sigtap).padStart(10, '0')] = i.valor_unitario);
+
+                // Build Unified Data
+                dadosGlobais = sigtapData.filter(item => {
+                    let cod = String(item.codigo).padStart(10, '0');
+                    return !procedimentos_a_excluir.includes(cod) && (mapFZ[cod] || mapMT[cod]); 
+                }).map(item => {
+                    let cod = String(item.codigo).padStart(10, '0');
+                    let totSigtap = Number(item.valor_hospitalar) + Number(item.valor_profissional);
+                    let totFZ = mapFZ[cod] || 0;
+                    let totMT = mapMT[cod] || 0;
+                    
+                    let complexidadeStr = (item.complexidade === '2' || item.complexidade === 'MC') ? 'Média' : 
+                                          (item.complexidade === '3' || item.complexidade === 'AC') ? 'Alta' : 'Básica';
+
+                    return {
+                        codigo: cod,
+                        nome: item.nome,
+                        complexidade: complexidadeStr,
+                        val_sigtap: totSigtap,
+                        val_fz: totFZ,
+                        val_mt: totMT,
+                        gap_mt_sigtap: totMT > 0 ? (totMT - totSigtap) : 0
+                    };
+                });
+
+                aplicarFiltros(); // Inicializa os filtros e gera gráficos/tabela
+                inicializarTabela();
+
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao carregar dados do Supabase. Verifique sua conexão.");
+            } finally {
+                $('#loader').fadeOut();
+            }
+        });
+
+        // Função que cruza os dados com os dropdowns da tela
+        window.aplicarFiltros = function() {
+            let filtroGrupo = $('#filtroGrupo').val();
+            let filtroCmplx = $('#filtroComplexidade').val();
+
+            dadosFiltrados = dadosGlobais.filter(d => {
+                let passaGrupo = filtroGrupo === 'todos' || d.codigo.startsWith(filtroGrupo);
+                let passaCmplx = filtroCmplx === 'todos' || d.complexidade === filtroCmplx;
+                return passaGrupo && passaCmplx;
+            });
+
+            atualizarKPIs();
+            atualizarGraficos();
+            
+            // Se a tabela já existir, atualiza os dados visíveis nela
+            if (dtRanking) {
+                dtRanking.clear().rows.add(dadosFiltrados).draw();
+            }
+        };
+
+        function atualizarKPIs() {
+            if (dadosFiltrados.length === 0) {
+                $('#kpi-top-mt, #kpi-top-fz, #kpi-maior-gap').text('R$ 0,00');
+                $('#kpi-top-mt-nome, #kpi-top-fz-nome, #kpi-maior-gap-nome').text('Nenhum resultado para este filtro.');
+                return;
+            }
+
+            let maiorMT = dadosFiltrados.reduce((prev, current) => (prev.val_mt > current.val_mt) ? prev : current);
+            let maiorFZ = dadosFiltrados.reduce((prev, current) => (prev.val_fz > current.val_fz) ? prev : current);
+            let maiorGap = dadosFiltrados.reduce((prev, current) => (prev.gap_mt_sigtap > current.gap_mt_sigtap) ? prev : current);
+
+            $('#kpi-top-mt').text(brl.format(maiorMT.val_mt));
+            $('#kpi-top-mt-nome').html(`<b>${maiorMT.codigo}</b> - ${maiorMT.nome}`);
+
+            $('#kpi-top-fz').text(brl.format(maiorFZ.val_fz));
+            $('#kpi-top-fz-nome').html(`<b>${maiorFZ.codigo}</b> - ${maiorFZ.nome}`);
+
+            $('#kpi-maior-gap').text(brl.format(maiorGap.gap_mt_sigtap));
+            $('#kpi-maior-gap-nome').html(`<b>${maiorGap.codigo}</b> - ${maiorGap.nome} (Sigtap: ${brl.format(maiorGap.val_sigtap)})`);
+        }
+
+        function atualizarGraficos() {
+            let baseRanking = $('#filtroRanking').val(); 
+
+            let fieldSort = 'val_mt';
+            if (baseRanking === 'filazero') fieldSort = 'val_fz';
+            if (baseRanking === 'sigtap') fieldSort = 'val_sigtap';
+
+            let dadosOrdenados = [...dadosFiltrados].sort((a, b) => b[fieldSort] - a[fieldSort]);
+
+            let topMedia = dadosOrdenados.filter(d => d.complexidade === 'Média').slice(0, 10);
+            let topAlta = dadosOrdenados.filter(d => d.complexidade === 'Alta').slice(0, 10);
+
+            renderizarGrafico('chartMedia', topMedia, chartMediaInstance, (inst) => chartMediaInstance = inst);
+            renderizarGrafico('chartAlta', topAlta, chartAltaInstance, (inst) => chartAltaInstance = inst);
+        }
+
+        function renderizarGrafico(canvasId, dadosTop10, instanceRef, setInstance) {
+            if (instanceRef) instanceRef.destroy();
+
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            const labels = dadosTop10.map(d => d.nome.length > 25 ? d.nome.substring(0, 25) + '...' : d.nome);
+            const valSigtap = dadosTop10.map(d => d.val_sigtap);
+            const valFz = dadosTop10.map(d => d.val_fz);
+            const valMt = dadosTop10.map(d => d.val_mt);
+
+            const novaInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tabela MT 2026',
+                            data: valMt,
+                            backgroundColor: 'rgba(244, 114, 182, 0.8)', 
+                            borderColor: '#ec4899',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Fila Zero',
+                            data: valFz,
+                            backgroundColor: 'rgba(251, 191, 36, 0.8)', 
+                            borderColor: '#f59e0b',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'SIGTAP',
+                            data: valSigtap,
+                            backgroundColor: 'rgba(56, 189, 248, 0.8)', 
+                            borderColor: '#0ea5e9',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', 
+                    scales: {
+                        x: { 
+                            beginAtZero: true,
+                            ticks: { callback: function(value) { return 'R$ ' + (value/1000) + 'k'; } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + brl.format(context.raw); }
+                            }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            setInstance(novaInstance);
+        }
+
+        function inicializarTabela() {
+            dtRanking = $('#tabelaRanking').DataTable({
+                data: dadosFiltrados,
+                pageLength: 25,
+                order: [[ 5, "desc" ]], 
+                columns: [
+                    { data: 'codigo', className: 'font-mono text-center font-bold' },
+                    { data: 'nome', className: 'font-bold' },
+                    { 
+                        data: 'complexidade', className: 'text-center',
+                        render: function(d) {
+                            if(d === 'Média') return '<span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">MÉDIA</span>';
+                            if(d === 'Alta') return '<span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded text-xs">ALTA</span>';
+                            if(d === 'Básica') return '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs">BÁSICA</span>';
+                            return d;
+                        }
+                    },
+                    { data: 'val_sigtap', className: 'text-right val-sigtap', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'val_fz', className: 'text-right val-fz', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
+                    { data: 'val_mt', className: 'text-right val-mt', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
+                    { 
+                        data: 'gap_mt_sigtap', className: 'text-right font-bold',
+                        render: function(d) {
+                            if (d > 0) return `<span class="text-emerald-400">+ ${brl.format(d)}</span>`;
+                            if (d < 0) return `<span class="text-red-400">${brl.format(d)}</span>`;
+                            return '-';
+                        }
+                    }
+                ],
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+            });
+        }
+
+    </script>
+</body>
+</html>
