@@ -51,11 +51,12 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .filter-bar { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .filter-bar { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .search-box { flex: 1; min-width: 300px; position: relative; }
-        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; outline: none; }
+        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; outline: none; font-size: 0.9rem;}
         .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .filter-select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 15px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; min-width: 200px; transition: 0.3s;}
+        .filter-select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; width: 100%; transition: 0.3s; font-size: 0.85rem;}
+        .filter-select:disabled { opacity: 0.4; cursor: not-allowed; }
         .filter-select option { background: #0f172a; color: white; }
         
         .code-box { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
@@ -76,7 +77,7 @@
         table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table.compare-tbl th, table.compare-tbl td { border: 1px solid rgba(255,255,255,0.1); padding: 15px; vertical-align: top; }
         table.compare-tbl th { background: rgba(0,0,0,0.3); text-align: right; width: 180px; color: #38bdf8; font-weight: 800; }
-        .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } /* Usado na tela, removido na impressão */
+        .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } 
 
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; }
@@ -138,13 +139,11 @@
         body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0 !important; }
         body.theme-classic table.compare-tbl th { background: #f8fafc !important; color: #004e92 !important; }
 
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO - MODO RETRATO E ALTO CONTRASTE   */
-        /* ========================================================= */
+        /* IMPRESSÃO RETRATO & P&B */
         .header-print, #print-footer { display: none; }
         
         @media print {
-            @page { margin: 10mm; size: A4 portrait; } /* Forçado para Retrato */
+            @page { margin: 10mm; size: A4 portrait; } 
             
             body * { visibility: hidden; } 
             
@@ -152,27 +151,17 @@
             .header-print, .header-print * { visibility: visible; }
             #print-footer, #print-footer * { visibility: visible; }
 
-            /* Remove fundos gradientes e impõe fundo branco e texto preto em tudo */
             body, .modal, .modal-content, table.compare-tbl, table.compare-tbl th, table.compare-tbl td, .tbl-scroll-box { 
-                background: white !important; 
-                color: black !important; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact; 
-                box-shadow: none !important;
-                text-shadow: none !important;
+                background: white !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; text-shadow: none !important;
             }
 
-            /* Libera as caixas de rolagem para mostrar tudo na impressão */
             .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
 
             #modalComp { position: absolute; left: 0; top: 110px; width: 100%; height: auto; z-index: 9999; }
             .modal-content { border: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-height: none !important; overflow: visible !important; }
             .close-modal, .no-print, .blob-1, .blob-2 { display: none !important; } 
 
-            .header-print { 
-                display: flex !important; align-items: center; border-bottom: 2px solid #000; 
-                padding-bottom: 10px; margin-bottom: 20px; position: absolute; top: 0; left: 0; width: 100%;
-            }
+            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; position: absolute; top: 0; left: 0; width: 100%; }
             .header-print img { height: 50px; margin-right: 15px; }
             .header-info { flex: 1; text-align: left; }
             .header-info h1 { margin: 0; font-size: 13pt; font-weight: 900; text-transform: uppercase; color: #000;}
@@ -181,18 +170,11 @@
 
             table.compare-tbl { font-size: 9pt; margin-top: 0; width: 100%; }
             table.compare-tbl th, table.compare-tbl td { padding: 6px 8px; border: 1px solid #000 !important; }
-            
-            /* Ajuste para Retrato: Reduz o tamanho do cabeçalho da tabela */
             table.compare-tbl th { width: 120px; font-weight: bold; }
-            
-            /* Transformação de blocos nas células complexas para melhor leitura em Retrato */
             table.compare-tbl td ul li { border-bottom: 1px solid #ccc !important; padding: 4px 0 !important; }
             
-            /* Remoção de classes coloridas na impressão para forçar preto absoluto */
             .text-emerald-500, .text-blue-500, .text-purple-500, .text-yellow-500, .text-pink-500, .text-orange-400 { color: black !important; font-weight: bold; }
-            .bg-red-500\/20, .bg-orange-500, .bg-purple-500, .tag-cid, .tag-opme-val, .tag-opme-qtd { 
-                background: transparent !important; color: black !important; border: 1px solid #000 !important; 
-            }
+            .bg-red-500\/20, .bg-orange-500, .bg-purple-500, .tag-cid, .tag-opme-val, .tag-opme-qtd { background: transparent !important; color: black !important; border: 1px solid #000 !important; }
 
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
         }
@@ -248,30 +230,51 @@
 
     <div id="tab-catalogo" class="container tab-content active no-print">
         <div class="filter-bar">
-            <select id="filtroGrupoCat" class="filter-select">
-                <option value="todos">Todos os Grupos SIGTAP</option>
-                <option value="01">01 - Promoção e Prevenção</option>
-                <option value="02">02 - Finalidade Diagnóstica</option>
-                <option value="03">03 - Procedimentos Clínicos</option>
-                <option value="04">04 - Procedimentos Cirúrgicos</option>
-                <option value="05">05 - Transplantes de Órgãos</option>
-                <option value="06">06 - Medicamentos</option>
-                <option value="07">07 - OPMEs (Órteses e Próteses)</option>
-                <option value="08">08 - Ações Complementares</option>
-            </select>
-
-            <select id="filtroOrigemCat" class="filter-select">
-                <option value="todos">Todas as Tabelas</option>
-                <option value="sigtap">Apenas Tabela SUS Padrão</option>
-                <option value="filazero">Apenas Fila Zero (Atual)</option>
-                <option value="mt2026">Apenas Tabela MT 2026</option>
-            </select>
-            
-            <div class="search-box">
-                <input type="text" id="customSearchCat" placeholder="Digite Código, Procedimento ou CID (Ex: K40, O82, G40)...">
-                <i class="fas fa-search"></i>
+            <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Origem do Preço:</label>
+                    <select id="filtroOrigemCat" class="filter-select" onchange="if(dtCat) dtCat.draw();">
+                        <option value="todos">Todas as Tabelas</option>
+                        <option value="sigtap">Apenas Tabela SUS Padrão</option>
+                        <option value="filazero">Apenas Fila Zero (Atual)</option>
+                        <option value="mt2026">Apenas Tabela MT 2026</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Grupo:</label>
+                    <select id="filtroGrupoCat" class="filter-select" onchange="atualizarSubgrupos('Cat'); if(dtCat) dtCat.draw();">
+                        <option value="todos">Todos os Grupos</option>
+                        <option value="01">01 - Promoção e Prevenção</option>
+                        <option value="02">02 - Finalidade Diagnóstica</option>
+                        <option value="03">03 - Procedimentos Clínicos</option>
+                        <option value="04">04 - Procedimentos Cirúrgicos</option>
+                        <option value="05">05 - Transplantes de Órgãos</option>
+                        <option value="06">06 - Medicamentos</option>
+                        <option value="07">07 - OPMEs</option>
+                        <option value="08">08 - Ações Complementares</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Subgrupo:</label>
+                    <select id="filtroSubgrupoCat" class="filter-select" onchange="atualizarFormas('Cat'); if(dtCat) dtCat.draw();" disabled>
+                        <option value="todos">Todos os Subgrupos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Forma de Organização:</label>
+                    <select id="filtroFormaCat" class="filter-select" onchange="if(dtCat) dtCat.draw();" disabled>
+                        <option value="todos">Todas as Formas de Org.</option>
+                    </select>
+                </div>
             </div>
-            <div class="text-sm font-bold text-gray-400 w-full md:w-auto text-right" id="contador-cat"></div>
+            
+            <div class="w-full flex items-center gap-4 mt-2">
+                <div class="search-box">
+                    <input type="text" id="customSearchCat" placeholder="Digite Código, Procedimento ou CID (Ex: K40, O82, G40)...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="text-sm font-bold text-gray-400 whitespace-nowrap" id="contador-cat"></div>
+            </div>
         </div>
 
         <div class="cyber-container" style="min-height: 400px; padding: 20px;">
@@ -318,17 +321,17 @@
         </div>
 
         <div class="cyber-container" style="padding: 15px 25px;">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Grupo SIGTAP:</label>
-                    <select id="filtroGrupoRent" class="filter-select" onchange="aplicarFiltrosRent()">
-                        <option value="todos">Todos os Grupos</option>
-                        <option value="03">03 - Procedimentos Clínicos</option>
-                        <option value="04">04 - Procedimentos Cirúrgicos</option>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Basear Ranking Em:</label>
+                    <select id="filtroBaseRent" class="filter-select border-pink-400/50" onchange="aplicarFiltrosRent()">
+                        <option value="mt2026">Nova Tabela MT 2026</option>
+                        <option value="filazero">Fila Zero Atual</option>
+                        <option value="sigtap">Tabela SIGTAP (Padrão)</option>
                     </select>
                 </div>
                 
-                <div class="w-full md:w-48">
+                <div>
                     <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Complexidade:</label>
                     <select id="filtroComplexidadeRent" class="filter-select" onchange="aplicarFiltrosRent()">
                         <option value="todos">Todas</option>
@@ -338,12 +341,32 @@
                     </select>
                 </div>
 
-                <div class="w-full md:w-64">
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Basear Ranking Em:</label>
-                    <select id="filtroBaseRent" class="filter-select border-pink-400/50" onchange="aplicarFiltrosRent()">
-                        <option value="mt2026">Nova Tabela MT 2026</option>
-                        <option value="filazero">Programa Fila Zero Atual</option>
-                        <option value="sigtap">Tabela SIGTAP (Padrão)</option>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Grupo:</label>
+                    <select id="filtroGrupoRent" class="filter-select" onchange="atualizarSubgrupos('Rent'); aplicarFiltrosRent();">
+                        <option value="todos">Todos os Grupos</option>
+                        <option value="01">01 - Promoção e Prevenção</option>
+                        <option value="02">02 - Finalidade Diagnóstica</option>
+                        <option value="03">03 - Procedimentos Clínicos</option>
+                        <option value="04">04 - Procedimentos Cirúrgicos</option>
+                        <option value="05">05 - Transplantes</option>
+                        <option value="06">06 - Medicamentos</option>
+                        <option value="07">07 - OPMEs</option>
+                        <option value="08">08 - Ações Complementares</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Subgrupo:</label>
+                    <select id="filtroSubgrupoRent" class="filter-select" onchange="atualizarFormas('Rent'); aplicarFiltrosRent();" disabled>
+                        <option value="todos">Todos os Subgrupos</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Forma de Org.:</label>
+                    <select id="filtroFormaRent" class="filter-select" onchange="aplicarFiltrosRent();" disabled>
+                        <option value="todos">Todas as Formas</option>
                     </select>
                 </div>
             </div>
@@ -450,11 +473,67 @@
             }, 50);
         }
 
+        // ==========================================
+        // LÓGICA CASCATA DOS FILTROS SIGTAP
+        // ==========================================
+        function atualizarSubgrupos(tab) {
+            let grupo = $('#filtroGrupo' + tab).val();
+            let selectSub = $('#filtroSubgrupo' + tab);
+            let selectForma = $('#filtroForma' + tab);
+            
+            selectSub.empty().append('<option value="todos">Todos os Subgrupos</option>');
+            selectForma.empty().append('<option value="todos">Todas as Formas</option>').prop('disabled', true);
+            
+            if (grupo === 'todos') {
+                selectSub.prop('disabled', true);
+                return;
+            }
+            
+            let subs = new Set();
+            dadosGlobais.forEach(d => {
+                if (d.codigo.startsWith(grupo)) subs.add(d.codigo.substring(2,4));
+            });
+            
+            Array.from(subs).sort().forEach(s => {
+                selectSub.append(`<option value="${s}">Subgrupo ${s}</option>`);
+            });
+            
+            selectSub.prop('disabled', false);
+        }
+
+        function atualizarFormas(tab) {
+            let grupo = $('#filtroGrupo' + tab).val();
+            let sub = $('#filtroSubgrupo' + tab).val();
+            let selectForma = $('#filtroForma' + tab);
+            
+            selectForma.empty().append('<option value="todos">Todas as Formas</option>');
+            
+            if (sub === 'todos' || grupo === 'todos') {
+                selectForma.prop('disabled', true);
+                return;
+            }
+            
+            let prefix = grupo + sub;
+            let formas = new Set();
+            dadosGlobais.forEach(d => {
+                if(d.codigo.startsWith(prefix)) formas.add(d.codigo.substring(4,6));
+            });
+            
+            Array.from(formas).sort().forEach(f => {
+                selectForma.append(`<option value="${f}">Forma Org. ${f}</option>`);
+            });
+            
+            selectForma.prop('disabled', false);
+        }
+
+        // FILTRO CUSTOMIZADO CATÁLOGO
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             if (settings.nTable.id !== 'tabelaCat') return true;
 
             let filtroOrigem = $('#filtroOrigemCat').val();
             let filtroGrupo = $('#filtroGrupoCat').val();
+            let filtroSub = $('#filtroSubgrupoCat').val();
+            let filtroForma = $('#filtroFormaCat').val();
             
             let fzValor = dadosGlobais[dataIndex].fz_valor;
             let mt2026Valor = dadosGlobais[dataIndex].mt2026_valor;
@@ -466,7 +545,9 @@
             if (filtroOrigem === 'sigtap' && fzValor > 0 && mt2026Valor > 0) passaOrigem = false;
 
             let passaGrupo = true;
-            if (filtroGrupo !== 'todos' && !codigo.startsWith(filtroGrupo)) passaGrupo = false;
+            if (filtroGrupo !== 'todos' && codigo.substring(0,2) !== filtroGrupo) passaGrupo = false;
+            if (filtroSub !== null && filtroSub !== 'todos' && codigo.substring(2,4) !== filtroSub) passaGrupo = false;
+            if (filtroForma !== null && filtroForma !== 'todos' && codigo.substring(4,6) !== filtroForma) passaGrupo = false;
 
             return passaOrigem && passaGrupo;
         });
@@ -617,8 +698,6 @@
             });
 
             $('#customSearchCat').on('keyup', function() { dtCat.search(this.value).draw(); });
-            $('#filtroOrigemCat').on('change', function() { dtCat.draw(); });
-            $('#filtroGrupoCat').on('change', function() { dtCat.draw(); });
             
             $('#btn-tab-catalogo').addClass('active border-b-2 border-emerald-400 text-emerald-400');
         }
@@ -626,12 +705,19 @@
         // INIT ABA RENTABILIDADE
         window.aplicarFiltrosRent = function() {
             let filtroGrupo = $('#filtroGrupoRent').val();
+            let filtroSub = $('#filtroSubgrupoRent').val();
+            let filtroForma = $('#filtroFormaRent').val();
             let filtroCmplx = $('#filtroComplexidadeRent').val();
 
             dadosFiltradosRent = dadosGlobais.filter(d => {
-                let passaGrupo = filtroGrupo === 'todos' || d.codigo.startsWith(filtroGrupo);
                 let passaCmplx = filtroCmplx === 'todos' || d.complexidade === filtroCmplx;
                 let temRepasse = d.val_fz > 0 || d.mt2026_valor > 0;
+                
+                let passaGrupo = true;
+                if (filtroGrupo !== 'todos' && d.codigo.substring(0,2) !== filtroGrupo) passaGrupo = false;
+                if (filtroSub !== null && filtroSub !== 'todos' && d.codigo.substring(2,4) !== filtroSub) passaGrupo = false;
+                if (filtroForma !== null && filtroForma !== 'todos' && d.codigo.substring(4,6) !== filtroForma) passaGrupo = false;
+
                 return passaGrupo && passaCmplx && temRepasse; 
             });
 
@@ -766,9 +852,6 @@
             if (selecionados.length < 1) { alert("Selecione pelo menos 1 procedimento."); return; }
             var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
 
-            const isClassic = document.body.classList.contains('theme-classic');
-            
-            // As cores in-line (style="") foram removidas nos totais e td's para que a classe @media print consiga sobrepor com "black !important".
             var h = '<table class="compare-tbl"><tbody>';
             
             h += `<tr><th>Procedimento</th>`;
