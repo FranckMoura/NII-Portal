@@ -72,9 +72,11 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(5px); }
         .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); color: white; margin: 3% auto; padding: 30px; width: 95%; max-width: 1400px; max-height: 85vh; overflow-y: auto; border-radius: 16px; }
         .close-modal { float: right; font-size: 28px; cursor: pointer; color: #94a3b8; }
+        
         table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table.compare-tbl th, table.compare-tbl td { border: 1px solid rgba(255,255,255,0.1); padding: 15px; vertical-align: top; }
         table.compare-tbl th { background: rgba(0,0,0,0.3); text-align: right; width: 180px; color: #38bdf8; font-weight: 800; }
+        .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } /* Usado na tela, removido na impressão */
 
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; }
@@ -136,20 +138,35 @@
         body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0 !important; }
         body.theme-classic table.compare-tbl th { background: #f8fafc !important; color: #004e92 !important; }
 
-        /* IMPRESSÃO */
+        /* ========================================================= */
+        /* OTIMIZAÇÃO DE IMPRESSÃO - MODO RETRATO E ALTO CONTRASTE   */
+        /* ========================================================= */
         .header-print, #print-footer { display: none; }
         
         @media print {
-            @page { margin: 10mm; size: A4 landscape; }
+            @page { margin: 10mm; size: A4 portrait; } /* Forçado para Retrato */
+            
             body * { visibility: hidden; } 
             
             #modalComp, #modalComp * { visibility: visible; } 
             .header-print, .header-print * { visibility: visible; }
             #print-footer, #print-footer * { visibility: visible; }
 
-            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #modalComp { position: absolute; left: 0; top: 120px; width: 100%; height: auto; background: white !important; z-index: 9999; }
-            .modal-content { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-height: none !important; overflow: visible !important; color: black !important;}
+            /* Remove fundos gradientes e impõe fundo branco e texto preto em tudo */
+            body, .modal, .modal-content, table.compare-tbl, table.compare-tbl th, table.compare-tbl td, .tbl-scroll-box { 
+                background: white !important; 
+                color: black !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            /* Libera as caixas de rolagem para mostrar tudo na impressão */
+            .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
+
+            #modalComp { position: absolute; left: 0; top: 110px; width: 100%; height: auto; z-index: 9999; }
+            .modal-content { border: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-height: none !important; overflow: visible !important; }
             .close-modal, .no-print, .blob-1, .blob-2 { display: none !important; } 
 
             .header-print { 
@@ -157,15 +174,26 @@
                 padding-bottom: 10px; margin-bottom: 20px; position: absolute; top: 0; left: 0; width: 100%;
             }
             .header-print img { height: 50px; margin-right: 15px; }
-            .header-info { flex: 1; text-align: center; }
-            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900; text-transform: uppercase; color: #000;}
+            .header-info { flex: 1; text-align: left; }
+            .header-info h1 { margin: 0; font-size: 13pt; font-weight: 900; text-transform: uppercase; color: #000;}
             .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: #000;}
             .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: #000;}
 
-            table.compare-tbl { font-size: 8pt; margin-top: 0; color: black !important;}
-            table.compare-tbl th, table.compare-tbl td { padding: 8px; border: 1px solid #ccc !important; }
-            table.compare-tbl th { background: #f8fafc !important; color: black !important;}
+            table.compare-tbl { font-size: 9pt; margin-top: 0; width: 100%; }
+            table.compare-tbl th, table.compare-tbl td { padding: 6px 8px; border: 1px solid #000 !important; }
             
+            /* Ajuste para Retrato: Reduz o tamanho do cabeçalho da tabela */
+            table.compare-tbl th { width: 120px; font-weight: bold; }
+            
+            /* Transformação de blocos nas células complexas para melhor leitura em Retrato */
+            table.compare-tbl td ul li { border-bottom: 1px solid #ccc !important; padding: 4px 0 !important; }
+            
+            /* Remoção de classes coloridas na impressão para forçar preto absoluto */
+            .text-emerald-500, .text-blue-500, .text-purple-500, .text-yellow-500, .text-pink-500, .text-orange-400 { color: black !important; font-weight: bold; }
+            .bg-red-500\/20, .bg-orange-500, .bg-purple-500, .tag-cid, .tag-opme-val, .tag-opme-qtd { 
+                background: transparent !important; color: black !important; border: 1px solid #000 !important; 
+            }
+
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
         }
     </style>
@@ -210,7 +238,7 @@
         <img src="../logo.png" alt="Logo HSH" onerror="this.style.display='none'">
         <div class="header-info">
             <h1>Hospital Beneficente Santa Helena</h1>
-            <h2>Relatório Comparativo SIGTAP x Tabelas de Repasse MT</h2>
+            <h2>Relatório Comparativo SIGTAP x Tabelas MT</h2>
             <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
         </div>
         <div class="header-meta">
@@ -364,7 +392,7 @@
             <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
             <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos e Financiamento</h2>
             <button onclick="window.print()" class="no-print bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition mb-5 shadow-lg border border-blue-400">
-                <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial
+                <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial (P&B)
             </button>
             <div id="modalBody"></div>
         </div>
@@ -375,7 +403,6 @@
     </div>
 
     <script>
-        // Supabase Init
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
@@ -403,7 +430,6 @@
             if (chartAltaInstance) chartAltaInstance.update();
         }
 
-        // Troca de Abas (Tabs)
         function switchTab(tabId) {
             $('.tab-content').removeClass('active');
             $('.tab-btn').removeClass('active border-b-2 border-emerald-400 border-pink-400 text-emerald-400 text-pink-400');
@@ -418,14 +444,12 @@
                 $('#compBar').removeClass('visible');
             }
 
-            // Força as tabelas a recalcular a largura das colunas após sair do 'display: none'
             setTimeout(() => {
                 if (dtCat) dtCat.columns.adjust().draw();
                 if (dtRanking) dtRanking.columns.adjust().draw();
             }, 50);
         }
 
-        // Filtro Customizado para o DataTable do Catálogo
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             if (settings.nTable.id !== 'tabelaCat') return true;
 
@@ -474,7 +498,6 @@
                 const { data: opmeData } = await client.from('sigtap_opme').select('*');
                 const { data: cidData } = await client.from('vw_sigtap_cid').select('*'); 
 
-                // Mapeamentos
                 let mapFZ = {};
                 if(filaZeroData) filaZeroData.forEach(fz => mapFZ[String(fz.codigo_sigtap).padStart(10, '0')] = fz);
 
@@ -500,7 +523,6 @@
                 let sigtapDict = {};
                 sigtapFiltrado.forEach(s => sigtapDict[String(s.codigo).padStart(10, '0')] = s);
 
-                // Constrói Dicionário Unificado
                 dadosGlobais = sigtapFiltrado.map(item => {
                     let codReal = String(item.codigo).padStart(10, '0');
                     let fz = mapFZ[codReal];
@@ -551,9 +573,7 @@
             }
         });
 
-        // ==========================================
-        // INIT ABA 1: CATÁLOGO GERAL
-        // ==========================================
+        // INIT ABA CATÁLOGO
         function initCatalogo() {
             dtCat = $('#tabelaCat').DataTable({
                 data: dadosGlobais,
@@ -600,21 +620,17 @@
             $('#filtroOrigemCat').on('change', function() { dtCat.draw(); });
             $('#filtroGrupoCat').on('change', function() { dtCat.draw(); });
             
-            $('#btn-tab-catalogo').addClass('active border-b-2 border-emerald-400 text-emerald-400'); // Ativa botão visualmente
+            $('#btn-tab-catalogo').addClass('active border-b-2 border-emerald-400 text-emerald-400');
         }
 
-        // ==========================================
-        // INIT ABA 2: RENTABILIDADE
-        // ==========================================
+        // INIT ABA RENTABILIDADE
         window.aplicarFiltrosRent = function() {
             let filtroGrupo = $('#filtroGrupoRent').val();
             let filtroCmplx = $('#filtroComplexidadeRent').val();
 
-            // Filtra os dados globais baseado nos selects
             dadosFiltradosRent = dadosGlobais.filter(d => {
                 let passaGrupo = filtroGrupo === 'todos' || d.codigo.startsWith(filtroGrupo);
                 let passaCmplx = filtroCmplx === 'todos' || d.complexidade === filtroCmplx;
-                // Exige que o procedimento tenha repasse (MT ou FZ) para entrar no ranking financeiro
                 let temRepasse = d.val_fz > 0 || d.mt2026_valor > 0;
                 return passaGrupo && passaCmplx && temRepasse; 
             });
@@ -721,7 +737,7 @@
 
 
         // ==========================================
-        // GERAÇÃO DO MODAL DE COMPARAÇÃO (ABA 1)
+        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM CSS OTIMIZADO PARA IMPRESSÃO
         // ==========================================
         window.toggle = function(cod) {
             var idx = selecionados.indexOf(cod);
@@ -751,83 +767,78 @@
             var itens = dadosGlobais.filter(function(d) { return selecionados.includes(d.codigo); });
 
             const isClassic = document.body.classList.contains('theme-classic');
-            const thColor = isClassic ? 'color:#004e92;' : 'color:#38bdf8;';
-            const tdColor = isClassic ? 'color:#1e293b;' : 'color:white;';
             
-            const bgTotSigtap = isClassic ? 'background:#eff6ff; color:#1e40af; border-bottom: 2px solid #3b82f6;' : 'background:rgba(59,130,246,0.1); color:#60a5fa; border-bottom: 2px solid #3b82f6;';
-            const bgTotFZ = isClassic ? 'background:#fffbeb; color:#b45309; border-bottom: 2px solid #f59e0b;' : 'background:rgba(245,158,11,0.1); color:#fbbf24; border-bottom: 2px solid #f59e0b;';
-            const bgTotFZ2026 = isClassic ? 'background:#fdf2f8; color:#db2777; border-bottom: 2px solid #ec4899;' : 'background:rgba(236,72,153,0.1); color:#f472b6; border-bottom: 2px solid #ec4899;';
-
+            // As cores in-line (style="") foram removidas nos totais e td's para que a classe @media print consiga sobrepor com "black !important".
             var h = '<table class="compare-tbl"><tbody>';
             
-            h += `<tr><th style="${thColor}">Procedimento</th>`;
-            itens.forEach(function(i) { h += `<td style="${tdColor} font-weight:800; font-size:1rem;">${i.descricao}<br><span class="opacity-70 font-size:0.85rem; font-weight:400;">Cód: ${i.codigo}</span></td>`; });
+            h += `<tr><th>Procedimento</th>`;
+            itens.forEach(function(i) { h += `<td><span style="font-weight:800; font-size:1.1rem;">${i.descricao}</span><br><span style="font-size:0.85rem; font-weight:400; opacity:0.8;">Cód: ${i.codigo}</span></td>`; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-clinic-medical text-emerald-500"></i> Valor Ambulatorial (SA)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-medium font-mono text-emerald-500">` + brl.format(i.valor_sa) + '</td>'; });
+            h += `<tr><th><i class="fas fa-clinic-medical text-emerald-500"></i> Valor Ambulatorial (SA)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono text-emerald-500 font-bold">` + brl.format(i.valor_sa) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-hospital text-blue-500"></i> Valor Hospitalar (SH)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-medium font-mono text-blue-500">` + brl.format(i.valor_sh) + '</td>'; });
+            h += `<tr><th><i class="fas fa-hospital text-blue-500"></i> Valor Hospitalar (SH)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono text-blue-500 font-bold">` + brl.format(i.valor_sh) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-user-md text-purple-500"></i> Valor Profissional (SP)</th>`;
+            h += `<tr><th><i class="fas fa-user-md text-purple-500"></i> Valor Profissional (SP)</th>`;
             itens.forEach(function(i) { 
-                let spHtml = `<td class="font-medium font-mono text-purple-500">` + brl.format(i.valor_sp);
+                let spHtml = `<td class="font-mono text-purple-500 font-bold">` + brl.format(i.valor_sp);
                 if (i.codigo.startsWith('04') && i.valor_sp > 0) {
                     let cirurgiao = i.valor_sp * 0.70;
                     let anestesista = i.valor_sp * 0.30;
-                    spHtml += `<div class="mt-2 text-[0.8rem] space-y-1"><div class="px-2 py-1 rounded theme-adjust-bg-blue border"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div><div class="px-2 py-1 rounded theme-adjust-bg-purple border"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div></div>`;
+                    spHtml += `<div class="mt-2 text-[0.8rem] space-y-1 font-sans font-normal"><div class="px-2 py-1 rounded border theme-adjust-bg-blue"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div><div class="px-2 py-1 rounded border theme-adjust-bg-purple"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div></div>`;
                 }
                 spHtml += `</td>`; h += spHtml;
             });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-coins text-blue-500"></i> TOTAL SIGTAP (SUS)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono" style="${bgTotSigtap} font-weight:900; font-size:1.1rem;">` + brl.format(i.valor_total) + '</td>'; });
+            h += `<tr><th><i class="fas fa-coins text-blue-500"></i> TOTAL SIGTAP (SUS)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono font-bold text-[1.1rem]">` + brl.format(i.valor_total) + '</td>'; });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO (ATUAL)</th>`;
+            h += `<tr><th><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO (ATUAL)</th>`;
             itens.forEach(function(i) { 
-                if(i.fz_valor > 0) h += `<td class="font-mono" style="${bgTotFZ} font-weight:900; font-size:1.2rem;">` + brl.format(i.fz_valor) + '</td>'; 
-                else h += `<td class="font-mono text-center align-middle" style="${tdColor} font-size:1rem; opacity:0.5;">-</td>`;
+                if(i.fz_valor > 0) h += `<td class="font-mono font-bold text-[1.2rem] text-yellow-500">` + brl.format(i.fz_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50">-</td>`;
             });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-rocket text-pink-500"></i> TOTAL TABELA MT (2026)</th>`;
+            h += `<tr><th><i class="fas fa-rocket text-pink-500"></i> TOTAL TABELA MT (2026)</th>`;
             itens.forEach(function(i) { 
-                if(i.mt2026_valor > 0) h += `<td class="font-mono" style="${bgTotFZ2026} font-weight:900; font-size:1.2rem;">` + brl.format(i.mt2026_valor) + '</td>'; 
-                else h += `<td class="font-mono text-center align-middle" style="${tdColor} font-size:1rem; opacity:0.5;">-</td>`;
+                if(i.mt2026_valor > 0) h += `<td class="font-mono font-bold text-[1.2rem] text-pink-500">` + brl.format(i.mt2026_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50">-</td>`;
             });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-tools text-orange-400"></i> Materiais (OPME)</th>`;
+            h += `<tr><th><i class="fas fa-tools text-orange-400"></i> Materiais (OPME)</th>`;
             itens.forEach(function(i) {
                 if (i.compatibilidades && i.compatibilidades.length > 0) {
-                    h += `<td><div style="max-height:150px; overflow-y:auto; padding-right:5px;"><ul class="list-none p-0 m-0 space-y-2">`;
+                    h += `<td><div class="tbl-scroll-box"><ul class="list-none p-0 m-0 space-y-2">`;
                     i.compatibilidades.forEach(function(op) { 
                         let valFormatado = op.valor > 0 ? `<span class="tag-opme-val float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">${brl.format(op.valor)}</span>` : '';
-                        h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2" style="${tdColor}"><b style="color:#d97706">${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
+                        h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2"><b>${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
                     });
                     h += '</ul></div></td>';
                 } else {
-                    h += `<td class="text-center opacity-50" style="${tdColor}">Sem OPME</td>`;
+                    h += `<td class="text-center opacity-50">Sem OPME</td>`;
                 }
             });
             h += '</tr>';
 
-            h += `<tr><th style="${thColor}"><i class="fas fa-virus text-purple-400"></i> CIDs Compatíveis</th>`;
+            h += `<tr><th><i class="fas fa-virus text-purple-400"></i> CIDs Compatíveis</th>`;
             itens.forEach(function(i) {
                 if (i.cids && i.cids.length > 0) {
-                    h += `<td><div style="max-height:150px; overflow-y:auto; padding-right:5px;"><ul class="list-none p-0 m-0 space-y-1">`;
+                    h += `<td><div class="tbl-scroll-box"><ul class="list-none p-0 m-0 space-y-1">`;
                     i.cids.forEach(function(c) { 
                         let princTag = c.princ === 'S' ? `<span class="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] px-1 rounded ml-1" title="CID Principal" style="vertical-align: super;">P</span>` : '';
-                        h += `<li class="text-xs border-b border-dashed border-gray-500/30 pb-1 pt-1" style="${tdColor}"><b class="tag-cid px-1 rounded">${c.cid}</b> ${c.nome} ${princTag}</li>`; 
+                        h += `<li class="text-xs border-b border-dashed border-gray-500/30 pb-1 pt-1"><b class="tag-cid px-1 rounded">${c.cid}</b> ${c.nome} ${princTag}</li>`; 
                     });
                     h += '</ul></div></td>';
                 } else {
-                    h += `<td class="text-center opacity-50" style="${tdColor}">Sem CIDs restritos</td>`;
+                    h += `<td class="text-center opacity-50">Sem CIDs restritos</td>`;
                 }
             });
             h += '</tr>';
