@@ -33,8 +33,8 @@
         .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px; }
         .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px; text-align: center; }
         
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
-        .kpi-number { font-size: 2rem; font-weight: 900; }
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;}
         
         .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
@@ -42,8 +42,8 @@
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
         
         .cart-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px; color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
-        .cart-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; vertical-align: middle; }
+        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px 5px; color: #38bdf8; font-size: 0.70rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
+        .cart-table td { padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; vertical-align: middle; }
         
         .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 6px; width: 60px; text-align: center; font-weight: bold; outline: none; }
         .print-qtd { display: none; }
@@ -87,47 +87,49 @@
         .print-header-visible { display: none; }
         
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            body { background: white !important; color: black !important; font-size: 8pt !important; }
+            @page { size: A4 portrait; margin: 8mm; }
+            body { background: white !important; color: black !important; font-size: 7pt !important; }
             
             .no-print, .blob-1, .blob-2, .header-bg, #sidebar-historico, .input-qtd { display: none !important; }
             
             .cyber-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px !important;}
             
-            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
-            .print-header-visible h2 { font-size: 14pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
-            .print-header-visible h3 { font-size: 10pt; font-weight: bold; margin: 5px 0; color: black !important;}
-            .print-header-visible p { font-size: 8pt; color: black !important; margin: 0;}
+            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px; }
+            .print-header-visible h2 { font-size: 12pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
+            .print-header-visible h3 { font-size: 9pt; font-weight: bold; margin: 5px 0; color: black !important;}
+            .print-header-visible p { font-size: 7pt; color: black !important; margin: 0;}
 
-            #prop-titulo { border: none !important; background: transparent !important; color: black !important; font-size: 12pt !important; font-weight: bold !important; padding: 0 !important; margin-bottom: 15px !important; text-align: center; width: 100%; }
+            #prop-titulo { border: none !important; background: transparent !important; color: black !important; font-size: 11pt !important; font-weight: bold !important; padding: 0 !important; margin-bottom: 10px !important; text-align: center; width: 100%; }
 
-            .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 15px !important; }
-            .glass-card { background: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1; text-align: center; }
-            .kpi-title { color: black !important; font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
+            .grid { display: flex !important; flex-direction: row !important; gap: 5px !important; margin-bottom: 15px !important; }
+            .glass-card { background: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 5px !important; flex: 1; text-align: center; }
+            .kpi-title { color: black !important; font-size: 6pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
             .kpi-title i, .glass-card .text-xs { display: none !important; }
-            .kpi-number { color: black !important; font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
+            .kpi-number { color: black !important; font-size: 10pt !important; margin: 0 !important; font-weight: bold !important;}
             
             .cart-table { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
-            .cart-table th { background-color: #e5e7eb !important; color: black !important; font-size: 7pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 4px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
-            .cart-table td { background-color: white !important; color: black !important; font-size: 7pt !important; border: 1px solid black !important; padding: 4px !important; font-weight: normal !important;}
+            .cart-table th { background-color: #e5e7eb !important; color: black !important; font-size: 6pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 3px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+            .cart-table td { background-color: white !important; color: black !important; font-size: 6pt !important; border: 1px solid black !important; padding: 3px !important; font-weight: normal !important;}
             
             .cart-table td, .cart-table td span, .cart-table td div { color: black !important; text-shadow: none !important; }
             
-            /* Linhas com a correção solicitada pelo VS Code */
             .cart-table .group-header td { background-color: #d1d5db !important; font-weight: bold !important; border-top: 2px solid black !important; border-bottom: 2px solid black !important; text-align: left !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .cart-table .subtotal-row td { background-color: #f3f4f6 !important; font-weight: bold !important; border-top: 1px solid black !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
             .print-qtd { display: inline !important; font-weight: bold !important; color: black !important; }
             
-            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { display: none !important; }
+            /* Ajuste de 10 colunas (A última é a Ação, escondida) */
+            .cart-table th:nth-child(10), .cart-table td:nth-child(10) { display: none !important; }
 
-            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 12% !important; text-align: center !important;} 
-            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 36% !important; text-align: left !important;} 
-            .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 8% !important; text-align: center !important;}  
-            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 11% !important; text-align: right !important;} 
-            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 11% !important; text-align: right !important;} 
-            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 11% !important; text-align: right !important;} 
-            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 11% !important; text-align: right !important;} 
+            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 10% !important; text-align: center !important;} 
+            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 28% !important; text-align: left !important;} 
+            .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 6% !important; text-align: center !important;}  
+            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 9% !important; text-align: right !important;} 
+            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 9% !important; text-align: right !important;} 
+            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 9% !important; text-align: right !important;} 
+            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 9% !important; text-align: right !important;} 
+            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { width: 9% !important; text-align: right !important;} 
+            .cart-table th:nth-child(9), .cart-table td:nth-child(9) { width: 11% !important; text-align: right !important;} 
         }
     </style>
 </head>
@@ -154,7 +156,7 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-signature text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-2xl font-bold'>Gerador de Propostas</h1>
-                    <p class='text-xs opacity-70'>Salve, edite e exporte suas metas contratuais</p>
+                    <p class='text-xs opacity-70'>Salve, edite e exporte suas metas contratuais (Fila Zero e Tabela MT 2026)</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -183,11 +185,12 @@
             <input type="hidden" id="prop-id">
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
             <div class="glass-card"><div class="kpi-title">Qtd Total</div><div class="kpi-number text-blue-400" id="kpi-qtd">0</div></div>
             <div class="glass-card"><div class="kpi-title">Total SIGTAP</div><div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div></div>
-            <div class="glass-card"><div class="kpi-title">Total FILA ZERO</div><div class="kpi-number text-orange-400" id="kpi-fz">R$ 0,00</div></div>
-            <div class="glass-card"><div class="kpi-title">Diferença / Gap</div><div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Total F. Zero (Atual)</div><div class="kpi-number text-yellow-400" id="kpi-fz">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Total Tabela MT</div><div class="kpi-number text-pink-400" id="kpi-mt">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Gap (MT - SIGTAP)</div><div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div></div>
         </div>
 
         <div class="cyber-container no-print">
@@ -221,8 +224,10 @@
                             <th class="text-center">Meta</th>
                             <th class="text-right">Unit. SIGTAP</th>
                             <th class="text-right">Unit. F. Zero</th>
+                            <th class="text-right">Unit. Tab MT</th>
                             <th class="text-right">Total SIGTAP</th>
                             <th class="text-right">Total F. Zero</th>
+                            <th class="text-right">Total Tab MT</th>
                             <th class="text-center no-print">Ação</th>
                         </tr>
                     </thead>
@@ -270,16 +275,29 @@
             try {
                 const { data: sigtap } = await client.from('sigtap_oficial').select('codigo, nome, valor_hospitalar, valor_profissional');
                 const { data: fz } = await client.from('fila_zero_procedimentos').select('codigo_sigtap, valor_unitario');
-                let mapFZ = {}; if (fz) fz.forEach(f => mapFZ[f.codigo_sigtap] = Number(f.valor_unitario || 0));
+                const { data: mt } = await client.from('tabela_sus_mt_2026').select('codigo_sigtap, valor_unitario');
+
+                let mapFZ = {}; 
+                if (fz) fz.forEach(f => mapFZ[String(f.codigo_sigtap).padStart(10, '0')] = Number(f.valor_unitario || 0));
+                
+                let mapMT = {}; 
+                if (mt) mt.forEach(m => mapMT[String(m.codigo_sigtap).padStart(10, '0')] = Number(m.valor_unitario || 0));
 
                 let options = '<option value="">Selecione ou digite...</option>';
+                
                 sigtap.forEach(item => {
+                    let codStr = String(item.codigo).padStart(10, '0');
                     let totalSig = Number(item.valor_hospitalar || 0) + Number(item.valor_profissional || 0);
-                    let valFz = mapFZ[item.codigo] || 0;
-                    catalogoGlobal[item.codigo] = { nome: item.nome, val_sigtap: totalSig, val_fz: valFz };
+                    let valFz = mapFZ[codStr] || 0;
+                    let valMt = mapMT[codStr] || 0;
                     
-                    let labelFZ = valFz > 0 ? ` [FZ: ${formatBrl.format(valFz)}]` : '';
-                    options += `<option value="${item.codigo}">${item.codigo} - ${item.nome}${labelFZ}</option>`;
+                    catalogoGlobal[codStr] = { nome: item.nome, val_sigtap: totalSig, val_fz: valFz, val_mt: valMt };
+                    
+                    let labelTag = '';
+                    if (valMt > 0) labelTag = ` [MT 26: ${formatBrl.format(valMt)}]`;
+                    else if (valFz > 0) labelTag = ` [FZ: ${formatBrl.format(valFz)}]`;
+
+                    options += `<option value="${codStr}">${codStr} - ${item.nome}${labelTag}</option>`;
                 });
                 
                 $('#select-procedimento').html(options).select2({
@@ -312,26 +330,31 @@
         function exportarExcel() {
             if (propostaCarrinho.length === 0) return alert("A proposta está vazia.");
 
-            let csvContent = "\uFEFF" + "CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;VLR_UNIT_FILAZERO;TOTAL_SIGTAP;TOTAL_FILAZERO\n";
+            let csvContent = "\uFEFF" + "CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;VLR_UNIT_FILAZERO;VLR_UNIT_MT2026;TOTAL_SIGTAP;TOTAL_FILAZERO;TOTAL_MT2026\n";
             
             propostaCarrinho.forEach(item => {
                 let info = catalogoGlobal[item.codigo];
                 let subSigtap = info.val_sigtap * item.qtd;
                 let subFz = info.val_fz * item.qtd;
+                let subMt = info.val_mt * item.qtd;
                 
                 let numSig = info.val_sigtap.toFixed(2).replace('.', ',');
                 let numFz = info.val_fz.toFixed(2).replace('.', ',');
+                let numMt = info.val_mt.toFixed(2).replace('.', ',');
                 let totSig = subSigtap.toFixed(2).replace('.', ',');
                 let totFz = subFz.toFixed(2).replace('.', ',');
+                let totMt = subMt.toFixed(2).replace('.', ',');
                 let compx = item.complexidade === 'MEDIA' ? 'MÉDIA' : 'ALTA';
 
-                csvContent += `="${item.codigo}";"${info.nome}";"${compx}";${item.qtd};"${numSig}";"${numFz}";"${totSig}";"${totFz}"\n`;
+                csvContent += `="${item.codigo}";"${info.nome}";"${compx}";${item.qtd};"${numSig}";"${numFz}";"${numMt}";"${totSig}";"${totFz}";"${totMt}"\n`;
             });
 
             let tQtd = $('#kpi-qtd').text();
             let tSig = $('#kpi-sigtap').text().replace('R$', '').trim(); 
             let tFz = $('#kpi-fz').text().replace('R$', '').trim();
-            csvContent += `\n"TOTAIS";"";"";${tQtd};;"";"${tSig}";"${tFz}"\n`;
+            let tMt = $('#kpi-mt').text().replace('R$', '').trim();
+
+            csvContent += `\n"TOTAIS";"";"";${tQtd};;"";"";"${tSig}";"${tFz}";"${tMt}"\n`;
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
@@ -376,7 +399,7 @@
                 html += `<div class="prop-item" onclick="carregarProposta('${p.id}')">
                     <div class="font-bold text-emerald-400">${p.titulo}</div>
                     <div class="text-xs text-gray-400 mt-1">${new Date(p.atualizado_em).toLocaleDateString()} - ${p.qtd_total} itens</div>
-                    <div class="text-xs font-bold text-orange-400 mt-1">Total FZ: ${formatBrl.format(p.valor_total_fz)}</div>
+                    <div class="text-xs font-bold text-orange-400 mt-1">Total Ref: ${formatBrl.format(p.valor_total_fz)}</div>
                 </div>`;
             });
             $('#lista-propostas').html(html || '<p class="text-center text-gray-500">Nenhuma salva.</p>');
@@ -395,26 +418,36 @@
 
         function renderizarTabelaProposta() {
             const tbody = $('#tbody-proposta'); tbody.empty();
-            let tQtd = 0, tSig = 0, tFz = 0;
+            let tQtd = 0, tSig = 0, tFz = 0, tMt = 0;
 
             if (propostaCarrinho.length === 0) {
-                tbody.html(`<tr id="linha-vazia"><td colspan="8" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
+                tbody.html(`<tr id="linha-vazia"><td colspan="10" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
             } else {
                 ['MEDIA', 'ALTA'].forEach(compx => {
                     let list = propostaCarrinho.filter(i => i.complexidade === compx);
                     if (list.length === 0) return;
                     
-                    let subQtd = 0, subSig = 0, subFz = 0;
-                    list.sort((a,b) => (catalogoGlobal[b.codigo].val_fz * b.qtd) - (catalogoGlobal[a.codigo].val_fz * a.qtd));
+                    let subQtd = 0, subSig = 0, subFz = 0, subMt = 0;
+                    
+                    // Ordena pela tabela MT 2026, fallback pro FZ, fallback SIGTAP
+                    list.sort((a,b) => {
+                        let valA = catalogoGlobal[a.codigo].val_mt || catalogoGlobal[a.codigo].val_fz || catalogoGlobal[a.codigo].val_sigtap;
+                        let valB = catalogoGlobal[b.codigo].val_mt || catalogoGlobal[b.codigo].val_fz || catalogoGlobal[b.codigo].val_sigtap;
+                        return (valB * b.qtd) - (valA * a.qtd);
+                    });
 
-                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="8" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2 no-print"></i> COMPLEXIDADE: ${compx}</td></tr>`);
+                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="10" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2 no-print"></i> COMPLEXIDADE: ${compx}</td></tr>`);
                     
                     list.forEach(item => {
                         let info = catalogoGlobal[item.codigo];
-                        let sSig = info.val_sigtap * item.qtd, sFz = info.val_fz * item.qtd;
-                        subQtd += item.qtd; subSig += sSig; subFz += sFz;
+                        let sSig = info.val_sigtap * item.qtd;
+                        let sFz = info.val_fz * item.qtd;
+                        let sMt = info.val_mt * item.qtd;
                         
-                        let corFzClass = info.val_fz > 0 ? "text-orange-400 font-bold" : "text-gray-500";
+                        subQtd += item.qtd; subSig += sSig; subFz += sFz; subMt += sMt;
+                        
+                        let corFzClass = info.val_fz > 0 ? "text-yellow-400 font-bold" : "text-gray-500";
+                        let corMtClass = info.val_mt > 0 ? "text-pink-400 font-bold" : "text-gray-500";
 
                         tbody.append(`<tr>
                             <td class="font-mono text-cyan-400 text-center">${item.codigo}</td>
@@ -425,26 +458,33 @@
                             </td>
                             <td class="text-right text-gray-400">${formatBrl.format(info.val_sigtap)}</td>
                             <td class="text-right ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(info.val_fz) : '-'}</td>
+                            <td class="text-right ${corMtClass}">${info.val_mt > 0 ? formatBrl.format(info.val_mt) : '-'}</td>
                             <td class="text-right text-emerald-400 font-bold">${formatBrl.format(sSig)}</td>
                             <td class="text-right ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(sFz) : '-'}</td>
+                            <td class="text-right ${corMtClass}">${info.val_mt > 0 ? formatBrl.format(sMt) : '-'}</td>
                             <td class="text-center no-print"><button onclick="remover('${item.codigo}','${compx}')" class="text-red-500"><i class="fas fa-trash"></i></button></td>
                         </tr>`);
                     });
 
-                    tbody.append(`<tr class="subtotal-row bg-white/5 font-bold text-[0.85rem]">
+                    tbody.append(`<tr class="subtotal-row bg-white/5 font-bold text-[0.80rem]">
                         <td colspan="2" class="text-right text-gray-400 uppercase py-2">Subtotal ${compx}:</td>
                         <td class="text-center text-white py-2">${subQtd}</td>
-                        <td colspan="2" class="py-2"></td>
+                        <td colspan="3" class="py-2"></td>
                         <td class="text-right text-emerald-400 py-2">${formatBrl.format(subSig)}</td>
-                        <td class="text-right text-orange-400 py-2">${formatBrl.format(subFz)}</td>
+                        <td class="text-right text-yellow-400 py-2">${formatBrl.format(subFz)}</td>
+                        <td class="text-right text-pink-400 py-2">${formatBrl.format(subMt)}</td>
                         <td class="no-print py-2"></td>
                     </tr>`);
 
-                    tQtd += subQtd; tSig += subSig; tFz += subFz;
+                    tQtd += subQtd; tSig += subSig; tFz += subFz; tMt += subMt;
                 });
             }
 
-            $('#kpi-qtd').text(tQtd); $('#kpi-sigtap').text(formatBrl.format(tSig)); $('#kpi-fz').text(formatBrl.format(tFz)); $('#kpi-diff').text(formatBrl.format(tFz - tSig));
+            $('#kpi-qtd').text(tQtd); 
+            $('#kpi-sigtap').text(formatBrl.format(tSig)); 
+            $('#kpi-fz').text(formatBrl.format(tFz)); 
+            $('#kpi-mt').text(formatBrl.format(tMt)); 
+            $('#kpi-diff').text(formatBrl.format(tMt > 0 ? (tMt - tSig) : 0));
         }
 
         function atualizarQtd(c, m, v) { let i = propostaCarrinho.find(x=>x.codigo===c && x.complexidade===m); if(i) i.qtd = parseInt(v); renderizarTabelaProposta(); }
