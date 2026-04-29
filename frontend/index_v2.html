@@ -7,6 +7,7 @@
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -106,6 +107,9 @@
             gap: 20px; 
         }
         
+        .col-span-2 { grid-column: span 2; }
+        .col-span-3 { grid-column: span 3; }
+        
         /* CARD INTERATIVO (Linkado) */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
@@ -128,7 +132,6 @@
         .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 5px; }
         .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 5px;}
 
-        .card-expandido { grid-column: span 2; } 
         .leitos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; }
         .leito-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; text-align: center; }
         .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 5px; }
@@ -206,6 +209,7 @@
             <a href="modulo_gerencial.html" class="nav-item"><img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line\'></i>';"><div class="nav-text"><span class="nav-title">Módulo Gerencial</span><span class="nav-desc">Repasses e Painéis SIH</span></div></a>
             <a href="painel_simuladas.html" class="nav-item"><img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf\'></i>';"><div class="nav-text"><span class="nav-title">Fichas & Espelhos</span><span class="nav-desc">Auditoria de simuladas</span></div></a>
             <a href="painel_cruzamento_sih_sp.html" class="nav-item"><i class="fas fa-search-dollar"></i><div class="nav-text"><span class="nav-title">Auditoria SIH x SP</span><span class="nav-desc">Cruzamento de capa e itens</span></div></a>
+            <a href="proposta_contrato.html" class="nav-item"><i class="fas fa-file-signature text-emerald-400"></i><div class="nav-text"><span class="nav-title">Gerador de Propostas</span><span class="nav-desc">Simulador de Metas e Fila Zero</span></div></a>
             
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Monitoramento de Operação</div>
             <a href="painel_regulacao.html" class="nav-item"><img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';"><div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de autorizações</span></div></a>
@@ -241,17 +245,24 @@
             
             <div class="dashboard-grid">
                 
-                <a href="painel_simuladas.html" class="glass-card" title="Acessar Fichas e Simuladas">
-                    <i class="fas fa-file-invoice-dollar kpi-icon text-emerald-500"></i>
-                    <div class="kpi-title">Total de AIHs (Fichas) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-emerald-400" id="kpi-aih"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-emerald-500" id="kpi-aih-sub">Lendo base de Simuladas...</div>
+                <a href="painel_simuladas.html" class="glass-card" title="Acessar Auditoria de Valores">
+                    <i class="fas fa-hospital-user kpi-icon text-blue-500"></i>
+                    <div class="kpi-title">Total de AIHs (Contas) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
+                    <div class="kpi-number text-blue-400" id="kpi-aih-real"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-aih-real-sub">Processando base...</div>
+                </a>
+
+                <a href="painel_simuladas.html" class="glass-card col-span-2" title="Acessar Painel BI" style="justify-content: flex-start; padding: 15px 20px;">
+                    <div class="kpi-title text-left mb-1"><i class="fas fa-chart-bar text-purple-400 mr-2"></i> AIHs por Especialidade Médica <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
+                    <div style="position: relative; height: 110px; width: 100%;">
+                        <canvas id="chartEspecHub"></canvas>
+                    </div>
                 </a>
 
                 <a href="painel_cirurgias.html" class="glass-card" title="Acessar Produção Cirúrgica">
-                    <i class="fas fa-scalpel kpi-icon text-blue-500"></i>
+                    <i class="fas fa-scalpel kpi-icon text-emerald-500"></i>
                     <div class="kpi-title">Cirurgias SUS (Meta 148) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-blue-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-number text-emerald-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-cir-sub">Lendo base Cirúrgica...</div>
                 </a>
 
@@ -262,9 +273,16 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </a>
 
-                <a href="painel_indicasus_v2.html" class="glass-card card-expandido" title="Acessar Auditoria IndicaSUS">
+                <a href="painel_simuladas.html" class="glass-card" title="Acessar Fila de Impressão">
+                    <i class="fas fa-print kpi-icon text-yellow-500"></i>
+                    <div class="kpi-title">Auditoria Pendente <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
+                    <div class="kpi-number text-yellow-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Verificando AIHs lidas...</div>
+                </a>
+
+                <a href="painel_indicasus_v2.html" class="glass-card col-span-3" title="Acessar Auditoria IndicaSUS">
                     <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
-                    <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
+                    <div class="kpi-title mb-2">Monitoramento de Capacidade Hospitalar (IndicaSUS) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     
                     <div class="leitos-grid">
                         <div class="leito-box">
@@ -288,13 +306,6 @@
                             <div class="leito-meta">Meta: 3 Leitos</div>
                         </div>
                     </div>
-                </a>
-                
-                <a href="painel_simuladas.html" class="glass-card" title="Acessar Impressão de Fichas">
-                    <i class="fas fa-print kpi-icon text-yellow-500"></i>
-                    <div class="kpi-title">Impressão Pendente <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-yellow-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Verificando fichas...</div>
                 </a>
 
             </div>
@@ -321,13 +332,13 @@
                 </div>
             </a>
 
-            <a href="painel_sigtap.html" class="shortcut-card">
+            <a href="proposta_contrato.html" class="shortcut-card">
                 <div class="shortcut-icon bg-emerald-500/20 border border-emerald-500/30">
-                    <img src="../logo_sigtap.png" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical text-emerald-400\'></i>';">
+                    <i class="fas fa-file-signature text-emerald-400"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-lg mb-1">Consultar Valores</h4>
-                    <p class="text-xs text-gray-400">Pesquise preços, regras no SIGTAP e CIDs compatíveis.</p>
+                    <h4 class="font-bold text-lg mb-1">Gerar Proposta</h4>
+                    <p class="text-xs text-gray-400">Simulador de Fila Zero e Tabela MT para aditivos contratuais.</p>
                 </div>
             </a>
 
@@ -344,10 +355,34 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
+        window.chartEspecInstance = null;
+
+        // Plugin do Chart.js para desenhar os números e nomes das especialidades dentro da barra
+        const alwaysShowLabels = {
+            id: 'alwaysShowLabels',
+            afterDatasetsDraw(chart, args, pluginOptions) {
+                const { ctx, data } = chart;
+                ctx.save();
+                chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+                    const value = data.datasets[0].data[index];
+                    const label = data.labels[index];
+                    ctx.font = 'bold 11px Inter';
+                    ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    // Desenha Label + Valor dentro da barra
+                    ctx.fillText(`${label}: ${value}`, datapoint.x + 8, datapoint.y);
+                });
+                ctx.restore();
+            }
+        };
+
         function toggleTheme() {
             const body = document.body;
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             
+            let isClassic = false;
+
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
                 localStorage.setItem('nii_theme_hub', 'neon');
@@ -358,6 +393,15 @@
                 localStorage.setItem('nii_theme_hub', 'classic');
                 btnIcon.classList.remove('fa-sun');
                 btnIcon.classList.add('fa-moon');
+                isClassic = true;
+            }
+
+            // Atualiza cores do gráfico em tempo real
+            if(window.chartEspecInstance) {
+                window.chartEspecInstance.data.datasets[0].backgroundColor = isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)';
+                window.chartEspecInstance.data.datasets[0].borderColor = isClassic ? '#7c3aed' : '#c084fc';
+                window.chartEspecInstance.options.scales.x.ticks.color = isClassic ? '#475569' : '#cbd5e1';
+                window.chartEspecInstance.update();
             }
         }
 
@@ -384,27 +428,88 @@
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                // --- 1. TOTAL DE AIHS ---
+                // --- 1 E 2. NOVOS CARDS: TOTAL DE AIHS REAIS E GRÁFICO ---
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
                     const dadosFichas = await responseJson.json();
-                    let totalFichas = dadosFichas.length;
                     
-                    $('#kpi-aih').text(new Intl.NumberFormat('pt-BR').format(totalFichas));
-                    $('#kpi-aih-sub').html('<i class="fas fa-check-circle"></i> Espelhos Gerados');
+                    let aihMap = {};
+                    dadosFichas.forEach(d => {
+                        // Trava de segurança para gerar chave única caso falte o num da AIH
+                        let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
+                        if (!aihMap[aih]) {
+                            let esp = d.ESPEC || "OUTROS";
+                            if(esp.includes('-')) esp = esp.split('-')[1].trim();
+                            aihMap[aih] = { especialidade: esp };
+                        }
+                    });
                     
-                    let impressas = JSON.parse(localStorage.getItem("nii_impressas_" + compString) || "[]");
-                    let lidas = impressas.length;
-                    let pendentes = totalFichas - lidas;
+                    let totalAihs = Object.keys(aihMap).length;
+                    $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(totalAihs));
+                    $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
+                    
+                    // Cálculo da Impressão/Auditoria usando a nova regra de chaves da AIH
+                    let chaveStorage = "nii_lidas_aih_" + compString;
+                    let lidas = JSON.parse(localStorage.getItem(chaveStorage) || "[]").length;
+                    let pendentes = totalAihs - lidas;
                     
                     $('#kpi-print').text(pendentes);
-                    $('#kpi-print-sub').html(`<i class="fas fa-check-double"></i> ${lidas} já impressas`);
+                    $('#kpi-print-sub').html(`<i class="fas fa-check-double"></i> ${lidas} contas já auditadas`);
+
+                    // Agrupamento para o Gráfico
+                    let especMap = {};
+                    Object.values(aihMap).forEach(info => {
+                        especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1;
+                    });
+                    let arrEspec = [];
+                    for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
+                    arrEspec.sort((a,b) => b.qtd - a.qtd); // Do maior pro menor
+                    
+                    // Pegar as 4 maiores para o gráfico do hub não ficar espremido
+                    let topEspec = arrEspec.slice(0, 4);
+
+                    let isClassic = document.body.classList.contains('theme-classic');
+                    
+                    window.chartEspecInstance = new Chart(document.getElementById('chartEspecHub').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: topEspec.map(x => x.nome),
+                            datasets: [{ 
+                                data: topEspec.map(x => x.qtd), 
+                                backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
+                                borderColor: isClassic ? '#7c3aed' : '#c084fc',
+                                borderWidth: 1,
+                                borderRadius: 4,
+                                barPercentage: 0.6
+                            }]
+                        },
+                        options: { 
+                            indexAxis: 'y', 
+                            maintainAspectRatio: false,
+                            layout: { padding: { right: 30, left: 0, top: 0, bottom: 0 } },
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: { enabled: false } // Remove tooltip para visualização mais limpa no Hub
+                            },
+                            scales: {
+                                x: { 
+                                    display: false,
+                                    suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3
+                                }, 
+                                y: { 
+                                    display: false // Ocultamos o eixo y porque o plugin alreadyShowLabels vai escrever o nome por cima da barra!
+                                }
+                            }
+                        },
+                        plugins: [alwaysShowLabels]
+                    });
+
                 } else {
-                    $('#kpi-aih, #kpi-print').text('-');
-                    $('#kpi-aih-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
+                    $('#kpi-aih-real, #kpi-print').text('-');
+                    $('#kpi-aih-real-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
                 }
 
-                // --- 2. CIRURGIAS ---
+                // --- 3. CIRURGIAS ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
@@ -418,7 +523,7 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 3. SISREG (SÓ PENDENTES + URGÊNCIA) ---
+                // --- 4. SISREG (SÓ PENDENTES + URGÊNCIA) ---
                 let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
@@ -447,7 +552,7 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. INDICASUS ---
+                // --- 5. INDICASUS ---
                 const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito, internacao_sus').gte('data_extracao', d1).lte('data_extracao', d2);
                 let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
                 
