@@ -13,7 +13,15 @@
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
@@ -90,15 +98,25 @@
         body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
 
         /* DATATABLES */
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; table-layout: fixed; /* Força o limite de largura nas células */ }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        /* Correção para não transbordar o texto da Descrição */
+        .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         body.theme-classic table.dataTable { color: #334155 !important; }
         body.theme-classic table.dataTable thead th { background-color: #004e92 !important; color: white !important; border-bottom: none !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
+
+        /* ESTILIZAÇÃO DOS BOTÕES DO DATATABLES (Excel/PDF) */
+        .dt-buttons { margin-bottom: 15px; }
+        .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; }
+        .dt-button:hover { background: rgba(56, 189, 248, 0.3) !important; color: white !important;}
+        body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
 
         /* SELECT2 */
         .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 28px; padding: 2px; transition: 0.3s; }
@@ -217,14 +235,14 @@
             <table id="tabelaCruzamento" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th class="text-center" width="80">Ação</th>
-                        <th width="110">Nº AIH</th>
-                        <th width="80">CID-10</th>
+                        <th class="text-center" width="70">Ação</th>
+                        <th width="100">Nº AIH</th>
+                        <th width="70">CID-10</th>
                         <th width="90">Código</th>
                         <th>Descrição do Procedimento</th>
-                        <th width="110">Especialidade</th>
+                        <th width="100">Especialidade</th>
                         <th width="80" class="text-center">Internamento</th>
-                        <th width="110" class="text-right">Valor Capa</th>
+                        <th width="90" class="text-right">Valor Capa</th>
                     </tr>
                     <tr id="filterRow">
                         <th></th>
@@ -331,6 +349,7 @@
         let chartEspec = null, chartTopProc = null;
         let dicProcedimentos = {};
         let contasAgrupadasGlobais = {}; 
+        let contaAtualModal = null; // Armazena a conta do modal aberto
         
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -348,7 +367,6 @@
                 localStorage.setItem('nii_theme_fin', 'classic');
             }
             if (tabelaInstancia) {
-                // Ao trocar de tema com a tabela montada, redesenha usando os dados visíveis
                 let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
                 desenharGraficos(dadosVisiveis);
             }
@@ -465,9 +483,6 @@
             return final;
         }
 
-        // ==============================================================
-        // ATUALIZAÇÃO REATIVA DO DASHBOARD
-        // ==============================================================
         function atualizarDashboardEstrategico(dadosFiltrados) {
             let totalValorRD = 0;
             let totalItensSP = 0; 
@@ -514,8 +529,6 @@
                 c.itens_sisaih = agruparComoSisaih(c.itens_sp, cmpt);
             });
 
-            // O DataTables vai disparar o evento 'draw' logo após ser montado, 
-            // o que atualizará os KPIs e Gráficos automaticamente.
             montarTabelaDataTables(arrayTabela);
         }
 
@@ -580,7 +593,7 @@
 
         function montarTabelaDataTables(dados) {
             if (tabelaInstancia) { 
-                tabelaInstancia.off('draw'); // Desliga o evento anterior
+                tabelaInstancia.off('draw'); 
                 tabelaInstancia.destroy(); 
                 $('#tabelaCruzamento tbody').empty(); 
             }
@@ -588,6 +601,11 @@
             tabelaInstancia = $('#tabelaCruzamento').DataTable({
                 data: dados,
                 orderCellsTop: true,
+                dom: '<"flex justify-between items-center mb-4"lB>rtip', // Posiciona botões Exportação
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Base (.xlsx)', className: 'dt-button', title: 'Auditoria_Contas_SIH' },
+                    { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i> Salvar Relatório (.pdf)', className: 'dt-button', orientation: 'landscape', title: 'Relatório Auditoria SIH' }
+                ],
                 columns: [
                     { data: null, className: 'text-center', render: (d,t,r) => `<button onclick="abrirAuditoria('${r.n_aih}')" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold transition hover:bg-blue-500 text-white shadow">Auditar</button>` },
                     { data: 'n_aih', className: 'font-mono font-bold text-emerald-400' },
@@ -595,17 +613,18 @@
                     { data: 'proc_principal', className: 'font-mono font-bold text-blue-400 text-center' },
                     { 
                         data: 'proc_principal', 
+                        className: 'td-truncate', // Aplica a classe de truncamento do CSS
                         render: function(d, type) { 
                             let desc = getProcName(d).split(' - ')[1] || d;
-                            if(type === 'display' && desc.length > 40) return `<span title="${desc}">${desc.substring(0, 40)}...</span>`;
-                            return desc;
+                            if(type === 'display') return `<span title="${desc}">${desc}</span>`; // Ocupa máx de width e põe ...
+                            return desc; // Excel/PDF pega o nome inteiro
                         } 
                     },
                     { data: 'espec', className: 'text-center font-bold text-[11px]', render: d => dicEspecialidades[d] || d },
                     { data: 'dt_inter', className: 'text-center font-mono', render: d => formataDataISO(d) },
                     { data: 'rd_val_tot', className: 'text-right font-bold text-blue-300', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
-                order: [[7, 'desc']], pageLength: 15, dom: 'rtip',
+                order: [[7, 'desc']], pageLength: 15, 
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 initComplete: function () {
                     this.api().columns().every(function (i) {
@@ -643,24 +662,22 @@
                         });
 
                         select.select2({
-                            placeholder: "Filtrar...",
-                            allowClear: true,
-                            language: { noResults: () => "Nada" }
+                            placeholder: "Filtrar...", allowClear: true, language: { noResults: () => "Nada" }
                         });
                     });
                 }
             });
 
-            // ATENÇÃO: O EVENTO MÁGICO DE ATUALIZAÇÃO EM TEMPO REAL!
             tabelaInstancia.on('draw', function () {
-                // Pega os dados que passaram pelos filtros (pesquisa global ou coluna)
                 let dadosFiltradosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
                 atualizarDashboardEstrategico(dadosFiltradosVisiveis);
             });
         }
 
         window.abrirAuditoria = function(aih) {
-            const c = contasAgrupadasGlobais[aih];
+            contaAtualModal = contasAgrupadasGlobais[aih];
+            const c = contaAtualModal;
+            
             $('#modAihNum').text("AIH: " + aih);
             $('#modProcPrinc').text(getProcName(c.proc_principal));
             $('#modValorTotal').text(formatBrl.format(c.rd_val_tot));
@@ -700,7 +717,7 @@
             let csv = '\uFEFF'; 
             csv += "Auditoria AIH:;" + contaAtualModal.n_aih + "\n";
             csv += "Procedimento:;" + getProcName(contaAtualModal.proc_principal) + "\n";
-            csv += "Valor Total AIH:;" + formatBrl.format(contaAtualModal.valor_tot_rd) + "\n\n";
+            csv += "Valor Total AIH:;" + formatBrl.format(contaAtualModal.rd_val_tot) + "\n\n";
             
             csv += "Linha;Procedimento;Documento;CBO;Qtde;Cmpt;CNES;Descricao;Valor Total\n";
             
