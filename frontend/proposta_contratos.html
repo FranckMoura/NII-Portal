@@ -31,10 +31,10 @@
         
         .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 20px 40px; margin-bottom: 20px; }
         .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px; text-align: center; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s;}
         
-        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
-        .kpi-number { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;}
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; transition: 0.3s;}
+        .kpi-number { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px; transition: 0.3s;}
         
         .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
@@ -42,8 +42,8 @@
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
         
         .cart-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px 5px; color: #38bdf8; font-size: 0.70rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); }
-        .cart-table td { padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; vertical-align: middle; }
+        .cart-table th { background: rgba(0,0,0,0.3); padding: 10px 5px; color: #38bdf8; font-size: 0.70rem; text-transform: uppercase; border-bottom: 2px solid rgba(56, 189, 248, 0.3); transition: 0.3s;}
+        .cart-table td { padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; vertical-align: middle; transition: 0.3s;}
         
         .input-qtd { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 6px; width: 60px; text-align: center; font-weight: bold; outline: none; }
         .print-qtd { display: none; }
@@ -74,6 +74,9 @@
         body.theme-classic .cart-table td { border-bottom-color: #f1f5f9; color: #334155; }
         body.theme-classic .input-qtd, body.theme-classic select { background: white; color: #0f172a; border-color: #cbd5e1; }
         
+        body.theme-classic .text-pink-400 { color: #db2777 !important; }
+        body.theme-classic .text-yellow-400 { color: #d97706 !important; }
+
         body.theme-classic .select2-container--default .select2-selection--single { background-color: white !important; border-color: #cbd5e1 !important; }
         body.theme-classic .select2-container--default .select2-selection--single .select2-selection__rendered { color: #0f172a !important; }
         body.theme-classic .select2-dropdown { background-color: white !important; border-color: #cbd5e1 !important; }
@@ -87,29 +90,28 @@
         .print-header-visible { display: none; }
         
         @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-            body { background: white !important; color: black !important; font-size: 7pt !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white !important; color: black !important; font-size: 8pt !important; }
             
             .no-print, .blob-1, .blob-2, .header-bg, #sidebar-historico, .input-qtd { display: none !important; }
             
-            .cyber-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px !important;}
+            .cyber-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 20px !important;}
             
-            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px; }
-            .print-header-visible h2 { font-size: 12pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
-            .print-header-visible h3 { font-size: 9pt; font-weight: bold; margin: 5px 0; color: black !important;}
-            .print-header-visible p { font-size: 7pt; color: black !important; margin: 0;}
+            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+            .print-header-visible h2 { font-size: 14pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
+            .print-header-visible h3 { font-size: 10pt; font-weight: bold; margin: 5px 0; color: black !important;}
+            .print-header-visible p { font-size: 8pt; color: black !important; margin: 0;}
 
-            #prop-titulo { border: none !important; background: transparent !important; color: black !important; font-size: 11pt !important; font-weight: bold !important; padding: 0 !important; margin-bottom: 10px !important; text-align: center; width: 100%; }
+            #prop-titulo { border: none !important; background: transparent !important; color: black !important; font-size: 14pt !important; font-weight: bold !important; padding: 0 !important; margin-bottom: 15px !important; text-align: center; width: 100%; }
 
-            .grid { display: flex !important; flex-direction: row !important; gap: 5px !important; margin-bottom: 15px !important; }
-            .glass-card { background: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 5px !important; flex: 1; text-align: center; }
-            .kpi-title { color: black !important; font-size: 6pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
-            .kpi-title i, .glass-card .text-xs { display: none !important; }
-            .kpi-number { color: black !important; font-size: 10pt !important; margin: 0 !important; font-weight: bold !important;}
+            .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 20px !important; }
+            .glass-card { background: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 10px !important; flex: 1; text-align: center; }
+            .kpi-title { color: black !important; font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
+            .kpi-number { color: black !important; font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
             
             .cart-table { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
-            .cart-table th { background-color: #e5e7eb !important; color: black !important; font-size: 6pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 3px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
-            .cart-table td { background-color: white !important; color: black !important; font-size: 6pt !important; border: 1px solid black !important; padding: 3px !important; font-weight: normal !important;}
+            .cart-table th { background-color: #e5e7eb !important; color: black !important; font-size: 7pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 6px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+            .cart-table td { background-color: white !important; color: black !important; font-size: 7pt !important; border: 1px solid black !important; padding: 6px !important; font-weight: normal !important;}
             
             .cart-table td, .cart-table td span, .cart-table td div { color: black !important; text-shadow: none !important; }
             
@@ -118,18 +120,16 @@
 
             .print-qtd { display: inline !important; font-weight: bold !important; color: black !important; }
             
-            /* Ajuste de 10 colunas (A última é a Ação, escondida) */
-            .cart-table th:nth-child(10), .cart-table td:nth-child(10) { display: none !important; }
+            /* Ajuste de 8 colunas (A última é a Ação, escondida) */
+            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { display: none !important; }
 
-            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 10% !important; text-align: center !important;} 
-            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 28% !important; text-align: left !important;} 
+            .cart-table th:nth-child(1), .cart-table td:nth-child(1) { width: 12% !important; text-align: center !important;} 
+            .cart-table th:nth-child(2), .cart-table td:nth-child(2) { width: 38% !important; text-align: left !important;} 
             .cart-table th:nth-child(3), .cart-table td:nth-child(3) { width: 6% !important; text-align: center !important;}  
-            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 9% !important; text-align: right !important;} 
-            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 9% !important; text-align: right !important;} 
-            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 9% !important; text-align: right !important;} 
-            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 9% !important; text-align: right !important;} 
-            .cart-table th:nth-child(8), .cart-table td:nth-child(8) { width: 9% !important; text-align: right !important;} 
-            .cart-table th:nth-child(9), .cart-table td:nth-child(9) { width: 11% !important; text-align: right !important;} 
+            .cart-table th:nth-child(4), .cart-table td:nth-child(4) { width: 11% !important; text-align: right !important;} 
+            .cart-table th:nth-child(5), .cart-table td:nth-child(5) { width: 11% !important; text-align: right !important;} 
+            .cart-table th:nth-child(6), .cart-table td:nth-child(6) { width: 11% !important; text-align: right !important;} 
+            .cart-table th:nth-child(7), .cart-table td:nth-child(7) { width: 11% !important; text-align: right !important;} 
         }
     </style>
 </head>
@@ -156,7 +156,7 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-file-signature text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-2xl font-bold'>Gerador de Propostas</h1>
-                    <p class='text-xs opacity-70'>Salve, edite e exporte suas metas contratuais (Fila Zero e Tabela MT 2026)</p>
+                    <p class='text-xs opacity-70'>Simulador Oficial de Metas Físicas e Repasses Extras</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -174,23 +174,32 @@
     <div class="print-header-visible">
         <h2>Hospital Beneficente Santa Helena</h2>
         <h3>Proposta de Prestação de Serviços - Metas Físicas e Financeiras</h3>
+        <p id="print-tabela-ref" style="font-weight: bold; margin-bottom: 5px;"></p>
         <p id="print-date"></p>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="mb-4">
-            <label class="text-xs font-bold text-gray-400 uppercase no-print">Nome da Proposta:</label>
-            <input type="text" id="prop-titulo" placeholder="Ex: Proposta Mutirão de Cirurgias - Abril/2026" class="w-full bg-black/30 border border-white/10 p-3 rounded-lg text-xl font-bold text-emerald-400 outline-none focus:border-emerald-500">
-            <input type="hidden" id="prop-id">
+        <div class="mb-4 flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1">
+                <label class="text-xs font-bold text-gray-400 uppercase no-print block mb-1">Nome da Proposta:</label>
+                <input type="text" id="prop-titulo" placeholder="Ex: Proposta Mutirão de Cirurgias - Abril/2026" class="w-full bg-black/30 border border-white/10 p-3 rounded-lg text-xl font-bold text-emerald-400 outline-none focus:border-emerald-500">
+                <input type="hidden" id="prop-id">
+            </div>
+            <div class="w-full md:w-64 no-print">
+                <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Tabela de Referência:</label>
+                <select id="tipo-tabela" class="w-full bg-black/30 border border-white/10 p-3 rounded-lg text-lg font-bold text-pink-400 outline-none focus:border-pink-500 cursor-pointer" onchange="mudarTabelaReferencia()">
+                    <option value="mt2026">Tabela MT 2026</option>
+                    <option value="filazero">Fila Zero (Desuso)</option>
+                </select>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="glass-card"><div class="kpi-title">Qtd Total</div><div class="kpi-number text-blue-400" id="kpi-qtd">0</div></div>
             <div class="glass-card"><div class="kpi-title">Total SIGTAP</div><div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div></div>
-            <div class="glass-card"><div class="kpi-title">Total F. Zero (Atual)</div><div class="kpi-number text-yellow-400" id="kpi-fz">R$ 0,00</div></div>
-            <div class="glass-card"><div class="kpi-title">Total Tabela MT</div><div class="kpi-number text-pink-400" id="kpi-mt">R$ 0,00</div></div>
-            <div class="glass-card"><div class="kpi-title">Gap (MT - SIGTAP)</div><div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title" id="lbl-kpi-repasse">Total Tabela MT</div><div class="kpi-number text-pink-400" id="kpi-repasse">R$ 0,00</div></div>
+            <div class="glass-card"><div class="kpi-title">Gap (Repasse - SIGTAP)</div><div class="kpi-number text-purple-400" id="kpi-diff">R$ 0,00</div></div>
         </div>
 
         <div class="cyber-container no-print">
@@ -223,11 +232,9 @@
                             <th>Procedimento</th>
                             <th class="text-center">Meta</th>
                             <th class="text-right">Unit. SIGTAP</th>
-                            <th class="text-right">Unit. F. Zero</th>
-                            <th class="text-right">Unit. Tab MT</th>
+                            <th class="text-right" id="th-unit-ref">Unit. Tabela MT</th>
                             <th class="text-right">Total SIGTAP</th>
-                            <th class="text-right">Total F. Zero</th>
-                            <th class="text-right">Total Tab MT</th>
+                            <th class="text-right" id="th-tot-ref">Total Tabela MT</th>
                             <th class="text-center no-print">Ação</th>
                         </tr>
                     </thead>
@@ -244,6 +251,8 @@
 
         let catalogoGlobal = {}; 
         let propostaCarrinho = []; 
+        let tabelaReferencia = 'mt2026'; // Controlador global da tabela ativa (mt2026 ou filazero)
+        
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
         function toggleTheme() {
@@ -258,6 +267,29 @@
                 localStorage.setItem('nii_theme_prop', 'classic');
                 icon.className = 'fas fa-moon';
             }
+        }
+
+        window.mudarTabelaReferencia = function() {
+            tabelaReferencia = $('#tipo-tabela').val();
+            
+            if(tabelaReferencia === 'mt2026') {
+                $('#tipo-tabela').removeClass('text-yellow-400 focus:border-yellow-500').addClass('text-pink-400 focus:border-pink-500');
+                $('#lbl-kpi-repasse').text('Total Tabela MT');
+                $('#kpi-repasse').removeClass('text-yellow-400').addClass('text-pink-400');
+                $('#th-unit-ref').text('Unit. Tabela MT');
+                $('#th-tot-ref').text('Total Tabela MT');
+                $('#print-tabela-ref').text('Base de Cálculo Utilizada: Nova Tabela MT 2026');
+            } else {
+                $('#tipo-tabela').removeClass('text-pink-400 focus:border-pink-500').addClass('text-yellow-400 focus:border-yellow-500');
+                $('#lbl-kpi-repasse').text('Total Fila Zero');
+                $('#kpi-repasse').removeClass('text-pink-400').addClass('text-yellow-400');
+                $('#th-unit-ref').text('Unit. Fila Zero');
+                $('#th-tot-ref').text('Total Fila Zero');
+                $('#print-tabela-ref').text('Base de Cálculo Utilizada: Programa Fila Zero (Desuso)');
+            }
+            
+            atualizarSelectProcedimentos();
+            renderizarTabelaProposta();
         }
 
         $(document).ready(function() { 
@@ -283,27 +315,42 @@
                 let mapMT = {}; 
                 if (mt) mt.forEach(m => mapMT[String(m.codigo_sigtap).padStart(10, '0')] = Number(m.valor_unitario || 0));
 
-                let options = '<option value="">Selecione ou digite...</option>';
-                
                 sigtap.forEach(item => {
                     let codStr = String(item.codigo).padStart(10, '0');
                     let totalSig = Number(item.valor_hospitalar || 0) + Number(item.valor_profissional || 0);
-                    let valFz = mapFZ[codStr] || 0;
-                    let valMt = mapMT[codStr] || 0;
                     
-                    catalogoGlobal[codStr] = { nome: item.nome, val_sigtap: totalSig, val_fz: valFz, val_mt: valMt };
-                    
-                    let labelTag = '';
-                    if (valMt > 0) labelTag = ` [MT 26: ${formatBrl.format(valMt)}]`;
-                    else if (valFz > 0) labelTag = ` [FZ: ${formatBrl.format(valFz)}]`;
-
-                    options += `<option value="${codStr}">${codStr} - ${item.nome}${labelTag}</option>`;
+                    catalogoGlobal[codStr] = { 
+                        nome: item.nome, 
+                        val_sigtap: totalSig, 
+                        val_fz: mapFZ[codStr] || 0, 
+                        val_mt: mapMT[codStr] || 0 
+                    };
                 });
                 
-                $('#select-procedimento').html(options).select2({
-                    placeholder: "Busque código ou nome...", allowClear: true
-                });
+                mudarTabelaReferencia(); // Configura a interface inicial baseada no select e gera as opções
+
             } finally { $('#loader').hide(); }
+        }
+
+        function atualizarSelectProcedimentos() {
+            let options = '<option value="">Selecione ou digite...</option>';
+            
+            Object.keys(catalogoGlobal).forEach(codStr => {
+                let info = catalogoGlobal[codStr];
+                let labelTag = '';
+                
+                if (tabelaReferencia === 'mt2026' && info.val_mt > 0) {
+                    labelTag = ` [MT 26: ${formatBrl.format(info.val_mt)}]`;
+                } else if (tabelaReferencia === 'filazero' && info.val_fz > 0) {
+                    labelTag = ` [FZ: ${formatBrl.format(info.val_fz)}]`;
+                }
+
+                options += `<option value="${codStr}">${codStr} - ${info.nome}${labelTag}</option>`;
+            });
+            
+            $('#select-procedimento').html(options).select2({
+                placeholder: "Busque código ou nome...", allowClear: true
+            });
         }
 
         function toggleHistorico() { 
@@ -330,36 +377,35 @@
         function exportarExcel() {
             if (propostaCarrinho.length === 0) return alert("A proposta está vazia.");
 
-            let csvContent = "\uFEFF" + "CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;VLR_UNIT_FILAZERO;VLR_UNIT_MT2026;TOTAL_SIGTAP;TOTAL_FILAZERO;TOTAL_MT2026\n";
+            let headNome = tabelaReferencia === 'mt2026' ? 'VLR_UNIT_MT2026;TOTAL_MT2026' : 'VLR_UNIT_FILAZERO;TOTAL_FILAZERO';
+            let csvContent = "\uFEFF" + `CÓDIGO;PROCEDIMENTO;COMPLEXIDADE;META_FISICA;VLR_UNIT_SIGTAP;${headNome.split(';')[0]};TOTAL_SIGTAP;${headNome.split(';')[1]}\n`;
             
             propostaCarrinho.forEach(item => {
                 let info = catalogoGlobal[item.codigo];
+                let valRef = tabelaReferencia === 'mt2026' ? info.val_mt : info.val_fz;
+                
                 let subSigtap = info.val_sigtap * item.qtd;
-                let subFz = info.val_fz * item.qtd;
-                let subMt = info.val_mt * item.qtd;
+                let subRef = valRef * item.qtd;
                 
                 let numSig = info.val_sigtap.toFixed(2).replace('.', ',');
-                let numFz = info.val_fz.toFixed(2).replace('.', ',');
-                let numMt = info.val_mt.toFixed(2).replace('.', ',');
+                let numRef = valRef.toFixed(2).replace('.', ',');
                 let totSig = subSigtap.toFixed(2).replace('.', ',');
-                let totFz = subFz.toFixed(2).replace('.', ',');
-                let totMt = subMt.toFixed(2).replace('.', ',');
+                let totRef = subRef.toFixed(2).replace('.', ',');
                 let compx = item.complexidade === 'MEDIA' ? 'MÉDIA' : 'ALTA';
 
-                csvContent += `="${item.codigo}";"${info.nome}";"${compx}";${item.qtd};"${numSig}";"${numFz}";"${numMt}";"${totSig}";"${totFz}";"${totMt}"\n`;
+                csvContent += `="${item.codigo}";"${info.nome}";"${compx}";${item.qtd};"${numSig}";"${numRef}";"${totSig}";"${totRef}"\n`;
             });
 
             let tQtd = $('#kpi-qtd').text();
             let tSig = $('#kpi-sigtap').text().replace('R$', '').trim(); 
-            let tFz = $('#kpi-fz').text().replace('R$', '').trim();
-            let tMt = $('#kpi-mt').text().replace('R$', '').trim();
+            let tRef = $('#kpi-repasse').text().replace('R$', '').trim();
 
-            csvContent += `\n"TOTAIS";"";"";${tQtd};;"";"";"${tSig}";"${tFz}";"${tMt}"\n`;
+            csvContent += `\n"TOTAIS";"";"";${tQtd};;"";"${tSig}";"${tRef}"\n`;
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `Proposta_Contratual_${new Date().getTime()}.csv`;
+            link.download = `Proposta_Contratual_${tabelaReferencia}_${new Date().getTime()}.csv`;
             link.click();
         }
 
@@ -375,7 +421,8 @@
                 titulo: titulo,
                 itens_json: propostaCarrinho,
                 valor_total_sigtap: parseFloat($('#kpi-sigtap').text().replace(/\D/g,''))/100,
-                valor_total_fz: parseFloat($('#kpi-fz').text().replace(/\D/g,''))/100,
+                // Salvando no mesmo campo do banco, mas isso representa o valor de repasse total selecionado na tela
+                valor_total_fz: parseFloat($('#kpi-repasse').text().replace(/\D/g,''))/100, 
                 qtd_total: parseInt($('#kpi-qtd').text()),
                 atualizado_em: new Date()
             };
@@ -411,6 +458,8 @@
                 propostaCarrinho = data.itens_json;
                 $('#prop-id').val(data.id);
                 $('#prop-titulo').val(data.titulo);
+                
+                // Ao carregar uma proposta, ele aplica os cálculos da tabela que estiver ativa na tela.
                 renderizarTabelaProposta();
                 toggleHistorico();
             }
@@ -418,36 +467,41 @@
 
         function renderizarTabelaProposta() {
             const tbody = $('#tbody-proposta'); tbody.empty();
-            let tQtd = 0, tSig = 0, tFz = 0, tMt = 0;
+            let tQtd = 0, tSig = 0, tRef = 0;
 
             if (propostaCarrinho.length === 0) {
-                tbody.html(`<tr id="linha-vazia"><td colspan="10" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
+                tbody.html(`<tr id="linha-vazia"><td colspan="8" class="text-center py-8 text-gray-500 font-bold">Nenhuma meta definida. Busque e adicione procedimentos acima.</td></tr>`);
             } else {
                 ['MEDIA', 'ALTA'].forEach(compx => {
                     let list = propostaCarrinho.filter(i => i.complexidade === compx);
                     if (list.length === 0) return;
                     
-                    let subQtd = 0, subSig = 0, subFz = 0, subMt = 0;
+                    let subQtd = 0, subSig = 0, subRef = 0;
                     
-                    // Ordena pela tabela MT 2026, fallback pro FZ, fallback SIGTAP
+                    // Ordena pela tabela de referência ativa
                     list.sort((a,b) => {
-                        let valA = catalogoGlobal[a.codigo].val_mt || catalogoGlobal[a.codigo].val_fz || catalogoGlobal[a.codigo].val_sigtap;
-                        let valB = catalogoGlobal[b.codigo].val_mt || catalogoGlobal[b.codigo].val_fz || catalogoGlobal[b.codigo].val_sigtap;
+                        let valA = tabelaReferencia === 'mt2026' ? catalogoGlobal[a.codigo].val_mt : catalogoGlobal[a.codigo].val_fz;
+                        let valB = tabelaReferencia === 'mt2026' ? catalogoGlobal[b.codigo].val_mt : catalogoGlobal[b.codigo].val_fz;
+                        // Fallback pro SIGTAP caso não tenha preço na referência
+                        if(!valA) valA = catalogoGlobal[a.codigo].val_sigtap;
+                        if(!valB) valB = catalogoGlobal[b.codigo].val_sigtap;
+
                         return (valB * b.qtd) - (valA * a.qtd);
                     });
 
-                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="10" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2 no-print"></i> COMPLEXIDADE: ${compx}</td></tr>`);
+                    tbody.append(`<tr class="group-header bg-blue-900/30"><td colspan="8" class="p-2 text-xs font-bold text-blue-300 uppercase"><i class="fas fa-layer-group mr-2 no-print"></i> COMPLEXIDADE: ${compx}</td></tr>`);
                     
                     list.forEach(item => {
                         let info = catalogoGlobal[item.codigo];
+                        
+                        let valUnitRef = tabelaReferencia === 'mt2026' ? info.val_mt : info.val_fz;
+                        
                         let sSig = info.val_sigtap * item.qtd;
-                        let sFz = info.val_fz * item.qtd;
-                        let sMt = info.val_mt * item.qtd;
+                        let sRef = valUnitRef * item.qtd;
                         
-                        subQtd += item.qtd; subSig += sSig; subFz += sFz; subMt += sMt;
+                        subQtd += item.qtd; subSig += sSig; subRef += sRef;
                         
-                        let corFzClass = info.val_fz > 0 ? "text-yellow-400 font-bold" : "text-gray-500";
-                        let corMtClass = info.val_mt > 0 ? "text-pink-400 font-bold" : "text-gray-500";
+                        let corRefClass = valUnitRef > 0 ? (tabelaReferencia === 'mt2026' ? "text-pink-400 font-bold" : "text-yellow-400 font-bold") : "text-gray-500";
 
                         tbody.append(`<tr>
                             <td class="font-mono text-cyan-400 text-center">${item.codigo}</td>
@@ -457,34 +511,33 @@
                                 <span class="print-qtd">${item.qtd}</span>
                             </td>
                             <td class="text-right text-gray-400">${formatBrl.format(info.val_sigtap)}</td>
-                            <td class="text-right ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(info.val_fz) : '-'}</td>
-                            <td class="text-right ${corMtClass}">${info.val_mt > 0 ? formatBrl.format(info.val_mt) : '-'}</td>
+                            <td class="text-right ${corRefClass}">${valUnitRef > 0 ? formatBrl.format(valUnitRef) : '-'}</td>
                             <td class="text-right text-emerald-400 font-bold">${formatBrl.format(sSig)}</td>
-                            <td class="text-right ${corFzClass}">${info.val_fz > 0 ? formatBrl.format(sFz) : '-'}</td>
-                            <td class="text-right ${corMtClass}">${info.val_mt > 0 ? formatBrl.format(sMt) : '-'}</td>
+                            <td class="text-right ${corRefClass}">${valUnitRef > 0 ? formatBrl.format(sRef) : '-'}</td>
                             <td class="text-center no-print"><button onclick="remover('${item.codigo}','${compx}')" class="text-red-500"><i class="fas fa-trash"></i></button></td>
                         </tr>`);
                     });
 
+                    let corSubtotalRef = tabelaReferencia === 'mt2026' ? 'text-pink-400' : 'text-yellow-400';
+
                     tbody.append(`<tr class="subtotal-row bg-white/5 font-bold text-[0.80rem]">
                         <td colspan="2" class="text-right text-gray-400 uppercase py-2">Subtotal ${compx}:</td>
                         <td class="text-center text-white py-2">${subQtd}</td>
-                        <td colspan="3" class="py-2"></td>
+                        <td class="py-2"></td>
+                        <td class="py-2"></td>
                         <td class="text-right text-emerald-400 py-2">${formatBrl.format(subSig)}</td>
-                        <td class="text-right text-yellow-400 py-2">${formatBrl.format(subFz)}</td>
-                        <td class="text-right text-pink-400 py-2">${formatBrl.format(subMt)}</td>
+                        <td class="text-right ${corSubtotalRef} py-2">${formatBrl.format(subRef)}</td>
                         <td class="no-print py-2"></td>
                     </tr>`);
 
-                    tQtd += subQtd; tSig += subSig; tFz += subFz; tMt += subMt;
+                    tQtd += subQtd; tSig += subSig; tRef += subRef;
                 });
             }
 
             $('#kpi-qtd').text(tQtd); 
             $('#kpi-sigtap').text(formatBrl.format(tSig)); 
-            $('#kpi-fz').text(formatBrl.format(tFz)); 
-            $('#kpi-mt').text(formatBrl.format(tMt)); 
-            $('#kpi-diff').text(formatBrl.format(tMt > 0 ? (tMt - tSig) : 0));
+            $('#kpi-repasse').text(formatBrl.format(tRef)); 
+            $('#kpi-diff').text(formatBrl.format(tRef > 0 ? (tRef - tSig) : 0));
         }
 
         function atualizarQtd(c, m, v) { let i = propostaCarrinho.find(x=>x.codigo===c && x.complexidade===m); if(i) i.qtd = parseInt(v); renderizarTabelaProposta(); }
