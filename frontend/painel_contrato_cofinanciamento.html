@@ -96,61 +96,71 @@
         body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
 
         /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (PDF/P&B, Retrato, ALTO CONTRASTE)*/
+        /* OTIMIZAÇÃO DE IMPRESSÃO - MODO NUCLEAR (BRANCO ABSOLUTO)  */
         /* ========================================================= */
         .print-header-visible { display: none; }
         
         @media print {
             @page { size: A4 portrait; margin: 8mm; }
             
-            /* Força fundo branco e texto preto na página inteira */
-            html, body { 
-                background: white !important; 
+            /* 1. MODO NUCLEAR: Força TODAS AS TAGS a serem brancas no fundo e pretas no texto */
+            * {
                 background-color: white !important;
-                background-image: none !important; 
-                color: black !important; 
-                font-size: 8pt !important; 
+                background-image: none !important;
+                color: black !important;
+                text-shadow: none !important;
+                box-shadow: none !important;
             }
-            
-            /* Oculta tudo que for menu, botão, controles do DataTables e enfeites visuais */
+
+            /* 2. Oculta tudo que não pertence ao papel */
             body::before, .no-print, .blob-1, .blob-2, .header-bg, 
             .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { 
                 display: none !important; 
             }
             
-            .cyber-container { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 20px !important;}
+            /* 3. Limpeza de Containers */
+            body { padding: 0 !important; margin: 0 !important; }
+            .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; }
             
-            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
-            .print-header-visible h2 { font-size: 14pt; font-weight: 900; margin: 0; color: black !important; text-transform: uppercase;}
-            .print-header-visible h3 { font-size: 10pt; font-weight: bold; margin: 5px 0; color: black !important;}
-            .print-header-visible p { font-size: 8pt; color: black !important; margin: 0;}
+            /* 4. Cabeçalho Oficial do Hospital */
+            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
+            .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
+            .print-header-visible h3 { font-size: 10pt !important; font-weight: bold !important; margin: 5px 0 !important; }
+            .print-header-visible p { font-size: 8pt !important; margin: 0 !important; }
 
-            /* KPIs na impressão */
-            .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 20px !important; page-break-inside: avoid; }
-            .glass-card { background: white !important; background-color: white !important; border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1; text-align: center; box-shadow: none !important; }
-            .kpi-title { color: black !important; font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
-            .kpi-title i, .glass-card .text-xs, .kpi-sub { display: none !important; } /* Oculta textos miúdos do KPI */
-            .kpi-number { color: black !important; font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
+            /* 5. KPIs */
+            .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 20px !important; page-break-inside: avoid !important; }
+            .glass-card { border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1 !important; text-align: center !important; }
+            .kpi-title { font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
+            .kpi-title i, .glass-card .text-xs, .kpi-sub { display: none !important; } 
+            .kpi-number { font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
             
-            /* Força CORES DE TEXTO E EFEITOS DO TAILWIND para Preto */
-            .text-cyan-400, .text-emerald-400, .text-yellow-400, .text-pink-400, .text-purple-400, 
-            .text-gray-400, .text-gray-500, .text-blue-400, .text-blue-300, .text-white { 
-                color: black !important; 
-                text-shadow: none !important;
-            }
-
-            /* Configurações da Tabela de Impressão */
+            /* 6. Tabela - Estrutura e Cabeçalho Cinza */
             .dataTables_wrapper { overflow: visible !important; }
             table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
-            table.dataTable th { background-color: #e5e7eb !important; color: black !important; font-size: 6.5pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 4px !important; text-align: center !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
-            table.dataTable td { background-color: white !important; color: black !important; font-size: 6.5pt !important; border: 1px solid black !important; padding: 4px !important; font-weight: normal !important;}
             
-            table.dataTable td span, table.dataTable td div { color: black !important; text-shadow: none !important; }
+            table.dataTable th { 
+                background-color: #e5e7eb !important; /* Retorna o cinza claro no cabeçalho */
+                font-size: 6.5pt !important; 
+                font-weight: bold !important; 
+                border: 1px solid black !important; 
+                padding: 4px !important; 
+                text-align: center !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
             
-            /* Remove a classe truncate para a Descrição quebrar de linha na impressão */
+            table.dataTable td { 
+                font-size: 6.5pt !important; 
+                border: 1px solid black !important; 
+                padding: 4px !important; 
+                font-weight: normal !important;
+            }
+            
+            /* Quebra automática de linha para descrições longas não cortarem */
             .td-truncate { white-space: normal !important; overflow: visible !important; }
 
-            /* Larguras padronizadas para retrato (A4) */
+            /* 7. Proporção de Colunas exata para caber no Retrato */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important;} 
             table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 34% !important; text-align: left !important;} 
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 6% !important; text-align: center !important;}  
@@ -341,7 +351,7 @@
                         }
                     ],
                     order: [[ 6, 'desc' ]], // Ordena por maior Faturamento MT por padrão
-                    pageLength: -1, // Mostra tudo para impressão (vamos tirar o limite)
+                    pageLength: -1, // Mostra tudo para impressão
                     lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
                     columns: [
                         { data: 'codigo', className: 'text-center font-mono font-bold text-cyan-400' },
