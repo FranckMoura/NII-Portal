@@ -247,7 +247,7 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <!-- NOVO FILTRO DE COMPETÊNCIA -->
+                <!-- FILTRO DE COMPETÊNCIA E INTELIGÊNCIA DE STATUS -->
                 <div class="filter-wrapper bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-3">
                     <div class="flex items-center gap-2 border-r border-white/10 pr-3">
                         <span class="text-xs font-bold uppercase dyn-text-accent">Competência:</span>
@@ -382,20 +382,18 @@
 
         window.chartEspecInstance = null;
 
-        // PREENCHE OS SELECTS COM MESES E ANOS
+        // APENAS POPULA OS SELECTS INICIALMENTE
         function setupAnoMes() {
             const anoSel = document.getElementById('anoFilter');
             const mesSel = document.getElementById('mesFilter');
             const dataAtual = new Date();
             const anoAtual = dataAtual.getFullYear();
-            let mesAtual = String(dataAtual.getMonth() + 1).padStart(2, '0'); 
 
             for(let i = anoAtual + 1; i >= 2024; i--) {
                 let opt = document.createElement('option');
                 opt.value = i; opt.innerText = i;
                 anoSel.appendChild(opt);
             }
-            anoSel.value = anoAtual;
 
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
             for(let i = 1; i <= 12; i++) {
@@ -403,7 +401,43 @@
                 opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
                 mesSel.appendChild(opt);
             }
-            mesSel.value = mesAtual;
+        }
+
+        // INTELIGÊNCIA: DESCOBRE A COMPETÊNCIA ATIVA DA ROTINA DE FATURAMENTO
+        async function definirCompetenciaAtiva() {
+            try {
+                const { data: compData } = await client.from('controle_simuladas')
+                    .select('competencia_arquivo')
+                    .not('competencia_arquivo', 'is', null)
+                    .order('id', { ascending: false })
+                    .limit(1);
+
+                let mesAlvo, anoAlvo;
+
+                if (compData && compData.length > 0 && compData[0].competencia_arquivo) {
+                    // Achou no banco qual foi o último mês processado
+                    let parts = compData[0].competencia_arquivo.split('/');
+                    mesAlvo = parts[0];
+                    anoAlvo = parts[1];
+                } else {
+                    // Fallback da regra do dia 10
+                    const dataAtual = new Date();
+                    if (dataAtual.getDate() <= 10) {
+                        dataAtual.setMonth(dataAtual.getMonth() - 1);
+                    }
+                    mesAlvo = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                    anoAlvo = dataAtual.getFullYear();
+                }
+
+                $('#anoFilter').val(anoAlvo);
+                $('#mesFilter').val(mesAlvo);
+
+            } catch (e) {
+                console.error("Erro ao buscar competência ativa", e);
+                const dataAtual = new Date();
+                $('#anoFilter').val(dataAtual.getFullYear());
+                $('#mesFilter').val(String(dataAtual.getMonth() + 1).padStart(2, '0'));
+            }
         }
 
         const alwaysShowLabels = {
@@ -453,30 +487,32 @@
 
         async function carregarResumoCentral() {
             try {
-                const anoSelecionado = $('#anoFilter').val();
-                const mesSelecionado = $('#mesFilter').val();
-                const compString = `${mesSelecionado}/${anoSelecionado}`;
+                const anoSelecionado = parseInt($('#anoFilter').val());
+                const mesSelecionado = parseInt($('#mesFilter').val());
+                const compString = `${String(mesSelecionado).padStart(2, '0')}/${anoSelecionado}`;
                 
                 const dataAtual = new Date();
                 const anoHoje = dataAtual.getFullYear();
-                const mesHoje = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const mesHoje = dataAtual.getMonth() + 1;
                 
-                // --- INTELIGÊNCIA DE STATUS DA COMPETÊNCIA ---
-                if (anoSelecionado == anoHoje && mesSelecionado == mesHoje) {
-                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
-                } else if (anoSelecionado > anoHoje || (anoSelecionado == anoHoje && mesSelecionado > mesHoje)) {
+                // --- INTELIGÊNCIA DE STATUS DA COMPETÊNCIA (COM ROTINA DE FATURAMENTO) ---
+                const diffMeses = (anoHoje * 12 + mesHoje) - (anoSelecionado * 12 + mesSelecionado);
+
+                if (diffMeses < 0) {
                     $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
+                } else if (diffMeses === 0) {
+                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
+                } else if (diffMeses === 1) {
+                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
                 } else {
                     $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
                 }
 
-                // Datas limites baseadas no Filtro de Competência
-                const d1 = `${anoSelecionado}-${mesSelecionado}-01`;
-                const dataFimObj = new Date(anoSelecionado, parseInt(mesSelecionado), 0); 
-                const d2 = `${anoSelecionado}-${mesSelecionado}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+                const d1 = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}-01`;
+                const dataFimObj = new Date(anoSelecionado, mesSelecionado, 0); 
+                const d2 = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                // Spinners de carregamento
                 $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
 
                 // --- 1. LÊ A BASE DE SIMULADAS BASEADO NA COMPETENCIA ESCOLHIDA ---
@@ -595,7 +631,7 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 5. INDICASUS (LÓGICA ESPELHADA 100% COM PAINEL DETALHADO) ---
+                // --- 5. INDICASUS ---
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
@@ -607,16 +643,15 @@
                 }
 
                 let mapPacientes = new Map();
-                let prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`;
+                let prefixoMesAtual = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}`;
 
                 allIndicaData.forEach(row => {
                     const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                    if (!isSus) return; // Conta apenas pacientes SUS pro Hub
+                    if (!isSus) return; 
 
                     const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
                     const dtInt = row.data_internacao || "SEM DATA";
                     
-                    // LÓGICA DE DEDUPLICAÇÃO IDENTICA AO PAINEL INDICASUS
                     let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
                     let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
                     let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
@@ -635,7 +670,6 @@
                     const dataExt = row.data_extracao || "";
                     const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
                     
-                    // Garante que só filtra dias que pertencem à competência ativa
                     if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
                     p.dias_map.set(dataDia, row.tipo_leito);
@@ -653,7 +687,6 @@
                     }
                 });
 
-                // Capacidade SUS (Apenas leitos contratualizados pro SUS)
                 let capUtiAd = 10 * diasNoMes;
                 let capUtin = 18 * diasNoMes;
                 let capUcinco = 4 * diasNoMes;
@@ -674,7 +707,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('nii_theme_hub');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             
@@ -686,8 +719,9 @@
                 if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
 
-            setupAnoMes(); // Inicia os selects
-            carregarResumoCentral(); // Carrega os dados com a data selecionada
+            setupAnoMes(); 
+            await definirCompetenciaAtiva(); 
+            carregarResumoCentral(); 
         });
     </script>
 </body>
