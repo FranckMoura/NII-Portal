@@ -361,7 +361,6 @@
 
         window.chartEspecInstance = null;
 
-        // Plugin do Chart.js para desenhar os números e nomes das especialidades dentro da barra
         const alwaysShowLabels = {
             id: 'alwaysShowLabels',
             afterDatasetsDraw(chart, args, pluginOptions) {
@@ -374,7 +373,6 @@
                     ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
-                    // Desenha Label + Valor dentro da barra
                     ctx.fillText(`${label}: ${value}`, datapoint.x + 8, datapoint.y);
                 });
                 ctx.restore();
@@ -400,7 +398,6 @@
                 isClassic = true;
             }
 
-            // Atualiza cores do gráfico em tempo real
             if(window.chartEspecInstance) {
                 window.chartEspecInstance.data.datasets[0].backgroundColor = isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)';
                 window.chartEspecInstance.data.datasets[0].borderColor = isClassic ? '#7c3aed' : '#c084fc';
@@ -411,7 +408,6 @@
 
         async function carregarResumoCentral() {
             try {
-                // 1. LÊ A COMPETÊNCIA ATUAL
                 const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
                 
                 let anoAtual = new Date().getFullYear();
@@ -432,14 +428,12 @@
                 const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                // --- 1 E 2. NOVOS CARDS: TOTAL DE AIHS REAIS E GRÁFICO ---
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
                     const dadosFichas = await responseJson.json();
                     
                     let aihMap = {};
                     dadosFichas.forEach(d => {
-                        // Trava de segurança para gerar chave única caso falte o num da AIH
                         let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
                         if (!aihMap[aih]) {
                             let esp = d.ESPEC || "OUTROS";
@@ -452,7 +446,6 @@
                     $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(totalAihs));
                     $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
                     
-                    // Cálculo da Impressão/Auditoria usando a nova regra de chaves da AIH
                     let chaveStorage = "nii_lidas_aih_" + compString;
                     let lidas = JSON.parse(localStorage.getItem(chaveStorage) || "[]").length;
                     let pendentes = totalAihs - lidas;
@@ -460,18 +453,15 @@
                     $('#kpi-print').text(pendentes);
                     $('#kpi-print-sub').html(`<i class="fas fa-check-double"></i> ${lidas} contas já auditadas`);
 
-                    // Agrupamento para o Gráfico
                     let especMap = {};
                     Object.values(aihMap).forEach(info => {
                         especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1;
                     });
                     let arrEspec = [];
                     for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
-                    arrEspec.sort((a,b) => b.qtd - a.qtd); // Do maior pro menor
+                    arrEspec.sort((a,b) => b.qtd - a.qtd);
                     
-                    // Pegar as 4 maiores para o gráfico do hub não ficar espremido
                     let topEspec = arrEspec.slice(0, 4);
-
                     let isClassic = document.body.classList.contains('theme-classic');
                     
                     window.chartEspecInstance = new Chart(document.getElementById('chartEspecHub').getContext('2d'), {
@@ -491,23 +481,14 @@
                             indexAxis: 'y', 
                             maintainAspectRatio: false,
                             layout: { padding: { right: 30, left: 0, top: 0, bottom: 0 } },
-                            plugins: { 
-                                legend: { display: false },
-                                tooltip: { enabled: false } // Remove tooltip para visualização mais limpa no Hub
-                            },
+                            plugins: { legend: { display: false }, tooltip: { enabled: false } },
                             scales: {
-                                x: { 
-                                    display: false,
-                                    suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3
-                                }, 
-                                y: { 
-                                    display: false // Ocultamos o eixo y porque o plugin alreadyShowLabels vai escrever o nome por cima da barra!
-                                }
+                                x: { display: false, suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3 }, 
+                                y: { display: false }
                             }
                         },
                         plugins: [alwaysShowLabels]
                     });
-
                 } else {
                     $('#kpi-aih-real, #kpi-print').text('-');
                     $('#kpi-aih-real-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
@@ -527,7 +508,7 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 4. SISREG (SÓ PENDENTES + URGÊNCIA) ---
+                // --- 4. SISREG ---
                 let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
@@ -540,10 +521,8 @@
                 allSisregData.forEach(d => {
                     let st = (d.status || "").toUpperCase();
                     let carater = (d.carater_internacao || "").toUpperCase();
-                    
                     let isPendente = !st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO');
                     let isUrgencia = carater.includes('URG');
-                    
                     if (isPendente && isUrgencia) pendentesUrgencia++;
                 });
 
@@ -556,26 +535,79 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 5. INDICASUS ---
-                const { data: leitosData } = await client.from('indicasus_leitos').select('tipo_leito, internacao_sus').gte('data_extracao', d1).lte('data_extracao', d2);
-                let utiAd = 0, utin = 0, ucinco = 0, ucinca = 0;
-                
-                if (leitosData) {
-                    leitosData.forEach(l => {
-                        let t = l.tipo_leito || "";
-                        let isSus = (l.internacao_sus || "").toUpperCase().includes("SIM");
-                        if (t === 'UTI ADULTO' && isSus) utiAd++;
-                        else if (t === 'UTIN') utin++;
-                        else if (t === 'UCINCO') ucinco++;
-                        else if (t === 'UCINCA') ucinca++;
-                    });
+                // --- 5. INDICASUS (LÓGICA ESPELHADA 100% COM PAINEL DETALHADO) ---
+                let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
+                while (keepFetchingIndica) {
+                    // ATENÇÃO: Agora solicitando CPF, CNS e NOME DA MÃE para o agrupamento perfeito!
+                    const { data, error } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, cpf, cns, nome_mae')
+                        .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
+                    if(error) throw error;
+                    if (data && data.length > 0) { allIndicaData = allIndicaData.concat(data); fromIndica += stepIndica; }
+                    if (!data || data.length < stepIndica) keepFetchingIndica = false;
                 }
 
-                let txUtiAd = Math.min(Math.round((utiAd / (10 * diasNoMes)) * 100) || 0, 100);
-                let txUtin = Math.min(Math.round((utin / (18 * diasNoMes)) * 100) || 0, 100);
-                let txUcinco = Math.min(Math.round((ucinco / (4 * diasNoMes)) * 100) || 0, 100);
-                let txUcinca = Math.min(Math.round((ucinca / (3 * diasNoMes)) * 100) || 0, 100);
+                let mapPacientes = new Map();
+                let prefixoMesAtual = `${anoAtual}-${mesAtual}`;
 
+                allIndicaData.forEach(row => {
+                    const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
+                    // ATENÇÃO: No Index, focamos na Meta SUS!
+                    if (!isSus) return; 
+
+                    const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
+                    const dtInt = row.data_internacao || "SEM DATA";
+                    
+                    // LÓGICA DE DEDUPLICAÇÃO IDENTICA AO PAINEL INDICASUS
+                    let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
+                    let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
+                    let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
+
+                    let key = "";
+                    if (cpfOk) key = "CPF_" + row.cpf.trim();
+                    else if (cnsOk) key = "CNS_" + row.cns.trim();
+                    else if (maeOk) key = "MAE_" + row.nome_mae.trim().toUpperCase() + "_" + dtInt;
+                    else key = "NOME_" + nome + "_" + dtInt;
+                    
+                    if (!mapPacientes.has(key)) {
+                        mapPacientes.set(key, { dias_map: new Map() });
+                    }
+                    
+                    const p = mapPacientes.get(key);
+                    const dataExt = row.data_extracao || "";
+                    const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
+                    
+                    // Garante que só filtra dias que pertencem à competência ativa
+                    if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
+
+                    p.dias_map.set(dataDia, row.tipo_leito);
+                });
+
+                let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0;
+
+                Array.from(mapPacientes.values()).forEach(p => {
+                    for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
+                        let leito = (leitoBruto || "").toUpperCase();
+                        if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
+                        else if (leito === "UTIN") pacDiaUtin++;
+                        else if (leito === "UCINCO") pacDiaUcinco++;
+                        else if (leito === "UCINCA") pacDiaUcinca++;
+                    }
+                });
+
+                // Capacidade SUS (Apenas leitos contratualizados pro SUS)
+                let capUtiAd = 10 * diasNoMes;
+                let capUtin = 18 * diasNoMes;
+                let capUcinco = 4 * diasNoMes;
+                let capUcinca = 3 * diasNoMes;
+
+                // Usa o paciente-dia para a ocupação (não desconta alta)
+                let txUtiAd = capUtiAd > 0 ? Math.min(Math.round((pacDiaUti / capUtiAd) * 100), 100) : 0;
+                let txUtin = capUtin > 0 ? Math.min(Math.round((pacDiaUtin / capUtin) * 100), 100) : 0;
+                let txUcinco = capUcinco > 0 ? Math.min(Math.round((pacDiaUcinco / capUcinco) * 100), 100) : 0;
+                let txUcinca = capUcinca > 0 ? Math.min(Math.round((pacDiaUcinca / capUcinca) * 100), 100) : 0;
+
+                // Mostrando as porcentagens exatas baseadas nos dados deduplicados
                 $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
                 $('#taxa-utin').text(txUtin + '%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
                 $('#taxa-ucinco').text(txUcinco + '%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');

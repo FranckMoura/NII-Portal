@@ -49,7 +49,8 @@
 
         .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .kpi-number { font-size: 2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
-        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; display: block; line-height: 1.4; }
+
         .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; display: flex; align-items: center; gap: 10px; }
 
         .dyn-text-primary { color: #ffffff; } .dyn-text-secondary { color: #bae6fd; } .dyn-text-muted { color: #94a3b8; } .dyn-text-accent { color: #38bdf8; } 
@@ -329,7 +330,7 @@
             <div class="glass-card" onclick="filtrarPorLeito('TODOS')" title="Limpar filtros da tabela">
                 <div class="kpi-title text-green-400">Total Pacientes <i class="fas fa-users"></i></div>
                 <div class="kpi-number neon-text-green" id="kpiPacientes">0</div>
-                <div class="kpi-sub">Atendidos no período</div>
+                <div class="kpi-sub" style="margin-top: 5px;">Atendidos no período</div>
             </div>
         </div>
 
@@ -345,7 +346,7 @@
         </div>
 
         <div class="cyber-container mb-8" id="secao-tabela">
-            <div class="glass-chart-title border-none mb-4"><i class="fas fa-list-ul mr-2 dyn-text-accent"></i> Matriz de Ocupação por Paciente</div>
+            <div class="glass-chart-title border-none mb-4"><i class="fas fa-list-ul mr-2 dyn-text-accent"></i> Matriz de Ocupação por Paciente (Diárias de Faturamento)</div>
             
             <table id="tabelaIndica" class="display compact nowrap" style="width:100%">
                 <thead>
@@ -531,7 +532,8 @@
             }
 
             const map = new Map();
-            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0;
+            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0; // Faturamento (desconta alta)
+            let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0, pacDiaEnf = 0; // Ocupação (sem desconto)
 
             dadosOriginaisBrutos.forEach(row => {
                 const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
@@ -572,8 +574,6 @@
                 if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
                 let leitoAtual = row.tipo_leito;
-                // O Python agora resolve a regra de transferência e só envia 1 leito por dia.
-                // Em caso de resíduos ou múltiplas rodadas, aceitamos a foto que chegar pois já foi limpa.
                 p.dias_map.set(dataDia, leitoAtual);
 
                 if (dataDia > p.max_date) {
@@ -596,12 +596,20 @@
                 }
 
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
-                    // Se o paciente teve alta hoje, o dia da alta NÃO conta diária.
+                    let leito = (leitoBruto || "").toUpperCase();
+
+                    // LÓGICA DE OCUPAÇÃO (PACIENTE-DIA): Não desconta o dia da alta
+                    if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
+                    else if (leito === "UTIN") pacDiaUtin++;
+                    else if (leito === "UCINCO") pacDiaUcinco++;
+                    else if (leito === "UCINCA") pacDiaUcinca++;
+                    else pacDiaEnf++;
+
+                    // LÓGICA DE FATURAMENTO: Desconta o dia da alta
                     if (isAltaPadrao && dataDia === p.max_date) {
                         continue; 
                     }
 
-                    let leito = (leitoBruto || "").toUpperCase();
                     if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
                     else if (leito === "UTIN") p.dias_utin++;
                     else if (leito === "UCINCO") p.dias_ucinco++;
@@ -641,26 +649,27 @@
             const colorUcinca = isClassic ? '#0f766e' : '#2dd4bf';
             const colorEnf = isClassic ? '#b45309' : '#fbbf24';
 
-            const txUtiAd = capUtiAd > 0 ? ((kpiUtiAdulto / capUtiAd) * 100).toFixed(1) : 0;
-            const txUtin = capUtin > 0 ? ((kpiUtin / capUtin) * 100).toFixed(1) : 0;
-            const txUcinco = capUcinco > 0 ? ((kpiUcinco / capUcinco) * 100).toFixed(1) : 0;
-            const txUcinca = capUcinca > 0 ? ((kpiUcinca / capUcinca) * 100).toFixed(1) : 0;
-            const txEnf = capEnf > 0 ? ((kpiEnfermaria / capEnf) * 100).toFixed(1) : 0;
+            // Usamos a variável pacDia para a Ocupação Real (sem descontar a alta)
+            const txUtiAd = capUtiAd > 0 ? ((pacDiaUti / capUtiAd) * 100).toFixed(1) : 0;
+            const txUtin = capUtin > 0 ? ((pacDiaUtin / capUtin) * 100).toFixed(1) : 0;
+            const txUcinco = capUcinco > 0 ? ((pacDiaUcinco / capUcinco) * 100).toFixed(1) : 0;
+            const txUcinca = capUcinca > 0 ? ((pacDiaUcinca / capUcinca) * 100).toFixed(1) : 0;
+            const txEnf = capEnf > 0 ? ((pacDiaEnf / capEnf) * 100).toFixed(1) : 0;
 
-            $('#kpiUtiAdulto').text(kpiUtiAdulto);
-            $('#subUtiAdulto').html(`Ocupação: <b style="color:${colorUti};">${txUtiAd}%</b> (Cap: ${capUtiAd})`);
+            $('#kpiUtiAdulto').text(pacDiaUti);
+            $('#subUtiAdulto').html(`Ocupação: <b style="color:${colorUti};">${txUtiAd}%</b><br><span style="font-size:0.65rem; color:#64748b; font-weight:800;">FATURADAS: ${kpiUtiAdulto} DIÁRIAS</span>`);
 
-            $('#kpiUtin').text(kpiUtin);
-            $('#subUtin').html(`Ocupação: <b style="color:${colorUtin};">${txUtin}%</b> (Cap: ${capUtin})`);
+            $('#kpiUtin').text(pacDiaUtin);
+            $('#subUtin').html(`Ocupação: <b style="color:${colorUtin};">${txUtin}%</b><br><span style="font-size:0.65rem; color:#64748b; font-weight:800;">FATURADAS: ${kpiUtin} DIÁRIAS</span>`);
 
-            $('#kpiUcinco').text(kpiUcinco);
-            $('#subUcinco').html(`Ocupação: <b style="color:${colorUcinco};">${txUcinco}%</b> (Cap: ${capUcinco})`);
+            $('#kpiUcinco').text(pacDiaUcinco);
+            $('#subUcinco').html(`Ocupação: <b style="color:${colorUcinco};">${txUcinco}%</b><br><span style="font-size:0.65rem; color:#64748b; font-weight:800;">FATURADAS: ${kpiUcinco} DIÁRIAS</span>`);
 
-            $('#kpiUcinca').text(kpiUcinca);
-            $('#subUcinca').html(`Ocupação: <b style="color:${colorUcinca};">${txUcinca}%</b> (Cap: ${capUcinca})`);
+            $('#kpiUcinca').text(pacDiaUcinca);
+            $('#subUcinca').html(`Ocupação: <b style="color:${colorUcinca};">${txUcinca}%</b><br><span style="font-size:0.65rem; color:#64748b; font-weight:800;">FATURADAS: ${kpiUcinca} DIÁRIAS</span>`);
 
-            $('#kpiEnfermaria').text(kpiEnfermaria);
-            $('#subEnfermaria').html(`Ocupação: <b style="color:${colorEnf};">${txEnf}%</b> (Cap: ${capEnf})`);
+            $('#kpiEnfermaria').text(pacDiaEnf);
+            $('#subEnfermaria').html(`Ocupação: <b style="color:${colorEnf};">${txEnf}%</b><br><span style="font-size:0.65rem; color:#64748b; font-weight:800;">FATURADAS: ${kpiEnfermaria} DIÁRIAS</span>`);
 
             $('#kpiPacientes').text(dadosFiltradosGlobais.length);
 
@@ -711,7 +720,7 @@
                 data: {
                     labels: ['UTI Adulto', 'UTIN (Neo)', 'UCINCo', 'UCINCa'],
                     datasets: [{ 
-                        label: 'Diárias Ocupadas', 
+                        label: 'Diárias Ocupadas (Fat)', 
                         data: [diariastipo['UTI ADULTO'], diariastipo['UTIN'], diariastipo['UCINCo'], diariastipo['UCINCa']], 
                         backgroundColor: bgColors.slice(0,4),
                         borderRadius: 6 
