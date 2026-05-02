@@ -90,9 +90,11 @@
             transition: 0.5s;
         }
 
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;}
         .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
+
+        .select-theme option { background: #0f172a; color: white; }
 
         .cyber-container {
             background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
@@ -150,6 +152,8 @@
 
         footer { margin-top: auto; padding-top: 40px; padding-bottom: 10px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; }
 
+        .dyn-text-accent { color: #38bdf8; }
+
         /* ========================================================= */
         /* MODO CLÁSSICO NII                                         */
         /* ========================================================= */
@@ -185,6 +189,12 @@
 
         body.theme-classic .shortcut-card { background: white; border-color: #e2e8f0; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
         body.theme-classic .shortcut-card:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
+
+        body.theme-classic .dyn-text-accent { color: #004e92 !important; }
+        body.theme-classic .filter-wrapper { background: white !important; border-color: #cbd5e1 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        body.theme-classic .select-theme { color: #0f172a !important; }
+        body.theme-classic .select-theme option { background: white; color: #0f172a; }
+        body.theme-classic .separador { color: #0f172a !important; }
 
         body.theme-classic footer { color: #94a3b8; }
     </style>
@@ -233,11 +243,22 @@
         <div class="top-bar">
             <div>
                 <h1 class="text-3xl font-black mb-1">Visão Geral do Hospital</h1>
-                <p class="text-gray-400 text-sm">Resumo da competência atual e atalhos de produtividade.</p>
+                <p class="text-gray-400 text-sm">Resumo da competência e atalhos de produtividade.</p>
             </div>
-            <div class="text-right">
-                <div class="text-sm font-bold text-blue-400 uppercase" id="current-date">Sincronizando Banco...</div>
-                <div class="text-xs text-gray-500 mt-1">Hospital Beneficente Santa Helena</div>
+            
+            <div class="flex items-center gap-3">
+                <!-- NOVO FILTRO DE COMPETÊNCIA -->
+                <div class="filter-wrapper bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-3">
+                    <div class="flex items-center gap-2 border-r border-white/10 pr-3">
+                        <span class="text-xs font-bold uppercase dyn-text-accent">Competência:</span>
+                        <select id="mesFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
+                        <span class="separador text-white">/</span>
+                        <select id="anoFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
+                    </div>
+                    <div id="status-competencia">
+                        <i class="fas fa-spinner fa-spin text-blue-400"></i>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -361,6 +382,30 @@
 
         window.chartEspecInstance = null;
 
+        // PREENCHE OS SELECTS COM MESES E ANOS
+        function setupAnoMes() {
+            const anoSel = document.getElementById('anoFilter');
+            const mesSel = document.getElementById('mesFilter');
+            const dataAtual = new Date();
+            const anoAtual = dataAtual.getFullYear();
+            let mesAtual = String(dataAtual.getMonth() + 1).padStart(2, '0'); 
+
+            for(let i = anoAtual + 1; i >= 2024; i--) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                anoSel.appendChild(opt);
+            }
+            anoSel.value = anoAtual;
+
+            const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            for(let i = 1; i <= 12; i++) {
+                let opt = document.createElement('option');
+                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
+                mesSel.appendChild(opt);
+            }
+            mesSel.value = mesAtual;
+        }
+
         const alwaysShowLabels = {
             id: 'alwaysShowLabels',
             afterDatasetsDraw(chart, args, pluginOptions) {
@@ -408,25 +453,35 @@
 
         async function carregarResumoCentral() {
             try {
-                const { data: compData } = await client.from('controle_simuladas').select('*').not('competencia_arquivo', 'is', null).order('id', { ascending: false }).limit(1);
+                const anoSelecionado = $('#anoFilter').val();
+                const mesSelecionado = $('#mesFilter').val();
+                const compString = `${mesSelecionado}/${anoSelecionado}`;
                 
-                let anoAtual = new Date().getFullYear();
-                let mesAtual = String(new Date().getMonth() + 1).padStart(2, '0');
-                let compString = `${mesAtual}/${anoAtual}`;
-                let linkJson = null;
-
-                if (compData && compData.length > 0) {
-                    compString = compData[0].competencia_arquivo;
-                    linkJson = compData[0].link_indice;
-                    [mesAtual, anoAtual] = compString.split('/');
+                const dataAtual = new Date();
+                const anoHoje = dataAtual.getFullYear();
+                const mesHoje = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                
+                // --- INTELIGÊNCIA DE STATUS DA COMPETÊNCIA ---
+                if (anoSelecionado == anoHoje && mesSelecionado == mesHoje) {
+                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
+                } else if (anoSelecionado > anoHoje || (anoSelecionado == anoHoje && mesSelecionado > mesHoje)) {
+                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
+                } else {
+                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
                 }
 
-                document.getElementById('current-date').innerText = `Competência Ativa: ${compString}`;
-
-                const d1 = `${anoAtual}-${mesAtual}-01`;
-                const dataFimObj = new Date(anoAtual, parseInt(mesAtual), 0); 
-                const d2 = `${anoAtual}-${mesAtual}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+                // Datas limites baseadas no Filtro de Competência
+                const d1 = `${anoSelecionado}-${mesSelecionado}-01`;
+                const dataFimObj = new Date(anoSelecionado, parseInt(mesSelecionado), 0); 
+                const d2 = `${anoSelecionado}-${mesSelecionado}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
+
+                // Spinners de carregamento
+                $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
+
+                // --- 1. LÊ A BASE DE SIMULADAS BASEADO NA COMPETENCIA ESCOLHIDA ---
+                const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
+                let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
 
                 if (linkJson) {
                     const responseJson = await fetch(linkJson);
@@ -464,34 +519,39 @@
                     let topEspec = arrEspec.slice(0, 4);
                     let isClassic = document.body.classList.contains('theme-classic');
                     
-                    window.chartEspecInstance = new Chart(document.getElementById('chartEspecHub').getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: topEspec.map(x => x.nome),
-                            datasets: [{ 
-                                data: topEspec.map(x => x.qtd), 
-                                backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
-                                borderColor: isClassic ? '#7c3aed' : '#c084fc',
-                                borderWidth: 1,
-                                borderRadius: 4,
-                                barPercentage: 0.6
-                            }]
-                        },
-                        options: { 
-                            indexAxis: 'y', 
-                            maintainAspectRatio: false,
-                            layout: { padding: { right: 30, left: 0, top: 0, bottom: 0 } },
-                            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                            scales: {
-                                x: { display: false, suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3 }, 
-                                y: { display: false }
-                            }
-                        },
-                        plugins: [alwaysShowLabels]
-                    });
+                    if(!window.chartEspecInstance) {
+                        window.chartEspecInstance = new Chart(document.getElementById('chartEspecHub').getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: topEspec.map(x => x.nome),
+                                datasets: [{ 
+                                    data: topEspec.map(x => x.qtd), 
+                                    backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
+                                    borderColor: isClassic ? '#7c3aed' : '#c084fc',
+                                    borderWidth: 1, borderRadius: 4, barPercentage: 0.6
+                                }]
+                            },
+                            options: { 
+                                indexAxis: 'y', maintainAspectRatio: false,
+                                layout: { padding: { right: 30, left: 0, top: 0, bottom: 0 } },
+                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                                scales: { x: { display: false, suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3 }, y: { display: false } }
+                            },
+                            plugins: [alwaysShowLabels]
+                        });
+                    } else {
+                        window.chartEspecInstance.data.labels = topEspec.map(x => x.nome);
+                        window.chartEspecInstance.data.datasets[0].data = topEspec.map(x => x.qtd);
+                        window.chartEspecInstance.update();
+                    }
                 } else {
                     $('#kpi-aih-real, #kpi-print').text('-');
-                    $('#kpi-aih-real-sub, #kpi-print-sub').html('<i class="fas fa-times"></i> Base Vazia');
+                    $('#kpi-aih-real-sub, #kpi-print-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento de faturamento');
+                    if(window.chartEspecInstance) {
+                        window.chartEspecInstance.data.labels = [];
+                        window.chartEspecInstance.data.datasets[0].data = [];
+                        window.chartEspecInstance.update();
+                    }
                 }
 
                 // --- 3. CIRURGIAS ---
@@ -538,7 +598,6 @@
                 // --- 5. INDICASUS (LÓGICA ESPELHADA 100% COM PAINEL DETALHADO) ---
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
-                    // ATENÇÃO: Agora solicitando CPF, CNS e NOME DA MÃE para o agrupamento perfeito!
                     const { data, error } = await client.from('indicasus_leitos')
                         .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, cpf, cns, nome_mae')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
@@ -548,12 +607,11 @@
                 }
 
                 let mapPacientes = new Map();
-                let prefixoMesAtual = `${anoAtual}-${mesAtual}`;
+                let prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`;
 
                 allIndicaData.forEach(row => {
                     const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                    // ATENÇÃO: No Index, focamos na Meta SUS!
-                    if (!isSus) return; 
+                    if (!isSus) return; // Conta apenas pacientes SUS pro Hub
 
                     const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
                     const dtInt = row.data_internacao || "SEM DATA";
@@ -601,13 +659,11 @@
                 let capUcinco = 4 * diasNoMes;
                 let capUcinca = 3 * diasNoMes;
 
-                // Usa o paciente-dia para a ocupação (não desconta alta)
                 let txUtiAd = capUtiAd > 0 ? Math.min(Math.round((pacDiaUti / capUtiAd) * 100), 100) : 0;
                 let txUtin = capUtin > 0 ? Math.min(Math.round((pacDiaUtin / capUtin) * 100), 100) : 0;
                 let txUcinco = capUcinco > 0 ? Math.min(Math.round((pacDiaUcinco / capUcinco) * 100), 100) : 0;
                 let txUcinca = capUcinca > 0 ? Math.min(Math.round((pacDiaUcinca / capUcinca) * 100), 100) : 0;
 
-                // Mostrando as porcentagens exatas baseadas nos dados deduplicados
                 $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
                 $('#taxa-utin').text(txUtin + '%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
                 $('#taxa-ucinco').text(txUcinco + '%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
@@ -615,7 +671,6 @@
 
             } catch(e) {
                 console.error("Erro ao carregar resumo central:", e);
-                $('#current-date').text('Modo Offline');
             }
         }
 
@@ -631,7 +686,8 @@
                 if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
 
-            carregarResumoCentral(); 
+            setupAnoMes(); // Inicia os selects
+            carregarResumoCentral(); // Carrega os dados com a data selecionada
         });
     </script>
 </body>
