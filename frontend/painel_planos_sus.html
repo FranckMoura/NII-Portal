@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Planos SUS - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; 
+        }
+
+        .header-bg { background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 25px 40px; margin-bottom: 25px; backdrop-filter: blur(10px); }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 16px; padding: 20px; text-align: center; position: relative; overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .glass-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.08); }
+        
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+
+        /* Progress Bar */
+        .progress-bg { background: rgba(255,255,255,0.1); height: 12px; border-radius: 6px; width: 100%; overflow: hidden; margin-top: 15px; display: flex; }
+        .progress-bar-unico { background: #38bdf8; height: 100%; transition: 1s; }
+        .progress-bar-fila { background: #f472b6; height: 100%; transition: 1s; }
+
+        .btn-filter { 
+            background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); 
+            padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; 
+        }
+        .btn-filter.active-unico { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #38bdf8; }
+        .btn-filter.active-fila { background: rgba(244, 114, 182, 0.2); border-color: #f472b6; color: #f472b6; }
+        .btn-filter.active-todos { background: rgba(255, 255, 255, 0.2); border-color: white; }
+
+        table.dataTable { width: 100% !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(255,255,255,0.1) !important; color: #94a3b8 !important;}
+        table.dataTable tbody td { font-size: 0.85rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle;}
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.70rem; font-weight: 800; }
+        .badge-unico { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .badge-fila { background: rgba(244, 114, 182, 0.2); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.4); }
+        
+        .dataTables_wrapper .dataTables_filter input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 5px; outline:none; margin-bottom: 15px;}
+        .dataTables_wrapper .dataTables_length select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px;}
+
+        /* Estilo para as opções do select no tema escuro */
+        .select-theme option { background: #001528; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class='header-bg shadow-lg'>
+        <div class='max-w-[95%] mx-auto flex justify-between items-center px-4 flex-wrap gap-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-hospital-user text-3xl text-blue-400"></i></div>
+                <div>
+                    <h1 class='text-2xl font-bold'>Monitoramento SUS: Planos de Internação</h1>
+                    <p class='text-xs text-gray-400 mt-1'>Separação e controle de pacientes Plano Único vs Fila Zero</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Filtro de Período -->
+                <div class="bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase text-blue-400">Internações de:</span>
+                    <select id="mesFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none cursor-pointer select-theme"></select>
+                    <span class="text-white">/</span>
+                    <select id="anoFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none cursor-pointer select-theme"></select>
+                </div>
+                
+                <a href="modulo_operacional.html" class="bg-black/30 border border-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/10 transition text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[95%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass-card">
+                <div class="kpi-title text-blue-400"><i class="fas fa-user-injured mr-1"></i> Plano Único (Rotina)</div>
+                <div class="kpi-number text-blue-400" id="kpi-unico"><i class="fas fa-spinner fa-spin text-xl"></i></div>
+                <div class="text-xs text-gray-400 mt-1" id="perc-unico">Aguardando dados...</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title text-pink-400"><i class="fas fa-star mr-1"></i> Programa Fila Zero</div>
+                <div class="kpi-number text-pink-400" id="kpi-fila"><i class="fas fa-spinner fa-spin text-xl"></i></div>
+                <div class="text-xs text-gray-400 mt-1" id="perc-fila">Aguardando dados...</div>
+            </div>
+            <div class="glass-card" style="display: flex; flex-direction: column; justify-content: center;">
+                <div class="kpi-title"><i class="fas fa-chart-line mr-1"></i> Total Analisadas (No Mês)</div>
+                <div class="kpi-number text-white" id="kpi-total">0</div>
+                
+                <div class="w-full text-left mt-2">
+                    <div class="flex justify-between text-[0.65rem] text-gray-400 font-bold mb-1">
+                        <span>PLANO ÚNICO</span>
+                        <span>FILA ZERO</span>
+                    </div>
+                    <div class="progress-bg" id="progress-container">
+                        <div class="progress-bar-unico" id="bar-unico" style="width: 50%;"></div>
+                        <div class="progress-bar-fila" id="bar-fila" style="width: 50%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/5 border border-white/10 rounded-xl p-6 shadow-xl mb-10">
+            <div class="flex gap-3 mb-6 border-b border-white/10 pb-4">
+                <button class="btn-filter active-todos" onclick="filtrarPlano('')" id="btn-todos">Todos</button>
+                <button class="btn-filter" onclick="filtrarPlano('PLANO UNICO')" id="btn-unico">Apenas Plano Único</button>
+                <button class="btn-filter" onclick="filtrarPlano('FILA ZERO')" id="btn-fila">Apenas Fila Zero</button>
+            </div>
+
+            <table id="tabelaPacientes" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Atendimento</th>
+                        <th class="text-left">Paciente</th>
+                        <th>Idade</th>
+                        <th>Dt. Internação</th>
+                        <th class="text-left">Médico Responsável</th>
+                        <th>Plano SUS</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÕES DO SUPABASE
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaInstancia = null;
+
+        $(document).ready(async function() { 
+            setupAnoMes(); // Preenche os dropdowns de datas
+            await carregarDados(); // Carrega os dados baseado na data que preencheu
+        });
+
+        // POPULA OS CAMPOS DE MÊS E ANO
+        function setupAnoMes() {
+            const anoSel = document.getElementById('anoFilter');
+            const mesSel = document.getElementById('mesFilter');
+            const dataAtual = new Date();
+            const anoAtual = dataAtual.getFullYear();
+            let mesAtual = String(dataAtual.getMonth() + 1).padStart(2, '0'); 
+
+            // Anos
+            for(let i = anoAtual + 1; i >= 2024; i--) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                anoSel.appendChild(opt);
+            }
+            anoSel.value = anoAtual;
+
+            // Meses
+            const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            for(let i = 1; i <= 12; i++) {
+                let opt = document.createElement('option');
+                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
+                mesSel.appendChild(opt);
+            }
+            mesSel.value = mesAtual;
+        }
+
+        // FILTRA VISUALMENTE A TABELA
+        function filtrarPlano(plano) {
+            $('.btn-filter').removeClass('active-todos active-unico active-fila');
+            
+            if(plano === '') $('#btn-todos').addClass('active-todos');
+            else if(plano === 'PLANO UNICO') $('#btn-unico').addClass('active-unico');
+            else if(plano === 'FILA ZERO') $('#btn-fila').addClass('active-fila');
+
+            if(tabelaInstancia) {
+                tabelaInstancia.column(5).search(plano).draw();
+            }
+        }
+
+        // CARREGA OS DADOS DO BANCO E APLICA O FILTRO DO MÊS
+        async function carregarDados() {
+            try {
+                // Captura o mês e o ano selecionado no filtro
+                const anoSelecionado = $('#anoFilter').val();
+                const mesSelecionado = $('#mesFilter').val();
+                
+                // Formato que vamos buscar (Ex: /05/2026)
+                const sufixoData = `/${mesSelecionado}/${anoSelecionado}`;
+
+                // Reinicia os KPIs para loading
+                $('#kpi-unico, #kpi-fila').html('<i class="fas fa-spinner fa-spin"></i>');
+
+                // Puxa do banco apenas as linhas cuja Data de Internação termine com o mês/ano escolhido
+                const { data, error } = await client.from('internacoes_planos')
+                                                    .select('*')
+                                                    .like('dt_internacao', `%${sufixoData}`);
+                                                    
+                if(error) throw error;
+
+                let qtdUnico = 0;
+                let qtdFila = 0;
+                let validData = [];
+
+                data.forEach(item => {
+                    let plano = (item.plano || "").trim().toUpperCase();
+                    if(plano === 'PLANO UNICO') qtdUnico++;
+                    else if(plano === 'FILA ZERO') qtdFila++;
+                    
+                    // Só adiciona se tiver plano reconhecido pra tabela ficar limpa
+                    if(plano === 'PLANO UNICO' || plano === 'FILA ZERO') {
+                        validData.push(item);
+                    }
+                });
+
+                let total = qtdUnico + qtdFila;
+                let percUnico = total > 0 ? Math.round((qtdUnico/total)*100) : 0;
+                let percFila = total > 0 ? Math.round((qtdFila/total)*100) : 0;
+
+                // Atualiza a tela
+                $('#kpi-unico').text(qtdUnico);
+                $('#perc-unico').text(`${percUnico}% das internações`);
+                
+                $('#kpi-fila').text(qtdFila);
+                $('#perc-fila').text(`${percFila}% das internações`);
+                
+                $('#kpi-total').text(total);
+                
+                $('#bar-unico').css('width', `${percUnico}%`);
+                $('#bar-fila').css('width', `${percFila}%`);
+
+                // Se a tabela já existir, destrói para recriar com a nova data
+                if (tabelaInstancia) {
+                    tabelaInstancia.destroy();
+                    $('#tabelaPacientes tbody').empty();
+                }
+
+                tabelaInstancia = $('#tabelaPacientes').DataTable({
+                    data: validData,
+                    pageLength: 25,
+                    order: [[3, 'desc']], // Ordena pelas datas mais recentes
+                    columns: [
+                        { data: 'atendimento', className: 'text-center font-mono text-gray-400' },
+                        { data: 'paciente', className: 'text-left font-bold text-white' },
+                        { data: 'idade', className: 'text-center text-xs text-gray-400' },
+                        { data: 'dt_internacao', className: 'text-center font-mono' },
+                        { data: 'medico', className: 'text-left text-xs' },
+                        { 
+                            data: 'plano', 
+                            className: 'text-center',
+                            render: function(d) {
+                                let p = (d || "").trim().toUpperCase();
+                                if(p === 'PLANO UNICO') return '<span class="badge badge-unico">PLANO ÚNICO</span>';
+                                if(p === 'FILA ZERO') return '<span class="badge badge-fila"><i class="fas fa-star mr-1"></i> FILA ZERO</span>';
+                                return d;
+                            }
+                        }
+                    ],
+                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao buscar dados de internação.");
+                $('#kpi-unico, #kpi-fila, #kpi-total').text("0");
+            }
+        }
+    </script>
+</body>
+</html>

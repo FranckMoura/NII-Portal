@@ -226,6 +226,7 @@
             <a href="painel_regulacao.html" class="nav-item"><img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';"><div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de autorizações</span></div></a>
             <a href="painel_indicasus_v2.html" class="nav-item"><img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';"><div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de leitos</span></div></a>
             <a href="painel_cirurgias.html" class="nav-item"><img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';"><div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Metas e especialidades</span></div></a>
+            <a href="painel_planos_sus.html" class="nav-item"><i class="fas fa-hospital-user text-blue-400"></i><div class="nav-text"><span class="nav-title">Planos SUS</span><span class="nav-desc">Plano Único vs Fila Zero</span></div></a>
 
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Tabelas e Catálogos</div>
             <a href="painel_sigtap.html" class="nav-item"><img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';"><div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, regras e OPMEs</span></div></a>
@@ -297,11 +298,11 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </a>
 
-                <a href="painel_simuladas.html" class="glass-card" title="Acessar Fila de Impressão">
-                    <i class="fas fa-print kpi-icon text-yellow-500"></i>
-                    <div class="kpi-title">Auditoria Pendente <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-yellow-400" id="kpi-print"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-print-sub">Verificando AIHs lidas...</div>
+                <a href="painel_planos_sus.html" class="glass-card" title="Acessar Painel de Planos SUS">
+                    <i class="fas fa-star kpi-icon text-yellow-500"></i>
+                    <div class="kpi-title">Programa Fila Zero <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
+                    <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Calculando...</div>
                 </a>
 
                 <!-- ROW 3 -->
@@ -313,22 +314,22 @@
                         <div class="leito-box">
                             <div class="leito-nome">UTI Adulto</div>
                             <div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta">Meta: 10 Leitos (SUS)</div>
+                            <div class="leito-meta" id="meta-uti">Meta: 10 Leitos (SUS)</div>
                         </div>
                         <div class="leito-box">
                             <div class="leito-nome">UTIN (Neo)</div>
                             <div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta">Meta: 18 Leitos</div>
+                            <div class="leito-meta" id="meta-utin">Meta: 18 Leitos</div>
                         </div>
                         <div class="leito-box">
                             <div class="leito-nome">UCINCo</div>
                             <div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta">Meta: 4 Leitos</div>
+                            <div class="leito-meta" id="meta-ucinco">Meta: 4 Leitos</div>
                         </div>
                         <div class="leito-box">
                             <div class="leito-nome">UCINCa</div>
                             <div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta">Meta: 3 Leitos</div>
+                            <div class="leito-meta" id="meta-ucinca">Meta: 3 Leitos</div>
                         </div>
                     </div>
                 </a>
@@ -415,12 +416,10 @@
                 let mesAlvo, anoAlvo;
 
                 if (compData && compData.length > 0 && compData[0].competencia_arquivo) {
-                    // Achou no banco qual foi o último mês processado
                     let parts = compData[0].competencia_arquivo.split('/');
                     mesAlvo = parts[0];
                     anoAlvo = parts[1];
                 } else {
-                    // Fallback da regra do dia 10
                     const dataAtual = new Date();
                     if (dataAtual.getDate() <= 10) {
                         dataAtual.setMonth(dataAtual.getMonth() - 1);
@@ -513,7 +512,7 @@
                 const d2 = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
                 const diasNoMes = dataFimObj.getDate();
 
-                $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
+                $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
 
                 // --- 1. LÊ A BASE DE SIMULADAS BASEADO NA COMPETENCIA ESCOLHIDA ---
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
@@ -536,13 +535,6 @@
                     let totalAihs = Object.keys(aihMap).length;
                     $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(totalAihs));
                     $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
-                    
-                    let chaveStorage = "nii_lidas_aih_" + compString;
-                    let lidas = JSON.parse(localStorage.getItem(chaveStorage) || "[]").length;
-                    let pendentes = totalAihs - lidas;
-                    
-                    $('#kpi-print').text(pendentes);
-                    $('#kpi-print-sub').html(`<i class="fas fa-check-double"></i> ${lidas} contas já auditadas`);
 
                     let especMap = {};
                     Object.values(aihMap).forEach(info => {
@@ -581,8 +573,8 @@
                         window.chartEspecInstance.update();
                     }
                 } else {
-                    $('#kpi-aih-real, #kpi-print').text('-');
-                    $('#kpi-aih-real-sub, #kpi-print-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento de faturamento');
+                    $('#kpi-aih-real').text('-');
+                    $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento de faturamento');
                     if(window.chartEspecInstance) {
                         window.chartEspecInstance.data.labels = [];
                         window.chartEspecInstance.data.datasets[0].data = [];
@@ -590,7 +582,7 @@
                     }
                 }
 
-                // --- 3. CIRURGIAS ---
+                // --- 2. CIRURGIAS ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
@@ -604,7 +596,7 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 4. SISREG ---
+                // --- 3. SISREG ---
                 let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
@@ -631,7 +623,25 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 5. INDICASUS ---
+                // --- 4. FILA ZERO (INTERNAÇÕES) ---
+                const sufixoData = `/${String(mesSelecionado).padStart(2, '0')}/${anoSelecionado}`;
+                const { data: filaData, error: errFila } = await client.from('internacoes_planos')
+                                                                 .select('plano')
+                                                                 .like('dt_internacao', `%${sufixoData}`);
+                if (errFila) throw errFila;
+
+                let qtdFilaZero = 0;
+                if (filaData) {
+                    filaData.forEach(item => {
+                        if ((item.plano || "").trim().toUpperCase() === 'FILA ZERO') qtdFilaZero++;
+                    });
+                }
+                
+                $('#kpi-fila-zero').text(qtdFilaZero);
+                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações contabilizadas');
+
+
+                // --- 5. INDICASUS (LÓGICA ESPELHADA 100% COM PAINEL DETALHADO) ---
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
@@ -647,7 +657,7 @@
 
                 allIndicaData.forEach(row => {
                     const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                    if (!isSus) return; 
+                    if (!isSus) return; // Conta apenas pacientes SUS pro Hub
 
                     const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
                     const dtInt = row.data_internacao || "SEM DATA";
@@ -697,10 +707,18 @@
                 let txUcinco = capUcinco > 0 ? Math.min(Math.round((pacDiaUcinco / capUcinco) * 100), 100) : 0;
                 let txUcinca = capUcinca > 0 ? Math.min(Math.round((pacDiaUcinca / capUcinca) * 100), 100) : 0;
 
+                // Atualiza Ocupação + Diárias
                 $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
+                $('#meta-uti').html(`${pacDiaUti} Diárias (Cap: ${capUtiAd})`);
+
                 $('#taxa-utin').text(txUtin + '%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
+                $('#meta-utin').html(`${pacDiaUtin} Diárias (Cap: ${capUtin})`);
+
                 $('#taxa-ucinco').text(txUcinco + '%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
+                $('#meta-ucinco').html(`${pacDiaUcinco} Diárias (Cap: ${capUcinco})`);
+
                 $('#taxa-ucinca').text(txUcinca + '%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
+                $('#meta-ucinca').html(`${pacDiaUcinca} Diárias (Cap: ${capUcinca})`);
 
             } catch(e) {
                 console.error("Erro ao carregar resumo central:", e);
