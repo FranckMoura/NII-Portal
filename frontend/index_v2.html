@@ -33,7 +33,7 @@
         .blob-2 { position: fixed; bottom: -100px; right: -100px; width: 450px; height: 450px; background: rgba(168, 85, 247, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
 
         /* ========================================================= */
-        /* SIDEBAR (MENU LATERAL APRIMORADO)                         */
+        /* SIDEBAR (MENU LATERAL RECOLHÍVEL E ACCORDION)             */
         /* ========================================================= */
         .sidebar {
             width: 300px;
@@ -45,88 +45,91 @@
             top: 0; left: 0;
             display: flex;
             flex-direction: column;
-            transition: 0.5s;
+            transition: width 0.4s ease;
             z-index: 50;
+            overflow-x: hidden;
         }
         
-        .sidebar-header { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-logo { height: 55px; margin: 0 auto 10px auto; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
+        .sidebar-header { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.4s; }
+        .sidebar-logo { height: 55px; margin: 0 auto 10px auto; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); transition: 0.4s; }
+        .sidebar-header h2, .sidebar-header p { white-space: nowrap; transition: opacity 0.2s; }
         
-        .nav-menu { flex: 1; padding: 20px 15px; overflow-y: auto; }
+        .nav-menu { flex: 1; padding: 20px 10px; overflow-y: auto; overflow-x: hidden; }
         
+        /* Links Soltos (ex: Hub Central) */
         .nav-item {
-            display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px;
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px;
             color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 6px; transition: 0.3s;
-            border: 1px solid transparent;
+            border: 1px solid transparent; white-space: nowrap;
         }
-        .nav-item i { font-size: 1.1rem; width: 24px; text-align: center; margin-top: 3px; transition: 0.3s; }
-        .nav-logo { width: 24px; height: 24px; object-fit: contain; margin-top: 2px; transition: 0.3s; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); border-radius: 4px;}
         
-        .nav-text { display: flex; flex-direction: column; }
-        .nav-title { font-weight: 700; font-size: 0.85rem; color: #cbd5e1; transition: 0.3s;}
-        .nav-desc { font-weight: 400; font-size: 0.65rem; color: #64748b; line-height: 1.2; margin-top: 2px; transition: 0.3s;}
-        
-        .nav-item:hover, .nav-item.active {
-            background: rgba(56, 189, 248, 0.1); 
-            border-color: rgba(56, 189, 248, 0.3);
-            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.05);
+        /* Cabeçalho do Módulo (Accordion) */
+        .nav-group-header {
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 12px 15px; color: #cbd5e1; cursor: pointer; border-radius: 10px; 
+            transition: 0.3s; margin-bottom: 5px; border: 1px solid transparent; white-space: nowrap;
         }
-        .nav-item:hover .nav-title, .nav-item.active .nav-title { color: #38bdf8; }
+        .nav-group-header:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-group-header.active { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.05); }
+        
+        .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; transition: 0.3s; flex-shrink: 0;}
+        .toggle-icon { transition: transform 0.3s ease; font-size: 0.8rem; opacity: 0.7; }
+        
+        .nav-text { display: flex; flex-direction: column; flex: 1; overflow: hidden; opacity: 1; transition: opacity 0.3s; }
+        .nav-title { font-weight: 700; font-size: 0.85rem; color: inherit; transition: 0.3s; text-overflow: ellipsis; overflow: hidden;}
+        .nav-desc { font-weight: 400; font-size: 0.60rem; color: #64748b; line-height: 1.2; margin-top: 2px; text-overflow: ellipsis; overflow: hidden;}
+        
+        .nav-item:hover, .nav-item.active { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.05); color: #38bdf8; }
         .nav-item:hover .nav-desc, .nav-item.active .nav-desc { color: #bae6fd; opacity: 0.8; }
-        .nav-item.active i, .nav-item:hover i { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
-        .nav-item.active .nav-logo, .nav-item:hover .nav-logo { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5)); }
+        .nav-item.active .nav-icon, .nav-group-header.active .nav-icon { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
+
+        /* Submenu Container */
+        .nav-submenu {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; 
+            background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin: 0 5px 10px 5px;
+        }
+        .nav-submenu .nav-item { padding: 8px 12px 8px 15px; margin-bottom: 2px; border: none; background: transparent; box-shadow: none; border-left: 2px solid transparent; border-radius: 0 8px 8px 0; }
+        .nav-submenu .nav-item:hover { background: rgba(255,255,255,0.05); border-left-color: #38bdf8; color: white;}
+        .nav-submenu .nav-icon { width: 18px; font-size: 0.9rem; }
+        .nav-submenu .nav-logo { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));}
 
         .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; }
+
+        /* COMPORTAMENTO DO MENU RECOLHIDO */
+        body.sidebar-collapsed .sidebar { width: 85px; }
+        body.sidebar-collapsed .main-content { margin-left: 85px; }
+        body.sidebar-collapsed .sidebar-header { padding: 20px 10px; }
+        body.sidebar-collapsed .sidebar-logo { height: 40px; margin-bottom: 0; }
+        body.sidebar-collapsed .sidebar-header h2, 
+        body.sidebar-collapsed .sidebar-header p,
+        body.sidebar-collapsed .nav-text,
+        body.sidebar-collapsed .toggle-icon,
+        body.sidebar-collapsed .btn-theme span { display: none; opacity: 0; }
+        
+        body.sidebar-collapsed .nav-group-header, 
+        body.sidebar-collapsed .nav-item { justify-content: center; padding: 15px 0; margin: 5px; }
+        body.sidebar-collapsed .nav-submenu { display: none !important; max-height: 0 !important; }
 
         /* ========================================================= */
         /* ÁREA CENTRAL (MAIN CONTENT)                               */
         /* ========================================================= */
-        .main-content {
-            margin-left: 300px;
-            padding: 30px 40px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: 0.5s;
-        }
+        .main-content { margin-left: 300px; padding: 30px 40px; min-height: 100vh; display: flex; flex-direction: column; transition: margin-left 0.4s ease; }
 
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;}
+        
+        .btn-toggle-menu { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; padding: 5px 10px; border-radius: 8px; }
+        .btn-toggle-menu:hover { color: white; background: rgba(255,255,255,0.1); }
+
         .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
-
         .select-theme option { background: #0f172a; color: white; }
 
-        .cyber-container {
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 25px;
-        }
-
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
-        }
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .col-span-2 { grid-column: span 2; } .col-span-3 { grid-column: span 3; }
         
-        .col-span-2 { grid-column: span 2; }
-        .col-span-3 { grid-column: span 3; }
-        
-        /* CARD INTERATIVO (Linkado) */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
-            transition: all 0.4s;
-            display: flex; flex-direction: column; justify-content: center;
-            text-decoration: none; cursor: pointer;
-        }
-        .glass-card:hover { 
-            transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-            border-top: 1px solid rgba(56, 189, 248, 0.5);
-        }
-        
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; transition: all 0.4s; display: flex; flex-direction: column; justify-content: center; text-decoration: none; cursor: pointer; }
+        .glass-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-top: 1px solid rgba(56, 189, 248, 0.5); }
         .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); transition: 0.4s;}
         .glass-card:hover .kpi-icon { opacity: 0.15; transform: rotate(0deg) scale(1.1); }
         
@@ -141,17 +144,12 @@
         .leito-meta { font-size: 0.65rem; color: #64748b; margin-top: 2px;}
 
         .shortcut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .shortcut-card {
-            display: flex; align-items: center; gap: 15px; padding: 20px;
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px; text-decoration: none; color: white; transition: 0.3s;
-        }
+        .shortcut-card { display: flex; align-items: center; gap: 15px; padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; text-decoration: none; color: white; transition: 0.3s; }
         .shortcut-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
         .shortcut-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .shortcut-icon img { width: 30px; height: 30px; object-fit: contain;}
 
         footer { margin-top: auto; padding-top: 40px; padding-bottom: 10px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; }
-
         .dyn-text-accent { color: #38bdf8; }
 
         /* ========================================================= */
@@ -166,26 +164,29 @@
         
         body.theme-classic .nav-title { color: rgba(255,255,255,0.9); }
         body.theme-classic .nav-desc { color: rgba(255,255,255,0.6); }
-        body.theme-classic .nav-item i { color: rgba(255,255,255,0.6); }
+        body.theme-classic .nav-icon { color: rgba(255,255,255,0.6); }
         body.theme-classic .nav-logo { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
         
-        body.theme-classic .nav-item:hover, body.theme-classic .nav-item.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); box-shadow: none; }
-        body.theme-classic .nav-item:hover .nav-title, body.theme-classic .nav-item.active .nav-title { color: white; }
-        body.theme-classic .nav-item:hover .nav-desc, body.theme-classic .nav-item.active .nav-desc { color: rgba(255,255,255,0.9); }
-        body.theme-classic .nav-item:hover i, body.theme-classic .nav-item.active i { color: white; text-shadow: none; }
-        body.theme-classic .nav-item:hover .nav-logo, body.theme-classic .nav-item.active .nav-logo { filter: drop-shadow(0 2px 5px rgba(255,255,255,0.3)); }
+        body.theme-classic .nav-group-header:hover { background: rgba(255,255,255,0.1); color: white;}
+        body.theme-classic .nav-group-header.active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: white;}
+        body.theme-classic .nav-submenu { background: rgba(0,0,0,0.15); }
+        body.theme-classic .nav-submenu .nav-item:hover { background: rgba(255,255,255,0.1); color: white;}
 
+        body.theme-classic .nav-item:hover, body.theme-classic .nav-item.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); box-shadow: none; color: white; }
+        body.theme-classic .nav-item.active .nav-icon, body.theme-classic .nav-group-header.active .nav-icon { color: white; text-shadow: none; }
+        
         body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
         body.theme-classic .glass-card:hover { background: #ffffff; border-color: #004e92; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
         body.theme-classic .kpi-title { color: #64748b; }
         body.theme-classic .kpi-sub { color: #94a3b8; }
-        
         body.theme-classic .leito-box { background: white; border-color: #cbd5e1; }
         
         body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
         body.theme-classic .btn-theme:hover { background: #f8fafc; border-color: #004e92; }
+        body.theme-classic .btn-toggle-menu { color: #475569; }
+        body.theme-classic .btn-toggle-menu:hover { color: #004e92; background: #e2e8f0;}
 
         body.theme-classic .shortcut-card { background: white; border-color: #e2e8f0; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
         body.theme-classic .shortcut-card:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
@@ -204,7 +205,7 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
             <h2 class="text-white font-bold tracking-wide text-lg">Portal NII</h2>
@@ -212,28 +213,105 @@
         </div>
 
         <nav class="nav-menu">
-            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-2">Visão Geral</div>
-            <a href="#" class="nav-item active"><i class="fas fa-home"></i><div class="nav-text"><span class="nav-title">Hub Central</span><span class="nav-desc">Painel de comando executivo</span></div></a>
+            <!-- VISÃO GERAL -->
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home nav-icon"></i>
+                <div class="nav-text"><span class="nav-title">Hub Central</span><span class="nav-desc">Visão Geral Executiva</span></div>
+            </a>
             
-            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Gestão & Faturamento</div>
-            <a href="modulo_gerencial.html" class="nav-item"><img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line\'></i>';"><div class="nav-text"><span class="nav-title">Módulo Gerencial</span><span class="nav-desc">Repasses e Painéis SIH</span></div></a>
-            <a href="painel_simuladas.html" class="nav-item"><img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf\'></i>';"><div class="nav-text"><span class="nav-title">Fichas & Espelhos</span><span class="nav-desc">Auditoria de simuladas</span></div></a>
-            <a href="painel_cruzamento_sih_sp.html" class="nav-item"><i class="fas fa-search-dollar"></i><div class="nav-text"><span class="nav-title">Auditoria SIH x SP</span><span class="nav-desc">Cruzamento de capa e itens</span></div></a>
-            <a href="painel_contrato_cofinanciamento.html" class="nav-item"><i class="fas fa-file-signature text-emerald-400"></i><div class="nav-text"><span class="nav-title">Painel Cofinanciamento</span><span class="nav-desc">Cálculo Tabela MT 2026</span></div></a>
-            <a href="proposta_contratos.html" class="nav-item"><i class="fas fa-calculator text-blue-400"></i><div class="nav-text"><span class="nav-title">Gerador de Propostas</span><span class="nav-desc">Simulador de Metas e Repasses</span></div></a>
-            
-            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Monitoramento de Operação</div>
-            <a href="painel_regulacao.html" class="nav-item"><img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';"><div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de autorizações</span></div></a>
-            <a href="painel_indicasus_v2.html" class="nav-item"><img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';"><div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de leitos</span></div></a>
-            <a href="painel_cirurgias.html" class="nav-item"><img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';"><div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Metas e especialidades</span></div></a>
+            <div class="my-4 border-t border-white/5"></div>
 
-            <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Tabelas e Catálogos</div>
-            <a href="painel_sigtap.html" class="nav-item"><img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';"><div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, regras e OPMEs</span></div></a>
+            <!-- MÓDULO OPERACIONAL -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-procedures nav-icon text-orange-400"></i>
+                    <div class="nav-text"><span class="nav-title">Módulo Operacional</span><span class="nav-desc">Leitos, Regulação e Produção</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="painel_indicasus_v2.html" class="nav-item">
+                        <img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de Leitos</span></div>
+                    </a>
+                    <a href="painel_planos_sus.html" class="nav-item">
+                        <i class="fas fa-hospital-user nav-icon text-blue-400"></i>
+                        <div class="nav-text"><span class="nav-title">Planos SUS</span><span class="nav-desc">Plano Único vs Fila Zero</span></div>
+                    </a>
+                    <a href="painel_regulacao.html" class="nav-item">
+                        <img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de Filas</span></div>
+                    </a>
+                    <a href="painel_cirurgias.html" class="nav-item">
+                        <img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-scalpel nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Metas e Especialidades</span></div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MÓDULO FATURAMENTO -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-file-invoice-dollar nav-icon text-emerald-400"></i>
+                    <div class="nav-text"><span class="nav-title">Módulo Faturamento</span><span class="nav-desc">Auditoria e Cruzamentos</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="painel_simuladas.html" class="nav-item">
+                        <img src="../logo_sisaih.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-file-pdf nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Fichas & Espelhos</span><span class="nav-desc">Auditoria de Simuladas</span></div>
+                    </a>
+                    <a href="painel_cruzamento_sih_sp.html" class="nav-item">
+                        <i class="fas fa-search-dollar nav-icon text-yellow-400"></i>
+                        <div class="nav-text"><span class="nav-title">Auditoria SIH x SP</span><span class="nav-desc">Capa RD x Itens de Serviço</span></div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MÓDULO GERENCIAL -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-chart-pie nav-icon text-purple-400"></i>
+                    <div class="nav-text"><span class="nav-title">Módulo Gerencial</span><span class="nav-desc">Contratos e Repasses</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="modulo_gerencial.html" class="nav-item">
+                        <img src="../logo_sus.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Módulo Gerencial (BI)</span><span class="nav-desc">Repasses e Painéis SIH</span></div>
+                    </a>
+                    <a href="painel_contrato_cofinanciamento.html" class="nav-item">
+                        <i class="fas fa-file-signature nav-icon text-emerald-400"></i>
+                        <div class="nav-text"><span class="nav-title">Painel Cofinanciamento</span><span class="nav-desc">Cálculo Tabela MT 2026</span></div>
+                    </a>
+                    <a href="proposta_contratos.html" class="nav-item">
+                        <i class="fas fa-calculator nav-icon text-blue-400"></i>
+                        <div class="nav-text"><span class="nav-title">Gerador de Propostas</span><span class="nav-desc">Simulador de Metas</span></div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="my-4 border-t border-white/5"></div>
+
+            <!-- TABELAS E CATÁLOGOS -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-book-medical nav-icon text-gray-400"></i>
+                    <div class="nav-text"><span class="nav-title">Tabelas e Apoio</span><span class="nav-desc">Consultas Rápidas</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="painel_sigtap.html" class="nav-item">
+                        <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, Regras e OPMEs</span></div>
+                    </a>
+                </div>
+            </div>
+
         </nav>
 
         <div class="sidebar-footer">
             <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme w-full justify-center">
-                <i class="fas fa-sun"></i> Alternar Tema
+                <i class="fas fa-sun"></i> <span>Alternar Tema</span>
             </button>
         </div>
     </aside>
@@ -241,13 +319,17 @@
     <main class="main-content">
         
         <div class="top-bar">
-            <div>
-                <h1 class="text-3xl font-black mb-1">Visão Geral do Hospital</h1>
-                <p class="text-gray-400 text-sm">Resumo da competência e atalhos de produtividade.</p>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="btn-toggle-menu" title="Recolher/Expandir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="text-3xl font-black mb-1">Visão Geral do Hospital</h1>
+                    <p class="text-gray-400 text-sm">Resumo da competência e atalhos de produtividade.</p>
+                </div>
             </div>
             
             <div class="flex items-center gap-3">
-                <!-- FILTRO DE COMPETÊNCIA E INTELIGÊNCIA DE STATUS -->
                 <div class="filter-wrapper bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-3">
                     <div class="flex items-center gap-2 border-r border-white/10 pr-3">
                         <span class="text-xs font-bold uppercase dyn-text-accent">Competência:</span>
@@ -267,7 +349,6 @@
             
             <div class="dashboard-grid">
                 
-                <!-- ROW 1 -->
                 <a href="painel_simuladas.html" class="glass-card" title="Acessar Auditoria de Valores">
                     <i class="fas fa-hospital-user kpi-icon text-blue-500"></i>
                     <div class="kpi-title">Total de AIHs (Contas) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
@@ -282,7 +363,6 @@
                     </div>
                 </a>
 
-                <!-- ROW 2 -->
                 <a href="painel_cirurgias.html" class="glass-card" title="Acessar Produção Cirúrgica">
                     <i class="fas fa-scalpel kpi-icon text-emerald-500"></i>
                     <div class="kpi-title">Cirurgias SUS (Meta 148) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
@@ -297,15 +377,13 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </a>
 
-                <!-- REDIRECIONADO PARA O PAINEL INDICASUS -->
-                <a href="painel_indicasus_v2.html" class="glass-card" title="Acessar Painel IndicaSUS">
+                <a href="painel_indicasus_v2.html" class="glass-card" title="Acessar Painel IndicaSUS (Fila Zero)">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Calculando...</div>
                 </a>
 
-                <!-- ROW 3 -->
                 <a href="painel_indicasus_v2.html" class="glass-card col-span-3" title="Acessar Auditoria IndicaSUS">
                     <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
                     <div class="kpi-title mb-2">Monitoramento de Capacidade Hospitalar (IndicaSUS) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
@@ -383,6 +461,58 @@
 
         window.chartEspecInstance = null;
 
+        // CONTROLE DO SIDEBAR E ACCORDION
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+            
+            // Fecha todos os submenus ao recolher a barra
+            if (document.body.classList.contains('sidebar-collapsed')) {
+                document.querySelectorAll('.nav-submenu').forEach(sub => {
+                    sub.style.maxHeight = null;
+                    const header = sub.previousElementSibling;
+                    if(header) {
+                        header.classList.remove('active');
+                        const icon = header.querySelector('.toggle-icon');
+                        if(icon) icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        }
+
+        function toggleSubmenu(element) {
+            // Se a barra estiver recolhida, expande ela primeiro
+            if (document.body.classList.contains('sidebar-collapsed')) {
+                toggleSidebar();
+            }
+
+            const submenu = element.nextElementSibling;
+            const icon = element.querySelector('.toggle-icon');
+            
+            // Lógica para fechar os outros menus abertos (Accordion exclusivo)
+            document.querySelectorAll('.nav-submenu').forEach(sub => {
+                if (sub !== submenu) {
+                    sub.style.maxHeight = null;
+                    const prevHeader = sub.previousElementSibling;
+                    if(prevHeader) {
+                        prevHeader.classList.remove('active');
+                        const prevIcon = prevHeader.querySelector('.toggle-icon');
+                        if(prevIcon) prevIcon.style.transform = 'rotate(0deg)';
+                    }
+                }
+            });
+
+            // Abre/Fecha o menu clicado
+            if (submenu.style.maxHeight) {
+                submenu.style.maxHeight = null;
+                element.classList.remove('active');
+                if(icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                element.classList.add('active');
+                if(icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
         function setupAnoMes() {
             const anoSel = document.getElementById('anoFilter');
             const mesSel = document.getElementById('mesFilter');
@@ -458,6 +588,7 @@
         function toggleTheme() {
             const body = document.body;
             const btnIcon = document.querySelector('#btn-theme-toggle i');
+            const themeText = document.querySelector('#btn-theme-toggle span');
             
             let isClassic = false;
 
@@ -511,7 +642,6 @@
 
                 $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
 
-                // --- 1. LÊ A BASE DE SIMULADAS ---
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
                 let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
 
@@ -571,7 +701,7 @@
                     }
                 } else {
                     $('#kpi-aih-real').text('-');
-                    $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento de faturamento');
+                    $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento');
                     if(window.chartEspecInstance) {
                         window.chartEspecInstance.data.labels = [];
                         window.chartEspecInstance.data.datasets[0].data = [];
@@ -579,7 +709,6 @@
                     }
                 }
 
-                // --- 2. CIRURGIAS ---
                 const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 let qtdCir = 0;
                 if (cirData) {
@@ -593,7 +722,6 @@
                 $('#kpi-cir').text(qtdCir);
                 $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
 
-                // --- 3. SISREG ---
                 let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
@@ -620,7 +748,6 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. INDICASUS (HUB DE LEITOS E FILA ZERO) ---
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
@@ -682,7 +809,6 @@
                     }
                 });
 
-                // ATUALIZA O CARD DO FILA ZERO NO HUB
                 $('#kpi-fila-zero').text(filaZeroCount);
                 $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações contabilizadas');
 
