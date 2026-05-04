@@ -3,7 +3,6 @@ import os
 import re
 import json
 import pyautogui
-import calendar
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -14,10 +13,9 @@ from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertP
 from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V57 - FORÇAR DOWNLOAD) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V58 - CORREÇÃO DE UPLOAD E NOME) ---")
 
 # --- CONFIGURAÇÕES DE CONTROLE ---
-# Mude para True se quiser baixar tudo de novo, mesmo o que já existe
 FORCAR_RE_DOWNLOAD = True 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
@@ -37,7 +35,6 @@ PASTA_TEMP_PDF = os.path.join(PASTA_PROJETO, "temp_fichas")
 
 if not os.path.exists(PASTA_TEMP_PDF): os.makedirs(PASTA_TEMP_PDF)
 
-# Conexão Supabase
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 except Exception as e:
@@ -55,18 +52,23 @@ def verificar_aih_na_nuvem(aih):
         return False
 
 def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
-    print(f"☁️  Subindo dados de {dados_paciente['nome_paciente']}...")
+    print(f"☁️  Subindo PDF de {dados_paciente['nome_paciente']}...")
     link_publico_pdf = None
     try:
         with open(caminho_local_pdf, 'rb') as f:
-            supabase.storage.from_(NOME_BUCKET).upload(
-                path=nome_remoto_pdf,
+            # Novo padrão de upload do Supabase Python
+            res = supabase.storage.from_(NOME_BUCKET).upload(
                 file=f,
+                path=nome_remoto_pdf,
                 file_options={"content-type": "application/pdf", "upsert": "true"}
             )
-        link_publico_pdf = supabase.storage.from_(NOME_BUCKET).get_public_url(nome_remoto_pdf)
+        
+        # Monta a URL pública manualmente para evitar erros do get_public_url
+        link_publico_pdf = f"{SUPABASE_URL}/storage/v1/object/public/{NOME_BUCKET}/{nome_remoto_pdf}"
+        
     except Exception as e:
         print(f"❌ Erro no upload do PDF: {e}")
+        return False
 
     try:
         registro = {
@@ -76,12 +78,11 @@ def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
             "arquivo_pdf": link_publico_pdf,
             "data_atualizacao": datetime.now().isoformat()
         }
-        # Upsert atualiza se já existir
         supabase.table("regulacao").upsert(registro, on_conflict="num_aih").execute()
-        print(f"✅ Sucesso! AIH {dados_paciente['aih']} atualizada.")
+        print(f"✅ Sucesso! Ficha salva na nuvem e banco atualizado.")
         return True
     except Exception as e:
-        print(f"❌ Erro ao gravar no banco: {e}")
+        print(f"❌ Erro ao gravar no banco de dados: {e}")
         return False
 
 # --- FUNÇÕES AUXILIARES ---
@@ -210,7 +211,6 @@ try:
 
         print(f">> Linhas nesta página: {qtd_total}")
 
-        # Se houver poucas linhas na pag 1, tenta recarregar filtro
         if pagina_atual == 1 and qtd_total < 3:
             print("⚠️ Poucos dados... Tentando reaplicar filtro...")
             preencher_datas_robustamente(driver, DT_INICIO, DT_FIM)
@@ -241,18 +241,25 @@ try:
                     aih_encontrada = match_aih.group(0)
                 else: continue
 
-                nome_paciente = "PACIENTE"
+                # CORREÇÃO DA CAPTURA DO NOME E STATUS
+                nome_paciente = "PACIENTE_DESCONHECIDO"
                 status_estimado = "Pendente"
-                for col in colunas:
-                    txt = col.text.strip()
-                    if len(txt) > 5 and not txt[0].isdigit() and not "/" in txt:
-                        nome_paciente = limpar_nome_arquivo(txt)
-                    if "AUTORIZADO" in txt.upper() or "APROVADO" in txt.upper(): status_estimado = "Aprovado"
-                    elif "NEGADO" in txt.upper() or "CANCELADO" in txt.upper(): status_estimado = "Negado"
-
-                print(f"AIH {aih_encontrada}...", end=" ")
                 
-                # --- LÓGICA DE FORÇAR DOWNLOAD ---
+                for idx, col in enumerate(colunas):
+                    txt = col.text.strip().upper()
+                    
+                    if "AUTORIZADO" in txt or "APROVADO" in txt: status_estimado = "Aprovado"
+                    elif "NEGADO" in txt or "CANCELADO" in txt: status_estimado = "Negado"
+                    elif "PENDENTE" in txt: status_estimado = "Pendente"
+                    
+                    # O nome geralmente está na 3ª coluna (índice 2) ou vizinhança, 
+                    # nunca é a coluna do status.
+                    if idx > 0 and len(txt) > 5 and not txt[0].isdigit() and "/" not in txt:
+                        if txt not in ["APROVADO", "AUTORIZADO", "NEGADO", "CANCELADO", "PENDENTE"]:
+                            nome_paciente = limpar_nome_arquivo(txt)
+
+                print(f"AIH {aih_encontrada} - {nome_paciente[:15]}...", end=" ")
+                
                 if not FORCAR_RE_DOWNLOAD:
                     if verificar_aih_na_nuvem(aih_encontrada):
                         print("[JÁ NA NUVEM] - Pulando.")
@@ -272,7 +279,9 @@ try:
                 coluna_clique.click()
                 time.sleep(5)
 
+                # Formata o nome do arquivo corretamente
                 nome_arquivo_pdf = f"AIH_{aih_encontrada}_{nome_paciente}.pdf"
+                nome_arquivo_pdf = nome_arquivo_pdf.replace(" ", "_") # Tira espaços vazios
                 caminho_completo_pdf = os.path.join(PASTA_TEMP_PDF, nome_arquivo_pdf)
 
                 if os.path.exists(caminho_completo_pdf): os.remove(caminho_completo_pdf)
@@ -293,11 +302,15 @@ try:
                         "status": status_estimado
                     }
                     caminho_remoto = f"Fichas_Internacao/{nome_arquivo_pdf}"
+                    
                     enviar_para_nuvem(caminho_completo_pdf, caminho_remoto, dados_pct)
+                    
+                    # Pequena pausa antes de deletar pro Windows soltar o arquivo
+                    time.sleep(1) 
                     try: os.remove(caminho_completo_pdf)
                     except: pass
                 else:
-                    print("❌ Erro: PDF não foi salvo.")
+                    print("❌ Erro: PDF não foi salvo pelo navegador.")
 
                 driver.back()
                 try: WebDriverWait(driver, 5).until(EC.alert_is_present()).accept()
@@ -318,20 +331,18 @@ try:
         focar_na_tabela_dados(driver)
         
         try:
-            # 1. Busca por Imagem (Estratégia V46 - Principal)
             links_imagem = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox') or contains(@src, 'seta') or contains(@src, 'next')]/..")
             inputs_imagem = driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox'))]")
             
             candidatos = links_imagem + inputs_imagem
             
             if candidatos:
-                btn = candidatos[-1] # O último da lista costuma ser o 'próximo'
+                btn = candidatos[-1] 
                 driver.execute_script("arguments[0].scrollIntoView(true);", btn)
                 time.sleep(1)
                 driver.execute_script("arguments[0].click();", btn)
                 paginou = True
             
-            # 2. Busca por Texto (Plano B)
             if not paginou:
                 links_texto = driver.find_elements(By.XPATH, "//a[contains(text(), '>>')] | //a[text()='>']")
                 if links_texto:
@@ -352,6 +363,6 @@ try:
     driver.quit()
 
 except KeyboardInterrupt:
-    print("\n🛑 Interrompido.")
+    print("\n🛑 Interrompido pelo usuário.")
 except Exception as e:
     print(f"❌ ERRO GERAL: {e}")
