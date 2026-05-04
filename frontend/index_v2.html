@@ -205,7 +205,7 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <!-- SIDEBAR REFORMULADA (ACCORDION COM GERENCIAL NO TOPO) -->
+    <!-- SIDEBAR REFORMULADA (ACCORDION COM GERENCIAL NO TOPO E DUPLICAÇÕES) -->
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
@@ -222,7 +222,7 @@
             
             <div class="my-4 border-t border-white/5"></div>
 
-            <!-- MÓDULO GERÊNCIA E CONTROLE (MOVIDO PARA O TOPO) -->
+            <!-- MÓDULO GERÊNCIA E CONTROLE (NO TOPO COM PAINÉIS ADICIONAIS) -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-chart-line nav-icon text-teal-400"></i>
@@ -245,6 +245,19 @@
                     <a href="painel_contrato_cofinanciamento.html" class="nav-item">
                         <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
                         <div class="nav-text"><span class="nav-title">Cofinanciamento</span><span class="nav-desc">Contrato Estadual 2026</span></div>
+                    </a>
+                    <!-- Adicionados no Gerencial conforme pedido -->
+                    <a href="painel_indicasus_v2.html" class="nav-item">
+                        <img src="../LogoSES-Gov.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de Leitos</span></div>
+                    </a>
+                    <a href="painel_regulacao.html" class="nav-item">
+                        <img src="../500px-Logo-sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de Filas</span></div>
+                    </a>
+                    <a href="painel_sigtap.html" class="nav-item">
+                        <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, Regras e OPMEs</span></div>
                     </a>
                 </div>
             </div>
@@ -280,10 +293,11 @@
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-hospital-user nav-icon text-orange-400"></i>
-                    <div class="nav-text"><span class="nav-title">Módulo Operacional</span><span class="nav-desc">Leitos, Regulação e Produção</span></div>
+                    <div class="nav-text"><span class="nav-title">Módulo Operacional</span><span class="nav-desc">Rotina Base e Cadastros</span></div>
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
+                    <!-- Mantidos aqui também -->
                     <a href="painel_regulacao.html" class="nav-item">
                         <img src="../500px-Logo-sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de Filas</span></div>
@@ -364,6 +378,7 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
+                    <!-- Mantido aqui também -->
                     <a href="painel_sigtap.html" class="nav-item">
                         <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, Regras e OPMEs</span></div>
