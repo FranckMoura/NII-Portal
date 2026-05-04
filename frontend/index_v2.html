@@ -226,7 +226,6 @@
             <a href="painel_regulacao.html" class="nav-item"><img src="../logo_sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance\'></i>';"><div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de autorizações</span></div></a>
             <a href="painel_indicasus_v2.html" class="nav-item"><img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse\'></i>';"><div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de leitos</span></div></a>
             <a href="painel_cirurgias.html" class="nav-item"><img src="../logo_cirurgia.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-procedures\'></i>';"><div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Metas e especialidades</span></div></a>
-            <a href="painel_planos_sus.html" class="nav-item"><i class="fas fa-hospital-user text-blue-400"></i><div class="nav-text"><span class="nav-title">Planos SUS</span><span class="nav-desc">Plano Único vs Fila Zero</span></div></a>
 
             <div class="text-[0.65rem] text-gray-500 font-bold uppercase mb-2 ml-2 mt-6">Tabelas e Catálogos</div>
             <a href="painel_sigtap.html" class="nav-item"><img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical\'></i>';"><div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, regras e OPMEs</span></div></a>
@@ -298,7 +297,8 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </a>
 
-                <a href="painel_planos_sus.html" class="glass-card" title="Acessar Painel de Planos SUS">
+                <!-- REDIRECIONADO PARA O PAINEL INDICASUS -->
+                <a href="painel_indicasus_v2.html" class="glass-card" title="Acessar Painel IndicaSUS">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
                     <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
@@ -383,7 +383,6 @@
 
         window.chartEspecInstance = null;
 
-        // APENAS POPULA OS SELECTS INICIALMENTE
         function setupAnoMes() {
             const anoSel = document.getElementById('anoFilter');
             const mesSel = document.getElementById('mesFilter');
@@ -404,7 +403,6 @@
             }
         }
 
-        // INTELIGÊNCIA: DESCOBRE A COMPETÊNCIA ATIVA DA ROTINA DE FATURAMENTO
         async function definirCompetenciaAtiva() {
             try {
                 const { data: compData } = await client.from('controle_simuladas')
@@ -494,7 +492,6 @@
                 const anoHoje = dataAtual.getFullYear();
                 const mesHoje = dataAtual.getMonth() + 1;
                 
-                // --- INTELIGÊNCIA DE STATUS DA COMPETÊNCIA (COM ROTINA DE FATURAMENTO) ---
                 const diffMeses = (anoHoje * 12 + mesHoje) - (anoSelecionado * 12 + mesSelecionado);
 
                 if (diffMeses < 0) {
@@ -514,7 +511,7 @@
 
                 $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
 
-                // --- 1. LÊ A BASE DE SIMULADAS BASEADO NA COMPETENCIA ESCOLHIDA ---
+                // --- 1. LÊ A BASE DE SIMULADAS ---
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
                 let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
 
@@ -623,29 +620,11 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // --- 4. FILA ZERO (INTERNAÇÕES) ---
-                const sufixoData = `/${String(mesSelecionado).padStart(2, '0')}/${anoSelecionado}`;
-                const { data: filaData, error: errFila } = await client.from('internacoes_planos')
-                                                                 .select('plano')
-                                                                 .like('dt_internacao', `%${sufixoData}`);
-                if (errFila) throw errFila;
-
-                let qtdFilaZero = 0;
-                if (filaData) {
-                    filaData.forEach(item => {
-                        if ((item.plano || "").trim().toUpperCase() === 'FILA ZERO') qtdFilaZero++;
-                    });
-                }
-                
-                $('#kpi-fila-zero').text(qtdFilaZero);
-                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações contabilizadas');
-
-
-                // --- 5. INDICASUS (LÓGICA ESPELHADA 100% COM PAINEL DETALHADO) ---
+                // --- 4. INDICASUS (HUB DE LEITOS E FILA ZERO) ---
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, cpf, cns, nome_mae')
+                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, cpf, cns, nome_mae, plano_sus')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
                     if(error) throw error;
                     if (data && data.length > 0) { allIndicaData = allIndicaData.concat(data); fromIndica += stepIndica; }
@@ -657,7 +636,7 @@
 
                 allIndicaData.forEach(row => {
                     const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                    if (!isSus) return; // Conta apenas pacientes SUS pro Hub
+                    if (!isSus) return; 
 
                     const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
                     const dtInt = row.data_internacao || "SEM DATA";
@@ -673,7 +652,7 @@
                     else key = "NOME_" + nome + "_" + dtInt;
                     
                     if (!mapPacientes.has(key)) {
-                        mapPacientes.set(key, { dias_map: new Map() });
+                        mapPacientes.set(key, { dias_map: new Map(), plano_sus: (row.plano_sus || "PLANO UNICO").toUpperCase() });
                     }
                     
                     const p = mapPacientes.get(key);
@@ -683,11 +662,17 @@
                     if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
                     p.dias_map.set(dataDia, row.tipo_leito);
+                    if(row.plano_sus) p.plano_sus = row.plano_sus.toUpperCase();
                 });
 
                 let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0;
+                let filaZeroCount = 0;
 
                 Array.from(mapPacientes.values()).forEach(p => {
+                    if (p.plano_sus && p.plano_sus.includes('FILA ZERO')) {
+                        filaZeroCount++;
+                    }
+
                     for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                         let leito = (leitoBruto || "").toUpperCase();
                         if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
@@ -696,6 +681,10 @@
                         else if (leito === "UCINCA") pacDiaUcinca++;
                     }
                 });
+
+                // ATUALIZA O CARD DO FILA ZERO NO HUB
+                $('#kpi-fila-zero').text(filaZeroCount);
+                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações contabilizadas');
 
                 let capUtiAd = 10 * diasNoMes;
                 let capUtin = 18 * diasNoMes;
@@ -707,7 +696,6 @@
                 let txUcinco = capUcinco > 0 ? Math.min(Math.round((pacDiaUcinco / capUcinco) * 100), 100) : 0;
                 let txUcinca = capUcinca > 0 ? Math.min(Math.round((pacDiaUcinca / capUcinca) * 100), 100) : 0;
 
-                // Atualiza Ocupação + Diárias
                 $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
                 $('#meta-uti').html(`${pacDiaUti} Diárias (Cap: ${capUtiAd})`);
 

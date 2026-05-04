@@ -284,8 +284,6 @@
                 </div>
                 <div class="btn-theme" style="padding: 4px 10px;">
                     <span class="text-xs font-bold uppercase dyn-text-accent mr-2"><i class="fas fa-user-tag"></i> Paciente:</span>
-                    
-                    <!-- NOVO FILTRO DINÂMICO AQUI -->
                     <select id="susFilter" onchange="aplicarFiltroSusLocal()" class="bg-transparent text-white font-bold outline-none">
                         <option value="TODOS">Todos (Geral)</option>
                         <option value="SUS_TODOS">Todos do SUS</option>
@@ -294,7 +292,7 @@
                         <option value="NAO">Apenas Particulares</option>
                     </select>
                 </div>
-                <a href="../frontend/modulo_operacional.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="../index_v2.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
@@ -315,7 +313,14 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8 relative z-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8 relative z-10">
+            <!-- 7º Card: Fila Zero (Atalho para o Filtro) -->
+            <div class="glass-card" onclick="$('#susFilter').val('SUS_FILAZERO').trigger('change');" title="Filtrar pacientes Fila Zero">
+                <div class="kpi-title text-pink-400">Fila Zero <i class="fas fa-star"></i></div>
+                <div class="kpi-number neon-text-pink" id="kpiFilaZero">0</div>
+                <div class="kpi-sub" style="margin-top: 5px;">Pacientes no período</div>
+            </div>
+
             <div class="glass-card" onclick="filtrarPorLeito('UTI ADULTO')" title="Clique para listar na tabela">
                 <div class="kpi-title dyn-text-accent">UTI Adulto <i class="fas fa-filter"></i></div>
                 <div class="kpi-number neon-text-blue" id="kpiUtiAdulto">0</div>
@@ -342,7 +347,7 @@
                 <div class="kpi-sub" id="subEnfermaria">Diárias Ocupadas</div>
             </div>
             <div class="glass-card" onclick="filtrarPorLeito('TODOS')" title="Limpar filtros da tabela">
-                <div class="kpi-title text-green-400">Total Pacientes <i class="fas fa-users"></i></div>
+                <div class="kpi-title text-green-400">Total Geral <i class="fas fa-users"></i></div>
                 <div class="kpi-number neon-text-green" id="kpiPacientes">0</div>
                 <div class="kpi-sub" style="margin-top: 5px;">Atendidos no período</div>
             </div>
@@ -520,7 +525,6 @@
             try {
                 let allData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
-                    // ADICIONADO A CHAMADA DA COLUNA PLANO_SUS AQUI
                     let query = client.from('indicasus_leitos')
                         .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica, plano_sus')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(from, from + step - 1); 
@@ -546,21 +550,21 @@
             
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
-                $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria').text("0");
+                $('#kpiUtiAdulto, #kpiUtin, #kpiUcinco, #kpiUcinca, #kpiPacientes, #kpiEnfermaria, #kpiFilaZero').text("0");
                 $('#subUtiAdulto, #subUtin, #subUcinco, #subUcinca, #subEnfermaria').text("Diárias Ocupadas");
                 renderizarGraficos([]); renderizarTabelaPrincipal([]);
                 return;
             }
 
             const map = new Map();
-            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0; // Faturamento (desconta alta)
-            let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0, pacDiaEnf = 0; // Ocupação (sem desconto)
+            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0; 
+            let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0, pacDiaEnf = 0; 
 
             dadosOriginaisBrutos.forEach(row => {
                 const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
                 const planoSus = (row.plano_sus || "PLANO UNICO").toUpperCase();
 
-                // LÓGICA DO NOVO FILTRO DE PLANOS
+                // LÓGICA DO FILTRO DE PLANOS
                 if (susFilterValue === 'SUS_TODOS' && !isSus) return;
                 if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
                 if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO'))) return;
@@ -609,7 +613,7 @@
                     if(row.evolucao_clinica) p.evolucao_clinica = row.evolucao_clinica;
                     if(row.aih) p.aih = row.aih;
                     if(row.cod_solicitacao_sisreg) p.cod_solicitacao_sisreg = row.cod_solicitacao_sisreg;
-                    if(row.plano_sus) p.plano_sus = row.plano_sus; // Atualiza plano da foto mais recente
+                    if(row.plano_sus) p.plano_sus = row.plano_sus; 
                 }
             });
 
@@ -626,14 +630,12 @@
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     let leito = (leitoBruto || "").toUpperCase();
 
-                    // LÓGICA DE OCUPAÇÃO (PACIENTE-DIA): Não desconta o dia da alta
                     if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
                     else if (leito === "UTIN") pacDiaUtin++;
                     else if (leito === "UCINCO") pacDiaUcinco++;
                     else if (leito === "UCINCA") pacDiaUcinca++;
                     else pacDiaEnf++;
 
-                    // LÓGICA DE FATURAMENTO: Desconta o dia da alta
                     if (isAltaPadrao && dataDia === p.max_date) {
                         continue; 
                     }
@@ -658,7 +660,6 @@
 
             let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; 
             
-            // Independente se é SUS Todos, Fila Zero ou Plano Unico, a capacidade contratual é a mesma!
             if (susFilterValue !== 'TODOS' && susFilterValue !== 'NAO') {
                 numUtiAd = 10; numUtin = 18; numUcinco = 4; numUcinca = 3; numEnf = 94; 
             } else if (susFilterValue === 'NAO') {
@@ -678,7 +679,6 @@
             const colorUcinca = isClassic ? '#0f766e' : '#2dd4bf';
             const colorEnf = isClassic ? '#b45309' : '#fbbf24';
 
-            // Usamos a variável pacDia para a Ocupação Real (sem descontar a alta)
             const txUtiAd = capUtiAd > 0 ? ((pacDiaUti / capUtiAd) * 100).toFixed(1) : 0;
             const txUtin = capUtin > 0 ? ((pacDiaUtin / capUtin) * 100).toFixed(1) : 0;
             const txUcinco = capUcinco > 0 ? ((pacDiaUcinco / capUcinco) * 100).toFixed(1) : 0;
@@ -702,10 +702,17 @@
 
             $('#kpiPacientes').text(dadosFiltradosGlobais.length);
 
+            // Calcula dinamicamente o número de Fila Zero base no Mês Selecionado independente do dropdown Filtro Sus
+            // Isso garante que o card Fila Zero mostre o KPI correto mesmo se a tabela estiver mostrando "Todos"
+            let filaZeroCount = 0;
+            Array.from(map.values()).forEach(p => {
+                 if(p.plano_sus && p.plano_sus.includes('FILA ZERO')) filaZeroCount++;
+            });
+            $('#kpiFilaZero').text(filaZeroCount);
+
             renderizarGraficos(dadosFiltradosGlobais);
             renderizarTabelaPrincipal(dadosFiltradosGlobais);
 
-            // TÍTULO DA TARJA DE STATUS ONLINE
             let txtFiltro = 'Geral';
             if(susFilterValue === 'SUS_TODOS') txtFiltro = 'Todos do SUS';
             if(susFilterValue === 'SUS_UNICO') txtFiltro = 'SUS - Plano Único';
@@ -808,7 +815,6 @@
                                 let safeEvol = String(row.evolucao_clinica || '').replace(/'/g, "\\'");
                                 let safePlano = String(row.plano_sus || 'PLANO UNICO').replace(/'/g, "\\'");
 
-                                // ETIQUETA VISUAL NO NOME DO PACIENTE
                                 let htmlBadgePlano = '';
                                 if(safeSus.toUpperCase().includes('SIM')) {
                                     if(safePlano.includes('FILA ZERO')) {
