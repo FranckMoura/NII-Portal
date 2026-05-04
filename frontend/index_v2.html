@@ -205,7 +205,7 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <!-- SIDEBAR REFORMULADA (ACCORDION) -->
+    <!-- SIDEBAR REFORMULADA (ACCORDION COM GERENCIAL NO TOPO) -->
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
@@ -221,6 +221,60 @@
             </a>
             
             <div class="my-4 border-t border-white/5"></div>
+
+            <!-- MÓDULO GERÊNCIA E CONTROLE (MOVIDO PARA O TOPO) -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-chart-line nav-icon text-teal-400"></i>
+                    <div class="nav-text"><span class="nav-title">Gerência e Controle</span><span class="nav-desc">Visão Diretoria e Financeiro</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="painel_financeiro.html" class="nav-item">
+                        <img src="../logo_sus_faturamento.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Faturamento SUS</span><span class="nav-desc">Dashboard Financeiro AIH</span></div>
+                    </a>
+                    <a href="modulo_financeiro.html" class="nav-item">
+                        <i class="fas fa-coins nav-icon text-teal-400"></i>
+                        <div class="nav-text"><span class="nav-title">Gestão Interna</span><span class="nav-desc">Repasses Médicos e Terceiros</span></div>
+                    </a>
+                    <a href="painel_cruzamento_sih_sp.html" class="nav-item">
+                        <i class="fas fa-search nav-icon text-blue-400"></i>
+                        <div class="nav-text"><span class="nav-title">Auditoria AIH</span><span class="nav-desc">Dossiê e Cruzamento SP</span></div>
+                    </a>
+                    <a href="painel_contrato_cofinanciamento.html" class="nav-item">
+                        <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
+                        <div class="nav-text"><span class="nav-title">Cofinanciamento</span><span class="nav-desc">Contrato Estadual 2026</span></div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MÓDULO ESTRATÉGICO -->
+            <div class="nav-group">
+                <div class="nav-group-header" onclick="toggleSubmenu(this)">
+                    <i class="fas fa-bullseye nav-icon text-pink-400"></i>
+                    <div class="nav-text"><span class="nav-title">Módulo Estratégico</span><span class="nav-desc">Visão Global e Metas</span></div>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="nav-submenu">
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-chart-line nav-icon text-green-400"></i>
+                        <div class="nav-text"><span class="nav-title">Metas & Qualidade</span><span class="nav-desc">TMP e Produção Física</span></div>
+                    </a>
+                    <a href="painel_cirurgias.html" class="nav-item">
+                        <i class="fas fa-user-md nav-icon text-pink-400"></i>
+                        <div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Monitoramento SoulMV</span></div>
+                    </a>
+                    <a href="painel_simuladas.html" class="nav-item">
+                        <i class="fas fa-magnifying-glass-chart nav-icon text-purple-400"></i>
+                        <div class="nav-text"><span class="nav-title">BI - Simuladas</span><span class="nav-desc">Painel de Valores Faturados</span></div>
+                    </a>
+                    <a href="Painel_Fichas_Liberadas.html" class="nav-item">
+                        <i class="fas fa-code-compare nav-icon text-orange-400"></i>
+                        <div class="nav-text"><span class="nav-title">Auditoria Fichas</span><span class="nav-desc">MV vs SISREG</span></div>
+                    </a>
+                </div>
+            </div>
 
             <!-- MÓDULO OPERACIONAL -->
             <div class="nav-group">
@@ -265,60 +319,6 @@
                     <a href="controle_agua.html" class="nav-item">
                         <i class="fas fa-hand-holding-water nav-icon text-cyan-400"></i>
                         <div class="nav-text"><span class="nav-title">Controle de Água</span><span class="nav-desc">Gestão de Cotas</span></div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- MÓDULO ESTRATÉGICO -->
-            <div class="nav-group">
-                <div class="nav-group-header" onclick="toggleSubmenu(this)">
-                    <i class="fas fa-bullseye nav-icon text-pink-400"></i>
-                    <div class="nav-text"><span class="nav-title">Módulo Estratégico</span><span class="nav-desc">Visão Global e Metas</span></div>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="nav-submenu">
-                    <a href="dashboard.html" class="nav-item">
-                        <i class="fas fa-chart-line nav-icon text-green-400"></i>
-                        <div class="nav-text"><span class="nav-title">Metas & Qualidade</span><span class="nav-desc">TMP e Produção Física</span></div>
-                    </a>
-                    <a href="painel_cirurgias.html" class="nav-item">
-                        <i class="fas fa-user-md nav-icon text-pink-400"></i>
-                        <div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Monitoramento SoulMV</span></div>
-                    </a>
-                    <a href="painel_simuladas.html" class="nav-item">
-                        <i class="fas fa-magnifying-glass-chart nav-icon text-purple-400"></i>
-                        <div class="nav-text"><span class="nav-title">BI - Simuladas</span><span class="nav-desc">Painel de Valores Faturados</span></div>
-                    </a>
-                    <a href="Painel_Fichas_Liberadas.html" class="nav-item">
-                        <i class="fas fa-code-compare nav-icon text-orange-400"></i>
-                        <div class="nav-text"><span class="nav-title">Auditoria Fichas</span><span class="nav-desc">MV vs SISREG</span></div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- MÓDULO GERENCIAL -->
-            <div class="nav-group">
-                <div class="nav-group-header" onclick="toggleSubmenu(this)">
-                    <i class="fas fa-coins nav-icon text-teal-400"></i>
-                    <div class="nav-text"><span class="nav-title">Módulo Gerencial</span><span class="nav-desc">Financeiro e Repasses</span></div>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="nav-submenu">
-                    <a href="painel_financeiro.html" class="nav-item">
-                        <img src="../logo_sus_faturamento.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line nav-icon\'></i>';">
-                        <div class="nav-text"><span class="nav-title">Faturamento SUS</span><span class="nav-desc">Dashboard Financeiro AIH</span></div>
-                    </a>
-                    <a href="modulo_financeiro.html" class="nav-item">
-                        <i class="fas fa-coins nav-icon text-teal-400"></i>
-                        <div class="nav-text"><span class="nav-title">Gestão Interna</span><span class="nav-desc">Repasses Médicos e Terceiros</span></div>
-                    </a>
-                    <a href="painel_cruzamento_sih_sp.html" class="nav-item">
-                        <i class="fas fa-search nav-icon text-blue-400"></i>
-                        <div class="nav-text"><span class="nav-title">Auditoria AIH</span><span class="nav-desc">Dossiê e Cruzamento SP</span></div>
-                    </a>
-                    <a href="painel_contrato_cofinanciamento.html" class="nav-item">
-                        <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
-                        <div class="nav-text"><span class="nav-title">Cofinanciamento</span><span class="nav-desc">Contrato Estadual 2026</span></div>
                     </a>
                 </div>
             </div>
@@ -448,7 +448,6 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
                 </a>
 
-                <!-- REDIRECIONADO PARA O PAINEL INDICASUS -->
                 <a href="painel_indicasus_v2.html" class="glass-card" title="Acessar Painel IndicaSUS (Fila Zero)">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
