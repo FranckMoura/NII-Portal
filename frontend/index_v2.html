@@ -56,12 +56,14 @@
         
         .nav-menu { flex: 1; padding: 20px 10px; overflow-y: auto; overflow-x: hidden; }
         
+        /* Links Soltos (ex: Hub Central) */
         .nav-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 15px;
             color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 6px; transition: 0.3s;
             border: 1px solid transparent; white-space: nowrap;
         }
         
+        /* Cabeçalho do Módulo (Accordion) */
         .nav-group-header {
             display: flex; align-items: center; justify-content: space-between; 
             padding: 12px 15px; color: #cbd5e1; cursor: pointer; border-radius: 10px; 
@@ -81,6 +83,7 @@
         .nav-item:hover .nav-desc, .nav-item.active .nav-desc { color: #bae6fd; opacity: 0.8; }
         .nav-item.active .nav-icon, .nav-group-header.active .nav-icon { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
 
+        /* Submenu Container */
         .nav-submenu {
             max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; 
             background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin: 0 5px 10px 5px;
@@ -92,6 +95,7 @@
 
         .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; }
 
+        /* COMPORTAMENTO DO MENU RECOLHIDO */
         body.sidebar-collapsed .sidebar { width: 85px; }
         body.sidebar-collapsed .main-content { margin-left: 85px; }
         body.sidebar-collapsed .sidebar-header { padding: 20px 10px; }
@@ -201,6 +205,7 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
+    <!-- SIDEBAR REFORMULADA (ACCORDION COM GERENCIAL NO TOPO E DUPLICAÇÕES) -->
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
@@ -598,42 +603,22 @@
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
             for(let i = 1; i <= 12; i++) {
                 let opt = document.createElement('option');
-                opt.value = i; opt.innerText = meses[i-1];
+                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
                 mesSel.appendChild(opt);
             }
         }
 
         async function definirCompetenciaAtiva() {
             try {
-                const { data: compData } = await client.from('controle_simuladas')
-                    .select('competencia_arquivo')
-                    .not('competencia_arquivo', 'is', null)
-                    .order('id', { ascending: false })
-                    .limit(1);
-
-                let mesAlvo, anoAlvo;
-
-                if (compData && compData.length > 0 && compData[0].competencia_arquivo) {
-                    let parts = compData[0].competencia_arquivo.split('/');
-                    mesAlvo = parts[0];
-                    anoAlvo = parts[1];
-                } else {
-                    const dataAtual = new Date();
-                    if (dataAtual.getDate() <= 10) {
-                        dataAtual.setMonth(dataAtual.getMonth() - 1);
-                    }
-                    mesAlvo = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                    anoAlvo = dataAtual.getFullYear();
-                }
+                // Força a competência atual pelo calendário (ex: 05/2026) automaticamente!
+                const dataAtual = new Date();
+                const mesAlvo = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const anoAlvo = dataAtual.getFullYear();
 
                 $('#anoFilter').val(anoAlvo);
                 $('#mesFilter').val(mesAlvo);
-
             } catch (e) {
-                console.error("Erro ao buscar competência ativa", e);
-                const dataAtual = new Date();
-                $('#anoFilter').val(dataAtual.getFullYear());
-                $('#mesFilter').val(String(dataAtual.getMonth() + 1).padStart(2, '0'));
+                console.error("Erro ao definir competência", e);
             }
         }
 
@@ -870,7 +855,6 @@
                 let filaZeroCount = 0;
 
                 Array.from(mapPacientes.values()).forEach(p => {
-                    // CONTAGEM DE FILA ZERO AGORA É ESTRITA: O paciente DEVE ter internado neste mês.
                     if (p.plano_sus && p.plano_sus.includes('FILA ZERO') && p.data_internacao && p.data_internacao.startsWith(prefixoMesAtual)) {
                         filaZeroCount++;
                     }

@@ -262,6 +262,11 @@
                         <span class="info-label"><i class="fas fa-heartbeat text-red-500"></i> Evolução Clínica</span>
                         <span class="info-value dyn-text-secondary" id="modalEvolucao"></span>
                     </div>
+                    <!-- NOVO CAMPO: DIAGNÓSTICO -->
+                    <div class="info-item">
+                        <span class="info-label"><i class="fas fa-stethoscope text-teal-400"></i> Diagnóstico (CID)</span>
+                        <span class="info-value dyn-text-primary" id="modalDiagnostico"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -434,7 +439,7 @@
             if (event.target == modal) { fecharModal(); }
         }
 
-        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao, plano) {
+        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao, plano, diagnostico) {
             document.getElementById('modalNome').innerText = nome;
             document.getElementById('modalMunicipio').innerText = municipio && municipio !== 'null' ? municipio : 'Não informado';
             document.getElementById('modalAih').innerText = (aih && aih !== 'null') ? aih : 'Aguardando Faturamento';
@@ -445,6 +450,7 @@
             document.getElementById('modalNascimento').innerText = (dtNasc && dtNasc !== 'null') ? dtNasc.split('-').reverse().join('/') : 'Não informada';
             document.getElementById('modalMae').innerText = (mae && mae !== 'null') ? mae : 'Não informada';
             document.getElementById('modalEvolucao').innerText = (evolucao && evolucao !== 'null') ? evolucao : 'Sem Evolução Registrada';
+            document.getElementById('modalDiagnostico').innerText = (diagnostico && diagnostico !== 'null' && diagnostico !== 'NÃO INFORMADO') ? diagnostico : 'Sem Registro';
             
             const statusSusSpan = document.getElementById('modalSusStatus');
             const isLight = document.body.classList.contains('theme-classic');
@@ -533,7 +539,8 @@
                 let allData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     let query = client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica, plano_sus')
+                        // ADICIONADO: diagnostico na busca
+                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica, plano_sus, diagnostico')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(from, from + step - 1); 
                     const { data, error } = await query;
                     if(error) throw error;
@@ -575,8 +582,6 @@
                 if (susFilterValue === 'SUS_TODOS' && !isSus) return;
                 if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
                 
-                // CRUCIAL: Fila Zero só mostra pacientes que INTERNARAM no mês selecionado
-                // Isso evita que o mesmo paciente "puxe" sua tag do Fila Zero de Abril para a tabela de Maio
                 if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO') || !dtInt.startsWith(prefixoMesAtual))) return;
                 
                 if (susFilterValue === 'NAO' && isSus) return;
@@ -600,7 +605,8 @@
                         dias_map: new Map(), 
                         max_date: "0000-00-00", 
                         dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0,
-                        plano_sus: planoSus
+                        plano_sus: planoSus,
+                        diagnostico: row.diagnostico || "NÃO INFORMADO"
                     });
                 }
                 
@@ -624,6 +630,7 @@
                     if(row.aih) p.aih = row.aih;
                     if(row.cod_solicitacao_sisreg) p.cod_solicitacao_sisreg = row.cod_solicitacao_sisreg;
                     if(row.plano_sus) p.plano_sus = row.plano_sus.toUpperCase(); 
+                    if(row.diagnostico && row.diagnostico !== "NÃO INFORMADO") p.diagnostico = row.diagnostico;
                 }
             });
 
@@ -714,7 +721,6 @@
 
             let filaZeroCount = 0;
             Array.from(map.values()).forEach(p => {
-                 // Contagem também restrita ao MÊS de internação
                  if(p.plano_sus && p.plano_sus.includes('FILA ZERO') && p.data_internacao && p.data_internacao.startsWith(prefixoMesAtual)) {
                      filaZeroCount++;
                  }
@@ -825,6 +831,7 @@
                                 let safeSus = String(row.internacao_sus || '').replace(/'/g, "\\'");
                                 let safeEvol = String(row.evolucao_clinica || '').replace(/'/g, "\\'");
                                 let safePlano = String(row.plano_sus || 'PLANO UNICO').replace(/'/g, "\\'");
+                                let safeDiag = String(row.diagnostico || 'NÃO INFORMADO').replace(/'/g, "\\'");
 
                                 let htmlBadgePlano = '';
                                 if(safeSus.toUpperCase().includes('SIM')) {
@@ -842,7 +849,7 @@
                                                 <b class="dyn-text-primary" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b><br>
                                                 ${htmlBadgePlano}
                                             </div>
-                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}', '${safePlano}')" title="Ver Dossiê">
+                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}', '${safePlano}', '${safeDiag}')" title="Ver Dossiê">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>`;
