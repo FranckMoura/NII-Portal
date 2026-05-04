@@ -93,17 +93,26 @@ except Exception as e:
 
 print(f"Sucesso! {len(parsed_data)} internações lidas e formatadas.")
 
-# --- 3. ENVIO PARA O SUPABASE ---
+# --- 3. ENVIO PARA O SUPABASE (COM LÓGICA ANTI-DUPLICAÇÃO) ---
 if len(parsed_data) > 0:
+    print("Limpando possíveis duplicações deste arquivo na base...")
+    
+    # Extrai apenas os números de atendimento deste CSV
+    atendimentos = [item['atendimento'] for item in parsed_data if item['atendimento']]
+    
+    # Apaga na base qualquer registro que tenha esses mesmos atendimentos
+    if atendimentos:
+        batch_size_del = 100
+        for i in range(0, len(atendimentos), batch_size_del):
+            lote = atendimentos[i : i + batch_size_del]
+            supabase.table('internacoes_planos').delete().in_('atendimento', lote).execute()
+
     print("Enviando dados para a nuvem e adicionando ao histórico...")
-    
-    # ⚠️ AVISO: A função delete() foi removida para não apagar o histórico!
-    
     batch_size = 100
     for i in range(0, len(parsed_data), batch_size):
         batch = parsed_data[i : i + batch_size]
         supabase.table('internacoes_planos').insert(batch).execute()
     
-    print("✅ Automação concluída! Histórico atualizado.")
+    print("✅ Automação concluída! Histórico atualizado sem duplicações.")
 else:
     print("Nenhum dado válido de internação foi encontrado no arquivo.")

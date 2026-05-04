@@ -62,6 +62,11 @@
         .bg-enf { background-color: rgba(251, 191, 36, 0.2); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
         .badge { padding: 4px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; min-width: 35px; text-align: center; }
 
+        /* Estilo Dinâmico para as Etiquetas de Planos na Tabela */
+        .badge-unico-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); margin-top:2px; display:inline-block; font-weight: bold;}
+        .badge-fila-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(244,114,182,0.2); color: #f472b6; border: 1px solid rgba(244,114,182,0.4); margin-top:2px; display:inline-block; font-weight: bold;}
+        .badge-part-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); margin-top:2px; display:inline-block; font-weight: bold;}
+
         /* MODO CLÁSSICO */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
@@ -91,6 +96,11 @@
         body.theme-classic .bg-ucinco { background-color: #fce7f3 !important; color: #be185d !important; border-color: #fbcfe8 !important; }
         body.theme-classic .bg-ucinca { background-color: #ccfbf1 !important; color: #0f766e !important; border-color: #99f6e4 !important; }
         body.theme-classic .bg-enf { background-color: #fef3c7 !important; color: #b45309 !important; border-color: #fde68a !important; }
+
+        /* Ajuste dos Badges no Modo Claro */
+        body.theme-classic .badge-unico-sm { background: #e0f2fe !important; color: #0284c7 !important; border-color: #bae6fd !important; }
+        body.theme-classic .badge-fila-sm { background: #fce7f3 !important; color: #db2777 !important; border-color: #fbcfe8 !important; }
+        body.theme-classic .badge-part-sm { background: #fef3c7 !important; color: #d97706 !important; border-color: #fde68a !important; }
 
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
@@ -274,9 +284,13 @@
                 </div>
                 <div class="btn-theme" style="padding: 4px 10px;">
                     <span class="text-xs font-bold uppercase dyn-text-accent mr-2"><i class="fas fa-user-tag"></i> Paciente:</span>
+                    
+                    <!-- NOVO FILTRO DINÂMICO AQUI -->
                     <select id="susFilter" onchange="aplicarFiltroSusLocal()" class="bg-transparent text-white font-bold outline-none">
                         <option value="TODOS">Todos (Geral)</option>
-                        <option value="SIM">Apenas SUS</option>
+                        <option value="SUS_TODOS">Todos do SUS</option>
+                        <option value="SUS_UNICO">SUS - Plano Único</option>
+                        <option value="SUS_FILAZERO">SUS - Fila Zero</option>
                         <option value="NAO">Apenas Particulares</option>
                     </select>
                 </div>
@@ -408,7 +422,7 @@
             if (event.target == modal) { fecharModal(); }
         }
 
-        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao) {
+        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao, plano) {
             document.getElementById('modalNome').innerText = nome;
             document.getElementById('modalMunicipio').innerText = municipio && municipio !== 'null' ? municipio : 'Não informado';
             document.getElementById('modalAih').innerText = (aih && aih !== 'null') ? aih : 'Aguardando Faturamento';
@@ -422,11 +436,17 @@
             
             const statusSusSpan = document.getElementById('modalSusStatus');
             const isLight = document.body.classList.contains('theme-classic');
+            
             if(sus && sus.toUpperCase().includes('SIM')) {
-                statusSusSpan.innerText = 'Paciente SUS';
-                statusSusSpan.className = isLight ? 'px-3 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-green-900/30 text-green-400 border border-green-500/50 rounded-full text-xs font-bold uppercase';
+                if(plano && plano.toUpperCase().includes('FILA ZERO')) {
+                    statusSusSpan.innerText = 'SUS - FILA ZERO';
+                    statusSusSpan.className = isLight ? 'px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-pink-900/30 text-pink-400 border border-pink-500/50 rounded-full text-xs font-bold uppercase';
+                } else {
+                    statusSusSpan.innerText = 'SUS - PLANO ÚNICO';
+                    statusSusSpan.className = isLight ? 'px-3 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-green-900/30 text-green-400 border border-green-500/50 rounded-full text-xs font-bold uppercase';
+                }
             } else {
-                statusSusSpan.innerText = 'Não SUS / Particular';
+                statusSusSpan.innerText = 'NÃO SUS / PARTICULAR';
                 statusSusSpan.className = isLight ? 'px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-yellow-900/30 text-yellow-400 border border-yellow-500/50 rounded-full text-xs font-bold uppercase';
             }
             document.getElementById('pacienteModal').classList.add('active');
@@ -500,8 +520,9 @@
             try {
                 let allData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
+                    // ADICIONADO A CHAMADA DA COLUNA PLANO_SUS AQUI
                     let query = client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica')
+                        .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica, plano_sus')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(from, from + step - 1); 
                     const { data, error } = await query;
                     if(error) throw error;
@@ -537,7 +558,12 @@
 
             dadosOriginaisBrutos.forEach(row => {
                 const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                if (susFilterValue === 'SIM' && !isSus) return;
+                const planoSus = (row.plano_sus || "PLANO UNICO").toUpperCase();
+
+                // LÓGICA DO NOVO FILTRO DE PLANOS
+                if (susFilterValue === 'SUS_TODOS' && !isSus) return;
+                if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
+                if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO'))) return;
                 if (susFilterValue === 'NAO' && isSus) return;
 
                 const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
@@ -559,7 +585,8 @@
                         nome_exibicao: nome, 
                         dias_map: new Map(), 
                         max_date: "0000-00-00", 
-                        dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0 
+                        dias_uti_ad: 0, dias_utin: 0, dias_ucinco: 0, dias_ucinca: 0, dias_enf: 0,
+                        plano_sus: planoSus
                     });
                 }
                 
@@ -582,6 +609,7 @@
                     if(row.evolucao_clinica) p.evolucao_clinica = row.evolucao_clinica;
                     if(row.aih) p.aih = row.aih;
                     if(row.cod_solicitacao_sisreg) p.cod_solicitacao_sisreg = row.cod_solicitacao_sisreg;
+                    if(row.plano_sus) p.plano_sus = row.plano_sus; // Atualiza plano da foto mais recente
                 }
             });
 
@@ -630,7 +658,8 @@
 
             let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; 
             
-            if (susFilterValue === 'SIM') {
+            // Independente se é SUS Todos, Fila Zero ou Plano Unico, a capacidade contratual é a mesma!
+            if (susFilterValue !== 'TODOS' && susFilterValue !== 'NAO') {
                 numUtiAd = 10; numUtin = 18; numUcinco = 4; numUcinca = 3; numEnf = 94; 
             } else if (susFilterValue === 'NAO') {
                 numUtiAd = 1; numUtin = 0; numUcinco = 0; numUcinca = 0; numEnf = 23; 
@@ -676,7 +705,13 @@
             renderizarGraficos(dadosFiltradosGlobais);
             renderizarTabelaPrincipal(dadosFiltradosGlobais);
 
-            let txtFiltro = susFilterValue === 'TODOS' ? 'Geral' : (susFilterValue === 'SIM' ? 'Apenas SUS' : 'Apenas Particulares');
+            // TÍTULO DA TARJA DE STATUS ONLINE
+            let txtFiltro = 'Geral';
+            if(susFilterValue === 'SUS_TODOS') txtFiltro = 'Todos do SUS';
+            if(susFilterValue === 'SUS_UNICO') txtFiltro = 'SUS - Plano Único';
+            if(susFilterValue === 'SUS_FILAZERO') txtFiltro = 'SUS - Fila Zero';
+            if(susFilterValue === 'NAO') txtFiltro = 'Apenas Particulares';
+
             $('#status-badge').html(`<i class="fas fa-check-circle text-green-400"></i> Online (${dadosFiltradosGlobais.length} pacientes - ${txtFiltro})`);
             
             if(dataTableInstance) {
@@ -771,10 +806,26 @@
                                 let safeMae = String(row.nome_mae || '').replace(/'/g, "\\'");
                                 let safeSus = String(row.internacao_sus || '').replace(/'/g, "\\'");
                                 let safeEvol = String(row.evolucao_clinica || '').replace(/'/g, "\\'");
+                                let safePlano = String(row.plano_sus || 'PLANO UNICO').replace(/'/g, "\\'");
+
+                                // ETIQUETA VISUAL NO NOME DO PACIENTE
+                                let htmlBadgePlano = '';
+                                if(safeSus.toUpperCase().includes('SIM')) {
+                                    if(safePlano.includes('FILA ZERO')) {
+                                        htmlBadgePlano = `<span class="badge-fila-sm"><i class="fas fa-star"></i> FILA ZERO</span>`;
+                                    } else {
+                                        htmlBadgePlano = `<span class="badge-unico-sm"><i class="fas fa-check-circle"></i> PLANO ÚNICO</span>`;
+                                    }
+                                } else {
+                                    htmlBadgePlano = `<span class="badge-part-sm">PARTICULAR</span>`;
+                                }
                                 
                                 return `<div style="display:flex; align-items:center; justify-content:space-between;">
-                                            <b class="dyn-text-primary" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b>
-                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}')" title="Ver Dossiê">
+                                            <div>
+                                                <b class="dyn-text-primary" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b><br>
+                                                ${htmlBadgePlano}
+                                            </div>
+                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}', '${safePlano}')" title="Ver Dossiê">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>`;
