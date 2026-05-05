@@ -2,7 +2,7 @@ import time
 import os
 import re
 import json
-import pyautogui
+import base64
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -13,17 +13,17 @@ from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertP
 from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V58 - CORREÇÃO DE UPLOAD E NOME) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V63 - PDF ISOLADO, LEVE E SELECIONÁVEL) ---")
 
 # --- CONFIGURAÇÕES DE CONTROLE ---
 FORCAR_RE_DOWNLOAD = True 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
-DT_INICIO = "15/04/2026"
-DT_FIM = "28/04/2026"
+DT_INICIO = "01/04/2026"
+DT_FIM = "30/04/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
-SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
+SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co" 
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk"
 NOME_BUCKET = "arquivos-faturamento"
 
@@ -52,18 +52,15 @@ def verificar_aih_na_nuvem(aih):
         return False
 
 def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
-    print(f"☁️  Subindo PDF de {dados_paciente['nome_paciente']}...")
+    print(f"☁️  Subindo PDF de {dados_paciente['nome_paciente'][:20]}...")
     link_publico_pdf = None
     try:
-        with open(caminho_local_pdf, 'rb') as f:
-            # Novo padrão de upload do Supabase Python
-            res = supabase.storage.from_(NOME_BUCKET).upload(
-                file=f,
-                path=nome_remoto_pdf,
-                file_options={"content-type": "application/pdf", "upsert": "true"}
-            )
+        res = supabase.storage.from_(NOME_BUCKET).upload(
+            path=nome_remoto_pdf,
+            file=caminho_local_pdf,
+            file_options={"content-type": "application/pdf", "x-upsert": "true"}
+        )
         
-        # Monta a URL pública manualmente para evitar erros do get_public_url
         link_publico_pdf = f"{SUPABASE_URL}/storage/v1/object/public/{NOME_BUCKET}/{nome_remoto_pdf}"
         
     except Exception as e:
@@ -87,7 +84,14 @@ def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
 
 # --- FUNÇÕES AUXILIARES ---
 def limpar_nome_arquivo(texto):
-    return re.sub(r'[\\/*?:"<>|]', "", texto).strip()
+    texto = re.sub(r'[\\/*?:"<>|]', "", texto)
+    texto = re.sub(r'[Ç]', "C", texto)
+    texto = re.sub(r'[ÃÁÀÂ]', "A", texto)
+    texto = re.sub(r'[ÉÊ]', "E", texto)
+    texto = re.sub(r'[Í]', "I", texto)
+    texto = re.sub(r'[ÓÔÕ]', "O", texto)
+    texto = re.sub(r'[Ú]', "U", texto)
+    return texto.strip()
 
 def focar_na_tabela_dados(driver):
     driver.switch_to.default_content()
@@ -96,29 +100,15 @@ def focar_na_tabela_dados(driver):
         driver.switch_to.default_content()
         try:
             driver.switch_to.frame(i)
-            if driver.find_elements(By.CLASS_NAME, "table_listagem") or driver.find_elements(By.NAME, "data_inicio"):
+            if driver.find_elements(By.CLASS_NAME, "table_listagem") or driver.find_elements(By.NAME, "data_inicio") or driver.find_elements(By.ID, "fichaInternacao"):
                 return True
         except: pass
     driver.switch_to.default_content()
     return False
 
-def verificar_bloqueio_horario(driver):
-    try:
-        alerta = driver.switch_to.alert
-        texto = alerta.text
-        if "bloqueado" in texto.lower() and "horas" in texto.lower():
-            print(f"⛔ BLOQUEIO DETECTADO: {texto}")
-            alerta.accept()
-            return True
-        alerta.accept() 
-    except NoAlertPresentException:
-        pass
-    return False
-
 def preencher_datas_robustamente(driver, dt_ini, dt_fim):
     print(f">> Tentando preencher datas: {dt_ini} a {dt_fim}...")
     sucesso = False
-    
     try:
         driver.find_element(By.NAME, "data_inicio").clear()
         driver.find_element(By.NAME, "data_inicio").send_keys(dt_ini)
@@ -135,22 +125,12 @@ def preencher_datas_robustamente(driver, dt_ini, dt_fim):
                 inputs[1].clear(); inputs[1].send_keys(dt_fim)
                 sucesso = True
         except: pass
-
-    if not sucesso:
-        try:
-            driver.execute_script(f"document.getElementsByName('data_inicio')[0].value = '{dt_ini}'")
-            driver.execute_script(f"document.getElementsByName('data_fim')[0].value = '{dt_fim}'")
-            sucesso = True
-        except: pass
-        
     return sucesso
 
 # --- SETUP ---
-pyautogui.FAILSAFE = True
-pyautogui.PAUSE = 1.0
-
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
+options.add_argument('--kiosk-printing') 
 
 try:
     print(">> Abrindo navegador...")
@@ -159,14 +139,10 @@ try:
     
     driver.get("https://sisregiii.saude.gov.br/cgi-bin/index?logout=1")
     
-    if verificar_bloqueio_horario(driver): driver.quit(); exit()
-
     wait.until(EC.presence_of_element_located((By.NAME, "usuario"))).send_keys(USUARIO)
     driver.find_element(By.NAME, "senha").send_keys(SENHA)
     try: driver.find_element(By.CSS_SELECTOR, "input[type='image']").click()
     except: driver.find_element(By.CSS_SELECTOR, "div.form-no-lbl > input").click()
-
-    if verificar_bloqueio_horario(driver): driver.quit(); exit()
 
     print(">> Navegando para menu...")
     wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='barraMenu']/ul/li[5]/a"))).click()
@@ -178,9 +154,7 @@ try:
     
     if preencher_datas_robustamente(driver, DT_INICIO, DT_FIM):
         print(f">> Datas preenchidas: {DT_INICIO} até {DT_FIM}")
-    else:
-        print("⚠️ ALERTA: Não consegui preencher as datas visualmente.")
-
+        
     try: driver.find_element(By.NAME, "enviar").click()
     except: 
         try: driver.find_element(By.XPATH, "//input[@value='PESQUISAR']").click()
@@ -192,36 +166,18 @@ try:
     pagina_atual = 1
     
     while True:
-        if verificar_bloqueio_horario(driver): break
         print(f"\n>>> PROCESSANDO PÁGINA {pagina_atual} <<<")
-        
         focar_na_tabela_dados(driver)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
 
         tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
-        if not tabelas:
-            print(">> Tabela não encontrada.")
-            break
+        if not tabelas: break
         
         tabela_dados = tabelas[-1]
         linhas = tabela_dados.find_elements(By.TAG_NAME, "tr")
         qtd_total = len(linhas)
         registros_pagina = 0
-
-        print(f">> Linhas nesta página: {qtd_total}")
-
-        if pagina_atual == 1 and qtd_total < 3:
-            print("⚠️ Poucos dados... Tentando reaplicar filtro...")
-            preencher_datas_robustamente(driver, DT_INICIO, DT_FIM)
-            try: driver.find_element(By.NAME, "enviar").click()
-            except: pass
-            time.sleep(5)
-            focar_na_tabela_dados(driver)
-            tabelas = driver.find_elements(By.CLASS_NAME, "table_listagem")
-            if tabelas: 
-                linhas = tabelas[-1].find_elements(By.TAG_NAME, "tr")
-                qtd_total = len(linhas)
 
         for i in range(qtd_total):
             try:
@@ -241,128 +197,136 @@ try:
                     aih_encontrada = match_aih.group(0)
                 else: continue
 
-                # CORREÇÃO DA CAPTURA DO NOME E STATUS
-                nome_paciente = "PACIENTE_DESCONHECIDO"
-                status_estimado = "Pendente"
-                
-                for idx, col in enumerate(colunas):
-                    txt = col.text.strip().upper()
-                    
-                    if "AUTORIZADO" in txt or "APROVADO" in txt: status_estimado = "Aprovado"
-                    elif "NEGADO" in txt or "CANCELADO" in txt: status_estimado = "Negado"
-                    elif "PENDENTE" in txt: status_estimado = "Pendente"
-                    
-                    # O nome geralmente está na 3ª coluna (índice 2) ou vizinhança, 
-                    # nunca é a coluna do status.
-                    if idx > 0 and len(txt) > 5 and not txt[0].isdigit() and "/" not in txt:
-                        if txt not in ["APROVADO", "AUTORIZADO", "NEGADO", "CANCELADO", "PENDENTE"]:
-                            nome_paciente = limpar_nome_arquivo(txt)
-
-                print(f"AIH {aih_encontrada} - {nome_paciente[:15]}...", end=" ")
-                
-                if not FORCAR_RE_DOWNLOAD:
-                    if verificar_aih_na_nuvem(aih_encontrada):
-                        print("[JÁ NA NUVEM] - Pulando.")
-                        continue
-                
-                print("[BAIXANDO] - Processando...")
-                
-                for col in colunas:
-                    if aih_encontrada in col.text:
-                        driver.execute_script("arguments[0].style.backgroundColor = 'yellow';", col)
-
                 coluna_clique = colunas[1] 
                 for col in colunas:
                     if len(col.text) > 4: coluna_clique = col; break
                 driver.execute_script("arguments[0].scrollIntoView(true);", coluna_clique)
-                time.sleep(1)
-                coluna_clique.click()
-                time.sleep(5)
+                time.sleep(0.5)
+                
+                if not FORCAR_RE_DOWNLOAD:
+                    if verificar_aih_na_nuvem(aih_encontrada):
+                        print(f"AIH {aih_encontrada} [JÁ NA NUVEM] - Pulando.")
+                        continue
 
-                # Formata o nome do arquivo corretamente
-                nome_arquivo_pdf = f"AIH_{aih_encontrada}_{nome_paciente}.pdf"
-                nome_arquivo_pdf = nome_arquivo_pdf.replace(" ", "_") # Tira espaços vazios
+                coluna_clique.click()
+                time.sleep(5) 
+
+                focar_na_tabela_dados(driver)
+
+                nome_paciente = "PACIENTE_DESCONHECIDO"
+                status_estimado = "PENDENTE"
+                
+                try:
+                    nome_el = driver.find_elements(By.XPATH, "//b[contains(text(), 'Nome do Paciente')]/ancestor::tr/following-sibling::tr[1]/td[1]")
+                    if nome_el:
+                        nome_paciente = limpar_nome_arquivo(nome_el[0].text)
+                    
+                    status_el = driver.find_elements(By.XPATH, "//b[contains(text(), 'Status da Solicitação')]/ancestor::tr/following-sibling::tr[1]/td[1]")
+                    if status_el:
+                        txt_status = status_el[0].text.strip().upper()
+                        if "APROVAD" in txt_status or "AUTORIZAD" in txt_status: status_estimado = "Aprovado"
+                        elif "NEGAD" in txt_status or "CANCELAD" in txt_status: status_estimado = "Negado"
+                except Exception as e:
+                    print(f"⚠️ Aviso: Não consegui achar o nome exato na ficha. ({e})")
+
+                print(f"AIH {aih_encontrada} - {nome_paciente[:20]} [BAIXANDO NATIVO]...", end=" ")
+
+                nome_arquivo_pdf = f"AIH_{aih_encontrada}_{nome_paciente.replace(' ', '_')}.pdf"
                 caminho_completo_pdf = os.path.join(PASTA_TEMP_PDF, nome_arquivo_pdf)
 
-                if os.path.exists(caminho_completo_pdf): os.remove(caminho_completo_pdf)
+                # ==============================================================
+                # NOVA LÓGICA DE EXTRAÇÃO DE PDF (SEM IFRAME, SEM PYAUTOGUI)
+                # ==============================================================
+                try:
+                    # 1. Pega o HTML exato apenas do quadro da Ficha
+                    try:
+                        ficha_html = driver.find_element(By.ID, "fichaInternacao").get_attribute("outerHTML")
+                    except:
+                        ficha_html = driver.find_element(By.XPATH, "/html/body/center/div[2]/form/div/table").get_attribute("outerHTML")
 
-                width, height = pyautogui.size()
-                pyautogui.click(width/2, height/2)
-                pyautogui.hotkey('ctrl', 'a'); time.sleep(0.5)
-                pyautogui.hotkey('ctrl', 'p'); time.sleep(4)
-                pyautogui.press('enter'); time.sleep(3)
-                
-                pyautogui.write(caminho_completo_pdf); time.sleep(2)
-                pyautogui.press('enter'); time.sleep(5)
+                    # 2. Abre uma aba nova e limpa
+                    driver.execute_script("window.open('about:blank', '_blank');")
+                    driver.switch_to.window(driver.window_handles[-1])
 
-                if os.path.exists(caminho_completo_pdf):
-                    dados_pct = {
-                        "aih": aih_encontrada,
-                        "nome_paciente": nome_paciente,
-                        "status": status_estimado
+                    # 3. Injeta a ficha com CSS formatado
+                    script_injecao = """
+                    document.write('<html><head><style>body { font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 15px; } table { width: 100%; border-collapse: collapse; margin-bottom: 15px; } td, th { padding: 6px; border: 1px solid #ccc; text-align: left; } b { color: #111; }</style></head><body>' + arguments[0] + '</body></html>');
+                    document.close();
+                    """
+                    driver.execute_script(script_injecao, ficha_html)
+                    time.sleep(1) # Aguarda o DOM renderizar
+
+                    # 4. Gera o PDF puramente digital
+                    print_options = {
+                        "landscape": False,
+                        "displayHeaderFooter": False,
+                        "printBackground": True,
+                        "preferCSSPageSize": False,
+                        "paperWidth": 8.27,
+                        "paperHeight": 11.69,
+                        "marginTop": 0.5,
+                        "marginBottom": 0.5,
+                        "marginLeft": 0.5,
+                        "marginRight": 0.5
                     }
+                    result = driver.execute_cdp_cmd("Page.printToPDF", print_options)
+                    
+                    with open(caminho_completo_pdf, "wb") as f:
+                        f.write(base64.b64decode(result['data']))
+                    
+                    # 5. Fecha a aba extra e foca no iframe novamente
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[0])
+                    focar_na_tabela_dados(driver)
+
+                    # Subir para a nuvem
+                    dados_pct = { "aih": aih_encontrada, "nome_paciente": nome_paciente, "status": status_estimado }
                     caminho_remoto = f"Fichas_Internacao/{nome_arquivo_pdf}"
                     
                     enviar_para_nuvem(caminho_completo_pdf, caminho_remoto, dados_pct)
                     
-                    # Pequena pausa antes de deletar pro Windows soltar o arquivo
-                    time.sleep(1) 
                     try: os.remove(caminho_completo_pdf)
                     except: pass
-                else:
-                    print("❌ Erro: PDF não foi salvo pelo navegador.")
 
-                driver.back()
-                try: WebDriverWait(driver, 5).until(EC.alert_is_present()).accept()
-                except: pass
+                except Exception as e:
+                    print(f"❌ Erro ao gerar PDF isolado: {e}")
+
+                # Clicar no botão voltar do próprio site é mais seguro do que driver.back() no Iframe
+                try:
+                    btn_voltar = driver.find_element(By.XPATH, "//input[@value='VOLTAR']")
+                    driver.execute_script("arguments[0].click();", btn_voltar)
+                except:
+                    driver.back()
+                    
                 time.sleep(3)
 
             except Exception as e:
                 print(f"❌ Erro na linha: {e}")
                 if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(driver.window_handles[0])
 
-        if registros_pagina == 0:
-            print(">> Página vazia.")
-            break
+        if registros_pagina == 0: break
 
-        # --- PAGINAÇÃO (LÓGICA V46 RESTAURADA) ---
         print(f">> Buscando página {pagina_atual + 1}...")
         paginou = False
         focar_na_tabela_dados(driver)
         
         try:
-            links_imagem = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox') or contains(@src, 'seta') or contains(@src, 'next')]/..")
-            inputs_imagem = driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox'))]")
-            
-            candidatos = links_imagem + inputs_imagem
-            
+            candidatos = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox')]/..") + driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox'))]")
             if candidatos:
-                btn = candidatos[-1] 
-                driver.execute_script("arguments[0].scrollIntoView(true);", btn)
-                time.sleep(1)
-                driver.execute_script("arguments[0].click();", btn)
+                driver.execute_script("arguments[0].scrollIntoView(true); arguments[0].click();", candidatos[-1])
                 paginou = True
-            
-            if not paginou:
+            elif not paginou:
                 links_texto = driver.find_elements(By.XPATH, "//a[contains(text(), '>>')] | //a[text()='>']")
                 if links_texto:
-                    btn = links_texto[0]
-                    driver.execute_script("arguments[0].click();", btn)
+                    driver.execute_script("arguments[0].click();", links_texto[0])
                     paginou = True
+        except: pass
 
-        except Exception as e:
-            print(f"⚠️ Erro paginação: {e}")
-
-        if not paginou:
-            print("⚠️ Fim da paginação (Nenhum botão encontrado).")
-            break
-            
+        if not paginou: break
         time.sleep(8)
         pagina_atual += 1
 
     driver.quit()
 
-except KeyboardInterrupt:
-    print("\n🛑 Interrompido pelo usuário.")
 except Exception as e:
     print(f"❌ ERRO GERAL: {e}")

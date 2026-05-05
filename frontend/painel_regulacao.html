@@ -135,8 +135,10 @@
         .bg-negado { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); } 
         .bg-urgencia { background-color: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); } 
         .bg-eletiva { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
-        .btn-abrir { background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
+        
+        .btn-abrir { background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; white-space: nowrap; cursor: pointer;}
         .btn-abrir:hover { background-color: rgba(239, 68, 68, 0.4); color: white; }
+        .btn-abrir.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; border-color: rgba(255,255,255,0.1); color: #94a3b8; background: transparent; }
 
         /* Classes Dinâmicas (Neon Padrão) */
         .dyn-text-primary { color: #ffffff; }
@@ -203,8 +205,10 @@
         body.theme-classic .bg-negado { background-color: #ef4444 !important; color: white !important; border: none !important; } 
         body.theme-classic .bg-urgencia { background-color: #f97316 !important; color: white !important; border: none !important; } 
         body.theme-classic .bg-eletiva { background-color: #3b82f6 !important; color: white !important; border: none !important; }
-        body.theme-classic .btn-abrir { background-color: white !important; color: #ef4444 !important; border: 1px solid #ef4444 !important; }
-        body.theme-classic .btn-abrir:hover { background-color: #ef4444 !important; color: white !important; }
+        
+        body.theme-classic .btn-abrir { background-color: #ffe4e6 !important; color: #e11d48 !important; border: 1px solid #fda4af !important; }
+        body.theme-classic .btn-abrir:hover { background-color: #e11d48 !important; color: white !important; }
+        body.theme-classic .btn-abrir.disabled { background: transparent !important; color: #94a3b8 !important; border-color: #cbd5e1 !important; }
 
         /* ========================================================= */
         /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
@@ -243,13 +247,13 @@
         /* ========================================================= */
         /* MODAL DETALHES E NOTIFICAÇÕES                             */
         /* ========================================================= */
-        #modalDetalhes { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: white; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: white; }
         .modal-header { background: rgba(0,0,0,0.3); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .modal-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
         .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; opacity: 0.8; }
         .modal-close:hover { opacity: 1; color: #f87171; }
-        .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .modal-body { padding: 20px; overflow-y: auto; }
         
         .modal-table { width: 100%; border-collapse: collapse; }
         .modal-table th { background: rgba(0,0,0,0.2); padding: 10px; text-align: left; font-size: 0.8rem; color: #38bdf8; text-transform: uppercase; border-bottom: 1px solid rgba(56, 189, 248, 0.3); }
@@ -262,9 +266,10 @@
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* Modal Detalhes no Modo Clássico */
-        body.theme-classic #modalDetalhes { background: rgba(0, 21, 40, 0.7); }
+        body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
         body.theme-classic .modal-content { background: white; color: #1e293b; border: none; }
-        body.theme-classic .modal-header { background: #004e92; border: none; }
+        body.theme-classic .modal-header { background: #004e92; border: none; color: white;}
+        body.theme-classic .modal-header .modal-close { color: white; }
         body.theme-classic .modal-table th { background: #f1f5f9; color: #475569; border-bottom: 2px solid #e2e8f0; }
         body.theme-classic .modal-table td { color: #1e293b; border-bottom: 1px solid #f1f5f9; }
         body.theme-classic .modal-row-clickable:hover { background-color: #f1f5f9; }
@@ -302,7 +307,7 @@
         @media print {
             @page { margin: 10mm; size: A4 landscape; }
             body { background: white !important; font-size: 8pt !important; color: #000 !important; }
-            .header-bg, .btn-back, .filter-bar, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info, #toast-container, .table-search, .no-print, #modalDetalhes, .blob-1, .blob-2 { display: none !important; }
+            .header-bg, .btn-back, .filter-bar, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .dataTables_info, #toast-container, .table-search, .no-print, .modal-overlay, .blob-1, .blob-2 { display: none !important; }
             
             .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
             .header-print img { height: 45px; margin-right: 15px; }
@@ -330,17 +335,16 @@
             
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 6% !important; } 
             table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 6% !important; } 
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 13% !important; } 
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; } 
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 15% !important; } 
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } 
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 10% !important; } 
             table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) { width: 8% !important; } 
-            table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { width: 16% !important; } 
+            table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { width: 17% !important; } 
             table.dataTable th:nth-child(8), table.dataTable td:nth-child(8) { width: 10% !important; } 
-            table.dataTable th:nth-child(9), table.dataTable td:nth-child(9) { width: 8% !important; } 
-            table.dataTable th:nth-child(10), table.dataTable td:nth-child(10) { width: 6% !important; } 
+            table.dataTable th:nth-child(9), table.dataTable td:nth-child(9) { width: 6% !important; } 
+            table.dataTable th:nth-child(10), table.dataTable td:nth-child(10) { width: 4% !important; } 
             
             .badge { color: #000 !important; background: none !important; border: 1px solid #000 !important; padding: 1px 3px !important; font-size: 6pt !important; font-weight: bold !important; }
-            .btn-abrir { display: none !important; }
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; border-top: 1px solid #000; padding-top: 5px; display: block !important; color: black; }
             body.print-summary #secao-tabela { display: none !important; }
         }
@@ -353,13 +357,14 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3"></div>
 
-    <div id="modalDetalhes">
+    <!-- MODAL DE DETALHES DE CLÍNICA -->
+    <div id="modalDetalhes" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle"><i class="fas fa-clipboard-list mr-2"></i> Detalhamento</h3>
-                <button class="modal-close" onclick="fecharModal()"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="fecharModal('modalDetalhes')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 60vh;">
                 <div class="mb-4 text-sm dyn-text-muted italic"><i class="fas fa-mouse-pointer mr-1"></i> Clique em qualquer linha abaixo para filtrar os dados na tabela principal.</div>
                 <table class="modal-table" id="tabelaModalDetalhes">
                     <thead>
@@ -372,6 +377,19 @@
                     <tbody id="tabelaModalBody">
                         </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LEITOR DE PDF -->
+    <div id="modalPdfViewer" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px; width: 95%; height: 85vh;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-pdf mr-2 text-red-400"></i> Dossiê de Internação (SISREG)</h3>
+                <button class="modal-close" onclick="fecharModal('modalPdfViewer')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 0; height: calc(100% - 60px); overflow: hidden;">
+                <iframe id="iframePdf" src="" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
     </div>
@@ -566,7 +584,7 @@
             }
         }
 
-$(document).ready(function() {
+        $(document).ready(function() {
             const savedTheme = localStorage.getItem('nii_theme_reg');
             
             if (savedTheme === 'classic') { 
@@ -590,13 +608,16 @@ $(document).ready(function() {
             inscreverRealtimeNotificacoes();
         });
 
-        window.onclick = function(event) {
-            var modal = document.getElementById('modalDetalhes');
-            if (event.target == modal) fecharModal();
+        function fecharModal(idModal) {
+            $('#' + idModal).fadeOut(200);
+            if(idModal === 'modalPdfViewer') {
+                $('#iframePdf').attr('src', ''); // Limpa o iframe ao fechar
+            }
         }
 
-        function fecharModal() {
-            $('#modalDetalhes').fadeOut(200);
+        function abrirLeitorPdf(url) {
+            $('#iframePdf').attr('src', url);
+            $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
         }
 
         function agruparNomeClinica(nomeBruto) {
@@ -611,7 +632,7 @@ $(document).ready(function() {
         }
 
         window.aplicarFiltroModal = function(clinicaClicada, carater, tipoStatus) {
-            fecharModal();
+            fecharModal('modalDetalhes');
             limparFiltrosTabela();
 
             let searchClinica = clinicaClicada;
@@ -734,7 +755,7 @@ $(document).ready(function() {
             });
 
             $('#modalTitle').html(`<i class="fas fa-clipboard-list mr-2"></i> ${titulo}`);
-            $('.modal-header').css('background', corHeader);
+            $('#modalDetalhes .modal-header').css('background', corHeader);
 
             $('#modalDetalhes').css('display', 'flex').hide().fadeIn(200);
         }
@@ -1129,7 +1150,7 @@ $(document).ready(function() {
                         className: 'text-center no-print', 
                         render: d => {
                             if(d && d.length > 5) return `<button onclick="abrirLeitorPdf('${d}')" class="btn-abrir" title="Visualizar Anexo PDF"><i class="fas fa-file-pdf"></i> PDF</button>`;
-                            return '<span class="dyn-text-muted">-</span>';
+                            return '<span class="btn-abrir disabled"><i class="fas fa-file-pdf"></i> N/D</span>';
                         }
                     }
                 ],
@@ -1144,11 +1165,6 @@ $(document).ready(function() {
                     });
                 }
             });
-        }
-
-        function abrirLeitorPdf(url) {
-            $('#iframePdf').attr('src', url);
-            $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
         }
     </script>
 </body>
