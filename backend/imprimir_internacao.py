@@ -13,14 +13,14 @@ from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertP
 from webdriver_manager.chrome import ChromeDriverManager
 from supabase import create_client, Client
 
-print(f"--- 2. AUTOMAÇÃO SISREG (V63 - PDF ISOLADO, LEVE E SELECIONÁVEL) ---")
+print(f"--- 2. AUTOMAÇÃO SISREG (V66 - CORREÇÃO DA PAGINAÇÃO 'SETA DIREITA') ---")
 
 # --- CONFIGURAÇÕES DE CONTROLE ---
 FORCAR_RE_DOWNLOAD = True 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
-DT_INICIO = "01/04/2026"
-DT_FIM = "30/04/2026"
+DT_INICIO = "01/05/2026"
+DT_FIM = "08/05/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co" 
@@ -41,7 +41,6 @@ except Exception as e:
     print(f"❌ Erro ao conectar no Supabase: {e}")
     exit()
 
-# --- FUNÇÕES DE NUVEM ---
 def verificar_aih_na_nuvem(aih):
     try:
         response = supabase.table("regulacao").select("num_aih").eq("num_aih", aih).execute()
@@ -52,20 +51,30 @@ def verificar_aih_na_nuvem(aih):
         return False
 
 def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
-    print(f"☁️  Subindo PDF de {dados_paciente['nome_paciente'][:20]}...")
+    print(f"☁️  Subindo arquivo...", end=" ")
     link_publico_pdf = None
-    try:
-        res = supabase.storage.from_(NOME_BUCKET).upload(
-            path=nome_remoto_pdf,
-            file=caminho_local_pdf,
-            file_options={"content-type": "application/pdf", "x-upsert": "true"}
-        )
-        
-        link_publico_pdf = f"{SUPABASE_URL}/storage/v1/object/public/{NOME_BUCKET}/{nome_remoto_pdf}"
-        
-    except Exception as e:
-        print(f"❌ Erro no upload do PDF: {e}")
+    sucesso_upload = False
+    
+    for tentativa in range(3):
+        try:
+            with open(caminho_local_pdf, 'rb') as f:
+                file_data = f.read()
+                supabase.storage.from_(NOME_BUCKET).upload(
+                    path=nome_remoto_pdf,
+                    file=file_data,
+                    file_options={"content-type": "application/pdf", "upsert": "true"}
+                )
+            sucesso_upload = True
+            break
+        except Exception as e:
+            time.sleep(2)
+            
+    if not sucesso_upload:
+        print(f"❌ Falha de rede no upload.")
         return False
+
+    base_url = SUPABASE_URL.rstrip('/')
+    link_publico_pdf = f"{base_url}/storage/v1/object/public/{NOME_BUCKET}/{nome_remoto_pdf}"
 
     try:
         registro = {
@@ -76,21 +85,14 @@ def enviar_para_nuvem(caminho_local_pdf, nome_remoto_pdf, dados_paciente):
             "data_atualizacao": datetime.now().isoformat()
         }
         supabase.table("regulacao").upsert(registro, on_conflict="num_aih").execute()
-        print(f"✅ Sucesso! Ficha salva na nuvem e banco atualizado.")
+        print(f"✅ OK!")
         return True
     except Exception as e:
-        print(f"❌ Erro ao gravar no banco de dados: {e}")
+        print(f"❌ Erro ao gravar no BD.")
         return False
 
-# --- FUNÇÕES AUXILIARES ---
 def limpar_nome_arquivo(texto):
     texto = re.sub(r'[\\/*?:"<>|]', "", texto)
-    texto = re.sub(r'[Ç]', "C", texto)
-    texto = re.sub(r'[ÃÁÀÂ]', "A", texto)
-    texto = re.sub(r'[ÉÊ]', "E", texto)
-    texto = re.sub(r'[Í]', "I", texto)
-    texto = re.sub(r'[ÓÔÕ]', "O", texto)
-    texto = re.sub(r'[Ú]', "U", texto)
     return texto.strip()
 
 def focar_na_tabela_dados(driver):
@@ -127,7 +129,6 @@ def preencher_datas_robustamente(driver, dt_ini, dt_fim):
         except: pass
     return sucesso
 
-# --- SETUP ---
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
 options.add_argument('--kiosk-printing') 
@@ -194,7 +195,7 @@ try:
                 match_aih = re.search(r'(\d{12}-\d{1})|(\d{13})', linha.text)
                 
                 if match_aih:
-                    aih_encontrada = match_aih.group(0)
+                    aih_encontrada = match_aih.group(0).replace('-', '')
                 else: continue
 
                 coluna_clique = colunas[1] 
@@ -224,62 +225,52 @@ try:
                     status_el = driver.find_elements(By.XPATH, "//b[contains(text(), 'Status da Solicitação')]/ancestor::tr/following-sibling::tr[1]/td[1]")
                     if status_el:
                         txt_status = status_el[0].text.strip().upper()
-                        if "APROVAD" in txt_status or "AUTORIZAD" in txt_status: status_estimado = "Aprovado"
-                        elif "NEGAD" in txt_status or "CANCELAD" in txt_status: status_estimado = "Negado"
-                except Exception as e:
-                    print(f"⚠️ Aviso: Não consegui achar o nome exato na ficha. ({e})")
+                        if "APROVAD" in txt_status or "AUTORIZAD" in txt_status: status_estimado = "APROVADA"
+                        elif "NEGAD" in txt_status or "CANCELAD" in txt_status: status_estimado = "NEGADA"
+                except: pass
 
-                print(f"AIH {aih_encontrada} - {nome_paciente[:20]} [BAIXANDO NATIVO]...", end=" ")
+                print(f"AIH {aih_encontrada} - {nome_paciente[:15]}...", end=" ")
 
-                nome_arquivo_pdf = f"AIH_{aih_encontrada}_{nome_paciente.replace(' ', '_')}.pdf"
+                nome_arquivo_pdf = f"AIH_{aih_encontrada}_{status_estimado.upper()}.pdf"
                 caminho_completo_pdf = os.path.join(PASTA_TEMP_PDF, nome_arquivo_pdf)
 
-                # ==============================================================
-                # NOVA LÓGICA DE EXTRAÇÃO DE PDF (SEM IFRAME, SEM PYAUTOGUI)
-                # ==============================================================
                 try:
-                    # 1. Pega o HTML exato apenas do quadro da Ficha
-                    try:
-                        ficha_html = driver.find_element(By.ID, "fichaInternacao").get_attribute("outerHTML")
-                    except:
-                        ficha_html = driver.find_element(By.XPATH, "/html/body/center/div[2]/form/div/table").get_attribute("outerHTML")
-
-                    # 2. Abre uma aba nova e limpa
+                    iframe_html = driver.execute_script("return document.documentElement.outerHTML;")
+                    
                     driver.execute_script("window.open('about:blank', '_blank');")
                     driver.switch_to.window(driver.window_handles[-1])
-
-                    # 3. Injeta a ficha com CSS formatado
+                    
                     script_injecao = """
-                    document.write('<html><head><style>body { font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 15px; } table { width: 100%; border-collapse: collapse; margin-bottom: 15px; } td, th { padding: 6px; border: 1px solid #ccc; text-align: left; } b { color: #111; }</style></head><body>' + arguments[0] + '</body></html>');
+                    var html = arguments[0];
+                    document.open();
+                    document.write(html);
                     document.close();
+                    
+                    var base = document.createElement('base');
+                    base.href = 'https://sisregiii.saude.gov.br/';
+                    document.head.insertBefore(base, document.head.firstChild);
+                    
+                    var botoes = document.querySelectorAll('input[type="button"], input[type="submit"], button');
+                    botoes.forEach(b => b.style.display = 'none');
                     """
-                    driver.execute_script(script_injecao, ficha_html)
-                    time.sleep(1) # Aguarda o DOM renderizar
-
-                    # 4. Gera o PDF puramente digital
+                    driver.execute_script(script_injecao, iframe_html)
+                    time.sleep(2) 
+                    
                     print_options = {
                         "landscape": False,
                         "displayHeaderFooter": False,
                         "printBackground": True,
-                        "preferCSSPageSize": False,
-                        "paperWidth": 8.27,
-                        "paperHeight": 11.69,
-                        "marginTop": 0.5,
-                        "marginBottom": 0.5,
-                        "marginLeft": 0.5,
-                        "marginRight": 0.5
+                        "preferCSSPageSize": True
                     }
                     result = driver.execute_cdp_cmd("Page.printToPDF", print_options)
                     
                     with open(caminho_completo_pdf, "wb") as f:
                         f.write(base64.b64decode(result['data']))
                     
-                    # 5. Fecha a aba extra e foca no iframe novamente
                     driver.close()
                     driver.switch_to.window(driver.window_handles[0])
                     focar_na_tabela_dados(driver)
 
-                    # Subir para a nuvem
                     dados_pct = { "aih": aih_encontrada, "nome_paciente": nome_paciente, "status": status_estimado }
                     caminho_remoto = f"Fichas_Internacao/{nome_arquivo_pdf}"
                     
@@ -289,15 +280,20 @@ try:
                     except: pass
 
                 except Exception as e:
-                    print(f"❌ Erro ao gerar PDF isolado: {e}")
+                    print(f"❌ Erro ao gerar PDF: {e}")
+                    if len(driver.window_handles) > 1:
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                        focar_na_tabela_dados(driver)
 
-                # Clicar no botão voltar do próprio site é mais seguro do que driver.back() no Iframe
                 try:
                     btn_voltar = driver.find_element(By.XPATH, "//input[@value='VOLTAR']")
                     driver.execute_script("arguments[0].click();", btn_voltar)
                 except:
                     driver.back()
                     
+                try: WebDriverWait(driver, 5).until(EC.alert_is_present()).accept()
+                except: pass
                 time.sleep(3)
 
             except Exception as e:
@@ -311,18 +307,34 @@ try:
         focar_na_tabela_dados(driver)
         
         try:
-            candidatos = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox')]/..") + driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox'))]")
-            if candidatos:
-                driver.execute_script("arguments[0].scrollIntoView(true); arguments[0].click();", candidatos[-1])
+            # V66 - Múltiplas estratégias para encontrar o botão de Próxima Página
+            btn_next = driver.find_elements(By.XPATH, "//img[contains(@src, 'seta_direita') or contains(@alt, 'Proxima')]/parent::a")
+            
+            if not btn_next:
+                btn_next = driver.find_elements(By.XPATH, "//a/img[contains(@src, 'avanca') or contains(@src, 'prox')]/..")
+                
+            if not btn_next:
+                btn_next = driver.find_elements(By.XPATH, "//input[@type='image' and (contains(@src, 'avanca') or contains(@src, 'prox') or contains(@src, 'seta_direita'))]")
+
+            if btn_next:
+                alvo = btn_next[-1] 
+                driver.execute_script("arguments[0].scrollIntoView(true);", alvo)
+                time.sleep(1)
+                driver.execute_script("arguments[0].click();", alvo)
                 paginou = True
             elif not paginou:
                 links_texto = driver.find_elements(By.XPATH, "//a[contains(text(), '>>')] | //a[text()='>']")
                 if links_texto:
                     driver.execute_script("arguments[0].click();", links_texto[0])
                     paginou = True
-        except: pass
+                    
+        except Exception as e:
+            print(f"⚠️ Erro paginação: {e}")
 
-        if not paginou: break
+        if not paginou:
+            print("⚠️ Fim da paginação (Nenhum botão encontrado).")
+            break
+            
         time.sleep(8)
         pagina_atual += 1
 
