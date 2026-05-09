@@ -104,18 +104,20 @@
         body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
-        body.theme-classic .cyber-container, body.theme-classic .filter-bar { background: white !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
         body.theme-classic .kpi-title { color: #64748b; }
-        body.theme-classic .search-box input, body.theme-classic .filter-select { background: #f8fafc !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .filter-select option { background: white; color: #1e293b; }
         body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
         
-        body.theme-classic .tab-btn { color: #64748b; border-bottom-color: transparent; }
-        body.theme-classic .tab-btn:hover { color: #004e92; }
-        body.theme-classic .tab-btn.active { color: #004e92; border-bottom-color: #004e92; }
-
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom-color: #cbd5e1 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        
+        body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
         body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
+        
         body.theme-classic .tag-detalhe { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
         body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         body.theme-classic .tag-fz-nova { background-color: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
@@ -127,10 +129,6 @@
         body.theme-classic .val-fz-tbl { color: #d97706; }
         body.theme-classic .val-mt-tbl { color: #db2777; }
 
-        body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom: 2px solid #cbd5e1 !important;}
-        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
         body.theme-classic .btn-compare { background: white; border-color: #cbd5e1; color: #475569; }
         body.theme-classic .btn-compare.active { background: #004e92; color: white; border-color: #004e92; }
 
@@ -212,7 +210,7 @@
     <div class="container no-print mb-4">
         <div class="flex space-x-2 border-b border-white/10">
             <button id="btn-tab-catalogo" class="tab-btn active" onclick="switchTab('catalogo')"><i class="fas fa-book-medical"></i> Catálogo de Procedimentos</button>
-            <button id="btn-tab-rentabilidade" class="tab-btn" onclick="switchTab('rentabilidade')"><i class="fas fa-chart-bar"></i> Ranking de Rentabilidade</button>
+            <button id="btn-tab-rentabilidade" class="tab-btn" onclick="switchTab('rentabilidade')"><i class="fas fa-chart-bar"></i> Ranking de Repasses (MT 2026)</button>
         </div>
     </div>
 
@@ -220,7 +218,7 @@
         <img src="../logo.png" alt="Logo HSH" onerror="this.style.display='none'">
         <div class="header-info">
             <h1>Hospital Beneficente Santa Helena</h1>
-            <h2>Relatório Comparativo SIGTAP x Tabelas MT</h2>
+            <h2>Relatório Comparativo SIGTAP x Tabelas MT (Incluindo Repasse Profissional)</h2>
             <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
         </div>
         <div class="header-meta">
@@ -285,7 +283,7 @@
                         <th>Procedimento & Regras Oficiais</th>
                         <th class="text-right w-20">Valor SA</th>
                         <th class="text-right w-20">Valor SH</th>
-                        <th class="text-right w-20">Valor SP</th>
+                        <th class="text-right w-20">Honorário (SP)</th>
                         <th class="text-right w-24">Fila Zero</th>
                         <th class="text-right w-24">Tabela MT 2026</th>
                         <th class="text-center w-20">Anexos</th>
@@ -300,23 +298,23 @@
     <div id="tab-rentabilidade" class="container tab-content no-print">
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="glass-card">
+            <div class="glass-card border-t-pink-500/50">
                 <i class="fas fa-arrow-trend-up kpi-icon text-pink-500"></i>
                 <div class="kpi-title">Maior Receita (Tabela MT 2026)</div>
                 <div class="kpi-number text-pink-400" id="kpi-top-mt">R$ 0,00</div>
                 <div class="kpi-sub" id="kpi-top-mt-nome">Aguardando filtros...</div>
             </div>
-            <div class="glass-card">
-                <i class="fas fa-star kpi-icon text-yellow-500"></i>
-                <div class="kpi-title">Maior Receita (Fila Zero Atual)</div>
-                <div class="kpi-number text-yellow-400" id="kpi-top-fz">R$ 0,00</div>
-                <div class="kpi-sub" id="kpi-top-fz-nome">Aguardando filtros...</div>
-            </div>
-            <div class="glass-card">
+            <div class="glass-card border-t-emerald-500/50">
                 <i class="fas fa-hospital kpi-icon text-emerald-500"></i>
-                <div class="kpi-title">Maior Diferença (MT 2026 x SIGTAP)</div>
+                <div class="kpi-title">Maior Sobra Hospitalar (MT 2026)</div>
                 <div class="kpi-number text-emerald-400" id="kpi-maior-gap">R$ 0,00</div>
                 <div class="kpi-sub" id="kpi-maior-gap-nome">Aguardando filtros...</div>
+            </div>
+            <div class="glass-card border-t-purple-500/50">
+                <i class="fas fa-user-md kpi-icon text-purple-500"></i>
+                <div class="kpi-title">Maior Honorário Médico (3x SIGTAP)</div>
+                <div class="kpi-number text-purple-400" id="kpi-top-honorario">R$ 0,00</div>
+                <div class="kpi-sub" id="kpi-top-honorario-nome">Aguardando filtros...</div>
             </div>
         </div>
 
@@ -325,8 +323,9 @@
                 <div>
                     <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Basear Ranking Em:</label>
                     <select id="filtroBaseRent" class="filter-select border-pink-400/50" onchange="aplicarFiltrosRent()">
-                        <option value="mt2026">Nova Tabela MT 2026</option>
-                        <option value="filazero">Fila Zero Atual</option>
+                        <option value="sobra_mt">Sobra Hospitalar MT 2026 (Maior Lucro)</option>
+                        <option value="mt2026_valor">Valor Bruto MT 2026</option>
+                        <option value="repasse_medico">Honorário Médico MT 2026</option>
                         <option value="sigtap">Tabela SIGTAP (Padrão)</option>
                     </select>
                 </div>
@@ -394,10 +393,10 @@
                         <th class="w-24">Código</th>
                         <th>Procedimento</th>
                         <th class="text-center">Cmplx.</th>
-                        <th class="text-right">Val. SIGTAP</th>
-                        <th class="text-right">Val. Fila Zero</th>
-                        <th class="text-right">Val. Tabela MT</th>
-                        <th class="text-right">Diferença (MT - SIGTAP)</th>
+                        <th class="text-right text-blue-400">Tabela MT 2026 (Bruto)</th>
+                        <th class="text-right text-purple-400">Repasse Médico (3x SP)</th>
+                        <th class="text-right text-emerald-400">Sobra Hospitalar</th>
+                        <th class="text-right text-gray-400">SIGTAP Original</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -413,7 +412,7 @@
     <div id="modalComp" class="modal">
         <div class="modal-content">
             <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
-            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos e Financiamento</h2>
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos e Repasse Contratual</h2>
             <button onclick="window.print()" class="no-print bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition mb-5 shadow-lg border border-blue-400">
                 <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial (P&B)
             </button>
@@ -473,9 +472,6 @@
             }, 50);
         }
 
-        // ==========================================
-        // LÓGICA CASCATA DOS FILTROS SIGTAP
-        // ==========================================
         function atualizarSubgrupos(tab) {
             let grupo = $('#filtroGrupo' + tab).val();
             let selectSub = $('#filtroSubgrupo' + tab);
@@ -494,10 +490,7 @@
                 if (d.codigo.startsWith(grupo)) subs.add(d.codigo.substring(2,4));
             });
             
-            Array.from(subs).sort().forEach(s => {
-                selectSub.append(`<option value="${s}">Subgrupo ${s}</option>`);
-            });
-            
+            Array.from(subs).sort().forEach(s => { selectSub.append(`<option value="${s}">Subgrupo ${s}</option>`); });
             selectSub.prop('disabled', false);
         }
 
@@ -507,26 +500,16 @@
             let selectForma = $('#filtroForma' + tab);
             
             selectForma.empty().append('<option value="todos">Todas as Formas</option>');
-            
-            if (sub === 'todos' || grupo === 'todos') {
-                selectForma.prop('disabled', true);
-                return;
-            }
+            if (sub === 'todos' || grupo === 'todos') { selectForma.prop('disabled', true); return; }
             
             let prefix = grupo + sub;
             let formas = new Set();
-            dadosGlobais.forEach(d => {
-                if(d.codigo.startsWith(prefix)) formas.add(d.codigo.substring(4,6));
-            });
+            dadosGlobais.forEach(d => { if(d.codigo.startsWith(prefix)) formas.add(d.codigo.substring(4,6)); });
             
-            Array.from(formas).sort().forEach(f => {
-                selectForma.append(`<option value="${f}">Forma Org. ${f}</option>`);
-            });
-            
+            Array.from(formas).sort().forEach(f => { selectForma.append(`<option value="${f}">Forma Org. ${f}</option>`); });
             selectForma.prop('disabled', false);
         }
 
-        // FILTRO CUSTOMIZADO CATÁLOGO
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             if (settings.nTable.id !== 'tabelaCat') return true;
 
@@ -620,6 +603,16 @@
                         });
                     }
 
+                    // A REGRA DE REPASSE (Contrato HSH - Maio 2026)
+                    let base_sp_sigtap = item.valor_profissional || 0;
+                    let repasse_medico_calculado = base_sp_sigtap * 3; // Médico ganha 3x o SIGTAP
+                    let valor_contrato_total = mt2026 || 0;
+                    
+                    // A sobra hospitalar é o valor MT 2026 menos o repasse médico
+                    // Se a tabela MT não pagar (valor 0) ou se a sobra der negativo, ele zera
+                    let sobra_hospital = valor_contrato_total > 0 ? (valor_contrato_total - repasse_medico_calculado) : 0;
+                    if (sobra_hospital < 0) sobra_hospital = 0; 
+
                     let cidsVinculados = mapCID[codReal] || [];
                     
                     return {
@@ -634,8 +627,12 @@
                         valor_sp: item.valor_profissional,
                         valor_total: item.valor_hospitalar + item.valor_profissional,
                         fz_valor: fz ? fz.valor_unitario : 0,
-                        mt2026_valor: mt2026 || 0,
-                        gap_mt_sigtap: mt2026 ? (mt2026 - (item.valor_hospitalar + item.valor_profissional)) : 0,
+                        mt2026_valor: valor_contrato_total,
+                        
+                        // Novos Campos de Lógica de Negócio
+                        repasse_medico: repasse_medico_calculado,
+                        sobra_mt: sobra_hospital,
+
                         compatibilidades: opmesVinculadas,
                         cids: cidsVinculados,
                         search_extra: cidsVinculados.map(c => c.cid).join(' ') 
@@ -677,7 +674,17 @@
                     },
                     { data: 'valor_sa', className: 'text-right font-mono text-emerald-500 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { data: 'valor_sh', className: 'text-right font-mono text-blue-600 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                    { data: 'valor_sp', className: 'text-right font-mono text-purple-600 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { 
+                        data: 'valor_sp', 
+                        className: 'text-right font-mono text-purple-600 font-bold', 
+                        render: function(d, type, row) {
+                            if (type === 'display') {
+                                let tooltip = `Repasse MT: ${brl.format(row.repasse_medico)}`;
+                                return `<span title="${tooltip}">${brl.format(d)}</span>`;
+                            }
+                            return d;
+                        } 
+                    },
                     { data: 'fz_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-50">-</span>`; } },
                     { data: 'mt2026_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz-nova font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-50">-</span>`; } },
                     { 
@@ -708,21 +715,27 @@
             let filtroSub = $('#filtroSubgrupoRent').val();
             let filtroForma = $('#filtroFormaRent').val();
             let filtroCmplx = $('#filtroComplexidadeRent').val();
+            let baseRanking = $('#filtroBaseRent').val(); // sobra_mt, mt2026_valor, repasse_medico, sigtap
 
             dadosFiltradosRent = dadosGlobais.filter(d => {
                 let passaCmplx = filtroCmplx === 'todos' || d.complexidade === filtroCmplx;
-                let temRepasse = d.val_fz > 0 || d.mt2026_valor > 0;
+                
+                let temValorBase = false;
+                if(baseRanking === 'sobra_mt') temValorBase = d.sobra_mt > 0;
+                else if(baseRanking === 'mt2026_valor') temValorBase = d.mt2026_valor > 0;
+                else if(baseRanking === 'repasse_medico') temValorBase = d.repasse_medico > 0;
+                else temValorBase = d.valor_total > 0;
                 
                 let passaGrupo = true;
                 if (filtroGrupo !== 'todos' && d.codigo.substring(0,2) !== filtroGrupo) passaGrupo = false;
                 if (filtroSub !== null && filtroSub !== 'todos' && d.codigo.substring(2,4) !== filtroSub) passaGrupo = false;
                 if (filtroForma !== null && filtroForma !== 'todos' && d.codigo.substring(4,6) !== filtroForma) passaGrupo = false;
 
-                return passaGrupo && passaCmplx && temRepasse; 
+                return passaGrupo && passaCmplx && temValorBase; 
             });
 
             atualizarKPIsRent();
-            atualizarGraficosRent();
+            atualizarGraficosRent(baseRanking);
             
             if (dtRanking) {
                 dtRanking.clear().rows.add(dadosFiltradosRent).draw();
@@ -733,51 +746,56 @@
 
         function atualizarKPIsRent() {
             if (dadosFiltradosRent.length === 0) {
-                $('#kpi-top-mt, #kpi-top-fz, #kpi-maior-gap').text('R$ 0,00');
-                $('#kpi-top-mt-nome, #kpi-top-fz-nome, #kpi-maior-gap-nome').text('Nenhum resultado para este filtro.');
+                $('#kpi-top-mt, #kpi-maior-gap, #kpi-top-honorario').text('R$ 0,00');
+                $('#kpi-top-mt-nome, #kpi-maior-gap-nome, #kpi-top-honorario-nome').text('Nenhum resultado para este filtro.');
                 return;
             }
             let maiorMT = dadosFiltradosRent.reduce((prev, current) => (prev.mt2026_valor > current.mt2026_valor) ? prev : current);
-            let maiorFZ = dadosFiltradosRent.reduce((prev, current) => (prev.fz_valor > current.fz_valor) ? prev : current);
-            let maiorGap = dadosFiltradosRent.reduce((prev, current) => (prev.gap_mt_sigtap > current.gap_mt_sigtap) ? prev : current);
+            let maiorSobra = dadosFiltradosRent.reduce((prev, current) => (prev.sobra_mt > current.sobra_mt) ? prev : current);
+            let maiorHon = dadosFiltradosRent.reduce((prev, current) => (prev.repasse_medico > current.repasse_medico) ? prev : current);
 
             $('#kpi-top-mt').text(brl.format(maiorMT.mt2026_valor));
             $('#kpi-top-mt-nome').html(`<b>${maiorMT.codigo}</b> - ${maiorMT.descricao}`);
-            $('#kpi-top-fz').text(brl.format(maiorFZ.fz_valor));
-            $('#kpi-top-fz-nome').html(`<b>${maiorFZ.codigo}</b> - ${maiorFZ.descricao}`);
-            $('#kpi-maior-gap').text(brl.format(maiorGap.gap_mt_sigtap));
-            $('#kpi-maior-gap-nome').html(`<b>${maiorGap.codigo}</b> - ${maiorGap.descricao} (Sigtap: ${brl.format(maiorGap.valor_total)})`);
+            
+            $('#kpi-maior-gap').text(brl.format(maiorSobra.sobra_mt));
+            $('#kpi-maior-gap-nome').html(`<b>${maiorSobra.codigo}</b> - ${maiorSobra.descricao}`);
+            
+            $('#kpi-top-honorario').text(brl.format(maiorHon.repasse_medico));
+            $('#kpi-top-honorario-nome').html(`<b>${maiorHon.codigo}</b> - ${maiorHon.descricao}`);
         }
 
-        function atualizarGraficosRent() {
-            let baseRanking = $('#filtroBaseRent').val(); 
-            let fieldSort = baseRanking === 'filazero' ? 'fz_valor' : baseRanking === 'sigtap' ? 'valor_total' : 'mt2026_valor';
+        function atualizarGraficosRent(baseRanking) {
+            let fieldSort = baseRanking === 'sigtap' ? 'valor_total' : baseRanking;
 
             let dadosOrdenados = [...dadosFiltradosRent].sort((a, b) => b[fieldSort] - a[fieldSort]);
             let topMedia = dadosOrdenados.filter(d => d.complexidade === 'Média').slice(0, 10);
             let topAlta = dadosOrdenados.filter(d => d.complexidade === 'Alta').slice(0, 10);
 
-            renderizarGrafico('chartMedia', topMedia, chartMediaInstance, (inst) => chartMediaInstance = inst);
-            renderizarGrafico('chartAlta', topAlta, chartAltaInstance, (inst) => chartAltaInstance = inst);
+            renderizarGrafico('chartMedia', topMedia, chartMediaInstance, (inst) => chartMediaInstance = inst, fieldSort);
+            renderizarGrafico('chartAlta', topAlta, chartAltaInstance, (inst) => chartAltaInstance = inst, fieldSort);
         }
 
-        function renderizarGrafico(canvasId, dadosTop10, instanceRef, setInstance) {
+        function renderizarGrafico(canvasId, dadosTop10, instanceRef, setInstance, fieldSort) {
             if (instanceRef) instanceRef.destroy();
             const ctx = document.getElementById(canvasId).getContext('2d');
             
             const labels = dadosTop10.map(d => d.descricao.length > 25 ? d.descricao.substring(0, 25) + '...' : d.descricao);
-            const valSigtap = dadosTop10.map(d => d.valor_total);
-            const valFz = dadosTop10.map(d => d.fz_valor);
-            const valMt = dadosTop10.map(d => d.mt2026_valor);
+            const valPrincipal = dadosTop10.map(d => d[fieldSort]);
+
+            let tituloDataset = fieldSort === 'mt2026_valor' ? 'Bruto MT 2026' : 
+                                fieldSort === 'sobra_mt' ? 'Sobra HSH' : 
+                                fieldSort === 'repasse_medico' ? 'Hon. Médico' : 'SIGTAP Padrão';
+                                
+            let corDataset = fieldSort === 'mt2026_valor' ? '#ec4899' : 
+                             fieldSort === 'sobra_mt' ? '#10b981' : 
+                             fieldSort === 'repasse_medico' ? '#8b5cf6' : '#0ea5e9';
 
             const novaInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Tabela MT 2026', data: valMt, backgroundColor: 'rgba(244, 114, 182, 0.8)', borderColor: '#ec4899', borderWidth: 1 },
-                        { label: 'Fila Zero', data: valFz, backgroundColor: 'rgba(251, 191, 36, 0.8)', borderColor: '#f59e0b', borderWidth: 1 },
-                        { label: 'SIGTAP', data: valSigtap, backgroundColor: 'rgba(56, 189, 248, 0.8)', borderColor: '#0ea5e9', borderWidth: 1 }
+                        { label: tituloDataset, data: valPrincipal, backgroundColor: corDataset + 'CC', borderColor: corDataset, borderWidth: 1 },
                     ]
                 },
                 options: {
@@ -793,7 +811,7 @@
             dtRanking = $('#tabelaRanking').DataTable({
                 data: dadosFiltradosRent,
                 pageLength: 25,
-                order: [[ 5, "desc" ]], 
+                order: [[ 3, "desc" ]], 
                 columns: [
                     { data: 'codigo', className: 'font-mono text-center font-bold' },
                     { data: 'descricao', className: 'font-bold' },
@@ -805,25 +823,31 @@
                             return '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs uppercase">Básica</span>';
                         }
                     },
-                    { data: 'valor_total', className: 'text-right val-sigtap', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                    { data: 'fz_valor', className: 'text-right val-fz-tbl', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
-                    { data: 'mt2026_valor', className: 'text-right val-mt-tbl', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
+                    { data: 'mt2026_valor', className: 'text-right val-mt-tbl text-[1.1rem]', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
                     { 
-                        data: 'gap_mt_sigtap', className: 'text-right font-bold',
-                        render: function(d) {
-                            if (d > 0) return `<span class="text-emerald-400">+ ${brl.format(d)}</span>`;
-                            if (d < 0) return `<span class="text-red-400">${brl.format(d)}</span>`;
-                            return '-';
-                        }
-                    }
+                        data: 'repasse_medico', 
+                        className: 'text-right text-purple-400 font-mono font-bold', 
+                        render: function(d, type, row) { 
+                            if(row.mt2026_valor <= 0) return '-';
+                            return brl.format(d); 
+                        } 
+                    },
+                    { 
+                        data: 'sobra_mt', 
+                        className: 'text-right text-emerald-400 font-mono font-black text-[1.1rem]', 
+                        render: function(d, type, row) { 
+                            if(row.mt2026_valor <= 0) return '-';
+                            return brl.format(d); 
+                        } 
+                    },
+                    { data: 'valor_total', className: 'text-right text-gray-400 font-mono', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
             });
         }
 
-
         // ==========================================
-        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM CSS OTIMIZADO PARA IMPRESSÃO
+        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM LÓGICA DE HONORÁRIOS
         // ==========================================
         window.toggle = function(cod) {
             var idx = selecionados.indexOf(cod);
@@ -858,45 +882,48 @@
             itens.forEach(function(i) { h += `<td><span style="font-weight:800; font-size:1.1rem;">${i.descricao}</span><br><span style="font-size:0.85rem; font-weight:400; opacity:0.8;">Cód: ${i.codigo}</span></td>`; });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-clinic-medical text-emerald-500"></i> Valor Ambulatorial (SA)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono text-emerald-500 font-bold">` + brl.format(i.valor_sa) + '</td>'; });
-            h += '</tr>';
-
-            h += `<tr><th><i class="fas fa-hospital text-blue-500"></i> Valor Hospitalar (SH)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono text-blue-500 font-bold">` + brl.format(i.valor_sh) + '</td>'; });
-            h += '</tr>';
-
-            h += `<tr><th><i class="fas fa-user-md text-purple-500"></i> Valor Profissional (SP)</th>`;
+            // BLOCO 1: O QUE O ESTADO PAGA (Bruto)
+            h += `<tr><th><i class="fas fa-rocket text-pink-500"></i> VALOR BRUTO REPASSADO MT (2026)</th>`;
             itens.forEach(function(i) { 
-                let spHtml = `<td class="font-mono text-purple-500 font-bold">` + brl.format(i.valor_sp);
-                if (i.codigo.startsWith('04') && i.valor_sp > 0) {
-                    let cirurgiao = i.valor_sp * 0.70;
-                    let anestesista = i.valor_sp * 0.30;
-                    spHtml += `<div class="mt-2 text-[0.8rem] space-y-1 font-sans font-normal"><div class="px-2 py-1 rounded border theme-adjust-bg-blue"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div><div class="px-2 py-1 rounded border theme-adjust-bg-purple"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div></div>`;
+                if(i.mt2026_valor > 0) h += `<td class="font-mono font-black text-[1.3rem] text-pink-500 bg-pink-500/10">` + brl.format(i.mt2026_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50 bg-gray-500/10">Não Contemplado</td>`;
+            });
+            h += '</tr>';
+
+            // BLOCO 2: DIVISÃO FINANCEIRA (Médico vs Hospital)
+            h += `<tr><th><i class="fas fa-user-md text-purple-500"></i> Honorário Médico (3x SIGTAP SP)</th>`;
+            itens.forEach(function(i) { 
+                if(i.mt2026_valor > 0) {
+                    let spHtml = `<td class="font-mono text-purple-400 font-bold text-[1.1rem]">` + brl.format(i.repasse_medico);
+                    if (i.codigo.startsWith('04') && i.repasse_medico > 0) {
+                        let cirurgiao = i.repasse_medico * 0.70;
+                        let anestesista = i.repasse_medico * 0.30;
+                        spHtml += `<div class="mt-2 text-[0.8rem] space-y-1 font-sans font-normal"><div class="px-2 py-1 rounded border theme-adjust-bg-blue"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div><div class="px-2 py-1 rounded border theme-adjust-bg-purple"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div></div>`;
+                    }
+                    spHtml += `</td>`; h += spHtml;
+                } else {
+                    h += `<td class="text-center opacity-50">-</td>`;
                 }
-                spHtml += `</td>`; h += spHtml;
             });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-coins text-blue-500"></i> TOTAL SIGTAP (SUS)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono font-bold text-[1.1rem]">` + brl.format(i.valor_total) + '</td>'; });
-            h += '</tr>';
-
-            h += `<tr><th><i class="fas fa-star text-yellow-500"></i> TOTAL FILA ZERO (ATUAL)</th>`;
+            h += `<tr><th><i class="fas fa-hospital text-emerald-500"></i> Sobra / Receita Líquida HSH</th>`;
             itens.forEach(function(i) { 
-                if(i.fz_valor > 0) h += `<td class="font-mono font-bold text-[1.2rem] text-yellow-500">` + brl.format(i.fz_valor) + '</td>'; 
-                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50">-</td>`;
+                if(i.mt2026_valor > 0) {
+                    h += `<td class="font-mono font-black text-[1.2rem] text-emerald-400 bg-emerald-500/10">` + brl.format(i.sobra_mt) + '</td>'; 
+                } else {
+                    h += `<td class="text-center opacity-50">-</td>`;
+                }
             });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-rocket text-pink-500"></i> TOTAL TABELA MT (2026)</th>`;
-            itens.forEach(function(i) { 
-                if(i.mt2026_valor > 0) h += `<td class="font-mono font-bold text-[1.2rem] text-pink-500">` + brl.format(i.mt2026_valor) + '</td>'; 
-                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50">-</td>`;
-            });
+            // BLOCO 3: REFERÊNCIAS ANTIGAS
+            h += `<tr><th><i class="fas fa-coins text-blue-500"></i> Referência SIGTAP (Governo Federal)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono text-gray-400">Total: ${brl.format(i.valor_total)}<br><span class="text-xs">SA: ${brl.format(i.valor_sa)} | SH: ${brl.format(i.valor_sh)} | SP: ${brl.format(i.valor_sp)}</span></td>`; });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-tools text-orange-400"></i> Materiais (OPME)</th>`;
+            // OUTRAS REGRAS
+            h += `<tr><th><i class="fas fa-tools text-orange-400"></i> Materiais (OPME) Permitidos</th>`;
             itens.forEach(function(i) {
                 if (i.compatibilidades && i.compatibilidades.length > 0) {
                     h += `<td><div class="tbl-scroll-box"><ul class="list-none p-0 m-0 space-y-2">`;
