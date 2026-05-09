@@ -85,33 +85,73 @@
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
         body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
-        
         body.theme-classic .modal-content { background: white; color: #0f172a; border-color: #cbd5e1; }
         body.theme-classic .modal-header { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1;}
         body.theme-classic .modal-close { color: #0f172a; }
         body.theme-classic .modal-body table th { color: #475569; }
         body.theme-classic .modal-body .border-white\/5 { border-color: #e2e8f0; }
 
-        /* MODO IMPRESSÃO */
+        /* ========================================================= */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (NOVO FORMATO RETRATO)            */
+        /* ========================================================= */
         .print-header-visible { display: none; }
+        
         @media print {
-            @page { size: A4 landscape; margin: 8mm; }
-            * { background-color: white !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            
+            /* Reseta estilos complexos e fundos escuros */
+            * { background-color: transparent !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
+            
+            /* Esconde elementos inúteis na impressão */
             body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn { display: none !important; }
-            body { padding: 0 !important; margin: 0 !important; }
+            
+            /* Estrutura Base */
+            body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 9pt !important; }
             .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; }
+            
+            /* Abas viram blocos sequenciais, quebrando página entre elas */
             .tab-content { display: block !important; page-break-after: always; }
+            .tab-content:last-child { page-break-after: auto; }
+            
+            /* Cabeçalho de Impressão */
             .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
             .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
-            .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 20px !important; page-break-inside: avoid !important; }
-            .glass-card { border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1 !important; text-align: center !important; }
-            .kpi-title { font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
-            .kpi-number { font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
+            .print-header-visible h3 { font-size: 11pt !important; font-weight: bold !important; margin: 5px 0 !important; }
+            .print-header-visible p { font-size: 9pt !important; margin: 0 !important; }
+
+            /* Grade de KPIs Ajustada para Retrato (2 colunas para não amassar) */
+            .grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; margin-bottom: 20px !important; }
+            .glass-card { border: 1px solid #ccc !important; border-radius: 6px !important; padding: 10px !important; text-align: center !important; page-break-inside: avoid !important; }
+            .kpi-title { font-size: 8pt !important; font-weight: bold !important; margin-bottom: 4px !important; text-transform: uppercase; }
+            .kpi-number { font-size: 14pt !important; margin: 0 !important; font-weight: 900 !important; }
             .kpi-sub { display: none !important; }
-            table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
-            table.dataTable th { background-color: #e5e7eb !important; font-size: 6pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            table.dataTable td { font-size: 6pt !important; border: 1px solid black !important; padding: 4px !important; font-weight: normal !important; text-align: right !important;}
-            table.dataTable td:nth-child(1), table.dataTable td:nth-child(2) { text-align: left !important; }
+            
+            /* Tabelas Formatadas para Leitura em A4 Retrato */
+            .dataTables_wrapper { overflow: visible !important; }
+            table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: auto !important; margin: 0 !important; }
+            table.dataTable thead th { background-color: #f3f4f6 !important; font-size: 8pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 8px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: black !important;}
+            table.dataTable tbody td { font-size: 8pt !important; border: 1px solid black !important; padding: 8px 4px !important; vertical-align: middle !important; text-align: right !important; }
+            
+            /* Quebra de texto automática nas descrições longas */
+            .td-truncate { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+            table.dataTable tbody tr { page-break-inside: avoid !important; }
+            
+            /* Alinhamentos e Larguras Proporcionais (Evita encavalar colunas) */
+            table.dataTable tbody td:nth-child(1) { text-align: center !important; width: 12% !important; }
+            table.dataTable tbody td:nth-child(2) { text-align: left !important; width: 35% !important; }
+            table.dataTable tbody td:nth-child(3) { text-align: center !important; width: 8% !important; }
+            table.dataTable tbody td:nth-child(4) { width: 15% !important; }
+            table.dataTable tbody td:nth-child(5) { width: 15% !important; }
+            table.dataTable tbody td:nth-child(6) { width: 15% !important; }
+
+            /* Ajustes Finos de Subdivisões do Médico para Impressão */
+            .text-\[1\.1rem\] { font-size: 9pt !important; font-weight: bold !important; }
+            .text-\[0\.65rem\] { font-size: 7pt !important; }
+            .mt-1 { margin-top: 4px !important; }
+            .border-t { border-top: 1px solid #ccc !important; }
+            .pt-1 { padding-top: 4px !important; }
+
+            /* Esconde gráficos pequenos na impressão do retrato */
             .chart-container-sm { display: none !important; }
         }
     </style>
@@ -178,7 +218,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="abrirModalAdd()" class="btn-action bg-emerald-600 hover:bg-emerald-500"><i class="fas fa-plus"></i> Novo Procedimento</button>
-                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir</button>
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir / PDF</button>
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-sun" id="theme-icon"></i></button>
                 <a href="modulo_gerencial.html" class="btn-theme p-3 rounded-lg"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
@@ -188,7 +228,7 @@
     <div class="max-w-[98%] mx-auto px-4 no-print mb-4 flex justify-between items-end border-b border-white/10 pb-2">
         <div class="flex space-x-2">
             <button id="btn-tab-contrato" class="tab-btn active" onclick="switchTab('contrato')"><i class="fas fa-list"></i> Visão Geral do Contrato</button>
-            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses</button>
+            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses (Médico vs Hospital)</button>
         </div>
         <div class="text-sm font-bold text-gray-400 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
             <i class="fas fa-eye mr-1"></i> Visualizar na tabela: 
@@ -282,7 +322,6 @@
                             <th class="text-right text-pink-400">Contrato MT</th>
                             <th class="text-right text-purple-400">Repasse Médico</th>
                             <th class="text-right text-emerald-400">Sobra HSH</th>
-                            <th class="text-center w-16">Ação</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -544,7 +583,7 @@
                     totSigtap += fatSigtap;
                     totMT += fatMt;
 
-                    // LÓGICA DE REPASSE
+                    // CÁLCULO DE REPASSE (Médico = 3x SP SIGTAP | Sobra = Valor Contrato MT - Repasse)
                     let repasseMedicoUnit = sigInfo.valSp * 3;
                     let sobraHospUnit = valMt > 0 ? Math.max(valMt - repasseMedicoUnit, 0) : 0;
                     
@@ -570,11 +609,13 @@
                     });
                 });
 
-                // KPIs
+                // KPIs Aba 1
                 $('#kpi-meta').text(totMeta);
                 $('#kpi-sigtap').text(formatBrl.format(totSigtap));
                 $('#kpi-mt').text(formatBrl.format(totMT));
                 $('#kpi-global').text(formatBrl.format(totSigtap + totMT)); 
+
+                // KPIs Aba 2
                 $('#kpi-rep-total').text(formatBrl.format(totMT));
                 $('#kpi-rep-medico').text(formatBrl.format(acumuladoRepasse));
                 $('#kpi-rep-sobra').text(formatBrl.format(acumuladoSobra));
@@ -627,28 +668,40 @@
                         { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { if(type === 'display') return `<span title="${d}">${d}</span>`; return d; } },
                         { data: 'meta', className: 'text-center font-bold text-lg' },
                         { 
-                            data: null, className: 'text-right font-mono font-bold text-pink-400', 
+                            data: null, className: 'text-right font-mono', 
                             render: function(d, type, row) { 
-                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_mt) : formatBrl.format(row.val_unit_mt);
+                                let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
+                                if(type === 'display') return `<div class="font-bold text-pink-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
+                                return val; 
                             } 
                         },
                         { 
-                            data: null, className: 'text-right font-mono font-bold text-purple-400', 
+                            data: null, className: 'text-right font-mono', 
                             render: function(d, type, row) { 
-                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_repasse_medico) : formatBrl.format(row.repasse_medico_unit);
+                                let isTotal = window.modoExibicao === 'total';
+                                let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
+                                if(type === 'display') {
+                                    let html = `<div class="font-bold text-purple-400 text-[1.1rem]">${formatBrl.format(val)}</div>`;
+                                    if (row.codigo.startsWith('04') && val > 0) {
+                                        let cir = val * 0.70;
+                                        let ane = val * 0.30;
+                                        html += `<div class="mt-1 text-[0.65rem] text-left opacity-80 leading-tight border-t border-purple-500/30 pt-1">
+                                                    <span class="text-blue-300"><i class="fas fa-user text-[0.55rem]"></i> Cirurgião: ${formatBrl.format(cir)}</span><br>
+                                                    <span class="text-purple-300"><i class="fas fa-syringe text-[0.55rem]"></i> Anestesista: ${formatBrl.format(ane)}</span>
+                                                 </div>`;
+                                    }
+                                    return html;
+                                }
+                                return val; 
                             } 
                         },
                         { 
-                            data: null, className: 'text-right font-mono font-bold text-emerald-400 text-[1.1rem]', 
+                            data: null, className: 'text-right font-mono', 
                             render: function(d, type, row) { 
-                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_sobra_hosp) : formatBrl.format(row.sobra_hosp_unit);
+                                let val = window.modoExibicao === 'total' ? row.tot_sobra_hosp : row.sobra_hosp_unit;
+                                if(type === 'display') return `<div class="font-bold text-emerald-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
+                                return val; 
                             } 
-                        },
-                        {
-                            data: null, className: 'text-center no-print', orderable: false,
-                            render: function(d, type, row) {
-                                return `<button onclick="abrirDetalheRepasse('${row.codigo}')" class="btn-theme p-1 text-[0.7rem] bg-white/5 border-white/20 text-gray-300 hover:text-white" title="Ver Composição Exata"><i class="fas fa-search-dollar"></i> Detalhes</button>`;
-                            }
                         }
                     ],
                     language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
@@ -656,7 +709,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("Erro ao carregar o contrato.");
+                alert("Erro ao carregar o contrato do banco de dados.");
             } finally {
                 $('#loader').fadeOut();
             }
