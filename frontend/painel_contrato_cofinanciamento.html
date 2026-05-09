@@ -44,7 +44,7 @@
 
         .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
-        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
+        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
 
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
@@ -65,7 +65,7 @@
         .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
         .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; opacity: 0.8; }
         .modal-close:hover { opacity: 1; color: #f87171; }
-        .modal-body { padding: 20px; overflow-y: auto; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 75vh; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* MODO CLÁSSICO */
@@ -85,9 +85,12 @@
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
         body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
+        
         body.theme-classic .modal-content { background: white; color: #0f172a; border-color: #cbd5e1; }
         body.theme-classic .modal-header { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1;}
         body.theme-classic .modal-close { color: #0f172a; }
+        body.theme-classic .modal-body table th { color: #475569; }
+        body.theme-classic .modal-body .border-white\/5 { border-color: #e2e8f0; }
 
         /* MODO IMPRESSÃO */
         .print-header-visible { display: none; }
@@ -127,7 +130,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-plus-circle text-emerald-400 mr-2"></i> Adicionar Procedimento ao Contrato</h3>
-                <button class="modal-close" onclick="fecharModalAdd()"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="fecharModal('modalAddProc')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="mb-4">
@@ -153,6 +156,17 @@
         </div>
     </div>
 
+    <div id="modalDetalheRepasse" class="modal-overlay">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header border-b-purple-500/30">
+                <h3><i class="fas fa-file-invoice-dollar text-purple-400 mr-2"></i> Extrato de Repasse & Lucro</h3>
+                <button class="modal-close" onclick="fecharModal('modalDetalheRepasse')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="conteudoDetalheRepasse">
+                </div>
+        </div>
+    </div>
+
     <div class='header-bg shadow-lg no-print'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
             <div class="flex items-center gap-4">
@@ -174,11 +188,11 @@
     <div class="max-w-[98%] mx-auto px-4 no-print mb-4 flex justify-between items-end border-b border-white/10 pb-2">
         <div class="flex space-x-2">
             <button id="btn-tab-contrato" class="tab-btn active" onclick="switchTab('contrato')"><i class="fas fa-list"></i> Visão Geral do Contrato</button>
-            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses (Médico vs Hospital)</button>
+            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses</button>
         </div>
         <div class="text-sm font-bold text-gray-400 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
-            Exibir na Tabela: 
-            <select id="modoExibicao" onchange="mudarModoExibicao()" class="bg-transparent text-white ml-2 outline-none cursor-pointer">
+            <i class="fas fa-eye mr-1"></i> Visualizar na tabela: 
+            <select id="modoExibicao" onchange="mudarModoExibicao()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
                 <option value="total" class="text-black">Valores Totais (x Meta)</option>
                 <option value="unit" class="text-black">Valores Unitários</option>
             </select>
@@ -199,22 +213,22 @@
                 <div class="glass-card">
                     <div class="kpi-title">Produção Contratada</div>
                     <div class="kpi-number text-blue-400" id="kpi-meta">0</div>
-                    <div class="kpi-sub">TOTAL DE PROCEDIMENTOS/MÊS</div>
+                    <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">TOTAL DE PROCEDIMENTOS/MÊS</div>
                 </div>
                 <div class="glass-card">
                     <div class="kpi-title">Faturamento SIGTAP Estimado</div>
                     <div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div>
-                    <div class="kpi-sub">REPASSE MINISTÉRIO DA SAÚDE</div>
+                    <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">REPASSE MINISTÉRIO DA SAÚDE</div>
                 </div>
                 <div class="glass-card">
                     <div class="kpi-title">Cofinanciamento MT Estimado</div>
                     <div class="kpi-number text-pink-400" id="kpi-mt">R$ 0,00</div>
-                    <div class="kpi-sub">COMPLEMENTO ESTADUAL/MUNICIPAL</div>
+                    <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">COMPLEMENTO ESTADUAL/MUNICIPAL</div>
                 </div>
                 <div class="glass-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                     <div class="kpi-title text-emerald-400">Receita Total Global / Mês</div>
                     <div class="kpi-number text-white" id="kpi-global">R$ 0,00</div>
-                    <div class="kpi-sub text-emerald-500">SOMA (SIGTAP + MT 2026)</div>
+                    <div class="kpi-sub text-[0.65rem] text-emerald-500 font-bold mt-1">SOMA (SIGTAP + MT 2026)</div>
                 </div>
             </div>
 
@@ -240,17 +254,17 @@
                     <div class="glass-card border-t-pink-500/50">
                         <div class="kpi-title">Receita Total Contratada</div>
                         <div class="kpi-number text-pink-400" id="kpi-rep-total">R$ 0,00</div>
-                        <div class="kpi-sub">SOMA BRUTA TABELA MT</div>
+                        <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">SOMA BRUTA TABELA MT</div>
                     </div>
                     <div class="glass-card border-t-purple-500/50">
                         <div class="kpi-title">Projeção Honorário Médico</div>
                         <div class="kpi-number text-purple-400" id="kpi-rep-medico">R$ 0,00</div>
-                        <div class="kpi-sub">CUSTO MÉDICO (3X SIGTAP SP)</div>
+                        <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">CUSTO MÉDICO (3X SIGTAP SP)</div>
                     </div>
                     <div class="glass-card border-t-emerald-500/50">
                         <div class="kpi-title">Projeção Sobra Hospitalar</div>
                         <div class="kpi-number text-emerald-400" id="kpi-rep-sobra">R$ 0,00</div>
-                        <div class="kpi-sub">LUCRO LÍQUIDO DO HOSPITAL</div>
+                        <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">LUCRO LÍQUIDO DO HOSPITAL</div>
                     </div>
                 </div>
                 <div class="glass-card lg:col-span-1 flex items-center justify-center p-2">
@@ -268,6 +282,7 @@
                             <th class="text-right text-pink-400">Contrato MT</th>
                             <th class="text-right text-purple-400">Repasse Médico</th>
                             <th class="text-right text-emerald-400">Sobra HSH</th>
+                            <th class="text-center w-16">Ação</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -286,7 +301,7 @@
         let tabelaRepasses = null;
         let chartDist = null;
         let dadosGlobais = [];
-        window.modoExibicao = 'total'; // 'total' ou 'unit'
+        window.modoExibicao = 'total'; // default
 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -348,7 +363,7 @@
         });
 
         // ===============================================
-        // FUNÇÕES PARA ADICIONAR NOVO PROCEDIMENTO
+        // MODAIS E INSERÇÃO DE DADOS
         // ===============================================
         function abrirModalAdd() {
             $('#add_cod').val(''); $('#add_desc').val(''); $('#add_meta').val(''); $('#add_valor').val('');
@@ -356,8 +371,8 @@
             $('#add_cod').focus();
         }
 
-        function fecharModalAdd() {
-            $('#modalAddProc').fadeOut(200);
+        function fecharModal(idModal) {
+            $('#' + idModal).fadeOut(200);
         }
 
         async function buscarDescricaoSigtap() {
@@ -367,11 +382,8 @@
             $('#add_desc').val('Buscando no banco de dados...');
             try {
                 const { data, error } = await client.from('sigtap_oficial').select('nome').eq('codigo', cod).single();
-                if (data) {
-                    $('#add_desc').val(data.nome);
-                } else {
-                    $('#add_desc').val('Código não encontrado no SIGTAP.');
-                }
+                if (data) $('#add_desc').val(data.nome);
+                else $('#add_desc').val('Código não encontrado no SIGTAP.');
             } catch(e) {
                 $('#add_desc').val('Erro na busca.');
             }
@@ -400,20 +412,95 @@
 
                 if(error) throw error;
                 
-                fecharModalAdd();
+                fecharModal('modalAddProc');
                 $('#loader-text').text("Recalculando Contrato...");
                 $('#loader').fadeIn(200);
                 await carregarDadosContrato();
 
             } catch (err) {
-                alert("Erro ao salvar no banco: " + err.message);
+                alert("Erro ao salvar: " + err.message);
             } finally {
                 $('#btnSalvarProc').html('<i class="fas fa-save mr-2"></i> Salvar no Contrato').prop('disabled', false);
             }
         }
 
+        window.abrirDetalheRepasse = function(codigo) {
+            let item = dadosGlobais.find(d => d.codigo === codigo);
+            if(!item) return;
+
+            let isCirurgia = item.codigo.startsWith('04');
+            let medUnit = item.repasse_medico_unit;
+            let medTot = item.tot_repasse_medico;
+
+            let cirUnit = isCirurgia ? medUnit * 0.7 : 0;
+            let aneUnit = isCirurgia ? medUnit * 0.3 : 0;
+            let cirTot = isCirurgia ? medTot * 0.7 : 0;
+            let aneTot = isCirurgia ? medTot * 0.3 : 0;
+
+            let isClassic = document.body.classList.contains('theme-classic');
+            let corTexto = isClassic ? 'text-gray-600' : 'text-gray-300';
+            let corTh = isClassic ? 'bg-gray-100 text-blue-900' : 'bg-black/30 text-gray-300';
+
+            let html = `
+                <div class="mb-4">
+                    <div class="text-xs text-gray-400 font-bold uppercase mb-1">Procedimento</div>
+                    <div class="text-lg font-bold text-blue-400 leading-tight">${item.codigo} - ${item.descricao}</div>
+                    <div class="text-sm text-cyan-400 mt-2 font-bold"><i class="fas fa-bullseye mr-1"></i> Meta Física: ${item.meta} autorizações / mês</div>
+                </div>
+                
+                <table class="w-full text-left border-collapse mt-4">
+                    <thead>
+                        <tr class="${corTh} border-b border-white/10">
+                            <th class="p-3 font-bold text-xs uppercase tracking-wider">Composição Financeira</th>
+                            <th class="p-3 text-right font-bold text-xs uppercase tracking-wider">Valor Unitário</th>
+                            <th class="p-3 text-right font-bold text-xs uppercase tracking-wider">Projeção (Mês)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[0.9rem]">
+                        <tr class="border-b border-white/5">
+                            <td class="p-3 font-bold text-pink-400"><i class="fas fa-arrow-trend-up mr-2"></i>1. Receita Contrato (MT)</td>
+                            <td class="p-3 text-right font-mono text-pink-400">${formatBrl.format(item.val_unit_mt)}</td>
+                            <td class="p-3 text-right font-mono font-bold text-pink-400">${formatBrl.format(item.tot_mt)}</td>
+                        </tr>
+                        <tr class="border-b border-white/5 bg-purple-500/10">
+                            <td class="p-3 font-bold text-purple-400"><i class="fas fa-user-md mr-2"></i>2. Custo / Repasse Médico</td>
+                            <td class="p-3 text-right font-mono text-purple-400">${formatBrl.format(medUnit)}</td>
+                            <td class="p-3 text-right font-mono font-bold text-purple-400">${formatBrl.format(medTot)}</td>
+                        </tr>
+            `;
+
+            if (isCirurgia && medUnit > 0) {
+                html += `
+                        <tr class="border-b border-dashed border-white/5 bg-purple-500/5 text-[0.8rem]">
+                            <td class="p-2 pl-8 text-blue-300"><i class="fas fa-angle-right mr-2"></i>↳ Cirurgião (70%)</td>
+                            <td class="p-2 text-right font-mono text-blue-300 opacity-80">${formatBrl.format(cirUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold text-blue-300">${formatBrl.format(cirTot)}</td>
+                        </tr>
+                        <tr class="border-b border-white/5 bg-purple-500/5 text-[0.8rem]">
+                            <td class="p-2 pl-8 text-purple-300"><i class="fas fa-angle-right mr-2"></i>↳ Anestesista (30%)</td>
+                            <td class="p-2 text-right font-mono text-purple-300 opacity-80">${formatBrl.format(aneUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold text-purple-300">${formatBrl.format(aneTot)}</td>
+                        </tr>
+                `;
+            }
+
+            html += `
+                        <tr class="bg-emerald-500/10">
+                            <td class="p-3 font-bold text-emerald-400"><i class="fas fa-hospital mr-2"></i>3. Sobra Hospitalar Líquida</td>
+                            <td class="p-3 text-right font-mono text-emerald-400">${formatBrl.format(item.sobra_hosp_unit)}</td>
+                            <td class="p-3 text-right font-mono font-black text-emerald-400 text-lg">${formatBrl.format(item.tot_sobra_hosp)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="mt-4 text-xs text-gray-500 text-right">* Base SIGTAP Original (Valor Profissional): ${formatBrl.format(item.val_sigtap_sp)}</div>
+            `;
+
+            $('#conteudoDetalheRepasse').html(html);
+            $('#modalDetalheRepasse').css('display', 'flex').hide().fadeIn(200);
+        }
+
         // ===============================================
-        // CARREGAMENTO E CÁLCULOS PRINCIPAIS
+        // CÁLCULOS E TABELAS PRINCIPAIS
         // ===============================================
         async function carregarDadosContrato() {
             try {
@@ -457,7 +544,7 @@
                     totSigtap += fatSigtap;
                     totMT += fatMt;
 
-                    // CÁLCULO DE REPASSE (Médico = 3x SP SIGTAP | Sobra = Valor Contrato MT - Repasse)
+                    // LÓGICA DE REPASSE
                     let repasseMedicoUnit = sigInfo.valSp * 3;
                     let sobraHospUnit = valMt > 0 ? Math.max(valMt - repasseMedicoUnit, 0) : 0;
                     
@@ -472,6 +559,7 @@
                         descricao: item.descricao,
                         meta: meta,
                         val_unit_sigtap: valSigtap,
+                        val_sigtap_sp: sigInfo.valSp,
                         val_unit_mt: valMt,
                         tot_sigtap: fatSigtap,
                         tot_mt: fatMt,
@@ -482,13 +570,11 @@
                     });
                 });
 
-                // KPIs Aba 1
+                // KPIs
                 $('#kpi-meta').text(totMeta);
                 $('#kpi-sigtap').text(formatBrl.format(totSigtap));
                 $('#kpi-mt').text(formatBrl.format(totMT));
                 $('#kpi-global').text(formatBrl.format(totSigtap + totMT)); 
-
-                // KPIs Aba 2
                 $('#kpi-rep-total').text(formatBrl.format(totMT));
                 $('#kpi-rep-medico').text(formatBrl.format(acumuladoRepasse));
                 $('#kpi-rep-sobra').text(formatBrl.format(acumuladoSobra));
@@ -541,40 +627,28 @@
                         { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { if(type === 'display') return `<span title="${d}">${d}</span>`; return d; } },
                         { data: 'meta', className: 'text-center font-bold text-lg' },
                         { 
-                            data: null, className: 'text-right font-mono', 
+                            data: null, className: 'text-right font-mono font-bold text-pink-400', 
                             render: function(d, type, row) { 
-                                let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
-                                if(type === 'display') return `<div class="font-bold text-pink-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
-                                return val; 
+                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_mt) : formatBrl.format(row.val_unit_mt);
                             } 
                         },
                         { 
-                            data: null, className: 'text-right font-mono', 
+                            data: null, className: 'text-right font-mono font-bold text-purple-400', 
                             render: function(d, type, row) { 
-                                let isTotal = window.modoExibicao === 'total';
-                                let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
-                                if(type === 'display') {
-                                    let html = `<div class="font-bold text-purple-400 text-[1.1rem]">${formatBrl.format(val)}</div>`;
-                                    if (row.codigo.startsWith('04') && val > 0) {
-                                        let cir = val * 0.70;
-                                        let ane = val * 0.30;
-                                        html += `<div class="mt-1 text-[0.65rem] text-left opacity-80 leading-tight border-t border-purple-500/30 pt-1">
-                                                    <span class="text-blue-300"><i class="fas fa-user text-[0.55rem]"></i> Cirurgião: ${formatBrl.format(cir)}</span><br>
-                                                    <span class="text-purple-300"><i class="fas fa-syringe text-[0.55rem]"></i> Anestesista: ${formatBrl.format(ane)}</span>
-                                                 </div>`;
-                                    }
-                                    return html;
-                                }
-                                return val; 
+                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_repasse_medico) : formatBrl.format(row.repasse_medico_unit);
                             } 
                         },
                         { 
-                            data: null, className: 'text-right font-mono', 
+                            data: null, className: 'text-right font-mono font-bold text-emerald-400 text-[1.1rem]', 
                             render: function(d, type, row) { 
-                                let val = window.modoExibicao === 'total' ? row.tot_sobra_hosp : row.sobra_hosp_unit;
-                                if(type === 'display') return `<div class="font-bold text-emerald-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
-                                return val; 
+                                return window.modoExibicao === 'total' ? formatBrl.format(row.tot_sobra_hosp) : formatBrl.format(row.sobra_hosp_unit);
                             } 
+                        },
+                        {
+                            data: null, className: 'text-center no-print', orderable: false,
+                            render: function(d, type, row) {
+                                return `<button onclick="abrirDetalheRepasse('${row.codigo}')" class="btn-theme p-1 text-[0.7rem] bg-white/5 border-white/20 text-gray-300 hover:text-white" title="Ver Composição Exata"><i class="fas fa-search-dollar"></i> Detalhes</button>`;
+                            }
                         }
                     ],
                     language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
@@ -582,7 +656,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("Erro ao carregar o contrato do banco de dados.");
+                alert("Erro ao carregar o contrato.");
             } finally {
                 $('#loader').fadeOut();
             }
@@ -590,24 +664,14 @@
 
         function renderizarGrafico(valMedico, valHospital) {
             const ctx = document.getElementById('chartDistribuicao').getContext('2d');
-            
             if(chartDist) chartDist.destroy();
-
             chartDist = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Repasse Médico', 'Sobra Hospitalar'],
-                    datasets: [{
-                        data: [valMedico, valHospital],
-                        backgroundColor: ['rgba(168, 85, 247, 0.8)', 'rgba(16, 185, 129, 0.8)'],
-                        borderColor: ['#a855f7', '#10b981'],
-                        borderWidth: 1
-                    }]
+                    datasets: [{ data: [valMedico, valHospital], backgroundColor: ['rgba(168, 85, 247, 0.8)', 'rgba(16, 185, 129, 0.8)'], borderColor: ['#a855f7', '#10b981'], borderWidth: 1 }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '60%',
-                    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(context) { let value = context.raw; let total = context.dataset.data.reduce((a, b) => a + b, 0); let percentage = Math.round((value / total) * 100); return ` ${percentage}% (${formatBrl.format(value)})`; } } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(context) { let value = context.raw; let total = context.dataset.data.reduce((a, b) => a + b, 0); let percentage = Math.round((value / total) * 100); return ` ${percentage}% (${formatBrl.format(value)})`; } } } } }
             });
         }
     </script>
