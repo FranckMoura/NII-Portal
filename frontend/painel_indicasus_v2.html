@@ -262,7 +262,6 @@
                         <span class="info-label"><i class="fas fa-heartbeat text-red-500"></i> Evolução Clínica</span>
                         <span class="info-value dyn-text-secondary" id="modalEvolucao"></span>
                     </div>
-                    <!-- NOVO CAMPO: DIAGNÓSTICO -->
                     <div class="info-item">
                         <span class="info-label"><i class="fas fa-stethoscope text-teal-400"></i> Diagnóstico (CID)</span>
                         <span class="info-value dyn-text-primary" id="modalDiagnostico"></span>
@@ -419,6 +418,13 @@
         let dadosOriginaisBrutos = []; let dadosFiltradosGlobais = [];
         let filtroLeitoAtivo = 'TODOS';
 
+        // ==========================================
+        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS
+        // ==========================================
+        let cfgLeitosTotal = { utiAd: 10, utin: 10, ucinco: 5, ucinca: 5, enf: 100 };
+        let cfgLeitosSUS = { utiAd: 10, utin: 10, ucinco: 5, ucinca: 5, enf: 80 };
+        let cfgLeitosNaoSUS = { utiAd: 0, utin: 0, ucinco: 0, ucinca: 0, enf: 20 };
+
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains('theme-classic')) {
@@ -485,17 +491,31 @@
 
         $(document).ready(function() {
             if (localStorage.getItem('nii_theme_ind') === 'classic') document.body.classList.add('theme-classic');
-            setupAnoMes(); carregarDados();
+            
+            // Verifica se veio uma competência global do Hub Central
+            let globalAno = localStorage.getItem('nii_competencia_ano');
+            let globalMes = localStorage.getItem('nii_competencia_mes');
+            let globalPacienteFiltro = localStorage.getItem('nii_filtro_paciente');
+
+            setupAnoMes(globalAno, globalMes);
+            
+            if (globalPacienteFiltro) {
+                $('#susFilter').val(globalPacienteFiltro);
+                localStorage.removeItem('nii_filtro_paciente'); 
+            }
+            
+            carregarDados();
         });
 
-        function setupAnoMes() {
+        function setupAnoMes(anoMemoria, mesMemoria) {
             const anoSel = document.getElementById('anoFilter');
             const mesSel = document.getElementById('mesFilter');
             const dataAtual = new Date();
-            const anoAtual = dataAtual.getFullYear();
-            let mesAtual = dataAtual.getMonth() + 1; 
+            
+            const anoAtual = anoMemoria ? parseInt(anoMemoria) : dataAtual.getFullYear();
+            let mesAtual = mesMemoria ? mesMemoria : String(dataAtual.getMonth() + 1).padStart(2, '0'); 
 
-            for(let i = anoAtual + 1; i >= 2024; i--) {
+            for(let i = dataAtual.getFullYear() + 1; i >= 2024; i--) {
                 let opt = document.createElement('option');
                 opt.value = i; opt.innerText = i;
                 anoSel.appendChild(opt);
@@ -505,7 +525,7 @@
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
             for(let i = 1; i <= 12; i++) {
                 let opt = document.createElement('option');
-                opt.value = i; opt.innerText = meses[i-1];
+                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
                 mesSel.appendChild(opt);
             }
             mesSel.value = mesAtual;
@@ -532,6 +552,10 @@
             const dataFimObj = new Date(ano, mes, 0); 
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
             
+            // Atualiza a memória global
+            localStorage.setItem('nii_competencia_ano', ano);
+            localStorage.setItem('nii_competencia_mes', mes);
+
             $('#status-badge').html('<i class="fas fa-spinner fa-spin"></i> Baixando dados...');
             $('#loading').fadeIn(200);
 
@@ -539,7 +563,6 @@
                 let allData = []; let from = 0; let step = 1000; let keepFetching = true;
                 while (keepFetching) {
                     let query = client.from('indicasus_leitos')
-                        // ADICIONADO: diagnostico na busca
                         .select('nome_paciente, data_internacao, data_evolucao, tipo_leito, municipio_residencia, cod_solicitacao_sisreg, aih, data_extracao, cpf, cns, data_nascimento, nome_mae, internacao_sus, evolucao_clinica, plano_sus, diagnostico')
                         .gte('data_extracao', d1).lte('data_extracao', d2).range(from, from + step - 1); 
                     const { data, error } = await query;
@@ -558,9 +581,10 @@
 
         function aplicarFiltroSusLocal() {
             const susFilterValue = $('#susFilter').val(); 
-            const anoSelecionado = $('#anoFilter').val();
-            const mesSelecionado = String($('#mesFilter').val()).padStart(2, '0');
-            const prefixoMesAtual = `${anoSelecionado}-${mesSelecionado}`; 
+            const anoSelecionado = parseInt($('#anoFilter').val());
+            const mesSelecionado = parseInt($('#mesFilter').val());
+            const strMesSel = String(mesSelecionado).padStart(2, '0');
+            const prefixoMesAtual = `${anoSelecionado}-${strMesSel}`; 
             
             if(dadosOriginaisBrutos.length === 0) {
                 $('#status-badge').html('<i class="fas fa-exclamation-circle text-yellow-300"></i> Mês Vazio');
@@ -581,13 +605,10 @@
 
                 if (susFilterValue === 'SUS_TODOS' && !isSus) return;
                 if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
-                
                 if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO') || !dtInt.startsWith(prefixoMesAtual))) return;
-                
                 if (susFilterValue === 'NAO' && isSus) return;
 
                 const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
-                
                 let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
                 let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
                 let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
@@ -611,9 +632,7 @@
                 }
                 
                 const p = map.get(key);
-                if (nome && !nome.startsWith("RN DE ") && !nome.startsWith("RECEM NASCIDO")) {
-                    p.nome_exibicao = nome;
-                }
+                if (nome && !nome.startsWith("RN DE ") && !nome.startsWith("RECEM NASCIDO")) { p.nome_exibicao = nome; }
                 
                 const dataExt = row.data_extracao || "";
                 const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
@@ -639,7 +658,6 @@
                 
                 let isAltaPadrao = false;
                 let evol = String(p.evolucao_clinica || "").toUpperCase();
-                
                 if (evol.includes("ALTA") && !evol.includes("ÓBITO") && !evol.includes("OBITO") && !evol.includes("TRANSF") && !evol.includes("EVAS")) {
                     isAltaPadrao = true;
                 }
@@ -647,15 +665,14 @@
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     let leito = (leitoBruto || "").toUpperCase();
 
+                    // Nova Lógica Refinada que bate com o Banco
                     if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
                     else if (leito === "UTIN") pacDiaUtin++;
                     else if (leito === "UCINCO") pacDiaUcinco++;
                     else if (leito === "UCINCA") pacDiaUcinca++;
                     else pacDiaEnf++;
 
-                    if (isAltaPadrao && dataDia === p.max_date) {
-                        continue; 
-                    }
+                    if (isAltaPadrao && dataDia === p.max_date) continue; 
 
                     if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
                     else if (leito === "UTIN") p.dias_utin++;
@@ -673,21 +690,30 @@
                 return p;
             });
 
-            const diasNoMes = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
-
-            let numUtiAd = 11, numUtin = 18, numUcinco = 4, numUcinca = 3, numEnf = 117; 
+            // ----------------------------------------------------
+            // CORREÇÃO: MATEMÁTICA DE CAPACIDADE PROPORCIONAL
+            // ----------------------------------------------------
+            const dataHoje = new Date();
+            let diasParaCalculo = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
             
-            if (susFilterValue !== 'TODOS' && susFilterValue !== 'NAO') {
-                numUtiAd = 10; numUtin = 18; numUcinco = 4; numUcinca = 3; numEnf = 94; 
-            } else if (susFilterValue === 'NAO') {
-                numUtiAd = 1; numUtin = 0; numUcinco = 0; numUcinca = 0; numEnf = 23; 
+            // Se for o mês atual, a capacidade é multiplicada até o dia de hoje
+            if (anoSelecionado === dataHoje.getFullYear() && mesSelecionado === (dataHoje.getMonth() + 1)) {
+                diasParaCalculo = dataHoje.getDate(); 
             }
 
-            const capUtiAd = numUtiAd * diasNoMes;
-            const capUtin = numUtin * diasNoMes;
-            const capUcinco = numUcinco * diasNoMes;
-            const capUcinca = numUcinca * diasNoMes;
-            const capEnf = numEnf * diasNoMes;
+            let numUtiAd = cfgLeitosTotal.utiAd, numUtin = cfgLeitosTotal.utin, numUcinco = cfgLeitosTotal.ucinco, numUcinca = cfgLeitosTotal.ucinca, numEnf = cfgLeitosTotal.enf;
+            
+            if (susFilterValue !== 'TODOS' && susFilterValue !== 'NAO') {
+                numUtiAd = cfgLeitosSUS.utiAd; numUtin = cfgLeitosSUS.utin; numUcinco = cfgLeitosSUS.ucinco; numUcinca = cfgLeitosSUS.ucinca; numEnf = cfgLeitosSUS.enf;
+            } else if (susFilterValue === 'NAO') {
+                numUtiAd = cfgLeitosNaoSUS.utiAd; numUtin = cfgLeitosNaoSUS.utin; numUcinco = cfgLeitosNaoSUS.ucinco; numUcinca = cfgLeitosNaoSUS.ucinca; numEnf = cfgLeitosNaoSUS.enf;
+            }
+
+            const capUtiAd = numUtiAd * diasParaCalculo;
+            const capUtin = numUtin * diasParaCalculo;
+            const capUcinco = numUcinco * diasParaCalculo;
+            const capUcinca = numUcinca * diasParaCalculo;
+            const capEnf = numEnf * diasParaCalculo;
 
             const isClassic = document.body.classList.contains('theme-classic');
             const colorUti = isClassic ? '#1e40af' : '#38bdf8';
