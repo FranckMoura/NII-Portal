@@ -12,6 +12,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -20,48 +21,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON                                     */
-        /* ========================================================= */
-        body { 
-            font-family: 'Inter', sans-serif; background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: 0.5s; 
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; z-index: -1; pointer-events: none;
-        }
-
+        /* TEMA GLOBAL DARK NEON */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(236, 72, 153, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
 
         .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; }
         
-        .cyber-container {
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 25px; position: relative; z-index: 1;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 20px; text-align: center; position: relative; overflow: hidden;
-        }
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px; position: relative; z-index: 1; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
         
         .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
         .kpi-number { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px;}
+
+        .tab-btn { padding: 12px 24px; font-weight: 700; border-bottom: 3px solid transparent; color: #94a3b8; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .tab-btn:hover { color: white; }
+        .tab-btn.active { color: #34d399; border-bottom-color: #34d399; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
         .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
 
-        /* DATATABLES */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important; }
         table.dataTable tbody td { font-size: 0.80rem; vertical-align: middle; padding: 10px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
@@ -70,14 +55,20 @@
         .dt-buttons { margin-bottom: 15px; }
         .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; }
         .dt-button:hover { background: rgba(56, 189, 248, 0.3) !important; color: white !important;}
-
-        .code-box { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 6px; border-radius: 4px; }
-        
         .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chart-container-sm { position: relative; height: 200px; width: 100%; display: flex; justify-content: center;}
 
-        /* ========================================================= */
-        /* MODO CLÁSSICO                                             */
-        /* ========================================================= */
+        /* MODAIS */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: white; }
+        .modal-header { background: rgba(0,0,0,0.3); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; opacity: 0.8; }
+        .modal-close:hover { opacity: 1; color: #f87171; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* MODO CLÁSSICO */
         body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
         body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
@@ -85,89 +76,40 @@
         body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
         body.theme-classic .kpi-title { color: #64748b; }
         body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
-        
+        body.theme-classic .tab-btn { color: #64748b; border-bottom-color: transparent; }
+        body.theme-classic .tab-btn:hover { color: #004e92; }
+        body.theme-classic .tab-btn.active { color: #059669; border-bottom-color: #059669; }
         body.theme-classic table.dataTable { color: #334155 !important; }
         body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom-color: #cbd5e1 !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-        
         body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
-        body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
+        body.theme-classic .modal-content { background: white; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .modal-header { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1;}
+        body.theme-classic .modal-close { color: #0f172a; }
 
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO - MODO NUCLEAR (BRANCO ABSOLUTO)  */
-        /* ========================================================= */
+        /* MODO IMPRESSÃO */
         .print-header-visible { display: none; }
-        
         @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-            
-            /* 1. MODO NUCLEAR: Força TODAS AS TAGS a serem brancas no fundo e pretas no texto */
-            * {
-                background-color: white !important;
-                background-image: none !important;
-                color: black !important;
-                text-shadow: none !important;
-                box-shadow: none !important;
-            }
-
-            /* 2. Oculta tudo que não pertence ao papel */
-            body::before, .no-print, .blob-1, .blob-2, .header-bg, 
-            .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { 
-                display: none !important; 
-            }
-            
-            /* 3. Limpeza de Containers */
+            @page { size: A4 landscape; margin: 8mm; }
+            * { background-color: white !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
+            body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn { display: none !important; }
             body { padding: 0 !important; margin: 0 !important; }
             .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; }
-            
-            /* 4. Cabeçalho Oficial do Hospital */
+            .tab-content { display: block !important; page-break-after: always; }
             .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
             .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
-            .print-header-visible h3 { font-size: 10pt !important; font-weight: bold !important; margin: 5px 0 !important; }
-            .print-header-visible p { font-size: 8pt !important; margin: 0 !important; }
-
-            /* 5. KPIs */
             .grid { display: flex !important; flex-direction: row !important; gap: 10px !important; margin-bottom: 20px !important; page-break-inside: avoid !important; }
             .glass-card { border: 1px solid black !important; border-radius: 4px !important; padding: 8px !important; flex: 1 !important; text-align: center !important; }
             .kpi-title { font-size: 7pt !important; font-weight: bold !important; margin-bottom: 2px !important; }
-            .kpi-title i, .glass-card .text-xs, .kpi-sub { display: none !important; } 
             .kpi-number { font-size: 12pt !important; margin: 0 !important; font-weight: bold !important;}
-            
-            /* 6. Tabela - Estrutura e Cabeçalho Cinza */
-            .dataTables_wrapper { overflow: visible !important; }
+            .kpi-sub { display: none !important; }
             table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: fixed !important;}
-            
-            table.dataTable th { 
-                background-color: #e5e7eb !important; /* Retorna o cinza claro no cabeçalho */
-                font-size: 6.5pt !important; 
-                font-weight: bold !important; 
-                border: 1px solid black !important; 
-                padding: 4px !important; 
-                text-align: center !important; 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-            }
-            
-            table.dataTable td { 
-                font-size: 6.5pt !important; 
-                border: 1px solid black !important; 
-                padding: 4px !important; 
-                font-weight: normal !important;
-            }
-            
-            /* Quebra automática de linha para descrições longas não cortarem */
-            .td-truncate { white-space: normal !important; overflow: visible !important; }
-
-            /* 7. Proporção de Colunas exata para caber no Retrato */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important;} 
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 34% !important; text-align: left !important;} 
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 6% !important; text-align: center !important;}  
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 12% !important; text-align: right !important;} 
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; text-align: right !important;} 
-            table.dataTable th:nth-child(6), table.dataTable td:nth-child(6) { width: 12% !important; text-align: right !important;} 
-            table.dataTable th:nth-child(7), table.dataTable td:nth-child(7) { width: 12% !important; text-align: right !important;} 
+            table.dataTable th { background-color: #e5e7eb !important; font-size: 6pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            table.dataTable td { font-size: 6pt !important; border: 1px solid black !important; padding: 4px !important; font-weight: normal !important; text-align: right !important;}
+            table.dataTable td:nth-child(1), table.dataTable td:nth-child(2) { text-align: left !important; }
+            .chart-container-sm { display: none !important; }
         }
     </style>
 </head>
@@ -181,6 +123,36 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
+    <div id="modalAddProc" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle text-emerald-400 mr-2"></i> Adicionar Procedimento ao Contrato</h3>
+                <button class="modal-close" onclick="fecharModalAdd()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Código SIGTAP (10 Dígitos)</label>
+                    <input type="text" id="add_cod" onblur="buscarDescricaoSigtap()" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" maxlength="10" placeholder="Ex: 0411010026">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Descrição Oficial</label>
+                    <input type="text" id="add_desc" class="w-full bg-black/50 border border-white/10 rounded p-2 text-gray-400 outline-none" disabled placeholder="A descrição será preenchida automaticamente...">
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Meta Física (Qtd/Mês)</label>
+                        <input type="number" id="add_meta" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" placeholder="Ex: 15">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Valor Unitário MT 2026</label>
+                        <input type="number" step="0.01" id="add_valor" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" placeholder="Ex: 1500.50">
+                    </div>
+                </div>
+                <button onclick="salvarNovoProcedimento()" id="btnSalvarProc" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg"><i class="fas fa-save mr-2"></i> Salvar no Contrato</button>
+            </div>
+        </div>
+    </div>
+
     <div class='header-bg shadow-lg no-print'>
         <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
             <div class="flex items-center gap-4">
@@ -191,10 +163,25 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                <button onclick="abrirModalAdd()" class="btn-action bg-emerald-600 hover:bg-emerald-500"><i class="fas fa-plus"></i> Novo Procedimento</button>
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir</button>
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-sun" id="theme-icon"></i></button>
-                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir / PDF</button>
                 <a href="modulo_gerencial.html" class="btn-theme p-3 rounded-lg"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4 no-print mb-4 flex justify-between items-end border-b border-white/10 pb-2">
+        <div class="flex space-x-2">
+            <button id="btn-tab-contrato" class="tab-btn active" onclick="switchTab('contrato')"><i class="fas fa-list"></i> Visão Geral do Contrato</button>
+            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses (Médico vs Hospital)</button>
+        </div>
+        <div class="text-sm font-bold text-gray-400 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
+            Exibir na Tabela: 
+            <select id="modoExibicao" onchange="mudarModoExibicao()" class="bg-transparent text-white ml-2 outline-none cursor-pointer">
+                <option value="total" class="text-black">Valores Totais (x Meta)</option>
+                <option value="unit" class="text-black">Valores Unitários</option>
+            </select>
         </div>
     </div>
 
@@ -207,45 +194,87 @@
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="glass-card">
-                <div class="kpi-title">Produção Contratada</div>
-                <div class="kpi-number text-blue-400" id="kpi-meta">0</div>
-                <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">TOTAL DE PROCEDIMENTOS/MÊS</div>
+        <div id="tab-contrato" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="glass-card">
+                    <div class="kpi-title">Produção Contratada</div>
+                    <div class="kpi-number text-blue-400" id="kpi-meta">0</div>
+                    <div class="kpi-sub">TOTAL DE PROCEDIMENTOS/MÊS</div>
+                </div>
+                <div class="glass-card">
+                    <div class="kpi-title">Faturamento SIGTAP Estimado</div>
+                    <div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div>
+                    <div class="kpi-sub">REPASSE MINISTÉRIO DA SAÚDE</div>
+                </div>
+                <div class="glass-card">
+                    <div class="kpi-title">Cofinanciamento MT Estimado</div>
+                    <div class="kpi-number text-pink-400" id="kpi-mt">R$ 0,00</div>
+                    <div class="kpi-sub">COMPLEMENTO ESTADUAL/MUNICIPAL</div>
+                </div>
+                <div class="glass-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+                    <div class="kpi-title text-emerald-400">Receita Total Global / Mês</div>
+                    <div class="kpi-number text-white" id="kpi-global">R$ 0,00</div>
+                    <div class="kpi-sub text-emerald-500">SOMA (SIGTAP + MT 2026)</div>
+                </div>
             </div>
-            <div class="glass-card">
-                <div class="kpi-title">Faturamento SIGTAP Estimado</div>
-                <div class="kpi-number text-emerald-400" id="kpi-sigtap">R$ 0,00</div>
-                <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">REPASSE MINISTÉRIO DA SAÚDE</div>
-            </div>
-            <div class="glass-card">
-                <div class="kpi-title">Cofinanciamento MT Estimado</div>
-                <div class="kpi-number text-pink-400" id="kpi-mt">R$ 0,00</div>
-                <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">COMPLEMENTO ESTADUAL/MUNICIPAL</div>
-            </div>
-            <div class="glass-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
-                <div class="kpi-title text-emerald-400">Receita Total Global / Mês</div>
-                <div class="kpi-number text-white" id="kpi-global">R$ 0,00</div>
-                <div class="kpi-sub text-[0.65rem] text-emerald-500 font-bold mt-1">SOMA (SIGTAP + MT 2026)</div>
+
+            <div class="cyber-container">
+                <table id="tabelaContrato" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Código</th>
+                            <th>Descrição do Procedimento</th>
+                            <th class="text-center">Meta</th>
+                            <th class="text-right">SIGTAP</th>
+                            <th class="text-right">MT 2026</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
-        <div class="cyber-container">
-            <table id="tabelaContrato" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th class="text-center">Código</th>
-                        <th>Descrição do Procedimento</th>
-                        <th class="text-center">Meta</th>
-                        <th class="text-right">Val. Unit. SIGTAP</th>
-                        <th class="text-right">Val. Unit. MT 2026</th>
-                        <th class="text-right">Fat. Mensal (SIGTAP)</th>
-                        <th class="text-right">Fat. Mensal (MT)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div id="tab-repasses" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass-card border-t-pink-500/50">
+                        <div class="kpi-title">Receita Total Contratada</div>
+                        <div class="kpi-number text-pink-400" id="kpi-rep-total">R$ 0,00</div>
+                        <div class="kpi-sub">SOMA BRUTA TABELA MT</div>
+                    </div>
+                    <div class="glass-card border-t-purple-500/50">
+                        <div class="kpi-title">Projeção Honorário Médico</div>
+                        <div class="kpi-number text-purple-400" id="kpi-rep-medico">R$ 0,00</div>
+                        <div class="kpi-sub">CUSTO MÉDICO (3X SIGTAP SP)</div>
+                    </div>
+                    <div class="glass-card border-t-emerald-500/50">
+                        <div class="kpi-title">Projeção Sobra Hospitalar</div>
+                        <div class="kpi-number text-emerald-400" id="kpi-rep-sobra">R$ 0,00</div>
+                        <div class="kpi-sub">LUCRO LÍQUIDO DO HOSPITAL</div>
+                    </div>
+                </div>
+                <div class="glass-card lg:col-span-1 flex items-center justify-center p-2">
+                    <div class="chart-container-sm"><canvas id="chartDistribuicao"></canvas></div>
+                </div>
+            </div>
+
+            <div class="cyber-container">
+                <table id="tabelaRepasses" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Código</th>
+                            <th>Descrição do Procedimento</th>
+                            <th class="text-center">Meta</th>
+                            <th class="text-right text-pink-400">Contrato MT</th>
+                            <th class="text-right text-purple-400">Repasse Médico</th>
+                            <th class="text-right text-emerald-400">Sobra HSH</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
+
     </div>
 
     <script>
@@ -253,12 +282,25 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
-        let tabelaInstancia = null;
+        let tabelaContrato = null;
+        let tabelaRepasses = null;
+        let chartDist = null;
+        let dadosGlobais = [];
+        window.modoExibicao = 'total'; // 'total' ou 'unit'
+
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        function mudarModoExibicao() {
+            window.modoExibicao = $('#modoExibicao').val();
+            if(tabelaContrato) tabelaContrato.rows().invalidate().draw(false);
+            if(tabelaRepasses) tabelaRepasses.rows().invalidate().draw(false);
+        }
 
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
+            let isClassic = false;
+            
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
                 localStorage.setItem('nii_theme_contrato', 'neon');
@@ -267,7 +309,26 @@
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_contrato', 'classic');
                 icon.className = 'fas fa-moon';
+                isClassic = true;
             }
+
+            if (chartDist) {
+                Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
+                chartDist.update();
+            }
+        }
+
+        function switchTab(tabId) {
+            $('.tab-content').removeClass('active');
+            $('.tab-btn').removeClass('active border-b-2 border-emerald-400 text-emerald-400');
+            
+            $('#tab-' + tabId).addClass('active');
+            $('#btn-tab-' + tabId).addClass('active border-b-2 border-emerald-400 text-emerald-400');
+
+            setTimeout(() => {
+                if (tabelaContrato) tabelaContrato.columns.adjust().draw();
+                if (tabelaRepasses) tabelaRepasses.columns.adjust().draw();
+            }, 50);
         }
 
         $(document).ready(async function() { 
@@ -275,19 +336,90 @@
             if (savedTheme === 'classic') {
                 document.body.classList.add('theme-classic');
                 document.getElementById('theme-icon').className = 'fas fa-moon';
+                Chart.defaults.color = '#475569';
+            } else {
+                Chart.defaults.color = '#cbd5e1';
             }
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
             document.getElementById('print-date').innerText = "Data do Cálculo: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
             
             await carregarDadosContrato(); 
         });
 
+        // ===============================================
+        // FUNÇÕES PARA ADICIONAR NOVO PROCEDIMENTO
+        // ===============================================
+        function abrirModalAdd() {
+            $('#add_cod').val(''); $('#add_desc').val(''); $('#add_meta').val(''); $('#add_valor').val('');
+            $('#modalAddProc').css('display', 'flex').hide().fadeIn(200);
+            $('#add_cod').focus();
+        }
+
+        function fecharModalAdd() {
+            $('#modalAddProc').fadeOut(200);
+        }
+
+        async function buscarDescricaoSigtap() {
+            let cod = $('#add_cod').val().replace(/\D/g, '');
+            if(cod.length !== 10) return;
+            
+            $('#add_desc').val('Buscando no banco de dados...');
+            try {
+                const { data, error } = await client.from('sigtap_oficial').select('nome').eq('codigo', cod).single();
+                if (data) {
+                    $('#add_desc').val(data.nome);
+                } else {
+                    $('#add_desc').val('Código não encontrado no SIGTAP.');
+                }
+            } catch(e) {
+                $('#add_desc').val('Erro na busca.');
+            }
+        }
+
+        async function salvarNovoProcedimento() {
+            let cod = $('#add_cod').val().replace(/\D/g, '');
+            let desc = $('#add_desc').val();
+            let meta = parseInt($('#add_meta').val());
+            let valor = parseFloat($('#add_valor').val());
+
+            if(cod.length !== 10 || !desc || desc.includes('não encontrado') || isNaN(meta) || isNaN(valor)) {
+                alert("Por favor, preencha todos os campos com dados válidos.");
+                return;
+            }
+
+            $('#btnSalvarProc').html('<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...').prop('disabled', true);
+
+            try {
+                const { error } = await client.from('tabela_contrato_mt2026').upsert({
+                    codigo_sigtap: cod,
+                    descricao: desc,
+                    meta_fisica: meta,
+                    valor_mt2026: valor
+                }, { onConflict: 'codigo_sigtap' });
+
+                if(error) throw error;
+                
+                fecharModalAdd();
+                $('#loader-text').text("Recalculando Contrato...");
+                $('#loader').fadeIn(200);
+                await carregarDadosContrato();
+
+            } catch (err) {
+                alert("Erro ao salvar no banco: " + err.message);
+            } finally {
+                $('#btnSalvarProc').html('<i class="fas fa-save mr-2"></i> Salvar no Contrato').prop('disabled', false);
+            }
+        }
+
+        // ===============================================
+        // CARREGAMENTO E CÁLCULOS PRINCIPAIS
+        // ===============================================
         async function carregarDadosContrato() {
             try {
-                // 1. Puxa os dados da tabela de contrato que criamos no banco
                 const { data: contratoData, error: err1 } = await client.from('tabela_contrato_mt2026').select('*');
                 if(err1) throw err1;
 
-                // 2. Puxa a tabela SIGTAP oficial para pegarmos o preço padrão (Hospitalar + Profissional)
                 let codigosContrato = contratoData.map(c => c.codigo_sigtap);
                 
                 const { data: sigtapData, error: err2 } = await client.from('sigtap_oficial')
@@ -295,24 +427,28 @@
                                                                 .in('codigo', codigosContrato);
                 if(err2) throw err2;
 
-                // 3. Cria um dicionário para busca rápida dos valores SIGTAP
                 let mapSigtap = {};
                 if(sigtapData) {
                     sigtapData.forEach(s => {
                         let codStr = String(s.codigo).padStart(10, '0');
-                        mapSigtap[codStr] = Number(s.valor_hospitalar || 0) + Number(s.valor_profissional || 0);
+                        mapSigtap[codStr] = {
+                            valTot: Number(s.valor_hospitalar || 0) + Number(s.valor_profissional || 0),
+                            valSp: Number(s.valor_profissional || 0)
+                        };
                     });
                 }
 
-                // 4. Faz os cálculos e prepara os dados para o DataTables
-                let dadosFinal = [];
+                dadosGlobais = [];
                 let totMeta = 0, totSigtap = 0, totMT = 0;
+                let acumuladoSobra = 0, acumuladoRepasse = 0;
 
                 contratoData.forEach(item => {
                     let codStr = String(item.codigo_sigtap).padStart(10, '0');
                     let meta = Number(item.meta_fisica || 0);
                     let valMt = Number(item.valor_mt2026 || 0);
-                    let valSigtap = mapSigtap[codStr] || 0; 
+                    
+                    let sigInfo = mapSigtap[codStr] || { valTot: 0, valSp: 0 };
+                    let valSigtap = sigInfo.valTot; 
 
                     let fatSigtap = meta * valSigtap;
                     let fatMt = meta * valMt;
@@ -321,53 +457,125 @@
                     totSigtap += fatSigtap;
                     totMT += fatMt;
 
-                    dadosFinal.push({
+                    // CÁLCULO DE REPASSE (Médico = 3x SP SIGTAP | Sobra = Valor Contrato MT - Repasse)
+                    let repasseMedicoUnit = sigInfo.valSp * 3;
+                    let sobraHospUnit = valMt > 0 ? Math.max(valMt - repasseMedicoUnit, 0) : 0;
+                    
+                    let fatRepasse = meta * repasseMedicoUnit;
+                    let fatSobra = meta * sobraHospUnit;
+
+                    acumuladoRepasse += fatRepasse;
+                    acumuladoSobra += fatSobra;
+
+                    dadosGlobais.push({
                         codigo: codStr,
                         descricao: item.descricao,
                         meta: meta,
                         val_unit_sigtap: valSigtap,
                         val_unit_mt: valMt,
                         tot_sigtap: fatSigtap,
-                        tot_mt: fatMt
+                        tot_mt: fatMt,
+                        repasse_medico_unit: repasseMedicoUnit,
+                        sobra_hosp_unit: sobraHospUnit,
+                        tot_repasse_medico: fatRepasse,
+                        tot_sobra_hosp: fatSobra
                     });
                 });
 
-                // Atualiza os KPIs na tela
+                // KPIs Aba 1
                 $('#kpi-meta').text(totMeta);
                 $('#kpi-sigtap').text(formatBrl.format(totSigtap));
                 $('#kpi-mt').text(formatBrl.format(totMT));
-                $('#kpi-global').text(formatBrl.format(totSigtap + totMT));
+                $('#kpi-global').text(formatBrl.format(totSigtap + totMT)); 
 
-                // Inicializa a Tabela
-                tabelaInstancia = $('#tabelaContrato').DataTable({
-                    data: dadosFinal,
+                // KPIs Aba 2
+                $('#kpi-rep-total').text(formatBrl.format(totMT));
+                $('#kpi-rep-medico').text(formatBrl.format(acumuladoRepasse));
+                $('#kpi-rep-sobra').text(formatBrl.format(acumuladoSobra));
+
+                renderizarGrafico(acumuladoRepasse, acumuladoSobra);
+
+                if ($.fn.DataTable.isDataTable('#tabelaContrato')) $('#tabelaContrato').DataTable().destroy();
+                if ($.fn.DataTable.isDataTable('#tabelaRepasses')) $('#tabelaRepasses').DataTable().destroy();
+
+                tabelaContrato = $('#tabelaContrato').DataTable({
+                    data: dadosGlobais,
                     dom: '<"flex justify-between items-center mb-4"lB>rtip',
-                    buttons: [
-                        { 
-                            extend: 'excelHtml5', 
-                            text: '<i class="fas fa-file-excel"></i> Exportar Base (.xlsx)', 
-                            className: 'dt-button', 
-                            title: 'Contrato_Cofinanciamento_MT_2026' 
-                        }
-                    ],
-                    order: [[ 6, 'desc' ]], // Ordena por maior Faturamento MT por padrão
-                    pageLength: -1, // Mostra tudo para impressão
+                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar (.xlsx)', className: 'dt-button', title: 'VisaoGeral_MT_2026' } ],
+                    order: [[ 4, 'desc' ]],
+                    pageLength: 25,
                     lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
                     columns: [
                         { data: 'codigo', className: 'text-center font-mono font-bold text-cyan-400' },
-                        { 
-                            data: 'descricao', 
-                            className: 'font-semibold td-truncate',
-                            render: function(d, type) {
-                                if(type === 'display') return `<span title="${d}">${d}</span>`;
-                                return d;
-                            }
-                        },
+                        { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { if(type === 'display') return `<span title="${d}">${d}</span>`; return d; } },
                         { data: 'meta', className: 'text-center font-bold text-lg' },
-                        { data: 'val_unit_sigtap', className: 'text-right text-gray-400 font-mono', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                        { data: 'val_unit_mt', className: 'text-right text-pink-400 font-mono font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                        { data: 'tot_sigtap', className: 'text-right text-emerald-400 font-mono font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                        { data: 'tot_mt', className: 'text-right text-purple-400 font-mono font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
+                        { 
+                            data: null, className: 'text-right font-mono', 
+                            render: function(d, type, row) { 
+                                let val = window.modoExibicao === 'total' ? row.tot_sigtap : row.val_unit_sigtap;
+                                if(type === 'display') return `<span class="text-gray-400">${formatBrl.format(val)}</span>`;
+                                return val; 
+                            } 
+                        },
+                        { 
+                            data: null, className: 'text-right font-mono', 
+                            render: function(d, type, row) { 
+                                let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
+                                if(type === 'display') return `<span class="text-pink-400 font-bold">${formatBrl.format(val)}</span>`;
+                                return val; 
+                            } 
+                        }
+                    ],
+                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
+                });
+
+                tabelaRepasses = $('#tabelaRepasses').DataTable({
+                    data: dadosGlobais,
+                    dom: '<"flex justify-between items-center mb-4"lB>rtip',
+                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Repasses (.xlsx)', className: 'dt-button', title: 'Proj_Repasses_MT_2026' } ],
+                    order: [[ 5, 'desc' ]], 
+                    pageLength: 25,
+                    lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
+                    columns: [
+                        { data: 'codigo', className: 'text-center font-mono font-bold text-cyan-400' },
+                        { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { if(type === 'display') return `<span title="${d}">${d}</span>`; return d; } },
+                        { data: 'meta', className: 'text-center font-bold text-lg' },
+                        { 
+                            data: null, className: 'text-right font-mono', 
+                            render: function(d, type, row) { 
+                                let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
+                                if(type === 'display') return `<div class="font-bold text-pink-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
+                                return val; 
+                            } 
+                        },
+                        { 
+                            data: null, className: 'text-right font-mono', 
+                            render: function(d, type, row) { 
+                                let isTotal = window.modoExibicao === 'total';
+                                let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
+                                if(type === 'display') {
+                                    let html = `<div class="font-bold text-purple-400 text-[1.1rem]">${formatBrl.format(val)}</div>`;
+                                    if (row.codigo.startsWith('04') && val > 0) {
+                                        let cir = val * 0.70;
+                                        let ane = val * 0.30;
+                                        html += `<div class="mt-1 text-[0.65rem] text-left opacity-80 leading-tight border-t border-purple-500/30 pt-1">
+                                                    <span class="text-blue-300"><i class="fas fa-user text-[0.55rem]"></i> Cirurgião: ${formatBrl.format(cir)}</span><br>
+                                                    <span class="text-purple-300"><i class="fas fa-syringe text-[0.55rem]"></i> Anestesista: ${formatBrl.format(ane)}</span>
+                                                 </div>`;
+                                    }
+                                    return html;
+                                }
+                                return val; 
+                            } 
+                        },
+                        { 
+                            data: null, className: 'text-right font-mono', 
+                            render: function(d, type, row) { 
+                                let val = window.modoExibicao === 'total' ? row.tot_sobra_hosp : row.sobra_hosp_unit;
+                                if(type === 'display') return `<div class="font-bold text-emerald-400 text-[1.1rem]">${formatBrl.format(val)}</div>`; 
+                                return val; 
+                            } 
+                        }
                     ],
                     language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
                 });
@@ -378,6 +586,29 @@
             } finally {
                 $('#loader').fadeOut();
             }
+        }
+
+        function renderizarGrafico(valMedico, valHospital) {
+            const ctx = document.getElementById('chartDistribuicao').getContext('2d');
+            
+            if(chartDist) chartDist.destroy();
+
+            chartDist = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Repasse Médico', 'Sobra Hospitalar'],
+                    datasets: [{
+                        data: [valMedico, valHospital],
+                        backgroundColor: ['rgba(168, 85, 247, 0.8)', 'rgba(16, 185, 129, 0.8)'],
+                        borderColor: ['#a855f7', '#10b981'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '60%',
+                    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(context) { let value = context.raw; let total = context.dataset.data.reduce((a, b) => a + b, 0); let percentage = Math.round((value / total) * 100); return ` ${percentage}% (${formatBrl.format(value)})`; } } } }
+                }
+            });
         }
     </script>
 </body>
