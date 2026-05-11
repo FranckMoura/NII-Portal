@@ -62,7 +62,6 @@
         .bg-enf { background-color: rgba(251, 191, 36, 0.2); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
         .badge { padding: 4px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; min-width: 35px; text-align: center; }
 
-        /* Estilo Dinâmico para Etiquetas Tabela */
         .badge-unico-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); margin-top:2px; display:inline-block; font-weight: bold;}
         .badge-fila-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(244,114,182,0.2); color: #f472b6; border: 1px solid rgba(244,114,182,0.4); margin-top:2px; display:inline-block; font-weight: bold;}
         .badge-part-sm { font-size: 0.60rem; padding: 2px 4px; border-radius: 4px; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); margin-top:2px; display:inline-block; font-weight: bold;}
@@ -665,19 +664,19 @@
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     let leito = (leitoBruto || "").toUpperCase();
 
-                    // Nova Lógica Refinada que bate com o Banco
+                    // --- AQUI ESTÁ A CORREÇÃO DE SOMA PARA O HTML ---
                     if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
-                    else if (leito === "UTIN") pacDiaUtin++;
-                    else if (leito === "UCINCO") pacDiaUcinco++;
-                    else if (leito === "UCINCA") pacDiaUcinca++;
+                    else if (leito === "UTIN" || leito === "UTI NEONATAL") pacDiaUtin++;
+                    else if (leito === "UCINCO" || leito === "CONVENCIONAL") pacDiaUcinco++;
+                    else if (leito === "UCINCA" || leito === "CANGURU") pacDiaUcinca++;
                     else pacDiaEnf++;
 
                     if (isAltaPadrao && dataDia === p.max_date) continue; 
 
                     if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                    else if (leito === "UTIN") p.dias_utin++;
-                    else if (leito === "UCINCO") p.dias_ucinco++;
-                    else if (leito === "UCINCA") p.dias_ucinca++;
+                    else if (leito === "UTIN" || leito === "UTI NEONATAL") p.dias_utin++;
+                    else if (leito === "UCINCO" || leito === "CONVENCIONAL") p.dias_ucinco++;
+                    else if (leito === "UCINCA" || leito === "CANGURU") p.dias_ucinca++;
                     else p.dias_enf++;
                 }
 
