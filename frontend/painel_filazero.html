@@ -184,6 +184,7 @@
                     <tr>
                         <th class="text-left">Paciente</th>
                         <th class="text-center">Internação</th>
+                        <th class="text-center">CNS</th>
                         <th class="text-center w-24">Status</th>
                         <th class="text-center">AIH</th>
                         <th class="text-center">SISREG</th>
@@ -266,8 +267,8 @@
         async function carregarDadosFilaZero() {
             const ano = $('#anoFilter').val();
             const mes = String($('#mesFilter').val()).padStart(2, '0');
+            const prefixoMesAtual = `${ano}-${mes}`;
             
-            // Corrige o bug do banco de dados (datas gte e lte em vez de like)
             const d1 = `${ano}-${mes}-01`;
             const dataFimObj = new Date(ano, mes, 0); 
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
@@ -278,20 +279,39 @@
             $('#loading').fadeIn(200);
 
             try {
-                // A VIEW FAZ TODO O TRABALHO PESADO DE CRUZAMENTO!
-                const { data, error } = await client.from('vw_fila_zero')
-                                                    .select('*')
-                                                    .gte('data_internacao', d1)
-                                                    .lte('data_internacao', d2);
+                // 1. Busca os pacientes do IndicaSUS
+                const { data: indData, error: errInd } = await client.from('indicasus_leitos')
+                    .select('*')
+                    .gte('data_internacao', d1)
+                    .lte('data_internacao', d2)
+                    .ilike('plano_sus', '%FILA ZERO%');
                 
-                if (error) throw error;
+                if (errInd) throw errInd;
 
-                let dados = data || [];
+                let mapPacientes = {};
+                (indData || []).forEach(d => {
+                    let key = d.nome_paciente + d.data_internacao;
+                    if(!mapPacientes[key] || d.data_extracao > mapPacientes[key].data_extracao) {
+                        mapPacientes[key] = d;
+                    }
+                });
+
+                let dadosFilaZero = Object.values(mapPacientes);
+
+                // 2. Busca a tabela Regulação
+                let nomes = dadosFilaZero.map(d => d.nome_paciente);
+                let regData = [];
+                
+                if (nomes.length > 0) {
+                    const { data: reg, error: errReg } = await client.from('regulacao').select('*').in('nome_paciente', nomes);
+                    if (!errReg && reg) regData = reg;
+                }
+
                 let qtdInternados = 0;
                 let qtdAltas = 0;
                 let qtdSemAih = 0;
 
-                dados.forEach(d => {
+                dadosFilaZero.forEach(d => {
                     let evol = String(d.evolucao_clinica || "").toUpperCase();
                     let isSaiu = evol.includes("ALTA") || evol.includes("ÓBITO") || evol.includes("OBITO") || evol.includes("TRANSF") || evol.includes("EVAS");
                     
@@ -309,9 +329,44 @@
                     } else {
                         d.search_sem_aih = '';
                     }
+
+                    // --- NOVA LÓGICA DE CRUZAMENTO (CÉREBRO V2) ---
+                    // Agrupa todas as regulações do paciente e ordena da mais recente para a mais antiga
+                    let patientRegs = regData.filter(r => r.nome_paciente === d.nome_paciente);
+                    patientRegs.sort((a, b) => new Date(b.data_solicitacao || 0) - new Date(a.data_solicitacao || 0));
+
+                    let regMatch = null;
+                    
+                    // Prioridade 1: Match perfeito pelo SISREG
+                    if (d.cod_solicitacao_sisreg && d.cod_solicitacao_sisreg !== 'null') {
+                        regMatch = patientRegs.find(r => r.num_solicitacao === d.cod_solicitacao_sisreg || r.cod_solicitacao === d.cod_solicitacao_sisreg);
+                    }
+                    
+                    // Prioridade 2: Match perfeito pela AIH
+                    if (!regMatch && d.aih && d.aih !== 'null') {
+                        regMatch = patientRegs.find(r => r.num_aih === d.aih);
+                    }
+                    
+                    // Prioridade 3: Match pelo nome se a data da regulação for compatível (janela de até 120 dias)
+                    if (!regMatch) {
+                        regMatch = patientRegs.find(r => {
+                            let dInt = new Date(d.data_internacao);
+                            let dSol = new Date(r.data_solicitacao || 0);
+                            let diffDays = Math.abs(dInt - dSol) / (1000 * 60 * 60 * 24);
+                            return diffDays <= 120; // 4 meses de margem
+                        });
+                    }
+                    
+                    // Fator Desespero: Pega a última
+                    if (!regMatch && patientRegs.length > 0) {
+                        regMatch = patientRegs[0];
+                    }
+
+                    d.procedimento = regMatch ? (regMatch.procedimento_solicitado || regMatch.nome_procedimento_solicitado || regMatch.procedimento || 'AGUARDANDO INFORMAÇÃO') : 'AGUARDANDO INFORMAÇÃO';
+                    d.medico = regMatch ? (regMatch.medico_executante || regMatch.medico_solicitante || 'NÃO INFORMADO') : 'NÃO INFORMADO';
                 });
 
-                $('#kpi-total').text(dados.length);
+                $('#kpi-total').text(dadosFilaZero.length);
                 $('#kpi-internados').text(qtdInternados);
                 $('#kpi-altas').text(qtdAltas);
                 $('#kpi-sem-aih').text(qtdSemAih);
@@ -319,12 +374,12 @@
                 if ($.fn.DataTable.isDataTable('#tabelaFilaZero')) $('#tabelaFilaZero').DataTable().destroy();
 
                 dataTableInstance = $('#tabelaFilaZero').DataTable({
-                    data: dados,
+                    data: dadosFilaZero,
                     dom: 'lBrtip',
                     pageLength: 25,
-                    order: [[2, 'asc'], [0, 'asc']], // Ordena por Status e depois Nome
+                    order: [[2, 'asc'], [0, 'asc']], 
                     buttons: [
-                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Lista (.xlsx)', className: 'dt-button', title: `Relatorio_FilaZero_${ano}-${mes}` }
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Lista (.xlsx)', className: 'dt-button', title: `Relatorio_FilaZero_${prefixoMesAtual}` }
                     ],
                     language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                     columns: [
@@ -337,7 +392,7 @@
                                                 <b class="text-[0.9rem] text-blue-300" style="color:var(--text-color, inherit);">${d}</b><br>
                                                 <span class="text-[0.65rem] text-gray-500 uppercase"><i class="fas fa-map-marker-alt"></i> ${mun}</span>
                                             </div>
-                                            <span style="display:none;">${row.search_sem_aih}</span>`; // Escondido para a busca funcionar
+                                            <span style="display:none;">${row.search_sem_aih}</span>`; 
                                 }
                                 return d;
                             }
@@ -345,6 +400,10 @@
                         { 
                             data: 'data_internacao', className: 'text-center font-mono', 
                             render: d => d ? d.split('-').reverse().join('/') : '-' 
+                        },
+                        { 
+                            data: 'cns', className: 'text-center font-mono text-[0.8rem] text-blue-200', 
+                            render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
                         },
                         {
                             data: 'status_real', className: 'text-center align-middle',
@@ -361,7 +420,7 @@
                             render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
                         },
                         { 
-                            data: 'sisreg', className: 'text-center font-mono',
+                            data: 'cod_solicitacao_sisreg', className: 'text-center font-mono',
                             render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
                         },
                         { 
@@ -389,7 +448,7 @@
 
             } catch (err) {
                 console.error("Erro ao carregar Fila Zero", err);
-                alert("Erro ao carregar dados. Verifique sua conexão e se a VIEW foi criada no Supabase.");
+                alert("Erro ao carregar dados do Supabase: " + err.message);
             } finally {
                 $('#loading').fadeOut();
             }
