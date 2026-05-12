@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Fila Zero - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(244, 114, 182, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(251, 191, 36, 0.15); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; }
+        
+        #loading { position: fixed; inset: 0; background: rgba(0, 21, 40, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #f472b6; font-weight: bold; backdrop-filter: blur(10px); }
+
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px; position: relative; z-index: 1; }
+
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; transition: 0.3s; cursor: pointer; }
+        .glass-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: rgba(244, 114, 182, 0.5); }
+        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); }
+        
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; }
+
+        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+        .btn-action { background: #f97316; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-action:hover { background: #ea580c; }
+
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: rgba(0, 0, 0, 0.3) !important; color: #f472b6 !important; border-bottom: 2px solid rgba(244, 114, 182, 0.3) !important; }
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+        .dt-buttons { margin-bottom: 15px; }
+        .dt-button { background: rgba(244, 114, 182, 0.1) !important; color: #f472b6 !important; border: 1px solid rgba(244, 114, 182, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; }
+        .dt-button:hover { background: rgba(244, 114, 182, 0.3) !important; color: white !important;}
+
+        .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .search-box-container { flex: 1; min-width: 300px; max-width: 500px; }
+        .input-wrapper { position: relative; width: 100%; margin-top: 5px;}
+        .input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-wrapper input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; border-radius: 8px; outline: none; font-size: 0.9rem;}
+
+        .badge-alta { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase;}
+        .badge-int { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; animation: pulse 2s infinite;}
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
+        body.theme-classic .glass-card:hover { background: #ffffff; border-color: #db2777; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        body.theme-classic .kpi-title { color: #64748b; }
+        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
+        body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #fce7f3 !important; color: #db2777 !important; border-bottom-color: #fbcfe8 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        body.theme-classic .dt-button { background: white !important; color: #db2777 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #fdf2f8 !important; color: #db2777 !important; border-color: #fbcfe8 !important;}
+        body.theme-classic .input-wrapper input { background: white !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 8mm; }
+            body { background: white !important; }
+            * { color: black !important; text-shadow: none !important; box-shadow: none !important; }
+            body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+            .cyber-container { padding: 0 !important; border: none !important; }
+            table.dataTable { border: 1px solid black !important; }
+            table.dataTable th { background-color: #f3f4f6 !important; font-size: 7pt !important; border: 1px solid black !important; padding: 4px !important; color: black !important;}
+            table.dataTable td { font-size: 7pt !important; border: 1px solid black !important; padding: 4px !important; }
+            .badge-alta, .badge-int { border: none !important; padding: 0 !important; font-size: 7pt !important; background: transparent !important; color: black !important;}
+            .grid { display: flex !important; gap: 10px !important; margin-bottom: 20px !important; }
+            .glass-card { border: 1px solid black !important; padding: 5px !important; flex: 1 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div id="loading" style="display: none;">
+        <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+        <span id="loading-msg">Mapeando Fila Zero...</span>
+    </div>
+
+    <div class='header-bg shadow-lg no-print'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-star text-3xl text-pink-400"></i></div>
+                <div>
+                    <h1 class='text-2xl font-bold'>Painel Executivo Fila Zero</h1>
+                    <p class='text-xs opacity-70'>Monitoramento de Internações e Faturamento Específico (SES-MT)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-sun" id="theme-icon"></i></button>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-pink-400 mr-2">Ano:</span>
+                    <select id="anoFilter" onchange="carregarDadosFilaZero()" class="bg-transparent text-white font-bold outline-none"></select>
+                </div>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-pink-400 mr-2">Mês:</span>
+                    <select id="mesFilter" onchange="carregarDadosFilaZero()" class="bg-transparent text-white font-bold outline-none"></select>
+                </div>
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600 border-none"><i class="fas fa-print"></i> Imprimir</button>
+                <a href="index_v2.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="glass-card" onclick="filtrarTabela('')">
+                <i class="fas fa-users kpi-icon text-pink-500"></i>
+                <div class="kpi-title text-pink-400">Total Fila Zero (Mês)</div>
+                <div class="kpi-number text-white" id="kpi-total">0</div>
+                <div class="text-xs text-gray-400">Internações identificadas</div>
+            </div>
+            <div class="glass-card" onclick="filtrarTabela('INTERNADO')">
+                <i class="fas fa-bed-pulse kpi-icon text-yellow-500"></i>
+                <div class="kpi-title text-yellow-400">Pacientes Internados</div>
+                <div class="kpi-number text-white" id="kpi-internados">0</div>
+                <div class="text-xs text-gray-400">Ainda no Hospital</div>
+            </div>
+            <div class="glass-card" onclick="filtrarTabela('ALTA')">
+                <i class="fas fa-door-open kpi-icon text-emerald-500"></i>
+                <div class="kpi-title text-emerald-400">Altas Realizadas</div>
+                <div class="kpi-number text-white" id="kpi-altas">0</div>
+                <div class="text-xs text-gray-400">Processo concluído</div>
+            </div>
+            <div class="glass-card" onclick="filtrarTabela('SEM AIH')">
+                <i class="fas fa-exclamation-triangle kpi-icon text-red-500"></i>
+                <div class="kpi-title text-red-400">Aguardando AIH</div>
+                <div class="kpi-number text-white" id="kpi-sem-aih">0</div>
+                <div class="text-xs text-gray-400">Necessita faturamento</div>
+            </div>
+        </div>
+
+        <div class="cyber-container">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-lg font-bold text-gray-200 uppercase tracking-wider"><i class="fas fa-list-ul text-pink-400 mr-2"></i> Relação de Pacientes (Fila Zero)</h3>
+                <div class="search-box-container no-print">
+                    <div class="input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tableSearch" placeholder="Buscar por Nome, AIH, Médico ou Procedimento..." onkeyup="dataTableInstance.search(this.value).draw()">
+                    </div>
+                </div>
+            </div>
+
+            <table id="tabelaFilaZero" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-left">Paciente</th>
+                        <th class="text-center">Internação</th>
+                        <th class="text-center w-24">Status</th>
+                        <th class="text-center">AIH</th>
+                        <th class="text-center">SISREG</th>
+                        <th class="text-left">Procedimento / Diagnóstico</th>
+                        <th class="text-left">Médico Resp.</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let dataTableInstance = null;
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_fz', 'neon');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_fz', 'classic');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        function setupAnoMes() {
+            const anoSel = document.getElementById('anoFilter');
+            const mesSel = document.getElementById('mesFilter');
+            
+            let anoMemoria = localStorage.getItem('nii_competencia_ano');
+            let mesMemoria = localStorage.getItem('nii_competencia_mes');
+            
+            const dataAtual = new Date();
+            const anoAtual = anoMemoria ? parseInt(anoMemoria) : dataAtual.getFullYear();
+            let mesAtual = mesMemoria ? mesMemoria : String(dataAtual.getMonth() + 1).padStart(2, '0'); 
+
+            for(let i = dataAtual.getFullYear() + 1; i >= 2024; i--) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                anoSel.appendChild(opt);
+            }
+            anoSel.value = anoAtual;
+
+            const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            for(let i = 1; i <= 12; i++) {
+                let opt = document.createElement('option');
+                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
+                mesSel.appendChild(opt);
+            }
+            mesSel.value = mesAtual;
+        }
+
+        $(document).ready(async function() { 
+            const savedTheme = localStorage.getItem('nii_theme_fz') || localStorage.getItem('nii_theme_hub');
+            if (savedTheme === 'classic') {
+                document.body.classList.add('theme-classic');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+            }
+            
+            setupAnoMes(); 
+            await carregarDadosFilaZero(); 
+        });
+
+        function filtrarTabela(termo) {
+            if(dataTableInstance) {
+                dataTableInstance.search(termo).draw();
+                $('#tableSearch').val(termo);
+            }
+        }
+
+        async function carregarDadosFilaZero() {
+            const ano = $('#anoFilter').val();
+            const mes = String($('#mesFilter').val()).padStart(2, '0');
+            
+            // Corrige o bug do banco de dados (datas gte e lte em vez de like)
+            const d1 = `${ano}-${mes}-01`;
+            const dataFimObj = new Date(ano, mes, 0); 
+            const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+            
+            localStorage.setItem('nii_competencia_ano', ano);
+            localStorage.setItem('nii_competencia_mes', mes);
+
+            $('#loading').fadeIn(200);
+
+            try {
+                // A VIEW FAZ TODO O TRABALHO PESADO DE CRUZAMENTO!
+                const { data, error } = await client.from('vw_fila_zero')
+                                                    .select('*')
+                                                    .gte('data_internacao', d1)
+                                                    .lte('data_internacao', d2);
+                
+                if (error) throw error;
+
+                let dados = data || [];
+                let qtdInternados = 0;
+                let qtdAltas = 0;
+                let qtdSemAih = 0;
+
+                dados.forEach(d => {
+                    let evol = String(d.evolucao_clinica || "").toUpperCase();
+                    let isSaiu = evol.includes("ALTA") || evol.includes("ÓBITO") || evol.includes("OBITO") || evol.includes("TRANSF") || evol.includes("EVAS");
+                    
+                    if (isSaiu) {
+                        qtdAltas++;
+                        d.status_real = 'ALTA';
+                    } else {
+                        qtdInternados++;
+                        d.status_real = 'INTERNADO';
+                    }
+
+                    if (!d.aih || d.aih.trim() === '' || d.aih === 'null') {
+                        qtdSemAih++;
+                        d.search_sem_aih = 'SEM AIH';
+                    } else {
+                        d.search_sem_aih = '';
+                    }
+                });
+
+                $('#kpi-total').text(dados.length);
+                $('#kpi-internados').text(qtdInternados);
+                $('#kpi-altas').text(qtdAltas);
+                $('#kpi-sem-aih').text(qtdSemAih);
+
+                if ($.fn.DataTable.isDataTable('#tabelaFilaZero')) $('#tabelaFilaZero').DataTable().destroy();
+
+                dataTableInstance = $('#tabelaFilaZero').DataTable({
+                    data: dados,
+                    dom: 'lBrtip',
+                    pageLength: 25,
+                    order: [[2, 'asc'], [0, 'asc']], // Ordena por Status e depois Nome
+                    buttons: [
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Lista (.xlsx)', className: 'dt-button', title: `Relatorio_FilaZero_${ano}-${mes}` }
+                    ],
+                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    columns: [
+                        { 
+                            data: 'nome_paciente', 
+                            render: function(d, type, row) {
+                                if (type === 'display') {
+                                    let mun = row.municipio_residencia || 'Não informado';
+                                    return `<div>
+                                                <b class="text-[0.9rem] text-blue-300" style="color:var(--text-color, inherit);">${d}</b><br>
+                                                <span class="text-[0.65rem] text-gray-500 uppercase"><i class="fas fa-map-marker-alt"></i> ${mun}</span>
+                                            </div>
+                                            <span style="display:none;">${row.search_sem_aih}</span>`; // Escondido para a busca funcionar
+                                }
+                                return d;
+                            }
+                        },
+                        { 
+                            data: 'data_internacao', className: 'text-center font-mono', 
+                            render: d => d ? d.split('-').reverse().join('/') : '-' 
+                        },
+                        {
+                            data: 'status_real', className: 'text-center align-middle',
+                            render: function(d, type, row) {
+                                if (type === 'display') {
+                                    if(d === 'ALTA') return `<span class="badge-alta"><i class="fas fa-check"></i> ${row.evolucao_clinica.substring(0,10)}</span>`;
+                                    return `<span class="badge-int"><i class="fas fa-bed-pulse"></i> Internado</span>`;
+                                }
+                                return d;
+                            }
+                        },
+                        { 
+                            data: 'aih', className: 'text-center font-mono font-bold',
+                            render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
+                        },
+                        { 
+                            data: 'sisreg', className: 'text-center font-mono',
+                            render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
+                        },
+                        { 
+                            data: 'procedimento', className: 'td-truncate',
+                            render: function(d, type, row) {
+                                let diag = row.diagnostico !== 'NÃO INFORMADO' ? row.diagnostico : '';
+                                if(type === 'display') {
+                                    return `<div title="${d}">
+                                                <b class="text-pink-400 text-[0.8rem]">${d.length > 35 ? d.substring(0,35)+'...' : d}</b><br>
+                                                ${diag ? `<span class="text-[0.65rem] text-gray-400">CID: ${diag}</span>` : ''}
+                                            </div>`;
+                                }
+                                return d + ' ' + diag;
+                            }
+                        },
+                        { 
+                            data: 'medico', className: 'td-truncate text-[0.8rem] text-gray-300',
+                            render: function(d, type) {
+                                if(type === 'display') return `<span title="${d}"><i class="fas fa-user-md mr-1 opacity-50"></i> ${d.length > 25 ? d.substring(0,25)+'...' : d}</span>`;
+                                return d;
+                            }
+                        }
+                    ]
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar Fila Zero", err);
+                alert("Erro ao carregar dados. Verifique sua conexão e se a VIEW foi criada no Supabase.");
+            } finally {
+                $('#loading').fadeOut();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -56,14 +56,12 @@
         
         .nav-menu { flex: 1; padding: 20px 10px; overflow-y: auto; overflow-x: hidden; }
         
-        /* Links Soltos (ex: Hub Central) */
         .nav-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 15px;
             color: #94a3b8; text-decoration: none; border-radius: 10px; margin-bottom: 6px; transition: 0.3s;
             border: 1px solid transparent; white-space: nowrap;
         }
         
-        /* Cabeçalho do Módulo (Accordion) */
         .nav-group-header {
             display: flex; align-items: center; justify-content: space-between; 
             padding: 12px 15px; color: #cbd5e1; cursor: pointer; border-radius: 10px; 
@@ -83,7 +81,6 @@
         .nav-item:hover .nav-desc, .nav-item.active .nav-desc { color: #bae6fd; opacity: 0.8; }
         .nav-item.active .nav-icon, .nav-group-header.active .nav-icon { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
 
-        /* Submenu Container */
         .nav-submenu {
             max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; 
             background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin: 0 5px 10px 5px;
@@ -95,7 +92,6 @@
 
         .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; }
 
-        /* COMPORTAMENTO DO MENU RECOLHIDO */
         body.sidebar-collapsed .sidebar { width: 85px; }
         body.sidebar-collapsed .main-content { margin-left: 85px; }
         body.sidebar-collapsed .sidebar-header { padding: 20px 10px; }
@@ -139,15 +135,35 @@
 
         .leitos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; }
         .leito-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; text-align: center; }
-        .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
         .leito-num { font-size: 1.5rem; font-weight: 900; }
-        .leito-meta { font-size: 0.65rem; color: #64748b; margin-top: 2px;}
 
-        .shortcut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .shortcut-card { display: flex; align-items: center; gap: 15px; padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; text-decoration: none; color: white; transition: 0.3s; }
-        .shortcut-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
-        .shortcut-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .shortcut-icon img { width: 30px; height: 30px; object-fit: contain;}
+        /* TITULO DE SEÇÕES */
+        .section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 15px; margin-top: 15px; display: flex; align-items: center; gap: 10px; }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+
+        /* ========================================================= */
+        /* ESTILO ELASTICNES (Cards Grandes de Navegação)            */
+        /* ========================================================= */
+        .elasti-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .elasti-card {
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 35px 25px; text-decoration: none; color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); transition: all 0.4s ease;
+            display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;
+        }
+        .elasti-card:hover {
+            transform: translateY(-8px); background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.1);
+        }
+        
+        .elasti-logo-wrapper { height: 90px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .elasti-logo-wrapper img { max-height: 100%; max-width: 85%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); transition: 0.4s; }
+        .elasti-card:hover .elasti-logo-wrapper img { transform: scale(1.08); filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7)); }
+        
+        .elasti-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 8px; color: #f8fafc; text-transform: uppercase;}
+        .elasti-desc { font-size: 0.8rem; color: #94a3b8; line-height: 1.4; font-weight: 400;}
 
         footer { margin-top: auto; padding-top: 40px; padding-bottom: 10px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; }
         .dyn-text-accent { color: #38bdf8; }
@@ -188,14 +204,19 @@
         body.theme-classic .btn-toggle-menu { color: #475569; }
         body.theme-classic .btn-toggle-menu:hover { color: #004e92; background: #e2e8f0;}
 
-        body.theme-classic .shortcut-card { background: white; border-color: #e2e8f0; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
-        body.theme-classic .shortcut-card:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
-
         body.theme-classic .dyn-text-accent { color: #004e92 !important; }
         body.theme-classic .filter-wrapper { background: white !important; border-color: #cbd5e1 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         body.theme-classic .select-theme { color: #0f172a !important; }
         body.theme-classic .select-theme option { background: white; color: #0f172a; }
         body.theme-classic .separador { color: #0f172a !important; }
+
+        /* ElastiCards no Modo Clássico */
+        body.theme-classic .elasti-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); color: #0f172a;}
+        body.theme-classic .elasti-card:hover { transform: translateY(-5px); border-color: #004e92; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #f8fafc;}
+        body.theme-classic .elasti-title { color: #0f172a; }
+        body.theme-classic .elasti-desc { color: #64748b; }
+        body.theme-classic .elasti-logo-wrapper img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+        body.theme-classic .elasti-card:hover .elasti-logo-wrapper img { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
 
         body.theme-classic footer { color: #94a3b8; }
     </style>
@@ -205,7 +226,6 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <!-- SIDEBAR REFORMULADA (ACCORDION COM GERENCIAL NO TOPO E DUPLICAÇÕES) -->
     <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <img src="../logo.png" alt="Hospital Beneficente Santa Helena" class="sidebar-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
@@ -214,7 +234,6 @@
         </div>
 
         <nav class="nav-menu">
-            <!-- VISÃO GERAL -->
             <a href="#" class="nav-item active">
                 <i class="fas fa-home nav-icon"></i>
                 <div class="nav-text"><span class="nav-title">Hub Central</span><span class="nav-desc">Visão Geral Executiva</span></div>
@@ -222,7 +241,6 @@
             
             <div class="my-4 border-t border-white/5"></div>
 
-            <!-- MÓDULO GERÊNCIA E CONTROLE -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-chart-line nav-icon text-teal-400"></i>
@@ -230,38 +248,37 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
-                    <a href="painel_financeiro.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_financeiro.html')" class="nav-item">
                         <img src="../logo_sus_faturamento.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-chart-line nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Faturamento SUS</span><span class="nav-desc">Dashboard Financeiro AIH</span></div>
                     </a>
-                    <a href="modulo_financeiro.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('modulo_financeiro.html')" class="nav-item">
                         <i class="fas fa-coins nav-icon text-teal-400"></i>
                         <div class="nav-text"><span class="nav-title">Gestão Interna</span><span class="nav-desc">Repasses Médicos e Terceiros</span></div>
                     </a>
-                    <a href="painel_cruzamento_sih_sp.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_cruzamento_sih_sp.html')" class="nav-item">
                         <i class="fas fa-search nav-icon text-blue-400"></i>
                         <div class="nav-text"><span class="nav-title">Auditoria AIH</span><span class="nav-desc">Dossiê e Cruzamento SP</span></div>
                     </a>
-                    <a href="painel_contrato_cofinanciamento.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_contrato_cofinanciamento.html')" class="nav-item">
                         <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
                         <div class="nav-text"><span class="nav-title">Cofinanciamento</span><span class="nav-desc">Contrato Estadual 2026</span></div>
                     </a>
-                    <a href="painel_indicasus_v2.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="nav-item">
                         <img src="../LogoSES-Gov.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de Leitos</span></div>
                     </a>
-                    <a href="painel_regulacao.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_regulacao.html')" class="nav-item">
                         <img src="../500px-Logo-sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de Filas</span></div>
                     </a>
-                    <a href="painel_sigtap.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_sigtap.html')" class="nav-item">
                         <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, Regras e OPMEs</span></div>
                     </a>
                 </div>
             </div>
 
-            <!-- MÓDULO ESTRATÉGICO -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-bullseye nav-icon text-pink-400"></i>
@@ -269,26 +286,25 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
-                    <a href="dashboard.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('dashboard.html')" class="nav-item">
                         <i class="fas fa-chart-line nav-icon text-green-400"></i>
                         <div class="nav-text"><span class="nav-title">Metas & Qualidade</span><span class="nav-desc">TMP e Produção Física</span></div>
                     </a>
-                    <a href="painel_cirurgias.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_cirurgias.html')" class="nav-item">
                         <i class="fas fa-user-md nav-icon text-pink-400"></i>
                         <div class="nav-text"><span class="nav-title">Produção Cirúrgica</span><span class="nav-desc">Monitoramento SoulMV</span></div>
                     </a>
-                    <a href="painel_simuladas.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_simuladas.html')" class="nav-item">
                         <i class="fas fa-magnifying-glass-chart nav-icon text-purple-400"></i>
                         <div class="nav-text"><span class="nav-title">BI - Simuladas</span><span class="nav-desc">Painel de Valores Faturados</span></div>
                     </a>
-                    <a href="Painel_Fichas_Liberadas.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('Painel_Fichas_Liberadas.html')" class="nav-item">
                         <i class="fas fa-code-compare nav-icon text-orange-400"></i>
                         <div class="nav-text"><span class="nav-title">Auditoria Fichas</span><span class="nav-desc">MV vs SISREG</span></div>
                     </a>
                 </div>
             </div>
 
-            <!-- MÓDULO OPERACIONAL -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-hospital-user nav-icon text-orange-400"></i>
@@ -296,46 +312,45 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
-                    <a href="painel_regulacao.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_regulacao.html')" class="nav-item">
                         <img src="../500px-Logo-sisreg.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-ambulance nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Regulação SISREG</span><span class="nav-desc">Monitoramento de Filas</span></div>
                     </a>
-                    <a href="painel_indicasus_v2.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="nav-item">
                         <img src="../LogoSES-Gov.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de Leitos</span></div>
                     </a>
-                    <a href="painel_institucional.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_institucional.html')" class="nav-item">
                         <img src="../logo_institucional.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-hospital nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Institucional (CNES)</span><span class="nav-desc">Habilitações e Serviços</span></div>
                     </a>
-                    <a href="modulo_entrada.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('modulo_entrada.html')" class="nav-item">
                         <i class="fas fa-edit nav-icon text-green-400"></i>
                         <div class="nav-text"><span class="nav-title">Entrada de Dados</span><span class="nav-desc">Lançamento de OPME e Notas</span></div>
                     </a>
-                    <a href="gerador_capa.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('gerador_capa.html')" class="nav-item">
                         <i class="fas fa-file-invoice nav-icon text-blue-400"></i>
                         <div class="nav-text"><span class="nav-title">Gerador de Capa</span><span class="nav-desc">Fechamento de Competência</span></div>
                     </a>
-                    <a href="Painel_Guias.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('Painel_Guias.html')" class="nav-item">
                         <i class="fas fa-file-invoice-dollar nav-icon text-yellow-400"></i>
                         <div class="nav-text"><span class="nav-title">Painel Unimed</span><span class="nav-desc">Consulta de Procedimentos</span></div>
                     </a>
-                    <a href="painel_sisreg.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_sisreg.html')" class="nav-item">
                         <i class="fas fa-database nav-icon text-indigo-400"></i>
                         <div class="nav-text"><span class="nav-title">Histórico SISREG</span><span class="nav-desc">Base de Dados Bruta</span></div>
                     </a>
-                    <a href="consulta_legado.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('consulta_legado.html')" class="nav-item">
                         <i class="fas fa-server nav-icon text-slate-400"></i>
                         <div class="nav-text"><span class="nav-title">Sistema Legado</span><span class="nav-desc">Consulta Int_Oni / Tb_Dual</span></div>
                     </a>
-                    <a href="controle_agua.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('controle_agua.html')" class="nav-item">
                         <i class="fas fa-hand-holding-water nav-icon text-cyan-400"></i>
                         <div class="nav-text"><span class="nav-title">Controle de Água</span><span class="nav-desc">Gestão de Cotas</span></div>
                     </a>
                 </div>
             </div>
 
-            <!-- LABORATÓRIO DEV -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-flask nav-icon text-purple-500"></i>
@@ -343,23 +358,23 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
-                    <a href="painel_sih.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_sih.html')" class="nav-item">
                         <i class="fas fa-file-invoice-dollar nav-icon text-amber-500"></i>
                         <div class="nav-text"><span class="nav-title">Gestão SIH</span><span class="nav-desc">Conta Fechada e URV</span></div>
                     </a>
-                    <a href="espelho_aih.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('espelho_aih.html')" class="nav-item">
                         <i class="fas fa-file-invoice nav-icon text-teal-400"></i>
                         <div class="nav-text"><span class="nav-title">Espelho AIH</span><span class="nav-desc">Auditoria Lançamentos SP</span></div>
                     </a>
-                    <a href="painel_sia.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_sia.html')" class="nav-item">
                         <i class="fas fa-stethoscope nav-icon text-green-400"></i>
                         <div class="nav-text"><span class="nav-title">Produção SIA</span><span class="nav-desc">Auditoria BPA/APAC</span></div>
                     </a>
-                    <a href="painel_faturamento_sp.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_faturamento_sp.html')" class="nav-item">
                         <i class="fas fa-syringe nav-icon text-pink-400"></i>
                         <div class="nav-text"><span class="nav-title">Faturamento SP</span><span class="nav-desc">OPMEs, Diárias e Exames</span></div>
                     </a>
-                    <a href="painel_historico.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_historico.html')" class="nav-item">
                         <i class="fas fa-chart-line nav-icon text-yellow-400"></i>
                         <div class="nav-text"><span class="nav-title">Série Histórica</span><span class="nav-desc">Evolução Financeira</span></div>
                     </a>
@@ -368,7 +383,6 @@
 
             <div class="my-4 border-t border-white/5"></div>
 
-            <!-- TABELAS E CATÁLOGOS -->
             <div class="nav-group">
                 <div class="nav-group-header" onclick="toggleSubmenu(this)">
                     <i class="fas fa-book-medical nav-icon text-gray-400"></i>
@@ -376,11 +390,11 @@
                     <i class="fas fa-chevron-down toggle-icon"></i>
                 </div>
                 <div class="nav-submenu">
-                    <a href="painel_sigtap.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('painel_sigtap.html')" class="nav-item">
                         <img src="../logo_sigtap.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-book-medical nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Catálogo SIGTAP</span><span class="nav-desc">Preços, Regras e OPMEs</span></div>
                     </a>
-                    <a href="fluxograma_sus.html" class="nav-item">
+                    <a href="#" onclick="irParaPainel('fluxograma_sus.html')" class="nav-item">
                         <i class="fas fa-book-open nav-icon text-slate-400"></i>
                         <div class="nav-text"><span class="nav-title">Base de Conhecimento</span><span class="nav-desc">Manuais e POPs</span></div>
                     </a>
@@ -397,266 +411,278 @@
     </aside>
 
     <main class="main-content">
-        
         <div class="top-bar">
             <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="btn-toggle-menu" title="Recolher/Expandir Menu">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="btn-toggle-menu"><i class="fas fa-bars"></i></button>
                 <div>
                     <h1 class="text-3xl font-black mb-1">Visão Geral do Hospital</h1>
-                    <p class="text-gray-400 text-sm">Resumo da competência e atalhos de produtividade.</p>
+                    <p class="text-gray-400 text-sm">Resumo da competência e indicadores em tempo real.</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3">
-                <div class="filter-wrapper bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-3">
-                    <div class="flex items-center gap-2 border-r border-white/10 pr-3">
-                        <span class="text-xs font-bold uppercase dyn-text-accent">Competência:</span>
-                        <select id="mesFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
-                        <span class="separador text-white">/</span>
-                        <select id="anoFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
-                    </div>
-                    <div id="status-competencia">
-                        <i class="fas fa-spinner fa-spin text-blue-400"></i>
-                    </div>
+            <div class="filter-wrapper bg-black/20 border border-white/10 px-4 py-2 rounded-lg flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase text-blue-400">Competência:</span>
+                    <select id="mesFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
+                    <span class="text-white separador">/</span>
+                    <select id="anoFilter" onchange="carregarResumoCentral()" class="bg-transparent font-bold outline-none cursor-pointer select-theme"></select>
                 </div>
+                <div id="status-competencia"></div>
             </div>
         </div>
 
         <div class="cyber-container">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 border-b border-white/10 pb-2">Status Operacional (Painel Rápido)</h3>
-            
+            <h3 class="text-sm font-bold uppercase text-gray-400 mb-4 border-b border-white/10 pb-2">Status Operacional</h3>
             <div class="dashboard-grid">
-                
-                <a href="painel_simuladas.html" class="glass-card" title="Acessar Auditoria de Valores">
-                    <i class="fas fa-hospital-user kpi-icon text-blue-500"></i>
-                    <div class="kpi-title">Total de AIHs (Contas) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-blue-400" id="kpi-aih-real"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-aih-real-sub">Processando base...</div>
+                <a href="#" onclick="irParaPainel('painel_simuladas.html')" class="glass-card">
+                    <i class="fas fa-file-invoice-dollar kpi-icon text-blue-500"></i>
+                    <div class="kpi-title">Total de AIHs (Contas)</div>
+                    <div class="kpi-number text-blue-400" id="kpi-aih-real">0</div>
+                    <div class="kpi-sub text-gray-400" id="kpi-aih-real-sub">Produção Faturada</div>
                 </a>
 
-                <a href="painel_simuladas.html" class="glass-card col-span-2" title="Acessar Painel BI" style="justify-content: flex-start; padding: 15px 20px;">
-                    <div class="kpi-title text-left mb-1"><i class="fas fa-chart-bar text-purple-400 mr-2"></i> AIHs por Especialidade Médica <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div style="position: relative; height: 110px; width: 100%;">
-                        <canvas id="chartEspecHub"></canvas>
-                    </div>
-                </a>
+                <div class="glass-card col-span-2">
+                    <div class="kpi-title mb-2"><i class="fas fa-chart-bar text-purple-400 mr-2"></i> AIHs por Especialidade</div>
+                    <div style="height: 120px; width: 100%;"><canvas id="chartEspecHub"></canvas></div>
+                </div>
 
-                <a href="painel_cirurgias.html" class="glass-card" title="Acessar Produção Cirúrgica">
-                    <i class="fas fa-scalpel kpi-icon text-emerald-500"></i>
-                    <div class="kpi-title">Cirurgias SUS (Meta 148) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-emerald-400" id="kpi-cir"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-cir-sub">Lendo base Cirúrgica...</div>
-                </a>
-
-                <a href="painel_regulacao.html" class="glass-card" title="Acessar Fila de Regulação">
+                <a href="#" onclick="irParaPainel('painel_regulacao.html')" class="glass-card">
                     <i class="fas fa-ambulance kpi-icon text-pink-500"></i>
-                    <div class="kpi-title">Fila de Regulação (Urgência) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-pink-400" id="kpi-sisreg"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Lendo urgências pendentes...</div>
+                    <div class="kpi-title">Regulação (Urgências)</div>
+                    <div class="kpi-number text-pink-400" id="kpi-sisreg">0</div>
+                    <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Pendentes no Município</div>
                 </a>
 
-                <a href="painel_indicasus_v2.html" class="glass-card" title="Acessar Painel IndicaSUS (Fila Zero)">
+                <a href="#" onclick="irParaPainel('painel_filazero.html')" class="glass-card">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
-                    <div class="kpi-title">Programa Fila Zero <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Calculando...</div>
+                    <div class="kpi-title">Programa Fila Zero</div>
+                    <div class="kpi-number text-yellow-400" id="kpi-fila-zero">0</div>
+                    <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Internações Identificadas</div>
                 </a>
 
-                <a href="painel_indicasus_v2.html" class="glass-card col-span-3" title="Acessar Auditoria IndicaSUS">
-                    <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
-                    <div class="kpi-title mb-2">Monitoramento de Capacidade Hospitalar (IndicaSUS) <i class="fas fa-arrow-right ml-1 opacity-50"></i></div>
-                    
+                <div class="glass-card col-span-3">
+                    <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS)</div>
                     <div class="leitos-grid">
-                        <div class="leito-box">
-                            <div class="leito-nome">UTI Adulto</div>
-                            <div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta" id="meta-uti">Meta: 10 Leitos (SUS)</div>
-                        </div>
-                        <div class="leito-box">
-                            <div class="leito-nome">UTIN (Neo)</div>
-                            <div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta" id="meta-utin">Meta: 18 Leitos</div>
-                        </div>
-                        <div class="leito-box">
-                            <div class="leito-nome">UCINCo</div>
-                            <div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta" id="meta-ucinco">Meta: 4 Leitos</div>
-                        </div>
-                        <div class="leito-box">
-                            <div class="leito-nome">UCINCa</div>
-                            <div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-spinner fa-spin text-sm"></i></div>
-                            <div class="leito-meta" id="meta-ucinca">Meta: 3 Leitos</div>
-                        </div>
+                        <div class="leito-box"><div class="leito-nome">UTI Adulto</div><div class="leito-num text-blue-400" id="taxa-uti">0%</div></div>
+                        <div class="leito-box"><div class="leito-nome">UTIN (Neo)</div><div class="leito-num text-purple-400" id="taxa-utin">0%</div></div>
+                        <div class="leito-box"><div class="leito-nome">UCINCo</div><div class="leito-num text-pink-400" id="taxa-ucinco">0%</div></div>
+                        <div class="leito-box"><div class="leito-nome">UCINCa</div><div class="leito-num text-emerald-400" id="taxa-ucinca">0%</div></div>
                     </div>
-                </a>
-
+                </div>
             </div>
         </div>
 
-        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 pl-2">Atalhos Frequentes</h3>
-        <div class="shortcut-grid">
-            
-            <a href="painel_simuladas.html" class="shortcut-card">
-                <div class="shortcut-icon bg-pink-500/20 border border-pink-500/30">
-                    <img src="../logo_sisaih.png" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-print text-pink-400\'></i>';">
-                </div>
-                <div>
-                    <h4 class="font-bold text-lg mb-1">Imprimir Fichas</h4>
-                    <p class="text-xs text-gray-400">Acesse a fila de impressão e auditoria básica das simuladas.</p>
-                </div>
+        <div class="section-title">Acesso Rápido aos Painéis</div>
+        <div class="elasti-grid">
+            <a href="#" onclick="event.preventDefault(); irParaPainel('painel_financeiro.html');" class="elasti-card">
+                <div class="elasti-logo-wrapper"><img src="../logo_sus_faturamento.png" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_sus_faturamento.png'"></div>
+                <h3 class="elasti-title">Faturamento SUS</h3>
+                <p class="elasti-desc">Produção financeira e metas de AIH.</p>
             </a>
-
-            <a href="painel_cruzamento_sih_sp.html" class="shortcut-card">
-                <div class="shortcut-icon bg-blue-500/20 border border-blue-500/30"><i class="fas fa-search-dollar text-blue-400"></i></div>
-                <div>
-                    <h4 class="font-bold text-lg mb-1">Auditar Contas (AIH)</h4>
-                    <p class="text-xs text-gray-400">Cruze valores da Capa RD com os Itens de serviço SP.</p>
-                </div>
+            <a href="#" onclick="event.preventDefault(); irParaPainel('painel_indicasus_v2.html');" class="elasti-card">
+                <div class="elasti-logo-wrapper"><img src="../LogoSES-Gov.png" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/LogoSES-Gov.png'"></div>
+                <h3 class="elasti-title">Auditoria IndicaSUS</h3>
+                <p class="elasti-desc">Censo diário e giro de leitos.</p>
             </a>
-
-            <a href="painel_contrato_cofinanciamento.html" class="shortcut-card">
-                <div class="shortcut-icon bg-emerald-500/20 border border-emerald-500/30">
-                    <i class="fas fa-file-signature text-emerald-400"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-lg mb-1">Painel Cofinanciamento</h4>
-                    <p class="text-xs text-gray-400">Previsão contratual da Tabela MT 2026 vs SIGTAP.</p>
-                </div>
+            <a href="#" onclick="event.preventDefault(); irParaPainel('painel_regulacao.html');" class="elasti-card">
+                <div class="elasti-logo-wrapper"><img src="../logo_sisreg.png" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_sisreg.png'"></div>
+                <h3 class="elasti-title">Regulação SISREG</h3>
+                <p class="elasti-desc">Monitoramento de solicitações e dossiês.</p>
             </a>
-
+            <a href="#" onclick="event.preventDefault(); irParaPainel('painel_filazero.html');" class="elasti-card">
+                <div class="elasti-logo-wrapper"><img src="../logo_sesmt.png" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_sesmt.png'"></div>
+                <h3 class="elasti-title">Produção Fila Zero</h3>
+                <p class="elasti-desc">Acompanhamento exclusivo do programa estadual.</p>
+            </a>
         </div>
 
-        <footer>
-            <p>&copy; 2026 Hospital Beneficente Santa Helena - Desenvolvido por Franck Moura</p>
-        </footer>
-
+        <footer><p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</p></footer>
     </main>
 
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
-
         window.chartEspecInstance = null;
 
-        function toggleSidebar() {
-            document.body.classList.toggle('sidebar-collapsed');
-            
-            if (document.body.classList.contains('sidebar-collapsed')) {
-                document.querySelectorAll('.nav-submenu').forEach(sub => {
-                    sub.style.maxHeight = null;
-                    const header = sub.previousElementSibling;
-                    if(header) {
-                        header.classList.remove('active');
-                        const icon = header.querySelector('.toggle-icon');
-                        if(icon) icon.style.transform = 'rotate(0deg)';
-                    }
-                });
-            }
+        function irParaPainel(url) {
+            localStorage.setItem('nii_competencia_ano', $('#anoFilter').val());
+            localStorage.setItem('nii_competencia_mes', $('#mesFilter').val());
+            window.location.href = url;
         }
 
-        function toggleSubmenu(element) {
-            if (document.body.classList.contains('sidebar-collapsed')) {
-                toggleSidebar();
-            }
-
-            const submenu = element.nextElementSibling;
-            const icon = element.querySelector('.toggle-icon');
-            
-            document.querySelectorAll('.nav-submenu').forEach(sub => {
-                if (sub !== submenu) {
-                    sub.style.maxHeight = null;
-                    const prevHeader = sub.previousElementSibling;
-                    if(prevHeader) {
-                        prevHeader.classList.remove('active');
-                        const prevIcon = prevHeader.querySelector('.toggle-icon');
-                        if(prevIcon) prevIcon.style.transform = 'rotate(0deg)';
-                    }
-                }
-            });
-
-            if (submenu.style.maxHeight) {
-                submenu.style.maxHeight = null;
-                element.classList.remove('active');
-                if(icon) icon.style.transform = 'rotate(0deg)';
-            } else {
-                submenu.style.maxHeight = submenu.scrollHeight + "px";
-                element.classList.add('active');
-                if(icon) icon.style.transform = 'rotate(180deg)';
-            }
+        function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
+        function toggleSubmenu(el) { 
+            const sub = el.nextElementSibling;
+            sub.style.maxHeight = sub.style.maxHeight ? null : sub.scrollHeight + "px";
+            el.classList.toggle('active');
+            const icon = el.querySelector('.toggle-icon');
+            if(icon) icon.style.transform = el.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
         function setupAnoMes() {
-            const anoSel = document.getElementById('anoFilter');
-            const mesSel = document.getElementById('mesFilter');
-            const dataAtual = new Date();
-            const anoAtual = dataAtual.getFullYear();
-
-            for(let i = anoAtual + 1; i >= 2024; i--) {
-                let opt = document.createElement('option');
-                opt.value = i; opt.innerText = i;
-                anoSel.appendChild(opt);
-            }
-
+            const anoSel = $('#anoFilter'); const mesSel = $('#mesFilter');
+            const data = new Date(); const ano = data.getFullYear();
+            for(let i = ano+1; i >= 2024; i--) anoSel.append(`<option value="${i}">${i}</option>`);
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-            for(let i = 1; i <= 12; i++) {
-                let opt = document.createElement('option');
-                opt.value = String(i).padStart(2, '0'); opt.innerText = meses[i-1];
-                mesSel.appendChild(opt);
-            }
+            meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
+            
+            anoSel.val(localStorage.getItem('nii_competencia_ano') || ano);
+            mesSel.val(localStorage.getItem('nii_competencia_mes') || String(data.getMonth()+1).padStart(2,'0'));
         }
 
-        async function definirCompetenciaAtiva() {
-            try {
-                // Força a competência atual pelo calendário (ex: 05/2026) automaticamente!
-                const dataAtual = new Date();
-                const mesAlvo = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                const anoAlvo = dataAtual.getFullYear();
+        async function carregarResumoCentral() {
+            const ano = $('#anoFilter').val(); const mes = $('#mesFilter').val();
+            const compString = `${mes}/${ano}`;
+            const d1 = `${ano}-${mes}-01`;
+            const dataFimObj = new Date(ano, mes, 0);
+            const d2 = `${ano}-${mes}-${dataFimObj.getDate()}`;
+            
+            // Proporcionalidade para o mês atual
+            const hoje = new Date();
+            let diasParaCalculo = dataFimObj.getDate();
+            if(ano == hoje.getFullYear() && mes == String(hoje.getMonth()+1).padStart(2,'0')) diasParaCalculo = hoje.getDate();
 
-                $('#anoFilter').val(anoAlvo);
-                $('#mesFilter').val(mesAlvo);
-            } catch (e) {
-                console.error("Erro ao definir competência", e);
+            // Status Competência
+            const diffMeses = (hoje.getFullYear() * 12 + (hoje.getMonth()+1)) - (ano * 12 + parseInt(mes));
+            if (diffMeses < 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
+            else if (diffMeses === 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
+            else if (diffMeses === 1) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
+            else $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
+
+            $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
+
+            // 1. AIHs (Simuladas)
+            const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', {ascending: false}).limit(1);
+            if(compData?.[0]) {
+                const res = await fetch(compData[0].link_indice); const dados = await res.json();
+                let aihMap = {};
+                dados.forEach(d => {
+                    let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
+                    if(!aihMap[aih]) {
+                        let esp = d.ESPEC || "OUTROS";
+                        if(esp.includes('-')) esp = esp.split('-')[1].trim();
+                        aihMap[aih] = { especialidade: esp };
+                    }
+                });
+
+                $('#kpi-aih-real').text(Object.keys(aihMap).length);
+                $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
+                
+                // Gráfico Vertical (Especialidades)
+                let especMap = {}; 
+                Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
+                let arrEspec = Object.keys(especMap).map(k => ({nome: k, qtd: especMap[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 4);
+                renderizarGrafico(arrEspec.map(x => x.nome), arrEspec.map(x => x.qtd));
+            } else {
+                $('#kpi-aih-real').text('-');
+                $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento');
+                if(window.chartEspecInstance) { window.chartEspecInstance.data.labels=[]; window.chartEspecInstance.data.datasets[0].data=[]; window.chartEspecInstance.update(); }
+            }
+
+            // 2. SISREG
+            const { data: sisData } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2);
+            let pend = sisData?.filter(d => !(d.status||'').match(/APROV|AUTORIZ|NEGA|CANC/) && (d.carater_internacao||'').includes('URG')).length || 0;
+            $('#kpi-sisreg').text(pend);
+            $('#kpi-sisreg-sub').html(pend > 0 ? `<i class="fas fa-exclamation-triangle"></i> Atenção à fila do município` : `<i class="fas fa-check-circle"></i> Nenhuma urgência na fila`);
+            $('#kpi-sisreg').toggleClass('text-pink-400', pend > 0).toggleClass('text-emerald-400', pend === 0);
+
+            // 3. IndicaSUS e Fila Zero
+            const { data: indData } = await client.from('indicasus_leitos').select('*').gte('data_extracao', d1).lte('data_extracao', d2);
+            if(indData) {
+                let mapPacientes = new Map();
+                indData.forEach(row => {
+                    if (!(row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'))) return; 
+                    let key = (row.nome_paciente || "").trim().toUpperCase() + "_" + row.data_internacao;
+                    if (!mapPacientes.has(key)) mapPacientes.set(key, { dias_map: new Map(), plano: (row.plano_sus||'').toUpperCase(), dtInt: row.data_internacao });
+                    let p = mapPacientes.get(key);
+                    let dataDia = (row.data_extracao || "").split('T')[0].split(' ')[0];
+                    if (dataDia.startsWith(`${ano}-${mes}`)) p.dias_map.set(dataDia, row.tipo_leito);
+                });
+
+                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 };
+                let fzCount = 0;
+
+                Array.from(mapPacientes.values()).forEach(p => {
+                    if (p.plano.includes('FILA ZERO') && p.dtInt.startsWith(`${ano}-${mes}`)) fzCount++;
+                    for (let leitoBruto of p.dias_map.values()) {
+                        let l = (leitoBruto||'').toUpperCase();
+                        if(l === "UTI ADULTO" || l === "UTI") ocup.uti++;
+                        else if(l === "UTIN" || l === "UTI NEONATAL") ocup.utin++;
+                        else if(l === "UCINCO" || l === "CONVENCIONAL") ocup.ucinco++;
+                        else if(l === "UCINCA" || l === "CANGURU") ocup.ucinca++;
+                    }
+                });
+
+                $('#kpi-fila-zero').text(fzCount);
+                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
+
+                let txUti = ocup.uti > 0 ? Math.min(Math.round((ocup.uti/(10*diasParaCalculo))*100), 100) : 0;
+                let txUtin = ocup.utin > 0 ? Math.min(Math.round((ocup.utin/(10*diasParaCalculo))*100), 100) : 0;
+                let txUcinco = ocup.ucinco > 0 ? Math.min(Math.round((ocup.ucinco/(5*diasParaCalculo))*100), 100) : 0;
+                let txUcinca = ocup.ucinca > 0 ? Math.min(Math.round((ocup.ucinca/(5*diasParaCalculo))*100), 100) : 0;
+
+                $('#taxa-uti').text(txUti+'%').css('color', txUti >= 90 ? '#ef4444' : '#38bdf8');
+                $('#taxa-utin').text(txUtin+'%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
+                $('#taxa-ucinco').text(txUcinco+'%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
+                $('#taxa-ucinca').text(txUcinca+'%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
             }
         }
 
         const alwaysShowLabels = {
             id: 'alwaysShowLabels',
-            afterDatasetsDraw(chart, args, pluginOptions) {
+            afterDatasetsDraw(chart) {
                 const { ctx, data } = chart;
                 ctx.save();
                 chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
                     const value = data.datasets[0].data[index];
-                    const label = data.labels[index];
                     ctx.font = 'bold 11px Inter';
                     ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(`${label}: ${value}`, datapoint.x + 8, datapoint.y);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(value, datapoint.x, datapoint.y - 5);
                 });
                 ctx.restore();
             }
         };
 
+        function renderizarGrafico(labels, values) {
+            const ctx = document.getElementById('chartEspecHub').getContext('2d');
+            let isClassic = document.body.classList.contains('theme-classic');
+            if(window.chartEspecInstance) window.chartEspecInstance.destroy();
+            window.chartEspecInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: values, backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)', borderColor: isClassic ? '#7c3aed' : '#c084fc', borderWidth: 1, borderRadius: 4, barPercentage: 0.6 }]
+                },
+                options: {
+                    indexAxis: 'x', // Barras Verticais!
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 0, left: 0, top: 20, bottom: 0 } },
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { 
+                        y: { display: false, suggestedMax: Math.max(...values, 1) * 1.3 }, 
+                        x: { ticks: { color: isClassic ? '#475569' : '#cbd5e1', font: { size: 9, weight: 'bold' } }, grid: { display: false } } 
+                    }
+                },
+                plugins: [alwaysShowLabels]
+            });
+        }
+
         function toggleTheme() {
             const body = document.body;
             const btnIcon = document.querySelector('#btn-theme-toggle i');
-            const themeText = document.querySelector('#btn-theme-toggle span');
-            
             let isClassic = false;
 
             if (body.classList.contains('theme-classic')) {
                 body.classList.remove('theme-classic');
                 localStorage.setItem('nii_theme_hub', 'neon');
-                btnIcon.classList.remove('fa-moon');
-                btnIcon.classList.add('fa-sun');
+                btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun');
             } else {
                 body.classList.add('theme-classic');
                 localStorage.setItem('nii_theme_hub', 'classic');
-                btnIcon.classList.remove('fa-sun');
-                btnIcon.classList.add('fa-moon');
+                btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon');
                 isClassic = true;
             }
 
@@ -668,251 +694,15 @@
             }
         }
 
-        async function carregarResumoCentral() {
-            try {
-                const anoSelecionado = parseInt($('#anoFilter').val());
-                const mesSelecionado = parseInt($('#mesFilter').val());
-                const compString = `${String(mesSelecionado).padStart(2, '0')}/${anoSelecionado}`;
-                const prefixoMesAtual = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}`;
-                
-                const dataAtual = new Date();
-                const anoHoje = dataAtual.getFullYear();
-                const mesHoje = dataAtual.getMonth() + 1;
-                
-                const diffMeses = (anoHoje * 12 + mesHoje) - (anoSelecionado * 12 + mesSelecionado);
-
-                if (diffMeses < 0) {
-                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
-                } else if (diffMeses === 0) {
-                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
-                } else if (diffMeses === 1) {
-                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
-                } else {
-                    $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
-                }
-
-                const d1 = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}-01`;
-                const dataFimObj = new Date(anoSelecionado, mesSelecionado, 0); 
-                const d2 = `${anoSelecionado}-${String(mesSelecionado).padStart(2, '0')}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
-                const diasNoMes = dataFimObj.getDate();
-
-                $('#kpi-aih-real, #kpi-print, #kpi-cir, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
-
-                const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
-                let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
-
-                if (linkJson) {
-                    const responseJson = await fetch(linkJson);
-                    const dadosFichas = await responseJson.json();
-                    
-                    let aihMap = {};
-                    dadosFichas.forEach(d => {
-                        let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
-                        if (!aihMap[aih]) {
-                            let esp = d.ESPEC || "OUTROS";
-                            if(esp.includes('-')) esp = esp.split('-')[1].trim();
-                            aihMap[aih] = { especialidade: esp };
-                        }
-                    });
-                    
-                    let totalAihs = Object.keys(aihMap).length;
-                    $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(totalAihs));
-                    $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
-
-                    let especMap = {};
-                    Object.values(aihMap).forEach(info => {
-                        especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1;
-                    });
-                    let arrEspec = [];
-                    for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
-                    arrEspec.sort((a,b) => b.qtd - a.qtd);
-                    
-                    let topEspec = arrEspec.slice(0, 4);
-                    let isClassic = document.body.classList.contains('theme-classic');
-                    
-                    if(!window.chartEspecInstance) {
-                        window.chartEspecInstance = new Chart(document.getElementById('chartEspecHub').getContext('2d'), {
-                            type: 'bar',
-                            data: {
-                                labels: topEspec.map(x => x.nome),
-                                datasets: [{ 
-                                    data: topEspec.map(x => x.qtd), 
-                                    backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
-                                    borderColor: isClassic ? '#7c3aed' : '#c084fc',
-                                    borderWidth: 1, borderRadius: 4, barPercentage: 0.6
-                                }]
-                            },
-                            options: { 
-                                indexAxis: 'y', maintainAspectRatio: false,
-                                layout: { padding: { right: 30, left: 0, top: 0, bottom: 0 } },
-                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                                scales: { x: { display: false, suggestedMax: Math.max(...topEspec.map(a=>a.qtd), 1) * 1.3 }, y: { display: false } }
-                            },
-                            plugins: [alwaysShowLabels]
-                        });
-                    } else {
-                        window.chartEspecInstance.data.labels = topEspec.map(x => x.nome);
-                        window.chartEspecInstance.data.datasets[0].data = topEspec.map(x => x.qtd);
-                        window.chartEspecInstance.update();
-                    }
-                } else {
-                    $('#kpi-aih-real').text('-');
-                    $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento');
-                    if(window.chartEspecInstance) {
-                        window.chartEspecInstance.data.labels = [];
-                        window.chartEspecInstance.data.datasets[0].data = [];
-                        window.chartEspecInstance.update();
-                    }
-                }
-
-                const { data: cirData } = await client.from('cirurgias_detalhe').select('procedimento').eq('convenio', 'SUS').gte('data_cirurgia', d1).lte('data_cirurgia', d2);
-                let qtdCir = 0;
-                if (cirData) {
-                    const termosObs = ['CESARIANA', 'PARTO', 'CURETAGEM', 'AMNIOTOMIA', 'CERCLAGEM', 'ECTÓPICA', 'ECTOPICA', 'CURAGEM', 'REVISAO', 'REVISÃO'];
-                    cirData.forEach(c => {
-                        let isObs = termosObs.some(t => (c.procedimento||'').toUpperCase().includes(t));
-                        if (!isObs) qtdCir++; 
-                    });
-                }
-                let percCir = Math.round((qtdCir / 148) * 100) || 0;
-                $('#kpi-cir').text(qtdCir);
-                $('#kpi-cir-sub').html(`<i class="fas fa-bullseye"></i> ${percCir}% Atingido`);
-
-                let allSisregData = []; let from = 0; let step = 1000; let keepFetching = true;
-                while (keepFetching) {
-                    const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(from, from + step - 1);
-                    if (error) throw error;
-                    if (data && data.length > 0) { allSisregData = allSisregData.concat(data); from += step; }
-                    if (!data || data.length < step) keepFetching = false;
-                }
-
-                let pendentesUrgencia = 0;
-                allSisregData.forEach(d => {
-                    let st = (d.status || "").toUpperCase();
-                    let carater = (d.carater_internacao || "").toUpperCase();
-                    let isPendente = !st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO');
-                    let isUrgencia = carater.includes('URG');
-                    if (isPendente && isUrgencia) pendentesUrgencia++;
-                });
-
-                $('#kpi-sisreg').text(pendentesUrgencia);
-                if(pendentesUrgencia > 0) {
-                    $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Atenção à fila do município`);
-                    $('#kpi-sisreg').removeClass('text-emerald-400').addClass('text-pink-400');
-                } else {
-                    $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Nenhuma urgência na fila`);
-                    $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
-                }
-
-                let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
-                while (keepFetchingIndica) {
-                    const { data, error } = await client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, cpf, cns, nome_mae, plano_sus')
-                        .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
-                    if(error) throw error;
-                    if (data && data.length > 0) { allIndicaData = allIndicaData.concat(data); fromIndica += stepIndica; }
-                    if (!data || data.length < stepIndica) keepFetchingIndica = false;
-                }
-
-                let mapPacientes = new Map();
-
-                allIndicaData.forEach(row => {
-                    const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
-                    if (!isSus) return; 
-
-                    const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
-                    const dtInt = row.data_internacao || "SEM DATA";
-                    
-                    let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
-                    let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
-                    let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
-
-                    let key = "";
-                    if (cpfOk) key = "CPF_" + row.cpf.trim();
-                    else if (cnsOk) key = "CNS_" + row.cns.trim();
-                    else if (maeOk) key = "MAE_" + row.nome_mae.trim().toUpperCase() + "_" + dtInt;
-                    else key = "NOME_" + nome + "_" + dtInt;
-                    
-                    if (!mapPacientes.has(key)) {
-                        mapPacientes.set(key, { 
-                            dias_map: new Map(), 
-                            plano_sus: (row.plano_sus || "PLANO UNICO").toUpperCase(),
-                            data_internacao: dtInt 
-                        });
-                    }
-                    
-                    const p = mapPacientes.get(key);
-                    const dataExt = row.data_extracao || "";
-                    const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
-                    
-                    if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
-
-                    p.dias_map.set(dataDia, row.tipo_leito);
-                    if(row.plano_sus) p.plano_sus = row.plano_sus.toUpperCase();
-                });
-
-                let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0;
-                let filaZeroCount = 0;
-
-                Array.from(mapPacientes.values()).forEach(p => {
-                    if (p.plano_sus && p.plano_sus.includes('FILA ZERO') && p.data_internacao && p.data_internacao.startsWith(prefixoMesAtual)) {
-                        filaZeroCount++;
-                    }
-
-                    for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
-                        let leito = (leitoBruto || "").toUpperCase();
-                        if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
-                        else if (leito === "UTIN") pacDiaUtin++;
-                        else if (leito === "UCINCO") pacDiaUcinco++;
-                        else if (leito === "UCINCA") pacDiaUcinca++;
-                    }
-                });
-
-                $('#kpi-fila-zero').text(filaZeroCount);
-                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
-
-                let capUtiAd = 10 * diasNoMes;
-                let capUtin = 18 * diasNoMes;
-                let capUcinco = 4 * diasNoMes;
-                let capUcinca = 3 * diasNoMes;
-
-                let txUtiAd = capUtiAd > 0 ? Math.min(Math.round((pacDiaUti / capUtiAd) * 100), 100) : 0;
-                let txUtin = capUtin > 0 ? Math.min(Math.round((pacDiaUtin / capUtin) * 100), 100) : 0;
-                let txUcinco = capUcinco > 0 ? Math.min(Math.round((pacDiaUcinco / capUcinco) * 100), 100) : 0;
-                let txUcinca = capUcinca > 0 ? Math.min(Math.round((pacDiaUcinca / capUcinca) * 100), 100) : 0;
-
-                $('#taxa-uti').text(txUtiAd + '%').css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
-                $('#meta-uti').html(`${pacDiaUti} Diárias (Cap: ${capUtiAd})`);
-
-                $('#taxa-utin').text(txUtin + '%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
-                $('#meta-utin').html(`${pacDiaUtin} Diárias (Cap: ${capUtin})`);
-
-                $('#taxa-ucinco').text(txUcinco + '%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
-                $('#meta-ucinco').html(`${pacDiaUcinco} Diárias (Cap: ${capUcinco})`);
-
-                $('#taxa-ucinca').text(txUcinca + '%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
-                $('#meta-ucinca').html(`${pacDiaUcinca} Diárias (Cap: ${capUcinca})`);
-
-            } catch(e) {
-                console.error("Erro ao carregar resumo central:", e);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
+        $(document).ready(() => { 
             const savedTheme = localStorage.getItem('nii_theme_hub');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
-            
             if (savedTheme === 'classic') { 
                 document.body.classList.add('theme-classic');
                 if(btnIcon) { btnIcon.classList.remove('fa-sun'); btnIcon.classList.add('fa-moon'); }
-            } else {
-                document.body.classList.remove('theme-classic');
-                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
             }
-
             setupAnoMes(); 
-            await definirCompetenciaAtiva(); 
-            carregarResumoCentral(); 
+            definirCompetenciaAtiva().then(() => carregarResumoCentral()); 
         });
     </script>
 </body>
