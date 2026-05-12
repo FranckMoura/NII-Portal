@@ -330,7 +330,7 @@
                         d.search_sem_aih = '';
                     }
 
-                    // --- NOVA LÓGICA DE CRUZAMENTO (CÉREBRO V2) ---
+                    // --- NOVA LÓGICA DE CRUZAMENTO (CÉREBRO V3) ---
                     // Agrupa todas as regulações do paciente e ordena da mais recente para a mais antiga
                     let patientRegs = regData.filter(r => r.nome_paciente === d.nome_paciente);
                     patientRegs.sort((a, b) => new Date(b.data_solicitacao || 0) - new Date(a.data_solicitacao || 0));
@@ -347,23 +347,46 @@
                         regMatch = patientRegs.find(r => r.num_aih === d.aih);
                     }
                     
-                    // Prioridade 3: Match pelo nome se a data da regulação for compatível (janela de até 120 dias)
+                    // PRIORIDADE 3: MATCH NOME + ELETIVA + DATA
                     if (!regMatch) {
                         regMatch = patientRegs.find(r => {
                             let dInt = new Date(d.data_internacao);
                             let dSol = new Date(r.data_solicitacao || 0);
                             let diffDays = Math.abs(dInt - dSol) / (1000 * 60 * 60 * 24);
-                            return diffDays <= 120; // 4 meses de margem
+                            let isEletiva = (r.carater_internacao || "").toUpperCase().includes("ELETIV");
+                            return diffDays <= 150 && isEletiva; 
+                        });
+                    }
+
+                    // PRIORIDADE 4: Evitar Urgências (Parto, etc) se não achou eletiva explícita
+                    if (!regMatch) {
+                        regMatch = patientRegs.find(r => {
+                            let dInt = new Date(d.data_internacao);
+                            let dSol = new Date(r.data_solicitacao || 0);
+                            let diffDays = Math.abs(dInt - dSol) / (1000 * 60 * 60 * 24);
+                            let proc = (r.procedimento_solicitado || r.procedimento || "").toUpperCase();
+                            let isUrgencia = (r.carater_internacao || "").toUpperCase().includes("URG") || proc.includes("PARTO") || proc.includes("CESARIANA");
+                            return diffDays <= 120 && !isUrgencia;
                         });
                     }
                     
-                    // Fator Desespero: Pega a última
+                    // Fator Desespero: Pega a última que não seja tão absurda
                     if (!regMatch && patientRegs.length > 0) {
                         regMatch = patientRegs[0];
                     }
 
                     d.procedimento = regMatch ? (regMatch.procedimento_solicitado || regMatch.nome_procedimento_solicitado || regMatch.procedimento || 'AGUARDANDO INFORMAÇÃO') : 'AGUARDANDO INFORMAÇÃO';
                     d.medico = regMatch ? (regMatch.medico_executante || regMatch.medico_solicitante || 'NÃO INFORMADO') : 'NÃO INFORMADO';
+
+                    // =========================================================================
+                    // REGRA DE EXCEÇÃO (MÁSCARA): PARTO COM CID Z30.2 NO FILA ZERO É LAQUEADURA
+                    // =========================================================================
+                    let procUpper = d.procedimento.toUpperCase();
+                    let cidUpper = (d.diagnostico || '').toUpperCase().replace('.', '');
+                    if (procUpper.includes('PARTO') && cidUpper === 'Z302') {
+                        d.procedimento = 'LAQUEADURA TUBARIA';
+                    }
+
                 });
 
                 $('#kpi-total').text(dadosFilaZero.length);
