@@ -1,0 +1,9 @@
+--- 🚜 ROBÔ AUDITOR (V34: LOG AUTOMÁTICO EM TXT + PAGINAÇÃO AJAX) ---
+📄 Salvando cópia do log de execução no arquivo: log_robo_indicasus_20260512_004311.txt
+
+[ ⚠️ MODO DE CARGA CONTÍNUA EM LOTES ⚠️ ]
+>> 1. Deseja APAGAR O CACHE e começar do ZERO? (Pressione 'S' para forçar a correção das diárias): Traceback (most recent call last):
+  File "C:\Users\DELL\OneDrive\NII-Portal-Cloud\backend\robo_indicasus_v2.py", line 67, in <module>
+    limpar_base = input(">> 1. Deseja APAGAR O CACHE e começar do ZERO? (Pressione 'S' para forçar a correção das diárias): ").strip().upper()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

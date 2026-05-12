@@ -437,7 +437,7 @@
                 <a href="#" onclick="irParaPainel('painel_simuladas.html')" class="glass-card">
                     <i class="fas fa-file-invoice-dollar kpi-icon text-blue-500"></i>
                     <div class="kpi-title">Total de AIHs (Contas)</div>
-                    <div class="kpi-number text-blue-400" id="kpi-aih-real">0</div>
+                    <div class="kpi-number text-blue-400" id="kpi-aih-real"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-aih-real-sub">Produção Faturada</div>
                 </a>
 
@@ -449,26 +449,27 @@
                 <a href="#" onclick="irParaPainel('painel_regulacao.html')" class="glass-card">
                     <i class="fas fa-ambulance kpi-icon text-pink-500"></i>
                     <div class="kpi-title">Regulação (Urgências)</div>
-                    <div class="kpi-number text-pink-400" id="kpi-sisreg">0</div>
+                    <div class="kpi-number text-pink-400" id="kpi-sisreg"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Pendentes no Município</div>
                 </a>
 
                 <a href="#" onclick="irParaPainel('painel_filazero.html')" class="glass-card">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero</div>
-                    <div class="kpi-number text-yellow-400" id="kpi-fila-zero">0</div>
+                    <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                     <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Internações Identificadas</div>
                 </a>
 
-                <div class="glass-card col-span-3">
+                <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="glass-card col-span-3">
+                    <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
                     <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS)</div>
                     <div class="leitos-grid">
-                        <div class="leito-box"><div class="leito-nome">UTI Adulto</div><div class="leito-num text-blue-400" id="taxa-uti">0%</div></div>
-                        <div class="leito-box"><div class="leito-nome">UTIN (Neo)</div><div class="leito-num text-purple-400" id="taxa-utin">0%</div></div>
-                        <div class="leito-box"><div class="leito-nome">UCINCo</div><div class="leito-num text-pink-400" id="taxa-ucinco">0%</div></div>
-                        <div class="leito-box"><div class="leito-nome">UCINCa</div><div class="leito-num text-emerald-400" id="taxa-ucinca">0%</div></div>
+                        <div class="leito-box"><div class="leito-nome">UTI Adulto</div><div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
+                        <div class="leito-box"><div class="leito-nome">UTIN (Neo)</div><div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
+                        <div class="leito-box"><div class="leito-nome">UCINCo</div><div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
+                        <div class="leito-box"><div class="leito-nome">UCINCa</div><div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -504,6 +505,9 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         window.chartEspecInstance = null;
+        
+        // CFG EXATA DOS LEITOS SUS DO HOSPITAL
+        const cfgLeitos = { uti: 10, utin: 18, ucinco: 4, ucinca: 3 };
 
         function irParaPainel(url) {
             localStorage.setItem('nii_competencia_ano', $('#anoFilter').val());
@@ -527,105 +531,30 @@
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
             meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
             
-            anoSel.val(localStorage.getItem('nii_competencia_ano') || ano);
-            mesSel.val(localStorage.getItem('nii_competencia_mes') || String(data.getMonth()+1).padStart(2,'0'));
+            let anoMemoria = localStorage.getItem('nii_competencia_ano');
+            let mesMemoria = localStorage.getItem('nii_competencia_mes');
+            if(mesMemoria) mesMemoria = String(mesMemoria).padStart(2, '0'); // FORÇA O ZERO (BUG CORRIGIDO)
+
+            anoSel.val(anoMemoria || ano);
+            mesSel.val(mesMemoria || String(data.getMonth()+1).padStart(2,'0'));
         }
 
-        async function carregarResumoCentral() {
-            const ano = $('#anoFilter').val(); const mes = $('#mesFilter').val();
-            const compString = `${mes}/${ano}`;
-            const d1 = `${ano}-${mes}-01`;
-            const dataFimObj = new Date(ano, mes, 0);
-            const d2 = `${ano}-${mes}-${dataFimObj.getDate()}`;
-            
-            // Proporcionalidade para o mês atual
-            const hoje = new Date();
-            let diasParaCalculo = dataFimObj.getDate();
-            if(ano == hoje.getFullYear() && mes == String(hoje.getMonth()+1).padStart(2,'0')) diasParaCalculo = hoje.getDate();
+        async function definirCompetenciaAtiva() {
+            try {
+                let anoAlvo = localStorage.getItem('nii_competencia_ano');
+                let mesAlvo = localStorage.getItem('nii_competencia_mes');
+                if(mesAlvo) mesAlvo = String(mesAlvo).padStart(2, '0'); // FORÇA O ZERO (BUG CORRIGIDO)
 
-            // Status Competência
-            const diffMeses = (hoje.getFullYear() * 12 + (hoje.getMonth()+1)) - (ano * 12 + parseInt(mes));
-            if (diffMeses < 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
-            else if (diffMeses === 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
-            else if (diffMeses === 1) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
-            else $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
+                if (!anoAlvo || !mesAlvo) {
+                    const dataAtual = new Date();
+                    mesAlvo = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                    anoAlvo = dataAtual.getFullYear();
+                }
 
-            $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
-
-            // 1. AIHs (Simuladas)
-            const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', {ascending: false}).limit(1);
-            if(compData?.[0]) {
-                const res = await fetch(compData[0].link_indice); const dados = await res.json();
-                let aihMap = {};
-                dados.forEach(d => {
-                    let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
-                    if(!aihMap[aih]) {
-                        let esp = d.ESPEC || "OUTROS";
-                        if(esp.includes('-')) esp = esp.split('-')[1].trim();
-                        aihMap[aih] = { especialidade: esp };
-                    }
-                });
-
-                $('#kpi-aih-real').text(Object.keys(aihMap).length);
-                $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
-                
-                // Gráfico Vertical (Especialidades)
-                let especMap = {}; 
-                Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
-                let arrEspec = Object.keys(especMap).map(k => ({nome: k, qtd: especMap[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 4);
-                renderizarGrafico(arrEspec.map(x => x.nome), arrEspec.map(x => x.qtd));
-            } else {
-                $('#kpi-aih-real').text('-');
-                $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento');
-                if(window.chartEspecInstance) { window.chartEspecInstance.data.labels=[]; window.chartEspecInstance.data.datasets[0].data=[]; window.chartEspecInstance.update(); }
-            }
-
-            // 2. SISREG
-            const { data: sisData } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2);
-            let pend = sisData?.filter(d => !(d.status||'').match(/APROV|AUTORIZ|NEGA|CANC/) && (d.carater_internacao||'').includes('URG')).length || 0;
-            $('#kpi-sisreg').text(pend);
-            $('#kpi-sisreg-sub').html(pend > 0 ? `<i class="fas fa-exclamation-triangle"></i> Atenção à fila do município` : `<i class="fas fa-check-circle"></i> Nenhuma urgência na fila`);
-            $('#kpi-sisreg').toggleClass('text-pink-400', pend > 0).toggleClass('text-emerald-400', pend === 0);
-
-            // 3. IndicaSUS e Fila Zero
-            const { data: indData } = await client.from('indicasus_leitos').select('*').gte('data_extracao', d1).lte('data_extracao', d2);
-            if(indData) {
-                let mapPacientes = new Map();
-                indData.forEach(row => {
-                    if (!(row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'))) return; 
-                    let key = (row.nome_paciente || "").trim().toUpperCase() + "_" + row.data_internacao;
-                    if (!mapPacientes.has(key)) mapPacientes.set(key, { dias_map: new Map(), plano: (row.plano_sus||'').toUpperCase(), dtInt: row.data_internacao });
-                    let p = mapPacientes.get(key);
-                    let dataDia = (row.data_extracao || "").split('T')[0].split(' ')[0];
-                    if (dataDia.startsWith(`${ano}-${mes}`)) p.dias_map.set(dataDia, row.tipo_leito);
-                });
-
-                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 };
-                let fzCount = 0;
-
-                Array.from(mapPacientes.values()).forEach(p => {
-                    if (p.plano.includes('FILA ZERO') && p.dtInt.startsWith(`${ano}-${mes}`)) fzCount++;
-                    for (let leitoBruto of p.dias_map.values()) {
-                        let l = (leitoBruto||'').toUpperCase();
-                        if(l === "UTI ADULTO" || l === "UTI") ocup.uti++;
-                        else if(l === "UTIN" || l === "UTI NEONATAL") ocup.utin++;
-                        else if(l === "UCINCO" || l === "CONVENCIONAL") ocup.ucinco++;
-                        else if(l === "UCINCA" || l === "CANGURU") ocup.ucinca++;
-                    }
-                });
-
-                $('#kpi-fila-zero').text(fzCount);
-                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
-
-                let txUti = ocup.uti > 0 ? Math.min(Math.round((ocup.uti/(10*diasParaCalculo))*100), 100) : 0;
-                let txUtin = ocup.utin > 0 ? Math.min(Math.round((ocup.utin/(10*diasParaCalculo))*100), 100) : 0;
-                let txUcinco = ocup.ucinco > 0 ? Math.min(Math.round((ocup.ucinco/(5*diasParaCalculo))*100), 100) : 0;
-                let txUcinca = ocup.ucinca > 0 ? Math.min(Math.round((ocup.ucinca/(5*diasParaCalculo))*100), 100) : 0;
-
-                $('#taxa-uti').text(txUti+'%').css('color', txUti >= 90 ? '#ef4444' : '#38bdf8');
-                $('#taxa-utin').text(txUtin+'%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
-                $('#taxa-ucinco').text(txUcinco+'%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
-                $('#taxa-ucinca').text(txUcinca+'%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
+                $('#anoFilter').val(anoAlvo);
+                $('#mesFilter').val(mesAlvo);
+            } catch (e) {
+                console.error("Erro ao definir competência", e);
             }
         }
 
@@ -657,7 +586,7 @@
                     datasets: [{ data: values, backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)', borderColor: isClassic ? '#7c3aed' : '#c084fc', borderWidth: 1, borderRadius: 4, barPercentage: 0.6 }]
                 },
                 options: {
-                    indexAxis: 'x', // Barras Verticais!
+                    indexAxis: 'x', 
                     maintainAspectRatio: false,
                     layout: { padding: { right: 0, left: 0, top: 20, bottom: 0 } },
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
@@ -691,6 +620,151 @@
                 window.chartEspecInstance.data.datasets[0].borderColor = isClassic ? '#7c3aed' : '#c084fc';
                 window.chartEspecInstance.options.scales.x.ticks.color = isClassic ? '#475569' : '#cbd5e1';
                 window.chartEspecInstance.update();
+            }
+        }
+
+        async function carregarResumoCentral() {
+            try {
+                const ano = $('#anoFilter').val();
+                const mes = $('#mesFilter').val();
+                if(!ano || !mes) return;
+
+                const compString = `${mes}/${ano}`;
+                const d1 = `${ano}-${mes}-01`;
+                const dataFimObj = new Date(ano, mes, 0);
+                const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+                const prefixoMesAtual = `${ano}-${mes}`;
+                
+                localStorage.setItem('nii_competencia_ano', ano);
+                localStorage.setItem('nii_competencia_mes', mes);
+                
+                const dataAtual = new Date();
+                const anoHoje = dataAtual.getFullYear();
+                const mesHoje = dataAtual.getMonth() + 1;
+                
+                const diffMeses = (anoHoje * 12 + mesHoje) - (parseInt(ano) * 12 + parseInt(mes));
+
+                if (diffMeses < 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
+                else if (diffMeses === 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
+                else if (diffMeses === 1) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
+                else $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
+
+                let diasParaCalculo = dataFimObj.getDate(); 
+                if (parseInt(ano) === anoHoje && parseInt(mes) === mesHoje) {
+                    diasParaCalculo = dataAtual.getDate(); 
+                }
+
+                $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
+
+                // 1. AIHs (Simuladas)
+                const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
+                let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
+
+                if (linkJson) {
+                    const responseJson = await fetch(linkJson);
+                    const dadosFichas = await responseJson.json();
+                    
+                    let aihMap = {};
+                    dadosFichas.forEach(d => {
+                        let aih = d.AIH && d.AIH.trim() !== '-' && d.AIH.trim() !== '' ? d.AIH.trim() : 'PAG_' + d.PAGINA;
+                        if (!aihMap[aih]) {
+                            let esp = d.ESPEC || "OUTROS";
+                            if(esp.includes('-')) esp = esp.split('-')[1].trim();
+                            aihMap[aih] = { especialidade: esp };
+                        }
+                    });
+                    
+                    let totalAihs = Object.keys(aihMap).length;
+                    $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(totalAihs));
+                    $('#kpi-aih-real-sub').html('<i class="fas fa-check-circle"></i> Contas únicas processadas');
+
+                    let especMap = {};
+                    Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
+                    let arrEspec = Object.keys(especMap).map(k => ({nome: k, qtd: especMap[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 4);
+                    renderizarGrafico(arrEspec.map(x => x.nome), arrEspec.map(x => x.qtd));
+                } else {
+                    $('#kpi-aih-real').text('-');
+                    $('#kpi-aih-real-sub').html('<i class="fas fa-exclamation-circle text-yellow-500"></i> Sem fechamento');
+                    if(window.chartEspecInstance) {
+                        window.chartEspecInstance.data.labels = []; window.chartEspecInstance.data.datasets[0].data = []; window.chartEspecInstance.update();
+                    }
+                }
+
+                // 2. SISREG (COM LOOP PARA EVITAR LIMITE DE 1000)
+                let allSisregData = []; let fromSisreg = 0; let stepSisreg = 1000; let keepFetchingSisreg = true;
+                while (keepFetchingSisreg) {
+                    const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(fromSisreg, fromSisreg + stepSisreg - 1);
+                    if (data && data.length > 0) { allSisregData = allSisregData.concat(data); fromSisreg += stepSisreg; }
+                    if (!data || data.length < stepSisreg) keepFetchingSisreg = false;
+                }
+
+                let pendentesUrgencia = 0;
+                allSisregData.forEach(d => {
+                    let st = (d.status || "").toUpperCase();
+                    let carater = (d.carater_internacao || "").toUpperCase();
+                    if (!st.includes('APROVAD') && !st.includes('AUTORIZAD') && !st.includes('NEGADO') && !st.includes('CANCELADO') && carater.includes('URG')) pendentesUrgencia++;
+                });
+
+                $('#kpi-sisreg').text(pendentesUrgencia);
+                if(pendentesUrgencia > 0) {
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-exclamation-triangle"></i> Atenção à fila do município`);
+                    $('#kpi-sisreg').removeClass('text-emerald-400').addClass('text-pink-400');
+                } else {
+                    $('#kpi-sisreg-sub').html(`<i class="fas fa-check-circle"></i> Nenhuma urgência na fila`);
+                    $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
+                }
+
+                // 3. INDICASUS E FILA ZERO (COM LOOP PARA EVITAR LIMITE DE 1000)
+                let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
+                while (keepFetchingIndica) {
+                    const { data, error } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, plano_sus')
+                        .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
+                    if (data && data.length > 0) { allIndicaData = allIndicaData.concat(data); fromIndica += stepIndica; }
+                    if (!data || data.length < stepIndica) keepFetchingIndica = false;
+                }
+
+                let mapPacientes = new Map();
+
+                allIndicaData.forEach(row => {
+                    if (!(row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'))) return; 
+                    let key = (row.nome_paciente || "").trim().toUpperCase() + "_" + row.data_internacao;
+                    if (!mapPacientes.has(key)) mapPacientes.set(key, { dias_map: new Map(), plano: (row.plano_sus||'').toUpperCase(), dtInt: row.data_internacao });
+                    
+                    let p = mapPacientes.get(key);
+                    let dataDia = (row.data_extracao || "").split('T')[0].split(' ')[0];
+                    if (dataDia.startsWith(prefixoMesAtual)) p.dias_map.set(dataDia, row.tipo_leito);
+                });
+
+                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 };
+                let fzCount = 0;
+
+                Array.from(mapPacientes.values()).forEach(p => {
+                    if (p.plano.includes('FILA ZERO') && p.dtInt.startsWith(prefixoMesAtual)) fzCount++;
+                    for (let leitoBruto of p.dias_map.values()) {
+                        let l = (leitoBruto||'').toUpperCase();
+                        if(l === "UTI ADULTO" || l === "UTI") ocup.uti++;
+                        else if(l === "UTIN" || l === "UTI NEONATAL") ocup.utin++;
+                        else if(l === "UCINCO" || l === "CONVENCIONAL") ocup.ucinco++;
+                        else if(l === "UCINCA" || l === "CANGURU") ocup.ucinca++;
+                    }
+                });
+
+                $('#kpi-fila-zero').text(fzCount);
+                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
+
+                let txUti = ocup.uti > 0 ? Math.min(Math.round((ocup.uti/(cfgLeitos.uti*diasParaCalculo))*100), 100) : 0;
+                let txUtin = ocup.utin > 0 ? Math.min(Math.round((ocup.utin/(cfgLeitos.utin*diasParaCalculo))*100), 100) : 0;
+                let txUcinco = ocup.ucinco > 0 ? Math.min(Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalculo))*100), 100) : 0;
+                let txUcinca = ocup.ucinca > 0 ? Math.min(Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalculo))*100), 100) : 0;
+
+                $('#taxa-uti').text(txUti+'%').css('color', txUti >= 90 ? '#ef4444' : '#38bdf8');
+                $('#taxa-utin').text(txUtin+'%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
+                $('#taxa-ucinco').text(txUcinco+'%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
+                $('#taxa-ucinca').text(txUcinca+'%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
+
+            } catch(e) {
+                console.error("Erro ao carregar resumo central:", e);
             }
         }
 
