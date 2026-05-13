@@ -443,7 +443,6 @@
             $('#btnSalvarProc').html('<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...').prop('disabled', true);
 
             try {
-                // COMO tabela_contrato_mt2026 É UMA VIEW, INSERIMOS NAS TABELAS ORIGINAIS:
                 // 1. Salva a Meta e Descrição na tabela de Contratos
                 const { error: err1 } = await client.from('procedimentos_contrato').upsert({
                     codigo: cod,
@@ -454,7 +453,7 @@
 
                 // 2. Salva o Preço Personalizado na tabela SUS MT 2026
                 const { error: err2 } = await client.from('tabela_sus_mt_2026').upsert({
-                    codigo_sigtap: parseInt(cod, 10), // O banco está configurado como bigint
+                    codigo_sigtap: parseInt(cod, 10),
                     valor_unitario: valor
                 }, { onConflict: 'codigo_sigtap' });
                 if(err2) throw err2;
@@ -477,7 +476,10 @@
 
             let isCirurgia = item.codigo.startsWith('04');
             let medUnit = item.repasse_medico_unit;
-            let medTot = item.tot_repasse_medico;
+            // Se a meta for zero, mostra o valor unitário como "Total" projetado no modal
+            let medTot = item.meta > 0 ? item.tot_repasse_medico : item.repasse_medico_unit;
+            let totMt = item.meta > 0 ? item.tot_mt : item.val_unit_mt;
+            let totSobra = item.meta > 0 ? item.tot_sobra_hosp : item.sobra_hosp_unit;
 
             let cirUnit = isCirurgia ? medUnit * 0.7 : 0;
             let aneUnit = isCirurgia ? medUnit * 0.3 : 0;
@@ -506,7 +508,7 @@
                         <tr class="border-b border-white/5">
                             <td class="p-3 font-bold text-pink-400"><i class="fas fa-arrow-trend-up mr-2"></i>1. Receita Contrato (MT)</td>
                             <td class="p-3 text-right font-mono text-pink-400">${formatBrl.format(item.val_unit_mt)}</td>
-                            <td class="p-3 text-right font-mono font-bold text-pink-400">${formatBrl.format(item.tot_mt)}</td>
+                            <td class="p-3 text-right font-mono font-bold text-pink-400">${formatBrl.format(totMt)}</td>
                         </tr>
                         <tr class="border-b border-white/5 bg-purple-500/10">
                             <td class="p-3 font-bold text-purple-400"><i class="fas fa-user-md mr-2"></i>2. Custo / Repasse Médico</td>
@@ -534,7 +536,7 @@
                         <tr class="bg-emerald-500/10">
                             <td class="p-3 font-bold text-emerald-400"><i class="fas fa-hospital mr-2"></i>3. Sobra Hospitalar Líquida</td>
                             <td class="p-3 text-right font-mono text-emerald-400">${formatBrl.format(item.sobra_hosp_unit)}</td>
-                            <td class="p-3 text-right font-mono font-black text-emerald-400 text-lg">${formatBrl.format(item.tot_sobra_hosp)}</td>
+                            <td class="p-3 text-right font-mono font-black text-emerald-400 text-lg">${formatBrl.format(totSobra)}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -549,11 +551,11 @@
         }
 
         // ===============================================
-        // CÁLCULOS E CRUZAMENTO OFICIAL (O FILTRO DE OURO)
+        // CÁLCULOS E CRUZAMENTO OFICIAL
         // ===============================================
         async function carregarDadosContrato() {
             try {
-                // 1. Busca TODA a produção que você extraiu via CSV (Averages)
+                // 1. Busca TODA a produção que você extraiu via CSV
                 const { data: prodData, error: err1 } = await client.from('tb_producao_sus').select('*');
                 if(err1) throw err1;
 
@@ -561,8 +563,7 @@
                 const { data: contratoData, error: err2 } = await client.from('tabela_contrato_mt2026').select('*');
                 if(err2) throw err2;
 
-                // 3. A PONTE RESTAURADA E BLINDADA: Busca a Tabela Oficial do Estado
-                // Em lotes, para garantir que os milhares de procedimentos venham todos.
+                // 3. Busca a Tabela Oficial do Estado
                 let mapMtOficial = {};
                 try {
                     let allMtData = [];
@@ -603,9 +604,8 @@
                     let temNaTabelaMT = mapMtOficial[codStr] !== undefined && mapMtOficial[codStr] > 0;
                     let temNoContratoManual = contr.codigo_sigtap !== undefined;
 
-                    // O FILTRO DE OURO: Só processa se o procedimento fizer parte da tabela do Estado (MT) ou se foi inserido manualmente.
                     if (!temNaTabelaMT && !temNoContratoManual) {
-                        return; // Ignora o resto da produção comum do SUS que não entra no Cofinanciamento MT.
+                        return; // Ignora
                     }
 
                     let meta = contr.meta_fisica ? Number(contr.meta_fisica) : Number(prod.fisico_mes || 0);
@@ -633,7 +633,7 @@
                     let fatRepasse = meta * repasseMedicoUnit;
                     let fatSobra = meta * sobraHospUnit;
 
-                    if (meta > 0 || contr.codigo_sigtap) {
+                    if (meta >= 0 || contr.codigo_sigtap) {
                         dadosBase.push({
                             codigo: codStr,
                             descricao: desc,
@@ -731,7 +731,8 @@
                 { 
                     data: null, className: 'text-right font-mono text-gray-300', 
                     render: function(d, type, row) { 
-                        let val = window.modoExibicao === 'total' ? row.tot_medio_hist : row.val_unit_medio_hist;
+                        // FALLBACK: Se Meta=0, mostra Unitário ao invés de R$ 0,00 nos Totais
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_medio_hist : row.val_unit_medio_hist;
                         if(type === 'display') return formatBrl.format(val);
                         return val; 
                     } 
@@ -739,7 +740,7 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_mt : row.val_unit_mt;
                         if(type === 'display') return `<span class="text-emerald-400 font-bold">${formatBrl.format(val)}</span>`;
                         return val; 
                     } 
@@ -747,7 +748,7 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let val = window.modoExibicao === 'total' ? row.impacto_total : row.diff_unit;
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.impacto_total : row.diff_unit;
                         if(type === 'display') {
                             if(val > 0) return `<span class="val-positivo">+${formatBrl.format(val)}</span>`;
                             if(val < 0) return `<span class="val-negativo">${formatBrl.format(val)}</span>`;
@@ -774,7 +775,7 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let val = window.modoExibicao === 'total' ? row.tot_mt : row.val_unit_mt;
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_mt : row.val_unit_mt;
                         if(type === 'display') return `<div class="font-bold text-pink-400">${formatBrl.format(val)}</div>`; 
                         return val; 
                     } 
@@ -782,8 +783,7 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let isTotal = window.modoExibicao === 'total';
-                        let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_repasse_medico : row.repasse_medico_unit;
                         if(type === 'display') return `<div class="font-bold text-purple-400">${formatBrl.format(val)}</div>`;
                         return val; 
                     } 
@@ -791,7 +791,7 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let val = window.modoExibicao === 'total' ? row.tot_sobra_hosp : row.sobra_hosp_unit;
+                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_sobra_hosp : row.sobra_hosp_unit;
                         if(type === 'display') return `<div class="font-bold text-emerald-400">${formatBrl.format(val)}</div>`; 
                         return val; 
                     } 
