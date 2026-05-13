@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produção Cirúrgica SUS - NII</title>
+    <title>Monitoramento de Internações - NII</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -55,7 +55,7 @@
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; padding: 20px; position: relative; z-index: 2; text-align: center;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
 
@@ -68,7 +68,14 @@
         .kpi-title { font-size: 0.70rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px; }
         .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
         .kpi-sub { font-size: 0.70rem; color: #94a3b8; font-weight: 500; }
-        .glass-chart-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
+        .glass-chart-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
+
+        /* BADGES PERSONALIZADOS */
+        .badge-cir { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; display: inline-block;}
+        .badge-cli { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; display: inline-block;}
+        
+        .badge-fz { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; display: inline-block;}
+        .badge-sus { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; display: inline-block;}
 
         /* MODO CLÁSSICO */
         body.theme-classic { background: #001528 !important; background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
@@ -88,7 +95,7 @@
 
         /* DATATABLES */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; text-align: left;}
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; text-align: left;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px 8px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left;}
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
 
@@ -97,28 +104,10 @@
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        /* SELECT2 */
-        .select2-container .select2-selection--multiple { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; min-height: 28px; padding: 2px; transition: 0.3s; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: rgba(56, 189, 248, 0.2) !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; color: white !important; border-radius: 4px; padding: 0px 4px; font-size: 0.65rem; font-weight: 600; margin-top: 3px; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 5px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2) !important; padding-right: 5px; }
-        .select2-search__field { color: white !important; font-family: 'Inter', sans-serif; margin-top: 4px; font-size: 0.7rem;}
-        .select2-dropdown { background-color: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; border-radius: 8px; z-index: 10000; }
-        .select2-results__option { color: white !important; font-size: 0.7rem; padding: 6px 10px; }
-        .select2-results__option[aria-selected=true] { background-color: rgba(255,255,255,0.05) !important; }
-        
-        body.theme-classic .select2-container .select2-selection--multiple { background: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #004e92 !important; border: none !important; color: white !important; }
-        body.theme-classic .select2-search__field { color: #1e293b !important; }
-        body.theme-classic .select2-dropdown { background-color: white !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic .select2-results__option { color: #1e293b !important; }
-
         .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; margin-bottom:10px;}
         body.theme-classic .dt-button { background: #ffffff !important; color: #004e92 !important; border: 1px solid #004e92 !important; }
 
         #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-
-        #painel-resumo { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
-        #painel-resumo > div { flex: 1 1 calc(25% - 15px); min-width: 150px; }
         
         .rank-list { margin: 0; padding: 0; list-style: none; }
         .rank-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.80rem; align-items: center; }
@@ -131,27 +120,24 @@
 <body>
 
     <div id="loader" style="display:none;">
-        <i class="fas fa-layer-group fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-blue-200 animate-pulse font-bold text-lg" id="loader-text">Lendo Planilha e Cruzando com SIGTAP...</p>
+        <i class="fas fa-bed-pulse fa-spin text-5xl text-blue-400 mb-4"></i>
+        <p class="text-blue-200 animate-pulse font-bold text-lg" id="loader-text">Analisando Internações e Financiamentos...</p>
     </div>
 
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <div class='header-bg shadow-lg mb-8'>
-        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
+    <div class='header-bg shadow-lg mb-6'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4 flex-wrap gap-4'>
             <div class="flex items-center gap-4">
-                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-procedures text-3xl text-emerald-400"></i></div>
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-hospital-user text-3xl text-emerald-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Produção Cirúrgica</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Monitoramento de Metas SUS e Centro Cirúrgico</p>
+                    <h1 class='text-3xl font-bold text-white'>Monitoramento de Internações</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Análise de Produção: Clínico vs Cirúrgico | SUS vs Fila Zero</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema">
-                    <i class="fas fa-magic"></i>
-                </button>
+            <div class="flex items-center gap-3 flex-wrap">
                 <div class="btn-theme" style="padding: 4px 10px;">
                     <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Ano:</span>
                     <select id="anoFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none"></select>
@@ -160,6 +146,7 @@
                     <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Mês:</span>
                     <select id="mesFilter" onchange="carregarDados()" class="bg-transparent text-white font-bold outline-none"></select>
                 </div>
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
                 <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
@@ -167,25 +154,67 @@
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="glass-chart-title border-none mb-2"><i class="fas fa-layer-group text-emerald-400 mr-2"></i> Resumo Analítico da Competência</div>
-        <div id="painel-resumo"></div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
-            <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-cyan-400"></i> Mix do Centro Cirúrgico</div>
-                <div style="height:250px;"><canvas id="chartEspec"></canvas></div>
+        <div class="flex flex-wrap gap-4 mb-6 border-b border-white/10 pb-4">
+            <div class="text-sm font-bold text-gray-300 bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner">
+                <i class="fas fa-stethoscope mr-1 text-pink-400"></i> Atendimento: 
+                <select id="filtroAtendimento" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                    <option value="TODOS" class="text-black">Todos os Tipos</option>
+                    <option value="CLÍNICO" class="text-black">Clínicos</option>
+                    <option value="CIRÚRGICO" class="text-black">Cirúrgicos</option>
+                </select>
             </div>
-            
+            <div class="text-sm font-bold text-gray-300 bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner">
+                <i class="fas fa-hand-holding-medical mr-1 text-yellow-400"></i> Financiamento: 
+                <select id="filtroFinanciamento" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                    <option value="TODOS" class="text-black">Todos (SUS Global)</option>
+                    <option value="SUS PADRÃO" class="text-black">Apenas SUS Padrão</option>
+                    <option value="FILA ZERO" class="text-black">Apenas Fila Zero</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10" id="painel-resumo">
+            <div class="glass-card border-t-blue-500/50">
+                <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-bed-pulse mr-1"></i> Total Internações</div>
+                <div class="kpi-number text-white" id="kpi-total">0</div>
+                <div class="kpi-sub">Pacientes admitidos no período</div>
+            </div>
+            <div class="glass-card border-t-yellow-500/50">
+                <div class="kpi-title" style="color: #fbbf24;"><i class="fas fa-star mr-1"></i> Pacientes Fila Zero</div>
+                <div class="kpi-number text-yellow-400" id="kpi-fz">0</div>
+                <div class="kpi-sub">Faturamento especial estadual</div>
+            </div>
+            <div class="glass-card border-t-pink-500/50">
+                <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-scalpel mr-1"></i> Atend. Cirúrgicos</div>
+                <div class="kpi-number text-pink-400" id="kpi-cir">0</div>
+                <div class="kpi-sub">Procedimentos com finalidade cirúrgica</div>
+            </div>
+            <div class="glass-card border-t-emerald-500/50">
+                <div class="kpi-title" style="color: #34d399;"><i class="fas fa-stethoscope mr-1"></i> Atend. Clínicos</div>
+                <div class="kpi-number text-emerald-400" id="kpi-cli">0</div>
+                <div class="kpi-sub">Tratamentos conservadores e clínicos</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-bullseye mr-2 text-orange-400"></i> Acompanhamento de Metas</div>
-                <div style="height:250px;"><canvas id="chartMetas"></canvas></div>
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-pink-400"></i> Perfil Clínico x Cirúrgico</div>
+                <div style="height:220px;"><canvas id="chartAtendimento"></canvas></div>
+            </div>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-yellow-400"></i> SUS Padrão x Fila Zero</div>
+                <div style="height:220px;"><canvas id="chartFinanciamento"></canvas></div>
+            </div>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-line mr-2 text-blue-400"></i> Evolução Diária de Internações</div>
+                <div style="height:220px;"><canvas id="chartEvolucao"></canvas></div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
             <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
                 <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-proc">
-                    <span><i class="fas fa-list-ol mr-2 text-blue-400"></i> Ranking de Procedimentos</span>
+                    <span><i class="fas fa-list-ol mr-2 text-emerald-400"></i> Ranking de Procedimentos/Diagnósticos</span>
                     <span id="totalProcsDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 tipos</span>
                 </div>
                 <div id="listaProc" class="pr-2 mt-2"></div>
@@ -193,7 +222,7 @@
 
             <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
                 <div class="glass-chart-title flex justify-between sticky top-0 z-10 bg-[#001528] theme-adjust-bg pb-2 pt-1 border-b border-white/10" id="header-lista-med">
-                    <span><i class="fas fa-user-md mr-2 text-emerald-400"></i> Produtividade por Cirurgião</span>
+                    <span><i class="fas fa-user-md mr-2 text-purple-400"></i> Volume por Médico Responsável</span>
                     <span id="totalMedDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 médicos</span>
                 </div>
                 <div id="listaMed" class="pr-2 mt-2"></div>
@@ -202,26 +231,19 @@
 
         <div class="cyber-container mb-8">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-emerald-400"><i class="fas fa-table mr-2"></i> Relação Oficial de Procedimentos</h3>
+                <h3 class="font-bold text-lg text-blue-400"><i class="fas fa-table mr-2"></i> Relação de Pacientes e Categorização</h3>
             </div>
             
-            <table id="tabelaCirurgias" class="display" style="width:100%">
+            <table id="tabelaInternacoes" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th width="80">Data</th>
-                        <th width="140">Especialidade Macro</th>
-                        <th width="100">Código Cruzado</th>
-                        <th>Procedimento</th>
-                        <th width="150">Paciente</th>
-                        <th width="150">Cirurgião</th>
-                    </tr>
-                    <tr id="filterRow">
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        <th width="80" class="text-center">Data Int.</th>
+                        <th width="110" class="text-center">Atendimento</th>
+                        <th width="110" class="text-center">Financiamento</th>
+                        <th width="90" class="text-center">Cód. SIGTAP</th>
+                        <th>Procedimento / Diagnóstico</th>
+                        <th width="180">Paciente</th>
+                        <th width="150">Médico Responsável</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -237,41 +259,8 @@
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         
         let tabelaInstancia = null;
-        let dadosOriginais = [];
-        let chartEspec = null, chartMetas = null;
-
-        const META_CIRURGIA = 148;
-        const META_OBSTETRICIA = 699;
-        
-        // LISTA DE TERMOS DA OBSTETRÍCIA PARA CASOS ONDE NÃO HÁ CÓDIGO
-        const TERMOS_OBSTETRICIA = [
-            'CESARIANA', 'CURETAGEM PÓS-ABORTAMENTO', 'CURETAGEM PÓS ABORTAMENTO',
-            'CURETAGEM UTERINA', 'CESAREA COM LAQUEADURA', 'CERCLAGEM DO COLO UTERINO', 
-            'GRAVIDEZ ECTÓPICA', 'GRAVIDEZ ECTOPICA', 'REVISAO DE COLO VAGINAL', 
-            'REVISÃO DE COLO VAGINAL', 'DRENAGEM HEMATOMA DE VULVA', 'CURAGEM UTERINA', 'PARTO'
-        ];
-
-        function cruzarCodigoSigtap(nomeDoExcel, listaSigtap) {
-            if (!nomeDoExcel) return null;
-            let nomeLimpo = nomeDoExcel.toUpperCase().trim();
-            let match = listaSigtap.find(s => s.nome.toUpperCase().includes(nomeLimpo) || nomeLimpo.includes(s.nome.toUpperCase()));
-            return match ? match.codigo : null;
-        }
-
-        // REGRA MACRO: CIRURGIA GERAL VS OBSTETRÍCIA
-        function mapearEspecialidade(cod, desc) {
-            let nomeProc = (desc || "").toUpperCase();
-            let pre = cod ? String(cod).substring(0, 4) : "";
-            
-            // 1. Regra Oficial SIGTAP
-            if (pre === '0310' || pre === '0411') return 'OBSTETRÍCIA';
-            
-            // 2. Regra por Nome (Backup)
-            if (TERMOS_OBSTETRICIA.some(t => nomeProc.includes(t))) return 'OBSTETRÍCIA';
-            
-            // 3. Todo o resto é Geral
-            return 'CIRURGIA GERAL';
-        }
+        let dadosBase = []; 
+        let chartAtendimento = null, chartFinanciamento = null, chartEvolucao = null;
 
         function toggleTheme() { 
             const body = document.body;
@@ -285,9 +274,7 @@
                 $('#header-lista-proc, #header-lista-med').css('background', '#ffffff');
             }
             if (tabelaInstancia) {
-                let dadosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
-                atualizarResumoEGraficos(dadosVisiveis);
-                tabelaInstancia.draw(false); 
+                aplicarFiltrosGlobais();
             }
         }
 
@@ -321,6 +308,35 @@
             carregarDados();
         });
 
+        // A INTELIGÊNCIA DE CLASSIFICAÇÃO
+        function classificarInternacao(codigo, procedimento, convenio) {
+            let tipoAtend = 'NÃO IDENTIFICADO';
+            let tipoFinan = 'SUS PADRÃO';
+
+            // 1. Clínico vs Cirúrgico
+            if (codigo) {
+                let prefix = String(codigo).substring(0, 2);
+                if (prefix === '04') tipoAtend = 'CIRÚRGICO';
+                else if (prefix === '03') tipoAtend = 'CLÍNICO';
+                else tipoAtend = 'OUTROS';
+            } else {
+                // Se não tem código, usa heurística do nome
+                let n = (procedimento || "").toUpperCase();
+                if (n.includes('PARTO') || n.includes('CESARIANA') || n.includes('CURETAGEM')) tipoAtend = 'CIRÚRGICO';
+                else if (n.includes('TRATAMENTO')) tipoAtend = 'CLÍNICO';
+            }
+
+            // 2. Financiamento (SUS Padrão vs Fila Zero)
+            let convStr = (convenio || "").toUpperCase();
+            let procStr = (procedimento || "").toUpperCase();
+            
+            if (convStr.includes('FILA ZERO') || procStr.includes('FILA ZERO')) {
+                tipoFinan = 'FILA ZERO';
+            }
+
+            return { tipoAtend, tipoFinan };
+        }
+
         async function carregarDados() {
             $('#loader').fadeIn();
             const ano = $('#anoFilter').val();
@@ -331,50 +347,60 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
-                $('#loader-text').text("Buscando Cirurgias do Mês...");
-                const { data: cirurgiasData, error } = await client.from('cirurgias_detalhe')
-                                              .select('*')
-                                              .eq('convenio', 'SUS')
-                                              .gte('data_cirurgia', d1)
-                                              .lte('data_cirurgia', d2);
+                $('#loader-text').text("Buscando Histórico de Internações...");
+                const { data: internacoesData, error } = await client.from('cirurgias_detalhe')
+                                                              .select('*')
+                                                              .eq('convenio', 'SUS')
+                                                              .gte('data_cirurgia', d1)
+                                                              .lte('data_cirurgia', d2);
                 if (error) throw error;
                 
-                $('#loader-text').text("Cruzando nomes com SIGTAP...");
-                const { data: sigtapData } = await client.from('sigtap_oficial').select('codigo, nome');
+                $('#loader-text').text("Classificando Tipos e Financiamentos...");
                 
-                let sigtapList = sigtapData || [];
-
-                dadosOriginais = (cirurgiasData || []).map(d => {
-                    let codCorreto = d.cod_tabela;
-                    if (!codCorreto || codCorreto === "null" || codCorreto === "" || codCorreto === "None") {
-                        codCorreto = cruzarCodigoSigtap(d.procedimento, sigtapList);
-                    }
-
+                dadosBase = (internacoesData || []).map(d => {
+                    let classificacao = classificarInternacao(d.cod_tabela, d.procedimento, d.convenio);
                     return {
                         ...d,
-                        cod_tabela: codCorreto,
-                        especialidade_oficial: mapearEspecialidade(codCorreto, d.procedimento)
-                    }
+                        tipo_atendimento: classificacao.tipoAtend,
+                        tipo_financiamento: classificacao.tipoFinan
+                    };
                 });
 
-                montarTabelaDataTables(dadosOriginais);
+                aplicarFiltrosGlobais();
 
             } catch (err) { console.error(err); }
             finally { $('#loader').fadeOut(); }
         }
 
-        function atualizarResumoEGraficos(dadosFiltrados) {
-            let qtdCirurgia = 0;
-            let qtdObs = 0;
+        function aplicarFiltrosGlobais() {
+            let fAtend = $('#filtroAtendimento').val();
+            let fFinan = $('#filtroFinanciamento').val();
 
-            let mapProc = {}; 
-            let mapMed = {}; 
-            
-            dadosFiltrados.forEach(d => {
-                let esp = d.especialidade_oficial;
-                if (esp === 'OBSTETRÍCIA') qtdObs++;
-                else qtdCirurgia++;
-                
+            let dadosFiltrados = dadosBase.filter(d => {
+                let matchAtend = (fAtend === 'TODOS' || d.tipo_atendimento === fAtend);
+                let matchFinan = (fFinan === 'TODOS' || d.tipo_financiamento === fFinan);
+                return matchAtend && matchFinan;
+            });
+
+            atualizarResumoEGraficos(dadosFiltrados);
+            montarTabelaDataTables(dadosFiltrados);
+        }
+
+        function atualizarResumoEGraficos(dados) {
+            let qtdCir = 0, qtdCli = 0;
+            let qtdSUS = 0, qtdFZ = 0;
+            let mapProc = {}, mapMed = {}, mapDias = {};
+
+            dados.forEach(d => {
+                // Contagem Atendimento
+                if (d.tipo_atendimento === 'CIRÚRGICO') qtdCir++;
+                else if (d.tipo_atendimento === 'CLÍNICO') qtdCli++;
+
+                // Contagem Financiamento
+                if (d.tipo_financiamento === 'FILA ZERO') qtdFZ++;
+                else qtdSUS++;
+
+                // Agrupamentos
                 let pNome = d.procedimento || "NÃO IDENTIFICADO";
                 if(pNome.length > 50) pNome = pNome.substring(0, 50) + '...';
                 mapProc[pNome] = (mapProc[pNome] || 0) + 1;
@@ -382,220 +408,117 @@
                 let mNome = d.cirurgiao || "NÃO INFORMADO";
                 if(mNome.trim() === "NAN") mNome = "NÃO INFORMADO";
                 mapMed[mNome] = (mapMed[mNome] || 0) + 1;
+
+                let dataDia = d.data_cirurgia ? d.data_cirurgia.substring(8,10) : "00";
+                mapDias[dataDia] = (mapDias[dataDia] || 0) + 1;
             });
 
-            // 1. CARDS DO TOPO (KPIs e Metas)
-            let percCir = Math.round((qtdCirurgia / META_CIRURGIA) * 100) || 0;
-            let percObs = Math.round((qtdObs / META_OBSTETRICIA) * 100) || 0;
-            
-            const getMetaColor = (perc) => {
-                if(perc >= 100) return '#10b981'; 
-                if(perc >= 80) return '#f59e0b'; 
-                return '#ef4444'; 
-            }
+            // ATUALIZA KPIs
+            $('#kpi-total').text(dados.length);
+            $('#kpi-fz').text(qtdFZ);
+            $('#kpi-cir').text(qtdCir);
+            $('#kpi-cli').text(qtdCli);
 
-            let htmlCards = `
-                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
-                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
-                        <div class="meta-badge" style="background: ${getMetaColor(percCir)}; border-radius: 6px; padding: 2px 8px; font-weight: bold; position: absolute; top: 10px; right: 10px;">${percCir}%</div>
-                        <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-scalpel mr-1"></i> Cirurgia Geral (Meta: ${META_CIRURGIA})</div>
-                        <div class="kpi-number" style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5);">${qtdCirurgia}</div>
-                        <div class="kpi-sub">Total Exceto Partos/Obstetrícia</div>
-                    </div>
-                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
-                        <div class="meta-badge" style="background: ${getMetaColor(percObs)}; border-radius: 6px; padding: 2px 8px; font-weight: bold; position: absolute; top: 10px; right: 10px;">${percObs}%</div>
-                        <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-baby mr-1"></i> Obstetrícia (Meta: ${META_OBSTETRICIA})</div>
-                        <div class="kpi-number" style="color: #f472b6; text-shadow: 0 0 10px rgba(244,114,182,0.5);">${qtdObs}</div>
-                        <div class="kpi-sub">Maternidade e Curetagens</div>
-                    </div>
-                    <div class="glass-card" style="flex: 1 1 calc(33% - 15px); min-width: 250px;">
-                        <div class="kpi-title" style="color: #cbd5e1;"><i class="fas fa-clipboard-list mr-1"></i> Volume do Centro Cirúrgico</div>
-                        <div class="kpi-number" style="color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${dadosFiltrados.length}</div>
-                        <div class="kpi-sub">Total de Procedimentos</div>
-                    </div>
-                </div>
-            `;
-            $('#painel-resumo').html(htmlCards);
-
-            // 2. LISTAS AGRUPADAS
+            // ATUALIZA LISTAS
             let corFundo = document.body.classList.contains('theme-classic') ? '#f1f5f9' : 'rgba(0,0,0,0.2)';
             
             let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
-            $('#totalProcsDiff').text(arrProc.length + " tipos");
-            
+            $('#totalProcsDiff').text(arrProc.length + " diagnósticos");
             let htmlListaProc = `<ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 8px;">`;
-            arrProc.forEach(proc => {
-                htmlListaProc += `
-                    <li class="rank-item">
-                        <span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);">${proc.nome}</span>
-                        <span class="rank-qtd" style="background: rgba(56,189,248,0.2); color: #38bdf8;">${proc.qtd}</span>
-                    </li>
-                `;
-            });
+            arrProc.forEach(proc => htmlListaProc += `<li class="rank-item"><span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);">${proc.nome}</span><span class="rank-qtd" style="background: rgba(16,185,129,0.2); color: #10b981;">${proc.qtd}</span></li>`);
             htmlListaProc += `</ul>`;
-            $('#listaProc').html(arrProc.length > 0 ? htmlListaProc : '<div class="text-center text-gray-500 mt-4">Nenhuma cirurgia.</div>');
+            $('#listaProc').html(arrProc.length > 0 ? htmlListaProc : '<div class="text-center text-gray-500 mt-4">Nenhum registro.</div>');
 
             let arrMed = Object.keys(mapMed).map(k => ({nome: k, qtd: mapMed[k]})).sort((a,b) => b.qtd - a.qtd);
-            $('#totalMedDiff').text(arrMed.length + " profissionais");
-            
+            $('#totalMedDiff').text(arrMed.length + " médicos");
             let htmlListaMed = `<ul class="rank-list px-2 py-1" style="background-color: ${corFundo}80; border-radius: 8px;">`;
-            arrMed.forEach(med => {
-                htmlListaMed += `
-                    <li class="rank-item">
-                        <span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);"><i class="fas fa-user-md mr-2 text-gray-500"></i>${med.nome}</span>
-                        <span class="rank-qtd" style="background: rgba(16,185,129,0.2); color: #10b981;">${med.qtd}</span>
-                    </li>
-                `;
-            });
+            arrMed.forEach(med => htmlListaMed += `<li class="rank-item"><span class="font-semibold rank-nome text-gray-300" style="color:var(--tw-prose-body);"><i class="fas fa-user-md mr-2 text-gray-500"></i>${med.nome}</span><span class="rank-qtd" style="background: rgba(168,85,247,0.2); color: #c084fc;">${med.qtd}</span></li>`);
             htmlListaMed += `</ul>`;
-            $('#listaMed').html(arrMed.length > 0 ? htmlListaMed : '<div class="text-center text-gray-500 mt-4">Nenhum cirurgião registrado.</div>');
+            $('#listaMed').html(arrMed.length > 0 ? htmlListaMed : '<div class="text-center text-gray-500 mt-4">Nenhum registro.</div>');
 
-            // 3. GRÁFICOS
+            // ATUALIZA GRÁFICOS
             let isClassic = document.body.classList.contains('theme-classic');
             Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
 
-            if(chartEspec) chartEspec.destroy();
-            chartEspec = new Chart(document.getElementById('chartEspec').getContext('2d'), {
+            if(chartAtendimento) chartAtendimento.destroy();
+            chartAtendimento = new Chart(document.getElementById('chartAtendimento').getContext('2d'), {
                 type: 'doughnut',
                 data: { 
-                    labels: ['Cirurgia Geral', 'Obstetrícia'], 
-                    datasets: [{ 
-                        data: [qtdCirurgia, qtdObs], 
-                        backgroundColor: isClassic ? ['#0284c7', '#ec4899'] : ['#38bdf8', '#f472b6'], 
-                        borderWidth: isClassic ? 2 : 0, 
-                        borderColor: '#ffffff' 
-                    }] 
+                    labels: ['Cirúrgico', 'Clínico'], 
+                    datasets: [{ data: [qtdCir, qtdCli], backgroundColor: isClassic ? ['#ec4899', '#0ea5e9'] : ['#f472b6', '#38bdf8'], borderWidth: isClassic ? 2 : 0, borderColor: '#ffffff' }] 
                 },
-                options: { 
-                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
-                    plugins:{
-                        legend:{position:'right', labels: { font: { size: 12 } }},
-                        datalabels: { display: false } 
-                    }, 
-                    cutout: '60%'
-                }
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'}, datalabels: { display: false } }, cutout: '60%' }
             });
 
-            if(chartMetas) chartMetas.destroy();
-            chartMetas = new Chart(document.getElementById('chartMetas').getContext('2d'), {
+            if(chartFinanciamento) chartFinanciamento.destroy();
+            chartFinanciamento = new Chart(document.getElementById('chartFinanciamento').getContext('2d'), {
+                type: 'doughnut',
+                data: { 
+                    labels: ['SUS Padrão', 'Fila Zero'], 
+                    datasets: [{ data: [qtdSUS, qtdFZ], backgroundColor: isClassic ? ['#10b981', '#f59e0b'] : ['#34d399', '#fbbf24'], borderWidth: isClassic ? 2 : 0, borderColor: '#ffffff' }] 
+                },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'}, datalabels: { display: false } }, cutout: '60%' }
+            });
+
+            let diasLabels = Object.keys(mapDias).sort((a,b) => parseInt(a) - parseInt(b));
+            let diasData = diasLabels.map(dia => mapDias[dia]);
+
+            if(chartEvolucao) chartEvolucao.destroy();
+            chartEvolucao = new Chart(document.getElementById('chartEvolucao').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Cirurgia Geral', 'Obstetrícia'],
-                    datasets: [
-                        { 
-                            label: 'Realizado', 
-                            data: [qtdCirurgia, qtdObs], 
-                            backgroundColor: isClassic ? ['#0284c7', '#ec4899'] : ['rgba(56, 189, 248, 0.8)', 'rgba(244, 114, 182, 0.8)'],
-                            borderRadius: 6
-                        },
-                        { 
-                            label: 'Meta', 
-                            data: [META_CIRURGIA, META_OBSTETRICIA], 
-                            type: 'line', 
-                            borderColor: isClassic ? '#1e293b' : '#f8fafc', 
-                            borderWidth: 2, 
-                            pointStyle: 'rectRot', 
-                            pointRadius: 6 
-                        }
-                    ]
+                    labels: diasLabels.map(d => `Dia ${d}`),
+                    datasets: [{ label: 'Internações', data: diasData, backgroundColor: isClassic ? '#3b82f6' : 'rgba(56, 189, 248, 0.8)', borderRadius: 4 }]
                 },
                 options: { 
-                    responsive:true, maintainAspectRatio:false, animation: { duration: 500 },
-                    plugins:{
-                        legend:{position:'bottom'},
-                        datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 12 } }
-                    },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } },
-                        x: { grid: { display: false } }
-                    }
+                    responsive:true, maintainAspectRatio:false, plugins:{ legend:{display: false}, datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } } },
+                    scales: { y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
                 }
             });
         }
 
         function montarTabelaDataTables(dados) {
             if (tabelaInstancia) { 
-                tabelaInstancia.off('draw');
                 tabelaInstancia.destroy(); 
-                $('#tabelaCirurgias tbody').empty(); 
+                $('#tabelaInternacoes tbody').empty(); 
             }
             
-            const isClassic = document.body.classList.contains('theme-classic');
-
-            tabelaInstancia = $('#tabelaCirurgias').DataTable({
+            tabelaInstancia = $('#tabelaInternacoes').DataTable({
                 data: dados,
-                orderCellsTop: true,
                 columns: [
                     { data: 'data_cirurgia', className: 'text-center font-mono', render: d => formataDataISO(d) },
                     { 
-                        data: 'especialidade_oficial', 
-                        className: 'font-bold text-[11px]', 
+                        data: 'tipo_atendimento', className: 'text-center',
                         render: function(d) {
-                            let cor = d === 'OBSTETRÍCIA' ? (isClassic ? '#ec4899' : '#f472b6') : (isClassic ? '#0284c7' : '#38bdf8');
-                            return `<span style="color:${cor};">${d}</span>`;
+                            if(d === 'CIRÚRGICO') return `<span class="badge-cir"><i class="fas fa-scalpel mr-1"></i> Cirúrgico</span>`;
+                            if(d === 'CLÍNICO') return `<span class="badge-cli"><i class="fas fa-stethoscope mr-1"></i> Clínico</span>`;
+                            return `<span class="text-gray-500">${d}</span>`;
                         }
                     },
-                    { data: 'cod_tabela', className: 'font-mono text-cyan-400 font-bold', render: d => (d && d !== "null") ? d : '-' },
                     { 
-                        data: 'procedimento', 
+                        data: 'tipo_financiamento', className: 'text-center',
+                        render: function(d) {
+                            if(d === 'FILA ZERO') return `<span class="badge-fz"><i class="fas fa-star mr-1"></i> Fila Zero</span>`;
+                            return `<span class="badge-sus"><i class="fas fa-hospital mr-1"></i> SUS Padrão</span>`;
+                        }
+                    },
+                    { data: 'cod_tabela', className: 'font-mono text-gray-400 font-bold text-center', render: d => (d && d !== "null") ? d : '-' },
+                    { 
+                        data: 'procedimento', className: 'font-bold text-[0.8rem]',
                         render: function(d, type) { 
-                            if(type === 'display' && d && d.length > 50) return `<span title="${d}">${d.substring(0, 50)}...</span>`;
+                            if(type === 'display' && d && d.length > 60) return `<span title="${d}">${d.substring(0, 60)}...</span>`;
                             return d || '-';
                         } 
                     },
-                    { data: 'paciente', render: d => `<span class="font-bold">${d}</span>` },
-                    { data: 'cirurgiao', className: 'dyn-text-secondary font-semibold', render: d => (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-' }
+                    { data: 'paciente', render: d => `<span class="font-bold text-blue-300" style="color:var(--text-color, inherit);">${d}</span>` },
+                    { data: 'cirurgiao', className: 'dyn-text-secondary font-semibold', render: d => (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? `<i class="fas fa-user-md mr-1 opacity-50"></i>${d}` : '-' }
                 ],
-                order: [[0, 'desc']], pageLength: 15, dom: 'lBrtip',
+                order: [[0, 'desc']], pageLength: 25, dom: 'lBrtip',
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 buttons: [
                     { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados para Excel', className: 'dt-button' }
-                ],
-                initComplete: function () {
-                    this.api().columns().every(function (i) {
-                        var column = this;
-                        var select = $('<select class="multi-filter" multiple="multiple" style="width:100%"></select>')
-                            .appendTo($("#filterRow th").eq(i).empty())
-                            .on('change', function () {
-                                var vals = $(this).val() || [];
-                                var regex = vals.length ? vals.map(v => $.fn.dataTable.util.escapeRegex(v)).join('|') : '';
-                                column.search(regex ? regex : '', true, false).draw();
-                            });
-
-                        var uniqueVals = [];
-                        column.data().unique().sort().each(function (d) {
-                            var textVal = "";
-                            if (i === 0) textVal = formataDataISO(d); 
-                            if (i === 1) textVal = d; 
-                            if (i === 2) textVal = (d && d !== "null") ? d : "-"; 
-                            if (i === 3) textVal = d; 
-                            if (i === 4) textVal = d; 
-                            if (i === 5) textVal = (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-'; 
-
-                            if(textVal && textVal !== '-' && uniqueVals.indexOf(textVal) === -1) {
-                                uniqueVals.push(textVal);
-                            }
-                        });
-
-                        uniqueVals.sort().forEach(function(val) {
-                            select.append('<option value="' + val + '">' + val + '</option>');
-                        });
-
-                        select.select2({
-                            placeholder: "Filtrar...",
-                            allowClear: true,
-                            language: { noResults: () => "Nada" }
-                        });
-                    });
-                }
+                ]
             });
-
-            tabelaInstancia.on('draw', function () {
-                let dadosFiltradosVisiveis = tabelaInstancia.rows({ search: 'applied' }).data().toArray();
-                atualizarResumoEGraficos(dadosFiltradosVisiveis);
-            });
-            
-            tabelaInstancia.draw();
         }
     </script>
 </body>

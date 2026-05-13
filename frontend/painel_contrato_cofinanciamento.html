@@ -102,41 +102,45 @@
         body.theme-classic .val-negativo { color: #ef4444; }
 
         /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (NOVO FORMATO RETRATO)            */
+        /* OTIMIZAÇÃO DE IMPRESSÃO - ABA ATIVA E PAISAGEM            */
         /* ========================================================= */
         .print-header-visible { display: none; }
         
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 landscape; margin: 10mm; }
             * { background-color: transparent !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
-            body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn { display: none !important; }
-            body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 9pt !important; }
-            .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; }
-            .tab-content { display: block !important; page-break-after: always; }
-            .tab-content:last-child { page-break-after: auto; }
+            body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn, .modal-overlay { display: none !important; }
+            
+            body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 8pt !important; height: auto !important; overflow: visible !important; min-height: 100% !important; }
+            .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; height: auto !important; overflow: visible !important; }
+            
+            /* SÓ IMPRIME A ABA QUE ESTÁ ATIVA PARA NÃO BUGAR O DATATABLES */
+            .tab-content:not(.active) { display: none !important; }
+            .tab-content.active { display: block !important; page-break-inside: auto; height: auto !important; overflow: visible !important; }
+            
             .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
             .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
             .print-header-visible h3 { font-size: 11pt !important; font-weight: bold !important; margin: 5px 0 !important; }
             .print-header-visible p { font-size: 9pt !important; margin: 0 !important; }
+            
             .grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; margin-bottom: 20px !important; }
             .glass-card { border: 1px solid #ccc !important; border-radius: 6px !important; padding: 10px !important; text-align: center !important; page-break-inside: avoid !important; }
             .kpi-title { font-size: 8pt !important; font-weight: bold !important; margin-bottom: 4px !important; text-transform: uppercase; }
             .kpi-number { font-size: 14pt !important; margin: 0 !important; font-weight: 900 !important; }
             .kpi-sub { display: none !important; }
+            
             .dataTables_wrapper { overflow: visible !important; }
             table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: auto !important; margin: 0 !important; }
-            table.dataTable thead th { background-color: #f3f4f6 !important; font-size: 8pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 8px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: black !important;}
-            table.dataTable tbody td { font-size: 8pt !important; border: 1px solid black !important; padding: 8px 4px !important; vertical-align: middle !important; text-align: right !important; }
+            table.dataTable thead th { background-color: #f3f4f6 !important; font-size: 8pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 6px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: black !important;}
+            table.dataTable tbody td { font-size: 8pt !important; border: 1px solid black !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; }
             .td-truncate { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
             table.dataTable tbody tr { page-break-inside: avoid !important; }
-            table.dataTable tbody td:nth-child(1) { text-align: center !important; width: 12% !important; }
+            
+            table.dataTable tbody td:nth-child(1) { text-align: center !important; width: 8% !important; }
             table.dataTable tbody td:nth-child(2) { text-align: left !important; width: 35% !important; }
-            table.dataTable tbody td:nth-child(3) { text-align: center !important; width: 8% !important; }
+            
             .text-\[1\.1rem\] { font-size: 9pt !important; font-weight: bold !important; }
-            .text-\[0\.65rem\] { font-size: 7pt !important; }
             .mt-1 { margin-top: 4px !important; }
-            .border-t { border-top: 1px solid #ccc !important; }
-            .pt-1 { padding-top: 4px !important; }
             .chart-container-sm { display: none !important; }
             .val-positivo, .val-negativo { color: black !important; }
         }
@@ -152,7 +156,7 @@
     <div class="blob-1"></div>
     <div class="blob-2"></div>
 
-    <div id="modalAddProc" class="modal-overlay">
+    <div id="modalAddProc" class="modal-overlay no-print">
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-plus-circle text-emerald-400 mr-2"></i> Adicionar Manualmente</h3>
@@ -182,7 +186,7 @@
         </div>
     </div>
 
-    <div id="modalDetalheRepasse" class="modal-overlay">
+    <div id="modalDetalheRepasse" class="modal-overlay no-print">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header border-b-purple-500/30">
                 <h3><i class="fas fa-file-invoice-dollar text-purple-400 mr-2"></i> Extrato de Repasse & Lucro</h3>
@@ -319,6 +323,10 @@
                             <th class="text-center">Meta Mês</th>
                             <th class="text-right text-pink-400">Contrato MT</th>
                             <th class="text-right text-purple-400">Repasse Médico</th>
+                            
+                            <th class="text-right text-purple-300 no-print" style="display:none;">Cirurgião (70%)</th>
+                            <th class="text-right text-purple-300 no-print" style="display:none;">Anestesista (30%)</th>
+                            
                             <th class="text-right text-emerald-400">Sobra Hospitalar</th>
                         </tr>
                     </thead>
@@ -403,7 +411,7 @@
         });
 
         // ===============================================
-        // MODAIS E INSERÇÃO DE DADOS MISTURADOS (VIEW FIX)
+        // MODAIS E INSERÇÃO DE DADOS MISTURADOS
         // ===============================================
         function abrirModalAdd() {
             $('#add_cod').val(''); $('#add_desc').val(''); $('#add_meta').val(''); $('#add_valor').val('');
@@ -476,7 +484,6 @@
 
             let isCirurgia = item.codigo.startsWith('04');
             let medUnit = item.repasse_medico_unit;
-            // Se a meta for zero, mostra o valor unitário como "Total" projetado no modal
             let medTot = item.meta > 0 ? item.tot_repasse_medico : item.repasse_medico_unit;
             let totMt = item.meta > 0 ? item.tot_mt : item.val_unit_mt;
             let totSobra = item.meta > 0 ? item.tot_sobra_hosp : item.sobra_hosp_unit;
@@ -555,15 +562,12 @@
         // ===============================================
         async function carregarDadosContrato() {
             try {
-                // 1. Busca TODA a produção que você extraiu via CSV
                 const { data: prodData, error: err1 } = await client.from('tb_producao_sus').select('*');
                 if(err1) throw err1;
 
-                // 2. Busca itens digitados manualmente na View (para pegar a Meta)
                 const { data: contratoData, error: err2 } = await client.from('tabela_contrato_mt2026').select('*');
                 if(err2) throw err2;
 
-                // 3. Busca a Tabela Oficial do Estado
                 let mapMtOficial = {};
                 try {
                     let allMtData = [];
@@ -590,7 +594,6 @@
 
                 let allCodes = Array.from(new Set([...Object.keys(mapProducao), ...Object.keys(mapContrato)]));
                 
-                // 4. Busca Valor Profissional do SIGTAP
                 const { data: sigtapData, error: err3 } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', allCodes);
                 let mapSigtapSp = {};
                 if(sigtapData && !err3) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
@@ -731,7 +734,6 @@
                 { 
                     data: null, className: 'text-right font-mono text-gray-300', 
                     render: function(d, type, row) { 
-                        // FALLBACK: Se Meta=0, mostra Unitário ao invés de R$ 0,00 nos Totais
                         let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_medio_hist : row.val_unit_medio_hist;
                         if(type === 'display') return formatBrl.format(val);
                         return val; 
@@ -783,9 +785,28 @@
                 { 
                     data: null, className: 'text-right font-mono', 
                     render: function(d, type, row) { 
-                        let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_repasse_medico : row.repasse_medico_unit;
+                        let isTotal = window.modoExibicao === 'total';
+                        let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
                         if(type === 'display') return `<div class="font-bold text-purple-400">${formatBrl.format(val)}</div>`;
                         return val; 
+                    } 
+                },
+                { 
+                    // COLUNA INVISÍVEL: CIRURGIÃO EXPORT EXCEL
+                    data: null, visible: false, 
+                    render: function(d, type, row) { 
+                        let isTotal = window.modoExibicao === 'total';
+                        let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
+                        return (row.codigo.startsWith('04') && val > 0) ? (val * 0.70) : 0; 
+                    } 
+                },
+                { 
+                    // COLUNA INVISÍVEL: ANESTESISTA EXPORT EXCEL
+                    data: null, visible: false, 
+                    render: function(d, type, row) { 
+                        let isTotal = window.modoExibicao === 'total';
+                        let val = isTotal ? row.tot_repasse_medico : row.repasse_medico_unit;
+                        return (row.codigo.startsWith('04') && val > 0) ? (val * 0.30) : 0; 
                     } 
                 },
                 { 
@@ -812,8 +833,16 @@
             tabelaRepasses = $('#tabelaRepasses').DataTable({
                 data: dadosFiltrados,
                 dom: '<"flex justify-between items-center mb-4"lB>rtip',
-                buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Repasses (.xlsx)', className: 'dt-button', title: 'Proj_Repasses_MT_2026' } ],
-                order: [[ 5, 'desc' ]], 
+                buttons: [ { 
+                    extend: 'excelHtml5', 
+                    text: '<i class="fas fa-file-excel"></i> Exportar Repasses (.xlsx)', 
+                    className: 'dt-button', 
+                    title: 'Proj_Repasses_MT_2026',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // Inclui colunas invisíveis
+                    }
+                } ],
+                order: [[ 7, 'desc' ]], // Ordena pela Sobra Hospitalar
                 pageLength: 25,
                 lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
                 columns: commonColumnsRepasse,
