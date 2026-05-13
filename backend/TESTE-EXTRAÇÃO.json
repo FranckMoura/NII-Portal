@@ -1,0 +1,764 @@
+{
+    "title": "TESTE-EXTRAÇÃO",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1351,
+            "height": 309,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "https://sisregiii.saude.gov.br/cgi-bin/index?logout=1",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index?logout=1",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#usuario"
+                ],
+                [
+                    "xpath///*[@id=\"usuario\"]"
+                ],
+                [
+                    "pierce/#usuario"
+                ],
+                [
+                    "text/20325223FRANCK"
+                ]
+            ],
+            "offsetY": 20.75,
+            "offsetX": 129.609375
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "A"
+        },
+        {
+            "type": "keyUp",
+            "key": "A",
+            "target": "main"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "20325223FRANCK",
+            "selectors": [
+                [
+                    "#usuario"
+                ],
+                [
+                    "xpath///*[@id=\"usuario\"]"
+                ],
+                [
+                    "pierce/#usuario"
+                ],
+                [
+                    "text/20325223FRANCK"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Tab"
+        },
+        {
+            "type": "keyUp",
+            "key": "Tab",
+            "target": "main"
+        },
+        {
+            "type": "change",
+            "value": "212425",
+            "selectors": [
+                [
+                    "aria/Senha :"
+                ],
+                [
+                    "#senha"
+                ],
+                [
+                    "xpath///*[@id=\"senha\"]"
+                ],
+                [
+                    "pierce/#senha"
+                ],
+                [
+                    "text/212425"
+                ]
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Tab"
+        },
+        {
+            "type": "keyUp",
+            "key": "Tab",
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/entrar"
+                ],
+                [
+                    "div.form-no-lbl > input"
+                ],
+                [
+                    "xpath///*[@id=\"conteudoFull\"]/div[1]/div[1]/div[8]/input"
+                ],
+                [
+                    "pierce/div.form-no-lbl > input"
+                ],
+                [
+                    "text/entrar"
+                ]
+            ],
+            "offsetY": 8.625,
+            "offsetX": 85.6875,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://sisregiii.saude.gov.br/cgi-bin/index",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/ALTERA MOTIVO ALTA"
+                ],
+                [
+                    "#barraMenu > ul > li:nth-of-type(4) > a"
+                ],
+                [
+                    "xpath///*[@id=\"barraMenu\"]/ul/li[4]/a"
+                ],
+                [
+                    "pierce/#barraMenu > ul > li:nth-of-type(4) > a"
+                ],
+                [
+                    "text/ALTERA MOTIVO"
+                ]
+            ],
+            "offsetY": 15,
+            "offsetX": 96.640625
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#main_page img:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[5]/td[2]/img[1]"
+                ],
+                [
+                    "pierce/#main_page img:nth-of-type(1)"
+                ]
+            ],
+            "offsetY": 1,
+            "offsetX": 6.6875,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/1[role=\"link\"]"
+                ],
+                [
+                    "tr:nth-of-type(1) > td:nth-of-type(6) > a"
+                ],
+                [
+                    "xpath///*[@id=\"ui-datepicker-div\"]/table/tbody/tr[1]/td[6]/a"
+                ],
+                [
+                    "pierce/tr:nth-of-type(1) > td:nth-of-type(6) > a"
+                ]
+            ],
+            "offsetY": 1.234375,
+            "offsetX": 8.140625,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "img:nth-of-type(2)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[5]/td[2]/img[2]"
+                ],
+                [
+                    "pierce/img:nth-of-type(2)"
+                ]
+            ],
+            "offsetY": 3,
+            "offsetX": 10.296875,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/31[role=\"link\"]"
+                ],
+                [
+                    "tr:nth-of-type(6) a"
+                ],
+                [
+                    "xpath///*[@id=\"ui-datepicker-div\"]/table/tbody/tr[6]/td[1]/a"
+                ],
+                [
+                    "pierce/tr:nth-of-type(6) a"
+                ]
+            ],
+            "offsetY": 3.265625,
+            "offsetX": 17.90625,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/PESQUISAR"
+                ],
+                [
+                    "tr:nth-of-type(11) input:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center/table/tbody/tr[11]/td/input[1]"
+                ],
+                [
+                    "pierce/tr:nth-of-type(11) input:nth-of-type(1)"
+                ],
+                [
+                    "text/PESQUISAR"
+                ]
+            ],
+            "offsetY": 9.5,
+            "offsetX": 41.515625,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "",
+                    "title": "SISREG III - Servidor de Producao"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/665173650"
+                ],
+                [
+                    "center:nth-of-type(2) tr:nth-of-type(3) > td:nth-of-type(1)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]/table/tbody/tr[3]/td[1]"
+                ],
+                [
+                    "pierce/center:nth-of-type(2) tr:nth-of-type(3) > td:nth-of-type(1)"
+                ],
+                [
+                    "text/665173650"
+                ]
+            ],
+            "offsetY": 6,
+            "offsetX": 20.671875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Código Solicitação: 665173650",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "tr:nth-of-type(1) > td:nth-of-type(1) > b"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody/tr[1]/td[1]/b"
+                ],
+                [
+                    "pierce/tr:nth-of-type(1) > td:nth-of-type(1) > b"
+                ],
+                [
+                    "text/665173650"
+                ]
+            ],
+            "offsetY": 6.5,
+            "offsetX": 48.125,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Número AIH: 512610115329-4",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "tr:nth-of-type(1) > td:nth-of-type(2) > b"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody/tr[1]/td[2]/b"
+                ],
+                [
+                    "pierce/tr:nth-of-type(1) > td:nth-of-type(2) > b"
+                ],
+                [
+                    "text/512610115329-4"
+                ]
+            ],
+            "offsetY": 4.5,
+            "offsetX": 83.171875,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Número AIH: 512610115329-4",
+                    "aria/[role=\"generic\"]"
+                ],
+                [
+                    "tr:nth-of-type(1) > td:nth-of-type(2) > b"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody/tr[1]/td[2]/b"
+                ],
+                [
+                    "pierce/tr:nth-of-type(1) > td:nth-of-type(2) > b"
+                ],
+                [
+                    "text/512610115329-4"
+                ]
+            ],
+            "offsetY": 4.5,
+            "offsetX": 83.171875,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "table"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table"
+                ],
+                [
+                    "pierce/table"
+                ]
+            ],
+            "offsetY": 318,
+            "offsetX": 94.5,
+            "frame": [
+                0
+            ],
+            "duration": 2485.7999999523163
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/[role=\"table\"]",
+                    "aria/[role=\"rowgroup\"]"
+                ],
+                [
+                    "tbody"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody"
+                ],
+                [
+                    "pierce/tbody"
+                ]
+            ],
+            "offsetY": 341,
+            "offsetX": 107.5,
+            "frame": [
+                0
+            ],
+            "duration": 5224.199999928474
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/[role=\"table\"]",
+                    "aria/[role=\"rowgroup\"]"
+                ],
+                [
+                    "tbody"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody"
+                ],
+                [
+                    "pierce/tbody"
+                ]
+            ],
+            "offsetY": 708,
+            "offsetX": 566.5,
+            "frame": [
+                0
+            ],
+            "duration": 3242.2000000476837
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/[role=\"table\"]",
+                    "aria/[role=\"rowgroup\"]"
+                ],
+                [
+                    "tbody"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody"
+                ],
+                [
+                    "pierce/tbody"
+                ]
+            ],
+            "offsetY": 758,
+            "offsetX": 391.5,
+            "frame": [
+                0
+            ],
+            "duration": 2477.100000023842
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/[role=\"table\"]",
+                    "aria/[role=\"rowgroup\"]"
+                ],
+                [
+                    "tbody"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/table/tbody"
+                ],
+                [
+                    "pierce/tbody"
+                ]
+            ],
+            "offsetY": 640,
+            "offsetX": 432.5,
+            "frame": [
+                0
+            ],
+            "duration": 2728.899999976158
+        },
+        {
+            "type": "doubleClick",
+            "target": "main",
+            "selectors": [
+                [
+                    "form"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form"
+                ],
+                [
+                    "pierce/form"
+                ]
+            ],
+            "offsetY": 915,
+            "offsetX": 91,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "form"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form"
+                ],
+                [
+                    "pierce/form"
+                ]
+            ],
+            "offsetY": 915,
+            "offsetX": 91,
+            "frame": [
+                0
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Voltar"
+                ],
+                [
+                    "input[type='button']"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/input[2]"
+                ],
+                [
+                    "pierce/input[type='button']"
+                ],
+                [
+                    "text/Voltar"
+                ]
+            ],
+            "offsetY": 3,
+            "offsetX": 6.296875,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#main_page center:nth-of-type(2)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]"
+                ],
+                [
+                    "pierce/#main_page center:nth-of-type(2)"
+                ]
+            ],
+            "offsetY": 1495,
+            "offsetX": 746,
+            "frame": [
+                0
+            ],
+            "duration": 9387.399999976158
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "C"
+        },
+        {
+            "type": "keyUp",
+            "key": "C",
+            "frame": [
+                0
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "frame": [
+                0
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Proxima[role=\"image\"]"
+                ],
+                [
+                    "center:nth-of-type(3) img"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[3]/table/tbody/tr/td/a/img"
+                ],
+                [
+                    "pierce/center:nth-of-type(3) img"
+                ]
+            ],
+            "offsetY": 5,
+            "offsetX": 3.15625,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "#main_page center:nth-of-type(2)"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[2]"
+                ],
+                [
+                    "pierce/#main_page center:nth-of-type(2)"
+                ]
+            ],
+            "offsetY": 1696,
+            "offsetX": 880,
+            "frame": [
+                0
+            ],
+            "duration": 4162
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "Control"
+        },
+        {
+            "type": "keyDown",
+            "frame": [
+                0
+            ],
+            "target": "main",
+            "key": "C"
+        },
+        {
+            "type": "keyUp",
+            "key": "C",
+            "frame": [
+                0
+            ],
+            "target": "main"
+        },
+        {
+            "type": "keyUp",
+            "key": "Control",
+            "frame": [
+                0
+            ],
+            "target": "main"
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/Proxima[role=\"image\"]"
+                ],
+                [
+                    "a:nth-of-type(2) > img"
+                ],
+                [
+                    "xpath///*[@id=\"main_page\"]/form/center[3]/table/tbody/tr/td/a[2]/img"
+                ],
+                [
+                    "pierce/a:nth-of-type(2) > img"
+                ]
+            ],
+            "offsetY": 5,
+            "offsetX": 3.5,
+            "frame": [
+                0
+            ],
+            "assertedEvents": [
+                {
+                    "type": "navigation"
+                }
+            ]
+        }
+    ]
+}

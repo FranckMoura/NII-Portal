@@ -137,6 +137,7 @@
         .leito-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; text-align: center; }
         .leito-nome { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
         .leito-num { font-size: 1.5rem; font-weight: 900; }
+        .leito-meta { font-size: 0.65rem; color: #64748b; margin-top: 5px;}
 
         /* TITULO DE SEÇÕES */
         .section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 15px; margin-top: 15px; display: flex; align-items: center; gap: 10px; }
@@ -221,9 +222,7 @@
         body.theme-classic footer { color: #94a3b8; }
     </style>
 </head>
-<body>
-
-    <div class="blob-1"></div>
+<body class="sidebar-collapsed"> <div class="blob-1"></div>
     <div class="blob-2"></div>
 
     <aside class="sidebar" id="mainSidebar">
@@ -464,10 +463,26 @@
                     <i class="fas fa-bed-pulse kpi-icon text-orange-500"></i>
                     <div class="kpi-title mb-2">Monitoramento de Capacidade (IndicaSUS)</div>
                     <div class="leitos-grid">
-                        <div class="leito-box"><div class="leito-nome">UTI Adulto</div><div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
-                        <div class="leito-box"><div class="leito-nome">UTIN (Neo)</div><div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
-                        <div class="leito-box"><div class="leito-nome">UCINCo</div><div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
-                        <div class="leito-box"><div class="leito-nome">UCINCa</div><div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-circle-notch fa-spin text-xl"></i></div></div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UTI Adulto</div>
+                            <div class="leito-num text-blue-400" id="taxa-uti"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="leito-meta" id="meta-uti">Meta: 10 Leitos (SUS)</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UTIN (Neo)</div>
+                            <div class="leito-num text-purple-400" id="taxa-utin"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="leito-meta" id="meta-utin">Meta: 18 Leitos</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UCINCo</div>
+                            <div class="leito-num text-pink-400" id="taxa-ucinco"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="leito-meta" id="meta-ucinco">Meta: 4 Leitos</div>
+                        </div>
+                        <div class="leito-box">
+                            <div class="leito-nome">UCINCa</div>
+                            <div class="leito-num text-emerald-400" id="taxa-ucinca"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="leito-meta" id="meta-ucinca">Meta: 3 Leitos</div>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -533,7 +548,7 @@
             
             let anoMemoria = localStorage.getItem('nii_competencia_ano');
             let mesMemoria = localStorage.getItem('nii_competencia_mes');
-            if(mesMemoria) mesMemoria = String(mesMemoria).padStart(2, '0'); // FORÇA O ZERO (BUG CORRIGIDO)
+            if(mesMemoria) mesMemoria = String(mesMemoria).padStart(2, '0');
 
             anoSel.val(anoMemoria || ano);
             mesSel.val(mesMemoria || String(data.getMonth()+1).padStart(2,'0'));
@@ -543,7 +558,7 @@
             try {
                 let anoAlvo = localStorage.getItem('nii_competencia_ano');
                 let mesAlvo = localStorage.getItem('nii_competencia_mes');
-                if(mesAlvo) mesAlvo = String(mesAlvo).padStart(2, '0'); // FORÇA O ZERO (BUG CORRIGIDO)
+                if(mesAlvo) mesAlvo = String(mesAlvo).padStart(2, '0');
 
                 if (!anoAlvo || !mesAlvo) {
                     const dataAtual = new Date();
@@ -644,9 +659,9 @@
                 
                 const diffMeses = (anoHoje * 12 + mesHoje) - (parseInt(ano) * 12 + parseInt(mes));
 
+                // --- LÓGICA DE STATUS: Mês 4 ou antes => FECHADA ---
                 if (diffMeses < 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
                 else if (diffMeses === 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
-                else if (diffMeses === 1) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-file-invoice-dollar"></i> Em Fechamento</span>');
                 else $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
 
                 let diasParaCalculo = dataFimObj.getDate(); 
@@ -690,7 +705,7 @@
                     }
                 }
 
-                // 2. SISREG (COM LOOP PARA EVITAR LIMITE DE 1000)
+                // 2. SISREG
                 let allSisregData = []; let fromSisreg = 0; let stepSisreg = 1000; let keepFetchingSisreg = true;
                 while (keepFetchingSisreg) {
                     const { data, error } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(fromSisreg, fromSisreg + stepSisreg - 1);
@@ -714,7 +729,7 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // 3. INDICASUS E FILA ZERO (COM LOOP PARA EVITAR LIMITE DE 1000)
+                // 3. INDICASUS E FILA ZERO
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
@@ -753,15 +768,30 @@
                 $('#kpi-fila-zero').text(fzCount);
                 $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
 
-                let txUti = ocup.uti > 0 ? Math.min(Math.round((ocup.uti/(cfgLeitos.uti*diasParaCalculo))*100), 100) : 0;
-                let txUtin = ocup.utin > 0 ? Math.min(Math.round((ocup.utin/(cfgLeitos.utin*diasParaCalculo))*100), 100) : 0;
-                let txUcinco = ocup.ucinco > 0 ? Math.min(Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalculo))*100), 100) : 0;
-                let txUcinca = ocup.ucinca > 0 ? Math.min(Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalculo))*100), 100) : 0;
+                let capUtiAd = cfgLeitos.uti * diasParaCalculo;
+                let capUtin = cfgLeitos.utin * diasParaCalculo;
+                let capUcinco = cfgLeitos.ucinco * diasParaCalculo;
+                let capUcinca = cfgLeitos.ucinca * diasParaCalculo;
 
-                $('#taxa-uti').text(txUti+'%').css('color', txUti >= 90 ? '#ef4444' : '#38bdf8');
-                $('#taxa-utin').text(txUtin+'%').css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
-                $('#taxa-ucinco').text(txUcinco+'%').css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
-                $('#taxa-ucinca').text(txUcinca+'%').css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
+                let txUtiAd = capUtiAd > 0 ? Math.min(Math.round((ocup.uti / capUtiAd) * 100), 100) : 0;
+                let txUtin = capUtin > 0 ? Math.min(Math.round((ocup.utin / capUtin) * 100), 100) : 0;
+                let txUcinco = capUcinco > 0 ? Math.min(Math.round((ocup.ucinco / capUcinco) * 100), 100) : 0;
+                let txUcinca = capUcinca > 0 ? Math.min(Math.round((ocup.ucinca / capUcinca) * 100), 100) : 0;
+
+                // --- CORREÇÃO NOS CARDS DE LEITOS ---
+                // Agora o número grande é a quantidade de Diárias (ex: 150)
+                // A descrição pequena é o percentual e a capacidade (ex: Ocupação: 50% (Cap: 300))
+                $('#taxa-uti').text(ocup.uti).css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
+                $('#meta-uti').html(`Ocupação: <b>${txUtiAd}%</b> (Cap: ${capUtiAd})`);
+
+                $('#taxa-utin').text(ocup.utin).css('color', txUtin >= 90 ? '#ef4444' : '#c084fc');
+                $('#meta-utin').html(`Ocupação: <b>${txUtin}%</b> (Cap: ${capUtin})`);
+
+                $('#taxa-ucinco').text(ocup.ucinco).css('color', txUcinco >= 90 ? '#ef4444' : '#f472b6');
+                $('#meta-ucinco').html(`Ocupação: <b>${txUcinco}%</b> (Cap: ${capUcinco})`);
+
+                $('#taxa-ucinca').text(ocup.ucinca).css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
+                $('#meta-ucinca').html(`Ocupação: <b>${txUcinca}%</b> (Cap: ${capUcinca})`);
 
             } catch(e) {
                 console.error("Erro ao carregar resumo central:", e);
