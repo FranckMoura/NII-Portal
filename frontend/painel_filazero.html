@@ -87,6 +87,12 @@
         body.theme-classic .dt-button { background: white !important; color: #db2777 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #fdf2f8 !important; color: #db2777 !important; border-color: #fbcfe8 !important;}
         body.theme-classic .input-wrapper input { background: white !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        
+        /* Tabela Resumo Modo Clássico */
+        body.theme-classic #tabelaResumoProcedimentos th { border-bottom-color: #fbcfe8; }
+        body.theme-classic #tabelaResumoProcedimentos tr { border-bottom-color: #e2e8f0; }
+        body.theme-classic #tabelaResumoProcedimentos tr:hover { background-color: #f8fafc; }
+        body.theme-classic #tabelaResumoProcedimentos td { color: #334155 !important; }
 
         @media print {
             @page { size: A4 landscape; margin: 8mm; }
@@ -110,7 +116,7 @@
 
     <div id="loading" style="display: none;">
         <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
-        <span id="loading-msg">Mapeando Fila Zero...</span>
+        <span id="loading-msg">Processando Base Fila Zero...</span>
     </div>
 
     <div class='header-bg shadow-lg no-print'>
@@ -168,13 +174,31 @@
             </div>
         </div>
 
+        <div class="cyber-container mb-6">
+            <h3 class="text-[0.95rem] font-bold text-gray-200 uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+                <i class="fas fa-notes-medical text-pink-400 mr-2"></i> Resumo de Produção por Procedimento Principal
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="tabelaResumoProcedimentos">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="py-2 px-3 text-pink-400 font-bold text-xs uppercase">Procedimento / Grupo Cirúrgico</th>
+                            <th class="py-2 px-3 text-pink-400 font-bold text-xs uppercase text-center w-32">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cid-summary-tbody" class="text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="cyber-container">
             <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                 <h3 class="text-lg font-bold text-gray-200 uppercase tracking-wider"><i class="fas fa-list-ul text-pink-400 mr-2"></i> Relação de Pacientes (Fila Zero)</h3>
                 <div class="search-box-container no-print">
                     <div class="input-wrapper">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="tableSearch" placeholder="Buscar por Nome, AIH, Médico ou Procedimento..." onkeyup="dataTableInstance.search(this.value).draw()">
+                        <input type="text" id="tableSearch" placeholder="Buscar por Nome, AIH ou Procedimento..." onkeyup="dataTableInstance.search(this.value).draw()">
                     </div>
                 </div>
             </div>
@@ -186,10 +210,8 @@
                         <th class="text-center">Internação</th>
                         <th class="text-center">CNS</th>
                         <th class="text-center w-24">Status</th>
-                        <th class="text-center">AIH</th>
-                        <th class="text-center">SISREG</th>
-                        <th class="text-left">Procedimento / Diagnóstico</th>
-                        <th class="text-left">Médico Resp.</th>
+                        <th class="text-center">AIH / SISREG</th>
+                        <th class="text-left">Procedimento Principal / CID</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -261,7 +283,39 @@
             if(dataTableInstance) {
                 dataTableInstance.search(termo).draw();
                 $('#tableSearch').val(termo);
+                
+                // Rola a tela até a tabela
+                $('html, body').animate({
+                    scrollTop: $("#tabelaFilaZero").offset().top - 100
+                }, 500);
             }
+        }
+
+        // =========================================================================
+        // DICIONÁRIO DE INTELIGÊNCIA: TRADUZ O CID PARA UMA "FAMÍLIA DE CIRURGIA"
+        // =========================================================================
+        function classificarProcedimento(cidOrig) {
+            if (!cidOrig || cidOrig === 'SEM REGISTRO') return 'SEM REGISTRO CLÍNICO';
+            
+            let cid = cidOrig.replace('.', '').toUpperCase();
+
+            // REGRAS ESPECÍFICAS (SIGTAP OFICIAL) SOLICITADAS
+            if (cid.startsWith('M') || cid.startsWith('S') || cid.startsWith('T')) return '0408050160 - RECONSTRUÇÃO LIGAMENTAR INTRA-ARTICULAR DO JOELHO (CRUZADO ANTERIOR)';
+            if (cid.startsWith('N40') || cid.startsWith('N43') || cid.startsWith('N47')) return '0409030040 - RESSECÇÃO ENDOSCÓPICA DE PRÓSTATA';
+            
+            // DEMAIS REGRAS DE CIRURGIAS GERAIS ELETIVAS
+            if (cid.startsWith('K80') || cid.startsWith('K81')) return 'COLECISTECTOMIA';
+            if (cid.startsWith('K40') || cid.startsWith('K41') || cid.startsWith('K42') || cid.startsWith('K43') || cid.startsWith('K44') || cid.startsWith('K45') || cid.startsWith('K46')) return 'HERNIOPLASTIA';
+            if (cid === 'Z302') return 'LAQUEADURA TUBÁRIA';
+            if (cid === 'Z300' || cid === 'Z301' || cid === 'Z30') return 'VASECTOMIA';
+            if (cid.startsWith('I83')) return 'CIRURGIA DE VARIZES';
+            if (cid.startsWith('H110')) return 'PTERÍGIO';
+            if (cid.startsWith('H25') || cid.startsWith('H26')) return 'CATARATA';
+            if (cid.startsWith('D25') || cid.startsWith('N80') || cid.startsWith('N83') || cid.startsWith('N92') || cid.startsWith('N93')) return 'HISTERECTOMIA / OOFORECTOMIA';
+            if (cid.startsWith('N81')) return 'PERINEOPLASTIA / BEXIGA';
+            if (cid.startsWith('J35')) return 'ADENOIDECTOMIA / AMIGDALECTOMIA';
+
+            return 'OUTROS CIRÚRGICOS';
         }
 
         async function carregarDadosFilaZero() {
@@ -279,7 +333,7 @@
             $('#loading').fadeIn(200);
 
             try {
-                // 1. Busca os pacientes do IndicaSUS
+                // 1. Busca direta e leve apenas do IndicaSUS (Sem precisar mais da tabela regulação)
                 const { data: indData, error: errInd } = await client.from('indicasus_leitos')
                     .select('*')
                     .gte('data_internacao', d1)
@@ -288,6 +342,7 @@
                 
                 if (errInd) throw errInd;
 
+                // Agrupa para pegar o último registro de evolução do paciente
                 let mapPacientes = {};
                 (indData || []).forEach(d => {
                     let key = d.nome_paciente + d.data_internacao;
@@ -298,95 +353,57 @@
 
                 let dadosFilaZero = Object.values(mapPacientes);
 
-                // 2. Busca a tabela Regulação
-                let nomes = dadosFilaZero.map(d => d.nome_paciente);
-                let regData = [];
-                
-                if (nomes.length > 0) {
-                    const { data: reg, error: errReg } = await client.from('regulacao').select('*').in('nome_paciente', nomes);
-                    if (!errReg && reg) regData = reg;
+                // 2. Extrai os CIDs únicos para fazer 1 única busca na tb_cid
+                let cidSet = new Set();
+                dadosFilaZero.forEach(d => {
+                    if (d.diagnostico && d.diagnostico !== 'NÃO INFORMADO') {
+                        cidSet.add(d.diagnostico.replace('.', '')); 
+                        cidSet.add(d.diagnostico); 
+                    }
+                });
+
+                let mapCidDescricao = {};
+                let cidsParaBuscar = Array.from(cidSet);
+
+                if (cidsParaBuscar.length > 0) {
+                    const { data: cidData, error: errCid } = await client.from('tb_cid')
+                        .select('co_cid, no_cid')
+                        .in('co_cid', cidsParaBuscar);
+                    
+                    if (!errCid && cidData) {
+                        cidData.forEach(c => mapCidDescricao[c.co_cid] = c.no_cid);
+                    }
                 }
 
                 let qtdInternados = 0;
                 let qtdAltas = 0;
                 let qtdSemAih = 0;
+                let contagemGrupos = {}; 
 
                 dadosFilaZero.forEach(d => {
                     let evol = String(d.evolucao_clinica || "").toUpperCase();
                     let isSaiu = evol.includes("ALTA") || evol.includes("ÓBITO") || evol.includes("OBITO") || evol.includes("TRANSF") || evol.includes("EVAS");
                     
-                    if (isSaiu) {
-                        qtdAltas++;
-                        d.status_real = 'ALTA';
-                    } else {
-                        qtdInternados++;
-                        d.status_real = 'INTERNADO';
-                    }
+                    if (isSaiu) { qtdAltas++; d.status_real = 'ALTA'; } 
+                    else { qtdInternados++; d.status_real = 'INTERNADO'; }
 
                     if (!d.aih || d.aih.trim() === '' || d.aih === 'null') {
-                        qtdSemAih++;
-                        d.search_sem_aih = 'SEM AIH';
-                    } else {
-                        d.search_sem_aih = '';
-                    }
+                        qtdSemAih++; d.search_sem_aih = 'SEM AIH';
+                    } else { d.search_sem_aih = ''; }
 
-                    // --- NOVA LÓGICA DE CRUZAMENTO (CÉREBRO V3) ---
-                    // Agrupa todas as regulações do paciente e ordena da mais recente para a mais antiga
-                    let patientRegs = regData.filter(r => r.nome_paciente === d.nome_paciente);
-                    patientRegs.sort((a, b) => new Date(b.data_solicitacao || 0) - new Date(a.data_solicitacao || 0));
-
-                    let regMatch = null;
+                    let cidCod = d.diagnostico && d.diagnostico !== 'NÃO INFORMADO' ? d.diagnostico : 'SEM REGISTRO';
+                    let cidLimpo = cidCod.replace('.', '');
                     
-                    // Prioridade 1: Match perfeito pelo SISREG
-                    if (d.cod_solicitacao_sisreg && d.cod_solicitacao_sisreg !== 'null') {
-                        regMatch = patientRegs.find(r => r.num_solicitacao === d.cod_solicitacao_sisreg || r.cod_solicitacao === d.cod_solicitacao_sisreg);
-                    }
+                    let descricao = mapCidDescricao[cidLimpo] || mapCidDescricao[cidCod] || 'Descrição Indisponível';
                     
-                    // Prioridade 2: Match perfeito pela AIH
-                    if (!regMatch && d.aih && d.aih !== 'null') {
-                        regMatch = patientRegs.find(r => r.num_aih === d.aih);
-                    }
+                    d.cid_exibicao = cidCod;
+                    d.desc_exibicao = cidCod === 'SEM REGISTRO' ? '' : descricao;
                     
-                    // PRIORIDADE 3: MATCH NOME + ELETIVA + DATA
-                    if (!regMatch) {
-                        regMatch = patientRegs.find(r => {
-                            let dInt = new Date(d.data_internacao);
-                            let dSol = new Date(r.data_solicitacao || 0);
-                            let diffDays = Math.abs(dInt - dSol) / (1000 * 60 * 60 * 24);
-                            let isEletiva = (r.carater_internacao || "").toUpperCase().includes("ELETIV");
-                            return diffDays <= 150 && isEletiva; 
-                        });
-                    }
+                    // --- MÁGICA DO AGRUPAMENTO POR FAMÍLIA ---
+                    let procGrupo = classificarProcedimento(cidLimpo);
+                    d.procedimento_principal = procGrupo;
 
-                    // PRIORIDADE 4: Evitar Urgências (Parto, etc) se não achou eletiva explícita
-                    if (!regMatch) {
-                        regMatch = patientRegs.find(r => {
-                            let dInt = new Date(d.data_internacao);
-                            let dSol = new Date(r.data_solicitacao || 0);
-                            let diffDays = Math.abs(dInt - dSol) / (1000 * 60 * 60 * 24);
-                            let proc = (r.procedimento_solicitado || r.procedimento || "").toUpperCase();
-                            let isUrgencia = (r.carater_internacao || "").toUpperCase().includes("URG") || proc.includes("PARTO") || proc.includes("CESARIANA");
-                            return diffDays <= 120 && !isUrgencia;
-                        });
-                    }
-                    
-                    // Fator Desespero: Pega a última que não seja tão absurda
-                    if (!regMatch && patientRegs.length > 0) {
-                        regMatch = patientRegs[0];
-                    }
-
-                    d.procedimento = regMatch ? (regMatch.procedimento_solicitado || regMatch.nome_procedimento_solicitado || regMatch.procedimento || 'AGUARDANDO INFORMAÇÃO') : 'AGUARDANDO INFORMAÇÃO';
-                    d.medico = regMatch ? (regMatch.medico_executante || regMatch.medico_solicitante || 'NÃO INFORMADO') : 'NÃO INFORMADO';
-
-                    // =========================================================================
-                    // REGRA DE EXCEÇÃO (MÁSCARA): PARTO COM CID Z30.2 NO FILA ZERO É LAQUEADURA
-                    // =========================================================================
-                    let procUpper = d.procedimento.toUpperCase();
-                    let cidUpper = (d.diagnostico || '').toUpperCase().replace('.', '');
-                    if (procUpper.includes('PARTO') && cidUpper === 'Z302') {
-                        d.procedimento = 'LAQUEADURA TUBARIA';
-                    }
-
+                    contagemGrupos[procGrupo] = (contagemGrupos[procGrupo] || 0) + 1;
                 });
 
                 $('#kpi-total').text(dadosFilaZero.length);
@@ -394,6 +411,24 @@
                 $('#kpi-altas').text(qtdAltas);
                 $('#kpi-sem-aih').text(qtdSemAih);
 
+                // --- ATUALIZA A LISTA RESUMO (TABELA DE AGRUPAMENTOS) ---
+                let arrayGrupos = Object.keys(contagemGrupos).map(k => ({ grupo: k, count: contagemGrupos[k] }));
+                arrayGrupos.sort((a, b) => b.count - a.count); 
+                
+                let htmlResumo = '';
+                arrayGrupos.forEach(item => {
+                    htmlResumo += `
+                        <tr class="border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer" onclick="filtrarTabela('${item.grupo === 'SEM REGISTRO CLÍNICO' ? '' : item.grupo}')" title="Filtrar por ${item.grupo}">
+                            <td class="py-2 px-3 font-semibold text-blue-200" style="color: var(--text-color, inherit);">${item.grupo}</td>
+                            <td class="py-2 px-3 text-center">
+                                <span class="bg-pink-500/20 text-pink-300 px-3 py-1 rounded text-xs font-bold border border-pink-500/30">${item.count}</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                $('#cid-summary-tbody').html(htmlResumo);
+
+                // --- ATUALIZA A TABELA PRINCIPAL ---
                 if ($.fn.DataTable.isDataTable('#tabelaFilaZero')) $('#tabelaFilaZero').DataTable().destroy();
 
                 dataTableInstance = $('#tabelaFilaZero').DataTable({
@@ -439,31 +474,29 @@
                             }
                         },
                         { 
-                            data: 'aih', className: 'text-center font-mono font-bold',
-                            render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
-                        },
-                        { 
-                            data: 'cod_solicitacao_sisreg', className: 'text-center font-mono',
-                            render: d => (d && d !== 'null' && d.trim() !== '') ? d : '<span class="opacity-30">-</span>' 
-                        },
-                        { 
-                            data: 'procedimento', className: 'td-truncate',
+                            data: 'aih', className: 'text-center font-mono',
                             render: function(d, type, row) {
-                                let diag = row.diagnostico !== 'NÃO INFORMADO' ? row.diagnostico : '';
-                                if(type === 'display') {
-                                    return `<div title="${d}">
-                                                <b class="text-pink-400 text-[0.8rem]">${d.length > 35 ? d.substring(0,35)+'...' : d}</b><br>
-                                                ${diag ? `<span class="text-[0.65rem] text-gray-400">CID: ${diag}</span>` : ''}
-                                            </div>`;
+                                let aihHtml = (d && d !== 'null' && d.trim() !== '') ? `<b class="text-white">${d}</b>` : '<span class="opacity-30">-</span>';
+                                let sisHtml = (row.cod_solicitacao_sisreg && row.cod_solicitacao_sisreg !== 'null' && row.cod_solicitacao_sisreg.trim() !== '') ? `<span class="text-[0.7rem] text-gray-400">SIS: ${row.cod_solicitacao_sisreg}</span>` : '';
+                                
+                                if (type === 'display') {
+                                    return `<div class="flex flex-col">${aihHtml}${sisHtml}</div>`;
                                 }
-                                return d + ' ' + diag;
+                                return d;
                             }
                         },
                         { 
-                            data: 'medico', className: 'td-truncate text-[0.8rem] text-gray-300',
-                            render: function(d, type) {
-                                if(type === 'display') return `<span title="${d}"><i class="fas fa-user-md mr-1 opacity-50"></i> ${d.length > 25 ? d.substring(0,25)+'...' : d}</span>`;
-                                return d;
+                            data: 'procedimento_principal', className: 'td-truncate text-left',
+                            render: function(d, type, row) {
+                                if(type === 'display') {
+                                    if (d === 'SEM REGISTRO CLÍNICO') return '<span class="opacity-30 text-gray-500 italic">Sem Registro Clínico</span>';
+                                    
+                                    return `<div title="${row.desc_exibicao}">
+                                                <b class="text-pink-400 text-[0.85rem]"><i class="fas fa-notes-medical mr-1 opacity-50"></i> ${d}</b><br>
+                                                <span class="text-[0.65rem] text-gray-400">CID: ${row.cid_exibicao} - ${row.desc_exibicao.length > 40 ? row.desc_exibicao.substring(0,40)+'...' : row.desc_exibicao}</span>
+                                            </div>`;
+                                }
+                                return `${d} ${row.cid_exibicao} ${row.desc_exibicao}`;
                             }
                         }
                     ]
