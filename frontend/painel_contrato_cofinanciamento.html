@@ -146,7 +146,7 @@
 
     <div id="loader" style="display:flex; position: fixed; inset: 0; background: rgba(0,21,40,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
         <i class="fas fa-handshake fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-white font-bold" id="loader-text">Cruzando Hospitalar e Ambulatorial...</p>
+        <p class="text-white font-bold" id="loader-text">Cruzando Produção com Tabela do Estado...</p>
     </div>
 
     <div class="blob-1"></div>
@@ -338,13 +338,12 @@
         let tabelaRepasses = null;
         let chartDist = null;
         
-        let dadosBase = []; // Guarda todos os dados puros
+        let dadosBase = []; 
         window.modoExibicao = 'total';
 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
         function classificarTipo(codigo) {
-            // Lógica oficial SIGTAP: 01, 02, 08, e 0301 são Ambulatoriais.
             const prefixo2 = codigo.substring(0, 2);
             const prefixo4 = codigo.substring(0, 4);
             if (['01', '02', '08'].includes(prefixo2) || prefixo4 === '0301') {
@@ -404,7 +403,7 @@
         });
 
         // ===============================================
-        // MODAIS E INSERÇÃO DE DADOS
+        // MODAIS E INSERÇÃO DE DADOS MISTURADOS (VIEW FIX)
         // ===============================================
         function abrirModalAdd() {
             $('#add_cod').val(''); $('#add_desc').val(''); $('#add_meta').val(''); $('#add_valor').val('');
@@ -444,14 +443,21 @@
             $('#btnSalvarProc').html('<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...').prop('disabled', true);
 
             try {
-                const { error } = await client.from('tabela_contrato_mt2026').upsert({
-                    codigo_sigtap: cod,
+                // COMO tabela_contrato_mt2026 É UMA VIEW, INSERIMOS NAS TABELAS ORIGINAIS:
+                // 1. Salva a Meta e Descrição na tabela de Contratos
+                const { error: err1 } = await client.from('procedimentos_contrato').upsert({
+                    codigo: cod,
                     descricao: desc,
-                    meta_fisica: meta,
-                    valor_mt2026: valor
-                }, { onConflict: 'codigo_sigtap' });
+                    meta_fisica: meta
+                }, { onConflict: 'codigo' });
+                if(err1) throw err1;
 
-                if(error) throw error;
+                // 2. Salva o Preço Personalizado na tabela SUS MT 2026
+                const { error: err2 } = await client.from('tabela_sus_mt_2026').upsert({
+                    codigo_sigtap: parseInt(cod, 10), // O banco está configurado como bigint
+                    valor_unitario: valor
+                }, { onConflict: 'codigo_sigtap' });
+                if(err2) throw err2;
                 
                 fecharModal('modalAddProc');
                 $('#loader-text').text("Recalculando Contrato...");
@@ -543,19 +549,38 @@
         }
 
         // ===============================================
-        // CÁLCULOS E CRUZAMENTO
+        // CÁLCULOS E CRUZAMENTO OFICIAL (O FILTRO DE OURO)
         // ===============================================
         async function carregarDadosContrato() {
             try {
-                // 1. Busca TODA a produção que subimos por CSV (Hospitalar + Ambulatorial)
-                const { data: prodData, error: err3 } = await client.from('tb_producao_sus').select('*');
-                if(err3) throw err3;
-
-                // 2. Busca itens digitados manualmente no contrato (Se tiverem sobreposição)
-                const { data: contratoData, error: err1 } = await client.from('tabela_contrato_mt2026').select('*');
+                // 1. Busca TODA a produção que você extraiu via CSV (Averages)
+                const { data: prodData, error: err1 } = await client.from('tb_producao_sus').select('*');
                 if(err1) throw err1;
 
-                // Une todos os códigos possíveis
+                // 2. Busca itens digitados manualmente na View (para pegar a Meta)
+                const { data: contratoData, error: err2 } = await client.from('tabela_contrato_mt2026').select('*');
+                if(err2) throw err2;
+
+                // 3. A PONTE RESTAURADA E BLINDADA: Busca a Tabela Oficial do Estado
+                // Em lotes, para garantir que os milhares de procedimentos venham todos.
+                let mapMtOficial = {};
+                try {
+                    let allMtData = [];
+                    let fromMt = 0; let stepMt = 1000; let keepFetchingMt = true;
+                    while (keepFetchingMt) {
+                        const { data: mtData, error: errMt } = await client.from('tabela_sus_mt_2026').select('*').range(fromMt, fromMt + stepMt - 1);
+                        if (mtData && mtData.length > 0) { allMtData = allMtData.concat(mtData); fromMt += stepMt; }
+                        if (!mtData || mtData.length < stepMt) keepFetchingMt = false;
+                    }
+                    if (allMtData.length > 0) {
+                        allMtData.forEach(m => {
+                            let c = m.codigo || m.codigo_sigtap || m.co_procedimento;
+                            let v = m.valor || m.valor_mt || m.valor_mt2026 || m.vl_procedimento || m.valor_unitario;
+                            if (c) mapMtOficial[String(c).padStart(10, '0')] = Number(v || 0);
+                        });
+                    }
+                } catch(e) { console.log("Aviso: Tabela Oficial MT 2026 não carregada completamente."); }
+
                 let mapProducao = {};
                 if(prodData) prodData.forEach(p => mapProducao[String(p.codigo).padStart(10, '0')] = p);
 
@@ -564,10 +589,10 @@
 
                 let allCodes = Array.from(new Set([...Object.keys(mapProducao), ...Object.keys(mapContrato)]));
                 
-                // 3. Busca Valor Profissional do SIGTAP
-                const { data: sigtapData, error: err2 } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', allCodes);
+                // 4. Busca Valor Profissional do SIGTAP
+                const { data: sigtapData, error: err3 } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', allCodes);
                 let mapSigtapSp = {};
-                if(sigtapData && !err2) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
+                if(sigtapData && !err3) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
 
                 dadosBase = [];
                 
@@ -575,12 +600,21 @@
                     let prod = mapProducao[codStr] || {};
                     let contr = mapContrato[codStr] || {};
 
-                    // Se não tiver no contrato, usa o histórico da produção.
+                    let temNaTabelaMT = mapMtOficial[codStr] !== undefined && mapMtOficial[codStr] > 0;
+                    let temNoContratoManual = contr.codigo_sigtap !== undefined;
+
+                    // O FILTRO DE OURO: Só processa se o procedimento fizer parte da tabela do Estado (MT) ou se foi inserido manualmente.
+                    if (!temNaTabelaMT && !temNoContratoManual) {
+                        return; // Ignora o resto da produção comum do SUS que não entra no Cofinanciamento MT.
+                    }
+
                     let meta = contr.meta_fisica ? Number(contr.meta_fisica) : Number(prod.fisico_mes || 0);
                     let valMedioHist = Number(prod.valor_medio || 0);
                     
-                    // Se não tem valor MT manual, assumimos o Valor Médio (Impacto = 0)
-                    let valMt = contr.valor_mt2026 ? Number(contr.valor_mt2026) : valMedioHist; 
+                    let valMt = valMedioHist; 
+                    if (temNaTabelaMT) valMt = mapMtOficial[codStr]; 
+                    if (contr.valor_mt2026 > 0) valMt = Number(contr.valor_mt2026); 
+
                     let desc = contr.descricao || prod.descricao || "PROCEDIMENTO NÃO DESCRITO";
                     
                     let valSp = mapSigtapSp[codStr] || 0;
@@ -592,7 +626,6 @@
                     let impactoTot = fatMt - fatValMedio;
 
                     let repasseMedicoUnit = valSp * 3;
-                    // Proteção: não repassar mais do que se ganha
                     if (repasseMedicoUnit > valMt) repasseMedicoUnit = valMt; 
                     
                     let sobraHospUnit = valMt > 0 ? Math.max(valMt - repasseMedicoUnit, 0) : 0;
@@ -600,7 +633,6 @@
                     let fatRepasse = meta * repasseMedicoUnit;
                     let fatSobra = meta * sobraHospUnit;
 
-                    // Só exibe se houver produção ou meta
                     if (meta > 0 || contr.codigo_sigtap) {
                         dadosBase.push({
                             codigo: codStr,
@@ -622,7 +654,7 @@
                     }
                 });
 
-                aplicarFiltrosGlobais(); // Renderiza a tela
+                aplicarFiltrosGlobais(); 
 
             } catch (err) {
                 console.error(err);
@@ -633,7 +665,7 @@
         }
 
         // ===============================================
-        // MOTOR DE FILTRO (HOSPITALAR VS AMBULATORIAL)
+        // MOTOR DE FILTRO E RENDERIZAÇÃO
         // ===============================================
         function aplicarFiltrosGlobais() {
             window.modoExibicao = $('#modoExibicao').val();
