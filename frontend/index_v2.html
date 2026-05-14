@@ -222,7 +222,7 @@
         body.theme-classic footer { color: #94a3b8; }
     </style>
 </head>
-<body class="sidebar-collapsed"> <div class="blob-1"></div>
+<body> <div class="blob-1"></div>
     <div class="blob-2"></div>
 
     <aside class="sidebar" id="mainSidebar">
@@ -262,6 +262,10 @@
                     <a href="#" onclick="irParaPainel('painel_contrato_cofinanciamento.html')" class="nav-item">
                         <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
                         <div class="nav-text"><span class="nav-title">Cofinanciamento</span><span class="nav-desc">Contrato Estadual 2026</span></div>
+                    </a>
+                    <a href="#" onclick="irParaPainel('painel_internacoes.html')" class="nav-item">
+                        <i class="fas fa-bed-pulse nav-icon text-rose-400"></i>
+                        <div class="nav-text"><span class="nav-title">Monitoramento Int.</span><span class="nav-desc">Internações e Cirurgias</span></div>
                     </a>
                     <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="nav-item">
                         <img src="../LogoSES-Gov.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
@@ -456,7 +460,14 @@
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero</div>
                     <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                    <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Internações Identificadas</div>
+                    <div class="kpi-sub text-gray-400" id="kpi-fila-zero-sub">Censo IndicaSUS</div>
+                </a>
+
+                <a href="#" onclick="irParaPainel('painel_internacoes.html')" class="glass-card">
+                    <i class="fas fa-hospital-user kpi-icon text-rose-500"></i>
+                    <div class="kpi-title">Internações (SoulMV)</div>
+                    <div class="kpi-number text-rose-400" id="kpi-internacoes"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                    <div class="kpi-sub text-gray-400" id="kpi-internacoes-sub">Pacientes Admitidos</div>
                 </a>
 
                 <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="glass-card col-span-3">
@@ -659,7 +670,6 @@
                 
                 const diffMeses = (anoHoje * 12 + mesHoje) - (parseInt(ano) * 12 + parseInt(mes));
 
-                // --- LÓGICA DE STATUS: Mês 4 ou antes => FECHADA ---
                 if (diffMeses < 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30"><i class="fas fa-clock"></i> Futura</span>');
                 else if (diffMeses === 0) $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30"><i class="fas fa-play-circle"></i> Em Andamento</span>');
                 else $('#status-competencia').html('<span class="text-xs font-bold uppercase px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"><i class="fas fa-lock"></i> Fechada</span>');
@@ -669,7 +679,7 @@
                     diasParaCalculo = dataAtual.getDate(); 
                 }
 
-                $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
+                $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #kpi-internacoes, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-spinner fa-spin text-sm"></i>');
 
                 // 1. AIHs (Simuladas)
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
@@ -729,7 +739,7 @@
                     $('#kpi-sisreg').removeClass('text-pink-400').addClass('text-emerald-400');
                 }
 
-                // 3. INDICASUS E FILA ZERO
+                // 3. INDICASUS E FILA ZERO (Apenas IndicaSUS)
                 let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data, error } = await client.from('indicasus_leitos')
@@ -766,7 +776,7 @@
                 });
 
                 $('#kpi-fila-zero').text(fzCount);
-                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Internações no mês');
+                $('#kpi-fila-zero-sub').html('<i class="fas fa-check-circle"></i> Censo IndicaSUS');
 
                 let capUtiAd = cfgLeitos.uti * diasParaCalculo;
                 let capUtin = cfgLeitos.utin * diasParaCalculo;
@@ -778,9 +788,6 @@
                 let txUcinco = capUcinco > 0 ? Math.min(Math.round((ocup.ucinco / capUcinco) * 100), 100) : 0;
                 let txUcinca = capUcinca > 0 ? Math.min(Math.round((ocup.ucinca / capUcinca) * 100), 100) : 0;
 
-                // --- CORREÇÃO NOS CARDS DE LEITOS ---
-                // Agora o número grande é a quantidade de Diárias (ex: 150)
-                // A descrição pequena é o percentual e a capacidade (ex: Ocupação: 50% (Cap: 300))
                 $('#taxa-uti').text(ocup.uti).css('color', txUtiAd >= 90 ? '#ef4444' : '#38bdf8');
                 $('#meta-uti').html(`Ocupação: <b>${txUtiAd}%</b> (Cap: ${capUtiAd})`);
 
@@ -792,6 +799,24 @@
 
                 $('#taxa-ucinca').text(ocup.ucinca).css('color', txUcinca >= 90 ? '#ef4444' : '#34d399');
                 $('#meta-ucinca').html(`Ocupação: <b>${txUcinca}%</b> (Cap: ${capUcinca})`);
+
+                // 4. INTERNAÇÕES SOULMV (Novo Card)
+                try {
+                    const { count, error: errInt } = await client.from('cirurgias_detalhe')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('data_cirurgia', d1).lte('data_cirurgia', d2)
+                        .in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
+                    
+                    if (!errInt) {
+                        $('#kpi-internacoes').text(count || 0);
+                        $('#kpi-internacoes-sub').html('<i class="fas fa-check-circle"></i> Internações MV');
+                    } else {
+                        $('#kpi-internacoes').text('0');
+                    }
+                } catch(e) {
+                    console.error(e);
+                    $('#kpi-internacoes').text('0');
+                }
 
             } catch(e) {
                 console.error("Erro ao carregar resumo central:", e);

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Função Renal (CKD-EPI)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculadora-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculadora-container">
+    <h2>Taxa de Filtração Glomerular Estimada (TFGe)</h2>
+    
+    <div class="form-group">
+        <label for="sexo">Sexo</label>
+        <select id="sexo">
+            <option value="F">Feminino</option>
+            <option value="M">Masculino</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="idade">Idade (anos)</label>
+        <input type="number" id="idade" min="18" max="120" placeholder="Ex: 45">
+    </div>
+
+    <div class="form-group">
+        <label for="creatinina">Creatinina Sérica (mg/dL)</label>
+        <input type="number" id="creatinina" step="0.01" min="0.1" placeholder="Ex: 0.8">
+    </div>
+
+    <button onclick="calcularTFGe()">Calcular Função Renal</button>
+
+    <div class="resultado" id="resultadoBox">
+        TFGe: <span id="valorTFGe"></span> mL/min/1.73m²
+    </div>
+</div>
+
+<script>
+    function calcularTFGe() {
+        const sexo = document.getElementById('sexo').value;
+        const idade = parseFloat(document.getElementById('idade').value);
+        const cr = parseFloat(document.getElementById('creatinina').value);
+        
+        if (!idade || !cr) {
+            alert("Por favor, preencha a idade e o valor da creatinina.");
+            return;
+        }
+
+        let tfge = 0;
+
+        if (sexo === 'F') {
+            // Fórmulas para Mulheres
+            if (cr <= 0.7) {
+                tfge = 142 * Math.pow((cr / 0.7), -0.241) * Math.pow(0.9938, idade) * 1.012;
+            } else {
+                tfge = 142 * Math.pow((cr / 0.7), -1.200) * Math.pow(0.9938, idade) * 1.012;
+            }
+        } else if (sexo === 'M') {
+            // Fórmulas para Homens
+            if (cr <= 0.9) {
+                tfge = 142 * Math.pow((cr / 0.9), -0.302) * Math.pow(0.9938, idade);
+            } else {
+                tfge = 142 * Math.pow((cr / 0.9), -1.200) * Math.pow(0.9938, idade);
+            }
+        }
+
+        // Exibir o resultado formatado com 2 casas decimais
+        const resultadoBox = document.getElementById('resultadoBox');
+        const valorTFGe = document.getElementById('valorTFGe');
+        
+        valorTFGe.innerText = tfge.toFixed(2);
+        resultadoBox.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

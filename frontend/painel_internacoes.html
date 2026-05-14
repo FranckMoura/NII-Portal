@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Internações - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* TEMA GLOBAL DARK NEON */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 90px; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 1; transition: 0.5s; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s;}
+        .glass-chart-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; }
+
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .kpi-sub { font-size: 0.70rem; color: #94a3b8; font-weight: 500; }
+        .glass-chart-title { font-size: 0.9rem; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
+
+        /* BADGES DE CLASSIFICAÇÃO */
+        .badge-cir { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; }
+        .badge-cli { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; }
+        .badge-fz { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; }
+        .badge-sus { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; }
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { font-size: 0.75rem; padding: 10px 8px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; margin-bottom:10px;}
+        
+        #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        
+        .rank-list { margin: 0; padding: 0; list-style: none; }
+        .rank-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.80rem; align-items: center; }
+        .rank-qtd { font-weight: 900; padding: 2px 6px; border-radius: 6px; font-size: 0.70rem; }
+
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
+        body.theme-classic .kpi-title { color: #64748b !important; }
+        body.theme-classic .kpi-sub { color: #94a3b8 !important; }
+        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
+        body.theme-classic .btn-theme select { color: #004e92; }
+        body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom-color: #cbd5e1 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
+        body.theme-classic .glass-chart-container { background: white !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .glass-chart-title { color: #0f172a !important; border-bottom-color: #e2e8f0 !important; }
+        body.theme-classic .rank-item { border-bottom-color: #e2e8f0 !important; }
+        body.theme-classic .rank-nome { color: #334155 !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:none;">
+        <i class="fas fa-bed-pulse fa-spin text-5xl text-blue-400 mb-4"></i>
+        <p class="text-blue-200 animate-pulse font-bold text-lg" id="loader-text">Analisando Internações...</p>
+    </div>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg shadow-lg mb-6'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4 flex-wrap gap-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-hospital-user text-3xl text-emerald-400"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Monitoramento de Internações</h1>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Foco Cirúrgico: Análise de Produção Fila Zero e SUS Padrão</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Ano:</span>
+                    <select id="anoFilter" onchange="carregarDados()" class="bg-transparent font-bold outline-none"></select>
+                </div>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-emerald-400 mr-2">Mês:</span>
+                    <select id="mesFilter" onchange="carregarDados()" class="bg-transparent font-bold outline-none"></select>
+                </div>
+                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
+                <a href="modulo_gerencial.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="flex flex-wrap gap-4 mb-6 border-b border-white/10 pb-4 items-center">
+            <div class="text-sm font-bold text-gray-300 bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner">
+                <i class="fas fa-stethoscope mr-1 text-pink-400"></i> Atendimento: 
+                <select id="filtroAtendimento" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                    <option value="TODOS" class="text-black">Todos os Tipos</option>
+                    <option value="CIRÚRGICO" class="text-black">Cirúrgicos</option>
+                    <option value="CLÍNICO" class="text-black">Clínicos</option>
+                </select>
+            </div>
+            <div class="text-sm font-bold text-gray-300 bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner">
+                <i class="fas fa-hand-holding-medical mr-1 text-yellow-400"></i> Financiamento: 
+                <select id="filtroFinanciamento" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                    <option value="TODOS" class="text-black">Todos (SUS Global)</option>
+                    <option value="FILA ZERO" class="text-black">Apenas Fila Zero</option>
+                    <option value="SUS PADRÃO" class="text-black">Apenas SUS Padrão</option>
+                </select>
+            </div>
+            <button onclick="filtrarPorCard('TODOS')" class="text-xs bg-gray-600/50 hover:bg-gray-500/50 text-white px-4 py-2 rounded-lg transition border border-gray-500/50">
+                <i class="fas fa-eraser mr-1"></i> Limpar Filtros
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
+            <div class="glass-card border-t-pink-500/50 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onclick="filtrarPorCard('CIRÚRGICO')" title="Clique para ver todas as cirurgias">
+                <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-scalpel mr-1"></i> Total de Cirurgias</div>
+                <div class="kpi-number text-pink-400" id="kpi-cir-total">0</div>
+                <div class="kpi-sub">Volume cirúrgico global</div>
+            </div>
+            <div class="glass-card border-t-yellow-500/50 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onclick="filtrarPorCard('CIR_FZ')" title="Clique para ver cirurgias Fila Zero">
+                <div class="kpi-title" style="color: #fbbf24;"><i class="fas fa-star mr-1"></i> Cirurgias Fila Zero</div>
+                <div class="kpi-number text-yellow-400" id="kpi-cir-fz">0</div>
+                <div class="kpi-sub">Faturamento estadual</div>
+            </div>
+            <div class="glass-card border-t-emerald-500/50 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onclick="filtrarPorCard('CIR_SUS')" title="Clique para ver cirurgias SUS Padrão">
+                <div class="kpi-title" style="color: #34d399;"><i class="fas fa-hospital mr-1"></i> Cirurgias SUS Padrão</div>
+                <div class="kpi-number text-emerald-400" id="kpi-cir-sus">0</div>
+                <div class="kpi-sub">Faturamento federal</div>
+            </div>
+            <div class="glass-card border-t-blue-500/50 cursor-pointer hover:-translate-y-1 hover:shadow-xl" onclick="filtrarPorCard('CLÍNICO')" title="Clique para ver internações clínicas">
+                <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-stethoscope mr-1"></i> Internações Clínicas</div>
+                <div class="kpi-number text-blue-400" id="kpi-cli">0</div>
+                <div class="kpi-sub">Tratamento conservador</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-yellow-400"></i> Mix Cirúrgico: SUS x Fila Zero</div>
+                <div style="height:220px;"><canvas id="chartCirurgias"></canvas></div>
+            </div>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-pie mr-2 text-pink-400"></i> Perfil Global: Clínico x Cirúrgico</div>
+                <div style="height:220px;"><canvas id="chartAtendimento"></canvas></div>
+            </div>
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-chart-line mr-2 text-blue-400"></i> Evolução Diária (Produção Filtrada)</div>
+                <div style="height:220px;"><canvas id="chartEvolucao"></canvas></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
+                <div class="glass-chart-title flex justify-between sticky top-0 z-10 pb-2 pt-1 border-b border-white/10" style="background: inherit;">
+                    <span><i class="fas fa-list-ol mr-2 text-emerald-400"></i> Ranking de Procedimentos/Diagnósticos</span>
+                    <span id="totalProcsDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 tipos</span>
+                </div>
+                <div id="listaProc" class="pr-2 mt-2"></div>
+            </div>
+
+            <div class="glass-chart-container" style="max-height: 400px; overflow-y: auto;">
+                <div class="glass-chart-title flex justify-between sticky top-0 z-10 pb-2 pt-1 border-b border-white/10" style="background: inherit;">
+                    <span><i class="fas fa-user-md mr-2 text-purple-400"></i> Volume por Médico</span>
+                    <span id="totalMedDiff" class="text-xs bg-black/20 px-2 py-1 rounded-lg text-gray-400 font-mono">0 médicos</span>
+                </div>
+                <div id="listaMed" class="pr-2 mt-2"></div>
+            </div>
+        </div>
+
+        <div class="cyber-container mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-blue-400"><i class="fas fa-table mr-2"></i> Relação de Pacientes Filtrada</h3>
+            </div>
+            
+            <table id="tabelaInternacoes" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th width="80" class="text-center">Data Int.</th>
+                        <th width="110" class="text-center">Atendimento</th>
+                        <th width="110" class="text-center">Financiamento</th>
+                        <th width="90" class="text-center">Cód. SIGTAP</th>
+                        <th>Procedimento / Diagnóstico</th>
+                        <th width="180">Paciente</th>
+                        <th width="150">Médico Responsável</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaInstancia = null;
+        let dadosBase = []; 
+        let chartAtendimento = null, chartCirurgias = null, chartEvolucao = null;
+
+        function formataDataISO(d) {
+            if(!d) return '-';
+            let s = String(d).replace(/\D/g, ''); 
+            if(s.length === 8) return s.substring(6,8) + '/' + s.substring(4,6) + '/' + s.substring(0,4);
+            return d;
+        }
+
+        $(document).ready(function() {
+            const anoSel = $('#anoFilter');
+            const mesSel = $('#mesFilter');
+            const dataAtual = new Date();
+            for(let i = dataAtual.getFullYear() + 1; i >= 2024; i--) anoSel.append(`<option value="${i}">${i}</option>`);
+            const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+            meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
+            
+            anoSel.val(dataAtual.getFullYear()); 
+            mesSel.val(String(dataAtual.getMonth() + 1).padStart(2, '0'));
+            
+            const savedTheme = localStorage.getItem('nii_theme_cir');
+            if (savedTheme === 'classic') {
+                document.body.classList.add('theme-classic');
+                $('.glass-chart-title.sticky').css('background', '#ffffff');
+            } else {
+                $('.glass-chart-title.sticky').css('background', '#001528');
+            }
+
+            carregarDados();
+        });
+
+        function toggleTheme() { 
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_cir', 'neon');
+                $('.glass-chart-title.sticky').css('background', '#001528');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_cir', 'classic');
+                $('.glass-chart-title.sticky').css('background', '#ffffff');
+            }
+            if (tabelaInstancia) aplicarFiltrosGlobais(); 
+        }
+
+        // FUNÇÃO DE CLIQUE NOS CARDS (DRILL-DOWN FOCADO EM CIRURGIAS)
+        window.filtrarPorCard = function(tipo) {
+            $('#filtroAtendimento').val('TODOS');
+            $('#filtroFinanciamento').val('TODOS');
+
+            if (tipo === 'CIRÚRGICO') {
+                $('#filtroAtendimento').val('CIRÚRGICO');
+            } else if (tipo === 'CIR_FZ') {
+                $('#filtroAtendimento').val('CIRÚRGICO');
+                $('#filtroFinanciamento').val('FILA ZERO');
+            } else if (tipo === 'CIR_SUS') {
+                $('#filtroAtendimento').val('CIRÚRGICO');
+                $('#filtroFinanciamento').val('SUS PADRÃO');
+            } else if (tipo === 'CLÍNICO') {
+                $('#filtroAtendimento').val('CLÍNICO');
+            }
+
+            aplicarFiltrosGlobais();
+
+            if(tipo !== 'TODOS') {
+                $('html, body').animate({
+                    scrollTop: $("#chartAtendimento").offset().top - 80
+                }, 400);
+            }
+        };
+
+        // INTELIGÊNCIA DE CLASSIFICAÇÃO
+        function classificarInternacao(codigo, procedimento, convenio) {
+            let tipoAtend = 'NÃO IDENTIFICADO';
+            let tipoFinan = 'SUS PADRÃO';
+
+            if (codigo) {
+                let prefix = String(codigo).substring(0, 2);
+                if (prefix === '04') tipoAtend = 'CIRÚRGICO';
+                else if (prefix === '03') tipoAtend = 'CLÍNICO';
+                else tipoAtend = 'OUTROS';
+            } else {
+                let n = (procedimento || "").toUpperCase();
+                if (n.includes('PARTO') || n.includes('CESARIANA') || n.includes('CURETAGEM')) tipoAtend = 'CIRÚRGICO';
+                else if (n.includes('TRATAMENTO') || n.includes('ACOMPANHAMENTO')) tipoAtend = 'CLÍNICO';
+            }
+
+            let convStr = (convenio || "").toUpperCase();
+            let procStr = (procedimento || "").toUpperCase();
+            if (convStr.includes('FILA ZERO') || procStr.includes('FILA ZERO')) {
+                tipoFinan = 'FILA ZERO';
+            }
+
+            return { tipoAtend, tipoFinan };
+        }
+
+        async function carregarDados() {
+            $('#loader').fadeIn();
+            const ano = $('#anoFilter').val();
+            const mes = $('#mesFilter').val();
+            const dataFimObj = new Date(ano, mes, 0); 
+            const d1 = `${ano}-${mes}-01`;
+            const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+
+            try {
+                const { data: internacoesData, error } = await client.from('cirurgias_detalhe').select('*')
+                    .in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS'])
+                    .gte('data_cirurgia', d1).lte('data_cirurgia', d2);
+                if (error) throw error;
+                
+                dadosBase = (internacoesData || []).map(d => {
+                    let classificacao = classificarInternacao(d.cod_tabela, d.procedimento, d.convenio);
+                    return { ...d, tipo_atendimento: classificacao.tipoAtend, tipo_financiamento: classificacao.tipoFinan };
+                });
+
+                aplicarFiltrosGlobais();
+
+            } catch (err) { console.error(err); }
+            finally { $('#loader').fadeOut(); }
+        }
+
+        function aplicarFiltrosGlobais() {
+            let fAtend = $('#filtroAtendimento').val();
+            let fFinan = $('#filtroFinanciamento').val();
+
+            let dadosFiltrados = dadosBase.filter(d => {
+                let matchAtend = (fAtend === 'TODOS' || d.tipo_atendimento === fAtend);
+                let matchFinan = (fFinan === 'TODOS' || d.tipo_financiamento === fFinan);
+                return matchAtend && matchFinan;
+            });
+
+            atualizarResumoEGraficos(dadosFiltrados);
+            montarTabelaDataTables(dadosFiltrados);
+        }
+
+        function atualizarResumoEGraficos(dados) {
+            let qtdCir = 0, qtdCirSUS = 0, qtdCirFZ = 0, qtdCli = 0;
+            let mapProc = {}, mapMed = {}, mapDias = {};
+
+            // O KPI focado em cirurgias!
+            dados.forEach(d => {
+                if (d.tipo_atendimento === 'CIRÚRGICO') {
+                    qtdCir++;
+                    if (d.tipo_financiamento === 'FILA ZERO') qtdCirFZ++;
+                    else qtdCirSUS++;
+                }
+                else if (d.tipo_atendimento === 'CLÍNICO') {
+                    qtdCli++;
+                }
+
+                let pNome = d.procedimento || "NÃO IDENTIFICADO";
+                mapProc[pNome] = (mapProc[pNome] || 0) + 1;
+
+                let mNome = d.cirurgiao || "NÃO INFORMADO";
+                mapMed[mNome] = (mapMed[mNome] || 0) + 1;
+
+                let dataDia = d.data_cirurgia ? d.data_cirurgia.substring(8,10) : "00";
+                mapDias[dataDia] = (mapDias[dataDia] || 0) + 1;
+            });
+
+            $('#kpi-cir-total').text(qtdCir);
+            $('#kpi-cir-fz').text(qtdCirFZ);
+            $('#kpi-cir-sus').text(qtdCirSUS);
+            $('#kpi-cli').text(qtdCli);
+
+            let arrProc = Object.keys(mapProc).map(k => ({nome: k, qtd: mapProc[k]})).sort((a,b) => b.qtd - a.qtd);
+            $('#totalProcsDiff').text(arrProc.length + " tipos");
+            let htmlListaProc = `<ul class="rank-list px-2 py-1">`;
+            arrProc.forEach(proc => htmlListaProc += `<li class="rank-item"><span class="font-semibold rank-nome text-gray-300">${proc.nome}</span><span class="rank-qtd" style="background: rgba(16,185,129,0.2); color: #10b981;">${proc.qtd}</span></li>`);
+            htmlListaProc += `</ul>`;
+            $('#listaProc').html(arrProc.length > 0 ? htmlListaProc : '<div class="text-center text-gray-500 mt-4">Nenhum registro.</div>');
+
+            let arrMed = Object.keys(mapMed).map(k => ({nome: k, qtd: mapMed[k]})).sort((a,b) => b.qtd - a.qtd);
+            
+            // CONTAGEM CORRETA: Exclui o "NÃO INFORMADO" e "-"
+            let countMedicosValidos = arrMed.filter(m => m.nome !== 'NÃO INFORMADO' && m.nome !== '-').length;
+            $('#totalMedDiff').text(countMedicosValidos + " médicos");
+            
+            let htmlListaMed = `<ul class="rank-list px-2 py-1">`;
+            arrMed.forEach(med => {
+                let iconeColor = (med.nome === 'NÃO INFORMADO' || med.nome === '-') ? 'text-red-400' : 'text-gray-500';
+                htmlListaMed += `<li class="rank-item"><span class="font-semibold rank-nome text-gray-300"><i class="fas fa-user-md mr-2 ${iconeColor} opacity-50"></i>${med.nome}</span><span class="rank-qtd" style="background: rgba(168,85,247,0.2); color: #c084fc;">${med.qtd}</span></li>`;
+            });
+            htmlListaMed += `</ul>`;
+            $('#listaMed').html(arrMed.length > 0 ? htmlListaMed : '<div class="text-center text-gray-500 mt-4">Nenhum registro.</div>');
+
+            let isClassic = document.body.classList.contains('theme-classic');
+            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
+
+            if(chartCirurgias) chartCirurgias.destroy();
+            chartCirurgias = new Chart(document.getElementById('chartCirurgias').getContext('2d'), {
+                type: 'doughnut', data: { labels: ['SUS Padrão', 'Fila Zero'], datasets: [{ data: [qtdCirSUS, qtdCirFZ], backgroundColor: isClassic ? ['#10b981', '#f59e0b'] : ['#34d399', '#fbbf24'], borderWidth: 0 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'}, datalabels: { display: false } }, cutout: '60%' }
+            });
+
+            if(chartAtendimento) chartAtendimento.destroy();
+            chartAtendimento = new Chart(document.getElementById('chartAtendimento').getContext('2d'), {
+                type: 'doughnut', data: { labels: ['Cirúrgico', 'Clínico'], datasets: [{ data: [qtdCir, qtdCli], backgroundColor: isClassic ? ['#ec4899', '#0284c7'] : ['#f472b6', '#38bdf8'], borderWidth: 0 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'}, datalabels: { display: false } }, cutout: '60%' }
+            });
+
+            let diasLabels = Object.keys(mapDias).sort((a,b) => parseInt(a) - parseInt(b));
+            let diasData = diasLabels.map(dia => mapDias[dia]);
+
+            if(chartEvolucao) chartEvolucao.destroy();
+            chartEvolucao = new Chart(document.getElementById('chartEvolucao').getContext('2d'), {
+                type: 'bar', data: { labels: diasLabels.map(d => `Dia ${d}`), datasets: [{ label: 'Internações', data: diasData, backgroundColor: isClassic ? '#0284c7' : 'rgba(56, 189, 248, 0.8)', borderRadius: 4 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display: false}, datalabels: { color: isClassic ? '#0f172a' : '#ffffff', anchor: 'end', align: 'top', font: { weight: 'bold', size: 10 } } }, scales: { y: { beginAtZero: true, grid: { color: isClassic ? '#e2e8f0' : 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        function montarTabelaDataTables(dados) {
+            if (tabelaInstancia) { tabelaInstancia.destroy(); $('#tabelaInternacoes tbody').empty(); }
+            
+            tabelaInstancia = $('#tabelaInternacoes').DataTable({
+                data: dados,
+                columns: [
+                    { data: 'data_cirurgia', className: 'text-center font-mono', render: d => formataDataISO(d) },
+                    { data: 'tipo_atendimento', className: 'text-center', render: function(d) {
+                        if(d === 'CIRÚRGICO') return `<span class="badge-cir">Cirúrgico</span>`;
+                        if(d === 'CLÍNICO') return `<span class="badge-cli">Clínico</span>`;
+                        return `<span class="text-gray-500">${d}</span>`;
+                    }},
+                    { data: 'tipo_financiamento', className: 'text-center', render: function(d) {
+                        if(d === 'FILA ZERO') return `<span class="badge-fz"><i class="fas fa-star mr-1"></i> Fila Zero</span>`;
+                        return `<span class="badge-sus"><i class="fas fa-hospital mr-1"></i> SUS Padrão</span>`;
+                    }},
+                    { data: 'cod_tabela', className: 'font-mono text-gray-400 font-bold text-center', render: d => (d && d !== "null") ? d : '-' },
+                    { data: 'procedimento', className: 'font-bold text-[0.8rem]', render: function(d, type) { 
+                        if(type === 'display' && d && d.length > 50) return `<span title="${d}">${d.substring(0, 50)}...</span>`;
+                        return d || '-';
+                    }},
+                    { data: 'paciente', render: d => `<span class="font-bold text-blue-300" style="color:var(--tw-prose-body, inherit);">${d}</span>` },
+                    { data: 'cirurgiao', className: 'font-semibold', render: d => (d && !d.includes('NÃO INFORMADO') && d.trim() !== 'NAN') ? d : '-' }
+                ],
+                order: [[0, 'desc']], pageLength: 25, dom: 'lBrtip',
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Tabela Atual', className: 'dt-button' } ]
+            });
+        }
+    </script>
+</body>
+</html>
