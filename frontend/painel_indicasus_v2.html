@@ -418,10 +418,10 @@
         let filtroLeitoAtivo = 'TODOS';
 
         // ==========================================
-        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS
+        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS (ATUALIZADO)
         // ==========================================
-        let cfgLeitosTotal = { utiAd: 10, utin: 10, ucinco: 5, ucinca: 5, enf: 100 };
-        let cfgLeitosSUS = { utiAd: 10, utin: 10, ucinco: 5, ucinca: 5, enf: 80 };
+        let cfgLeitosTotal = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 100 };
+        let cfgLeitosSUS = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 80 };
         let cfgLeitosNaoSUS = { utiAd: 0, utin: 0, ucinco: 0, ucinca: 0, enf: 20 };
 
         function toggleTheme() {
@@ -664,7 +664,6 @@
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     let leito = (leitoBruto || "").toUpperCase();
 
-                    // --- AQUI ESTÁ A CORREÇÃO DE SOMA PARA O HTML ---
                     if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
                     else if (leito === "UTIN" || leito === "UTI NEONATAL") pacDiaUtin++;
                     else if (leito === "UCINCO" || leito === "CONVENCIONAL") pacDiaUcinco++;
@@ -689,9 +688,6 @@
                 return p;
             });
 
-            // ----------------------------------------------------
-            // CORREÇÃO: MATEMÁTICA DE CAPACIDADE PROPORCIONAL
-            // ----------------------------------------------------
             const dataHoje = new Date();
             let diasParaCalculo = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
             
