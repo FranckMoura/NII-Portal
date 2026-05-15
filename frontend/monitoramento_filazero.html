@@ -298,15 +298,16 @@
             localStorage.setItem('nii_competencia_mes', mes);
 
             try {
-                // 1. Busca Produção Fila Zero no MV
+                // 1. Busca Produção Fila Zero no MV (AGORA PUXANDO O NOME DO PROCEDIMENTO)
                 const { data: internacoesData, error } = await client.from('cirurgias_detalhe')
-                    .select('cod_tabela, paciente')
+                    .select('cod_tabela, paciente, procedimento')
                     .ilike('convenio', '%FILA ZERO%')
                     .gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 if (error) throw error;
                 
                 // Mapeia a produção e deduplica pacientes para a contagem exata
                 let producaoReal = {};
+                let nomesProcedimentosMV = {}; // Para guardar o nome oficial que o MV registrou
                 let pacientesMV = new Set();
 
                 (internacoesData || []).forEach(d => {
@@ -314,6 +315,9 @@
                     if (d.cod_tabela) {
                         let c = String(d.cod_tabela).padStart(10, '0');
                         producaoReal[c] = (producaoReal[c] || 0) + 1;
+                        if(d.procedimento && d.procedimento !== 'NÃO INFORMADO') {
+                            nomesProcedimentosMV[c] = d.procedimento;
+                        }
                     }
                 });
 
@@ -335,7 +339,7 @@
                     }
                 });
 
-                // Calcula Divergência (Absoluta entre as bases únicas de CPFs/Nomes do mês)
+                // Calcula Divergência
                 let divergenciaCount = Math.abs(pacientesMV.size - pacientesIndica.size);
 
                 // 3. Cruza com as Metas para montar a tabela
@@ -354,7 +358,7 @@
                     financeiroRealizado += (prod * meta.val_unit);
 
                     dadosTabela.push({
-                        grupo: 'PACTUADO', // Tag para a tabela separar
+                        grupo: 'PACTUADO',
                         codigo: meta.codigo,
                         desc: meta.desc,
                         meta: meta.pacto,
@@ -364,17 +368,19 @@
                     });
                 });
 
-                // Encontra "Extras"
+                // Encontra "Extras" e usa o nome original do banco
                 Object.keys(producaoReal).forEach(codigoProd => {
                     let achou = metasFilaZero.find(m => m.codigo === codigoProd);
                     if (!achou) {
                         totalProduzido += producaoReal[codigoProd];
-                        financeiroRealizado += 0; // Como não tem no pacto, assume zero ou tem que puxar do SIGTAP
+                        financeiroRealizado += 0; 
                         
+                        let nomeReal = nomesProcedimentosMV[codigoProd] || "PROCEDIMENTO NÃO LOCALIZADO NO DICIONÁRIO";
+
                         dadosTabela.push({
-                            grupo: 'EXTRA', // Tag para a tabela separar
+                            grupo: 'EXTRA',
                             codigo: codigoProd,
-                            desc: "PROCEDIMENTO NÃO PACTUADO",
+                            desc: nomeReal,
                             meta: 0,
                             prod: producaoReal[codigoProd],
                             val_unit: 0,
@@ -448,7 +454,6 @@
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Apuração', className: 'dt-button' } ],
                 
-                // --- LÓGICA DE AGRUPAMENTO (Row Grouping) ---
                 rowGroup: {
                     dataSrc: 'grupo',
                     startRender: function (rows, group) {
@@ -458,7 +463,6 @@
                             .append(`<td colspan="8"><i class="fas ${icone} mr-2"></i> PROCEDIMENTOS ${group} (${rows.count()} ITENS)</td>`);
                     }
                 },
-                // ---------------------------------------------
                 
                 footerCallback: function (row, data, start, end, display) {
                     let sumMeta = this.api().column(2).data().reduce((a, b) => a + b, 0);
