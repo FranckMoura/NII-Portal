@@ -49,6 +49,10 @@
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; background-color: rgba(0, 0, 0, 0.3) !important; color: #fbbf24 !important; border-bottom: 2px solid rgba(245, 158, 11, 0.4) !important; }
         table.dataTable tbody td { font-size: 0.75rem; padding: 10px 8px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle; }
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        
+        /* LINHA DE SEPARAÇÃO DA TABELA */
+        tr.group-header td { background-color: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; font-weight: 900; text-transform: uppercase; border-top: 1px solid rgba(56, 189, 248, 0.4) !important; border-bottom: 1px solid rgba(56, 189, 248, 0.4) !important;}
+        
         .dt-button { background: rgba(245, 158, 11, 0.1) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; margin-bottom:10px;}
         .dt-button:hover { background: rgba(245, 158, 11, 0.3) !important; color: white !important;}
 
@@ -73,6 +77,7 @@
         body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #b45309 !important; border-bottom-color: #cbd5e1 !important; }
         body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        body.theme-classic tr.group-header td { background-color: #e0f2fe !important; color: #0284c7 !important; border-top: 1px solid #bae6fd !important; border-bottom: 1px solid #bae6fd !important;}
         body.theme-classic .dt-button { background: white !important; color: #b45309 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #f59e0b !important; color: white !important; border-color: #f59e0b !important; }
         body.theme-classic .glass-chart-container { background: white !important; border-color: #e2e8f0 !important; }
@@ -94,7 +99,7 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fas fa-star text-3xl text-yellow-400"></i></div>
                 <div>
-                    <h1 class='text-3xl font-bold text-white'>Gestão Fila Zero (SES-MT)</h1>
+                    <h1 class='text-3xl font-bold text-white'>Auditoria de Metas: Fila Zero</h1>
                     <p class='text-yellow-200 text-sm mt-1 opacity-80'>Acompanhamento de Metas Pactuadas e Produção MV</p>
                 </div>
             </div>
@@ -109,14 +114,14 @@
                     <select id="mesFilter" onchange="carregarDados()" class="bg-transparent font-bold outline-none"></select>
                 </div>
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
-                <a href="../index_v2.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+                <a href="index_v2.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 relative z-10">
             <div class="glass-card border-t-yellow-500/50">
                 <div class="kpi-title" style="color: #fbbf24;"><i class="fas fa-bullseye mr-1"></i> Meta Total (Físico)</div>
                 <div class="kpi-number text-yellow-400" id="kpi-meta-fisica">0</div>
@@ -125,7 +130,12 @@
             <div class="glass-card border-t-emerald-500/50">
                 <div class="kpi-title" style="color: #34d399;"><i class="fas fa-check-double mr-1"></i> Total Produzido</div>
                 <div class="kpi-number text-emerald-400" id="kpi-produzido">0</div>
-                <div class="kpi-sub">Fila Zero no SoulMV</div>
+                <div class="kpi-sub">Fila Zero faturado no MV</div>
+            </div>
+            <div class="glass-card border-t-red-500/50">
+                <div class="kpi-title" style="color: #f87171;"><i class="fas fa-exclamation-triangle mr-1"></i> Divergência MV x Indica</div>
+                <div class="kpi-number text-red-400" id="kpi-divergencia">0</div>
+                <div class="kpi-sub text-[0.65rem] leading-tight">Diferença de registros entre as bases</div>
             </div>
             <div class="glass-card border-t-blue-500/50">
                 <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-percent mr-1"></i> Atingimento</div>
@@ -134,7 +144,7 @@
             </div>
             <div class="glass-card border-t-pink-500/50">
                 <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturamento Parcial</div>
-                <div class="kpi-number text-pink-400 text-3xl" id="kpi-financeiro">R$ 0,00</div>
+                <div class="kpi-number text-pink-400 text-2xl" id="kpi-financeiro" style="margin-top:10px;">R$ 0,00</div>
                 <div class="kpi-sub">Referente ao Produzido</div>
             </div>
         </div>
@@ -146,14 +156,14 @@
             </div>
             
             <div class="glass-chart-container">
-                <div class="glass-chart-title"><i class="fas fa-coins mr-2 text-emerald-400"></i> Financeiro</div>
+                <div class="glass-chart-title"><i class="fas fa-coins mr-2 text-emerald-400"></i> Financeiro do Pacto</div>
                 <div style="height:250px;"><canvas id="chartFinanceiro"></canvas></div>
             </div>
         </div>
 
         <div class="cyber-container mb-8">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-yellow-400"><i class="fas fa-table mr-2"></i> Auditoria de Metas: Fila Zero</h3>
+                <h3 class="font-bold text-lg text-yellow-400"><i class="fas fa-table mr-2"></i> Auditoria de Procedimentos: Fila Zero</h3>
             </div>
             
             <table id="tabelaMetas" class="display" style="width:100%">
@@ -218,13 +228,30 @@
 
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
-        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        // CLIENTE SINCRONIZADO
+        const client = window.supabase.createClient(SB_URL, SB_KEY, {
+            auth: { persistSession: true, autoRefreshToken: true }
+        });
         
         let tabelaInstancia = null;
         let chartProducao = null, chartFinanceiro = null;
 
         $(document).ready(async function() {
-            // LÓGICA DE SEGURANÇA E TEMA
+            // 1. VERIFICAÇÃO DE SESSÃO E CARGO (PORTEIRO)
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            const { data: perfil, error } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
+            if (error || !perfil || (perfil.nivel_acesso !== 'DIRETORIA' && perfil.nivel_acesso !== 'ADMIN')) {
+                alert('Acesso Restrito: Apenas usuários da Diretoria podem acessar este painel financeiro.');
+                window.location.replace('index_v2.html');
+                return; 
+            }
+
             const savedTheme = localStorage.getItem('nii_theme_hub');
             if (savedTheme === 'classic') {
                 document.body.classList.add('theme-classic');
@@ -243,21 +270,7 @@
             anoSel.val(anoMemoria || dataAtual.getFullYear()); 
             mesSel.val(mesMemoria ? String(mesMemoria).padStart(2, '0') : String(dataAtual.getMonth() + 1).padStart(2, '0'));
             
-            // --- O PORTEIRO (RBAC) ---
-            const { data: { session } } = await client.auth.getSession();
-            if (!session) {
-                window.location.replace('login.html');
-                return;
-            }
-
-            const { data: perfil, error } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
-            if (error || !perfil || (perfil.nivel_acesso !== 'DIRETORIA' && perfil.nivel_acesso !== 'ADMIN')) {
-                alert('Acesso Restrito: Apenas usuários da Diretoria podem acessar este painel financeiro.');
-                window.location.replace('index_v2.html');
-            } else {
-                // Apenas se tiver autorização, carrega os dados
-                carregarDados();
-            }
+            carregarDados();
         });
 
         function toggleTheme() { 
@@ -279,25 +292,53 @@
             const dataFimObj = new Date(ano, mes, 0); 
             const d1 = `${ano}-${mes}-01`;
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+            const prefixoMesAtual = `${ano}-${mes}`;
 
             localStorage.setItem('nii_competencia_ano', ano);
             localStorage.setItem('nii_competencia_mes', mes);
 
             try {
+                // 1. Busca Produção Fila Zero no MV
                 const { data: internacoesData, error } = await client.from('cirurgias_detalhe')
-                    .select('cod_tabela')
+                    .select('cod_tabela, paciente')
                     .ilike('convenio', '%FILA ZERO%')
                     .gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 if (error) throw error;
                 
+                // Mapeia a produção e deduplica pacientes para a contagem exata
                 let producaoReal = {};
+                let pacientesMV = new Set();
+
                 (internacoesData || []).forEach(d => {
+                    if (d.paciente) pacientesMV.add(d.paciente.trim().toUpperCase());
                     if (d.cod_tabela) {
                         let c = String(d.cod_tabela).padStart(10, '0');
                         producaoReal[c] = (producaoReal[c] || 0) + 1;
                     }
                 });
 
+                // 2. Busca Censo Fila Zero no IndicaSUS para Comparar
+                let allIndicaData = []; let fromIndica = 0; let stepIndica = 1000; let keepFetchingIndica = true;
+                while (keepFetchingIndica) {
+                    const { data: indicaData, error: errIndica } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao')
+                        .ilike('plano_sus', '%FILA ZERO%')
+                        .gte('data_extracao', d1).lte('data_extracao', d2).range(fromIndica, fromIndica + stepIndica - 1); 
+                    if (indicaData && indicaData.length > 0) { allIndicaData = allIndicaData.concat(indicaData); fromIndica += stepIndica; }
+                    if (!indicaData || indicaData.length < stepIndica) keepFetchingIndica = false;
+                }
+
+                let pacientesIndica = new Set();
+                allIndicaData.forEach(row => {
+                    if (row.nome_paciente && row.data_internacao && row.data_internacao.startsWith(prefixoMesAtual)) {
+                        pacientesIndica.add(row.nome_paciente.trim().toUpperCase());
+                    }
+                });
+
+                // Calcula Divergência (Absoluta entre as bases únicas de CPFs/Nomes do mês)
+                let divergenciaCount = Math.abs(pacientesMV.size - pacientesIndica.size);
+
+                // 3. Cruza com as Metas para montar a tabela
                 let dadosTabela = [];
                 let totalMetaFisica = 0;
                 let totalProduzido = 0;
@@ -313,6 +354,7 @@
                     financeiroRealizado += (prod * meta.val_unit);
 
                     dadosTabela.push({
+                        grupo: 'PACTUADO', // Tag para a tabela separar
                         codigo: meta.codigo,
                         desc: meta.desc,
                         meta: meta.pacto,
@@ -322,13 +364,17 @@
                     });
                 });
 
+                // Encontra "Extras"
                 Object.keys(producaoReal).forEach(codigoProd => {
                     let achou = metasFilaZero.find(m => m.codigo === codigoProd);
                     if (!achou) {
                         totalProduzido += producaoReal[codigoProd];
+                        financeiroRealizado += 0; // Como não tem no pacto, assume zero ou tem que puxar do SIGTAP
+                        
                         dadosTabela.push({
+                            grupo: 'EXTRA', // Tag para a tabela separar
                             codigo: codigoProd,
-                            desc: "PROCEDIMENTO EXTRA (FORA DO PACTO)",
+                            desc: "PROCEDIMENTO NÃO PACTUADO",
                             meta: 0,
                             prod: producaoReal[codigoProd],
                             val_unit: 0,
@@ -337,8 +383,18 @@
                     }
                 });
 
+                // Atualiza KPIs Globais
                 $('#kpi-meta-fisica').text(totalMetaFisica);
                 $('#kpi-produzido').text(totalProduzido);
+                
+                $('#kpi-divergencia').text(divergenciaCount);
+                if(divergenciaCount > 0) {
+                    $('#kpi-divergencia').addClass('text-red-400').removeClass('text-emerald-400');
+                    $('#kpi-divergencia').parent().addClass('border-t-red-500/50').removeClass('border-t-emerald-500/50');
+                } else {
+                    $('#kpi-divergencia').removeClass('text-red-400').addClass('text-emerald-400');
+                    $('#kpi-divergencia').parent().removeClass('border-t-red-500/50').addClass('border-t-emerald-500/50');
+                }
                 
                 let percentual = totalMetaFisica > 0 ? ((totalProduzido / totalMetaFisica) * 100).toFixed(1) : 0;
                 $('#kpi-atingimento').text(`${percentual}%`);
@@ -373,13 +429,13 @@
                     { data: 'prod', className: 'text-center font-black text-[1rem] text-blue-400' },
                     { data: null, className: 'text-center', render: function(d) {
                         let saldo = d.prod - d.meta;
-                        if (d.meta === 0) return `<span class="badge-excesso">EXTRA: +${d.prod}</span>`;
+                        if (d.grupo === 'EXTRA') return `<span class="badge-excesso">EXTRA: +${d.prod}</span>`;
                         if (saldo < 0) return `<span class="badge-falta">FALTAM ${Math.abs(saldo)}</span>`;
                         if (saldo === 0) return `<span class="badge-ok"><i class="fas fa-check"></i> CUMPRIDO</span>`;
                         return `<span class="badge-excesso">EXCEDEU +${saldo}</span>`;
                     }},
                     { data: null, className: 'text-center font-mono', render: function(d) {
-                        if (d.meta === 0) return '-';
+                        if (d.grupo === 'EXTRA' || d.meta === 0) return '-';
                         let pct = ((d.prod / d.meta) * 100).toFixed(0);
                         let cor = pct < 100 ? 'text-red-400' : (pct == 100 ? 'text-emerald-400' : 'text-purple-400');
                         return `<span class="font-bold ${cor}">${pct}%</span>`;
@@ -388,9 +444,22 @@
                     { data: 'fat_real', className: 'text-right font-mono font-bold text-pink-400', render: d => d > 0 ? formatBrl.format(d) : '-' }
                 ],
                 order: [[5, 'asc']], 
-                pageLength: 25, dom: 'lBrtip',
+                pageLength: 50, dom: 'lBrtip',
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                 buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Apuração', className: 'dt-button' } ],
+                
+                // --- LÓGICA DE AGRUPAMENTO (Row Grouping) ---
+                rowGroup: {
+                    dataSrc: 'grupo',
+                    startRender: function (rows, group) {
+                        let cor = group === 'PACTUADO' ? 'text-emerald-400' : 'text-purple-400';
+                        let icone = group === 'PACTUADO' ? 'fa-check-double' : 'fa-exclamation-circle';
+                        return $('<tr class="group-header">')
+                            .append(`<td colspan="8"><i class="fas ${icone} mr-2"></i> PROCEDIMENTOS ${group} (${rows.count()} ITENS)</td>`);
+                    }
+                },
+                // ---------------------------------------------
+                
                 footerCallback: function (row, data, start, end, display) {
                     let sumMeta = this.api().column(2).data().reduce((a, b) => a + b, 0);
                     let sumProd = this.api().column(3).data().reduce((a, b) => a + b, 0);
@@ -448,5 +517,7 @@
             });
         }
     </script>
+    
+    <script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
 </body>
 </html>

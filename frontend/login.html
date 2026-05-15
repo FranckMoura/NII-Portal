@@ -12,24 +12,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* MANTENHA O SEU ESTILO CSS ORIGINAL AQUI (Omitido para brevidade, use o que você já tem) */
+        /* Correção do Box Model para não vazar o input */
+        * { box-sizing: border-box; }
+
         body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); color: white; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; position: relative; overflow: hidden; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        
         .blob-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(56, 189, 248, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
         .blob-2 { position: fixed; bottom: -10%; right: -10%; width: 45vw; height: 45vw; background: rgba(168, 85, 247, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
+        
         .btn-theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; }
+        
         .login-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 50px 40px; width: 100%; max-width: 420px; text-align: center; position: relative; z-index: 2; }
         .login-logo-container { position: relative; display: inline-flex; justify-content: center; align-items: center; margin-bottom: 20px; width: 220px; height: 90px; }
         .login-logo { max-width: 100%; height: auto; position: relative; z-index: 2; filter: contrast(1.4); }
+        .login-header h2 { margin: 0 0 5px 0; font-size: 1.5rem; }
+        .login-header p { margin: 0 0 25px 0; color: #94a3b8; font-size: 0.9rem; }
+        
         .ecg-svg path { fill: none; stroke: #10b981; stroke-width: 2; filter: drop-shadow(0 0 6px #10b981); stroke-dasharray: 30 70; animation: monitorEcg 2.5s linear infinite; }
         @keyframes monitorEcg { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
-        .input-group { position: relative; margin-bottom: 15px; }
+        
+        .input-group { position: relative; margin-bottom: 15px; width: 100%; }
         .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
-        input { width: 100%; padding: 14px 15px 14px 45px; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; outline: none; }
-        button { width: 100%; padding: 14px; margin-top: 10px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        
+        input { width: 100%; padding: 14px 15px 14px 45px; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #38bdf8; background: rgba(0, 0, 0, 0.5); }
+        
+        button { width: 100%; padding: 14px; margin-top: 10px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.3s; }
+        button:hover:not(:disabled) { background: rgba(56, 189, 248, 0.2); }
+        
         #msg { background-color: rgba(239, 68, 68, 0.1); color: #fca5a5; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 20px; display: none; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
         .theme-classic { background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
-        .theme-classic .login-card { background: #ffffff !important; color: #1e293b; }
+        .theme-classic .login-card { background: #ffffff !important; color: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: none; }
+        .theme-classic input { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
+        .theme-classic input:focus { border-color: #004e92; background: #ffffff; }
     </style>
 </head>
 <body>
@@ -44,7 +61,7 @@
     <div class="login-card">
         <div class="login-header">
             <div class="login-logo-container">
-                <div class="ecg-line">
+                <div class="ecg-line" style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1;">
                     <svg viewBox="0 0 100 20" class="ecg-svg" preserveAspectRatio="none" style="width: 250px; height: 40px;">
                         <path d="M 0,10 L 16,10 L 18,3 L 21,18 L 24,2 L 27,15 L 30,10 L 100,10" pathLength="100"></path>
                     </svg>
@@ -62,7 +79,7 @@
         
         <div class="input-group">
             <i class="fas fa-lock"></i>
-            <input type="password" id="senha" placeholder="Senha">
+            <input type="password" id="senha" placeholder="Senha" onkeypress="if(event.keyCode==13) fazerLogin()">
         </div>
 
         <button onclick="fazerLogin()" id="btnLogin"><i class="fas fa-sign-in-alt"></i> Acessar Sistema</button>
@@ -71,10 +88,8 @@
 
     <script>
         const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
-        // USE SEMPRE A MESMA CHAVE EM TODOS OS ARQUIVOS
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         
-        // CONFIGURAÇÃO PADRÃO DE PERSISTÊNCIA
         const client = window.supabase.createClient(SB_URL, SB_KEY, {
             auth: {
                 persistSession: true,
@@ -100,17 +115,22 @@
                 if (error) throw error;
 
                 if (data.session) {
-                    btn.html('<i class="fas fa-check-circle"></i> Sucesso! Entrando...').css('background', '#10b981');
+                    btn.html('<i class="fas fa-check-circle"></i> Sucesso! Entrando...').css('background', '#10b981').css('color', 'white');
                     setTimeout(() => { window.location.replace("index_v2.html"); }, 600);
                 }
             } catch (e) {
                 mostrarErro("E-mail ou senha incorretos.");
-                btn.prop('disabled', false).html('<i class="fas fa-sign-in-alt"></i> Acessar Sistema');
+                btn.prop('disabled', false).html('<i class="fas fa-sign-in-alt"></i> Acessar Sistema').css('background', '').css('color', '');
             }
         }
 
         function mostrarErro(t) { $('#msg-text').text(t); $('#msg').show(); }
         function toggleTheme() { $('body').toggleClass('theme-classic'); }
+        
+        // Aplica o tema se houver
+        if(localStorage.getItem('nii_theme_hub') === 'classic') {
+            $('body').addClass('theme-classic');
+        }
     </script>
 </body>
 </html>
