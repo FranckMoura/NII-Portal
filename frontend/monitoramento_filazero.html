@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento Fila Zero - NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* TEMA GLOBAL DARK NEON */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 90px; transition: 0.5s; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(245, 158, 11, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(236, 72, 153, 0.15); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
+        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 1; transition: 0.5s; }
+        
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: transform 0.2s;}
+        .glass-chart-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; }
+
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .kpi-sub { font-size: 0.70rem; color: #94a3b8; font-weight: 500; }
+        .glass-chart-title { font-size: 0.9rem; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; }
+
+        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; transition: 0.2s;}
+        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+        .btn-theme select { background: transparent; color: white; outline: none; font-weight: bold; cursor: pointer; }
+        .btn-theme select option { background: #0f172a; color: white; }
+
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; background-color: rgba(0, 0, 0, 0.3) !important; color: #fbbf24 !important; border-bottom: 2px solid rgba(245, 158, 11, 0.4) !important; }
+        table.dataTable tbody td { font-size: 0.75rem; padding: 10px 8px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle; }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        .dt-button { background: rgba(245, 158, 11, 0.1) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.85rem !important; transition: 0.2s; margin-bottom:10px;}
+        .dt-button:hover { background: rgba(245, 158, 11, 0.3) !important; color: white !important;}
+
+        #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+
+        /* BADGES */
+        .badge-falta { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; }
+        .badge-ok { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; }
+        .badge-excesso { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; }
+
+        /* MODO CLÁSSICO */
+        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
+        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
+        body.theme-classic .kpi-title, body.theme-classic .kpi-sub { color: #64748b !important; }
+        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
+        body.theme-classic .btn-theme select { color: #004e92; }
+        body.theme-classic .btn-theme select option { background: white; color: #0f172a; }
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #b45309 !important; border-bottom-color: #cbd5e1 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        body.theme-classic .dt-button { background: white !important; color: #b45309 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #f59e0b !important; color: white !important; border-color: #f59e0b !important; }
+        body.theme-classic .glass-chart-container { background: white !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .glass-chart-title { color: #0f172a !important; border-bottom-color: #e2e8f0 !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:none;">
+        <i class="fas fa-chart-pie fa-spin text-5xl text-yellow-400 mb-4"></i>
+        <p class="text-yellow-200 font-bold text-lg" id="loader-text">Apurando Metas Fila Zero...</p>
+    </div>
+
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class='header-bg shadow-lg mb-6'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4 flex-wrap gap-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fas fa-star text-3xl text-yellow-400"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Gestão Fila Zero (SES-MT)</h1>
+                    <p class='text-yellow-200 text-sm mt-1 opacity-80'>Acompanhamento de Metas Pactuadas e Produção MV</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-yellow-500 mr-2">Ano:</span>
+                    <select id="anoFilter" onchange="carregarDados()" class="bg-transparent font-bold outline-none"></select>
+                </div>
+                <div class="btn-theme" style="padding: 4px 10px;">
+                    <span class="text-xs font-bold uppercase text-yellow-500 mr-2">Mês:</span>
+                    <select id="mesFilter" onchange="carregarDados()" class="bg-transparent font-bold outline-none"></select>
+                </div>
+                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
+                <a href="../index_v2.html" class="btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
+            <div class="glass-card border-t-yellow-500/50">
+                <div class="kpi-title" style="color: #fbbf24;"><i class="fas fa-bullseye mr-1"></i> Meta Total (Físico)</div>
+                <div class="kpi-number text-yellow-400" id="kpi-meta-fisica">0</div>
+                <div class="kpi-sub">Cirurgias Pactuadas / Mês</div>
+            </div>
+            <div class="glass-card border-t-emerald-500/50">
+                <div class="kpi-title" style="color: #34d399;"><i class="fas fa-check-double mr-1"></i> Total Produzido</div>
+                <div class="kpi-number text-emerald-400" id="kpi-produzido">0</div>
+                <div class="kpi-sub">Fila Zero no SoulMV</div>
+            </div>
+            <div class="glass-card border-t-blue-500/50">
+                <div class="kpi-title" style="color: #38bdf8;"><i class="fas fa-percent mr-1"></i> Atingimento</div>
+                <div class="kpi-number text-blue-400" id="kpi-atingimento">0%</div>
+                <div class="kpi-sub">Cumprimento do Pacto</div>
+            </div>
+            <div class="glass-card border-t-pink-500/50">
+                <div class="kpi-title" style="color: #f472b6;"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturamento Parcial</div>
+                <div class="kpi-number text-pink-400 text-3xl" id="kpi-financeiro">R$ 0,00</div>
+                <div class="kpi-sub">Referente ao Produzido</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
+            <div class="glass-chart-container lg:col-span-2">
+                <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-yellow-400"></i> Top Procedimentos: Produção vs Meta</div>
+                <div style="height:250px;"><canvas id="chartProducao"></canvas></div>
+            </div>
+            
+            <div class="glass-chart-container">
+                <div class="glass-chart-title"><i class="fas fa-coins mr-2 text-emerald-400"></i> Financeiro</div>
+                <div style="height:250px;"><canvas id="chartFinanceiro"></canvas></div>
+            </div>
+        </div>
+
+        <div class="cyber-container mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-yellow-400"><i class="fas fa-table mr-2"></i> Auditoria de Metas: Fila Zero</h3>
+            </div>
+            
+            <table id="tabelaMetas" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th width="90" class="text-center">Cód. SIGTAP</th>
+                        <th class="text-left">Procedimento</th>
+                        <th width="70" class="text-center" title="Quantidade do Contrato">Pacto</th>
+                        <th width="70" class="text-center" title="Quantidade Feita">Prod.</th>
+                        <th width="100" class="text-center">Status / Saldo</th>
+                        <th width="80" class="text-center">Ating. (%)</th>
+                        <th width="100" class="text-right">Val. Unitário</th>
+                        <th width="120" class="text-right">Fat. Atual</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-right font-black uppercase tracking-widest text-xs">Totalização:</th>
+                        <th id="foot-pacto" class="text-center font-black">0</th>
+                        <th id="foot-prod" class="text-center font-black text-emerald-400">0</th>
+                        <th colspan="3" class="text-right font-black uppercase text-xs">Faturamento Parcial Acumulado:</th>
+                        <th id="foot-fat" class="text-right font-black text-pink-400">R$ 0,00</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        const metasFilaZero = [
+            {codigo: "0407010297", desc: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", pacto: 1, val_unit: 2298.18},
+            {codigo: "0407020284", desc: "HEMORROIDECTOMIA", pacto: 2, val_unit: 947.82},
+            {codigo: "0407020276", desc: "FISTULECTOMIA / FISTULOTOMIA ANAL", pacto: 1, val_unit: 1091.70},
+            {codigo: "0407030026", desc: "COLECISTECTOMIA", pacto: 20, val_unit: 2989.02},
+            {codigo: "0409070050", desc: "COLPOPERINEOPLASTIA ANTERIOR E POSTERIOR", pacto: 1, val_unit: 1889.72},
+            {codigo: "0407040080", desc: "HERNIOPLASTIA INCISIONAL", pacto: 2, val_unit: 1619.76},
+            {codigo: "0407040099", desc: "HERNIOPLASTIA INGUINAL (BILATERAL)", pacto: 2, val_unit: 1830.18},
+            {codigo: "0407040102", desc: "HERNIOPLASTIA INGUINAL / CRURAL (UNILATERAL)", pacto: 10, val_unit: 1913.91},
+            {codigo: "0407040129", desc: "HERNIOPLASTIA UMBILICAL", pacto: 4, val_unit: 1304.97},
+            {codigo: "0408050160", desc: "RECONSTRUCAO LIGAMENTAR INTRA-ARTICULAR DO JOELHO", pacto: 12, val_unit: 31202.76},
+            {codigo: "0409030040", desc: "RESSECCAO ENDOSCOPICA DE PROSTATA", pacto: 1, val_unit: 8158.78},
+            {codigo: "0409020176", desc: "URETROTOMIA INTERNA", pacto: 1, val_unit: 1279.68},
+            {codigo: "0409040240", desc: "VASECTOMIA", pacto: 1, val_unit: 1755.48},
+            {codigo: "0409040169", desc: "ORQUIECTOMIA UNILATERAL", pacto: 1, val_unit: 1400.52},
+            {codigo: "0409040215", desc: "TRATAMENTO CIRURGICO DE HIDROCELE", pacto: 1, val_unit: 1027.88},
+            {codigo: "0409060038", desc: "EXCISÃO TIPO 3 DO COLO UTERINO", pacto: 3, val_unit: 1774.64},
+            {codigo: "0409060046", desc: "CURETAGEM SEMIOTICA C/ OU S/ DILATACAO", pacto: 1, val_unit: 669.68},
+            {codigo: "0409060119", desc: "HISTERECTOMIA C/ ANEXECTOMIA (UNI / BILATERAL)", pacto: 2, val_unit: 4414.56},
+            {codigo: "0409060135", desc: "HISTERECTOMIA TOTAL", pacto: 7, val_unit: 3631.72},
+            {codigo: "0409060194", desc: "MIOMECTOMIA", pacto: 1, val_unit: 2115.76},
+            {codigo: "0409060186", desc: "LAQUEADURA TUBARIA", pacto: 16, val_unit: 1941.92},
+            {codigo: "0409060216", desc: "OOFORECTOMIA / OOFOROPLASTIA", pacto: 1, val_unit: 2039.44},
+            {codigo: "0409060232", desc: "SALPINGECTOMIA UNI / BILATERAL", pacto: 1, val_unit: 1862.36},
+            {codigo: "0409070157", desc: "EXERESE DE GLANDULA DE BARTHOLIN / SKENE", pacto: 1, val_unit: 898.72},
+            {codigo: "0409070190", desc: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", pacto: 1, val_unit: 559.84}
+        ];
+
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaInstancia = null;
+        let chartProducao = null, chartFinanceiro = null;
+
+        $(document).ready(async function() {
+            // LÓGICA DE SEGURANÇA E TEMA
+            const savedTheme = localStorage.getItem('nii_theme_hub');
+            if (savedTheme === 'classic') {
+                document.body.classList.add('theme-classic');
+                $('.glass-chart-title.sticky').css('background', '#ffffff');
+            }
+
+            const anoSel = $('#anoFilter');
+            const mesSel = $('#mesFilter');
+            const dataAtual = new Date();
+            for(let i = dataAtual.getFullYear() + 1; i >= 2024; i--) anoSel.append(`<option value="${i}">${i}</option>`);
+            const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+            meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
+            
+            let anoMemoria = localStorage.getItem('nii_competencia_ano');
+            let mesMemoria = localStorage.getItem('nii_competencia_mes');
+            anoSel.val(anoMemoria || dataAtual.getFullYear()); 
+            mesSel.val(mesMemoria ? String(mesMemoria).padStart(2, '0') : String(dataAtual.getMonth() + 1).padStart(2, '0'));
+            
+            // --- O PORTEIRO (RBAC) ---
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            const { data: perfil, error } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
+            if (error || !perfil || (perfil.nivel_acesso !== 'DIRETORIA' && perfil.nivel_acesso !== 'ADMIN')) {
+                alert('Acesso Restrito: Apenas usuários da Diretoria podem acessar este painel financeiro.');
+                window.location.replace('index_v2.html');
+            } else {
+                // Apenas se tiver autorização, carrega os dados
+                carregarDados();
+            }
+        });
+
+        function toggleTheme() { 
+            const body = document.body;
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_hub', 'neon');
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_hub', 'classic');
+            }
+            carregarDados(); 
+        }
+
+        async function carregarDados() {
+            $('#loader').fadeIn();
+            const ano = $('#anoFilter').val();
+            const mes = $('#mesFilter').val();
+            const dataFimObj = new Date(ano, mes, 0); 
+            const d1 = `${ano}-${mes}-01`;
+            const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+
+            localStorage.setItem('nii_competencia_ano', ano);
+            localStorage.setItem('nii_competencia_mes', mes);
+
+            try {
+                const { data: internacoesData, error } = await client.from('cirurgias_detalhe')
+                    .select('cod_tabela')
+                    .ilike('convenio', '%FILA ZERO%')
+                    .gte('data_cirurgia', d1).lte('data_cirurgia', d2);
+                if (error) throw error;
+                
+                let producaoReal = {};
+                (internacoesData || []).forEach(d => {
+                    if (d.cod_tabela) {
+                        let c = String(d.cod_tabela).padStart(10, '0');
+                        producaoReal[c] = (producaoReal[c] || 0) + 1;
+                    }
+                });
+
+                let dadosTabela = [];
+                let totalMetaFisica = 0;
+                let totalProduzido = 0;
+                let financeiroPacto = 0;
+                let financeiroRealizado = 0;
+
+                metasFilaZero.forEach(meta => {
+                    let prod = producaoReal[meta.codigo] || 0;
+                    
+                    totalMetaFisica += meta.pacto;
+                    totalProduzido += prod;
+                    financeiroPacto += (meta.pacto * meta.val_unit);
+                    financeiroRealizado += (prod * meta.val_unit);
+
+                    dadosTabela.push({
+                        codigo: meta.codigo,
+                        desc: meta.desc,
+                        meta: meta.pacto,
+                        prod: prod,
+                        val_unit: meta.val_unit,
+                        fat_real: prod * meta.val_unit
+                    });
+                });
+
+                Object.keys(producaoReal).forEach(codigoProd => {
+                    let achou = metasFilaZero.find(m => m.codigo === codigoProd);
+                    if (!achou) {
+                        totalProduzido += producaoReal[codigoProd];
+                        dadosTabela.push({
+                            codigo: codigoProd,
+                            desc: "PROCEDIMENTO EXTRA (FORA DO PACTO)",
+                            meta: 0,
+                            prod: producaoReal[codigoProd],
+                            val_unit: 0,
+                            fat_real: 0
+                        });
+                    }
+                });
+
+                $('#kpi-meta-fisica').text(totalMetaFisica);
+                $('#kpi-produzido').text(totalProduzido);
+                
+                let percentual = totalMetaFisica > 0 ? ((totalProduzido / totalMetaFisica) * 100).toFixed(1) : 0;
+                $('#kpi-atingimento').text(`${percentual}%`);
+                
+                if(percentual < 50) $('#kpi-atingimento').attr('class', 'kpi-number text-red-400');
+                else if(percentual < 95) $('#kpi-atingimento').attr('class', 'kpi-number text-yellow-400');
+                else if(percentual <= 100) $('#kpi-atingimento').attr('class', 'kpi-number text-emerald-400');
+                else $('#kpi-atingimento').attr('class', 'kpi-number text-purple-400'); 
+
+                $('#kpi-financeiro').text(formatBrl.format(financeiroRealizado));
+
+                montarTabela(dadosTabela);
+                montarGraficos(dadosTabela, financeiroPacto, financeiroRealizado);
+
+            } catch (err) { 
+                console.error(err); 
+                alert("Erro ao puxar dados do Fila Zero.");
+            } finally { 
+                $('#loader').fadeOut(); 
+            }
+        }
+
+        function montarTabela(dados) {
+            if (tabelaInstancia) { tabelaInstancia.destroy(); $('#tabelaMetas tbody').empty(); }
+            
+            tabelaInstancia = $('#tabelaMetas').DataTable({
+                data: dados,
+                columns: [
+                    { data: 'codigo', className: 'text-center font-mono font-bold text-gray-400' },
+                    { data: 'desc', className: 'font-semibold', render: d => d.length > 50 ? `<span title="${d}">${d.substring(0,50)}...</span>` : d },
+                    { data: 'meta', className: 'text-center font-black text-[1rem]' },
+                    { data: 'prod', className: 'text-center font-black text-[1rem] text-blue-400' },
+                    { data: null, className: 'text-center', render: function(d) {
+                        let saldo = d.prod - d.meta;
+                        if (d.meta === 0) return `<span class="badge-excesso">EXTRA: +${d.prod}</span>`;
+                        if (saldo < 0) return `<span class="badge-falta">FALTAM ${Math.abs(saldo)}</span>`;
+                        if (saldo === 0) return `<span class="badge-ok"><i class="fas fa-check"></i> CUMPRIDO</span>`;
+                        return `<span class="badge-excesso">EXCEDEU +${saldo}</span>`;
+                    }},
+                    { data: null, className: 'text-center font-mono', render: function(d) {
+                        if (d.meta === 0) return '-';
+                        let pct = ((d.prod / d.meta) * 100).toFixed(0);
+                        let cor = pct < 100 ? 'text-red-400' : (pct == 100 ? 'text-emerald-400' : 'text-purple-400');
+                        return `<span class="font-bold ${cor}">${pct}%</span>`;
+                    }},
+                    { data: 'val_unit', className: 'text-right font-mono text-gray-400', render: d => d > 0 ? formatBrl.format(d) : '-' },
+                    { data: 'fat_real', className: 'text-right font-mono font-bold text-pink-400', render: d => d > 0 ? formatBrl.format(d) : '-' }
+                ],
+                order: [[5, 'asc']], 
+                pageLength: 25, dom: 'lBrtip',
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Apuração', className: 'dt-button' } ],
+                footerCallback: function (row, data, start, end, display) {
+                    let sumMeta = this.api().column(2).data().reduce((a, b) => a + b, 0);
+                    let sumProd = this.api().column(3).data().reduce((a, b) => a + b, 0);
+                    let sumFat = this.api().column(7).data().reduce((a, b) => a + b, 0);
+
+                    $('#foot-pacto').text(sumMeta);
+                    $('#foot-prod').text(sumProd);
+                    $('#foot-fat').text(formatBrl.format(sumFat));
+                }
+            });
+        }
+
+        function montarGraficos(dados, fatPacto, fatReal) {
+            let isClassic = document.body.classList.contains('theme-classic');
+            Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.6)';
+
+            let topDados = dados.filter(d => d.meta > 0).sort((a,b) => b.meta - a.meta).slice(0, 7);
+            
+            if(chartProducao) chartProducao.destroy();
+            chartProducao = new Chart(document.getElementById('chartProducao').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: topDados.map(d => d.desc.substring(0, 15) + '...'),
+                    datasets: [
+                        { label: 'Meta Pactuada', data: topDados.map(d => d.meta), backgroundColor: isClassic ? '#e2e8f0' : 'rgba(255,255,255,0.1)', borderRadius: 4 },
+                        { label: 'Produzido', data: topDados.map(d => d.prod), backgroundColor: isClassic ? '#3b82f6' : 'rgba(56, 189, 248, 0.8)', borderRadius: 4 }
+                    ]
+                },
+                options: { 
+                    responsive:true, maintainAspectRatio:false, 
+                    plugins:{ legend:{position: 'top'}, datalabels: { display: false } }, 
+                    scales: { y: { beginAtZero: true, grid: { color: isClassic ? '#f1f5f9' : 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } 
+                }
+            });
+
+            if(chartFinanceiro) chartFinanceiro.destroy();
+            chartFinanceiro = new Chart(document.getElementById('chartFinanceiro').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Faturamento Alcançado', 'Saldo a Faturar'],
+                    datasets: [{ 
+                        data: [fatReal, Math.max(0, fatPacto - fatReal)], 
+                        backgroundColor: isClassic ? ['#ec4899', '#f1f5f9'] : ['#f472b6', 'rgba(255,255,255,0.05)'], 
+                        borderWidth: 0 
+                    }]
+                },
+                options: { 
+                    responsive:true, maintainAspectRatio:false, cutout: '70%',
+                    plugins:{ 
+                        legend:{position:'bottom'}, 
+                        datalabels: { display: false },
+                        tooltip: { callbacks: { label: function(context) { return formatBrl.format(context.raw); } } }
+                    } 
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -268,6 +268,10 @@
                         <i class="fas fa-bed-pulse nav-icon text-rose-400"></i>
                         <div class="nav-text"><span class="nav-title">Monitoramento Int.</span><span class="nav-desc">Internações e Cirurgias</span></div>
                     </a>
+                    <a href="#" onclick="irParaPainel('monitoramento_filazero.html')" class="nav-item">
+                        <img src="../logo_sesmt.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-star nav-icon\'></i>';">
+                        <div class="nav-text"><span class="nav-title">Auditoria Fila Zero</span><span class="nav-desc">Metas e Produção</span></div>
+                    </a>
                     <a href="#" onclick="irParaPainel('painel_indicasus_v2.html')" class="nav-item">
                         <img src="../LogoSES-Gov.png" class="nav-logo" onerror="this.onerror=null; this.outerHTML='<i class=\'fas fa-bed-pulse nav-icon\'></i>';">
                         <div class="nav-text"><span class="nav-title">Auditoria IndicaSUS</span><span class="nav-desc">Monitoramento de Leitos</span></div>
@@ -461,7 +465,7 @@
                     <div class="kpi-sub text-gray-400" id="kpi-sisreg-sub">Pendentes no Município</div>
                 </a>
 
-                <a href="#" onclick="irParaPainel('painel_filazero.html')" class="glass-card">
+                <a href="#" onclick="irParaPainel('monitoramento_filazero.html')" class="glass-card">
                     <i class="fas fa-star kpi-icon text-yellow-500"></i>
                     <div class="kpi-title">Programa Fila Zero</div>
                     <div class="kpi-number text-yellow-400" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
@@ -521,7 +525,7 @@
                 <h3 class="elasti-title">Regulação SISREG</h3>
                 <p class="elasti-desc">Monitoramento de solicitações e dossiês.</p>
             </a>
-            <a href="#" onclick="event.preventDefault(); irParaPainel('painel_filazero.html');" class="elasti-card">
+            <a href="#" onclick="event.preventDefault(); irParaPainel('monitoramento_filazero.html');" class="elasti-card">
                 <div class="elasti-logo-wrapper"><img src="../logo_sesmt.png" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo_sesmt.png'"></div>
                 <h3 class="elasti-title">Produção Fila Zero</h3>
                 <p class="elasti-desc">Acompanhamento exclusivo do programa estadual.</p>
@@ -828,7 +832,7 @@
             }
         }
 
-        $(document).ready(() => { 
+        $(document).ready(async () => { 
             const savedTheme = localStorage.getItem('nii_theme_hub');
             const btnIcon = document.querySelector('#btn-theme-toggle i');
             if (savedTheme === 'classic') { 
@@ -837,6 +841,20 @@
             }
             setupAnoMes(); 
             definirCompetenciaAtiva().then(() => carregarResumoCentral()); 
+
+            // --- LÓGICA PARA ESCONDER BOTÕES POR CARGO ---
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                const { data: perfil } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
+                
+                // Se a pessoa NÃO for da Diretoria...
+                if (perfil && perfil.nivel_acesso !== 'DIRETORIA' && perfil.nivel_acesso !== 'ADMIN') {
+                    // Esconde todos os links e cards que apontam para o monitoramento_filazero
+                    $('a[onclick*="monitoramento_filazero.html"]').hide();
+                }
+            } else {
+                window.location.replace('login.html');
+            }
         });
     </script>
 </body>
