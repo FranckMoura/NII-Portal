@@ -68,6 +68,33 @@
             font-weight: bold;
             color: #333;
             display: none;
+            border: 1px solid #ced4da;
+        }
+        
+        /* CORES PARA A ESTRATIFICAÇÃO DA DRC */
+        .fase-1 { color: #28a745; } /* Verde */
+        .fase-2 { color: #9acd32; } /* Verde amarelado */
+        .fase-3a { color: #ffc107; } /* Amarelo */
+        .fase-3b { color: #fd7e14; } /* Laranja */
+        .fase-4 { color: #e83e8c; } /* Rosa/Vermelho claro */
+        .fase-5 { color: #dc3545; } /* Vermelho escuro */
+        
+        .titulo-fase {
+            display: block;
+            margin-top: 12px;
+            font-size: 20px;
+            font-weight: 900;
+        }
+        .desc-fase {
+            display: block;
+            margin-top: 4px;
+            font-size: 14px;
+            font-weight: normal;
+            color: #6c757d;
+        }
+        .valor-tfge {
+            color: #0056b3;
+            font-size: 22px;
         }
     </style>
 </head>
@@ -97,8 +124,7 @@
     <button onclick="calcularTFGe()">Calcular Função Renal</button>
 
     <div class="resultado" id="resultadoBox">
-        TFGe: <span id="valorTFGe"></span> mL/min/1.73m²
-    </div>
+        </div>
 </div>
 
 <script>
@@ -130,11 +156,46 @@
             }
         }
 
-        // Exibir o resultado formatado com 2 casas decimais
+        // LÓGICA DE ESTRATIFICAÇÃO (FASES DRC)
+        let fase = "";
+        let desc = "";
+        let colorClass = "";
+
+        if (tfge >= 90) {
+            fase = "Fase 1";
+            desc = "Dano renal com TFG normal ou aumentada";
+            colorClass = "fase-1";
+        } else if (tfge >= 60) {
+            fase = "Fase 2";
+            desc = "Dano renal com leve diminuição da TFG";
+            colorClass = "fase-2";
+        } else if (tfge >= 45) {
+            fase = "Fase 3A";
+            desc = "Diminuição leve a moderada da TFG";
+            colorClass = "fase-3a";
+        } else if (tfge >= 30) {
+            fase = "Fase 3B";
+            desc = "Diminuição moderada a grave da TFG";
+            colorClass = "fase-3b";
+        } else if (tfge >= 15) {
+            fase = "Fase 4";
+            desc = "Diminuição grave da TFG";
+            colorClass = "fase-4";
+        } else {
+            fase = "Fase 5";
+            desc = "Falência renal";
+            colorClass = "fase-5";
+        }
+
+        // MONTAGEM DO HTML DENTRO DO BOX DE RESULTADO
         const resultadoBox = document.getElementById('resultadoBox');
-        const valorTFGe = document.getElementById('valorTFGe');
         
-        valorTFGe.innerText = tfge.toFixed(2);
+        resultadoBox.innerHTML = `
+            TFGe: <span class="valor-tfge">${tfge.toFixed(2)}</span> <span style="font-size:14px; font-weight:normal;">mL/min/1.73m²</span>
+            <span class="titulo-fase ${colorClass}">${fase}</span>
+            <span class="desc-fase">${desc}</span>
+        `;
+        
         resultadoBox.style.display = 'block';
     }
 </script>

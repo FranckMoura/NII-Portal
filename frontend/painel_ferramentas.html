@@ -151,7 +151,7 @@
                     <i class="fas fa-kidneys tool-icon text-red-400"></i>
                     <div>
                         <h3 class="tool-title">Função Renal (ClCr)</h3>
-                        <p class="tool-desc">Clearance de Creatinina (Cockcroft-Gault) para análise de protocolos e OPME.</p>
+                        <p class="tool-desc">Clearance de Creatinina (Cockcroft-Gault) e classificação da Doença Renal Crônica (DRC).</p>
                     </div>
                 </div>
             </div>
@@ -420,22 +420,18 @@
             const tipo = $('#tipoLaudoOculto').val();
             
             if (tipo === 'ACOMPANHANTE') {
-                // Preenche automaticamente o código e descrição da diária de acompanhante (Baseado no PDF)
                 $('#chk_secao_esp').addClass('checked');
                 $('#chk_secao_diaria').addClass('checked');
                 $('#chk_acompanhante').addClass('checked');
-                $('#prt_desc_esp').text('DIARIA DE ACOMPANHANTE DE GESTANTE C/ PERNOITE'); // Exemplo baseado no PDF anexado
+                $('#prt_desc_esp').text('DIARIA DE ACOMPANHANTE DE GESTANTE C/ PERNOITE'); 
                 $('#prt_cod_esp').text('0802010032');
             } else {
-                // Deixa em branco para preenchimento manual à caneta após imprimir
                 $('#chk_secao_esp').addClass('checked');
                 $('#chk_secao_diaria').addClass('checked');
             }
 
-            // Esconde o modal e chama a janela de impressão do navegador
             $('#modalFormLaudo').hide();
             
-            // O delay é para garantir que a interface reagiu
             setTimeout(() => {
                 window.print();
             }, 300);
@@ -524,7 +520,43 @@
             let clcr = ((140 - idade) * peso) / (72 * cr);
             if (sexo === 'F') clcr = clcr * 0.85;
 
-            $('#calcResult').html(`ClCr: <span class="text-blue-400">${clcr.toFixed(1)} ml/min</span>`).removeClass('hidden');
+            let fase = "";
+            let desc = "";
+            let colorClass = "";
+
+            if (clcr >= 90) {
+                fase = "Fase 1";
+                desc = "Dano renal com TFG normal ou aumentada";
+                colorClass = "text-green-400";
+            } else if (clcr >= 60) {
+                fase = "Fase 2";
+                desc = "Dano renal com leve diminuição da TFG";
+                colorClass = "text-yellow-300";
+            } else if (clcr >= 45) {
+                fase = "Fase 3A";
+                desc = "Diminuição leve a moderada da TFG";
+                colorClass = "text-yellow-500";
+            } else if (clcr >= 30) {
+                fase = "Fase 3B";
+                desc = "Diminuição moderada a grave da TFG";
+                colorClass = "text-orange-400";
+            } else if (clcr >= 15) {
+                fase = "Fase 4";
+                desc = "Diminuição grave da TFG";
+                colorClass = "text-orange-600";
+            } else {
+                fase = "Fase 5";
+                desc = "Falência renal";
+                colorClass = "text-red-500";
+            }
+
+            $('#calcResult').html(`
+                ClCr: <span class="text-blue-400">${clcr.toFixed(1)} ml/min</span><br>
+                <div class="mt-2 text-sm">
+                    <span class="font-bold ${colorClass}">${fase}</span><br>
+                    <span class="font-normal text-gray-400">${desc}</span>
+                </div>
+            `).removeClass('hidden');
         }
     </script>
 </body>
