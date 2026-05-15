@@ -276,7 +276,6 @@
             if (tabelaInstancia) aplicarFiltrosGlobais(); 
         }
 
-        // FUNÇÃO DE CLIQUE NOS CARDS (DRILL-DOWN FOCADO EM CIRURGIAS)
         window.filtrarPorCard = function(tipo) {
             $('#filtroAtendimento').val('TODOS');
             $('#filtroFinanciamento').val('TODOS');
@@ -302,7 +301,6 @@
             }
         };
 
-        // INTELIGÊNCIA DE CLASSIFICAÇÃO
         function classificarInternacao(codigo, procedimento, convenio) {
             let tipoAtend = 'NÃO IDENTIFICADO';
             let tipoFinan = 'SUS PADRÃO';
@@ -341,7 +339,19 @@
                     .gte('data_cirurgia', d1).lte('data_cirurgia', d2);
                 if (error) throw error;
                 
-                dadosBase = (internacoesData || []).map(d => {
+                // --- ESCUDO ANTIDUPLICIDADE ---
+                let mapaDeduplicacao = new Map();
+                (internacoesData || []).forEach(d => {
+                    // Cria uma chave única combinando Paciente, Data da Cirurgia e Código SIGTAP
+                    let chave = `${d.paciente}_${d.data_cirurgia}_${d.cod_tabela}`;
+                    if (!mapaDeduplicacao.has(chave)) {
+                        mapaDeduplicacao.set(chave, d);
+                    }
+                });
+                let dadosUnicos = Array.from(mapaDeduplicacao.values());
+                // ------------------------------
+
+                dadosBase = dadosUnicos.map(d => {
                     let classificacao = classificarInternacao(d.cod_tabela, d.procedimento, d.convenio);
                     return { ...d, tipo_atendimento: classificacao.tipoAtend, tipo_financiamento: classificacao.tipoFinan };
                 });
@@ -370,7 +380,6 @@
             let qtdCir = 0, qtdCirSUS = 0, qtdCirFZ = 0, qtdCli = 0;
             let mapProc = {}, mapMed = {}, mapDias = {};
 
-            // O KPI focado em cirurgias!
             dados.forEach(d => {
                 if (d.tipo_atendimento === 'CIRÚRGICO') {
                     qtdCir++;
@@ -405,7 +414,6 @@
 
             let arrMed = Object.keys(mapMed).map(k => ({nome: k, qtd: mapMed[k]})).sort((a,b) => b.qtd - a.qtd);
             
-            // CONTAGEM CORRETA: Exclui o "NÃO INFORMADO" e "-"
             let countMedicosValidos = arrMed.filter(m => m.nome !== 'NÃO INFORMADO' && m.nome !== '-').length;
             $('#totalMedDiff').text(countMedicosValidos + " médicos");
             
