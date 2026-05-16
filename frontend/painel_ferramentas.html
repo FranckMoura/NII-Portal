@@ -70,10 +70,10 @@
         body.theme-classic .autocomplete-cod { color: #004e92; }
 
         /* ========================================================= */
-        /* ÁREA DE IMPRESSÃO (O LAUDO OFICIAL SUS)                   */
+        /* ÁREA DE IMPRESSÃO (OS LAUDOS OFICIAIS SUS)                */
         /* ========================================================= */
         #area-impressao { display: none; }
-        #area-impressao-aih { display: none; } /* Nova área para AIH */
+        #area-impressao-aih { display: none; }
 
         @media print {
             @page { size: A4 portrait; margin: 8mm; }
@@ -82,22 +82,22 @@
             
             .header-bg, .blob-1, .blob-2, .cyber-container, .modal-overlay, #area-impressao, #area-impressao-aih { display: none !important; }
 
-            /* Controle de qual laudo imprimir via classe no body */
-            body.print-laudo-especial #area-impressao { display: block !important; width: 100%; font-family: Arial, sans-serif; color: black; font-size: 10px; }
-            body.print-laudo-aih #area-impressao-aih { display: block !important; width: 100%; font-family: Arial, sans-serif; color: black; font-size: 10px; }
+            /* Controle de qual laudo imprimir */
+            body.print-laudo-especial #area-impressao { display: block !important; width: 100%; font-family: Arial, Helvetica, sans-serif; color: black; font-size: 10px; }
+            body.print-laudo-aih #area-impressao-aih { display: block !important; width: 100%; font-family: Arial, Helvetica, sans-serif; color: black; font-size: 10px; }
             
             .tabela-sus { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-            .tabela-sus td, .tabela-sus th { border: 1px solid black; padding: 3px 5px; vertical-align: top; }
-            .cabecalho-sus { text-align: center; font-weight: bold; font-size: 13px; background: #e0e0e0; }
-            .titulo-secao { font-weight: bold; background: #e0e0e0; font-size: 11px; padding: 4px !important; text-align: center;}
-            .campo-menor { font-size: 8px; color: #333; display: block; }
-            .valor-campo { font-size: 11px; font-weight: bold; min-height: 14px; display: block; margin-top: 2px;}
+            .tabela-sus td, .tabela-sus th { border: 1px solid black; padding: 2px 4px; vertical-align: top; }
+            .cabecalho-sus { text-align: center; font-weight: bold; font-size: 13px; background: #e0e0e0 !important; }
+            .titulo-secao { font-weight: bold; background: #e0e0e0 !important; font-size: 11px; padding: 3px !important; text-align: center;}
+            .campo-menor { font-size: 8px; color: #000; display: block; text-transform: uppercase; }
+            .valor-campo { font-size: 11px; font-weight: bold; min-height: 14px; display: block; margin-top: 1px;}
             
-            .box-check { display: inline-block; width: 12px; height: 12px; border: 1px solid black; margin-right: 5px; vertical-align: middle; text-align: center; line-height: 12px; font-weight: bold;}
+            .box-check { display: inline-block; width: 10px; height: 10px; border: 1px solid black; margin-right: 3px; vertical-align: middle; text-align: center; line-height: 10px; font-weight: bold; font-size: 9px;}
             .checked::after { content: 'X'; }
             
-            .assinatura-box { text-align: center; margin-top: 30px; }
-            .linha-assinatura { border-top: 1px solid black; width: 80%; margin: 0 auto 5px auto; }
+            .assinatura-box { text-align: center; margin-top: 15px; }
+            .linha-assinatura { border-top: 1px solid black; width: 80%; margin: 0 auto 3px auto; }
         }
     </style>
 </head>
@@ -112,13 +112,13 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-toolbox text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold text-white'>Central de Ferramentas</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Laudos Inteligentes, Calculadoras e Arquivos</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Laudos Inteligentes, Calculadoras e Arquivos (Acesso Público)</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-magic"></i></button>
-                <a href="../index_v2.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar ao Hub</a>
+                <a href="../login.html" class="btn-theme text-white"><i class="fas fa-sign-in-alt"></i> Acesso Restrito NII</a>
             </div>
         </div>
     </div>
@@ -318,13 +318,13 @@
     <div id="area-impressao">
         <table class="tabela-sus" style="margin-bottom: 5px;">
             <tr>
-                <td width="20%" style="text-align: center; vertical-align: middle;"><img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'"></td>
-                <td width="60%" class="cabecalho-sus" style="vertical-align: middle;">
+                <td width="20%" style="text-align: center; border-right: none; vertical-align: middle;"><img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'"></td>
+                <td width="60%" class="cabecalho-sus" style="vertical-align: middle; border-left: none; border-right: none;">
                     MINISTÉRIO DA SAÚDE<br>
                     SISTEMA ÚNICO DE SAÚDE - SUS<br>
                     LAUDO PARA SOLICITAÇÃO/AUTORIZAÇÃO DE MUDANÇA DE PROCEDIMENTO E DE PROCEDIMENTOS(S) ESPECIAL(AIS)
                 </td>
-                <td width="20%" style="text-align: center; vertical-align: middle; font-size: 10px;">Folha<br>1/1</td>
+                <td width="20%" style="text-align: center; vertical-align: middle; font-size: 10px; border-left: none;">Folha<br>1/1</td>
             </tr>
         </table>
         
@@ -332,6 +332,10 @@
             <tr><td colspan="2" class="titulo-secao">IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE</td></tr>
             <tr>
                 <td width="80%"><span class="campo-menor">ESTABELECIMENTO SOLICITANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
+                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
+            </tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">ESTABELECIMENTO EXECUTANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
                 <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
             </tr>
         </table>
@@ -347,17 +351,51 @@
                 <td><span class="campo-menor">DATA DE NASCIMENTO</span><span class="valor-campo" id="prt_nascimento"></span></td>
                 <td colspan="2" style="text-align: center;">
                     <span class="campo-menor">SEXO</span>
-                    <span class="box-check" id="chk_masc"></span> MASC &nbsp;&nbsp;&nbsp;
-                    <span class="box-check" id="chk_fem"></span> FEM
+                    <span class="box-check" id="chk_masc"></span> M &nbsp;&nbsp;&nbsp;
+                    <span class="box-check" id="chk_fem"></span> F
                 </td>
             </tr>
+            <tr>
+                <td colspan="4"><span class="campo-menor">NOME DA MÃE</span><span class="valor-campo" id="prt_mae"></span></td>
+                <td colspan="2"><span class="campo-menor">TELEFONE DE CONTATO</span><span class="valor-campo"></span></td>
+            </tr>
         </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="3" class="titulo-secao"><span class="box-check"></span> MUDANÇA DE PROCEDIMENTO</td></tr>
+            <tr>
+                <td colspan="3"><span class="campo-menor">NÚMERO DA AIH</span><span class="valor-campo" id="prt_aih"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO ANTERIOR</span><span class="valor-campo"></span></td>
+                <td width="20%"><span class="campo-menor">CÓDIGO PROCED. ANTERIOR</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO MUDANÇA</span><span class="valor-campo"></span></td>
+                <td width="20%"><span class="campo-menor">CÓDIGO PROCED. MUDANÇA</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td width="33%"><span class="campo-menor">CID 10 PRINCIPAL</span><span class="valor-campo"></span></td>
+                <td width="33%"><span class="campo-menor">CID 10 SECUNDÁRIO</span><span class="valor-campo"></span></td>
+                <td width="34%"><span class="campo-menor">CID 10 CAUSAS ASSOCIADAS</span><span class="valor-campo"></span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="2" class="titulo-secao"><span class="box-check checked" id="chk_secao_esp"></span> SOLICITAÇÃO DE PROCEDIMENTO(S) ESPECIAL(AIS)</td></tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO PRINCIPAL</span><span class="valor-campo" id="prt_proc_princ"></span></td>
+                <td width="20%"><span class="campo-menor">COD. PROCEDIMENTO PRINCIPAL</span><span class="valor-campo" id="prt_cod_princ"></span></td>
+            </tr>
+        </table>
+
         <table class="tabela-sus">
             <tr><td colspan="4" class="titulo-secao"><span class="box-check checked" id="chk_secao_diaria"></span> SOLICITAÇÃO DE DIÁRIA DE UTI E/OU DIÁRIA DE ACOMPANHANTE</td></tr>
             <tr>
                 <td colspan="4" style="padding: 10px;">
                     <span class="box-check" id="chk_uti1"></span> DIÁRIA DE UTI TIPO I &nbsp;&nbsp;&nbsp;&nbsp;
                     <span class="box-check" id="chk_uti2"></span> DIÁRIA DE UTI TIPO II &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="box-check" id="chk_uti3"></span> DIÁRIA DE UTI TIPO III &nbsp;&nbsp;&nbsp;&nbsp;
                     <span class="box-check" id="chk_acompanhante"></span> DIÁRIA DE ACOMPANHANTE
                 </td>
             </tr>
@@ -366,71 +404,8 @@
                 <td width="20%"><span class="campo-menor">CÓDIGO PROCED. ESPECIAL</span><span class="valor-campo" id="prt_cod_esp"></span></td>
                 <td width="10%"><span class="campo-menor">QTDE</span><span class="valor-campo" style="text-align: center;"></span></td>
             </tr>
-        </table>
-    </div>
-
-    <div id="area-impressao-aih">
-        <table class="tabela-sus" style="margin-bottom: 5px;">
             <tr>
-                <td width="20%" style="text-align: center; vertical-align: middle;"><img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'"></td>
-                <td width="60%" class="cabecalho-sus" style="vertical-align: middle;">
-                    MINISTÉRIO DA SAÚDE<br>
-                    SISTEMA ÚNICO DE SAÚDE - SUS<br>
-                    LAUDO PARA SOLICITAÇÃO DE AUTORIZAÇÃO DE INTERNAÇÃO
-                </td>
-                <td width="20%" style="text-align: center; vertical-align: middle; font-size: 10px;">Folha<br>1/1</td>
-            </tr>
-        </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="2" class="titulo-secao">IDENTIFICAÇÃO DO ESTABELECIMENTO</td></tr>
-            <tr>
-                <td width="80%"><span class="campo-menor">ESTABELECIMENTO SOLICITANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
-                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
-            </tr>
-        </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="6" class="titulo-secao">IDENTIFICAÇÃO DO PACIENTE</td></tr>
-            <tr>
-                <td colspan="4"><span class="campo-menor">NOME DO PACIENTE</span><span class="valor-campo" id="pAih_nome"></span></td>
-                <td colspan="2"><span class="campo-menor">Nº PRONTUÁRIO</span><span class="valor-campo" id="pAih_pront"></span></td>
-            </tr>
-            <tr>
-                <td colspan="3"><span class="campo-menor">CARTÃO NACIONAL DE SAÚDE (CNS)</span><span class="valor-campo" id="pAih_cns"></span></td>
-                <td><span class="campo-menor">DATA DE NASCIMENTO</span><span class="valor-campo" id="pAih_nasc"></span></td>
-                <td colspan="2" style="text-align: center;">
-                    <span class="campo-menor">SEXO</span>
-                    <span class="box-check" id="pAih_cM"></span> MASC &nbsp;&nbsp;&nbsp;
-                    <span class="box-check" id="pAih_cF"></span> FEM
-                </td>
-            </tr>
-            <tr>
-                <td colspan="4"><span class="campo-menor">NOME DA MÃE</span><span class="valor-campo" id="pAih_mae"></span></td>
-                <td colspan="2"><span class="campo-menor">ENDEREÇO/MUNICÍPIO</span><span class="valor-campo" id="pAih_end"></span></td>
-            </tr>
-        </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="3" class="titulo-secao">LAUDO TÉCNICO E JUSTIFICATIVA DA INTERNAÇÃO</td></tr>
-            <tr>
-                <td colspan="3" style="height: 50px;"><span class="campo-menor">PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS</span><span class="valor-campo" style="font-weight:normal;" id="pAih_sint"></span></td>
-            </tr>
-            <tr>
-                <td colspan="3" style="height: 50px;"><span class="campo-menor">CONDIÇÕES QUE JUSTIFICAM A INTERNAÇÃO</span><span class="valor-campo" style="font-weight:normal;" id="pAih_cond"></span></td>
-            </tr>
-            <tr>
-                <td width="60%"><span class="campo-menor">DIAGNÓSTICO INICIAL / CÓDIGO</span><span class="valor-campo" id="pAih_diag"></span></td>
-                <td width="20%"><span class="campo-menor">CID 10 PRINCIPAL</span><span class="valor-campo" id="pAih_cid1"></span></td>
-                <td width="20%"><span class="campo-menor">CID 10 SECUNDÁRIO</span><span class="valor-campo" id="pAih_cid2"></span></td>
-            </tr>
-        </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="2" class="titulo-secao">PROCEDIMENTO SOLICITADO</td></tr>
-            <tr>
-                <td width="80%"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO</span><span class="valor-campo" id="pAih_descProc"></span></td>
-                <td width="20%"><span class="campo-menor">CÓDIGO DO PROCEDIMENTO</span><span class="valor-campo" id="pAih_codProc"></span></td>
+                <td colspan="4" style="height: 60px;"><span class="campo-menor">JUSTIFICATIVA DA SOLICITAÇÃO</span><span class="valor-campo"></span></td>
             </tr>
         </table>
 
@@ -448,6 +423,127 @@
                         AUTORIZADOR / CARIMBO / CRM / MATRÍCULA
                     </div>
                 </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="area-impressao-aih">
+        <table class="tabela-sus">
+            <tr>
+                <td width="15%" style="text-align: center; border-right: none;"><img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'"></td>
+                <td width="70%" class="cabecalho-sus" style="border-left: none; border-right: none;">
+                    MINISTÉRIO DA SAÚDE<br>
+                    SISTEMA ÚNICO DE SAÚDE - SUS<br>
+                    LAUDO PARA SOLICITAÇÃO DE AUTORIZAÇÃO DE INTERNAÇÃO
+                </td>
+                <td width="15%" style="text-align: center; border-left: none; font-size:10px;">Folha<br>1/1</td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="2" class="titulo-secao">IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE</td></tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">ESTABELECIMENTO SOLICITANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
+                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
+            </tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">ESTABELECIMENTO EXECUTANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
+                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="6" class="titulo-secao">IDENTIFICAÇÃO DO PACIENTE</td></tr>
+            <tr>
+                <td colspan="5"><span class="campo-menor">NOME DO PACIENTE</span><span class="valor-campo" id="pAih_nome"></span></td>
+                <td width="25%"><span class="campo-menor">Nº PRONTUÁRIO</span><span class="valor-campo" id="pAih_pront"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="35%"><span class="campo-menor">CARTÃO NACIONAL DE SAÚDE (CNS)</span><span class="valor-campo" id="pAih_cns"></span></td>
+                <td width="15%"><span class="campo-menor">DATA DE NASCIMENTO</span><span class="valor-campo" id="pAih_nasc"></span></td>
+                <td width="15%"><span class="campo-menor">SEXO</span><span class="valor-campo" style="margin-top:0;"><span class="box-check" id="pAih_cM"></span> M <span class="box-check" id="pAih_cF"></span> F</span></td>
+                <td width="20%"><span class="campo-menor">RAÇA/COR</span><span class="valor-campo"></span></td>
+                <td width="15%"><span class="campo-menor">ETNIA</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="4"><span class="campo-menor">NOME DA MÃE</span><span class="valor-campo" id="pAih_mae"></span></td>
+                <td colspan="2"><span class="campo-menor">TELEFONE DE CONTATO</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="6"><span class="campo-menor">NOME DO RESPONSÁVEL</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="4"><span class="campo-menor">ENDEREÇO (RUA, Nº, BAIRRO)</span><span class="valor-campo" id="pAih_end"></span></td>
+                <td colspan="2"><span class="campo-menor">MUNICÍPIO</span><span class="valor-campo">CUIABÁ</span></td>
+            </tr>
+            <tr>
+                <td colspan="3"><span class="campo-menor">IBGE</span><span class="valor-campo">510340</span></td>
+                <td colspan="1"><span class="campo-menor">UF</span><span class="valor-campo">MT</span></td>
+                <td colspan="2"><span class="campo-menor">CEP</span><span class="valor-campo"></span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="3" class="titulo-secao">LAUDO TÉCNICO E JUSTIFICATIVA DA INTERNAÇÃO</td></tr>
+            <tr>
+                <td colspan="3" style="height: 75px;"><span class="campo-menor">PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS</span><span class="valor-campo" style="font-weight:normal;" id="pAih_sint"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="height: 75px;"><span class="campo-menor">CONDIÇÕES QUE JUSTIFICAM A INTERNAÇÃO</span><span class="valor-campo" style="font-weight:normal;" id="pAih_cond"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="height: 60px;"><span class="campo-menor">PRINCIPAIS RESULTADOS DE PROVAS DIAGNÓSTICAS</span><span class="valor-campo" style="font-weight:normal;"></span></td>
+            </tr>
+            <tr>
+                <td width="60%"><span class="campo-menor">DIAGNÓSTICO INICIAL / CÓDIGO</span><span class="valor-campo" id="pAih_diag"></span></td>
+                <td width="20%"><span class="campo-menor">CID 10 PRINCIPAL</span><span class="valor-campo" id="pAih_cid1"></span></td>
+                <td width="20%"><span class="campo-menor">CID 10 SECUNDÁRIO</span><span class="valor-campo" id="pAih_cid2"></span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="4" class="titulo-secao">PROCEDIMENTO SOLICITADO</td></tr>
+            <tr>
+                <td colspan="3" width="75%"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO</span><span class="valor-campo" id="pAih_descProc"></span></td>
+                <td width="25%"><span class="campo-menor">CÓDIGO DO PROCEDIMENTO</span><span class="valor-campo" id="pAih_codProc"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="50%"><span class="campo-menor">CLÍNICA</span><span class="valor-campo"></span></td>
+                <td colspan="2" width="50%"><span class="campo-menor">CARÁTER DA INTERNAÇÃO</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2"><span class="campo-menor">DOCUMENTO &nbsp;&nbsp; ( ) CNS &nbsp;&nbsp; ( ) CPF</span><span class="valor-campo"></span></td>
+                <td colspan="2"><span class="campo-menor">NOME DO PROFISSIONAL SOLICITANTE / ASSISTENTE</span><span class="valor-campo"></span></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="height: 50px; vertical-align: bottom; text-align: center;"><span class="campo-menor" style="text-align: left;">DATA DA SOLICITAÇÃO</span><br>____/____/________</td>
+                <td colspan="2" style="height: 50px; vertical-align: bottom; text-align: center;">___________________________________________________<br><span class="campo-menor">ASSINATURA E CARIMBO (Nº DO REGISTRO DO CONSELHO)</span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="4" class="titulo-secao">PREENCHER EM CASO DE CAUSAS EXTERNAS (ACIDENTES OU VIOLÊNCIAS)</td></tr>
+            <tr>
+                <td colspan="4" style="padding: 6px;">
+                    <span class="campo-menor" style="display:inline-block; margin-right:15px; font-weight:normal;"><span class="box-check"></span> ACIDENTE DE TRÂNSITO</span>
+                    <span class="campo-menor" style="display:inline-block; margin-right:15px; font-weight:normal;"><span class="box-check"></span> ACIDENTE TRABALHO TÍPICO</span>
+                    <span class="campo-menor" style="display:inline-block; font-weight:normal;"><span class="box-check"></span> ACIDENTE TRABALHO TRAJETO</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="25%"><span class="campo-menor">CNPJ SEGURADORA</span><span class="valor-campo"></span></td>
+                <td width="25%"><span class="campo-menor">Nº BILHETE</span><span class="valor-campo"></span></td>
+                <td width="25%"><span class="campo-menor">SÉRIE</span><span class="valor-campo"></span></td>
+                <td width="25%">
+                    <span class="campo-menor">VÍNCULO COM A PREVIDÊNCIA</span>
+                    <span class="campo-menor" style="display:inline-block; margin-right:5px; font-weight:normal; margin-top:2px;"><span class="box-check"></span> EMPREGADO</span>
+                    <span class="campo-menor" style="display:inline-block; font-weight:normal;"><span class="box-check"></span> AUTÔNOMO</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><span class="campo-menor">CNPJ DA EMPRESA</span><span class="valor-campo"></span></td>
+                <td width="25%"><span class="campo-menor">CNAE DA EMPRESA</span><span class="valor-campo"></span></td>
+                <td width="25%"><span class="campo-menor">CBO</span><span class="valor-campo"></span></td>
             </tr>
         </table>
     </div>
