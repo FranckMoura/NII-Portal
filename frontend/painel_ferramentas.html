@@ -6,6 +6,7 @@
     <title>Central de Ferramentas - NII Portal</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,7 +46,7 @@
 
         /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
-        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; width: 95%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; animation: popIn 0.3s; color: white;}
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; width: 95%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; animation: popIn 0.3s; color: white;}
         .modal-header { background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 20px; overflow-y: auto; }
         .input-form { width: 100%; padding: 10px; border-radius: 8px; font-size: 0.85rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; margin-top: 4px; transition: 0.3s;}
@@ -56,25 +57,38 @@
         body.theme-classic .modal-header { background: #004e92; color: white; border: none; }
         body.theme-classic .input-form { background: white; border: 1px solid #cbd5e1; color: #0f172a; }
 
+        /* Estilos Autocomplete SIGTAP */
+        .autocomplete-container { position: relative; width: 100%; }
+        .autocomplete-list { position: absolute; z-index: 1000; top: 100%; left: 0; right: 0; background: #1e293b; border: 1px solid #38bdf8; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .autocomplete-item { padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #e2e8f0; font-size: 0.8rem; display: flex; flex-direction: column; }
+        .autocomplete-item:hover { background: rgba(56, 189, 248, 0.2); color: white; }
+        .autocomplete-cod { font-weight: bold; color: #38bdf8; }
+        
+        body.theme-classic .autocomplete-list { background: white; border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        body.theme-classic .autocomplete-item { color: #334155; border-bottom-color: #f1f5f9; }
+        body.theme-classic .autocomplete-item:hover { background: #f1f5f9; color: #0f172a; }
+        body.theme-classic .autocomplete-cod { color: #004e92; }
+
         /* ========================================================= */
         /* ÁREA DE IMPRESSÃO (O LAUDO OFICIAL SUS)                   */
         /* ========================================================= */
         #area-impressao { display: none; }
+        #area-impressao-aih { display: none; } /* Nova área para AIH */
 
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 8mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
             
-            /* Esconde toda a interface do sistema */
-            .header-bg, .blob-1, .blob-2, .cyber-container, .modal-overlay { display: none !important; }
+            .header-bg, .blob-1, .blob-2, .cyber-container, .modal-overlay, #area-impressao, #area-impressao-aih { display: none !important; }
 
-            /* Exibe APENAS a área do Laudo */
-            #area-impressao { display: block !important; width: 100%; font-family: Arial, sans-serif; color: black; font-size: 10px; }
+            /* Controle de qual laudo imprimir via classe no body */
+            body.print-laudo-especial #area-impressao { display: block !important; width: 100%; font-family: Arial, sans-serif; color: black; font-size: 10px; }
+            body.print-laudo-aih #area-impressao-aih { display: block !important; width: 100%; font-family: Arial, sans-serif; color: black; font-size: 10px; }
             
-            .tabela-sus { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            .tabela-sus { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
             .tabela-sus td, .tabela-sus th { border: 1px solid black; padding: 3px 5px; vertical-align: top; }
-            .cabecalho-sus { text-align: center; font-weight: bold; font-size: 14px; background: #e0e0e0; }
+            .cabecalho-sus { text-align: center; font-weight: bold; font-size: 13px; background: #e0e0e0; }
             .titulo-secao { font-weight: bold; background: #e0e0e0; font-size: 11px; padding: 4px !important; text-align: center;}
             .campo-menor { font-size: 8px; color: #333; display: block; }
             .valor-campo { font-size: 11px; font-weight: bold; min-height: 14px; display: block; margin-top: 2px;}
@@ -115,8 +129,17 @@
             <h2 class="text-xl font-bold text-blue-400 border-b border-white/10 pb-2 mb-6"><i class="fas fa-print mr-2"></i> Formulários SUS Inteligentes</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="tool-card" style="border-top-color: #f59e0b;" onclick="abrirModalLaudoAIH()">
+                    <i class="fas fa-file-waveform tool-icon text-yellow-500"></i>
+                    <div>
+                        <h3 class="tool-title">Laudo Médico AIH</h3>
+                        <p class="tool-desc">Laudo de Solicitação de Internação Hospitalar com preenchimento SIGTAP integrado.</p>
+                    </div>
+                    <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded border border-yellow-500/30 font-bold"><i class="fas fa-database"></i> Integrado ao SIGTAP</span>
+                </div>
+
                 <div class="tool-card" onclick="abrirModalLaudo('ACOMPANHANTE')">
-                    <i class="fas fa-user-nurse tool-icon"></i>
+                    <i class="fas fa-user-nurse tool-icon text-emerald-400"></i>
                     <div>
                         <h3 class="tool-title">Diária de Acompanhante</h3>
                         <p class="tool-desc">Gera Laudo Especial SUS automático para justificativa de acompanhante (0802010032).</p>
@@ -188,65 +211,109 @@
     </div>
 
     <div class="modal-overlay no-print" id="modalFormLaudo">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="font-bold text-lg"><i class="fas fa-file-signature mr-2"></i> Preencher Dados do Laudo</h2>
+                <h2 class="font-bold text-lg"><i class="fas fa-file-signature mr-2"></i> Preencher Laudo Especial / Diárias</h2>
                 <button class="modal-close bg-transparent border-none text-gray-400 hover:text-white cursor-pointer" onclick="$('#modalFormLaudo').hide()"><i class="fas fa-times text-xl"></i></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="tipoLaudoOculto">
                 
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Nome do Paciente *</label>
-                        <input type="text" id="iptNome" class="input-form" placeholder="Nome completo" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Cartão Nacional do SUS (CNS)</label>
-                        <input type="text" id="iptCns" class="input-form font-mono" maxlength="15" placeholder="000 0000 0000 0000">
-                    </div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nome do Paciente *</label><input type="text" id="iptNome" class="input-form" required></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">CNS</label><input type="text" id="iptCns" class="input-form font-mono" maxlength="15"></div>
                 </div>
-
                 <div class="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Prontuário</label>
-                        <input type="text" id="iptProntuario" class="input-form">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Nascimento</label>
-                        <input type="date" id="iptNascimento" class="input-form">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
-                        <select id="iptSexo" class="input-form">
-                            <option value="">Selecione</option>
-                            <option value="M">Masculino</option>
-                            <option value="F">Feminino</option>
-                        </select>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Prontuário</label><input type="text" id="iptProntuario" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nascimento</label><input type="date" id="iptNascimento" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
+                        <select id="iptSexo" class="input-form"><option value="">Selecione</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">AIH Relacionada</label>
-                        <input type="text" id="iptAih" class="input-form" placeholder="Opcional">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Nome da Mãe</label>
-                        <input type="text" id="iptMae" class="input-form">
-                    </div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">AIH Relacionada</label><input type="text" id="iptAih" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nome da Mãe</label><input type="text" id="iptMae" class="input-form"></div>
                 </div>
-
-                <div class="bg-blue-500/10 border border-blue-500/30 p-3 rounded-lg mt-4 mb-6">
-                    <p class="text-xs text-blue-200"><i class="fas fa-info-circle mr-1"></i> Os dados do Hospital Beneficente Santa Helena e o CNES 2311682 já estão fixados na impressão do documento.</p>
-                </div>
-
-                <button onclick="gerarEImprimirLaudo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">
-                    <i class="fas fa-print mr-2"></i> Gerar e Imprimir Laudo
+                <button onclick="gerarEImprimirLaudoEspecial()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg mt-4">
+                    <i class="fas fa-print mr-2"></i> Imprimir Laudo Especial
                 </button>
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay no-print" id="modalFormAIH">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="font-bold text-lg"><i class="fas fa-file-medical mr-2 text-yellow-400"></i> Laudo de Internação (AIH)</h2>
+                <button class="bg-transparent border-none text-gray-400 hover:text-white cursor-pointer" onclick="$('#modalFormAIH').hide()"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="modal-body">
+                
+                <h3 class="text-yellow-400 font-bold text-sm uppercase mb-2 border-b border-white/10 pb-1">1. Identificação</h3>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nome do Paciente *</label><input type="text" id="aihNome" class="input-form" required></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">CNS</label><input type="text" id="aihCns" class="input-form font-mono" maxlength="15"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Prontuário</label><input type="text" id="aihProntuario" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nascimento</label><input type="date" id="aihNascimento" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
+                        <select id="aihSexo" class="input-form"><option value="">Selecione</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Nome da Mãe</label><input type="text" id="aihMae" class="input-form"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase">Endereço / Município</label><input type="text" id="aihEnd" class="input-form" placeholder="Cuiabá - MT"></div>
+                </div>
+
+                <h3 class="text-yellow-400 font-bold text-sm uppercase mb-2 border-b border-white/10 pb-1 mt-6">2. Justificativa Clínica</h3>
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Principais Sinais e Sintomas</label>
+                    <textarea id="aihSintomas" class="input-form" rows="2" style="resize: none;"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Condições que Justificam a Internação</label>
+                    <textarea id="aihCondicoes" class="input-form" rows="2" style="resize: none;"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase">Diagnóstico Inicial</label>
+                        <input type="text" id="aihDiag" class="input-form">
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-1/2">
+                            <label class="text-xs font-bold text-gray-400 uppercase">CID Princ.</label>
+                            <input type="text" id="aihCidPrinc" class="input-form font-mono uppercase" maxlength="4">
+                        </div>
+                        <div class="w-1/2">
+                            <label class="text-xs font-bold text-gray-400 uppercase">CID Sec.</label>
+                            <input type="text" id="aihCidSec" class="input-form font-mono uppercase" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-yellow-400 font-bold text-sm uppercase mb-2 border-b border-white/10 pb-1 mt-6">3. Procedimento Solicitado (SIGTAP)</h3>
+                
+                <div class="autocomplete-container mb-4">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Código do Procedimento</label>
+                    <div class="relative">
+                        <input type="text" id="aihCodProc" class="input-form font-mono text-lg" placeholder="Digite o código (ex: 04070...)" autocomplete="off">
+                        <div id="autocomplete-results" class="autocomplete-list"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Descrição do Procedimento Solicitado</label>
+                    <input type="text" id="aihDescProc" class="input-form text-emerald-400 font-bold" readonly placeholder="A descrição será preenchida automaticamente">
+                </div>
+
+                <button onclick="gerarEImprimirLaudoAIH()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-lg transition shadow-lg mt-4">
+                    <i class="fas fa-print mr-2"></i> Imprimir Laudo de Internação (AIH)
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="area-impressao">
         <table class="tabela-sus" style="margin-bottom: 5px;">
@@ -260,15 +327,11 @@
                 <td width="20%" style="text-align: center; vertical-align: middle; font-size: 10px;">Folha<br>1/1</td>
             </tr>
         </table>
-
+        
         <table class="tabela-sus">
             <tr><td colspan="2" class="titulo-secao">IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE</td></tr>
             <tr>
                 <td width="80%"><span class="campo-menor">ESTABELECIMENTO SOLICITANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
-                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
-            </tr>
-            <tr>
-                <td width="80%"><span class="campo-menor">ESTABELECIMENTO EXECUTANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
                 <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
             </tr>
         </table>
@@ -288,47 +351,13 @@
                     <span class="box-check" id="chk_fem"></span> FEM
                 </td>
             </tr>
-            <tr>
-                <td colspan="4"><span class="campo-menor">NOME DA MÃE</span><span class="valor-campo" id="prt_mae"></span></td>
-                <td colspan="2"><span class="campo-menor">TELEFONE DE CONTATO</span><span class="valor-campo"></span></td>
-            </tr>
         </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="3" class="titulo-secao"><span class="box-check"></span> MUDANÇA DE PROCEDIMENTO</td></tr>
-            <tr>
-                <td colspan="3"><span class="campo-menor">NÚMERO DA AIH</span><span class="valor-campo" id="prt_aih"></span></td>
-            </tr>
-            <tr>
-                <td colspan="2"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO ANTERIOR</span><span class="valor-campo"></span></td>
-                <td width="20%"><span class="campo-menor">CÓDIGO PROCED. ANTERIOR</span><span class="valor-campo"></span></td>
-            </tr>
-            <tr>
-                <td colspan="2"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO MUDANÇA</span><span class="valor-campo"></span></td>
-                <td width="20%"><span class="campo-menor">CÓDIGO PROCED. MUDANÇA</span><span class="valor-campo"></span></td>
-            </tr>
-            <tr>
-                <td width="33%"><span class="campo-menor">CID 10 PRINCIPAL</span><span class="valor-campo"></span></td>
-                <td width="33%"><span class="campo-menor">CID 10 SECUNDÁRIO</span><span class="valor-campo"></span></td>
-                <td width="34%"><span class="campo-menor">CID 10 CAUSAS ASSOCIADAS</span><span class="valor-campo"></span></td>
-            </tr>
-        </table>
-
-        <table class="tabela-sus">
-            <tr><td colspan="2" class="titulo-secao"><span class="box-check checked" id="chk_secao_esp"></span> SOLICITAÇÃO DE PROCEDIMENTO(S) ESPECIAL(AIS)</td></tr>
-            <tr>
-                <td width="80%"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO PRINCIPAL</span><span class="valor-campo" id="prt_proc_princ"></span></td>
-                <td width="20%"><span class="campo-menor">COD. PROCEDIMENTO PRINCIPAL</span><span class="valor-campo" id="prt_cod_princ"></span></td>
-            </tr>
-        </table>
-
         <table class="tabela-sus">
             <tr><td colspan="4" class="titulo-secao"><span class="box-check checked" id="chk_secao_diaria"></span> SOLICITAÇÃO DE DIÁRIA DE UTI E/OU DIÁRIA DE ACOMPANHANTE</td></tr>
             <tr>
                 <td colspan="4" style="padding: 10px;">
                     <span class="box-check" id="chk_uti1"></span> DIÁRIA DE UTI TIPO I &nbsp;&nbsp;&nbsp;&nbsp;
                     <span class="box-check" id="chk_uti2"></span> DIÁRIA DE UTI TIPO II &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span class="box-check" id="chk_uti3"></span> DIÁRIA DE UTI TIPO III &nbsp;&nbsp;&nbsp;&nbsp;
                     <span class="box-check" id="chk_acompanhante"></span> DIÁRIA DE ACOMPANHANTE
                 </td>
             </tr>
@@ -337,8 +366,71 @@
                 <td width="20%"><span class="campo-menor">CÓDIGO PROCED. ESPECIAL</span><span class="valor-campo" id="prt_cod_esp"></span></td>
                 <td width="10%"><span class="campo-menor">QTDE</span><span class="valor-campo" style="text-align: center;"></span></td>
             </tr>
+        </table>
+    </div>
+
+    <div id="area-impressao-aih">
+        <table class="tabela-sus" style="margin-bottom: 5px;">
             <tr>
-                <td colspan="4" style="height: 60px;"><span class="campo-menor">JUSTIFICATIVA DA SOLICITAÇÃO</span><span class="valor-campo"></span></td>
+                <td width="20%" style="text-align: center; vertical-align: middle;"><img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'"></td>
+                <td width="60%" class="cabecalho-sus" style="vertical-align: middle;">
+                    MINISTÉRIO DA SAÚDE<br>
+                    SISTEMA ÚNICO DE SAÚDE - SUS<br>
+                    LAUDO PARA SOLICITAÇÃO DE AUTORIZAÇÃO DE INTERNAÇÃO
+                </td>
+                <td width="20%" style="text-align: center; vertical-align: middle; font-size: 10px;">Folha<br>1/1</td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="2" class="titulo-secao">IDENTIFICAÇÃO DO ESTABELECIMENTO</td></tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">ESTABELECIMENTO SOLICITANTE</span><span class="valor-campo">HOSPITAL BENEFICENTE SANTA HELENA</span></td>
+                <td width="20%"><span class="campo-menor">CNES</span><span class="valor-campo">2311682</span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="6" class="titulo-secao">IDENTIFICAÇÃO DO PACIENTE</td></tr>
+            <tr>
+                <td colspan="4"><span class="campo-menor">NOME DO PACIENTE</span><span class="valor-campo" id="pAih_nome"></span></td>
+                <td colspan="2"><span class="campo-menor">Nº PRONTUÁRIO</span><span class="valor-campo" id="pAih_pront"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3"><span class="campo-menor">CARTÃO NACIONAL DE SAÚDE (CNS)</span><span class="valor-campo" id="pAih_cns"></span></td>
+                <td><span class="campo-menor">DATA DE NASCIMENTO</span><span class="valor-campo" id="pAih_nasc"></span></td>
+                <td colspan="2" style="text-align: center;">
+                    <span class="campo-menor">SEXO</span>
+                    <span class="box-check" id="pAih_cM"></span> MASC &nbsp;&nbsp;&nbsp;
+                    <span class="box-check" id="pAih_cF"></span> FEM
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4"><span class="campo-menor">NOME DA MÃE</span><span class="valor-campo" id="pAih_mae"></span></td>
+                <td colspan="2"><span class="campo-menor">ENDEREÇO/MUNICÍPIO</span><span class="valor-campo" id="pAih_end"></span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="3" class="titulo-secao">LAUDO TÉCNICO E JUSTIFICATIVA DA INTERNAÇÃO</td></tr>
+            <tr>
+                <td colspan="3" style="height: 50px;"><span class="campo-menor">PRINCIPAIS SINAIS E SINTOMAS CLÍNICOS</span><span class="valor-campo" style="font-weight:normal;" id="pAih_sint"></span></td>
+            </tr>
+            <tr>
+                <td colspan="3" style="height: 50px;"><span class="campo-menor">CONDIÇÕES QUE JUSTIFICAM A INTERNAÇÃO</span><span class="valor-campo" style="font-weight:normal;" id="pAih_cond"></span></td>
+            </tr>
+            <tr>
+                <td width="60%"><span class="campo-menor">DIAGNÓSTICO INICIAL / CÓDIGO</span><span class="valor-campo" id="pAih_diag"></span></td>
+                <td width="20%"><span class="campo-menor">CID 10 PRINCIPAL</span><span class="valor-campo" id="pAih_cid1"></span></td>
+                <td width="20%"><span class="campo-menor">CID 10 SECUNDÁRIO</span><span class="valor-campo" id="pAih_cid2"></span></td>
+            </tr>
+        </table>
+
+        <table class="tabela-sus">
+            <tr><td colspan="2" class="titulo-secao">PROCEDIMENTO SOLICITADO</td></tr>
+            <tr>
+                <td width="80%"><span class="campo-menor">DESCRIÇÃO DO PROCEDIMENTO SOLICITADO</span><span class="valor-campo" id="pAih_descProc"></span></td>
+                <td width="20%"><span class="campo-menor">CÓDIGO DO PROCEDIMENTO</span><span class="valor-campo" id="pAih_codProc"></span></td>
             </tr>
         </table>
 
@@ -366,12 +458,16 @@
                 <h2 class="font-bold text-lg" id="calcTitle">Calculadora</h2>
                 <button class="modal-close bg-transparent border-none text-gray-400 hover:text-white cursor-pointer" onclick="$('#modalCalc').hide()"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <div class="modal-body" id="calcBody">
-                </div>
+            <div class="modal-body" id="calcBody"></div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÕES DO SUPABASE
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains('theme-classic')) {
@@ -389,31 +485,28 @@
             }
         });
 
-        // ==========================================
-        // LÓGICA DO LAUDO SUS PARA IMPRESSÃO
-        // ==========================================
-        function abrirModalLaudo(tipo) {
-            $('#tipoLaudoOculto').val(tipo);
-            $('#iptNome').val(''); $('#iptCns').val(''); $('#iptProntuario').val(''); 
-            $('#iptNascimento').val(''); $('#iptSexo').val(''); $('#iptAih').val(''); $('#iptMae').val('');
-            
-            $('#modalFormLaudo').css('display', 'flex').hide().fadeIn(200);
-        }
-
         function formataDataBR(dataIso) {
             if(!dataIso) return "";
             return dataIso.split('-').reverse().join('/');
         }
 
-        function gerarEImprimirLaudo() {
+        // ==========================================
+        // LAUDO ESPECIAL (DIÁRIAS / MUDANÇA) - ORIGINAL
+        // ==========================================
+        function abrirModalLaudo(tipo) {
+            $('#tipoLaudoOculto').val(tipo);
+            $('#iptNome').val(''); $('#iptCns').val(''); $('#iptProntuario').val(''); 
+            $('#iptNascimento').val(''); $('#iptSexo').val(''); $('#iptAih').val(''); $('#iptMae').val('');
+            $('#modalFormLaudo').css('display', 'flex').hide().fadeIn(200);
+        }
+
+        function gerarEImprimirLaudoEspecial() {
             const nome = $('#iptNome').val().toUpperCase();
             if(!nome) { alert('O nome do paciente é obrigatório.'); return; }
 
-            // 1. Limpa os checks anteriores
             $('.box-check').removeClass('checked');
             $('#prt_desc_esp, #prt_cod_esp, #prt_proc_princ, #prt_cod_princ').text('');
 
-            // 2. Preenche os dados básicos do paciente na área de impressão
             $('#prt_nome').text(nome);
             $('#prt_cns').text($('#iptCns').val());
             $('#prt_prontuario').text($('#iptProntuario').val());
@@ -424,9 +517,7 @@
             if($('#iptSexo').val() === 'M') $('#chk_masc').addClass('checked');
             if($('#iptSexo').val() === 'F') $('#chk_fem').addClass('checked');
 
-            // 3. Aplica regras específicas de preenchimento dependendo do botão clicado
             const tipo = $('#tipoLaudoOculto').val();
-            
             if (tipo === 'ACOMPANHANTE') {
                 $('#chk_secao_esp').addClass('checked');
                 $('#chk_secao_diaria').addClass('checked');
@@ -440,17 +531,130 @@
 
             $('#modalFormLaudo').hide();
             
-            setTimeout(() => {
-                window.print();
-            }, 300);
+            // Define qual área vai imprimir
+            $('body').removeClass('print-laudo-aih').addClass('print-laudo-especial');
+            setTimeout(() => { window.print(); }, 300);
         }
 
         // ==========================================
-        // CALCULADORAS
+        // LAUDO DE AIH (NOVO) E AUTOCOMPLETE SIGTAP
+        // ==========================================
+        function abrirModalLaudoAIH() {
+            // Limpa os campos
+            $('#aihNome, #aihCns, #aihProntuario, #aihNascimento, #aihSexo, #aihMae, #aihEnd').val('');
+            $('#aihSintomas, #aihCondicoes, #aihDiag, #aihCidPrinc, #aihCidSec').val('');
+            $('#aihCodProc').val('');
+            $('#aihDescProc').val('').removeClass('text-red-400 text-yellow-400 text-emerald-400');
+            $('#autocomplete-results').hide().empty();
+            
+            $('#modalFormAIH').css('display', 'flex').hide().fadeIn(200);
+        }
+
+        function gerarEImprimirLaudoAIH() {
+            const nome = $('#aihNome').val().toUpperCase();
+            if(!nome) { alert('O nome do paciente é obrigatório.'); return; }
+
+            // Preenche dados de impressão
+            $('#pAih_nome').text(nome);
+            $('#pAih_cns').text($('#aihCns').val());
+            $('#pAih_pront').text($('#aihProntuario').val());
+            $('#pAih_nasc').text(formataDataBR($('#aihNascimento').val()));
+            $('#pAih_mae').text($('#aihMae').val().toUpperCase());
+            $('#pAih_end').text($('#aihEnd').val().toUpperCase());
+            
+            $('.box-check').removeClass('checked');
+            if($('#aihSexo').val() === 'M') $('#pAih_cM').addClass('checked');
+            if($('#aihSexo').val() === 'F') $('#pAih_cF').addClass('checked');
+
+            $('#pAih_sint').text($('#aihSintomas').val().toUpperCase());
+            $('#pAih_cond').text($('#aihCondicoes').val().toUpperCase());
+            $('#pAih_diag').text($('#aihDiag').val().toUpperCase());
+            $('#pAih_cid1').text($('#aihCidPrinc').val().toUpperCase());
+            $('#pAih_cid2').text($('#aihCidSec').val().toUpperCase());
+
+            $('#pAih_codProc').text($('#aihCodProc').val());
+            $('#pAih_descProc').text($('#aihDescProc').val().toUpperCase());
+
+            $('#modalFormAIH').hide();
+            
+            // Define qual área vai imprimir
+            $('body').removeClass('print-laudo-especial').addClass('print-laudo-aih');
+            setTimeout(() => { window.print(); }, 300);
+        }
+
+        // LÓGICA DO AUTOCOMPLETE (SIGTAP)
+        let timeoutId;
+        
+        $('#aihCodProc').on('input', function() {
+            clearTimeout(timeoutId);
+            const query = $(this).val().replace(/\D/g, ''); // Pega só números
+            const resultBox = $('#autocomplete-results');
+            
+            if (query.length < 3) {
+                resultBox.hide();
+                $('#aihDescProc').val('').removeClass('text-emerald-400 text-red-400 text-yellow-400');
+                return;
+            }
+
+            // Exibe mensagem de carregando visual no input
+            $('#aihDescProc').val('Buscando no SIGTAP...').removeClass('text-emerald-400 text-red-400').addClass('text-yellow-400');
+
+            // Aguarda 400ms o usuário parar de digitar para consultar o Supabase
+            timeoutId = setTimeout(async () => {
+                try {
+                    // Faz a busca na tabela sigtap_oficial
+                    const { data, error } = await client
+                        .from('sigtap_oficial')
+                        .select('codigo, nome')
+                        .ilike('codigo', `${query}%`) // Busca códigos que começam com o que foi digitado
+                        .limit(10); // Limita para não travar a tela
+
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        // Monta a lista de sugestões
+                        let listHtml = '';
+                        data.forEach(item => {
+                            listHtml += `
+                                <div class="autocomplete-item" onclick="selecionarProcedimento('${item.codigo}', '${item.nome.replace(/'/g, "\\'")}')">
+                                    <span class="autocomplete-cod">${item.codigo}</span>
+                                    <span>${item.nome}</span>
+                                </div>
+                            `;
+                        });
+                        resultBox.html(listHtml).show();
+                        $('#aihDescProc').val('Sugestões encontradas. Clique na lista.').removeClass('text-yellow-400 text-emerald-400').addClass('text-red-400');
+                    } else {
+                        resultBox.hide();
+                        $('#aihDescProc').val('Nenhum procedimento encontrado.').removeClass('text-yellow-400 text-emerald-400').addClass('text-red-400');
+                    }
+                } catch (e) {
+                    console.error("Erro na busca do SIGTAP:", e);
+                    resultBox.hide();
+                    $('#aihDescProc').val('Erro na conexão com o SIGTAP.').removeClass('text-yellow-400 text-emerald-400').addClass('text-red-400');
+                }
+            }, 400);
+        });
+
+        // Oculta a lista se clicar fora
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.autocomplete-container').length) {
+                $('#autocomplete-results').hide();
+            }
+        });
+
+        // Função chamada quando o usuário clica em um item da lista
+        window.selecionarProcedimento = function(codigo, nome) {
+            $('#aihCodProc').val(codigo);
+            $('#aihDescProc').val(nome).removeClass('text-red-400 text-yellow-400').addClass('text-emerald-400');
+            $('#autocomplete-results').hide();
+        };
+
+        // ==========================================
+        // CALCULADORAS (Mantidas do Original)
         // ==========================================
         function abrirModalCalc(tipo) {
             let html = '';
-            
             if (tipo === 'IMC') {
                 $('#calcTitle').html('<i class="fas fa-weight text-yellow-400 mr-2"></i> Calculadora de IMC');
                 html = `
@@ -469,102 +673,47 @@
                 $('#calcTitle').html('<i class="fas fa-kidneys text-red-400 mr-2"></i> Clearance de Creatinina');
                 html = `
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Idade</label>
-                            <input type="number" id="calcIdade" class="input-form" placeholder="Anos">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Peso (kg)</label>
-                            <input type="number" id="calcPesoCr" class="input-form" placeholder="kg">
-                        </div>
+                        <div><label class="text-xs font-bold text-gray-400 uppercase">Idade</label><input type="number" id="calcIdade" class="input-form" placeholder="Anos"></div>
+                        <div><label class="text-xs font-bold text-gray-400 uppercase">Peso (kg)</label><input type="number" id="calcPesoCr" class="input-form" placeholder="kg"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Creatinina Sérica</label>
-                            <input type="number" step="0.1" id="calcCr" class="input-form" placeholder="mg/dL">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
-                            <select id="calcSexoCr" class="input-form">
-                                <option value="M">Masculino</option>
-                                <option value="F">Feminino</option>
-                            </select>
+                        <div><label class="text-xs font-bold text-gray-400 uppercase">Creatinina Sérica</label><input type="number" step="0.1" id="calcCr" class="input-form" placeholder="mg/dL"></div>
+                        <div><label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
+                            <select id="calcSexoCr" class="input-form"><option value="M">Masculino</option><option value="F">Feminino</option></select>
                         </div>
                     </div>
                     <button onclick="calcularClCr()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded mt-2">Calcular</button>
                     <div id="calcResult" class="mt-4 text-center font-bold text-xl py-4 bg-black/20 rounded hidden border border-white/10"></div>
                 `;
             }
-
             $('#calcBody').html(html);
             $('#modalCalc').css('display', 'flex').hide().fadeIn(200);
         }
 
         window.calcularIMC = function() {
-            let p = parseFloat($('#calcPeso').val());
-            let a = parseFloat($('#calcAltura').val());
+            let p = parseFloat($('#calcPeso').val()); let a = parseFloat($('#calcAltura').val());
             if(!p || !a) return;
-            let imc = p / (a * a);
-            let diag = "Normal";
-            let color = "text-green-400";
-            
-            if(imc >= 40) { diag = "Obesidade Grau III (Mórbida)"; color = "text-red-500"; }
+            let imc = p / (a * a); let diag = "Normal"; let color = "text-green-400";
+            if(imc >= 40) { diag = "Obesidade Grau III"; color = "text-red-500"; }
             else if(imc >= 35) { diag = "Obesidade Grau II"; color = "text-orange-500"; }
             else if(imc >= 30) { diag = "Obesidade Grau I"; color = "text-yellow-500"; }
             else if(imc >= 25) { diag = "Sobrepeso"; color = "text-yellow-300"; }
-            
             $('#calcResult').html(`IMC: <span class="${color}">${imc.toFixed(1)}</span><br><span class="text-sm font-normal text-gray-400">${diag}</span>`).removeClass('hidden');
         }
 
         window.calcularClCr = function() {
-            let idade = parseFloat($('#calcIdade').val());
-            let peso = parseFloat($('#calcPesoCr').val());
-            let cr = parseFloat($('#calcCr').val());
-            let sexo = $('#calcSexoCr').val();
-            
-            if(!idade || !peso || !cr) return;
-
-            // Fórmula de Cockcroft-Gault
-            let clcr = ((140 - idade) * peso) / (72 * cr);
-            if (sexo === 'F') clcr = clcr * 0.85;
-
-            let fase = "";
-            let desc = "";
-            let colorClass = "";
-
-            if (clcr >= 90) {
-                fase = "Fase 1";
-                desc = "Dano renal com TFG normal ou aumentada";
-                colorClass = "text-green-400";
-            } else if (clcr >= 60) {
-                fase = "Fase 2";
-                desc = "Dano renal com leve diminuição da TFG";
-                colorClass = "text-yellow-300";
-            } else if (clcr >= 45) {
-                fase = "Fase 3A";
-                desc = "Diminuição leve a moderada da TFG";
-                colorClass = "text-yellow-500";
-            } else if (clcr >= 30) {
-                fase = "Fase 3B";
-                desc = "Diminuição moderada a grave da TFG";
-                colorClass = "text-orange-400";
-            } else if (clcr >= 15) {
-                fase = "Fase 4";
-                desc = "Diminuição grave da TFG";
-                colorClass = "text-orange-600";
-            } else {
-                fase = "Fase 5";
-                desc = "Falência renal";
-                colorClass = "text-red-500";
-            }
-
-            $('#calcResult').html(`
-                ClCr: <span class="text-blue-400">${clcr.toFixed(1)} ml/min</span><br>
-                <div class="mt-2 text-sm">
-                    <span class="font-bold ${colorClass}">${fase}</span><br>
-                    <span class="font-normal text-gray-400">${desc}</span>
-                </div>
-            `).removeClass('hidden');
+            let id = parseFloat($('#calcIdade').val()); let p = parseFloat($('#calcPesoCr').val());
+            let cr = parseFloat($('#calcCr').val()); let sx = $('#calcSexoCr').val();
+            if(!id || !p || !cr) return;
+            let clcr = ((140 - id) * p) / (72 * cr); if (sx === 'F') clcr = clcr * 0.85;
+            let f = "", d = "", c = "";
+            if (clcr >= 90) { f="Fase 1"; d="TFG normal ou aumentada"; c="text-green-400"; }
+            else if (clcr >= 60) { f="Fase 2"; d="Leve diminuição"; c="text-yellow-300"; }
+            else if (clcr >= 45) { f="Fase 3A"; d="Leve a moderada"; c="text-yellow-500"; }
+            else if (clcr >= 30) { f="Fase 3B"; d="Moderada a grave"; c="text-orange-400"; }
+            else if (clcr >= 15) { f="Fase 4"; d="Grave"; c="text-orange-600"; }
+            else { f="Fase 5"; d="Falência renal"; c="text-red-500"; }
+            $('#calcResult').html(`ClCr: <span class="text-blue-400">${clcr.toFixed(1)} ml/min</span><br><div class="mt-2 text-sm"><span class="font-bold ${c}">${f}</span><br><span class="font-normal text-gray-400">${d}</span></div>`).removeClass('hidden');
         }
     </script>
 </body>
