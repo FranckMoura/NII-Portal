@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Central de Ferramentas - NII Portal</title>
+    <title>Central de Ferramentas - Portal NII</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,7 +13,7 @@
 
     <style>
         /* TEMA GLOBAL DARK NEON */
-        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 90px; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; display: flex; flex-direction: column; transition: 0.5s; }
         body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
         .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
@@ -31,6 +31,8 @@
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; transition: 0.2s;}
         .btn-theme:hover { background: rgba(255,255,255,0.1); }
 
+        footer { margin-top: auto; padding-top: 40px; padding-bottom: 20px; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; transition: 0.5s; z-index: 10; position: relative;}
+
         /* MODO CLÁSSICO */
         body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
         body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
@@ -43,6 +45,7 @@
         body.theme-classic .tool-icon { color: #004e92; filter: none; }
         body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
         body.theme-classic .btn-theme:hover { background: #f8fafc; border-color: #004e92; }
+        body.theme-classic footer { color: #94a3b8; }
 
         /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
@@ -80,7 +83,7 @@
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
             
-            .header-bg, .blob-1, .blob-2, .cyber-container, .modal-overlay, #area-impressao, #area-impressao-aih { display: none !important; }
+            .header-bg, .blob-1, .blob-2, .cyber-container, .modal-overlay, #area-impressao, #area-impressao-aih, footer { display: none !important; }
 
             /* Controle de qual laudo imprimir */
             body.print-laudo-especial #area-impressao { display: block !important; width: 100%; font-family: Arial, Helvetica, sans-serif; color: black; font-size: 10px; }
@@ -111,8 +114,9 @@
             <div class="flex items-center gap-4">
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-toolbox text-3xl text-emerald-400"></i></div>
                 <div>
+                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-400 block mb-1">Portal NII - Acesso Público</span>
                     <h1 class='text-3xl font-bold text-white'>Central de Ferramentas</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Laudos Inteligentes, Calculadoras e Arquivos (Acesso Público)</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Laudos Inteligentes, Calculadoras e Arquivos</p>
                 </div>
             </div>
             
@@ -123,7 +127,7 @@
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 no-print">
+    <div class="max-w-[98%] mx-auto px-4 no-print flex-grow">
         
         <div class="cyber-container">
             <h2 class="text-xl font-bold text-blue-400 border-b border-white/10 pb-2 mb-6"><i class="fas fa-print mr-2"></i> Formulários SUS Inteligentes</h2>
@@ -209,6 +213,10 @@
             </div>
         </div>
     </div>
+
+    <footer class="no-print">
+        <p>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</p>
+    </footer>
 
     <div class="modal-overlay no-print" id="modalFormLaudo">
         <div class="modal-content">
@@ -636,7 +644,6 @@
         // LAUDO DE AIH (NOVO) E AUTOCOMPLETE SIGTAP
         // ==========================================
         function abrirModalLaudoAIH() {
-            // Limpa os campos
             $('#aihNome, #aihCns, #aihProntuario, #aihNascimento, #aihSexo, #aihMae, #aihEnd').val('');
             $('#aihSintomas, #aihCondicoes, #aihDiag, #aihCidPrinc, #aihCidSec').val('');
             $('#aihCodProc').val('');
@@ -650,7 +657,6 @@
             const nome = $('#aihNome').val().toUpperCase();
             if(!nome) { alert('O nome do paciente é obrigatório.'); return; }
 
-            // Preenche dados de impressão
             $('#pAih_nome').text(nome);
             $('#pAih_cns').text($('#aihCns').val());
             $('#pAih_pront').text($('#aihProntuario').val());
@@ -678,12 +684,12 @@
             setTimeout(() => { window.print(); }, 300);
         }
 
-        // LÓGICA DO AUTOCOMPLETE (SIGTAP)
+        // AUTOCOMPLETE SIGTAP
         let timeoutId;
         
         $('#aihCodProc').on('input', function() {
             clearTimeout(timeoutId);
-            const query = $(this).val().replace(/\D/g, ''); // Pega só números
+            const query = $(this).val().replace(/\D/g, ''); 
             const resultBox = $('#autocomplete-results');
             
             if (query.length < 3) {
@@ -692,23 +698,19 @@
                 return;
             }
 
-            // Exibe mensagem de carregando visual no input
             $('#aihDescProc').val('Buscando no SIGTAP...').removeClass('text-emerald-400 text-red-400').addClass('text-yellow-400');
 
-            // Aguarda 400ms o usuário parar de digitar para consultar o Supabase
             timeoutId = setTimeout(async () => {
                 try {
-                    // Faz a busca na tabela sigtap_oficial
                     const { data, error } = await client
                         .from('sigtap_oficial')
                         .select('codigo, nome')
-                        .ilike('codigo', `${query}%`) // Busca códigos que começam com o que foi digitado
-                        .limit(10); // Limita para não travar a tela
+                        .ilike('codigo', `${query}%`) 
+                        .limit(10); 
 
                     if (error) throw error;
 
                     if (data && data.length > 0) {
-                        // Monta a lista de sugestões
                         let listHtml = '';
                         data.forEach(item => {
                             listHtml += `
@@ -732,14 +734,12 @@
             }, 400);
         });
 
-        // Oculta a lista se clicar fora
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.autocomplete-container').length) {
                 $('#autocomplete-results').hide();
             }
         });
 
-        // Função chamada quando o usuário clica em um item da lista
         window.selecionarProcedimento = function(codigo, nome) {
             $('#aihCodProc').val(codigo);
             $('#aihDescProc').val(nome).removeClass('text-red-400 text-yellow-400').addClass('text-emerald-400');
@@ -747,7 +747,7 @@
         };
 
         // ==========================================
-        // CALCULADORAS (Mantidas do Original)
+        // CALCULADORAS
         // ==========================================
         function abrirModalCalc(tipo) {
             let html = '';
