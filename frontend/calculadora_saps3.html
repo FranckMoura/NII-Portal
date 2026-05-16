@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora SAPS 3 - Mortalidade em UTI</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            padding-bottom: 100px;
+            margin: 0;
+        }
+        
+        .header-bg {
+            background-color: #0f172a;
+            color: white;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .box-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .box-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .box-title i { margin-right: 10px; color: #3b82f6; }
+
+        .form-group { margin-bottom: 15px; }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background-color: #f8fafc;
+            font-size: 0.9rem;
+            color: #0f172a;
+            transition: all 0.2s;
+            appearance: auto; /* Força o estilo nativo no iOS */
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .comorbidade-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .comorbidade-checkbox:hover { background: #e0f2fe; border-color: #bae6fd; }
+        .comorbidade-checkbox input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+        .comorbidade-checkbox span { font-size: 0.85rem; color: #334155; font-weight: 500; }
+
+        .info-tooltip {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* BARRA DE RESULTADO FIXA */
+        .resultado-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #0f172a;
+            border-top: 4px solid #3b82f6;
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.15);
+            z-index: 50;
+        }
+
+        .res-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-box { text-align: center; }
+        .score-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: bold; }
+        .score-value { font-size: 2.2rem; font-weight: 900; line-height: 1; color: #60a5fa; }
+        
+        .mort-value { font-size: 2.2rem; font-weight: 900; line-height: 1; color: #f43f5e; transition: color 0.3s;}
+
+        .btn-reset {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-reset:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+
+    <header class="header-bg">
+        <div class="max-w-[900px] mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-calculator text-3xl text-blue-400"></i>
+                <div>
+                    <h1 class="text-xl font-bold">SAPS 3</h1>
+                    <p class="text-xs text-slate-400">Simplified Acute Physiology Score (Mortalidade UTI)</p>
+                </div>
+            </div>
+            <div class="text-right text-sm text-slate-400 hidden sm:block">
+                Avaliação admissional (primeira 1h)
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="box-section">
+            <h2 class="box-title"><i class="fas fa-user-clock"></i> Box 1: Prévias à Admissão</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label class="form-label">Idade (anos)</label>
+                    <select class="form-select calc-input" id="saps_idade">
+                        <option value="0">Menor que 40 anos (0 pt)</option>
+                        <option value="5">40 a 59 anos (+5 pts)</option>
+                        <option value="9">60 a 69 anos (+9 pts)</option>
+                        <option value="13">70 a 74 anos (+13 pts)</option>
+                        <option value="15">75 a 79 anos (+15 pts)</option>
+                        <option value="18">80 anos ou mais (+18 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tempo de internação hospitalar antes da UTI</label>
+                    <select class="form-select calc-input" id="saps_tempo_hosp">
+                        <option value="0">Menos de 14 dias (0 pt)</option>
+                        <option value="5">14 a 27 dias (+5 pts)</option>
+                        <option value="7">28 dias ou mais (+7 pts)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label mb-3">Comorbidades (Selecione todas que se aplicam)</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="10"> <span>Cirrose Hepática (+10 pts)</span>
+                    </label>
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="9"> <span>Câncer Hematológico (+9 pts)</span>
+                    </label>
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="11"> <span>Insuficiência Cardíaca Classe IV (+11 pts)</span>
+                    </label>
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="10"> <span>Imunossupressão ou AIDS (+10 pts)</span>
+                    </label>
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="7"> <span>Câncer Metastático (+7 pts)</span>
+                    </label>
+                </div>
+                <span class="info-tooltip">Nota: Terapia imunossupressora (ex: QT, RT, corticoide alta dose). Cirrose comprovada. NYHA IV para ICC.</span>
+            </div>
+            
+            <div class="mt-4">
+                <label class="form-label mb-3">Terapia Prévia à Admissão na UTI</label>
+                <label class="comorbidade-checkbox">
+                    <input type="checkbox" class="calc-chk" value="3"> <span>Uso de Droga Vasoativa (+3 pts)</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="box-section">
+            <h2 class="box-title"><i class="fas fa-ambulance"></i> Box 2: Circunstâncias da Admissão</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label class="form-label">Origem do Paciente</label>
+                    <select class="form-select calc-input" id="saps_origem">
+                        <option value="0">Pronto Socorro / Sala de Emergência (0 pt)</option>
+                        <option value="8">Enfermaria / Leito de Quarto (+8 pts)</option>
+                        <option value="7">Outro Hospital (+7 pts)</option>
+                        <option value="0">Outras origens (0 pt)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Admissão</label>
+                    <select class="form-select calc-input" id="saps_tipo_admissao">
+                        <option value="0">Cirurgia Programada (0 pt)</option>
+                        <option value="6">Cirurgia de Urgência/Emergência (+6 pts)</option>
+                        <option value="5">Clínica (Não-Cirúrgica) (+5 pts)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Motivo Principal da Admissão na UTI</label>
+                <select class="form-select calc-input" id="saps_motivo">
+                    <option value="0">Outros motivos (0 pt)</option>
+                    <option value="7">Cardiovascular (Não Cirúrgico) (+7 pts)</option>
+                    <option value="-4">Digestivo / Abdominal (Cirúrgico) (-4 pts)</option>
+                    <option value="3">Gastrointestinal (Não Cirúrgico) (+3 pts)</option>
+                    <option value="-5">Hepático (Não Cirúrgico) (-5 pts)</option>
+                    <option value="5">Neurológico (Não Cirúrgico) (+5 pts)</option>
+                    <option value="-11">Cardíaco (Cirúrgico) (-11 pts)</option>
+                    <option value="-7">Neurológico (Cirúrgico) (-7 pts)</option>
+                    <option value="8">Respiratório (Não Cirúrgico) (+8 pts)</option>
+                    <option value="6">Sepse / Choque Séptico grave (+6 pts)</option>
+                </select>
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label mb-3">Fatores Infecciosos na Admissão</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="7"> <span>Infecção Nosocomial (+7 pts)</span>
+                    </label>
+                    <label class="comorbidade-checkbox">
+                        <input type="checkbox" class="calc-chk" value="5"> <span>Infecção Respiratória (+5 pts)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-section">
+            <h2 class="box-title"><i class="fas fa-heartbeat"></i> Box 3: Variáveis Fisiológicas</h2>
+            <span class="info-tooltip mb-4">Utilize o valor mais desregulado medido na primeira hora de UTI.</span>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="form-group">
+                    <label class="form-label">Escala de Coma de Glasgow (GCS)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">15 (Normal) (0 pt)</option>
+                        <option value="2">13 ou 14 (+2 pts)</option>
+                        <option value="7">10 a 12 (+7 pts)</option>
+                        <option value="10">7 a 9 (+10 pts)</option>
+                        <option value="15">Menor que 7 (+15 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bilirrubina Total (mg/dL)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Menor que 2.0 (0 pt)</option>
+                        <option value="4">2.0 a 5.9 (+4 pts)</option>
+                        <option value="5">Maior ou igual a 6.0 (+5 pts)</option>
+                        <option value="0">Não Medido (0 pt)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Temperatura Corporal (°C)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Entre 35.0 e 38.9 (0 pt)</option>
+                        <option value="3">Maior ou igual a 39.0 (+3 pts)</option>
+                        <option value="7">Menor que 35.0 (+7 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Frequência Cardíaca (bpm)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Menor que 120 (0 pt)</option>
+                        <option value="5">120 a 159 (+5 pts)</option>
+                        <option value="7">Maior ou igual a 160 (+7 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Pressão Arterial Sistólica (mmHg)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Maior ou igual a 120 (0 pt)</option>
+                        <option value="3">70 a 119 (+3 pts)</option>
+                        <option value="8">Menor que 70 (+8 pts)</option>
+                        <option value="11">Choque grave / Sem pulso (+11 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Creatinina Sérica (mg/dL)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Menor que 1.2 (0 pt)</option>
+                        <option value="2">1.2 a 1.9 (+2 pts)</option>
+                        <option value="7">2.0 a 3.4 (+7 pts)</option>
+                        <option value="8">Maior ou igual a 3.5 (+8 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Leucócitos (x 10³/mm³)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Normal ou Não medido (0 pt)</option>
+                        <option value="2">Maior ou igual a 15.0 (+2 pts)</option>
+                        <option value="3">Menor que 4.0 (+3 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Plaquetas (x 10³/mm³)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Maior ou igual a 100 ou Normal (0 pt)</option>
+                        <option value="5">50 a 99 (+5 pts)</option>
+                        <option value="8">20 a 49 (+8 pts)</option>
+                        <option value="13">Menor que 20 (+13 pts)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Oxigenação (PaO2/FiO2)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Ventilação Ambiente ou Normal (0 pt)</option>
+                        <option value="5">Vent. Mecânica com PaO2/FiO2 < 100 (+5 pts)</option>
+                        <option value="7">Vent. Mecânica com PaO2/FiO2 ≥ 100 (+7 pts)</option>
+                    </select>
+                    <span class="info-tooltip mt-1">Geralmente, VNI ou Tubo conta como Vent. Mecânica.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Íon de Hidrogênio (pH)</label>
+                    <select class="form-select calc-input">
+                        <option value="0">Maior ou igual a 7.25 ou Normal (0 pt)</option>
+                        <option value="3">Menor que 7.25 (+3 pts)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="resultado-fixed">
+        <div class="res-container">
+            <button class="btn-reset" onclick="resetForm()"><i class="fas fa-undo mr-1"></i> Limpar</button>
+            
+            <div class="score-box">
+                <div class="score-label">SAPS 3 Score</div>
+                <div class="score-value" id="total_score">0</div>
+            </div>
+
+            <div class="score-box text-right">
+                <div class="score-label">Mortalidade Estimada</div>
+                <div class="mort-value" id="mort_prob">0.0%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JAVASCRIPT PURO (VANILLA JS) PARA FUNCIONAR OFFLINE EM QUALQUER CELULAR
+        function calcularSAPS3() {
+            let total = 0;
+
+            // 1. Somar valores dos Selects
+            const selects = document.querySelectorAll('.calc-input');
+            selects.forEach(function(select) {
+                total += parseInt(select.value) || 0;
+            });
+
+            // 2. Somar valores dos Checkboxes marcados
+            const checkboxes = document.querySelectorAll('.calc-chk:checked');
+            checkboxes.forEach(function(chk) {
+                total += parseInt(chk.value) || 0;
+            });
+
+            // 3. Atualizar o Escore Bruto
+            document.getElementById('total_score').innerText = total;
+
+            // 4. Calcular a Probabilidade de Morte (Equação Padrão Global SAPS 3)
+            let logit = -32.6659 + (Math.log(total + 20.5958) * 7.3068);
+            let prob = (Math.exp(logit) / (1 + Math.exp(logit))) * 100;
+
+            // Tratamento de limites
+            if (total === 0) prob = 0.0;
+            if (prob > 99.9) prob = 99.9;
+            if (prob < 0.1 && total > 0) prob = 0.1;
+
+            // Atualiza a tela
+            const mortDisplay = document.getElementById('mort_prob');
+            mortDisplay.innerText = prob.toFixed(1) + '%';
+            
+            // Muda a cor da mortalidade
+            if (prob < 20) {
+                mortDisplay.style.color = '#34d399'; // Verde
+            } else if (prob < 50) {
+                mortDisplay.style.color = '#fbbf24'; // Amarelo
+            } else {
+                mortDisplay.style.color = '#f43f5e'; // Vermelho
+            }
+        }
+
+        function resetForm() {
+            const selects = document.querySelectorAll('.calc-input');
+            selects.forEach(function(select) {
+                select.selectedIndex = 0; // Volta para a primeira opção
+            });
+
+            const checkboxes = document.querySelectorAll('.calc-chk');
+            checkboxes.forEach(function(chk) {
+                chk.checked = false; // Desmarca tudo
+            });
+
+            calcularSAPS3();
+        }
+
+        // Quando a página carregar, adiciona os eventos de escuta em todos os campos
+        document.addEventListener('DOMContentLoaded', function() {
+            const todosInputs = document.querySelectorAll('.calc-input, .calc-chk');
+            
+            todosInputs.forEach(function(input) {
+                input.addEventListener('change', calcularSAPS3);
+            });
+            
+            // Calcula o estado inicial
+            calcularSAPS3();
+        });
+    </script>
+</body>
+</html>
