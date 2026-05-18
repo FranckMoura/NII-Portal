@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Gerencial - Hemodinâmica</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #0f172a;       
+            --bg-card: #1e293b;       
+            --border-color: #334155;
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;    
+            --color-primary: #38bdf8; 
+            --color-success: #34d399; 
+            --color-warning: #fbbf24; 
+            --color-danger:  #f87171; 
+            --color-purple:  #c084fc; 
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --radius-default: 12px;
+        }
+
+        body.theme-light {
+            --bg-body: #f1f5f9;       
+            --bg-card: #ffffff;       
+            --border-color: #e2e8f0;  
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            --color-primary: #004e92; 
+            --color-success: #059669; 
+            --color-warning: #d97706; 
+            --color-danger:  #dc2626; 
+            --color-purple:  #7e22ce; 
+            --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-titles h1 { font-size: 2rem; font-weight: 900; margin: 0; color: var(--text-main); letter-spacing: -0.5px;}
+        .header-titles p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; text-transform: uppercase;}
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-default);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        }
+        .kpi-card.blue::before { background: var(--color-primary); }
+        .kpi-card.green::before { background: var(--color-success); }
+        .kpi-card.red::before { background: var(--color-danger); }
+        .kpi-card.yellow::before { background: var(--color-warning); }
+
+        .kpi-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between;}
+        .kpi-value { font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin-bottom: 5px; line-height: 1;}
+        .kpi-sub { font-size: 0.75rem; font-weight: 600; color: var(--text-muted);}
+
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-default);
+            padding: 25px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            color: var(--color-primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+        }
+        body.theme-light th { background: #f8fafc; color: var(--color-primary); }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.7rem;
+        }
+        .bg-danger-light { background: rgba(248, 113, 113, 0.1); color: var(--color-danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .bg-success-light { background: rgba(52, 211, 153, 0.1); color: var(--color-success); border: 1px solid rgba(52, 211, 153, 0.3); }
+
+        .insights-box {
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-left: 4px solid var(--color-warning);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .insight-item {
+            margin-bottom: 15px;
+        }
+        .insight-item:last-child { margin-bottom: 0; }
+        .insight-title { font-weight: 800; color: var(--color-warning); margin-bottom: 5px; font-size: 0.95rem;}
+        .insight-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;}
+
+        .btn-print {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-print:hover { filter: brightness(1.1); }
+        
+        .btn-theme { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; margin-right: 10px;}
+        .btn-theme:hover { background: rgba(255,255,255,0.05); }
+
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .btn-print, .btn-theme { display: none; }
+            .kpi-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+            .section-card { box-shadow: none; border: 1px solid #ccc; }
+            th { background: #f0f0f0 !important; color: black !important; }
+            td { color: black !important; border-color: #ccc !important; }
+            .bg-danger-light, .bg-success-light { border: none; background: transparent; padding: 0; }
+            .insights-box { background: transparent; border: 1px solid #ccc; border-left: 4px solid #d97706; }
+            .insight-title { color: black; }
+            .insight-text { color: #333; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="report-container">
+        <div class="header">
+            <div class="header-titles">
+                <h1>Relatório Gerencial de Metas: Hemodinâmica</h1>
+                <p>Hospital Beneficente Santa Helena | Portal NII - Janeiro a Abril / 2026</p>
+            </div>
+            <div class="flex items-center">
+                <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-sun"></i> Mudar Tema</button>
+                <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Imprimir / PDF</button>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card blue">
+                <div class="kpi-title">Meta Quadrimestre <i class="fas fa-bullseye text-blue-400"></i></div>
+                <div class="kpi-value">160</div>
+                <div class="kpi-sub">Procedimentos Pactuados</div>
+            </div>
+            
+            <div class="kpi-card red">
+                <div class="kpi-title">Desempenho Global <i class="fas fa-chart-line text-red-400"></i></div>
+                <div class="kpi-value text-red-400">56,2%</div>
+                <div class="kpi-sub">90 Realizados (Déficit de 70)</div>
+            </div>
+
+            <div class="kpi-card green">
+                <div class="kpi-title">Faturamento Realizado <i class="fas fa-dollar-sign text-emerald-400"></i></div>
+                <div class="kpi-value text-emerald-400">R$ 60,7k</div>
+                <div class="kpi-sub">Valor bruto acumulado (R$ 60.740,18)</div>
+            </div>
+
+            <div class="kpi-card yellow">
+                <div class="kpi-title">Déficit Financeiro <i class="fas fa-arrow-trend-down text-yellow-400"></i></div>
+                <div class="kpi-value text-yellow-400">R$ 38,0k</div>
+                <div class="kpi-sub">Receita ociosa (R$ 38.016,62)</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="section-card mb-0">
+                <h2 class="section-title"><i class="fas fa-chart-bar text-blue-400"></i> Produção vs Meta (Mês a Mês)</h2>
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="chartProducao"></canvas>
+                </div>
+            </div>
+            <div class="section-card mb-0">
+                <h2 class="section-title"><i class="fas fa-chart-pie text-purple-400"></i> Desempenho por Procedimento</h2>
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="chartDesempenho"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2 class="section-title"><i class="fas fa-table text-emerald-400"></i> Detalhamento Analítico (Janeiro a Abril)</h2>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="w-24 text-center">Código</th>
+                            <th>Procedimento</th>
+                            <th class="text-center">Meta (Qdr)</th>
+                            <th class="text-center">Realizado</th>
+                            <th class="text-center">% Ating.</th>
+                            <th class="text-right">Déficit Qtd.</th>
+                            <th class="text-right">Perda Financeira</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center font-mono font-bold text-gray-400">0211020010</td>
+                            <td class="font-bold">CATETERISMO CARDIACO</td>
+                            <td class="text-center font-bold">80</td>
+                            <td class="text-center font-bold text-emerald-400">68</td>
+                            <td class="text-center"><span class="badge bg-success-light">85%</span></td>
+                            <td class="text-right font-bold text-red-400">-12</td>
+                            <td class="text-right font-mono text-red-400 font-bold">- R$ 8.760,48</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center font-mono font-bold text-gray-400">0210010100</td>
+                            <td class="font-bold">ARTERIOGRAFIA P/ INVEST. HEMORRAGIA CEREBRAL</td>
+                            <td class="text-center font-bold">40</td>
+                            <td class="text-center font-bold text-red-400">14</td>
+                            <td class="text-center"><span class="badge bg-danger-light">35%</span></td>
+                            <td class="text-right font-bold text-red-400">-26</td>
+                            <td class="text-right font-mono text-red-400 font-bold">- R$ 13.115,18</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center font-mono font-bold text-gray-400">0210010118</td>
+                            <td class="font-bold">ARTERIOGRAFIA P/ INVEST. ISQUEMIA CEREBRAL</td>
+                            <td class="text-center font-bold">40</td>
+                            <td class="text-center font-bold text-red-400">8</td>
+                            <td class="text-center"><span class="badge bg-danger-light">20%</span></td>
+                            <td class="text-right font-bold text-red-400">-32</td>
+                            <td class="text-right font-mono text-red-400 font-bold">- R$ 16.141,76</td>
+                        </tr>
+                        <tr style="background: rgba(0,0,0,0.2);">
+                            <td colspan="2" class="text-right font-black uppercase">TOTAIS:</td>
+                            <td class="text-center font-black">160</td>
+                            <td class="text-center font-black">90</td>
+                            <td class="text-center font-black text-red-400">56,2%</td>
+                            <td class="text-right font-black text-red-400">-70</td>
+                            <td class="text-right font-mono font-black text-red-400">- R$ 38.017,42</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-card insights-box">
+            <h2 class="section-title" style="color:var(--color-warning); border-color:rgba(251,191,36,0.3);"><i class="fas fa-lightbulb"></i> Conclusões e Pontos de Atenção</h2>
+            
+            <div class="insight-item">
+                <div class="insight-title">1. Ociosidade Crítica nas Arteriografias</div>
+                <div class="insight-text">O hospital está deixando de faturar <b>R$ 29.256,94</b> apenas no teto de Arteriografias (Hemorragia e Isquemia). O desempenho ficou em 35% e 20% respetivamente. Existe procura represada na regulação que não está a ser chamada, ou falta agendamento/encaminhamento médico para estes exames neurológicos?</div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-title">2. Queda de Produção (Mês a Mês) no Cateterismo</div>
+                <div class="insight-text">O Cateterismo Cardíaco estava a rodar com um excelente aproveitamento de 95% em Jan e Mar, porém sofreu uma <b>queda de produção no mês de Abril</b> (caiu para 14 feitos, atingindo apenas 70% da meta). É imperativo analisar se ocorreu avaria de equipamentos, falta de OPME ou limitação da equipa médica no período.</div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-title">3. Meses Zerados (Isquemia)</div>
+                <div class="insight-text">Em <b>Fevereiro e Abril</b>, nenhum procedimento de Arteriografia por Isquemia foi faturado (0 realizados). A ausência total de produção nestes meses foi o principal fator que derrubou o percentual global da meta para os 56,2%.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('theme-light');
+            let isLight = document.body.classList.contains('theme-light');
+            
+            Chart.defaults.color = isLight ? '#64748b' : '#94a3b8';
+            chartProd.update();
+            chartPie.update();
+        }
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // Gráfico de Barras: Produção Mês a Mês
+        const ctxProd = document.getElementById('chartProducao').getContext('2d');
+        const chartProd = new Chart(ctxProd, {
+            type: 'bar',
+            data: {
+                labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril'],
+                datasets: [
+                    {
+                        label: 'Realizado (Total)',
+                        data: [27, 16, 27, 20],
+                        backgroundColor: '#38bdf8',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Meta Mensal',
+                        data: [40, 40, 40, 40],
+                        backgroundColor: 'rgba(148, 163, 184, 0.3)',
+                        borderColor: '#94a3b8',
+                        borderWidth: 1,
+                        borderDash: [5, 5],
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 50, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        // Gráfico de Doughnut: Desempenho por Procedimento
+        const ctxPie = document.getElementById('chartDesempenho').getContext('2d');
+        const chartPie = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cateterismo (85%)', 'Art. Hemorragia (35%)', 'Art. Isquemia (20%)'],
+                datasets: [{
+                    data: [68, 14, 8],
+                    backgroundColor: ['#34d399', '#f87171', '#fbbf24'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

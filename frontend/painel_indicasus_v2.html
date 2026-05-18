@@ -164,10 +164,10 @@
         table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
 
         body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #f8fafc !important; color: #004e92 !important; border-bottom-color: #e2e8f0 !important; }
-        body.theme-classic table.dataTable tbody td { border-bottom-color: #f1f5f9 !important; color: #475569 !important;}
+        body.theme-classic table.dataTable thead th { background-color: #f8fafc !important; color: #004e92 !important; border-bottom: 1px solid #e2e8f0 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #475569 !important;}
         body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-        body.theme-classic table.dataTable tfoot th { background-color: #f1f5f9 !important; color: #0f172a !important; border-top-color: #cbd5e1 !important; }
+        body.theme-classic table.dataTable tfoot th { background-color: #f1f5f9 !important; color: #0f172a !important; border-top: 2px solid #cbd5e1 !important; }
 
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #94a3b8 !important; font-size: 0.8rem;}
         .dataTables_wrapper .dataTables_paginate .paginate_button { color: #94a3b8 !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
@@ -177,7 +177,7 @@
         body.theme-classic .dataTables_wrapper .dataTables_length, body.theme-classic .dataTables_wrapper .dataTables_filter, body.theme-classic .dataTables_wrapper .dataTables_info, body.theme-classic .dataTables_wrapper .dataTables_paginate, body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #64748b !important; }
         body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #eff6ff !important; color: #004e92 !important; border-color: #bfdbfe !important; }
 
-        .search-input { width: 100%; padding: 6px; border-radius: 6px; font-size: 0.7rem; font-weight: normal; background: rgba(15, 23, 42, 0.6); color: white; border: 1px solid #334155; outline: none; transition: 0.2s; }
+        .search-input { width: 100%; padding: 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(15, 23, 42, 0.6); color: white; border: 1px solid #334155; outline: none; margin-top: 5px; transition: 0.3s; }
         .search-input:focus { border-color: #38bdf8; }
         body.theme-classic .search-input { background: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
         body.theme-classic .search-input:focus { border-color: #004e92 !important; }
@@ -187,6 +187,10 @@
         body.theme-classic .dt-button { background: white !important; color: #475569 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
 
+        /* Filtro escondido para ler da casca */
+        .hidden-filters { display: none; }
+
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
@@ -258,7 +262,7 @@
         </div>
     </div>
 
-    <div style="display:none;" id="filtros-ocultos">
+    <div class="hidden-filters">
         <input type="hidden" id="anoFilter">
         <input type="hidden" id="mesFilter">
         <input type="hidden" id="susFilter" value="TODOS">
@@ -372,7 +376,7 @@
         let filtroLeitoAtivo = 'TODOS';
 
         // ==========================================
-        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS (ATUALIZADO)
+        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS
         // ==========================================
         let cfgLeitosTotal = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 100 };
         let cfgLeitosSUS = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 80 };
@@ -445,19 +449,17 @@
             if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
             
             // Puxa as variáveis setadas na TopBar pela "Casca"
-            let globalAno = localStorage.getItem('nii_competencia_ano');
-            let globalMes = localStorage.getItem('nii_competencia_mes');
+            let globalAno = localStorage.getItem('nii_competencia_ano') || new Date().getFullYear();
+            let globalMes = localStorage.getItem('nii_competencia_mes') || String(new Date().getMonth() + 1).padStart(2, '0');
             
-            if(globalAno && globalMes) {
-                $('#anoFilter').val(globalAno);
-                $('#mesFilter').val(globalMes);
-            }
+            $('#anoFilter').val(globalAno);
+            $('#mesFilter').val(globalMes);
             
             // Fica "escutando" mudanças de Mês no localStorage (feitas pela Casca)
             setInterval(() => {
                 let novoAno = localStorage.getItem('nii_competencia_ano');
                 let novoMes = localStorage.getItem('nii_competencia_mes');
-                if (novoAno !== $('#anoFilter').val() || novoMes !== $('#mesFilter').val()) {
+                if (novoAno && novoMes && (novoAno !== $('#anoFilter').val() || novoMes !== $('#mesFilter').val())) {
                     $('#anoFilter').val(novoAno);
                     $('#mesFilter').val(novoMes);
                     carregarDados();
@@ -619,8 +621,10 @@
                 return p;
             });
 
+            // LOGICA CORRIGIDA E ADAPTADA PARA LER O ANO E MÊS DA CASCA
             const dataHoje = new Date();
             let diasParaCalculo = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
+            
             if (anoSelecionado === dataHoje.getFullYear() && mesSelecionado === (dataHoje.getMonth() + 1)) {
                 diasParaCalculo = dataHoje.getDate(); 
             }
