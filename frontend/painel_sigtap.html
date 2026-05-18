@@ -19,71 +19,124 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* TEMA GLOBAL DARK NEON */
-        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: background 0.5s ease, color 0.5s ease; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.25); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(236, 72, 153, 0.15); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        /* ========================================================= */
+        /* TEMA GLOBAL DARK NEON / CLASSIC (Controlado pela Casca)   */
+        /* ========================================================= */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: transparent; 
+            color: #f8fafc; margin: 0; padding-bottom: 40px; 
+            transition: color 0.3s ease; scroll-behavior: smooth; 
+        }
 
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; }
-        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
-        .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
-        .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
+        #loader { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; font-weight: bold; backdrop-filter: blur(5px); }
 
-        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05); position: relative; z-index: 1; margin-bottom: 20px; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+        .cyber-container {
+            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); border-radius: 12px; 
+            padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            border: 1px solid #334155; margin-bottom: 24px; position: relative; transition: 0.3s;
+        }
+
+        .filter-bar { 
+            background: rgba(30, 41, 59, 0.8); padding: 20px; border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 24px; 
+            display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; 
+            border: 1px solid #334155; transition: 0.3s;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; 
+            padding: 20px; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: center; text-align: center;
+        }
+        .glass-card:hover { transform: translateY(-3px); border-color: #38bdf8; background: #334155; }
+
+        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 800; line-height: 1.1; margin-bottom: 5px;}
+        .kpi-sub { font-size: 0.75rem; color: #64748b; font-weight: 600; display: block; line-height: 1.4; }
+
+        .search-box { flex: 1; min-width: 300px; position: relative; }
+        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid #334155; border-radius: 8px; background: rgba(15, 23, 42, 0.6); color: white; outline: none; font-size: 0.9rem; transition: 0.2s;}
+        .search-box input:focus { border-color: #38bdf8; }
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
         
-        .kpi-icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; transform: rotate(-15deg); }
-        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
-        .kpi-number { font-size: 1.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 5px; }
-        .kpi-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .filter-select { background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white; padding: 10px 12px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; font-size: 0.85rem;}
+        .filter-select:focus { border-color: #38bdf8; }
+        .filter-select:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        .code-box { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
 
-        /* ABAS (TABS) */
-        .tab-btn { padding: 12px 24px; font-weight: 700; border-bottom: 3px solid transparent; color: #94a3b8; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .tab-btn:hover { color: white; }
-        .tab-btn.active { color: #38bdf8; border-bottom-color: #38bdf8; }
+        .btn-compare { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; color: white; transition: 0.2s; white-space: nowrap;}
+        .btn-compare:hover { border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+        .btn-compare.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+
+        /* MODO CLÁSSICO NII */
+        body.theme-classic { color: #0f172a; }
+        body.theme-classic #loader { background: rgba(255,255,255,0.9); color: #004e92; }
+        
+        body.theme-classic .cyber-container, body.theme-classic .glass-card, body.theme-classic .filter-bar { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border-radius: 12px; }
+        body.theme-classic .glass-card:hover { transform: translateY(-2px); border-color: #004e92; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        body.theme-classic .kpi-title, body.theme-classic .kpi-sub { color: #64748b; }
+
+        body.theme-classic .search-box input { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+        body.theme-classic .search-box input:focus { border-color: #004e92; }
+        body.theme-classic .filter-select { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+        body.theme-classic .filter-select:focus { border-color: #004e92; }
+        
+        body.theme-classic .code-box { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+        body.theme-classic .btn-compare { background: white; border-color: #cbd5e1; color: #475569; }
+        body.theme-classic .btn-compare:hover { border-color: #004e92; color: #004e92; background: #f1f5f9; }
+        body.theme-classic .btn-compare.active { background: #004e92; color: white; border-color: #004e92; }
+
+        /* TABS DE NAVEGAÇÃO */
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid #334155;
+            padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: bold; cursor: pointer; transition: 0.3s; border-bottom: none;
+        }
+        .tab-btn:hover { background: rgba(30, 41, 59, 0.8); color: white; }
+        .tab-btn.active {
+            background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);
+            border-bottom: 2px solid #38bdf8;
+        }
+        body.theme-classic .tab-btn { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+        body.theme-classic .tab-btn:hover { background: #e2e8f0; color: #0f172a; }
+        body.theme-classic .tab-btn.active { background: #ffffff; color: #004e92; border-color: #cbd5e1; border-bottom: 2px solid #004e92; }
+        
         .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .filter-bar { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .search-box { flex: 1; min-width: 300px; position: relative; }
-        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; outline: none; font-size: 0.9rem;}
-        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .filter-select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 12px; border-radius: 8px; outline: none; font-weight: 600; cursor: pointer; width: 100%; transition: 0.3s; font-size: 0.85rem;}
-        .filter-select:disabled { opacity: 0.4; cursor: not-allowed; }
-        .filter-select option { background: #0f172a; color: white; }
-        
-        .code-box { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-        .chart-wrapper { position: relative; height: 350px; width: 100%; }
-
-        .btn-compare { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: white; transition: 0.2s; white-space: nowrap;}
-        .btn-compare:hover { border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
-        .btn-compare.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
-
-        #compBar { position: fixed; bottom: -100px; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; transition: bottom 0.4s; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
-        #compBar.visible { bottom: 0; }
-        .btn-go { background: #f59e0b; color: #fff; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(5px); }
-        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); color: white; margin: 3% auto; padding: 30px; width: 95%; max-width: 1400px; max-height: 85vh; overflow-y: auto; border-radius: 16px; }
-        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #94a3b8; }
-        
-        table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        table.compare-tbl th, table.compare-tbl td { border: 1px solid rgba(255,255,255,0.1); padding: 15px; vertical-align: top; }
-        table.compare-tbl th { background: rgba(0,0,0,0.3); text-align: right; width: 180px; color: #38bdf8; font-weight: 800; }
-        .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } 
-
+        /* DATATABLES */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; padding: 12px !important; }
-        table.dataTable tbody td { padding: 12px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; font-size: 0.85rem; vertical-align: middle; }
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; text-align: left; background-color: rgba(30,41,59,0.8) !important; color: #38bdf8 !important; border-bottom: 2px solid #334155 !important;}
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px 8px !important; color: #cbd5e1 !important; text-align: center; border-bottom: 1px solid #334155 !important;}
+        table.dataTable tbody td:nth-child(2) { text-align: left; }
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
 
+        body.theme-classic table.dataTable { color: #334155 !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f8fafc !important; color: #004e92 !important; border-bottom: 1px solid #e2e8f0 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #475569 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #94a3b8 !important; font-size: 0.8rem;}
+        .dataTables_wrapper .dataTables_paginate .paginate_button { color: #94a3b8 !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: rgba(255,255,255,0.05) !important; color: white !important; border-color: #334155 !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border-color: rgba(56, 189, 248, 0.3) !important; }
+        
+        body.theme-classic .dataTables_wrapper .dataTables_length, body.theme-classic .dataTables_wrapper .dataTables_filter, body.theme-classic .dataTables_wrapper .dataTables_info, body.theme-classic .dataTables_wrapper .dataTables_paginate, body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #64748b !important; }
+        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #eff6ff !important; color: #004e92 !important; border-color: #bfdbfe !important; }
+
+        .dt-button { background: rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; border: 1px solid #334155 !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: 600 !important; transition: 0.2s !important; }
+        .dt-button:hover { background: rgba(255, 255, 255, 0.1) !important; color: white !important;}
+        body.theme-classic .dt-button { background: white !important; color: #475569 !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dt-button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+
+        /* TAGS COLORIDAS NA TABELA */
         .tag-detalhe { background-color: rgba(30, 58, 138, 0.4); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
         .tag-fz { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
         .tag-fz-nova { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
@@ -91,146 +144,82 @@
         .tag-opme-qtd { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .tag-cid { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
 
-        .texto-cir { color: #60a5fa; }
-        .texto-ane { color: #c084fc; }
-        .theme-adjust-bg-blue { background-color: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); }
-        .theme-adjust-bg-purple { background-color: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); }
-        
-        .val-sigtap { color: #38bdf8; font-family: monospace; font-weight: bold; }
-        .val-fz-tbl { color: #fbbf24; font-family: monospace; font-weight: bold; }
-        .val-mt-tbl { color: #f472b6; font-family: monospace; font-weight: bold; }
-
-        /* MODO CLÁSSICO */
-        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
-        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
-        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
-        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
-        body.theme-classic .kpi-title { color: #64748b; }
-        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
-        
-        body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom-color: #cbd5e1 !important; }
-        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-        
-        body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
-        body.theme-classic .code-box { background: #eff6ff !important; color: #1e40af !important; border: none !important; }
-        
         body.theme-classic .tag-detalhe { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
         body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         body.theme-classic .tag-fz-nova { background-color: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
         body.theme-classic .tag-opme-val { background-color: #ecfdf5; color: #059669; border-color: #a7f3d0; }
         body.theme-classic .tag-opme-qtd { background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
         body.theme-classic .tag-cid { background-color: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+
+        /* BARRA INFERIOR DE COMPARAÇÃO */
+        #compBar { position: fixed; bottom: -100px; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; color: white; padding: 15px 30px; transition: bottom 0.4s; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
+        #compBar.visible { bottom: 0; }
+        .btn-go { background: #38bdf8; color: #0f172a; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 800; transition: 0.2s;}
+        .btn-go:hover { background: #0ea5e9; }
         
-        body.theme-classic .val-sigtap { color: #0284c7; }
-        body.theme-classic .val-fz-tbl { color: #d97706; }
-        body.theme-classic .val-mt-tbl { color: #db2777; }
+        body.theme-classic #compBar { background: rgba(255, 255, 255, 0.95); border-top-color: #e2e8f0; color: #0f172a;}
+        body.theme-classic .btn-go { background: #004e92; color: white; }
 
-        body.theme-classic .btn-compare { background: white; border-color: #cbd5e1; color: #475569; }
-        body.theme-classic .btn-compare.active { background: #004e92; color: white; border-color: #004e92; }
-
-        body.theme-classic .modal { background: rgba(0, 34, 68, 0.8) !important; }
-        body.theme-classic .modal-content { background: white !important; color: #1e293b !important; }
-        body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0 !important; }
-        body.theme-classic table.compare-tbl th { background: #f8fafc !important; color: #004e92 !important; }
-
-        /* IMPRESSÃO RETRATO & P&B */
-        .header-print, #print-footer { display: none; }
+        /* MODAL SAAS DESIGN */
+        .modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; transition: 0.3s;}
+        .modal-content { background: #1e293b; border: 1px solid #334155; border-radius: 12px; width: 95%; max-width: 1400px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow: hidden; animation: popIn 0.3s; color: white;}
+        .modal-header { background: rgba(15, 23, 42, 0.6); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .modal-header h2 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #f8fafc;}
+        .close-modal { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-modal:hover { color: #f87171; }
+        .modal-body { padding: 24px; overflow-y: auto; }
         
+        body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
+        body.theme-classic .modal-content { background: #ffffff; color: #1e293b; border-color: #cbd5e1; }
+        body.theme-classic .modal-header { background: #f8fafc; border-color: #e2e8f0; }
+        body.theme-classic .modal-header h2 { color: #0f172a; }
+
+        table.compare-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table.compare-tbl th, table.compare-tbl td { border: 1px solid #334155; padding: 15px; vertical-align: top; }
+        table.compare-tbl th { background: rgba(15, 23, 42, 0.6); text-align: right; width: 180px; color: #38bdf8; font-weight: 800; }
+        body.theme-classic table.compare-tbl th, body.theme-classic table.compare-tbl td { border-color: #e2e8f0; }
+        body.theme-classic table.compare-tbl th { background: #f1f5f9; color: #004e92; }
+
+        .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } 
+
         @media print {
-            @page { margin: 10mm; size: A4 portrait; } 
+            .no-print { display: none !important; }
+            @page { margin: 10mm; size: A4 landscape; } 
             
-            body * { visibility: hidden; } 
-            
-            #modalComp, #modalComp * { visibility: visible; } 
-            .header-print, .header-print * { visibility: visible; }
-            #print-footer, #print-footer * { visibility: visible; }
-
             body, .modal, .modal-content, table.compare-tbl, table.compare-tbl th, table.compare-tbl td, .tbl-scroll-box { 
                 background: white !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; text-shadow: none !important;
             }
-
             .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
-
-            #modalComp { position: absolute; left: 0; top: 110px; width: 100%; height: auto; z-index: 9999; }
+            #modalComp { position: absolute; left: 0; top: 0; width: 100%; height: auto; z-index: 9999; display:block !important; }
             .modal-content { border: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-height: none !important; overflow: visible !important; }
-            .close-modal, .no-print, .blob-1, .blob-2 { display: none !important; } 
-
-            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; position: absolute; top: 0; left: 0; width: 100%; }
-            .header-print img { height: 50px; margin-right: 15px; }
-            .header-info { flex: 1; text-align: left; }
-            .header-info h1 { margin: 0; font-size: 13pt; font-weight: 900; text-transform: uppercase; color: #000;}
-            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold; color: #000;}
-            .header-meta { font-size: 8pt; text-align: right; line-height: 1.2; color: #000;}
-
+            
             table.compare-tbl { font-size: 9pt; margin-top: 0; width: 100%; }
             table.compare-tbl th, table.compare-tbl td { padding: 6px 8px; border: 1px solid #000 !important; }
             table.compare-tbl th { width: 120px; font-weight: bold; }
-            table.compare-tbl td ul li { border-bottom: 1px solid #ccc !important; padding: 4px 0 !important; }
             
             .text-emerald-500, .text-blue-500, .text-purple-500, .text-yellow-500, .text-pink-500, .text-orange-400 { color: black !important; font-weight: bold; }
             .bg-red-500\/20, .bg-orange-500, .bg-purple-500, .tag-cid, .tag-opme-val, .tag-opme-qtd { background: transparent !important; color: black !important; border: 1px solid #000 !important; }
-
-            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #000; border-top: 1px solid #000; padding-top: 5px; display: block !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="loader" style="display:flex; position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div id="loader" style="display:flex;">
         <i class="fas fa-database fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-blue-200 font-bold" id="status-text">Sincronizando Bancos de Dados...</p>
+        <p class="text-white font-bold" id="status-text">Sincronizando Bancos de Dados...</p>
     </div>
 
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
-
-    <div class='header-bg no-print'>
-        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
-            <div class="flex items-center gap-4">
-                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-layer-group text-3xl text-emerald-400"></i></div>
-                <div>
-                    <h1 class='text-3xl font-bold text-white'>Inteligência SIGTAP & Rentabilidade</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Catálogo de Procedimentos, CIDs, OPME e Análise Financeira Cruzada</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema">
-                    <i class="fas fa-magic"></i>
-                </button>
-                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.style.display='none'">
-                <a href="modulo_gerencial.html" class="btn-theme text-white"><i class="fas fa-arrow-left"></i> Voltar</a>
-            </div>
-        </div>
+    <div class="flex mb-4 border-b border-gray-600/30">
+        <button id="btn-tab-catalogo" class="tab-btn active" onclick="switchTab('catalogo')"><i class="fas fa-book-medical mr-2"></i> Catálogo de Procedimentos</button>
+        <button id="btn-tab-rentabilidade" class="tab-btn" onclick="switchTab('rentabilidade')"><i class="fas fa-chart-bar mr-2"></i> Ranking de Rentabilidade</button>
     </div>
 
-    <div class="container no-print mb-4">
-        <div class="flex space-x-2 border-b border-white/10">
-            <button id="btn-tab-catalogo" class="tab-btn active" onclick="switchTab('catalogo')"><i class="fas fa-book-medical"></i> Catálogo de Procedimentos</button>
-            <button id="btn-tab-rentabilidade" class="tab-btn" onclick="switchTab('rentabilidade')"><i class="fas fa-chart-bar"></i> Ranking de Repasses (MT 2026)</button>
-        </div>
-    </div>
-
-    <div class="header-print">
-        <img src="../logo.png" alt="Logo HSH" onerror="this.style.display='none'">
-        <div class="header-info">
-            <h1>Hospital Beneficente Santa Helena</h1>
-            <h2>Relatório Comparativo SIGTAP x Tabelas MT (Incluindo Repasse Profissional)</h2>
-            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
-        </div>
-        <div class="header-meta">
-            <div><b>Emissão:</b> <span id="print-data-emissao"></span></div>
-        </div>
-    </div>
-
-    <div id="tab-catalogo" class="container tab-content active no-print">
+    <div id="tab-catalogo" class="tab-content active">
+        
         <div class="filter-bar">
             <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Origem do Preço:</label>
+                    <label>Origem do Preço:</label>
                     <select id="filtroOrigemCat" class="filter-select" onchange="if(dtCat) dtCat.draw();">
                         <option value="todos">Todas as Tabelas</option>
                         <option value="sigtap">Apenas Tabela SUS Padrão</option>
@@ -239,7 +228,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Grupo:</label>
+                    <label>Grupo:</label>
                     <select id="filtroGrupoCat" class="filter-select" onchange="atualizarSubgrupos('Cat'); if(dtCat) dtCat.draw();">
                         <option value="todos">Todos os Grupos</option>
                         <option value="01">01 - Promoção e Prevenção</option>
@@ -253,13 +242,13 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Subgrupo:</label>
+                    <label>Subgrupo:</label>
                     <select id="filtroSubgrupoCat" class="filter-select" onchange="atualizarFormas('Cat'); if(dtCat) dtCat.draw();" disabled>
                         <option value="todos">Todos os Subgrupos</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 block mb-1">Forma de Organização:</label>
+                    <label>Forma de Organização:</label>
                     <select id="filtroFormaCat" class="filter-select" onchange="if(dtCat) dtCat.draw();" disabled>
                         <option value="todos">Todas as Formas de Org.</option>
                     </select>
@@ -271,15 +260,15 @@
                     <input type="text" id="customSearchCat" placeholder="Digite Código, Procedimento ou CID (Ex: K40, O82, G40)...">
                     <i class="fas fa-search"></i>
                 </div>
-                <div class="text-sm font-bold text-gray-400 whitespace-nowrap" id="contador-cat"></div>
+                <div class="text-sm font-bold text-gray-500 whitespace-nowrap" id="contador-cat"></div>
             </div>
         </div>
 
-        <div class="cyber-container" style="min-height: 400px; padding: 20px;">
+        <div class="cyber-container" style="min-height: 400px; padding: 0;">
             <table id="tabelaCat" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th class="w-24">Código</th>
+                        <th class="w-24 text-center">Código</th>
                         <th>Procedimento & Regras Oficiais</th>
                         <th class="text-right w-20">Valor SA</th>
                         <th class="text-right w-20">Valor SH</th>
@@ -295,43 +284,39 @@
         </div>
     </div>
 
-    <div id="tab-rentabilidade" class="container tab-content no-print">
+    <div id="tab-rentabilidade" class="tab-content no-print">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="glass-card border-t-pink-500/50">
-                <i class="fas fa-arrow-trend-up kpi-icon text-pink-500"></i>
-                <div class="kpi-title">Maior Receita (Tabela MT 2026)</div>
-                <div class="kpi-number text-pink-400" id="kpi-top-mt">R$ 0,00</div>
+        <div class="kpi-row">
+            <div class="meta-card" style="border-top: 3px solid #ec4899;">
+                <div class="kpi-title">Maior Receita (Contrato MT) <i class="fas fa-arrow-trend-up text-pink-500"></i></div>
+                <div class="kpi-number text-pink-400" id="kpi-top-mt" style="font-size: 1.8rem;">R$ 0,00</div>
                 <div class="kpi-sub" id="kpi-top-mt-nome">Aguardando filtros...</div>
             </div>
-            <div class="glass-card border-t-emerald-500/50">
-                <i class="fas fa-hospital kpi-icon text-emerald-500"></i>
-                <div class="kpi-title">Maior Sobra Hospitalar (MT 2026)</div>
-                <div class="kpi-number text-emerald-400" id="kpi-maior-gap">R$ 0,00</div>
+            <div class="meta-card" style="border-top: 3px solid #10b981;">
+                <div class="kpi-title">Maior Sobra Hospitalar <i class="fas fa-hospital text-emerald-500"></i></div>
+                <div class="kpi-number text-emerald-400" id="kpi-maior-gap" style="font-size: 1.8rem;">R$ 0,00</div>
                 <div class="kpi-sub" id="kpi-maior-gap-nome">Aguardando filtros...</div>
             </div>
-            <div class="glass-card border-t-purple-500/50">
-                <i class="fas fa-user-md kpi-icon text-purple-500"></i>
-                <div class="kpi-title">Maior Honorário Médico (3x SIGTAP)</div>
-                <div class="kpi-number text-purple-400" id="kpi-top-honorario">R$ 0,00</div>
+            <div class="meta-card" style="border-top: 3px solid #8b5cf6;">
+                <div class="kpi-title">Maior Honorário (3x SP) <i class="fas fa-user-md text-purple-500"></i></div>
+                <div class="kpi-number text-purple-400" id="kpi-top-honorario" style="font-size: 1.8rem;">R$ 0,00</div>
                 <div class="kpi-sub" id="kpi-top-honorario-nome">Aguardando filtros...</div>
             </div>
         </div>
 
-        <div class="cyber-container" style="padding: 15px 25px;">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="filter-bar" style="padding: 15px 25px;">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Basear Ranking Em:</label>
-                    <select id="filtroBaseRent" class="filter-select border-pink-400/50" onchange="aplicarFiltrosRent()">
-                        <option value="sobra_mt">Sobra Hospitalar MT 2026 (Maior Lucro)</option>
-                        <option value="mt2026_valor">Valor Bruto MT 2026</option>
-                        <option value="repasse_medico">Honorário Médico MT 2026</option>
+                    <label>Basear Ranking Em:</label>
+                    <select id="filtroBaseRent" class="filter-select" onchange="aplicarFiltrosRent()">
+                        <option value="sobra_mt">Sobra Hospitalar MT (Lucro)</option>
+                        <option value="mt2026_valor">Valor Bruto Contrato MT</option>
+                        <option value="repasse_medico">Honorário Médico MT</option>
                         <option value="sigtap">Tabela SIGTAP (Padrão)</option>
                     </select>
                 </div>
-                
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Complexidade:</label>
+                    <label>Complexidade:</label>
                     <select id="filtroComplexidadeRent" class="filter-select" onchange="aplicarFiltrosRent()">
                         <option value="todos">Todas</option>
                         <option value="Alta">Alta Complexidade (AC)</option>
@@ -339,9 +324,8 @@
                         <option value="Básica">Atenção Básica (AB)</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Grupo:</label>
+                    <label>Grupo:</label>
                     <select id="filtroGrupoRent" class="filter-select" onchange="atualizarSubgrupos('Rent'); aplicarFiltrosRent();">
                         <option value="todos">Todos os Grupos</option>
                         <option value="01">01 - Promoção e Prevenção</option>
@@ -354,47 +338,38 @@
                         <option value="08">08 - Ações Complementares</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Subgrupo:</label>
+                    <label>Subgrupo:</label>
                     <select id="filtroSubgrupoRent" class="filter-select" onchange="atualizarFormas('Rent'); aplicarFiltrosRent();" disabled>
                         <option value="todos">Todos os Subgrupos</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1 block">Forma de Org.:</label>
-                    <select id="filtroFormaRent" class="filter-select" onchange="aplicarFiltrosRent();" disabled>
-                        <option value="todos">Todas as Formas</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="cyber-container">
-            <h2 class="text-xl font-bold mb-6"><i class="fas fa-chart-bar mr-2 text-pink-400"></i> Top 10 Procedimentos mais Rentáveis</h2>
+            <h2 class="text-xl font-bold mb-6 text-gray-200"><i class="fas fa-chart-bar mr-2 text-pink-400"></i> Top 10 Procedimentos mais Rentáveis</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                    <h3 class="text-center font-bold text-sm text-gray-300 uppercase tracking-widest mb-2 border-b border-white/10 pb-2">Média Complexidade (MC)</h3>
+                    <h3 class="text-center font-bold text-sm text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-600/30 pb-2">Média Complexidade (MC)</h3>
                     <div class="chart-wrapper"><canvas id="chartMedia"></canvas></div>
                 </div>
                 <div>
-                    <h3 class="text-center font-bold text-sm text-gray-300 uppercase tracking-widest mb-2 border-b border-white/10 pb-2">Alta Complexidade (AC)</h3>
+                    <h3 class="text-center font-bold text-sm text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-600/30 pb-2">Alta Complexidade (AC)</h3>
                     <div class="chart-wrapper"><canvas id="chartAlta"></canvas></div>
                 </div>
             </div>
         </div>
 
-        <div class="cyber-container" style="padding: 20px;">
-            <h2 class="text-xl font-bold mb-4"><i class="fas fa-list-ol mr-2 text-blue-400"></i> Base Analítica Refinada</h2>
+        <div class="cyber-container" style="padding: 0;">
             <table id="tabelaRanking" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th class="w-24">Código</th>
+                        <th class="w-24 text-center">Código</th>
                         <th>Procedimento</th>
                         <th class="text-center">Cmplx.</th>
-                        <th class="text-right text-blue-400">Tabela MT 2026 (Bruto)</th>
-                        <th class="text-right text-purple-400">Repasse Médico (3x SP)</th>
+                        <th class="text-right text-pink-400">Contrato MT (Bruto)</th>
+                        <th class="text-right text-purple-400">Honorário Médico</th>
                         <th class="text-right text-emerald-400">Sobra Hospitalar</th>
                         <th class="text-right text-gray-400">SIGTAP Original</th>
                     </tr>
@@ -405,23 +380,23 @@
     </div>
 
     <div id="compBar" class="no-print">
-        <div><span id="compCount" class="font-bold text-xl text-yellow-400">0</span> itens selecionados. <button onclick="limparComp()" style="background:none; color:#94a3b8; text-decoration:underline; font-size: 0.9rem; margin-left:15px;">Limpar Seleção</button></div>
+        <div><span id="compCount" class="font-bold text-xl text-yellow-400">0</span> itens selecionados. <button onclick="limparComp()" style="background:none; color:#94a3b8; text-decoration:underline; font-size: 0.9rem; margin-left:15px; cursor:pointer;">Limpar Seleção</button></div>
         <button class="btn-go" onclick="abrirModal()"><i class="fas fa-columns mr-2"></i> COMPARAR PROCEDIMENTOS</button>
     </div>
 
     <div id="modalComp" class="modal">
         <div class="modal-content">
-            <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
-            <h2 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 no-print"><i class="fas fa-balance-scale"></i> Comparativo de Procedimentos e Repasse Contratual</h2>
-            <button onclick="window.print()" class="no-print bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition mb-5 shadow-lg border border-blue-400">
-                <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial (P&B)
-            </button>
-            <div id="modalBody"></div>
+            <div class="modal-header">
+                <h2><i class="fas fa-balance-scale mr-2 text-blue-400"></i> Comparativo de Procedimentos e Repasse Contratual</h2>
+                <span class="close-modal no-print" onclick="fecharModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="p-6 border-t border-gray-600/30 text-right no-print">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-bold transition shadow-lg border border-blue-400">
+                    <i class="fas fa-print mr-2"></i> Imprimir Comparativo Oficial (P&B)
+                </button>
+            </div>
         </div>
-    </div>
-
-    <div id="print-footer">
-        Relatório gerado pelo Portal NII em <span id="footer-data-rodape"></span>.
     </div>
 
     <script>
@@ -442,10 +417,13 @@
 
         const procedimentos_a_excluir = ['0303100010', '0303100044', '0310010039', '0310010047', '0411010026', '0411010034', '0411010042', '0411020013', '0411020048'];
 
-        function toggleTheme() {
-            document.body.classList.toggle('theme-classic');
-            let isClassic = document.body.classList.contains('theme-classic');
-            localStorage.setItem('nii_theme_sigtap_uni', isClassic ? 'classic' : 'neon');
+        // Função de Tema chamada externamente pelo Iframe via Casca
+        window.toggleTheme = function() {
+            const body = document.body;
+            let isClassic = localStorage.getItem('nii_theme_hub') === 'classic';
+            
+            if (isClassic) { body.classList.add('theme-classic'); } 
+            else { body.classList.remove('theme-classic'); }
             
             Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
             if (chartMediaInstance) chartMediaInstance.update();
@@ -454,15 +432,14 @@
 
         function switchTab(tabId) {
             $('.tab-content').removeClass('active');
-            $('.tab-btn').removeClass('active border-b-2 border-emerald-400 border-pink-400 text-emerald-400 text-pink-400');
+            $('.tab-btn').removeClass('active');
             
             $('#tab-' + tabId).addClass('active');
-            
+            $('#btn-tab-' + tabId).addClass('active');
+
             if (tabId === 'catalogo') {
-                $('#btn-tab-catalogo').addClass('active border-b-2 border-emerald-400 text-emerald-400');
                 if (selecionados.length > 0) $('#compBar').addClass('visible');
             } else {
-                $('#btn-tab-rentabilidade').addClass('active border-b-2 border-pink-400 text-pink-400');
                 $('#compBar').removeClass('visible');
             }
 
@@ -480,15 +457,10 @@
             selectSub.empty().append('<option value="todos">Todos os Subgrupos</option>');
             selectForma.empty().append('<option value="todos">Todas as Formas</option>').prop('disabled', true);
             
-            if (grupo === 'todos') {
-                selectSub.prop('disabled', true);
-                return;
-            }
+            if (grupo === 'todos') { selectSub.prop('disabled', true); return; }
             
             let subs = new Set();
-            dadosGlobais.forEach(d => {
-                if (d.codigo.startsWith(grupo)) subs.add(d.codigo.substring(2,4));
-            });
+            dadosGlobais.forEach(d => { if (d.codigo.startsWith(grupo)) subs.add(d.codigo.substring(2,4)); });
             
             Array.from(subs).sort().forEach(s => { selectSub.append(`<option value="${s}">Subgrupo ${s}</option>`); });
             selectSub.prop('disabled', false);
@@ -536,14 +508,10 @@
         });
 
         $(document).ready(async function() {
-            const isClassic = localStorage.getItem('nii_theme_sigtap_uni') === 'classic';
+            const isClassic = localStorage.getItem('nii_theme_hub') === 'classic';
             if (isClassic) document.body.classList.add('theme-classic');
             Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
             Chart.defaults.font.family = "'Inter', sans-serif";
-
-            const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
-            $('#print-data-emissao').text(hoje);
-            $('#footer-data-rodape').text(hoje);
 
             try {
                 $('#status-text').text("Baixando Tabela SIGTAP...");
@@ -603,13 +571,10 @@
                         });
                     }
 
-                    // A REGRA DE REPASSE (Contrato HSH - Maio 2026)
                     let base_sp_sigtap = item.valor_profissional || 0;
-                    let repasse_medico_calculado = base_sp_sigtap * 3; // Médico ganha 3x o SIGTAP
+                    let repasse_medico_calculado = base_sp_sigtap * 3; 
                     let valor_contrato_total = mt2026 || 0;
                     
-                    // A sobra hospitalar é o valor MT 2026 menos o repasse médico
-                    // Se a tabela MT não pagar (valor 0) ou se a sobra der negativo, ele zera
                     let sobra_hospital = valor_contrato_total > 0 ? (valor_contrato_total - repasse_medico_calculado) : 0;
                     if (sobra_hospital < 0) sobra_hospital = 0; 
 
@@ -629,7 +594,6 @@
                         fz_valor: fz ? fz.valor_unitario : 0,
                         mt2026_valor: valor_contrato_total,
                         
-                        // Novos Campos de Lógica de Negócio
                         repasse_medico: repasse_medico_calculado,
                         sobra_mt: sobra_hospital,
 
@@ -659,9 +623,9 @@
                 pageLength: 25,
                 deferRender: true,
                 columns: [
-                    { data: 'codigo', className: 'font-mono text-center', render: function(d) { return `<b class="code-box px-2 py-1 rounded font-bold">${d}</b>`; } },
+                    { data: 'codigo', className: 'font-mono text-center font-bold text-gray-400', render: function(d) { return d; } },
                     { 
-                        data: null, 
+                        data: null, className: 'text-left',
                         render: function(data, type, row) {
                             if (type === 'filter') return row.descricao + ' ' + row.search_extra;
                             let sexoStr = row.sexo === 'M' ? 'Masc' : row.sexo === 'F' ? 'Fem' : 'Ambos';
@@ -669,14 +633,14 @@
                             let tags = `<span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">Cmplx: ${row.complexidade}</span>
                                         <span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">Sexo: ${sexoStr}</span>
                                         <span class="tag-detalhe text-[0.65rem] px-2 py-0.5 rounded-full font-semibold uppercase">Idade: ${idadeStr}</span>`;
-                            return '<div class="font-bold text-[0.85rem] mb-1">' + row.descricao + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
+                            return '<div class="font-bold text-[0.85rem] mb-1 text-white" style="color:var(--text-main);">' + row.descricao + '</div><div class="flex flex-wrap gap-1">' + tags + '</div>'; 
                         } 
                     },
-                    { data: 'valor_sa', className: 'text-right font-mono text-emerald-500 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                    { data: 'valor_sh', className: 'text-right font-mono text-blue-600 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'valor_sa', className: 'text-right font-mono text-emerald-400 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                    { data: 'valor_sh', className: 'text-right font-mono text-blue-400 font-bold', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                     { 
                         data: 'valor_sp', 
-                        className: 'text-right font-mono text-purple-600 font-bold', 
+                        className: 'text-right font-mono text-purple-400 font-bold', 
                         render: function(d, type, row) {
                             if (type === 'display') {
                                 let tooltip = `Repasse MT: ${brl.format(row.repasse_medico)}`;
@@ -685,14 +649,14 @@
                             return d;
                         } 
                     },
-                    { data: 'fz_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-50">-</span>`; } },
-                    { data: 'mt2026_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz-nova font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-50">-</span>`; } },
+                    { data: 'fz_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-30 text-gray-500">-</span>`; } },
+                    { data: 'mt2026_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz-nova font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-30 text-gray-500">-</span>`; } },
                     { 
                         data: null, className: 'text-center',
                         render: function(data, type, row) {
-                            let badgeOpme = row.compatibilidades.length > 0 ? `<span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm mb-1 block"><i class="fas fa-wrench"></i> ${row.compatibilidades.length} OPME</span>` : '';
-                            let badgeCid = row.cids.length > 0 ? `<span class="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-sm block"><i class="fas fa-virus"></i> ${row.cids.length} CIDs</span>` : '';
-                            if (!badgeOpme && !badgeCid) return `<span class="opacity-50">-</span>`;
+                            let badgeOpme = row.compatibilidades.length > 0 ? `<span class="bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full text-[10px] font-bold shadow-sm mb-1 block border border-orange-500/30"><i class="fas fa-wrench"></i> ${row.compatibilidades.length} OPME</span>` : '';
+                            let badgeCid = row.cids.length > 0 ? `<span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full text-[10px] font-bold shadow-sm block border border-purple-500/30"><i class="fas fa-virus"></i> ${row.cids.length} CIDs</span>` : '';
+                            if (!badgeOpme && !badgeCid) return `<span class="opacity-30 text-gray-500">-</span>`;
                             return `<div>${badgeOpme}${badgeCid}</div>`;
                         }
                     },
@@ -705,8 +669,6 @@
             });
 
             $('#customSearchCat').on('keyup', function() { dtCat.search(this.value).draw(); });
-            
-            $('#btn-tab-catalogo').addClass('active border-b-2 border-emerald-400 text-emerald-400');
         }
 
         // INIT ABA RENTABILIDADE
@@ -715,7 +677,7 @@
             let filtroSub = $('#filtroSubgrupoRent').val();
             let filtroForma = $('#filtroFormaRent').val();
             let filtroCmplx = $('#filtroComplexidadeRent').val();
-            let baseRanking = $('#filtroBaseRent').val(); // sobra_mt, mt2026_valor, repasse_medico, sigtap
+            let baseRanking = $('#filtroBaseRent').val(); 
 
             dadosFiltradosRent = dadosGlobais.filter(d => {
                 let passaCmplx = filtroCmplx === 'todos' || d.complexidade === filtroCmplx;
@@ -778,6 +740,7 @@
         function renderizarGrafico(canvasId, dadosTop10, instanceRef, setInstance, fieldSort) {
             if (instanceRef) instanceRef.destroy();
             const ctx = document.getElementById(canvasId).getContext('2d');
+            let isClassic = document.body.classList.contains('theme-classic');
             
             const labels = dadosTop10.map(d => d.descricao.length > 25 ? d.descricao.substring(0, 25) + '...' : d.descricao);
             const valPrincipal = dadosTop10.map(d => d[fieldSort]);
@@ -786,22 +749,25 @@
                                 fieldSort === 'sobra_mt' ? 'Sobra HSH' : 
                                 fieldSort === 'repasse_medico' ? 'Hon. Médico' : 'SIGTAP Padrão';
                                 
-            let corDataset = fieldSort === 'mt2026_valor' ? '#ec4899' : 
-                             fieldSort === 'sobra_mt' ? '#10b981' : 
-                             fieldSort === 'repasse_medico' ? '#8b5cf6' : '#0ea5e9';
+            let corDataset = fieldSort === 'mt2026_valor' ? '#f472b6' : 
+                             fieldSort === 'sobra_mt' ? '#34d399' : 
+                             fieldSort === 'repasse_medico' ? '#c084fc' : '#38bdf8';
 
             const novaInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: tituloDataset, data: valPrincipal, backgroundColor: corDataset + 'CC', borderColor: corDataset, borderWidth: 1 },
+                        { label: tituloDataset, data: valPrincipal, backgroundColor: corDataset + '99', borderColor: corDataset, borderWidth: 1 },
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false, indexAxis: 'y', 
-                    scales: { x: { beginAtZero: true, ticks: { callback: function(v) { return 'R$ ' + (v/1000) + 'k'; } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } },
-                    plugins: { tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + brl.format(c.raw); } } }, legend: { position: 'bottom' } }
+                    scales: { 
+                        x: { beginAtZero: true, ticks: { color: isClassic ? '#64748b' : '#94a3b8', callback: function(v) { return 'R$ ' + (v/1000) + 'k'; } }, grid: { display: false } }, 
+                        y: { ticks: { color: isClassic ? '#0f172a' : '#f8fafc' }, grid: { color: isClassic ? '#e2e8f0' : 'rgba(255,255,255,0.05)' } } 
+                    },
+                    plugins: { tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + brl.format(c.raw); } } }, legend: { display: false } }
                 }
             });
             setInstance(novaInstance);
@@ -813,17 +779,17 @@
                 pageLength: 25,
                 order: [[ 3, "desc" ]], 
                 columns: [
-                    { data: 'codigo', className: 'font-mono text-center font-bold' },
-                    { data: 'descricao', className: 'font-bold' },
+                    { data: 'codigo', className: 'font-mono text-center font-bold text-gray-400' },
+                    { data: 'descricao', className: 'font-bold text-left', render: function(d) { return `<span style="color:var(--text-main);">${d}</span>`; } },
                     { 
                         data: 'complexidade', className: 'text-center',
                         render: function(d) {
-                            if(d === 'Média') return '<span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs uppercase">Média</span>';
-                            if(d === 'Alta') return '<span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded text-xs uppercase">Alta</span>';
-                            return '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs uppercase">Básica</span>';
+                            if(d === 'Média') return '<span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[10px] uppercase border border-blue-500/30">Média</span>';
+                            if(d === 'Alta') return '<span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded text-[10px] uppercase border border-purple-500/30">Alta</span>';
+                            return '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[10px] uppercase border border-emerald-500/30">Básica</span>';
                         }
                     },
-                    { data: 'mt2026_valor', className: 'text-right val-mt-tbl text-[1.1rem]', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
+                    { data: 'mt2026_valor', className: 'text-right text-pink-400 font-mono text-[1.1rem] font-bold', render: function(d) { return d > 0 ? brl.format(d) : '-'; } },
                     { 
                         data: 'repasse_medico', 
                         className: 'text-right text-purple-400 font-mono font-bold', 
@@ -840,14 +806,14 @@
                             return brl.format(d); 
                         } 
                     },
-                    { data: 'valor_total', className: 'text-right text-gray-400 font-mono', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
+                    { data: 'valor_total', className: 'text-right text-gray-500 font-mono', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
                 ],
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
             });
         }
 
         // ==========================================
-        // GERAÇÃO DO MODAL DE COMPARAÇÃO COM LÓGICA DE HONORÁRIOS
+        // GERAÇÃO DO MODAL DE COMPARAÇÃO
         // ==========================================
         window.toggle = function(cod) {
             var idx = selecionados.indexOf(cod);
@@ -879,76 +845,75 @@
             var h = '<table class="compare-tbl"><tbody>';
             
             h += `<tr><th>Procedimento</th>`;
-            itens.forEach(function(i) { h += `<td><span style="font-weight:800; font-size:1.1rem;">${i.descricao}</span><br><span style="font-size:0.85rem; font-weight:400; opacity:0.8;">Cód: ${i.codigo}</span></td>`; });
+            itens.forEach(function(i) { h += `<td><span style="font-weight:800; font-size:1.1rem; color:var(--text-main);">${i.descricao}</span><br><span style="font-size:0.85rem; font-weight:400; color:var(--text-muted);">Cód: ${i.codigo}</span></td>`; });
             h += '</tr>';
 
-            // BLOCO 1: O QUE O ESTADO PAGA (Bruto)
-            h += `<tr><th><i class="fas fa-rocket text-pink-500"></i> VALOR BRUTO REPASSADO MT (2026)</th>`;
+            h += `<tr><th><i class="fas fa-rocket text-pink-500 mr-2"></i> VALOR BRUTO MT 2026</th>`;
             itens.forEach(function(i) { 
-                if(i.mt2026_valor > 0) h += `<td class="font-mono font-black text-[1.3rem] text-pink-500 bg-pink-500/10">` + brl.format(i.mt2026_valor) + '</td>'; 
-                else h += `<td class="font-mono text-center align-middle text-[1rem] opacity-50 bg-gray-500/10">Não Contemplado</td>`;
+                if(i.mt2026_valor > 0) h += `<td class="font-mono font-black text-[1.3rem] text-pink-400 bg-pink-500/10 text-center">` + brl.format(i.mt2026_valor) + '</td>'; 
+                else h += `<td class="font-mono text-center align-middle text-[1rem] text-gray-500 bg-gray-500/10">Não Contemplado</td>`;
             });
             h += '</tr>';
 
-            // BLOCO 2: DIVISÃO FINANCEIRA (Médico vs Hospital)
-            h += `<tr><th><i class="fas fa-user-md text-purple-500"></i> Honorário Médico (3x SIGTAP SP)</th>`;
+            h += `<tr><th><i class="fas fa-user-md text-purple-500 mr-2"></i> Honorário Médico (3x)</th>`;
             itens.forEach(function(i) { 
                 if(i.mt2026_valor > 0) {
-                    let spHtml = `<td class="font-mono text-purple-400 font-bold text-[1.1rem]">` + brl.format(i.repasse_medico);
+                    let spHtml = `<td class="font-mono text-purple-400 font-bold text-[1.1rem] text-center">` + brl.format(i.repasse_medico);
                     if (i.codigo.startsWith('04') && i.repasse_medico > 0) {
                         let cirurgiao = i.repasse_medico * 0.70;
                         let anestesista = i.repasse_medico * 0.30;
-                        spHtml += `<div class="mt-2 text-[0.8rem] space-y-1 font-sans font-normal"><div class="px-2 py-1 rounded border theme-adjust-bg-blue"><b class="texto-cir">Cirurgião (70%):</b> ${brl.format(cirurgiao)}</div><div class="px-2 py-1 rounded border theme-adjust-bg-purple"><b class="texto-ane">Anestesista (30%):</b> ${brl.format(anestesista)}</div></div>`;
+                        spHtml += `<div class="mt-3 text-[0.75rem] space-y-1 font-sans font-normal text-left">
+                                      <div class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30"><b>Cirurgião (70%):</b> <span class="float-right font-mono">${brl.format(cirurgiao)}</span></div>
+                                      <div class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30"><b>Anestesista (30%):</b> <span class="float-right font-mono">${brl.format(anestesista)}</span></div>
+                                   </div>`;
                     }
                     spHtml += `</td>`; h += spHtml;
                 } else {
-                    h += `<td class="text-center opacity-50">-</td>`;
+                    h += `<td class="text-center text-gray-500">-</td>`;
                 }
             });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-hospital text-emerald-500"></i> Sobra / Receita Líquida HSH</th>`;
+            h += `<tr><th><i class="fas fa-hospital text-emerald-500 mr-2"></i> Sobra / Receita Líquida HSH</th>`;
             itens.forEach(function(i) { 
                 if(i.mt2026_valor > 0) {
-                    h += `<td class="font-mono font-black text-[1.2rem] text-emerald-400 bg-emerald-500/10">` + brl.format(i.sobra_mt) + '</td>'; 
+                    h += `<td class="font-mono font-black text-[1.2rem] text-emerald-400 bg-emerald-500/10 text-center">` + brl.format(i.sobra_mt) + '</td>'; 
                 } else {
-                    h += `<td class="text-center opacity-50">-</td>`;
+                    h += `<td class="text-center text-gray-500">-</td>`;
                 }
             });
             h += '</tr>';
 
-            // BLOCO 3: REFERÊNCIAS ANTIGAS
-            h += `<tr><th><i class="fas fa-coins text-blue-500"></i> Referência SIGTAP (Governo Federal)</th>`;
-            itens.forEach(function(i) { h += `<td class="font-mono text-gray-400">Total: ${brl.format(i.valor_total)}<br><span class="text-xs">SA: ${brl.format(i.valor_sa)} | SH: ${brl.format(i.valor_sh)} | SP: ${brl.format(i.valor_sp)}</span></td>`; });
+            h += `<tr><th><i class="fas fa-coins text-blue-500 mr-2"></i> Referência SIGTAP (Governo Federal)</th>`;
+            itens.forEach(function(i) { h += `<td class="font-mono text-gray-400 text-center">Total: ${brl.format(i.valor_total)}<br><span class="text-[0.65rem] opacity-70">SA: ${brl.format(i.valor_sa)} | SH: ${brl.format(i.valor_sh)} | SP: ${brl.format(i.valor_sp)}</span></td>`; });
             h += '</tr>';
 
-            // OUTRAS REGRAS
-            h += `<tr><th><i class="fas fa-tools text-orange-400"></i> Materiais (OPME) Permitidos</th>`;
+            h += `<tr><th><i class="fas fa-wrench text-orange-400 mr-2"></i> Materiais (OPME) Permitidos</th>`;
             itens.forEach(function(i) {
                 if (i.compatibilidades && i.compatibilidades.length > 0) {
                     h += `<td><div class="tbl-scroll-box"><ul class="list-none p-0 m-0 space-y-2">`;
                     i.compatibilidades.forEach(function(op) { 
-                        let valFormatado = op.valor > 0 ? `<span class="tag-opme-val float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">${brl.format(op.valor)}</span>` : '';
-                        h += `<li class="text-xs border-b border-dashed border-gray-400 pb-2"><b>${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="tag-opme-qtd float-right font-bold px-2 py-0.5 rounded text-[0.7rem] ml-1">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
+                        let valFormatado = op.valor > 0 ? `<span class="float-right font-bold px-1.5 py-0.5 rounded text-[0.65rem] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${brl.format(op.valor)}</span>` : '';
+                        h += `<li class="text-[0.7rem] border-b border-dashed border-gray-600/50 pb-2 text-gray-300"><b class="text-white">${op.cod_opme}</b><br>${op.nome}<div class="mt-1 overflow-hidden"><span class="float-right font-bold px-1.5 py-0.5 rounded text-[0.65rem] bg-blue-500/20 text-blue-400 border border-blue-500/30">Qtd: ${op.qtd_max}</span>${valFormatado}</div></li>`; 
                     });
                     h += '</ul></div></td>';
                 } else {
-                    h += `<td class="text-center opacity-50">Sem OPME</td>`;
+                    h += `<td class="text-center text-gray-500">Sem OPME</td>`;
                 }
             });
             h += '</tr>';
 
-            h += `<tr><th><i class="fas fa-virus text-purple-400"></i> CIDs Compatíveis</th>`;
+            h += `<tr><th><i class="fas fa-virus text-purple-400 mr-2"></i> CIDs Compatíveis</th>`;
             itens.forEach(function(i) {
                 if (i.cids && i.cids.length > 0) {
                     h += `<td><div class="tbl-scroll-box"><ul class="list-none p-0 m-0 space-y-1">`;
                     i.cids.forEach(function(c) { 
                         let princTag = c.princ === 'S' ? `<span class="bg-red-500/20 text-red-400 border border-red-500/50 text-[10px] px-1 rounded ml-1" title="CID Principal" style="vertical-align: super;">P</span>` : '';
-                        h += `<li class="text-xs border-b border-dashed border-gray-500/30 pb-1 pt-1"><b class="tag-cid px-1 rounded">${c.cid}</b> ${c.nome} ${princTag}</li>`; 
+                        h += `<li class="text-[0.7rem] border-b border-dashed border-gray-600/30 pb-1 pt-1 text-gray-300"><b class="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 rounded mr-1">${c.cid}</b> ${c.nome} ${princTag}</li>`; 
                     });
                     h += '</ul></div></td>';
                 } else {
-                    h += `<td class="text-center opacity-50">Sem CIDs restritos</td>`;
+                    h += `<td class="text-center text-gray-500">Sem CIDs restritos</td>`;
                 }
             });
             h += '</tr>';
@@ -956,11 +921,10 @@
             h += '</tbody></table>';
 
             document.getElementById('modalBody').innerHTML = h;
-            document.getElementById('modalComp').style.display = 'block';
+            $('#modalComp').css('display', 'flex').hide().fadeIn(200);
         };
 
-        window.fecharModal = function() { document.getElementById('modalComp').style.display = 'none'; };
-        window.onclick = function(event) { if (event.target == document.getElementById('modalComp')) fecharModal(); };
+        window.fecharModal = function() { $('#modalComp').fadeOut(200); };
     </script>
 </body>
 </html>

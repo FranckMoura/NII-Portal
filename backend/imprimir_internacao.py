@@ -19,8 +19,8 @@ print(f"--- 2. AUTOMAÇÃO SISREG (V66 - CORREÇÃO DA PAGINAÇÃO 'SETA DIREITA
 FORCAR_RE_DOWNLOAD = True 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
-DT_INICIO = "01/04/2026"
-DT_FIM = "30/04/2026"
+DT_INICIO = "01/05/2026"
+DT_FIM = "18/05/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co" 
@@ -29,7 +29,7 @@ NOME_BUCKET = "arquivos-faturamento"
 
 # --- CONFIGURAÇÕES DO SISREG ---
 USUARIO = "046FRANCK"
-SENHA = "212425"
+SENHA = "515462"
 PASTA_PROJETO = r"C:\Users\DELL\OneDrive\NII-Portal-Cloud\backend"
 PASTA_TEMP_PDF = os.path.join(PASTA_PROJETO, "temp_fichas")
 
