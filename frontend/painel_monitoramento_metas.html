@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Metas (Contrato x Produção) - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ========================================================= */
+        /* VARIÁVEIS DE TEMA (ENTERPRISE / SAAS DESIGN)              */
+        /* ========================================================= */
+        :root {
+            --bg-body: #0f172a;       
+            --bg-card: #1e293b;       
+            --bg-header: rgba(15, 23, 42, 0.95);
+            --bg-hover: #334155;      
+            --border-color: #334155;
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;    
+            --color-primary: #38bdf8; 
+            --color-success: #34d399; 
+            --color-warning: #fbbf24; 
+            --color-danger:  #f87171; 
+            --color-purple:  #c084fc; 
+            --color-pink:    #f472b6;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --radius-default: 12px;
+        }
+
+        body.theme-classic {
+            --bg-body: #f1f5f9;       
+            --bg-card: #ffffff;       
+            --bg-header: rgba(255, 255, 255, 0.98);
+            --bg-hover: #f8fafc;      
+            --border-color: #cbd5e1;  
+            --text-main: #0f172a;     
+            --text-muted: #475569;    
+            --color-primary: #0056b3; 
+            --color-success: #059669; 
+            --color-warning: #d97706; 
+            --color-danger:  #dc2626; 
+            --color-purple:  #7e22ce; 
+            --color-pink:    #db2777;
+            --shadow-card: 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); 
+            margin: 0; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; 
+        }
+
+        /* Efeito Fundo (Dark) */
+        body:not(.theme-classic)::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        /* CABEÇALHO */
+        .top-header { 
+            position: fixed; top: 0; left: 0; right: 0; height: 64px; 
+            background: var(--bg-header); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+            border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 24px; z-index: 1000; flex-shrink: 0; transition: 0.3s;
+        }
+        body.theme-classic .top-header { border-bottom: 2px solid var(--color-primary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+        .header-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; padding-right: 15px; }
+        .header-brand img { height: 40px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: 0.2s;}
+        .header-brand:hover img { transform: scale(1.05); }
+        
+        .brand-text { display: flex; flex-direction: column; text-align: left;}
+        .brand-title { font-size: 1.1rem; font-weight: 900; color: var(--text-main); line-height: 1.1; letter-spacing: -0.5px;}
+        .brand-sub { font-size: 0.65rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px;}
+
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .icon-btn { 
+            width: 36px; height: 36px; border: 1px solid var(--border-color); background: var(--bg-card); 
+            border-radius: 8px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: 0.2s; 
+        }
+        .icon-btn:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        
+        .btn-theme { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: 0.2s;}
+        .btn-theme:hover { background: var(--bg-hover); color: var(--text-main); }
+        
+        /* TABS (NOVIDADE) */
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);
+            padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: bold; cursor: pointer; transition: 0.3s;
+            border-bottom: none;
+        }
+        .tab-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+        .tab-btn.active {
+            background: rgba(52, 211, 153, 0.1); color: var(--color-success); border-color: rgba(52, 211, 153, 0.3);
+            border-bottom: 2px solid var(--color-success);
+        }
+        body.theme-classic .tab-btn { background: #f1f5f9; color: var(--text-muted); border-color: var(--border-color); }
+        body.theme-classic .tab-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        body.theme-classic .tab-btn.active { background: #ffffff; color: var(--color-success); border-color: var(--border-color); border-bottom: 2px solid var(--color-success); }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ÁREA CENTRAL E CARDS */
+        .main-content { padding: calc(64px + 30px) 24px 30px 24px; max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;}
+        .page-title { font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin-bottom: 4px; }
+        .page-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        .filter-box { background: var(--bg-card); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; display: flex; items-center; gap: 12px; box-shadow: var(--shadow-card); flex-wrap: wrap;}
+        .filter-select { background: transparent; color: var(--text-main); border: none; outline: none; font-weight: 600; font-size: 0.85rem; cursor: pointer;}
+        .filter-select option { background: var(--bg-body); color: var(--text-main); }
+
+        .section-container { background: var(--bg-card); border-radius: var(--radius-default); padding: 24px; box-shadow: var(--shadow-card); border: 1px solid var(--border-color); margin-bottom: 24px; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px;}
+        
+        .kpi-card { 
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; 
+            padding: 22px; display: flex; flex-direction: column; justify-content: space-between; 
+            transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        
+        .kpi-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; z-index: 2;}
+        .kpi-card-icon { font-size: 1.2rem; color: var(--text-muted); opacity: 0.4; transition: 0.2s; z-index: 2;}
+        
+        .kpi-value { font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1; letter-spacing: -1px; margin-bottom: 6px; z-index: 2;}
+        .kpi-desc { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; z-index: 2; text-transform: uppercase;}
+
+        .kpi-card.highlight { background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3); }
+        body.theme-classic .kpi-card.highlight { background: #f0fdf4; border-color: #bbf7d0; }
+
+        /* TABELAS */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: rgba(0, 0, 0, 0.2) !important; color: var(--color-primary) !important; border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { font-size: 0.80rem; vertical-align: middle; padding: 10px !important; color: var(--text-main) !important; border-bottom: 1px solid var(--border-color) !important; }
+        table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
+
+        body.theme-classic table.dataTable { color: var(--text-main) !important; }
+        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: var(--color-primary) !important; border-bottom-color: var(--border-color) !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom-color: var(--border-color) !important; }
+
+        .dt-buttons { margin-bottom: 15px; }
+        .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: var(--color-primary) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; }
+        .dt-button:hover { background: rgba(56, 189, 248, 0.3) !important; color: white !important;}
+        body.theme-classic .dt-button { background: white !important; color: var(--color-primary) !important; border-color: var(--border-color) !important; }
+        body.theme-classic .dt-button:hover { background: var(--bg-hover) !important; color: var(--color-primary) !important; }
+
+        .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* STATUS DE METAS E BADGES */
+        .val-positivo { color: var(--color-success); font-weight: bold; }
+        .val-negativo { color: var(--color-danger); font-weight: bold; }
+        
+        .badge-hosp { background: rgba(236, 72, 153, 0.1); color: var(--color-pink); border: 1px solid rgba(236, 72, 153, 0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+        .badge-amb { background: rgba(56, 189, 248, 0.1); color: var(--color-primary); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+
+        .progress-container { width: 100px; background: rgba(255,255,255,0.1); border-radius: 10px; height: 12px; position: relative; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 8px;}
+        body.theme-classic .progress-container { background: #e2e8f0; }
+        .progress-bar { height: 100%; border-radius: 10px; transition: 0.5s ease-out; }
+
+        /* MODAIS SAAS DESIGN */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 90%; max-width: 650px; border-radius: var(--radius-default); box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: var(--text-main); }
+        .modal-header { background: var(--bg-body); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main);}
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: var(--color-danger); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 75vh; }
+        
+        .input-form { width: 100%; padding: 10px; border-radius: 8px; font-size: 0.9rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none; transition: 0.2s;}
+        .input-form:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
+        body.theme-classic .input-form:focus { box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.15); }
+        
+        .btn-submit { width: 100%; background: var(--color-success); color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(52, 211, 153, 0.3);}
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        #loader { position: fixed; inset: 0; background: rgba(0,21,40,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:flex;">
+        <i class="fas fa-layer-group fa-spin text-5xl text-blue-400 mb-4"></i>
+        <p class="text-white font-bold" id="loader-text">Fundindo Metas, Tabela SUS e Fila Zero...</p>
+    </div>
+
+    <header class="top-header no-print">
+        <a href="#" class="header-brand" title="Portal NII">
+            <img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            <div class="brand-text">
+                <span class="brand-title">Portal NII</span>
+                <span class="brand-sub">Metas e Cofinanciamento</span>
+            </div>
+        </a>
+
+        <div class="header-actions">
+            <button onclick="abrirModalAdd()" class="btn-theme bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 border-emerald-500/30">
+                <i class="fas fa-plus"></i> Manual
+            </button>
+            <div style="width:1px; height:24px; background:var(--border-color); margin: 0 5px;"></div>
+            <button onclick="toggleTheme()" class="icon-btn" title="Alternar Tema">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
+            <button onclick="window.history.back()" class="icon-btn" title="Voltar"><i class="fas fa-times"></i></button>
+        </div>
+    </header>
+
+    <main class="main-content no-print">
+        
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Monitoramento de Contratos (MT 2026)</h1>
+                <p class="page-desc">Integração do Contrato Estadual com o volume Físico (Fila Zero / IndicaSUS).</p>
+            </div>
+            
+            <div class="filter-box">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase text-gray-500">Mês/Ano:</span>
+                    <select id="mesFilter" onchange="carregarDadosGlobais()" class="filter-select"></select>
+                    <span class="text-gray-500">/</span>
+                    <select id="anoFilter" onchange="carregarDadosGlobais()" class="filter-select"></select>
+                </div>
+                
+                <div style="width:1px; height:20px; background:var(--border-color); margin: 0 8px;"></div>
+                
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-filter text-pink-400 text-xs"></i>
+                    <select id="filtroTipo" onchange="aplicarFiltrosTabela()" class="filter-select">
+                        <option value="TODOS">Geral (Hosp + Amb)</option>
+                        <option value="HOSPITALAR">Somente Hospitalar</option>
+                        <option value="AMBULATORIAL">Somente Ambulatorial</option>
+                    </select>
+                </div>
+
+                <div style="width:1px; height:20px; background:var(--border-color); margin: 0 8px;"></div>
+                
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-eye text-gray-400 text-xs"></i>
+                    <select id="modoExibicao" onchange="aplicarFiltrosTabela()" class="filter-select">
+                        <option value="total">Totais (x Meta)</option>
+                        <option value="unit">Valores Unitários</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex mb-0 border-b" style="border-color: var(--border-color);">
+            <button id="btn-tab-contrato" class="tab-btn active" onclick="switchTab('contrato')"><i class="fas fa-bullseye mr-2"></i> Cumprimento de Metas & Impacto</button>
+            <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md mr-2"></i> Projeção de Repasses (Sobra)</button>
+        </div>
+
+        <div class="section-container" style="border-top-left-radius: 0;">
+            
+            <div id="tab-contrato" class="tab-content active">
+                <div class="kpi-grid mb-6">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-blue-400">Meta Mês</span>
+                            <i class="fas fa-layer-group kpi-card-icon"></i>
+                        </div>
+                        <div class="kpi-value" style="color:var(--text-main);" id="kpi-meta">0</div>
+                        <div class="kpi-desc">META FÍSICA GLOBAL</div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-yellow-400">Val. Histórico</span>
+                            <i class="fas fa-history kpi-card-icon"></i>
+                        </div>
+                        <div class="kpi-value" style="color:var(--text-main);" id="kpi-sigtap">R$ 0,00</div>
+                        <div class="kpi-desc">MÉDIA PAGA ANTERIORMENTE</div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-purple-400">Tabela MT 2026</span>
+                            <i class="fas fa-file-contract kpi-card-icon"></i>
+                        </div>
+                        <div class="kpi-value" style="color:var(--text-main);" id="kpi-mt">R$ 0,00</div>
+                        <div class="kpi-desc">RECEITA PREVISTA (CONTRATO)</div>
+                    </div>
+                    
+                    <div class="kpi-card highlight" id="kpi-impacto-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-emerald-400">Impacto Real</span>
+                            <i class="fas fa-arrow-trend-up kpi-card-icon text-emerald-400"></i>
+                        </div>
+                        <div class="kpi-value text-emerald-400" id="kpi-global">R$ 0,00</div>
+                        <div class="kpi-desc" style="color: inherit;">GANHO LÍQUIDO NO FATURAMENTO</div>
+                    </div>
+                </div>
+
+                <table id="tabelaContrato" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center w-24">Cód. SIGTAP</th>
+                            <th class="text-left">Procedimento Contratado</th>
+                            <th class="text-center">Meta Física</th>
+                            <th class="text-left w-32">Status (Fila Zero)</th>
+                            <th class="text-right">Val. Histórico</th>
+                            <th class="text-right text-pink-400">Contrato MT 2026</th>
+                            <th class="text-right">Impacto (+/-)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="tab-repasses" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="lg:col-span-3 kpi-grid">
+                        <div class="kpi-card" style="border-top: 3px solid var(--color-pink);">
+                            <div class="kpi-card-header">
+                                <span class="kpi-title">Receita Total</span>
+                                <i class="fas fa-file-invoice-dollar kpi-card-icon"></i>
+                            </div>
+                            <div class="kpi-value" style="color:var(--color-pink);" id="kpi-rep-total">R$ 0,00</div>
+                            <div class="kpi-desc">SOMA BRUTA DA TABELA MT</div>
+                        </div>
+                        <div class="kpi-card" style="border-top: 3px solid var(--color-purple);">
+                            <div class="kpi-card-header">
+                                <span class="kpi-title">Custo Médico</span>
+                                <i class="fas fa-user-md kpi-card-icon"></i>
+                            </div>
+                            <div class="kpi-value" style="color:var(--color-purple);" id="kpi-rep-medico">R$ 0,00</div>
+                            <div class="kpi-desc">REPASSE PROFISSIONAL ESTIMADO</div>
+                        </div>
+                        <div class="kpi-card" style="border-top: 3px solid var(--color-success);">
+                            <div class="kpi-card-header">
+                                <span class="kpi-title">Sobra Hospitalar</span>
+                                <i class="fas fa-hospital kpi-card-icon"></i>
+                            </div>
+                            <div class="kpi-value" style="color:var(--color-success);" id="kpi-rep-sobra">R$ 0,00</div>
+                            <div class="kpi-desc">LUCRO LÍQUIDO DA INSTITUIÇÃO</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card lg:col-span-1 flex items-center justify-center p-2" style="height: 140px;">
+                        <div style="height: 100%; width: 100%; position: relative;"><canvas id="chartDistribuicao"></canvas></div>
+                    </div>
+                </div>
+
+                <table id="tabelaRepasses" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center w-24">Cód. SIGTAP</th>
+                            <th class="text-left">Procedimento Contratado</th>
+                            <th class="text-center">Meta Mês</th>
+                            <th class="text-right text-pink-400">Contrato MT</th>
+                            <th class="text-right text-purple-400">Repasse Médico</th>
+                            <th class="text-right text-purple-300 no-print" style="display:none;">Cirurgião (70%)</th>
+                            <th class="text-right text-purple-300 no-print" style="display:none;">Anestesista (30%)</th>
+                            <th class="text-right text-emerald-400">Sobra Hospitalar</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="modalAddProc" class="modal-overlay no-print">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle text-emerald-400 mr-2"></i> Adicionar Meta Manual</h3>
+                <button class="modal-close" onclick="fecharModal('modalAddProc')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label for="add_cod" class="block text-xs font-bold text-gray-400 uppercase mb-1">Código SIGTAP (10 Dígitos)</label>
+                    <input type="text" id="add_cod" onblur="buscarDescricaoSigtap()" class="input-form font-mono" maxlength="10" placeholder="Ex: 0411010026">
+                </div>
+                <div class="mb-4">
+                    <label for="add_desc" class="block text-xs font-bold text-gray-400 uppercase mb-1">Descrição Oficial</label>
+                    <input type="text" id="add_desc" class="input-form bg-black/10 text-gray-500 cursor-not-allowed" disabled placeholder="Aguardando código...">
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="add_meta" class="block text-xs font-bold text-gray-400 uppercase mb-1">Meta Física (Mês)</label>
+                        <input type="number" id="add_meta" class="input-form font-mono" placeholder="Ex: 15">
+                    </div>
+                    <div>
+                        <label for="add_valor" class="block text-xs font-bold text-gray-400 uppercase mb-1">Val. Unitário (MT)</label>
+                        <input type="number" step="0.01" id="add_valor" class="input-form font-mono" placeholder="Ex: 1500.50">
+                    </div>
+                </div>
+                <button onclick="salvarNovoProcedimento()" id="btnSalvarProc" class="btn-submit"><i class="fas fa-save mr-2"></i> Salvar no Contrato</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDetalheRepasse" class="modal-overlay no-print">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice-dollar text-purple-400 mr-2"></i> Extrato de Repasse</h3>
+                <button class="modal-close" onclick="fecharModal('modalDetalheRepasse')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="conteudoDetalheRepasse"></div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaContrato = null;
+        let tabelaRepasses = null;
+        let chartDist = null;
+        
+        let dadosBase = []; 
+        window.modoExibicao = 'total';
+
+        const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            let isClassic = false;
+            
+            if (body.classList.contains('theme-classic')) {
+                body.classList.remove('theme-classic');
+                localStorage.setItem('nii_theme_tools', 'neon');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.classList.add('theme-classic');
+                localStorage.setItem('nii_theme_tools', 'classic');
+                icon.className = 'fas fa-moon';
+                isClassic = true;
+            }
+
+            if (chartDist) {
+                Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
+                chartDist.update();
+            }
+        }
+
+        function switchTab(tabId) {
+            $('.tab-content').removeClass('active');
+            $('.tab-btn').removeClass('active');
+            
+            $('#tab-' + tabId).addClass('active');
+            $('#btn-tab-' + tabId).addClass('active');
+
+            setTimeout(() => {
+                if (tabelaContrato) tabelaContrato.columns.adjust().draw();
+                if (tabelaRepasses) tabelaRepasses.columns.adjust().draw();
+            }, 50);
+        }
+
+        function setupAnoMes() {
+            const anoSel = $('#anoFilter'); const mesSel = $('#mesFilter');
+            const data = new Date(); const ano = data.getFullYear();
+            for(let i = ano+1; i >= 2024; i--) anoSel.append(`<option value="${i}">${i}</option>`);
+            const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+            meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
+            
+            let anoMem = localStorage.getItem('nii_competencia_ano');
+            let mesMem = localStorage.getItem('nii_competencia_mes');
+            anoSel.val(anoMem || ano);
+            mesSel.val(mesMem || String(data.getMonth()+1).padStart(2,'0'));
+        }
+
+        $(document).ready(async function() { 
+            if (localStorage.getItem('nii_theme_tools') === 'classic') {
+                document.body.classList.add('theme-classic');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+                Chart.defaults.color = '#475569';
+            } else {
+                Chart.defaults.color = '#cbd5e1';
+            }
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            
+            setupAnoMes();
+            await carregarDadosGlobais(); 
+        });
+
+        function fecharModal(idModal) { $('#' + idModal).fadeOut(200); }
+        function abrirModalAdd() {
+            $('#add_cod, #add_desc, #add_meta, #add_valor').val('');
+            $('#modalAddProc').css('display', 'flex').hide().fadeIn(200);
+            $('#add_cod').focus();
+        }
+
+        async function buscarDescricaoSigtap() {
+            let cod = $('#add_cod').val().replace(/\D/g, '');
+            if(cod.length !== 10) return;
+            $('#add_desc').val('Buscando...');
+            try {
+                const { data } = await client.from('sigtap_oficial').select('nome').eq('codigo', cod).single();
+                $('#add_desc').val(data ? data.nome : 'Código não encontrado no SIGTAP.');
+            } catch(e) { $('#add_desc').val('Erro na busca.'); }
+        }
+
+        async function salvarNovoProcedimento() {
+            let cod = $('#add_cod').val().replace(/\D/g, '');
+            let desc = $('#add_desc').val();
+            let meta = parseInt($('#add_meta').val());
+            let valor = parseFloat($('#add_valor').val());
+
+            if(cod.length !== 10 || !desc || desc.includes('não encontrado') || isNaN(meta) || isNaN(valor)) {
+                alert("Preencha todos os campos corretamente."); return;
+            }
+
+            $('#btnSalvarProc').html('<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...').prop('disabled', true);
+
+            try {
+                const { error: err1 } = await client.from('procedimentos_contrato').upsert({ codigo: cod, descricao: desc, meta_fisica: meta }, { onConflict: 'codigo' });
+                if(err1) throw err1;
+
+                const { error: err2 } = await client.from('tabela_sus_mt_2026').upsert({ codigo_sigtap: parseInt(cod, 10), valor_unitario: valor }, { onConflict: 'codigo_sigtap' });
+                if(err2) throw err2;
+                
+                fecharModal('modalAddProc');
+                $('#loader-text').text("Recalculando Contrato..."); $('#loader').fadeIn(200);
+                await carregarDadosGlobais();
+            } catch (err) { alert("Erro: " + err.message); } 
+            finally { $('#btnSalvarProc').html('<i class="fas fa-save mr-2"></i> Salvar no Contrato').prop('disabled', false); }
+        }
+
+        // ===============================================
+        // MÁGICA: CRUZAMENTO FINANCEIRO + FÍSICO (FILA ZERO)
+        // ===============================================
+        async function carregarDadosGlobais() {
+            $('#loader').fadeIn(200);
+            const ano = $('#anoFilter').val();
+            const mes = $('#mesFilter').val();
+            const d1 = `${ano}-${mes}-01`;
+            const dataFimObj = new Date(ano, mes, 0);
+            const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+            
+            localStorage.setItem('nii_competencia_ano', ano);
+            localStorage.setItem('nii_competencia_mes', mes);
+
+            try {
+                // 1. Busca Tabelas Financeiras Base (Contrato e Produção Histórica)
+                const { data: prodData } = await client.from('tb_producao_sus').select('*');
+                const { data: contratoData } = await client.from('tabela_contrato_mt2026').select('*');
+
+                let mapMtOficial = {};
+                let fromMt = 0; let stepMt = 1000; let keepFetchingMt = true;
+                while (keepFetchingMt) {
+                    const { data: mtData } = await client.from('tabela_sus_mt_2026').select('*').range(fromMt, fromMt + stepMt - 1);
+                    if (mtData && mtData.length > 0) { 
+                        mtData.forEach(m => {
+                            let c = m.codigo || m.codigo_sigtap || m.co_procedimento;
+                            let v = m.valor || m.valor_mt || m.valor_mt2026 || m.vl_procedimento || m.valor_unitario;
+                            if (c) mapMtOficial[String(c).padStart(10, '0')] = Number(v || 0);
+                        });
+                        fromMt += stepMt; 
+                    } else keepFetchingMt = false;
+                }
+
+                // 2. BUSCA FILA ZERO (Volume Físico Real do Mês) -> CORRIGIDO COM .range()
+                let mapVolumeFisicoReal = {};
+                let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
+                while (keepFetchingIndica) {
+                    const { data: indData } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, diagnostico, evolucao_clinica, internacao_sus')
+                        .gte('data_internacao', d1).lte('data_internacao', d2)
+                        .range(fromI, fromI + stepI - 1);
+                    
+                    if (indData && indData.length > 0) { 
+                        indData.forEach(row => {
+                            if (!(row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'))) return;
+                            let cid = (row.diagnostico||"").replace('.', '').toUpperCase();
+                            let codEstimado = "";
+                            
+                            if (cid.startsWith('M') || cid.startsWith('S') || cid.startsWith('T')) codEstimado = '0408050160';
+                            else if (cid.startsWith('N40') || cid.startsWith('N43') || cid.startsWith('N47')) codEstimado = '0409030040';
+                            else if (cid.startsWith('K80') || cid.startsWith('K81')) codEstimado = '0407020084'; 
+                            else if (cid.startsWith('K4')) codEstimado = '0407040107'; 
+                            
+                            if(codEstimado !== "") {
+                                mapVolumeFisicoReal[codEstimado] = (mapVolumeFisicoReal[codEstimado] || 0) + 1;
+                            }
+                        });
+                        fromI += stepI; 
+                    } else keepFetchingIndica = false;
+                }
+
+                let mapProducao = {}; if(prodData) prodData.forEach(p => mapProducao[String(p.codigo).padStart(10, '0')] = p);
+                let mapContrato = {}; if(contratoData) contratoData.forEach(c => mapContrato[String(c.codigo_sigtap).padStart(10, '0')] = c);
+
+                let allCodes = Array.from(new Set([...Object.keys(mapProducao), ...Object.keys(mapContrato)]));
+                
+                let mapSigtapSp = {};
+                if(allCodes.length > 0) {
+                    const { data: sigtapData } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', allCodes);
+                    if(sigtapData) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
+                }
+
+                dadosBase = [];
+                
+                allCodes.forEach(codStr => {
+                    let prod = mapProducao[codStr] || {};
+                    let contr = mapContrato[codStr] || {};
+
+                    let temNaTabelaMT = mapMtOficial[codStr] !== undefined && mapMtOficial[codStr] > 0;
+                    let temNoContratoManual = contr.codigo_sigtap !== undefined;
+
+                    if (!temNaTabelaMT && !temNoContratoManual) return;
+
+                    let meta = contr.meta_fisica ? Number(contr.meta_fisica) : Number(prod.fisico_mes || 0);
+                    let realizado = mapVolumeFisicoReal[codStr] || 0; 
+
+                    let valMedioHist = Number(prod.valor_medio || 0);
+                    let valMt = valMedioHist; 
+                    if (temNaTabelaMT) valMt = mapMtOficial[codStr]; 
+                    if (contr.valor_mt2026 > 0) valMt = Number(contr.valor_mt2026); 
+
+                    let desc = contr.descricao || prod.descricao || "PROCEDIMENTO NÃO DESCRITO";
+                    let valSp = mapSigtapSp[codStr] || 0;
+                    let tipoAtend = (['01', '02', '08'].includes(codStr.substring(0, 2)) || codStr.substring(0, 4) === '0301') ? 'AMBULATORIAL' : 'HOSPITALAR';
+
+                    let fatValMedio = meta * valMedioHist;
+                    let fatMt = meta * valMt;
+                    let diffUnit = valMt - valMedioHist;
+                    let impactoTot = fatMt - fatValMedio;
+
+                    let repasseMedicoUnit = valSp * 3;
+                    if (repasseMedicoUnit > valMt) repasseMedicoUnit = valMt; 
+                    
+                    let sobraHospUnit = valMt > 0 ? Math.max(valMt - repasseMedicoUnit, 0) : 0;
+                    let fatRepasse = meta * repasseMedicoUnit;
+                    let fatSobra = meta * sobraHospUnit;
+
+                    if (meta >= 0 || contr.codigo_sigtap) {
+                        dadosBase.push({
+                            codigo: codStr, descricao: desc, tipo: tipoAtend, meta: meta, realizado: realizado,
+                            val_unit_medio_hist: valMedioHist, val_sigtap_sp: valSp, val_unit_mt: valMt, diff_unit: diffUnit,
+                            tot_medio_hist: fatValMedio, tot_mt: fatMt, impacto_total: impactoTot,
+                            repasse_medico_unit: repasseMedicoUnit, sobra_hosp_unit: sobraHospUnit,
+                            tot_repasse_medico: fatRepasse, tot_sobra_hosp: fatSobra
+                        });
+                    }
+                });
+
+                aplicarFiltrosTabela(); 
+
+            } catch (err) {
+                console.error(err); alert("Erro ao cruzar dados do contrato.");
+            } finally {
+                $('#loader').fadeOut();
+            }
+        }
+
+        // ===============================================
+        // MOTOR DE RENDERIZAÇÃO
+        // ===============================================
+        function aplicarFiltrosTabela() {
+            window.modoExibicao = $('#modoExibicao').val();
+            let tipoSel = $('#filtroTipo').val();
+
+            let dadosFiltrados = dadosBase;
+            if (tipoSel !== 'TODOS') dadosFiltrados = dadosBase.filter(d => d.tipo === tipoSel);
+
+            let totMeta = 0, totValMedio = 0, totMT = 0;
+            let acumuladoSobra = 0, acumuladoRepasse = 0;
+
+            dadosFiltrados.forEach(row => {
+                totMeta += row.meta;
+                totValMedio += row.tot_medio_hist;
+                totMT += row.tot_mt;
+                acumuladoRepasse += row.tot_repasse_medico;
+                acumuladoSobra += row.tot_sobra_hosp;
+            });
+
+            let impactoGeral = totMT - totValMedio;
+
+            // ATUALIZA KPIs
+            $('#kpi-meta').text(new Intl.NumberFormat('pt-BR').format(totMeta));
+            $('#kpi-sigtap').text(formatBrl.format(totValMedio));
+            $('#kpi-mt').text(formatBrl.format(totMT));
+            
+            $('#kpi-global').text(formatBrl.format(impactoGeral)); 
+            if(impactoGeral < 0) {
+                $('#kpi-global').removeClass('text-emerald-400').addClass('text-danger');
+                $('#kpi-impacto-card').css('border-color', 'var(--color-danger)').css('background', 'rgba(248, 113, 113, 0.05)');
+            } else {
+                $('#kpi-global').removeClass('text-danger').addClass('text-emerald-400');
+                $('#kpi-impacto-card').css('border-color', 'var(--color-success)').css('background', 'rgba(52, 211, 153, 0.05)');
+            }
+
+            $('#kpi-rep-total').text(formatBrl.format(totMT));
+            $('#kpi-rep-medico').text(formatBrl.format(acumuladoRepasse));
+            $('#kpi-rep-sobra').text(formatBrl.format(acumuladoSobra));
+
+            renderizarGrafico(acumuladoRepasse, acumuladoSobra);
+
+            // MONTAGEM DAS TABELAS
+            if ($.fn.DataTable.isDataTable('#tabelaContrato')) $('#tabelaContrato').DataTable().destroy();
+            if ($.fn.DataTable.isDataTable('#tabelaRepasses')) $('#tabelaRepasses').DataTable().destroy();
+
+            tabelaContrato = $('#tabelaContrato').DataTable({
+                data: dadosFiltrados,
+                dom: '<"flex justify-between items-center mb-4"lB>rtip',
+                buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar', className: 'dt-button' } ],
+                order: [[ 6, 'desc' ]], pageLength: 25,
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                columns: [
+                    { data: 'codigo', className: 'text-center font-mono font-bold', render: d => `<span style="color:var(--color-primary);">${d}</span>` },
+                    { 
+                        data: 'descricao', className: 'font-semibold td-truncate text-left', 
+                        render: function(d, type, row) { 
+                            if(type === 'display') {
+                                let badge = row.tipo === 'AMBULATORIAL' ? '<span class="badge-amb ml-2">AMB</span>' : '<span class="badge-hosp ml-2">HOSP</span>';
+                                return `<span title="${d}">${d}</span> ${badge}`;
+                            }
+                            return d; 
+                        } 
+                    },
+                    { data: 'meta', className: 'text-center font-bold text-lg' },
+                    { 
+                        data: null, className: 'text-left', 
+                        render: function(d, type, row) { 
+                            let perc = row.meta > 0 ? Math.min(Math.round((row.realizado / row.meta) * 100), 100) : 0;
+                            let corBarra = perc >= 100 ? 'var(--color-success)' : (perc > 50 ? 'var(--color-warning)' : 'var(--color-danger)');
+                            if(type === 'display') {
+                                return `<span class="font-bold text-xs" style="color:var(--text-main);">${row.realizado}</span>
+                                        <div class="progress-container"><div class="progress-bar" style="width:${perc}%; background:${corBarra};"></div></div>`;
+                            }
+                            return row.realizado; 
+                        } 
+                    },
+                    { 
+                        data: null, className: 'text-right font-mono', 
+                        render: function(d, type, row) { 
+                            let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_medio_hist : row.val_unit_medio_hist;
+                            return type === 'display' ? `<span style="color:var(--text-muted);">${formatBrl.format(val)}</span>` : val; 
+                        } 
+                    },
+                    { 
+                        data: null, className: 'text-right font-mono', 
+                        render: function(d, type, row) { 
+                            let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_mt : row.val_unit_mt;
+                            return type === 'display' ? `<span class="font-bold" style="color:var(--color-pink);">${formatBrl.format(val)}</span>` : val; 
+                        } 
+                    },
+                    { 
+                        data: null, className: 'text-right font-mono', 
+                        render: function(d, type, row) { 
+                            let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.impacto_total : row.diff_unit;
+                            if(type === 'display') {
+                                if(val > 0) return `<span class="val-positivo">+${formatBrl.format(val)}</span>`;
+                                if(val < 0) return `<span class="val-negativo">${formatBrl.format(val)}</span>`;
+                                return `<span style="color:var(--text-muted);">-</span>`;
+                            }
+                            return val; 
+                        } 
+                    }
+                ]
+            });
+
+            tabelaRepasses = $('#tabelaRepasses').DataTable({
+                data: dadosFiltrados,
+                dom: '<"flex justify-between items-center mb-4"lB>rtip',
+                buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar', className: 'dt-button', exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] } } ],
+                order: [[ 7, 'desc' ]], pageLength: 25,
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                columns: [
+                    { data: 'codigo', className: 'text-center font-mono font-bold', render: function(d, type) { if(type === 'display') return `<a href="#" onclick="abrirDetalheRepasse('${d}')" class="underline" style="color:var(--color-primary);">${d}</a>`; return d;} },
+                    { 
+                        data: 'descricao', className: 'font-semibold td-truncate text-left', 
+                        render: function(d, type, row) { 
+                            if(type === 'display') return `<span title="${d}">${d}</span> ${row.tipo === 'AMBULATORIAL' ? '<span class="badge-amb ml-2">AMB</span>' : '<span class="badge-hosp ml-2">HOSP</span>'}`;
+                            return d; 
+                        } 
+                    },
+                    { data: 'meta', className: 'text-center font-bold text-lg' },
+                    { data: null, className: 'text-right font-mono', render: function(d, type, row) { let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_mt : row.val_unit_mt; return type === 'display' ? `<span class="font-bold" style="color:var(--color-pink);">${formatBrl.format(val)}</span>` : val; } },
+                    { data: null, className: 'text-right font-mono', render: function(d, type, row) { let val = (window.modoExibicao === 'total') ? row.tot_repasse_medico : row.repasse_medico_unit; return type === 'display' ? `<span class="font-bold" style="color:var(--color-purple);">${formatBrl.format(val)}</span>` : val; } },
+                    { data: null, visible: false, render: function(d, type, row) { let val = (window.modoExibicao === 'total') ? row.tot_repasse_medico : row.repasse_medico_unit; return (row.codigo.startsWith('04') && val > 0) ? (val * 0.70) : 0; } },
+                    { data: null, visible: false, render: function(d, type, row) { let val = (window.modoExibicao === 'total') ? row.tot_repasse_medico : row.repasse_medico_unit; return (row.codigo.startsWith('04') && val > 0) ? (val * 0.30) : 0; } },
+                    { data: null, className: 'text-right font-mono', render: function(d, type, row) { let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_sobra_hosp : row.sobra_hosp_unit; return type === 'display' ? `<span class="font-bold" style="color:var(--color-success);">${formatBrl.format(val)}</span>` : val; } }
+                ]
+            });
+        }
+
+        function renderizarGrafico(valMedico, valHospital) {
+            const ctx = document.getElementById('chartDistribuicao').getContext('2d');
+            let isClassic = document.body.classList.contains('theme-classic');
+            if(chartDist) chartDist.destroy();
+            chartDist = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Repasse Médico', 'Sobra Hospitalar Líquida'],
+                    datasets: [{ data: [valMedico, valHospital], backgroundColor: [isClassic?'#7e22ce':'rgba(192, 132, 252, 0.8)', isClassic?'#059669':'rgba(52, 211, 153, 0.8)'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+            });
+        }
+
+        window.abrirDetalheRepasse = function(codigo) {
+            let item = dadosBase.find(d => d.codigo === codigo);
+            if(!item) return;
+
+            let isCirurgia = item.codigo.startsWith('04');
+            let medUnit = item.repasse_medico_unit;
+            let medTot = item.meta > 0 ? item.tot_repasse_medico : item.repasse_medico_unit;
+            let totMt = item.meta > 0 ? item.tot_mt : item.val_unit_mt;
+            let totSobra = item.meta > 0 ? item.tot_sobra_hosp : item.sobra_hosp_unit;
+
+            let cirUnit = isCirurgia ? medUnit * 0.7 : 0;
+            let aneUnit = isCirurgia ? medUnit * 0.3 : 0;
+            let cirTot = isCirurgia ? medTot * 0.7 : 0;
+            let aneTot = isCirurgia ? medTot * 0.3 : 0;
+
+            let html = `
+                <div class="mb-4">
+                    <div class="text-xs font-bold uppercase mb-1" style="color:var(--text-muted);">Procedimento (${item.tipo})</div>
+                    <div class="text-lg font-bold leading-tight" style="color:var(--color-primary);">${item.codigo} - ${item.descricao}</div>
+                    <div class="text-sm mt-2 font-bold" style="color:var(--color-primary);"><i class="fas fa-bullseye mr-1"></i> Meta Física: ${item.meta} / mês</div>
+                </div>
+                
+                <table class="w-full text-left border-collapse mt-4">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-color); background:rgba(0,0,0,0.2);">
+                            <th class="p-3 font-bold text-xs uppercase">Composição Financeira</th>
+                            <th class="p-3 text-right font-bold text-xs uppercase">Valor Unitário</th>
+                            <th class="p-3 text-right font-bold text-xs uppercase">Projeção (Mês)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[0.9rem]">
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td class="p-3 font-bold" style="color:var(--color-pink);"><i class="fas fa-arrow-trend-up mr-2"></i>1. Receita Contrato</td>
+                            <td class="p-3 text-right font-mono" style="color:var(--color-pink);">${formatBrl.format(item.val_unit_mt)}</td>
+                            <td class="p-3 text-right font-mono font-bold" style="color:var(--color-pink);">${formatBrl.format(totMt)}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color); background:rgba(192, 132, 252, 0.1);">
+                            <td class="p-3 font-bold" style="color:var(--color-purple);"><i class="fas fa-user-md mr-2"></i>2. Custo / Repasse Médico</td>
+                            <td class="p-3 text-right font-mono" style="color:var(--color-purple);">${formatBrl.format(medUnit)}</td>
+                            <td class="p-3 text-right font-mono font-bold" style="color:var(--color-purple);">${formatBrl.format(medTot)}</td>
+                        </tr>
+            `;
+
+            if (isCirurgia && medUnit > 0) {
+                html += `
+                        <tr style="border-bottom:1px dashed var(--border-color); background:rgba(192, 132, 252, 0.05); font-size:0.8rem;">
+                            <td class="p-2 pl-8" style="color:var(--color-primary);"><i class="fas fa-angle-right mr-2"></i>↳ Cirurgião (70%)</td>
+                            <td class="p-2 text-right font-mono opacity-80" style="color:var(--color-primary);">${formatBrl.format(cirUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold" style="color:var(--color-primary);">${formatBrl.format(cirTot)}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border-color); background:rgba(192, 132, 252, 0.05); font-size:0.8rem;">
+                            <td class="p-2 pl-8" style="color:var(--color-purple); opacity:0.8;"><i class="fas fa-angle-right mr-2"></i>↳ Anestesista (30%)</td>
+                            <td class="p-2 text-right font-mono opacity-80" style="color:var(--color-purple);">${formatBrl.format(aneUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold" style="color:var(--color-purple);">${formatBrl.format(aneTot)}</td>
+                        </tr>
+                `;
+            }
+
+            html += `
+                        <tr style="background:rgba(52, 211, 153, 0.1);">
+                            <td class="p-3 font-bold" style="color:var(--color-success);"><i class="fas fa-hospital mr-2"></i>3. Sobra Hospitalar</td>
+                            <td class="p-3 text-right font-mono" style="color:var(--color-success);">${formatBrl.format(item.sobra_hosp_unit)}</td>
+                            <td class="p-3 text-right font-mono font-black text-lg" style="color:var(--color-success);">${formatBrl.format(totSobra)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            $('#conteudoDetalheRepasse').html(html);
+            $('#modalDetalheRepasse').css('display', 'flex').hide().fadeIn(200);
+        }
+    </script>
+</body>
+</html>
