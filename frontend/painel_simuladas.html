@@ -17,254 +17,323 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON / CLASSIC (Controlado pela Casca)   */
+        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
         /* ========================================================= */
         body { 
             font-family: 'Inter', sans-serif; 
-            background: transparent; 
-            color: #f8fafc; margin: 0; padding-bottom: 90px; 
-            transition: color 0.3s ease; scroll-behavior: smooth; 
+            background: #001528;
+            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
+            background-attachment: fixed;
+            color: white; 
+            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; 
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        #loader { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; font-weight: bold; backdrop-filter: blur(5px); }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
 
+        /* LUZES NEON NO FUNDO */
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+
+        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; transition: 0.5s; }
+        .header-mini-logo { height: 40px; margin-right: 15px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+        
+        .loading { display: flex; justify-content: center; align-items: center; height: 300px; font-size: 1.2rem; color: #94a3b8; font-weight: bold; flex-direction: column; gap: 15px; }
+
+        /* ABAS */
+        .tab-btn { padding: 12px 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: #94a3b8; background: transparent; outline: none; }
+        .tab-btn:hover { color: #38bdf8; }
+        .tab-btn.active { color: #38bdf8; border-bottom-color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Container de Vidro Genérico */
         .cyber-container {
-            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); border-radius: 12px; 
-            padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
-            border: 1px solid #334155; margin-bottom: 24px; position: relative; transition: 0.3s;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative; z-index: 1; transition: 0.5s;
         }
 
+        /* Cards KPI de Vidro REAL */
         .glass-card {
-            background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; 
-            padding: 20px; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; text-align: left;
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; position: relative; z-index: 2;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
-        
-        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
-        .kpi-number { font-size: 2.2rem; font-weight: 800; line-height: 1.1; margin-bottom: 5px;}
-
-        .glass-chart-container { background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; padding: 20px; transition: 0.3s; }
-        .glass-chart-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px; color: #f8fafc; display: flex; align-items: center; gap: 10px; }
-
-        /* TABS DE NAVEGAÇÃO */
-        .tab-btn {
-            background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid #334155;
-            padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: bold; cursor: pointer; transition: 0.3s; border-bottom: none;
+        .glass-card:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
+            background: rgba(255, 255, 255, 0.08); 
+            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(14, 165, 233, 0.6); border-left: 1px solid rgba(14, 165, 233, 0.6);
         }
-        .tab-btn:hover { background: rgba(30, 41, 59, 0.8); color: white; }
-        .tab-btn.active {
-            background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);
-            border-bottom: 2px solid #38bdf8;
+
+        .glass-chart-container {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s;
         }
-        body.theme-classic .tab-btn { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
-        body.theme-classic .tab-btn:hover { background: #e2e8f0; color: #0f172a; }
-        body.theme-classic .tab-btn.active { background: #ffffff; color: #004e92; border-color: #cbd5e1; border-bottom: 2px solid #004e92; }
+
+        .neon-text-blue { color: #38bdf8; text-shadow: 0 0 5px rgba(56,189,248,0.5), 0 0 15px rgba(2,132,199,0.5); }
+        .neon-text-green { color: #34d399; text-shadow: 0 0 5px rgba(52,211,153,0.5), 0 0 15px rgba(5,150,105,0.5); }
+        .neon-text-purple { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.5), 0 0 15px rgba(147,51,234,0.5); }
+        .neon-text-yellow { color: #fbbf24; text-shadow: 0 0 5px rgba(251,191,36,0.5), 0 0 15px rgba(217,119,6,0.5); }
+
+        .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; font-weight: bold; margin-bottom: 8px; }
+        .kpi-number { font-size: 2.2rem; font-weight: 900; line-height: 1.1; }
+        .glass-chart-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; margin-bottom: 15px; }
+
+        /* Classes Dinâmicas (Neon Padrão) */
+        .dyn-text-primary { color: #ffffff; }
+        .dyn-text-secondary { color: #bae6fd; } 
+        .dyn-text-muted { color: #94a3b8; } 
+        .dyn-text-accent { color: #22d3ee; } 
         
-        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
-        .tab-content.active { display: block; }
-
-        .dyn-text-primary { color: #f8fafc; } .dyn-text-secondary { color: #bae6fd; } .dyn-text-muted { color: #94a3b8; } .dyn-text-accent { color: #38bdf8; } 
-
-        .dyn-badge-aih { background-color: rgba(30, 41, 59, 0.8); color: #f8fafc; border-color: #64748b; }
-        .dyn-badge-int { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
-        .dyn-badge-sai { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
-        .dyn-badge-cod { background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
-        .dyn-tr-hover:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
-
-        /* LINHA MARCADA (OLHO/IMPRESSA) */
-        .row-printed { opacity: 0.5; background-color: rgba(0,0,0,0.5) !important; text-decoration: line-through; }
-        body.theme-classic .row-printed { opacity: 0.6; background-color: #f1f5f9 !important; }
-
-        /* MODO CLÁSSICO NII */
-        body.theme-classic { color: #0f172a; }
-        body.theme-classic #loader { background: rgba(255,255,255,0.9); color: #004e92; }
+        .dyn-badge-aih { background-color: #334155; color: #ffffff; border-color: #64748b; }
+        .dyn-badge-int { background-color: rgba(6, 78, 59, 0.5); color: #6ee7b7; border-color: rgba(4, 120, 87, 0.5); }
+        .dyn-badge-sai { background-color: rgba(136, 19, 55, 0.5); color: #fda4af; border-color: rgba(190, 18, 60, 0.5); }
+        .dyn-badge-cod { background-color: rgba(22, 78, 99, 0.4); color: #67e8f9; }
         
-        body.theme-classic .cyber-container, body.theme-classic .glass-card, body.theme-classic .glass-chart-container { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border-radius: 12px; }
+        .dyn-tr-hover:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
 
-        body.theme-classic .kpi-title { color: #64748b; }
-        body.theme-classic .glass-chart-title { color: #0f172a; border-bottom-color: #e2e8f0; }
+        /* NOVA CLASSE PARA LINHA MARCADA COMO IMPRESSA */
+        .row-printed { opacity: 0.4; background-color: rgba(0,0,0,0.4) !important; text-decoration: line-through; }
+        body.theme-classic .row-printed { opacity: 0.5; background-color: #e2e8f0 !important; }
 
-        body.theme-classic .neon-text-blue { color: #004e92; }
-        body.theme-classic .neon-text-green { color: #059669; }
-        body.theme-classic .neon-text-purple { color: #7e22ce; }
-        body.theme-classic .neon-text-yellow { color: #d97706; }
-
-        body.theme-classic .dyn-text-primary { color: #0f172a; }
-        body.theme-classic .dyn-text-secondary { color: #475569; }
-        body.theme-classic .dyn-text-muted { color: #64748b; }
-        body.theme-classic .dyn-text-accent { color: #004e92; }
-        
-        body.theme-classic .dyn-badge-aih { background-color: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
-        body.theme-classic .dyn-badge-int { background-color: #f0fdf4; color: #059669; border-color: #bbf7d0; }
-        body.theme-classic .dyn-badge-sai { background-color: #fef2f2; color: #dc2626; border-color: #fecdd3; }
-        body.theme-classic .dyn-badge-cod { background-color: #eff6ff; color: #0284c7; border-color: #bae6fd; }
-        body.theme-classic .dyn-tr-hover:hover { background-color: #f8fafc !important; }
-
-        /* FILTROS E BUSCA */
-        .search-input { width: 100%; padding: 6px; border-radius: 6px; font-size: 0.7rem; font-weight: normal; background: rgba(15, 23, 42, 0.6); color: white; border: 1px solid #334155; outline: none; transition: 0.2s; }
-        .search-input:focus { border-color: #38bdf8; }
-        body.theme-classic .search-input { background: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .search-input:focus { border-color: #004e92 !important; }
-        
-        .custom-filter-select { background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; outline: none; margin-left: 15px; }
+        /* Estilo para Select Personalizado no Cabeçalho da Tabela */
+        .custom-filter-select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; outline: none; margin-left: 15px; }
         .custom-filter-select option { background: #0f172a; color: white; }
         body.theme-classic .custom-filter-select { background: #ffffff; color: #0f172a; border-color: #cbd5e1; }
         body.theme-classic .custom-filter-select option { background: white; color: #0f172a; }
 
-        /* DATATABLES */
+        /* ========================================================= */
+        /* MODO CLÁSSICO NII (Fundo Azul + Cartões Brancos)          */
+        /* ========================================================= */
+        
+        body.theme-classic {
+            background: #001528 !important;
+            background-image: linear-gradient(135deg, #000428 0%, #004e92 100%) !important;
+        }
+
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+
+        body.theme-classic .tab-btn { color: rgba(255,255,255,0.6) !important; }
+        body.theme-classic .tab-btn:hover { color: white !important; }
+        body.theme-classic .tab-btn.active { color: white !important; border-bottom-color: white !important; text-shadow: none !important; }
+
+        body.theme-classic .cyber-container, 
+        body.theme-classic .glass-card, 
+        body.theme-classic .glass-chart-container {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-radius: 12px !important;
+        }
+        
+        body.theme-classic .glass-card:hover {
+            transform: translateY(-5px) !important;
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.theme-classic .neon-text-blue { color: #0284c7 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-green { color: #059669 !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-purple { color: #7e22ce !important; text-shadow: none !important; }
+        body.theme-classic .neon-text-yellow { color: #d97706 !important; text-shadow: none !important; }
+
+        body.theme-classic .kpi-title, body.theme-classic .glass-chart-title { 
+            color: #64748b !important; 
+            border-bottom-color: #f1f5f9 !important; 
+        }
+
+        body.theme-classic .dyn-text-primary { color: #0f172a !important; }
+        body.theme-classic .dyn-text-secondary { color: #475569 !important; }
+        body.theme-classic .dyn-text-muted { color: #64748b !important; }
+        body.theme-classic .dyn-text-accent { color: #004e92 !important; }
+        
+        body.theme-classic .dyn-badge-aih { background-color: #f1f5f9 !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+        body.theme-classic .dyn-badge-int { background-color: #d1fae5 !important; color: #065f46 !important; border-color: #a7f3d0 !important; }
+        body.theme-classic .dyn-badge-sai { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
+        body.theme-classic .dyn-badge-cod { background-color: #e0f2fe !important; color: #0369a1 !important; border: none !important; }
+        body.theme-classic .dyn-tr-hover:hover { background-color: #f8fafc !important; }
+
+        /* ========================================================= */
+        /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
+        /* ========================================================= */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; text-align: left; background-color: rgba(30,41,59,0.8) !important; color: #38bdf8 !important; border-bottom: 2px solid #334155 !important;}
-        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px !important; color: #cbd5e1 !important; text-align: center; border-bottom: 1px solid #334155 !important;}
-        table.dataTable tbody td:nth-child(2), table.dataTable tbody td:nth-child(7) { text-align: left; }
-        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important;}
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: white !important; }
+        table.dataTable tbody tr { background-color: transparent !important; transition: all 0.3s; }
 
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; }
+        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        
         body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #f8fafc !important; color: #004e92 !important; border-bottom: 1px solid #e2e8f0 !important; }
-        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #475569 !important;}
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
+        body.theme-classic table.dataTable thead th { 
+            background-color: #004e92 !important; 
+            color: white !important; 
+            border-bottom: none !important; 
+        }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
+        body.theme-classic table.dataTable tbody tr:hover { background-color: #f1f5f9 !important; }
 
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: #94a3b8 !important; font-size: 0.8rem;}
-        .dataTables_wrapper .dataTables_paginate .paginate_button { color: #94a3b8 !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: rgba(255,255,255,0.05) !important; color: white !important; border-color: #334155 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border-color: rgba(56, 189, 248, 0.3) !important; }
+        body.theme-classic .dataTables_wrapper .dataTables_length, 
+        body.theme-classic .dataTables_wrapper .dataTables_filter, 
+        body.theme-classic .dataTables_wrapper .dataTables_info, 
+        body.theme-classic .dataTables_wrapper .dataTables_paginate { color: #475569 !important; }
         
-        body.theme-classic .dataTables_wrapper .dataTables_length, body.theme-classic .dataTables_wrapper .dataTables_filter, body.theme-classic .dataTables_wrapper .dataTables_info, body.theme-classic .dataTables_wrapper .dataTables_paginate, body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #64748b !important; }
-        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #eff6ff !important; color: #004e92 !important; border-color: #bfdbfe !important; }
-
-        .dt-button { background: rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; border: 1px solid #334155 !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: 600 !important; transition: 0.2s !important; }
-        .dt-button:hover { background: rgba(255, 255, 255, 0.1) !important; color: white !important;}
-        body.theme-classic .dt-button { background: white !important; color: #475569 !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .dt-button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
-
-        /* AÇÕES NA TABELA */
-        .btn-action { border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: 0.2s; }
-        .btn-open { background: rgba(14, 165, 233, 0.8); border: 1px solid #0ea5e9; } .btn-open:hover { background: #0284c7; }
-        .btn-add { background: rgba(16, 185, 129, 0.8); border: 1px solid #10b981; } .btn-add:hover { background: #059669; }
-        .btn-added { background: rgba(100, 116, 139, 0.8); border: 1px solid #64748b; cursor: not-allowed; }
-        .btn-fatura { background: rgba(245, 158, 11, 0.8); border: 1px solid #f59e0b; } .btn-fatura:hover { background: #d97706; }
+        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button { color: #475569 !important; }
+        body.theme-classic .dataTables_wrapper .dataTables_paginate .paginate_button.current { 
+            background: #004e92 !important; 
+            color: white !important; 
+            border-color: #004e92 !important; 
+        }
         
-        .btn-check { background: rgba(100, 116, 139, 0.8); border: 1px solid #64748b; } .btn-check:hover { background: #475569; }
-        .btn-checked { background: rgba(16, 185, 129, 0.8); border: 1px solid #10b981; } .btn-checked:hover { background: #059669; }
+        .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; margin-top: 5px; transition: 0.3s; }
+        body.theme-classic .search-input { 
+            background: #ffffff !important; 
+            color: #0f172a !important; 
+            border: 1px solid #cbd5e1 !important; 
+        }
+        
+        .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
+        body.theme-classic .dt-button { 
+            background: #ffffff !important; 
+            color: #004e92 !important; 
+            border: 1px solid #004e92 !important; 
+        }
+        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
 
-        /* MODAIS SAAS DESIGN */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1e293b; border: 1px solid #334155; width: 90%; max-width: 900px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: #f8fafc; }
-        .modal-header { background: rgba(15, 23, 42, 0.6); padding: 18px 24px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #334155; }
-        .modal-close { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
-        .modal-close:hover { color: #f87171; }
-        .modal-body { padding: 24px; overflow-y: auto; max-height: 75vh; }
+        /* ========================================================= */
+        /* MODAIS E BOTÕES                                           */
+        /* ========================================================= */
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 5, 15, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; transition: 0.3s; }
+        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; width: 95%; max-width: 950px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.7); overflow: hidden; animation: popIn 0.3s; color: white;}
+        .modal-header { background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 25px; overflow-y: auto; background: transparent; }
 
-        .tabela-itens { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .tabela-itens th { background: rgba(0,0,0,0.2); color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
-        .tabela-itens td { padding: 8px 12px; border-bottom: 1px solid #334155; font-size: 0.75rem; color: #cbd5e1; }
+        .tabela-itens { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
+        .tabela-itens th { background: rgba(0,0,0,0.2); color: #38bdf8; font-size: 0.75rem; text-transform: uppercase; padding: 10px 12px; text-align: left; }
+        .tabela-itens td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #cbd5e1; }
+        
+        .btn-action { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; color: white; font-weight: bold; transition: 0.2s; }
+        .btn-open { background: #0ea5e9; } .btn-open:hover { background: #0284c7; }
+        .btn-add { background: #10b981; } .btn-add:hover { background: #059669; }
+        .btn-added { background: #64748b; cursor: not-allowed; }
+        .btn-fatura { background: #f59e0b; } .btn-fatura:hover { background: #d97706; }
+        
+        .btn-check { background: #64748b; } .btn-check:hover { background: #475569; }
+        .btn-checked { background: #10b981; } .btn-checked:hover { background: #059669; }
 
         body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
-        body.theme-classic .modal-content { background: #ffffff; color: #1e293b; border-color: #cbd5e1; }
-        body.theme-classic .modal-header { background: #f8fafc; border-color: #e2e8f0; }
-        body.theme-classic .modal-close { color: #64748b; }
-        body.theme-classic .tabela-itens th { background: #f1f5f9; color: #475569; border-bottom-color: #e2e8f0; }
-        body.theme-classic .tabela-itens td { color: #334155; border-bottom-color: #f1f5f9; }
-
-        .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 15px;}
-        .bg-green-50-dark { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px;}
-        .text-green-700-dark { color: #10b981; }
+        body.theme-classic .modal-content { background: #ffffff; color: #1e293b; border: none; }
+        body.theme-classic .modal-header { background: #004e92; border: none; }
+        body.theme-classic .modal-header h2, body.theme-classic .modal-header p, body.theme-classic .modal-header button, body.theme-classic .modal-header .btn-theme { color: white !important; }
+        body.theme-classic .modal-header .dyn-badge-aih { background: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.4) !important; color: white !important; }
         
-        body.theme-classic .bg-blue-50-dark { background: #eff6ff; border-color: #bfdbfe; }
-        body.theme-classic .bg-green-50-dark { background: #f0fdf4; border-color: #bbf7d0; }
-        body.theme-classic .text-blue-800-dark { color: #1e40af; }
-        body.theme-classic .text-green-800-dark { color: #065f46; }
-        body.theme-classic .text-blue-900-dark { color: #0f172a; }
-        body.theme-classic .text-green-700-dark { color: #059669; }
+        body.theme-classic .tabela-itens { background: #ffffff !important; border-color: #e2e8f0 !important; }
+        body.theme-classic .tabela-itens th { background: #f1f5f9 !important; color: #475569 !important; }
+        body.theme-classic .tabela-itens td { border-bottom-color: #f1f5f9 !important; color: #334155 !important; }
 
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .bg-blue-50-dark { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3); }
+        .bg-green-50-dark { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+        .text-green-700-dark { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        
+        body.theme-classic .bg-blue-50-dark { background: #eff6ff !important; border-color: #bfdbfe !important; }
+        body.theme-classic .bg-green-50-dark { background: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+        body.theme-classic .text-blue-800-dark { color: #1e40af !important; }
+        body.theme-classic .text-green-800-dark { color: #065f46 !important; }
+        body.theme-classic .text-blue-900-dark { color: #0f172a !important; }
+        body.theme-classic .text-green-700-dark { color: #059669 !important; text-shadow: none !important; }
 
-        /* BARRA FILA DE IMPRESSÃO */
-        .collection-bar { position: fixed; bottom: -100px; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; color: white; padding: 15px 30px; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transition: 0.4s; }
-        .collection-bar.visible { bottom: 0; }
+        .collection-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px 30px; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
         body.theme-classic .collection-bar { background: #ffffff; border-top: 1px solid #e2e8f0; color: #1e293b; }
 
+        .pages-display { font-family: monospace; color: #fbbf24; font-size: 1rem; margin-left: 10px; font-weight:bold; }
+        body.theme-classic .pages-display { color: #d97706; }
+        
+        .btn-copy { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-copy:hover { transform: scale(1.05); }
+
         @media print {
-            .no-print { display: none !important; }
-            @page { size: A4 portrait; margin: 10mm; }
             body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
-            body.printing-modal { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; overflow: visible !important;}
+            body.printing-modal { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
+            body::before, .blob-1, .blob-2 { display: none !important; }
             
             body.printing-modal #modalAuditoria { position: static !important; display: block !important; background: white !important; padding: 0 !important; }
-            body.printing-modal .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; max-height: none !important; background: white !important; color: black !important; }
-            body.printing-modal .modal-header { background: white !important; border-bottom: 2px solid #cbd5e1 !important; padding: 10px 0 20px 0 !important; display: block !important;}
+            body.printing-modal .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; max-height: none !important; background: white !important; color: black !important; }
+            body.printing-modal .modal-header { background: white !important; border-bottom: 2px solid #cbd5e1 !important; padding: 10px 0 20px 0 !important; }
+            body.printing-modal .no-print-btn { display: none !important; }
             body.printing-modal .modal-body { overflow: visible !important; padding: 20px 0 !important; background: white !important; }
             
-            body.printing-modal .tabela-itens { box-shadow: none !important; border: 1px solid #000 !important; }
-            body.printing-modal .tabela-itens th { background: #f1f5f9 !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 1px solid #000 !important;}
-            body.theme-classic .tabela-itens td { border-bottom: 1px solid #000 !important; color: black !important; }
-            body.printing-modal .bg-blue-50-dark, body.printing-modal .bg-green-50-dark { background: white !important; border: 1px solid #000 !important; }
-            body.printing-modal .text-green-700-dark { color: black !important; font-size: 20pt !important; }
-            body.printing-modal .dyn-badge-aih { background: transparent !important; color: black !important; border: 1px solid #000 !important; }
+            body.printing-modal .dyn-text-primary { color: black !important; }
+            body.printing-modal .dyn-text-secondary { color: #475569 !important; }
+            body.printing-modal .dyn-text-muted { color: #475569 !important; }
+            body.printing-modal .dyn-text-accent { color: black !important; }
+            body.printing-modal .text-green-700-dark { color: black !important; font-size: 20pt !important; text-shadow: none !important; }
+            
+            body.printing-modal .dyn-badge-aih { background: #f1f5f9 !important; color: black !important; border: 1px solid #cbd5e1 !important; }
+            body.printing-modal .dyn-badge-int, body.printing-modal .dyn-badge-sai, body.printing-modal .dyn-badge-cod { background: transparent !important; color: black !important; border: none !important; }
+
+            body.printing-modal .bg-blue-50-dark, body.printing-modal .bg-green-50-dark { background: white !important; border: 1px solid #cbd5e1 !important; }
+
+            body.printing-modal .tabela-itens { box-shadow: none !important; border: 1px solid #cbd5e1 !important; background: white !important; }
+            body.printing-modal .tabela-itens th { background: #f1f5f9 !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body.printing-modal .tabela-itens td { border-bottom: 1px solid #e2e8f0 !important; color: black !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="flex mb-4 border-b border-gray-600/30 no-print px-4 pt-2">
-        <button onclick="mudarAba('bi')" id="btn-bi" class="tab-btn"><i class="fas fa-chart-line mr-2"></i> Auditoria de Valores (BI 3D)</button>
-        <button onclick="mudarAba('indice')" id="btn-indice" class="tab-btn active"><i class="fas fa-file-pdf mr-2"></i> Índice de Fichas (PDFs)</button>
-    </div>
-
-    <div id="loader" style="display:flex;">
-        <i class="fas fa-database fa-spin text-5xl text-blue-400 mb-4"></i>
-        <p class="text-white font-bold" id="loading-text">Conectando ao Supabase...</p>
-    </div>
-
-    <div id="modalPdfViewer" class="modal-overlay no-print">
-        <div class="modal-content" style="max-width: 1200px; height: 95vh;">
-            <div class="modal-header">
-                <h2><i class="fas fa-file-pdf text-red-500 mr-2"></i> Visualizador de Fichas SISAIH01</h2>
-                <div class="flex gap-2">
-                    <a id="btnNovaAbaPdf" href="#" target="_blank" class="btn-action btn-open" style="text-decoration:none;"><i class="fas fa-external-link-alt mr-1"></i> Nova Aba</a>
-                    <button class="modal-close" onclick="$('#modalPdfViewer').fadeOut(200); setTimeout(()=>$('#iframePdf').attr('src',''), 200);"><i class="fas fa-times"></i></button>
-                </div>
-            </div>
-            <div class="modal-body" style="padding: 0; overflow: hidden;">
-                <iframe id="iframePdf" src="" style="width:100%; height:100%; border:none; background:#f1f5f9;"></iframe>
-            </div>
-        </div>
-    </div>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
 
     <div id="modalAuditoria" class="modal-overlay no-print">
         <div class="modal-content">
             <div class="modal-header">
                 <div>
                     <h2 class="text-2xl font-bold uppercase tracking-wide dyn-text-primary" id="modalNome">NOME DO PACIENTE</h2>
-                    <p class="dyn-text-muted text-sm mt-1">AIH: <span id="modalAih" class="font-mono font-bold px-2 py-0.5 rounded border dyn-badge-aih"></span></p>
+                    <p class="dyn-text-secondary text-sm mt-1">AIH: <span id="modalAih" class="font-mono font-bold px-2 py-0.5 rounded border dyn-badge-aih"></span></p>
                 </div>
-                <div class="flex items-center gap-4 no-print">
-                    <button onclick="imprimirModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2 shadow-sm border border-blue-400">
+                <div class="flex items-center gap-4">
+                    <button onclick="imprimirModal()" class="bg-white/10 hover:bg-white/20 dyn-text-primary px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2 border border-white/20 no-print-btn shadow-sm btn-theme">
                         <i class="fas fa-print"></i> Imprimir Ficha
                     </button>
-                    <button onclick="$('#modalAuditoria').fadeOut(200);" class="modal-close"><i class="fas fa-times"></i></button>
+                    <button onclick="$('#modalAuditoria').hide()" class="dyn-text-muted hover:text-red-500 text-4xl leading-none no-print-btn transition">&times;</button>
                 </div>
             </div>
-            
             <div class="modal-body">
                 <div class="flex gap-4 mb-6 flex-wrap">
-                   <div class="flex-1 bg-blue-50-dark">
+                   <div class="flex-1 bg-blue-50-dark border p-4 rounded-xl transition">
                        <h4 class="dyn-text-accent text-xs font-bold uppercase mb-1">Procedimento Principal</h4>
                        <p class="text-blue-900-dark font-bold text-sm" id="modalProcPrincipal"></p>
                    </div>
-                   <div class="bg-green-50-dark min-w-[200px] text-center">
+                   <div class="bg-green-50-dark border p-4 rounded-xl min-w-[200px] text-center shadow-sm transition">
                        <h4 class="text-green-800-dark text-xs font-bold uppercase mb-1">Total Faturado (Prévia)</h4>
                        <p class="text-green-700-dark font-black text-3xl" id="modalValorTotal">R$ 0,00</p>
                    </div>
                 </div>
 
-                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs"><i class="fas fa-list-ol dyn-text-accent mr-2"></i> Procedimentos Lançados</h4>
-                <div class="overflow-x-auto mb-6">
-                    <table class="tabela-itens !mb-0 w-full">
+                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-list-ol dyn-text-accent mr-2 text-base"></i> Procedimentos Lançados</h4>
+                <div class="overflow-x-auto mb-6 rounded-lg">
+                    <table class="tabela-itens !mb-0">
                         <thead>
                             <tr>
                                 <th class="w-10">Lnh</th>
@@ -281,8 +350,8 @@
                     </table>
                 </div>
 
-                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs"><i class="fas fa-dollar-sign text-emerald-500 mr-2"></i> Resumo Financeiro</h4>
-                <table class="tabela-itens mb-0 w-full">
+                <h4 class="font-bold dyn-text-muted uppercase mb-2 text-xs flex items-center transition"><i class="fas fa-dollar-sign text-emerald-500 mr-2 text-base"></i> Resumo Financeiro</h4>
+                <table class="tabela-itens mb-0">
                     <thead><tr><th>Grupo Consolidado (Tabela SIA/SIH)</th><th class="text-right w-40">Valor (R$)</th></tr></thead>
                     <tbody id="tbodyValores"></tbody>
                 </table>
@@ -290,24 +359,63 @@
         </div>
     </div>
 
-    <div id="barra-impressao" class="collection-bar no-print">
-        <div>
-            <i class="fas fa-print dyn-text-accent mr-2 text-xl"></i>
-            <strong>Fila de Lote:</strong>
-            <span id="pageList" class="font-mono text-yellow-400 font-bold ml-2">0 páginas</span>
-        </div>
-        <div class="flex gap-4 items-center">
-            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 underline text-sm cursor-pointer transition" onclick="clearPages()">Esvaziar Fila</button>
-            <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition border border-emerald-500" onclick="imprimirFilaLote()"><i class="fas fa-layer-group mr-1"></i> Gerar PDF Único</button>
-            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition border border-blue-500" onclick="copyAllPages()" id="btnCopy"><i class="fas fa-copy mr-1"></i> Copiar Lista</button>
+    <div id="modalPdfViewer" class="modal-overlay no-print">
+        <div class="modal-content" style="max-width: 1200px; height: 95vh; border: 1px solid rgba(255,255,255,0.1);">
+            <div class="modal-header" style="background:rgba(0,0,0,0.2); padding: 10px 20px;">
+                <h3 class="font-bold dyn-text-primary"><i class="fas fa-file-pdf text-red-500 mr-2"></i> Visualizador de Fichas SISAIH01</h3>
+                <button onclick="$('#modalPdfViewer').fadeOut(200); setTimeout(()=>$('#iframePdf').attr('src',''), 200);" class="dyn-text-muted hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+            </div>
+            <iframe id="iframePdf" src="" style="width:100%; height:100%; border:none; background:#f1f5f9;"></iframe>
         </div>
     </div>
 
-    <div class="px-4">
+    <div class='header-bg no-print'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-magnifying-glass-chart text-3xl dyn-text-accent"></i></div>
+                <div>
+                    <h1 class='text-3xl font-bold text-white'>Análise Interativa de Fichas</h1>
+                    <p class='text-cyan-200 text-sm mt-1 opacity-80'>Auditoria de Fichas (PDF), Conta Médica e Business Intelligence.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" id="btn-theme" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme" title="Alternar Tema (Portal Azul / Cyber Neon)">
+                    <i class="fas fa-magic"></i>
+                </button>
+
+                <div class="bg-black/20 px-4 py-2 rounded flex items-center gap-3 border border-white/10 btn-theme">
+                    <span class="text-sm font-bold uppercase dyn-text-accent">Competência:</span>
+                    <select id="filtroCompetencia" class="bg-transparent text-white font-bold outline-none cursor-pointer">
+                        <option value="">Carregando...</option>
+                    </select>
+                </div>
+                <a href="modulo_estrategico.html" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded text-white font-bold transition flex items-center gap-2 border border-white/20 btn-theme"><i class="fas fa-arrow-left"></i> Voltar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto p-4 pt-0">
+
+        <div class="flex px-2 no-print" style="margin-bottom: 20px; z-index: 10; position: relative;">
+            <button onclick="mudarAba('bi')" id="btn-bi" class="tab-btn"><i class="fas fa-chart-line mr-2"></i> Auditoria de Valores (BI 3D)</button>
+            <button onclick="mudarAba('indice')" id="btn-indice" class="tab-btn active"><i class="fas fa-file-pdf mr-2"></i> Índice de Fichas (PDFs)</button>
+        </div>
+
+        <div id="loader" class="loading">
+            <i class="fas fa-circle-notch fa-spin text-5xl dyn-text-accent"></i>
+            <span id="loading-text" class="dyn-text-muted">Conectando ao Supabase...</span>
+        </div>
         
         <div id="aba-bi" class="tab-content w-full">
             <div class="cyber-container">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="flex justify-between items-center mb-8 relative z-10 pl-2">
+                    <div>
+                        <h2 class="text-2xl font-black tracking-wider uppercase dyn-text-primary"><i class="fas fa-bolt dyn-text-accent mr-2"></i> Inteligência de Faturamento</h2>
+                        <p class="dyn-text-secondary text-sm mt-1">Análise em tempo real do processador de PDFs</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10">
                     <div class="glass-card">
                         <div class="kpi-title"><i class="fas fa-hospital-user mr-1 dyn-text-accent"></i> Total de AIHs</div>
                         <div class="kpi-number neon-text-blue" id="kpi-aih">0</div>
@@ -326,13 +434,13 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                     <div class="glass-chart-container">
-                        <h3 class="glass-chart-title"><i class="fas fa-chart-bar mr-2 dyn-text-accent"></i> AIHs por Especialidade</h3>
+                        <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 dyn-text-accent"></i> AIHs por Especialidade</div>
                         <div style="height: 300px;"><canvas id="chartEspec"></canvas></div>
                     </div>
                     <div class="glass-chart-container">
-                        <h3 class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-purple-400"></i> Top 10 - Procedimentos Faturados</h3>
+                        <div class="glass-chart-title"><i class="fas fa-chart-bar mr-2 text-purple-400"></i> Top 10 - Procedimentos Faturados (Qtd)</div>
                         <div style="height: 300px;"><canvas id="chartProc"></canvas></div>
                     </div>
                 </div>
@@ -341,10 +449,10 @@
 
         <div id="aba-indice" class="tab-content active w-full" style="opacity:0;">
             <div class="cyber-container">
-                <div class="flex justify-between items-end mb-6">
+                <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-lg dyn-text-primary"><i class="fas fa-list mr-2 dyn-text-accent"></i> Tabela de Fichas (Espelhos)</h3>
                     <div>
-                        <span class="text-xs font-bold uppercase dyn-text-muted mr-2"><i class="fas fa-filter"></i> Status:</span>
+                        <span class="text-sm font-bold uppercase dyn-text-muted mr-2"><i class="fas fa-filter"></i> Status de Impressão:</span>
                         <select id="filtroImpressao" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
                             <option value="todos">Mostrar Todas</option>
                             <option value="pendentes">Apenas PENDENTES</option>
@@ -353,19 +461,19 @@
                     </div>
                 </div>
 
-                <table id="tabelaIndice" class="display" style="width:100%">
+                <table id="tabelaIndice" class="display compact w-full">
                     <thead>
                         <tr>
-                            <th class="w-12 text-center">Pág</th>
+                            <th style="width: 30px;">Pág</th>
                             <th>Paciente</th>
-                            <th class="text-center w-24">CNS/CPF</th>
-                            <th class="text-center w-24">AIH</th>
-                            <th class="text-center w-24">Prontuário</th>
-                            <th class="text-center w-24">Especialidade</th>
+                            <th>CNS/CPF</th>
+                            <th>AIH</th>
+                            <th style="width: 60px;">Prontuário</th>
+                            <th>Especialidade</th>
                             <th>Procedimento Principal</th>
-                            <th class="text-center w-20">Internação</th>
-                            <th class="text-center w-20">Saída</th>
-                            <th class="text-center w-48 no-print">Ações</th>
+                            <th style="width: 60px;">Internação</th>
+                            <th style="width: 60px;">Saída</th>
+                            <th class="no-print" style="width: 200px; text-align:center;">Ações</th>
                         </tr>
                         <tr class="table-search no-print"></tr>
                     </thead>
@@ -376,383 +484,502 @@
 
     </div>
 
-    <script>
-        $.fn.dataTable.ext.errMode = 'none';
+    <div id="barra-impressao" class="collection-bar no-print" style="display:none;">
+        <div>
+            <i class="fas fa-print dyn-text-accent mr-2"></i>
+            <strong>Fila de Impressão Atual (Páginas):</strong>
+            <span id="pageList" class="pages-display">Nenhuma página</span>
+        </div>
+        <div>
+            <button class="bg-transparent border-none dyn-text-muted hover:text-red-500 mr-4 underline text-sm cursor-pointer transition" onclick="clearPages()">Limpar Fila Atual</button>
+            <button class="btn-copy" onclick="copyAllPages()" id="btnCopy"><i class="fas fa-copy mr-1"></i> COPIAR LISTA</button>
+        </div>
+    </div>
 
-        const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+$.fn.dataTable.ext.errMode = 'none';
 
-        let dtIndice;
-        let dadosIndiceGlobal = [];
-        let linkPdfAtual = ""; 
-        let chartEspecObj = null;
-        let chartProcObj = null;
-        let mesCorrenteStorageKey = ""; 
-        let filaImpressao = [];
+const SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+let dtIndice;
+let dadosIndiceGlobal = [];
+let linkPdfAtual = ""; 
+let chartEspecObj = null;
+let chartProcObj = null;
 
-        // Função de Tema chamada externamente pelo Iframe via Casca
-        window.toggleTheme = function() {
-            const body = document.body;
-            let isClassic = localStorage.getItem('nii_theme_hub') === 'classic';
+// NOVA Chave de Cache isolada para as AIHs
+let mesCorrenteStorageKey = ""; 
+
+const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function toggleTheme() {
+    const body = document.body;
+    if (body.classList.contains('theme-classic')) {
+        body.classList.remove('theme-classic');
+        localStorage.setItem('nii_theme', 'neon');
+    } else {
+        body.classList.add('theme-classic');
+        localStorage.setItem('nii_theme', 'classic');
+    }
+    if (dadosIndiceGlobal.length > 0) atualizarBI(dadosIndiceGlobal);
+}
+
+const alwaysShowLabels = {
+    id: 'alwaysShowLabels',
+    afterDatasetsDraw(chart, args, pluginOptions) {
+        const { ctx, data } = chart;
+        ctx.save();
+        chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+            const value = data.datasets[0].data[index];
+            ctx.font = 'bold 12px Inter';
+            ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value, datapoint.x + 5, datapoint.y);
+        });
+        ctx.restore();
+    }
+};
+
+function mudarAba(nomeAba) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('aba-' + nomeAba).classList.add('active');
+    document.getElementById('btn-' + nomeAba).classList.add('active');
+
+    if(nomeAba === 'indice') {
+        $('#barra-impressao').fadeIn();
+        if(dtIndice) dtIndice.columns.adjust();
+    } else {
+        $('#barra-impressao').fadeOut();
+    }
+}
+
+async function inicializarDropdown() {
+    const select = $('#filtroCompetencia');
+    select.empty();
+    
+    const { data, error } = await client.from('controle_simuladas').select('*');
+    
+    if(data && data.length > 0) {
+        let dadosValidos = data.filter(arq => arq.competencia_arquivo && arq.competencia_arquivo !== 'null');
+
+        dadosValidos.sort((a, b) => {
+            let [mesA, anoA] = a.competencia_arquivo.split('/');
+            let [mesB, anoB] = b.competencia_arquivo.split('/');
+            anoA = parseInt(anoA); mesA = parseInt(mesA);
+            anoB = parseInt(anoB); mesB = parseInt(mesB);
             
-            if (isClassic) { body.classList.add('theme-classic'); } 
-            else { body.classList.remove('theme-classic'); }
-            
-            if (dadosIndiceGlobal.length > 0) atualizarBI(dadosIndiceGlobal);
+            if (anoA !== anoB) return anoB - anoA; 
+            else return mesB - mesA; 
+        });
+
+        if (dadosValidos.length > 0) {
+            dadosValidos.forEach(arq => {
+                let val = JSON.stringify({ comp: arq.competencia_arquivo, pdf: arq.link_pdf, json: arq.link_indice });
+                select.append(`<option value='${val}'>${arq.competencia_arquivo}</option>`);
+            });
+            carregarDados(); 
+        } else {
+            select.append(`<option value="">Nenhum dado válido</option>`);
+            $('#loading-text').text("Nenhuma competência válida encontrada.");
         }
+    } else {
+        select.append(`<option value="">Nenhum dado encontrado</option>`);
+        $('#loading-text').text("Nenhuma competência processada ainda.");
+    }
+}
 
-        const alwaysShowLabels = {
-            id: 'alwaysShowLabels',
-            afterDatasetsDraw(chart) {
-                const { ctx, data } = chart; ctx.save();
-                chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
-                    const value = data.datasets[0].data[index];
-                    ctx.font = 'bold 12px Inter';
-                    ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                    ctx.fillText(value, datapoint.x + 5, datapoint.y);
-                });
-                ctx.restore();
+function parseMoeda(str) {
+    if(!str) return 0;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+}
+
+function atualizarBI(data) {
+    let totalProcs = 0;
+    let valorTotal = 0;
+    let procMap = {};
+    let aihMap = {}; 
+
+    data.forEach(d => {
+        totalProcs += d.procedimentos ? d.procedimentos.length : 0;
+        
+        let vTotal = parseMoeda(d.valor_total);
+        valorTotal += vTotal;
+
+        let aih = d.AIH && d.AIH.trim() !== '-' ? d.AIH.trim() : null;
+        if (aih) {
+            if (!aihMap[aih]) {
+                let esp = d.ESPEC || "NÃO INFORMADA";
+                if(esp.includes('-')) esp = esp.split('-')[1].trim();
+                aihMap[aih] = { especialidade: esp };
             }
-        };
+        }
 
-        function mudarAba(nomeAba) {
-            $('.tab-content').removeClass('active');
-            $('.tab-btn').removeClass('active');
-            
-            $('#aba-' + nomeAba).addClass('active');
-            $('#btn-' + nomeAba).addClass('active');
+        if (d.procedimentos) {
+            d.procedimentos.forEach(p => {
+                let nomeProc = p.descricao || "NÃO INFORMADO";
+                nomeProc = nomeProc.length > 25 ? nomeProc.substring(0,25) + '...' : nomeProc;
+                let qtd = parseInt(p.qtde) || 1;
+                procMap[nomeProc] = (procMap[nomeProc] || 0) + qtd;
+            });
+        }
+    });
 
-            if(nomeAba === 'indice') {
-                if(filaImpressao.length > 0) $('#barra-impressao').addClass('visible');
-                if(dtIndice) dtIndice.columns.adjust();
-            } else {
-                $('#barra-impressao').removeClass('visible');
+    let totalAih = Object.keys(aihMap).length;
+
+    let especMap = {};
+    Object.values(aihMap).forEach(info => {
+        especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1;
+    });
+
+    $('#kpi-aih').text(totalAih);
+    $('#kpi-procs').text(totalProcs);
+    $('#kpi-valor').text(brl.format(valorTotal));
+    $('#kpi-ticket').text(brl.format(totalAih > 0 ? valorTotal / totalAih : 0));
+
+    let arrEspec = [];
+    for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
+    arrEspec.sort((a,b) => b.qtd - a.qtd);
+
+    let isClassic = document.body.classList.contains('theme-classic');
+    Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.8)'; 
+
+    if(chartEspecObj) chartEspecObj.destroy();
+    chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: arrEspec.map(x => x.nome),
+            datasets: [{ 
+                label: 'Qtd. de AIHs', 
+                data: arrEspec.map(x => x.qtd), 
+                backgroundColor: isClassic ? '#0ea5e9' : 'rgba(56, 189, 248, 0.3)',
+                borderColor: isClassic ? '#0284c7' : '#38bdf8',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            indexAxis: 'y', 
+            maintainAspectRatio: false,
+            layout: { padding: { right: 40 } },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false }, 
+                y: { grid: { display: false } }
             }
-        }
+        },
+        plugins: [alwaysShowLabels]
+    });
 
-        function parseMoeda(str) {
-            if(!str) return 0;
-            return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-        }
+    let arrProcs = [];
+    for(let k in procMap) arrProcs.push({nome: k, qtd: procMap[k]});
+    arrProcs.sort((a,b) => b.qtd - a.qtd);
+    let top10 = arrProcs.slice(0, 10);
 
-        function atualizarBI(data) {
-            let totalProcs = 0; let valorTotal = 0;
-            let procMap = {}; let aihMap = {}; 
+    if(chartProcObj) chartProcObj.destroy();
+    chartProcObj = new Chart(document.getElementById('chartProc').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: top10.map(x => x.nome),
+            datasets: [{ 
+                label: 'Qtd. Lançada', 
+                data: top10.map(x => x.qtd), 
+                backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.3)',
+                borderColor: isClassic ? '#7c3aed' : '#c084fc',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            indexAxis: 'y', 
+            maintainAspectRatio: false, 
+            layout: { padding: { right: 40 } },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { grid: { display: false } }
+            }
+        },
+        plugins: [alwaysShowLabels]
+    });
+}
 
-            data.forEach(d => {
-                totalProcs += d.procedimentos ? d.procedimentos.length : 0;
-                let vTotal = parseMoeda(d.valor_total);
-                valorTotal += vTotal;
+// --- NOVA LÓGICA DE PERSISTÊNCIA (Baseado em AIH) ---
+function getAihsLidas() {
+    let mem = localStorage.getItem(mesCorrenteStorageKey);
+    return mem ? JSON.parse(mem) : [];
+}
 
-                let aih = d.AIH && d.AIH.trim() !== '-' ? d.AIH.trim() : null;
-                if (aih) {
-                    if (!aihMap[aih]) {
-                        let esp = d.ESPEC || "NÃO INFORMADA";
-                        if(esp.includes('-')) esp = esp.split('-')[1].trim();
-                        aihMap[aih] = { especialidade: esp };
+function salvarAihsLidas(arrayAihs) {
+    localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayAihs));
+}
+
+// Função nativa do botão de "Lido" (O Olho)
+function toggleLeitura(chaveUnica, btnElement) {
+    let lidas = getAihsLidas();
+    let isLido = lidas.includes(chaveUnica);
+    let tr = $(btnElement).closest('tr');
+
+    if (isLido) {
+        lidas = lidas.filter(c => c !== chaveUnica);
+        $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
+        tr.removeClass('row-printed');
+    } else {
+        lidas.push(chaveUnica);
+        $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
+        tr.addClass('row-printed');
+    }
+    salvarAihsLidas(lidas);
+    aplicarFiltroImpressao(); 
+}
+
+// FILTRO DO DATATABLES
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    if (settings.nTable.id !== 'tabelaIndice') return true;
+    
+    let filtroValue = $('#filtroImpressao').val();
+    if (filtroValue === 'todos') return true;
+
+    let lidas = getAihsLidas();
+    
+    // Recupera a chave exata da linha atual no JSON
+    let aihOriginal = dadosIndiceGlobal[dataIndex].AIH;
+    let pagOriginal = dadosIndiceGlobal[dataIndex].PAGINA;
+    let chaveDaLinha = (aihOriginal && aihOriginal.trim() !== '-' && aihOriginal.trim() !== '') ? aihOriginal.trim() : 'PAG_' + pagOriginal;
+
+    if (filtroValue === 'pendentes') {
+        return !lidas.includes(chaveDaLinha); 
+    } else if (filtroValue === 'impressas') {
+        return lidas.includes(chaveDaLinha); 
+    }
+    return true;
+});
+
+function aplicarFiltroImpressao() {
+    if(dtIndice) dtIndice.draw();
+}
+
+async function carregarDados() {
+    const jsonStr = document.getElementById('filtroCompetencia').value;
+    if(!jsonStr) return;
+
+    const infos = JSON.parse(jsonStr);
+    const competencia = infos.comp;
+    linkPdfAtual = infos.pdf;
+    const linkJson = infos.json;
+    
+    // Chave renovada e específica para o controle de AIH
+    mesCorrenteStorageKey = "nii_lidas_aih_" + competencia;
+
+    const loaderText = document.getElementById('loading-text');
+    const loader = document.getElementById('loader');
+    
+    loader.style.display = 'flex';
+    document.getElementById('aba-indice').style.opacity = '0';
+    
+    if(dtIndice) { dtIndice.destroy(); $('#tabelaIndice tbody').empty(); $('#tabelaIndice thead .table-search').empty(); }
+    
+    try {
+        loaderText.innerText = "Lendo Índice Interativo (JSON)...";
+        const responseJson = await fetch(linkJson);
+        dadosIndiceGlobal = await responseJson.json();
+
+        atualizarBI(dadosIndiceGlobal);
+
+        $('#tabelaIndice thead tr:eq(0) th').each( function (i) {
+            if(i === 9) { $('#tabelaIndice thead .table-search').append('<th></th>'); } 
+            else { $('#tabelaIndice thead .table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); }
+        });
+
+        let lidasIniciais = getAihsLidas();
+
+        dtIndice = $('#tabelaIndice').DataTable({
+            data: dadosIndiceGlobal,
+            pageLength: 20,
+            dom: 'lBrtip',
+            orderCellsTop: true,
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+            buttons: [
+                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
+                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
+            ],
+            createdRow: function(row, data, dataIndex) {
+                // Lógica de Trava de Segurança da Chave
+                let chaveRow = (data.AIH && data.AIH.trim() !== '-' && data.AIH.trim() !== '') ? data.AIH.trim() : 'PAG_' + data.PAGINA;
+                if (lidasIniciais.includes(chaveRow)) {
+                    $(row).addClass('row-printed');
+                }
+            },
+            columns: [
+                { data: 'PAGINA', className: 'text-center font-bold dyn-text-accent' },
+                { data: 'NOME', className: 'uppercase font-bold dyn-text-primary' },
+                { data: 'CNS', className: 'font-mono dyn-text-muted' },
+                { data: 'AIH', render: d => `<span class="dyn-badge-aih px-2 py-0.5 rounded font-bold font-mono text-xs border">${d}</span>` },
+                { data: 'PRONTUARIO', className: 'font-mono font-bold dyn-text-secondary' },
+                { data: 'ESPEC', className: 'text-[0.7rem] uppercase dyn-text-secondary' },
+                { data: 'PROC', className: 'dyn-text-secondary', render: d => d && d.length>30 ? d.substring(0,30)+'...' : d },
+                { data: 'DT_INT', render: d => `<span class="dyn-badge-int px-1 rounded border">${d}</span>` },
+                { data: 'DT_SAI', render: d => `<span class="dyn-badge-sai px-1 rounded border">${d}</span>` },
+                {
+                    data: null, className: 'text-center no-print w-48', orderable: false,
+                    render: function(d, type, row, meta) {
+                        
+                        let chaveUnique = (row.AIH && row.AIH.trim() !== '-' && row.AIH.trim() !== '') ? row.AIH.trim() : 'PAG_' + row.PAGINA;
+                        let isLida = lidasIniciais.includes(chaveUnique);
+                        let btnClasse = isLida ? 'btn-checked' : 'btn-check';
+                        let btnText = isLida ? '<i class="fas fa-check-circle"></i> Lida' : '<i class="fas fa-check-circle"></i>';
+
+                        return `
+                        <div class="flex gap-1 justify-center">
+                            <button id="btn-read-${chaveUnique}" onclick="toggleLeitura('${chaveUnique}', this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
+                            <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-external-link-alt"></i></button>
+                            <button onclick="addPage(${row.PAGINA}, '${chaveUnique}', this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
+                            <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Ver Conta Médica"><i class="fas fa-list-alt"></i></button>
+                        </div>
+                        `;
                     }
                 }
-
-                if (d.procedimentos) {
-                    d.procedimentos.forEach(p => {
-                        let nomeProc = p.descricao || "NÃO INFORMADO";
-                        nomeProc = nomeProc.length > 25 ? nomeProc.substring(0,25) + '...' : nomeProc;
-                        let qtd = parseInt(p.qtde) || 1;
-                        procMap[nomeProc] = (procMap[nomeProc] || 0) + qtd;
+            ],
+            initComplete: function () {
+                this.api().columns().every( function () {
+                    var that = this;
+                    $('input', $('#tabelaIndice thead .table-search th').eq(this.index())).on('keyup change clear', function () {
+                        if (that.search() !== this.value) { that.search(this.value).draw(); }
                     });
-                }
-            });
-
-            let totalAih = Object.keys(aihMap).length;
-            let especMap = {};
-            Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
-
-            $('#kpi-aih').text(totalAih);
-            $('#kpi-procs').text(totalProcs);
-            $('#kpi-valor').text(brl.format(valorTotal));
-            $('#kpi-ticket').text(brl.format(totalAih > 0 ? valorTotal / totalAih : 0));
-
-            let arrEspec = []; for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
-            arrEspec.sort((a,b) => b.qtd - a.qtd);
-
-            let isClassic = document.body.classList.contains('theme-classic');
-            Chart.defaults.color = isClassic ? '#64748b' : '#94a3b8'; 
-
-            if(chartEspecObj) chartEspecObj.destroy();
-            chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: arrEspec.map(x => x.nome),
-                    datasets: [{ 
-                        data: arrEspec.map(x => x.qtd), 
-                        backgroundColor: isClassic ? '#0ea5e9' : 'rgba(56, 189, 248, 0.4)',
-                        borderColor: isClassic ? '#0284c7' : '#38bdf8',
-                        borderWidth: 1, borderRadius: 4
-                    }]
-                },
-                options: { indexAxis: 'y', maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false } } } },
-                plugins: [alwaysShowLabels]
-            });
-
-            let arrProcs = []; for(let k in procMap) arrProcs.push({nome: k, qtd: procMap[k]});
-            arrProcs.sort((a,b) => b.qtd - a.qtd);
-            let top10 = arrProcs.slice(0, 10);
-
-            if(chartProcObj) chartProcObj.destroy();
-            chartProcObj = new Chart(document.getElementById('chartProc').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: top10.map(x => x.nome),
-                    datasets: [{ 
-                        data: top10.map(x => x.qtd), 
-                        backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.4)',
-                        borderColor: isClassic ? '#7c3aed' : '#c084fc',
-                        borderWidth: 1, borderRadius: 4
-                    }]
-                },
-                options: { indexAxis: 'y', maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false } } } },
-                plugins: [alwaysShowLabels]
-            });
-        }
-
-        // ==========================================
-        // LÓGICA DE PERSISTÊNCIA E FILA (LIDAS)
-        // ==========================================
-        function getAihsLidas() {
-            let mem = localStorage.getItem(mesCorrenteStorageKey);
-            return mem ? JSON.parse(mem) : [];
-        }
-        function salvarAihsLidas(arrayAihs) { localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayAihs)); }
-
-        window.toggleLeitura = function(chaveUnica, btnElement) {
-            let lidas = getAihsLidas();
-            let isLido = lidas.includes(chaveUnica);
-            let tr = $(btnElement).closest('tr');
-
-            if (isLido) {
-                lidas = lidas.filter(c => c !== chaveUnica);
-                $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
-                tr.removeClass('row-printed');
-            } else {
-                lidas.push(chaveUnica);
-                $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
-                tr.addClass('row-printed');
+                });
+                aplicarFiltroImpressao(); 
             }
+        });
+
+        loader.style.display = 'none';
+        document.getElementById('aba-indice').style.opacity = '1';
+        
+        if(document.getElementById('btn-indice').classList.contains('active')) {
+            $('#barra-impressao').fadeIn();
+        }
+
+    } catch(e) {
+        console.error(e);
+        loader.innerHTML = `<span class="text-red-500 font-bold text-center"><i class="fas fa-exclamation-triangle text-4xl mb-3 block"></i>Erro: ${e.message}</span>`;
+    }
+}
+
+function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrValsHTML) {
+    $('#modalNome').text(nome);
+    $('#modalAih').text(aih);
+    $('#modalProcPrincipal').text(procPrincipal);
+    $('#modalValorTotal').text("R$ " + valorTotal);
+
+    const tbProc = $('#tbodyProcedimentos'); tbProc.empty();
+    if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join(''));
+    else tbProc.append('<tr><td colspan="8" class="text-center dyn-text-muted py-4">Nenhum procedimento.</td></tr>');
+
+    const tbVal = $('#tbodyValores'); tbVal.empty();
+    if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join(''));
+    else tbVal.append('<tr><td colspan="2" class="text-center dyn-text-muted py-4">Nenhum valor.</td></tr>');
+
+    $('#modalAuditoria').css('display', 'flex');
+}
+
+function abrirModalIndice(rowIndex) {
+    const d = dadosIndiceGlobal[rowIndex];
+    if(!d) return;
+
+    let htmlProcs = (d.procedimentos || []).map(p => {
+        let docsStr = p.doc_cnes || p.documento_cnes || '-';
+        let partes = docsStr.split('/').map(s => s.trim()); 
+
+        let doc = partes[0] || '-';
+        let cbo = partes[1] || '-';
+        let cnes = partes[2] || '-';
+
+        return `<tr class="dyn-tr-hover transition">
+                    <td class="font-bold dyn-text-muted">${p.linha||'-'}</td>
+                    <td class="font-mono dyn-badge-cod px-1 rounded">${p.codigo||'-'}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${doc}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cbo}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cnes}</td>
+                    <td class="text-center font-bold dyn-text-primary">${p.qtde||'-'}</td>
+                    <td class="dyn-text-muted text-center">${p.cmpt||'-'}</td>
+                    <td class="font-semibold uppercase dyn-text-primary">${p.descricao||'-'}</td>
+                </tr>`;
+    });
+    
+    let htmlVals = (d.valores || []).map(v => `<tr class="dyn-tr-hover transition"><td class="uppercase dyn-text-secondary font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold dyn-text-accent">${v.valor||'-'}</td></tr>`);
+
+    desenharModal(d.NOME, d.AIH, d.PROC, d.valor_total || "0,00", htmlProcs, htmlVals);
+}
+
+function abrirLeitorPdf(pagina) {
+    if(!linkPdfAtual) return;
+    $('#iframePdf').attr('src', `${linkPdfAtual}#page=${pagina}&zoom=100`);
+    $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
+}
+
+function imprimirModal() {
+    $('body').addClass('printing-modal');
+    window.print();
+    setTimeout(() => {
+        $('body').removeClass('printing-modal');
+    }, 500);
+}
+
+let collectedPages = [];
+function addPage(pageNumber, chaveUnique, btn) {
+    if (!collectedPages.includes(pageNumber)) {
+        // A Fila de Impressão continua usando a Página, pois a impressora precisa disso!
+        collectedPages.push(pageNumber); 
+        collectedPages.sort((a,b)=>a-b);
+        $('#pageList').text(collectedPages.join(', '));
+        $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
+
+        // MÁGICA AQUI: Ao adicionar à fila, automaticamente marca a AIH como LIDA no banco de memória!
+        let lidas = getAihsLidas();
+        if(!lidas.includes(chaveUnique)) {
+            lidas.push(chaveUnique);
             salvarAihsLidas(lidas);
+            
+            let btnLido = document.getElementById('btn-read-' + chaveUnique);
+            if(btnLido) {
+                $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
+                $(btnLido).closest('tr').addClass('row-printed');
+            }
             aplicarFiltroImpressao(); 
         }
+    }
+}
 
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'tabelaIndice') return true;
-            let filtroValue = $('#filtroImpressao').val();
-            if (filtroValue === 'todos') return true;
+function clearPages() {
+    collectedPages = []; $('#pageList').text("Nenhuma página");
+    $('.btn-added').html('<i class="fas fa-print"></i>').removeClass('btn-added');
+}
 
-            let lidas = getAihsLidas();
-            let aihOriginal = dadosIndiceGlobal[dataIndex].AIH;
-            let pagOriginal = dadosIndiceGlobal[dataIndex].PAGINA;
-            let chaveDaLinha = (aihOriginal && aihOriginal.trim() !== '-' && aihOriginal.trim() !== '') ? aihOriginal.trim() : 'PAG_' + pagOriginal;
-
-            if (filtroValue === 'pendentes') return !lidas.includes(chaveDaLinha); 
-            if (filtroValue === 'impressas') return lidas.includes(chaveDaLinha); 
-            return true;
+function copyAllPages() {
+    if (collectedPages.length > 0) {
+        navigator.clipboard.writeText(collectedPages.join(',')).then(() => {
+            let btn = $('#btnCopy'); let orig = btn.html();
+            btn.html('<i class="fas fa-check-double"></i> COPIADO!').css('background', '#10b981');
+            setTimeout(() => { btn.html(orig).css('background', '#3b82f6'); }, 2000);
         });
+    } else { alert('Adicione páginas à fila primeiro.'); }
+}
 
-        window.aplicarFiltroImpressao = function() { if(dtIndice) dtIndice.draw(); }
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('nii_theme');
+    if (savedTheme === 'classic') { 
+        document.body.classList.add('theme-classic');
+    } else {
+        document.body.classList.remove('theme-classic');
+    }
+    inicializarDropdown();
+});
 
-        $(document).ready(async function() {
-            if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
+document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
 
-            // Puxa a competência selecionada na Casca
-            let globalAno = localStorage.getItem('nii_competencia_ano');
-            let globalMes = localStorage.getItem('nii_competencia_mes');
-            if(!globalAno || !globalMes) {
-                $('#loader').fadeOut();
-                return;
-            }
-            
-            const compString = `${globalMes}/${globalAno}`;
-            mesCorrenteStorageKey = "nii_lidas_aih_" + compString;
-
-            try {
-                const { data: compData } = await client.from('controle_simuladas').select('*').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
-                
-                if(compData && compData.length > 0) {
-                    linkPdfAtual = compData[0].link_pdf;
-                    const responseJson = await fetch(compData[0].link_indice);
-                    dadosIndiceGlobal = await responseJson.json();
-
-                    atualizarBI(dadosIndiceGlobal);
-
-                    $('#tabelaIndice thead tr:eq(0) th').each( function (i) {
-                        if(i === 9) { $('#tabelaIndice thead .table-search').append('<th class="no-print"></th>'); } 
-                        else { $('#tabelaIndice thead .table-search').append('<th><input type="text" placeholder="Filtrar" class="search-input" /></th>'); }
-                    });
-
-                    let lidasIniciais = getAihsLidas();
-
-                    dtIndice = $('#tabelaIndice').DataTable({
-                        data: dadosIndiceGlobal,
-                        pageLength: 25,
-                        dom: 'lBrtip',
-                        orderCellsTop: true,
-                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                        buttons: [
-                            { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
-                            { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
-                        ],
-                        createdRow: function(row, data, dataIndex) {
-                            let chaveRow = (data.AIH && data.AIH.trim() !== '-' && data.AIH.trim() !== '') ? data.AIH.trim() : 'PAG_' + data.PAGINA;
-                            if (lidasIniciais.includes(chaveRow)) $(row).addClass('row-printed');
-                        },
-                        columns: [
-                            { data: 'PAGINA', className: 'text-center font-bold dyn-text-accent' },
-                            { data: 'NOME', className: 'uppercase font-bold dyn-text-primary' },
-                            { data: 'CNS', className: 'font-mono text-gray-500' },
-                            { data: 'AIH', render: d => `<span class="dyn-badge-aih px-2 py-0.5 rounded font-bold font-mono text-xs border">${d}</span>` },
-                            { data: 'PRONTUARIO', className: 'font-mono font-bold dyn-text-secondary text-center' },
-                            { data: 'ESPEC', className: 'text-[0.7rem] uppercase dyn-text-secondary text-center' },
-                            { data: 'PROC', className: 'dyn-text-secondary', render: d => d && d.length>30 ? d.substring(0,30)+'...' : d },
-                            { data: 'DT_INT', render: d => `<span class="dyn-badge-int px-1 rounded border">${d}</span>` },
-                            { data: 'DT_SAI', render: d => `<span class="dyn-badge-sai px-1 rounded border">${d}</span>` },
-                            {
-                                data: null, className: 'text-center no-print', orderable: false,
-                                render: function(d, type, row, meta) {
-                                    let chaveUnique = (row.AIH && row.AIH.trim() !== '-' && row.AIH.trim() !== '') ? row.AIH.trim() : 'PAG_' + row.PAGINA;
-                                    let isLida = lidasIniciais.includes(chaveUnique);
-                                    let btnClasse = isLida ? 'btn-checked' : 'btn-check';
-                                    let btnText = isLida ? '<i class="fas fa-check-circle"></i> Lida' : '<i class="fas fa-check-circle"></i>';
-
-                                    return `
-                                    <div class="flex gap-2 justify-center">
-                                        <button id="btn-read-${chaveUnique}" onclick="toggleLeitura('${chaveUnique}', this)" class="btn-action ${btnClasse}" title="Marcar como Impressa">${btnText}</button>
-                                        <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-eye"></i></button>
-                                        <button onclick="addPage(${row.PAGINA}, '${chaveUnique}', this)" class="btn-action btn-add" title="Lote de Impressão"><i class="fas fa-print"></i></button>
-                                        <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Conta Médica"><i class="fas fa-list-alt"></i></button>
-                                    </div>`;
-                                }
-                            }
-                        ],
-                        initComplete: function () {
-                            this.api().columns().every( function () {
-                                var that = this;
-                                $('input', $('#tabelaIndice thead .table-search th').eq(this.index())).on('keyup change clear', function () {
-                                    if (that.search() !== this.value) { that.search(this.value).draw(); }
-                                });
-                            });
-                            aplicarFiltroImpressao(); 
-                        }
-                    });
-
-                } else {
-                    $('#loading-text').text("Nenhuma Simulada (AIH) processada para esta competência.");
-                }
-
-                $('#loader').fadeOut();
-                document.getElementById('aba-indice').style.opacity = '1';
-
-            } catch(e) {
-                console.error(e);
-                $('#loading-text').html(`<span class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle text-4xl mb-3 block"></i>Erro: ${e.message}</span>`);
-            }
-        });
-
-        // MODAIS E LÓGICA DE PDF LOTE MANTIDOS IDENTICOS AO ORIGINAL
-        function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrValsHTML) {
-            $('#modalNome').text(nome);
-            $('#modalAih').text(aih);
-            $('#modalProcPrincipal').text(procPrincipal);
-            $('#modalValorTotal').text("R$ " + valorTotal);
-
-            const tbProc = $('#tbodyProcedimentos'); tbProc.empty();
-            if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join(''));
-            else tbProc.append('<tr><td colspan="8" class="text-center text-gray-500 py-4">Nenhum procedimento.</td></tr>');
-
-            const tbVal = $('#tbodyValores'); tbVal.empty();
-            if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join(''));
-            else tbVal.append('<tr><td colspan="2" class="text-center text-gray-500 py-4">Nenhum valor.</td></tr>');
-
-            $('#modalAuditoria').css('display', 'flex').hide().fadeIn();
-        }
-
-        window.abrirModalIndice = function(rowIndex) {
-            const d = dadosIndiceGlobal[rowIndex];
-            if(!d) return;
-
-            let htmlProcs = (d.procedimentos || []).map(p => {
-                let docsStr = p.doc_cnes || p.documento_cnes || '-';
-                let partes = docsStr.split('/').map(s => s.trim()); 
-                let doc = partes[0] || '-'; let cbo = partes[1] || '-'; let cnes = partes[2] || '-';
-
-                return `<tr class="hover:bg-white/5 transition">
-                            <td class="font-bold text-gray-500">${p.linha||'-'}</td>
-                            <td class="font-mono bg-blue-500/10 text-blue-400 px-1 rounded">${p.codigo||'-'}</td>
-                            <td class="font-mono text-[0.7rem] text-gray-400">${doc}</td>
-                            <td class="font-mono text-[0.7rem] text-gray-400">${cbo}</td>
-                            <td class="font-mono text-[0.7rem] text-gray-400">${cnes}</td>
-                            <td class="text-center font-bold text-white">${p.qtde||'-'}</td>
-                            <td class="text-gray-400 text-center">${p.cmpt||'-'}</td>
-                            <td class="font-semibold uppercase text-white">${p.descricao||'-'}</td>
-                        </tr>`;
-            });
-            
-            let htmlVals = (d.valores || []).map(v => `<tr class="hover:bg-white/5 transition"><td class="uppercase text-blue-300 font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold text-emerald-400">${v.valor||'-'}</td></tr>`);
-            desenharModal(d.NOME, d.AIH, d.PROC, d.valor_total || "0,00", htmlProcs, htmlVals);
-        }
-
-        window.abrirLeitorPdf = function(pagina) {
-            if(!linkPdfAtual) return;
-            $('#iframePdf').attr('src', `${linkPdfAtual}#page=${pagina}&zoom=100`);
-            $('#btnNovaAbaPdf').attr('href', `${linkPdfAtual}#page=${pagina}`);
-            $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
-        }
-
-        window.imprimirModal = function() {
-            $('body').addClass('printing-modal');
-            window.print();
-            setTimeout(() => { $('body').removeClass('printing-modal'); }, 500);
-        }
-
-        window.addPage = function(pageNumber, chaveUnique, btn) {
-            if (!filaImpressao.includes(pageNumber)) {
-                filaImpressao.push(pageNumber); 
-                filaImpressao.sort((a,b)=>a-b);
-                $('#pageList').text(filaImpressao.join(', '));
-                $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
-                $('#barra-impressao').addClass('visible');
-
-                let lidas = getAihsLidas();
-                if(!lidas.includes(chaveUnique)) {
-                    lidas.push(chaveUnique);
-                    salvarAihsLidas(lidas);
-                    let btnLido = document.getElementById('btn-read-' + chaveUnique);
-                    if(btnLido) {
-                        $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
-                        $(btnLido).closest('tr').addClass('row-printed');
-                    }
-                    aplicarFiltroImpressao(); 
-                }
-            }
-        }
-
-        window.clearPages = function() {
-            filaImpressao = []; $('#pageList').text("0 páginas");
-            $('.btn-added').html('<i class="fas fa-print"></i>').removeClass('btn-added');
-            $('#barra-impressao').removeClass('visible');
-        }
-
-        window.copyAllPages = function() {
-            if (filaImpressao.length > 0) {
-                navigator.clipboard.writeText(filaImpressao.join(',')).then(() => {
-                    let btn = $('#btnCopy'); let orig = btn.html();
-                    btn.html('<i class="fas fa-check-double"></i> COPIADO!').css('background', '#10b981');
-                    setTimeout(() => { btn.html(orig).css('background', ''); }, 2000);
-                });
-            } else { alert('Adicione páginas à fila primeiro.'); }
-        }
-    </script>
+</script>
 </body>
 </html>
