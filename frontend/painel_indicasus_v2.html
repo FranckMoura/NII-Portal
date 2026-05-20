@@ -90,6 +90,7 @@
 
         /* MODAIS SAAS DESIGN */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
         .modal-content { background: #1e293b; border: 1px solid #334155; width: 90%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: #f8fafc; }
         .modal-header { background: rgba(15, 23, 42, 0.6); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
         .modal-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #f8fafc;}
@@ -401,24 +402,33 @@
             if (event.target == modal) { fecharModal(); }
         }
 
-        function abrirModal(nome, aih, sisreg, internacao, municipio, cns, cpf, dtNasc, mae, sus, evolucao, plano, diagnostico) {
-            document.getElementById('modalNome').innerText = nome;
-            document.getElementById('modalMunicipio').innerText = municipio && municipio !== 'null' ? municipio : 'Não informado';
-            document.getElementById('modalAih').innerText = (aih && aih !== 'null') ? aih : 'Aguardando Faturamento';
-            document.getElementById('modalSisreg').innerText = (sisreg && sisreg !== 'null') ? sisreg : 'Não informado';
-            document.getElementById('modalInternacao').innerText = (internacao && internacao !== "SEM DATA") ? internacao.split('-').reverse().join('/') : 'Não informada';
-            document.getElementById('modalCpf').innerText = (cpf && cpf !== 'null') ? cpf : 'Não informado';
-            document.getElementById('modalCns').innerText = (cns && cns !== 'null') ? cns : 'Não informado';
-            document.getElementById('modalNascimento').innerText = (dtNasc && dtNasc !== 'null') ? dtNasc.split('-').reverse().join('/') : 'Não informada';
-            document.getElementById('modalMae').innerText = (mae && mae !== 'null') ? mae : 'Não informada';
-            document.getElementById('modalEvolucao').innerText = (evolucao && evolucao !== 'null') ? evolucao : 'Sem Evolução Registrada';
-            document.getElementById('modalDiagnostico').innerText = (diagnostico && diagnostico !== 'null' && diagnostico !== 'NÃO INFORMADO') ? diagnostico : 'Sem Registro';
+        // ========================================================
+        // AQUI FOI AJUSTADO O MODAL: Lendo da matriz de forma segura
+        // ========================================================
+        window.abrirModalIndice = function(rowIndex) {
+            let p = dadosFiltradosGlobais[rowIndex];
+            if (!p) return;
+
+            document.getElementById('modalNome').innerText = p.nome_paciente;
+            document.getElementById('modalMunicipio').innerText = p.municipio_residencia ? p.municipio_residencia : 'Não informado';
+            document.getElementById('modalAih').innerText = p.aih ? p.aih : 'Aguardando Faturamento';
+            document.getElementById('modalSisreg').innerText = p.cod_solicitacao_sisreg ? p.cod_solicitacao_sisreg : 'Não informado';
+            document.getElementById('modalInternacao').innerText = (p.data_internacao && p.data_internacao !== "SEM DATA") ? p.data_internacao.split('-').reverse().join('/') : 'Não informada';
+            document.getElementById('modalCpf').innerText = p.cpf ? p.cpf : 'Não informado';
+            document.getElementById('modalCns').innerText = p.cns ? p.cns : 'Não informado';
+            document.getElementById('modalNascimento').innerText = p.data_nascimento ? p.data_nascimento.split('-').reverse().join('/') : 'Não informada';
+            document.getElementById('modalMae').innerText = p.nome_mae ? p.nome_mae : 'Não informada';
+            document.getElementById('modalEvolucao').innerText = p.evolucao_clinica ? p.evolucao_clinica : 'Sem Evolução Registrada';
+            document.getElementById('modalDiagnostico').innerText = (p.diagnostico && p.diagnostico !== 'NÃO INFORMADO') ? p.diagnostico : 'Sem Registro';
             
             const statusSusSpan = document.getElementById('modalSusStatus');
             const isLight = document.body.classList.contains('theme-classic');
             
+            let sus = p.internacao_sus;
+            let plano = p.plano_sus || '';
+
             if(sus && sus.toUpperCase().includes('SIM')) {
-                if(plano && plano.toUpperCase().includes('FILA ZERO')) {
+                if(plano.toUpperCase().includes('FILA ZERO')) {
                     statusSusSpan.innerText = 'SUS - FILA ZERO';
                     statusSusSpan.className = isLight ? 'px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-pink-900/30 text-pink-400 border border-pink-500/50 rounded-full text-xs font-bold uppercase';
                 } else {
@@ -429,10 +439,11 @@
                 statusSusSpan.innerText = 'NÃO SUS / PARTICULAR';
                 statusSusSpan.className = isLight ? 'px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-full text-xs font-bold uppercase' : 'px-3 py-1 bg-yellow-900/30 text-yellow-400 border border-yellow-500/50 rounded-full text-xs font-bold uppercase';
             }
-            document.getElementById('pacienteModal').classList.add('active');
+
+            document.getElementById('pacienteModal').style.display = 'flex';
         }
 
-        function fecharModal() { document.getElementById('pacienteModal').classList.remove('active'); }
+        function fecharModal() { document.getElementById('pacienteModal').style.display = 'none'; }
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex, rowData) {
             if (settings.nTable.id !== 'tabelaIndica') return true; 
@@ -448,14 +459,12 @@
         $(document).ready(function() {
             if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
             
-            // Puxa as variáveis setadas na TopBar pela "Casca"
             let globalAno = localStorage.getItem('nii_competencia_ano') || new Date().getFullYear();
             let globalMes = localStorage.getItem('nii_competencia_mes') || String(new Date().getMonth() + 1).padStart(2, '0');
             
             $('#anoFilter').val(globalAno);
             $('#mesFilter').val(globalMes);
             
-            // Fica "escutando" mudanças de Mês no localStorage (feitas pela Casca)
             setInterval(() => {
                 let novoAno = localStorage.getItem('nii_competencia_ano');
                 let novoMes = localStorage.getItem('nii_competencia_mes');
@@ -621,7 +630,6 @@
                 return p;
             });
 
-            // LOGICA CORRIGIDA E ADAPTADA PARA LER O ANO E MÊS DA CASCA
             const dataHoje = new Date();
             let diasParaCalculo = new Date(anoSelecionado, mesSelecionado, 0).getDate(); 
             
@@ -760,26 +768,14 @@
                 columns: [
                     { 
                         data: 'nome_paciente', 
-                        render: function(d, type, row) {
+                        render: function(d, type, row, meta) {
                             if (type === 'display') {
-                                let safeNome = String(row.nome_paciente || '').replace(/'/g, "\\'");
-                                let safeAih = String(row.aih || '').replace(/'/g, "\\'");
-                                let safeSisreg = String(row.cod_solicitacao_sisreg || '').replace(/'/g, "\\'");
-                                let safeInt = String(row.data_internacao || '').replace(/'/g, "\\'");
-                                let safeMun = String(row.municipio_residencia || '').replace(/'/g, "\\'");
-                                
-                                let safeCns = String(row.cns || '').replace(/'/g, "\\'");
-                                let safeCpf = String(row.cpf || '').replace(/'/g, "\\'");
-                                let safeNasc = String(row.data_nascimento || '').replace(/'/g, "\\'");
-                                let safeMae = String(row.nome_mae || '').replace(/'/g, "\\'");
-                                let safeSus = String(row.internacao_sus || '').replace(/'/g, "\\'");
-                                let safeEvol = String(row.evolucao_clinica || '').replace(/'/g, "\\'");
-                                let safePlano = String(row.plano_sus || 'PLANO UNICO').replace(/'/g, "\\'");
-                                let safeDiag = String(row.diagnostico || 'NÃO INFORMADO').replace(/'/g, "\\'");
+                                let safeSus = String(row.internacao_sus || '');
+                                let safePlano = String(row.plano_sus || 'PLANO UNICO');
 
                                 let htmlBadgePlano = '';
                                 if(safeSus.toUpperCase().includes('SIM')) {
-                                    if(safePlano.includes('FILA ZERO')) {
+                                    if(safePlano.toUpperCase().includes('FILA ZERO')) {
                                         htmlBadgePlano = `<span class="badge-fila-sm"><i class="fas fa-star"></i> FILA ZERO</span>`;
                                     } else {
                                         htmlBadgePlano = `<span class="badge-unico-sm"><i class="fas fa-check-circle"></i> PLANO ÚNICO</span>`;
@@ -793,7 +789,7 @@
                                                 <b class="text-[0.8rem]" style="color:var(--color-primary);" title="${d}">${d.length > 25 ? d.substring(0, 25) + '...' : d}</b><br>
                                                 ${htmlBadgePlano}
                                             </div>
-                                            <button class="btn-view" onclick="abrirModal('${safeNome}', '${safeAih}', '${safeSisreg}', '${safeInt}', '${safeMun}', '${safeCns}', '${safeCpf}', '${safeNasc}', '${safeMae}', '${safeSus}', '${safeEvol}', '${safePlano}', '${safeDiag}')" title="Ver Dossiê">
+                                            <button class="btn-view" onclick="abrirModalIndice(${meta.row})" title="Ver Dossiê">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>`;

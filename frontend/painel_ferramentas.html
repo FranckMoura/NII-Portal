@@ -60,6 +60,19 @@
             background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 30px 30px; z-index: -1; pointer-events: none;
         }
+        
+        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.15); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(168, 85, 247, 0.10); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
+        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none; }
+
+        /* ========================================================= */
+        /* CLASSES PARA MODO IFRAME (EMBUTIDO NO INDEX_V2)           */
+        /* ========================================================= */
+        body.is-iframe { background: transparent !important; }
+        body.is-iframe::before { display: none !important; }
+        body.is-iframe .blob-1, body.is-iframe .blob-2 { display: none !important; }
+        body.is-iframe .top-header { display: none !important; }
+        body.is-iframe .main-content { padding-top: 24px !important; }
 
         /* CABEÇALHO INDEPENDENTE */
         .top-header { 
@@ -265,7 +278,7 @@
 
     <header class="top-header no-print">
         <a href="#" class="header-brand" title="Portal NII">
-            <img src="../logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
+            <img src="logo.png" alt="Hospital Santa Helena" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
             <div class="brand-text">
                 <span class="brand-title">Portal NII</span>
                 <span class="brand-sub">Ferramentas Livres</span>
@@ -277,7 +290,7 @@
                 <i class="fas fa-sun" id="theme-icon"></i>
             </button>
             <div style="width:1px; height:24px; background:var(--border-color); margin: 0 5px;"></div>
-            <a href="../login.html" class="btn-theme"><i class="fas fa-sign-in-alt"></i> Login Restrito</a>
+            <a href="login.html" class="btn-theme"><i class="fas fa-sign-in-alt"></i> Login Restrito</a>
         </div>
     </header>
 
@@ -412,6 +425,7 @@
         <footer>&copy; 2026 Hospital Santa Helena - Desenvolvido por Franck Moura</footer>
     </main>
 
+    <!-- Modal Virtual AIH -->
     <div class="modal-overlay no-print" id="modalVirtualAih">
         <div class="modal-content" style="max-width: 230mm;">
             <div class="modal-header">
@@ -427,7 +441,7 @@
                     <table class="tabela-sus">
                         <tr>
                             <td width="15%" style="text-align: center; border-right: none; vertical-align:middle;">
-                                <img src="../logo.png" style="max-height: 40px; margin:0 auto;" onerror="this.style.display='none'">
+                                <img src="logo.png" style="max-height: 40px; margin:0 auto;" onerror="this.style.display='none'">
                             </td>
                             <td width="70%" class="cabecalho-sus" style="border-left: none; border-right: none; padding-top:10px;">
                                 MINISTÉRIO DA SAÚDE<br>SISTEMA ÚNICO DE SAÚDE - SUS<br>LAUDO PARA SOLICITAÇÃO DE AUTORIZAÇÃO DE INTERNAÇÃO
@@ -619,7 +633,7 @@
         </div>
     </div>
 
-
+    <!-- Modal Virtual Especial -->
     <div class="modal-overlay no-print" id="modalVirtualEspecial">
         <div class="modal-content" style="max-width: 230mm;">
             <div class="modal-header">
@@ -635,7 +649,7 @@
                     <table class="tabela-sus" style="margin-bottom: 5px;">
                         <tr>
                             <td width="20%" style="text-align: center; border-right: none; vertical-align: middle;">
-                                <img src="../logo.png" style="max-height: 40px;" onerror="this.style.display='none'">
+                                <img src="logo.png" style="max-height: 40px;" onerror="this.style.display='none'">
                             </td>
                             <td width="60%" class="cabecalho-sus" style="vertical-align: middle; border-left: none; border-right: none; padding-top:10px;">
                                 MINISTÉRIO DA SAÚDE<br>SISTEMA ÚNICO DE SAÚDE - SUS<br>LAUDO PARA SOLICITAÇÃO/AUTORIZAÇÃO DE MUDANÇA DE PROCEDIMENTO E DE PROCEDIMENTOS(S) ESPECIAL(AIS)
@@ -776,7 +790,7 @@
         </div>
     </div>
 
-
+    <!-- Modal Calculadoras -->
     <div class="modal-overlay no-print" id="modalCalc">
         <div class="modal-content" style="max-width: 450px; background: var(--bg-body); box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
             <div class="modal-header">
@@ -793,26 +807,49 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
         const client = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_tools', 'neon');
-                icon.className = 'fas fa-sun';
-            } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_tools', 'classic');
-                icon.className = 'fas fa-moon';
+        // ==========================================
+        // DETECÇÃO DE MODO HÍBRIDO (IFRAME VS STANDALONE)
+        // ==========================================
+        const isIframe = window.self !== window.top;
+
+        if (isIframe) {
+            // MODO EMBUTIDO (Dentro do index_v2.html)
+            document.body.classList.add('is-iframe');
+            
+            // O tema passa a ser comandado pelo index_v2.html através dessa função global
+            window.toggleTheme = function() {
+                if (localStorage.getItem('nii_theme_hub') === 'classic') {
+                    document.body.classList.add('theme-classic');
+                } else {
+                    document.body.classList.remove('theme-classic');
+                }
+            };
+            window.toggleTheme(); // Sincroniza ao abrir
+
+        } else {
+            // MODO STANDALONE (Acessado direto do login.html)
+            window.toggleTheme = function() {
+                const body = document.body;
+                const icon = document.getElementById('theme-icon');
+                if (body.classList.contains('theme-classic')) {
+                    body.classList.remove('theme-classic');
+                    localStorage.setItem('nii_theme_hub', 'neon');
+                    if (icon) icon.className = 'fas fa-sun';
+                } else {
+                    body.classList.add('theme-classic');
+                    localStorage.setItem('nii_theme_hub', 'classic');
+                    if (icon) icon.className = 'fas fa-moon';
+                }
+            };
+            
+            // Carrega tema salvo
+            if (localStorage.getItem('nii_theme_hub') === 'classic') {
+                document.body.classList.add('theme-classic');
+                const icon = document.getElementById('theme-icon');
+                if (icon) icon.className = 'fas fa-moon';
             }
         }
 
-        $(document).ready(function() {
-            if (localStorage.getItem('nii_theme_tools') === 'classic') {
-                document.body.classList.add('theme-classic');
-                document.getElementById('theme-icon').className = 'fas fa-moon';
-            }
-        });
 
         // ==========================================
         // FOLHA VIRTUAL: AIH (Pesquisa SIGTAP)
@@ -890,7 +927,7 @@
         }
 
         // ==========================================
-        // CALCULADORAS CLÍNICAS (RECUPERADAS)
+        // CALCULADORAS CLÍNICAS
         // ==========================================
         function abrirModalCalc(tipo) {
             let html = '';

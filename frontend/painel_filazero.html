@@ -303,10 +303,9 @@
         let tabelaFinanceira = null;
         let tabelaPacientes = null;
         
-        let isDiretoriaOuAdmin = false; // Controle de Permissão
+        let isDiretoriaOuAdmin = false; 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // DICIONÁRIO OFICIAL DAS METAS FILA ZERO
         const metasFilaZero = [
             { Codigo: "0407010297", Descricao: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", Meta: 1, Valor: 2298.18 },
             { Codigo: "0407020284", Descricao: "HEMORROIDECTOMIA", Meta: 2, Valor: 947.82 },
@@ -377,19 +376,15 @@
         $(document).ready(async function() { 
             if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
 
-            // 1. VERIFICAÇÃO DE SESSÃO E PERMISSÃO
             try {
                 const { data: { session } } = await client.auth.getSession();
                 if (session) {
                     const { data: perfil } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
                     if (perfil && (perfil.nivel_acesso.toUpperCase().includes('DIRETORIA') || perfil.nivel_acesso.toUpperCase().includes('ADMIN'))) { 
                         isDiretoriaOuAdmin = true;
-                        
-                        // Libera as abas restritas (Remove display none)
                         $('#btn-tab-financeiro').show();
                         $('#card-faturamento').css('display', 'flex');
                     } else {
-                        // Força Ocultação das Finanças (Segurança)
                         $('#btn-tab-financeiro').hide();
                         $('#tab-financeiro').hide();
                         $('#card-faturamento').hide();
@@ -399,14 +394,12 @@
                 console.error("Erro ao verificar permissão.", error);
             }
             
-            // Popula o select do Mapeamento Manual
             let selectHtml = `<option value="0000000000">0000000000 - PROCEDIMENTO EXTRA-META / OUTROS</option>`;
             metasFilaZero.forEach(m => {
                 selectHtml += `<option value="${m.Codigo}">${m.Codigo} - ${m.Descricao}</option>`;
             });
             $('#map_codigo').append(selectHtml);
 
-            // Carrega Pela Casca
             let globalAno = localStorage.getItem('nii_competencia_ano') || new Date().getFullYear();
             let globalMes = localStorage.getItem('nii_competencia_mes') || String(new Date().getMonth() + 1).padStart(2, '0');
             $('#anoFilter').val(globalAno);
@@ -453,8 +446,9 @@
             try {
                 let allIndicaData = []; let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
+                    // ADICIONADO AIH E COD_SOLICITACAO_SISREG NA CHAMADA
                     const { data: indData, error } = await client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao, diagnostico, evolucao_clinica, internacao_sus, plano_sus')
+                        .select('nome_paciente, data_internacao, diagnostico, evolucao_clinica, internacao_sus, plano_sus, aih, cod_solicitacao_sisreg')
                         .gte('data_internacao', d1).lte('data_internacao', d2)
                         .ilike('plano_sus', '%FILA ZERO%')
                         .range(fromI, fromI + stepI - 1);
@@ -542,9 +536,6 @@
                     }
                 }
 
-                // ==============================================
-                // TABELA 1: FÍSICA (Aba Operacional)
-                // ==============================================
                 if ($.fn.DataTable.isDataTable('#tabelaFisica')) $('#tabelaFisica').DataTable().destroy();
                 tabelaFisica = $('#tabelaFisica').DataTable({
                     data: dadosMetas,
@@ -575,9 +566,6 @@
                     ]
                 });
 
-                // ==============================================
-                // TABELA 2: FINANCEIRA (Aba Diretoria)
-                // ==============================================
                 if(isDiretoriaOuAdmin) {
                     if ($.fn.DataTable.isDataTable('#tabelaFinanceira')) $('#tabelaFinanceira').DataTable().destroy();
                     tabelaFinanceira = $('#tabelaFinanceira').DataTable({
@@ -603,9 +591,6 @@
                     });
                 }
 
-                // ==============================================
-                // TABELA DE PACIENTES (Aba Operacional)
-                // ==============================================
                 if ($.fn.DataTable.isDataTable('#tabelaPacientes')) $('#tabelaPacientes').DataTable().destroy();
                 tabelaPacientes = $('#tabelaPacientes').DataTable({
                     data: dadosPacientes,
@@ -626,7 +611,21 @@
                                 return d;
                             }
                         },
-                        { data: 'aih', className: 'text-center font-mono text-xs text-gray-500', render: d => d || '-' },
+                        { 
+                            // RENDERIZAÇÃO MELHORADA PARA EXIBIR AIH E SISREG
+                            data: 'aih', 
+                            className: 'text-center font-mono text-xs text-gray-500', 
+                            render: function(d, type, row) {
+                                let sis = row.cod_solicitacao_sisreg || "";
+                                let aih = d || "";
+                                if (!aih && !sis) return '<span style="opacity:0.5">-</span>';
+                                if (type !== 'display') return `AIH: ${aih} SIS: ${sis}`;
+                                return `<div style="line-height:1.3;">
+                                            ${aih ? `AIH: <b class="text-blue-400">${aih}</b><br>` : ''}
+                                            ${sis ? `SIS: <b class="text-emerald-400">${sis}</b>` : ''}
+                                        </div>`;
+                            } 
+                        },
                         { 
                             data: null, className: 'text-left',
                             render: function(d, type, row) {
