@@ -529,7 +529,7 @@
                 const filaZeroData = await fetchAllData('fila_zero_procedimentos');
                 
                 $('#status-text').text("Sincronizando Nova Tabela MT 2026...");
-                const mt2026Data = await fetchAllData('tabela_sus_mt_2026');
+                const mt2026Data = await fetchAllData('tabela_sus_mt_2026_v2');
 
                 $('#status-text').text("Cruzando OPMEs e CIDs...");
                 const opmeData = await fetchAllData('sigtap_opme');
@@ -539,6 +539,7 @@
                 if(filaZeroData) filaZeroData.forEach(fz => {
                     let c = fz.codigo || fz.codigo_sigtap || fz.co_procedimento;
                     let v = fz.valor || fz.valor_unitario || fz.valor_mt || fz.fz_valor || fz.valor_fz;
+                    // FORÇANDO O ZERO AQUI
                     if(c) mapFZ[String(c).padStart(10, '0')] = { valor_unitario: Number(v || 0) };
                 });
 
@@ -546,6 +547,7 @@
                 if(mt2026Data) mt2026Data.forEach(mt => {
                     let c = mt.codigo || mt.codigo_sigtap || mt.co_procedimento;
                     let v = mt.valor || mt.valor_unitario || mt.valor_mt || mt.valor_mt2026;
+                    // FORÇANDO O ZERO AQUI
                     if(c) mapMT2026[String(c).padStart(10, '0')] = Number(v || 0);
                 });
 
@@ -555,6 +557,7 @@
                     let codO = o.codigo_opme || o.co_opme || o.opme;
                     let qtd = o.quantidade_maxima || o.qtd_max || o.quantidade || 1;
                     if(codP && codO) {
+                        // FORÇANDO O ZERO AQUI
                         codP = String(codP).padStart(10, '0');
                         if(!mapOPME[codP]) mapOPME[codP] = [];
                         mapOPME[codP].push({ codigo: String(codO).padStart(10, '0'), qtd: qtd });
@@ -568,6 +571,7 @@
                     let nome_cid = c.nome_cid || c.descricao_cid || c.nome;
                     let status = c.status_principal || c.st_principal || '';
                     if(codP && cid) {
+                        // FORÇANDO O ZERO AQUI
                         codP = String(codP).padStart(10, '0');
                         if(!mapCID[codP]) mapCID[codP] = [];
                         mapCID[codP].push({ cid: cid, nome: nome_cid, princ: status });
