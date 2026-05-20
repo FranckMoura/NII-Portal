@@ -398,7 +398,6 @@
                             </div>
                         </div>
 
-                        <!-- AJUSTADO AQUI: Adicionado onclick e title -->
                         <div class="kpi-card col-span-2 blue" onclick="abrirModulo('painel_indicasus_v2.html', 'indicasus', null, 'Auditoria IndicaSUS')" title="Ver Painel IndicaSUS">
                             <div class="kpi-card-header mb-1">
                                 <span class="kpi-title">Monitoramento de Leitos (IndicaSUS)</span>
@@ -733,9 +732,9 @@
                     let dataDia = (row.data_extracao || "").split('T')[0].split(' ')[0];
                     if (dataDia.startsWith(prefixoMesAtual)) mapP.get(key).dias_map.set(dataDia, row.tipo_leito);
                 });
-                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 }; let fz = 0;
+                
+                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 }; 
                 mapP.forEach(p => {
-                    if (p.plano.includes('FILA ZERO') && p.dtInt.startsWith(prefixoMesAtual)) fz++;
                     p.dias_map.forEach(leitoBruto => {
                         let l = (leitoBruto||'').toUpperCase();
                         if(l.includes("UTI ADULTO") || l === "UTI") ocup.uti++;
@@ -744,13 +743,28 @@
                         else if(l.includes("UCINCA")) ocup.ucinca++;
                     });
                 });
-                $('#kpi-fila-zero').text(fz);
+                
                 let diasParaCalc = (parseInt(ano) === dataAtual.getFullYear() && parseInt(mes) === dataAtual.getMonth()+1) ? dataAtual.getDate() : dataFimObj.getDate();
                 
                 $('#taxa-uti').text(ocup.uti); $('#meta-uti').html(`Ocup: <b>${Math.round((ocup.uti/(cfgLeitos.uti*diasParaCalc))*100)}%</b>`);
                 $('#taxa-utin').text(ocup.utin); $('#meta-utin').html(`Ocup: <b>${Math.round((ocup.utin/(cfgLeitos.utin*diasParaCalc))*100)}%</b>`);
                 $('#taxa-ucinco').text(ocup.ucinco); $('#meta-ucinco').html(`Ocup: <b>${Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalc))*100)}%</b>`);
                 $('#taxa-ucinca').text(ocup.ucinca); $('#meta-ucinca').html(`Ocup: <b>${Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalc))*100)}%</b>`);
+
+                // 3.5 Fila Zero (Cálculo independente fiel ao Painel Fila Zero)
+                let allFzData = []; let fromFz = 0; let stepFz = 1000;
+                while (true) {
+                    const { data } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao')
+                        .gte('data_internacao', d1).lte('data_internacao', d2)
+                        .ilike('plano_sus', '%FILA ZERO%')
+                        .range(fromFz, fromFz + stepFz - 1);
+                    if (data && data.length > 0) { allFzData = allFzData.concat(data); fromFz += stepFz; }
+                    if (!data || data.length < stepFz) break;
+                }
+                let mapFz = {};
+                allFzData.forEach(d => { mapFz[d.nome_paciente + "_" + d.data_internacao] = true; });
+                $('#kpi-fila-zero').text(Object.keys(mapFz).length);
 
                 // 4. Internações
                 const { count } = await client.from('cirurgias_detalhe').select('*', { count: 'exact', head: true }).gte('data_cirurgia', d1).lte('data_cirurgia', d2).in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
