@@ -499,14 +499,19 @@
             return passaOrigem && passaGrupo;
         });
 
-        // FUNÇÃO QUE BURRLA O LIMITE DE 1000 LINHAS DO SUPABASE
+        // ===============================================
+        // FUNÇÃO QUE BURRLA O LIMITE DE 1000 LINHAS E EVITA QUEBRA
+        // ===============================================
         async function fetchAllData(table, selectFields = '*') {
             let results = [];
             let from = 0;
             const step = 1000;
             while(true) {
                 const { data, error } = await client.from(table).select(selectFields).range(from, from + step - 1);
-                if(error) throw error;
+                if(error) {
+                    console.warn(`Aviso: Tabela '${table}' não encontrada ou sem permissão. Trazendo vazio.`);
+                    break; 
+                }
                 if(!data || data.length === 0) break;
                 results = results.concat(data);
                 if(data.length < step) break;
@@ -531,32 +536,59 @@
                 const cidData = await fetchAllData('vw_sigtap_cid'); 
 
                 let mapFZ = {};
-                if(filaZeroData) filaZeroData.forEach(fz => mapFZ[String(fz.codigo_sigtap).padStart(10, '0')] = fz);
+                if(filaZeroData) filaZeroData.forEach(fz => {
+                    let c = fz.codigo || fz.codigo_sigtap || fz.co_procedimento;
+                    let v = fz.valor || fz.valor_unitario || fz.valor_mt || fz.fz_valor || fz.valor_fz;
+                    if(c) mapFZ[String(c).padStart(10, '0')] = { valor_unitario: Number(v || 0) };
+                });
 
                 let mapMT2026 = {};
-                if(mt2026Data) mt2026Data.forEach(mt => mapMT2026[String(mt.codigo_sigtap).padStart(10, '0')] = mt.valor_unitario);
+                if(mt2026Data) mt2026Data.forEach(mt => {
+                    let c = mt.codigo || mt.codigo_sigtap || mt.co_procedimento;
+                    let v = mt.valor || mt.valor_unitario || mt.valor_mt || mt.valor_mt2026;
+                    if(c) mapMT2026[String(c).padStart(10, '0')] = Number(v || 0);
+                });
 
                 let mapOPME = {};
                 if(opmeData) opmeData.forEach(o => {
-                    let codP = String(o.codigo_principal).padStart(10, '0');
-                    if(!mapOPME[codP]) mapOPME[codP] = [];
-                    mapOPME[codP].push({ codigo: String(o.codigo_opme).padStart(10, '0'), qtd: o.quantidade_maxima });
+                    let codP = o.codigo_principal || o.co_procedimento || o.procedimento_principal;
+                    let codO = o.codigo_opme || o.co_opme || o.opme;
+                    let qtd = o.quantidade_maxima || o.qtd_max || o.quantidade || 1;
+                    if(codP && codO) {
+                        codP = String(codP).padStart(10, '0');
+                        if(!mapOPME[codP]) mapOPME[codP] = [];
+                        mapOPME[codP].push({ codigo: String(codO).padStart(10, '0'), qtd: qtd });
+                    }
                 });
 
                 let mapCID = {};
                 if(cidData) cidData.forEach(c => {
-                    let codP = String(c.codigo_procedimento).padStart(10, '0');
-                    if(!mapCID[codP]) mapCID[codP] = [];
-                    mapCID[codP].push({ cid: c.codigo_cid, nome: c.nome_cid, princ: c.status_principal });
+                    let codP = c.codigo_procedimento || c.co_procedimento || c.procedimento;
+                    let cid = c.codigo_cid || c.co_cid || c.cid;
+                    let nome_cid = c.nome_cid || c.descricao_cid || c.nome;
+                    let status = c.status_principal || c.st_principal || '';
+                    if(codP && cid) {
+                        codP = String(codP).padStart(10, '0');
+                        if(!mapCID[codP]) mapCID[codP] = [];
+                        mapCID[codP].push({ cid: cid, nome: nome_cid, princ: status });
+                    }
                 });
 
                 let dadosSeguros = sigtapDataRaw || [];
-                let sigtapFiltrado = dadosSeguros.filter(item => !procedimentos_a_excluir.includes(String(item.codigo).padStart(10, '0')));
+                let sigtapFiltrado = dadosSeguros.filter(item => {
+                    let c = item.codigo || item.codigo_sigtap || item.co_procedimento;
+                    return !procedimentos_a_excluir.includes(String(c).padStart(10, '0'));
+                });
+                
                 let sigtapDict = {};
-                sigtapFiltrado.forEach(s => sigtapDict[String(s.codigo).padStart(10, '0')] = s);
+                sigtapFiltrado.forEach(s => {
+                    let c = s.codigo || s.codigo_sigtap || s.co_procedimento;
+                    if (c) sigtapDict[String(c).padStart(10, '0')] = s;
+                });
 
                 dadosGlobais = sigtapFiltrado.map(item => {
-                    let codReal = String(item.codigo).padStart(10, '0');
+                    let c = item.codigo || item.codigo_sigtap || item.co_procedimento;
+                    let codReal = String(c).padStart(10, '0');
                     let fz = mapFZ[codReal];
                     let mt2026 = mapMT2026[codReal];
                     
@@ -582,15 +614,15 @@
                     
                     return {
                         codigo: codReal,
-                        descricao: item.nome,
+                        descricao: item.nome || item.descricao,
                         complexidade: complexidadeLimpa,
                         sexo: item.sexo,
                         idade_min: item.idade_minima,
                         idade_max: item.idade_maxima,
-                        valor_sa: item.valor_ambulatorial, 
-                        valor_sh: item.valor_hospitalar,
-                        valor_sp: item.valor_profissional,
-                        valor_total: item.valor_hospitalar + item.valor_profissional,
+                        valor_sa: item.valor_ambulatorial || 0, 
+                        valor_sh: item.valor_hospitalar || 0,
+                        valor_sp: item.valor_profissional || 0,
+                        valor_total: (item.valor_hospitalar || 0) + (item.valor_profissional || 0),
                         fz_valor: fz ? fz.valor_unitario : 0,
                         mt2026_valor: valor_contrato_total,
                         
