@@ -20,7 +20,7 @@ FORCAR_RE_DOWNLOAD = True
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
 DT_INICIO = "01/05/2026"
-DT_FIM = "18/05/2026"
+DT_FIM = "20/05/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co" 
