@@ -13,7 +13,7 @@ print(f"--- 1. EXTRAÇÃO SISREG (CARGA HISTÓRICA: 2019 A 2025) ---")
 
 # --- SUAS CREDENCIAIS ---
 USUARIO = os.environ.get("SISREG_USER", "046FRANCK")
-SENHA = os.environ.get("SISREG_PASS", "212425")
+SENHA = os.environ.get("SISREG_PASS", "515462")
 
 # --- PASTA DE DOWNLOAD ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

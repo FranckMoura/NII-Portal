@@ -21,100 +21,131 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* TEMA GLOBAL DARK NEON */
-        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: 0.5s; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; }
-        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(236, 72, 153, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
+        /* VARIÁVEIS DE TEMA SAAS DESIGN */
+        :root {
+            --bg-body: #0f172a;       
+            --bg-card: #1e293b;       
+            --bg-header: rgba(15, 23, 42, 0.95);
+            --bg-hover: #334155;      
+            --border-color: #334155;
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;    
+            --color-primary: #38bdf8; 
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --radius-default: 12px;
+        }
 
-        .header-bg { background: transparent; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 40px; margin-bottom: 20px; }
+        body.theme-classic {
+            --bg-body: #f1f5f9;       
+            --bg-card: #ffffff;       
+            --bg-header: rgba(255, 255, 255, 0.98);
+            --bg-hover: #f8fafc;      
+            --border-color: #cbd5e1;  
+            --text-main: #0f172a;     
+            --text-muted: #475569;    
+            --color-primary: #0056b3; 
+            --shadow-card: 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; transition: color 0.3s ease; scroll-behavior: smooth; }
+
+        body:not(.theme-classic)::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        /* MODO EMBUTIDO (IFRAME) */
+        body.is-iframe { background: transparent !important; }
+        body.is-iframe::before { display: none !important; }
+        body.is-iframe .header-bg { display: none !important; }
         
-        .cyber-container { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px; position: relative; z-index: 1; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
-        
-        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+        #loader { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; font-weight: bold; backdrop-filter: blur(5px); }
+
+        .cyber-container {
+            background: var(--bg-card); border-radius: var(--radius-default); 
+            padding: 24px; box-shadow: var(--shadow-card); 
+            border: 1px solid var(--border-color); margin-bottom: 24px; transition: 0.3s;
+        }
+
+        .glass-card {
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; 
+            padding: 20px; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; text-align: center;
+        }
+        .glass-card:hover { transform: translateY(-3px); border-color: var(--color-primary); box-shadow: var(--shadow-card); }
+
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
         .kpi-number { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px;}
 
-        .tab-btn { padding: 12px 24px; font-weight: 700; border-bottom: 3px solid transparent; color: #94a3b8; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .tab-btn:hover { color: white; }
-        .tab-btn.active { color: #34d399; border-bottom-color: #34d399; }
+        /* TABS DE NAVEGAÇÃO */
+        .tab-btn {
+            background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);
+            padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: bold; cursor: pointer; transition: 0.3s; border-bottom: none;
+        }
+        .tab-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+        .tab-btn.active {
+            background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.3);
+            border-bottom: 2px solid #34d399;
+        }
+        
+        body.theme-classic .tab-btn.active { background: white; border-color: var(--border-color); color: #059669; border-bottom: 2px solid #059669; }
+
         .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
         .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
-        .btn-theme { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
-        .btn-theme:hover { background: rgba(255,255,255,0.1); }
+        
+        .btn-theme { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
+        .btn-theme:hover { background: var(--bg-hover); color: var(--text-main); }
 
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
-        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: rgba(0, 0, 0, 0.3) !important; color: #38bdf8 !important; border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important; }
-        table.dataTable tbody td { font-size: 0.80rem; vertical-align: middle; padding: 10px !important; color: white !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
+        /* DATATABLES */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: var(--bg-hover) !important; color: var(--color-primary) !important; border-bottom: 2px solid var(--border-color) !important;}
+        table.dataTable tbody td { font-size: 0.80rem; vertical-align: middle; padding: 10px !important; color: var(--text-main) !important; border-bottom: 1px solid var(--border-color) !important;}
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
 
-        .dt-buttons { margin-bottom: 15px; }
-        .dt-button { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; }
-        .dt-button:hover { background: rgba(56, 189, 248, 0.3) !important; color: white !important;}
+        .dt-button { background: var(--bg-hover) !important; color: var(--text-muted) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: 600 !important; transition: 0.2s !important; }
+        .dt-button:hover { border-color: var(--color-primary) !important; color: var(--color-primary) !important;}
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button { color: var(--text-muted) !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: var(--bg-hover) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important; }
+
         .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .chart-container-sm { position: relative; height: 200px; width: 100%; display: flex; justify-content: center;}
 
-        /* ESTILOS FINANCEIROS */
         .val-positivo { color: #34d399; font-weight: bold; }
         .val-negativo { color: #f87171; font-weight: bold; }
-        
-        /* BADGES AMB/HOSP */
-        .badge-hosp { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
-        .badge-amb { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
-
-        /* MODAIS */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: white; }
-        .modal-header { background: rgba(0,0,0,0.3); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
-        .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; opacity: 0.8; }
-        .modal-close:hover { opacity: 1; color: #f87171; }
-        .modal-body { padding: 20px; overflow-y: auto; max-height: 75vh; }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* MODO CLÁSSICO */
-        body.theme-classic { background: #f1f5f9 !important; background-image: none !important; color: #0f172a; }
-        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
-        body.theme-classic .header-bg { background: #004e92; border-bottom: none; color: white; }
-        body.theme-classic .cyber-container { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        body.theme-classic .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none;}
-        body.theme-classic .kpi-title { color: #64748b; }
-        body.theme-classic .btn-theme { background: white; color: #004e92; border-color: #cbd5e1; }
-        body.theme-classic .tab-btn { color: #64748b; border-bottom-color: transparent; }
-        body.theme-classic .tab-btn:hover { color: #004e92; }
-        body.theme-classic .tab-btn.active { color: #059669; border-bottom-color: #059669; }
-        body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #f1f5f9 !important; color: #004e92 !important; border-bottom-color: #cbd5e1 !important; }
-        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; color: #334155 !important;}
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-        body.theme-classic .dt-button { background: white !important; color: #004e92 !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .dt-button:hover { background: #004e92 !important; color: white !important; }
-        body.theme-classic .modal-content { background: white; color: #0f172a; border-color: #cbd5e1; }
-        body.theme-classic .modal-header { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1;}
-        body.theme-classic .modal-close { color: #0f172a; }
-        body.theme-classic .modal-body table th { color: #475569; }
-        body.theme-classic .modal-body .border-white\/5 { border-color: #e2e8f0; }
         body.theme-classic .val-positivo { color: #10b981; }
         body.theme-classic .val-negativo { color: #ef4444; }
+        
+        .badge-hosp { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+        .badge-amb { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
 
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO - ABA ATIVA E PAISAGEM            */
-        /* ========================================================= */
+        /* MODAIS SAAS DESIGN */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 90%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: var(--text-main); }
+        .modal-header { background: var(--bg-body); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main);}
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: var(--color-danger); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 75vh; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* OTIMIZAÇÃO DE IMPRESSÃO - ABA ATIVA E PAISAGEM */
         .print-header-visible { display: none; }
         
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             * { background-color: transparent !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
-            body::before, .no-print, .blob-1, .blob-2, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn, .modal-overlay { display: none !important; }
+            body::before, .no-print, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate, .tab-btn, .modal-overlay { display: none !important; }
             
             body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 8pt !important; height: auto !important; overflow: visible !important; min-height: 100% !important; }
             .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; height: auto !important; overflow: visible !important; }
             
-            /* SÓ IMPRIME A ABA QUE ESTÁ ATIVA PARA NÃO BUGAR O DATATABLES */
             .tab-content:not(.active) { display: none !important; }
             .tab-content.active { display: block !important; page-break-inside: auto; height: auto !important; overflow: visible !important; }
             
@@ -149,13 +180,11 @@
 <body>
 
     <div id="loader" style="display:flex; position: fixed; inset: 0; background: rgba(0,21,40,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-        <i class="fas fa-handshake fa-spin text-5xl text-blue-400 mb-4"></i>
+        <i class="fas fa-handshake fa-spin text-5xl text-emerald-400 mb-4"></i>
         <p class="text-white font-bold" id="loader-text">Cruzando Produção com Tabela do Estado...</p>
     </div>
 
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
-
+    <!-- MODAL DE INSERIR MANUAL -->
     <div id="modalAddProc" class="modal-overlay no-print">
         <div class="modal-content">
             <div class="modal-header">
@@ -164,21 +193,21 @@
             </div>
             <div class="modal-body">
                 <div class="mb-4">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Código SIGTAP (10 Dígitos)</label>
-                    <input type="text" id="add_cod" onblur="buscarDescricaoSigtap()" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" maxlength="10" placeholder="Ex: 0411010026">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código SIGTAP (10 Dígitos)</label>
+                    <input type="text" id="add_cod" onblur="buscarDescricaoSigtap()" class="w-full bg-black/10 border border-gray-500/30 rounded p-2 text-gray-300 outline-none focus:border-emerald-400" maxlength="10" placeholder="Ex: 0411010026">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Descrição Oficial</label>
-                    <input type="text" id="add_desc" class="w-full bg-black/50 border border-white/10 rounded p-2 text-gray-400 outline-none" disabled placeholder="A descrição será preenchida automaticamente...">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição Oficial</label>
+                    <input type="text" id="add_desc" class="w-full bg-black/30 border border-gray-500/10 rounded p-2 text-gray-500 outline-none" disabled placeholder="A descrição será preenchida automaticamente...">
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Meta Física (Qtd/Mês)</label>
-                        <input type="number" id="add_meta" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" placeholder="Ex: 15">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Meta Física (Qtd/Mês)</label>
+                        <input type="number" id="add_meta" class="w-full bg-black/10 border border-gray-500/30 rounded p-2 text-gray-300 outline-none focus:border-emerald-400" placeholder="Ex: 15">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Valor Unitário MT 2026</label>
-                        <input type="number" step="0.01" id="add_valor" class="w-full bg-black/30 border border-white/20 rounded p-2 text-white outline-none focus:border-blue-400" placeholder="Ex: 1500.50">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Unitário MT 2026</label>
+                        <input type="number" step="0.01" id="add_valor" class="w-full bg-black/10 border border-gray-500/30 rounded p-2 text-gray-300 outline-none focus:border-emerald-400" placeholder="Ex: 1500.50">
                     </div>
                 </div>
                 <button onclick="salvarNovoProcedimento()" id="btnSalvarProc" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg"><i class="fas fa-save mr-2"></i> Salvar no Contrato</button>
@@ -186,9 +215,10 @@
         </div>
     </div>
 
+    <!-- MODAL REPASSE -->
     <div id="modalDetalheRepasse" class="modal-overlay no-print">
         <div class="modal-content" style="max-width: 650px;">
-            <div class="modal-header border-b-purple-500/30">
+            <div class="modal-header">
                 <h3><i class="fas fa-file-invoice-dollar text-purple-400 mr-2"></i> Extrato de Repasse & Lucro</h3>
                 <button class="modal-close" onclick="fecharModal('modalDetalheRepasse')"><i class="fas fa-times"></i></button>
             </div>
@@ -210,29 +240,32 @@
                 <button onclick="abrirModalAdd()" class="btn-action bg-emerald-600 hover:bg-emerald-500"><i class="fas fa-plus"></i> Inserir Manual</button>
                 <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir / PDF</button>
                 <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-sun" id="theme-icon"></i></button>
-                <a href="index_v3.html" class="btn-theme p-3 rounded-lg"><i class="fas fa-arrow-left"></i> Voltar</a>
             </div>
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-4 no-print mb-4 flex justify-between items-end border-b border-white/10 pb-2">
+    <!-- Page Header (Aparece no iframe) -->
+    <div class="page-header-iframe no-print px-4 pt-4 mb-2 flex justify-between items-end border-b border-gray-600/30 pb-2">
         <div class="flex space-x-2">
             <button id="btn-tab-contrato" class="tab-btn active" onclick="switchTab('contrato')"><i class="fas fa-chart-line"></i> Impacto e Visão Geral</button>
             <button id="btn-tab-repasses" class="tab-btn" onclick="switchTab('repasses')"><i class="fas fa-user-md"></i> Projeção de Repasses</button>
         </div>
         
-        <div class="flex items-center gap-3">
-            <div class="text-sm font-bold text-gray-400 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
+        <div class="flex items-center gap-3 pb-1">
+            <button onclick="abrirModalAdd()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-xs px-3 py-1.5"><i class="fas fa-plus"></i> Inserir Manual</button>
+            <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1.5"><i class="fas fa-print"></i> PDF</button>
+            
+            <div class="text-sm font-bold text-gray-400 bg-black/10 px-3 py-1.5 rounded-lg border border-gray-600/30">
                 <i class="fas fa-filter mr-1 text-pink-400"></i> Setor: 
-                <select id="filtroTipo" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                <select id="filtroTipo" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-gray-300 ml-1 outline-none cursor-pointer">
                     <option value="TODOS" class="text-black">Geral (Hosp + Amb)</option>
                     <option value="HOSPITALAR" class="text-black">Somente Hospitalar (AIH)</option>
                     <option value="AMBULATORIAL" class="text-black">Somente Ambulatorial (BPA)</option>
                 </select>
             </div>
-            <div class="text-sm font-bold text-gray-400 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
+            <div class="text-sm font-bold text-gray-400 bg-black/10 px-3 py-1.5 rounded-lg border border-gray-600/30">
                 <i class="fas fa-eye mr-1"></i> Exibição: 
-                <select id="modoExibicao" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-white ml-1 outline-none cursor-pointer">
+                <select id="modoExibicao" onchange="aplicarFiltrosGlobais()" class="bg-transparent text-gray-300 ml-1 outline-none cursor-pointer">
                     <option value="total" class="text-black">Totais (x Meta Mensal)</option>
                     <option value="unit" class="text-black">Valores Unitários</option>
                 </select>
@@ -253,17 +286,17 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="glass-card">
                     <div class="kpi-title text-blue-400">Volumetria Mês</div>
-                    <div class="kpi-number text-white" id="kpi-meta">0</div>
+                    <div class="kpi-number text-[var(--text-main)]" id="kpi-meta">0</div>
                     <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">META DE PROCEDIMENTOS</div>
                 </div>
                 <div class="glass-card">
                     <div class="kpi-title text-yellow-400">Faturamento Histórico</div>
-                    <div class="kpi-number text-white" id="kpi-sigtap">R$ 0,00</div>
+                    <div class="kpi-number text-[var(--text-main)]" id="kpi-sigtap">R$ 0,00</div>
                     <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">MÉDIA PAGA NA AIH / BPA</div>
                 </div>
                 <div class="glass-card">
                     <div class="kpi-title text-purple-400">Projeção Tabela MT</div>
-                    <div class="kpi-number text-white" id="kpi-mt">R$ 0,00</div>
+                    <div class="kpi-number text-[var(--text-main)]" id="kpi-mt">R$ 0,00</div>
                     <div class="kpi-sub text-[0.65rem] text-gray-500 font-bold mt-1">RECEITA COM OS NOVOS PREÇOS</div>
                 </div>
                 <div class="glass-card" id="kpi-impacto-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
@@ -360,27 +393,47 @@
             return 'HOSPITALAR';
         }
 
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            let isClassic = false;
-            
-            if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_contrato', 'neon');
-                icon.className = 'fas fa-sun';
-            } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_contrato', 'classic');
-                icon.className = 'fas fa-moon';
-                isClassic = true;
-            }
+        // ==========================================
+        // DETECÇÃO DE MODO HÍBRIDO (IFRAME VS STANDALONE)
+        // ==========================================
+        const isIframe = window.self !== window.top;
 
-            if (chartDist) {
-                Chart.defaults.color = isClassic ? '#475569' : '#cbd5e1';
-                chartDist.update();
+        if (isIframe) {
+            document.body.classList.add('is-iframe');
+            window.toggleTheme = function() {
+                if (localStorage.getItem('nii_theme_hub') === 'classic') {
+                    document.body.classList.add('theme-classic');
+                } else {
+                    document.body.classList.remove('theme-classic');
+                }
+                if (chartDist) {
+                    Chart.defaults.color = document.body.classList.contains('theme-classic') ? '#475569' : '#cbd5e1';
+                    chartDist.update();
+                }
+            };
+            window.toggleTheme();
+        } else {
+            window.toggleTheme = function() {
+                const body = document.body;
+                if (body.classList.contains('theme-classic')) {
+                    body.classList.remove('theme-classic');
+                    localStorage.setItem('nii_theme_hub', 'neon');
+                } else {
+                    body.classList.add('theme-classic');
+                    localStorage.setItem('nii_theme_hub', 'classic');
+                }
+                if (chartDist) {
+                    Chart.defaults.color = body.classList.contains('theme-classic') ? '#475569' : '#cbd5e1';
+                    chartDist.update();
+                }
+            }
+            if (localStorage.getItem('nii_theme_hub') === 'classic') {
+                document.body.classList.add('theme-classic');
             }
         }
+        
+        Chart.defaults.color = document.body.classList.contains('theme-classic') ? '#475569' : '#cbd5e1';
+        Chart.defaults.font.family = "'Inter', sans-serif";
 
         function switchTab(tabId) {
             $('.tab-content').removeClass('active');
@@ -396,17 +449,7 @@
         }
 
         $(document).ready(async function() { 
-            const savedTheme = localStorage.getItem('nii_theme_contrato');
-            if (savedTheme === 'classic') {
-                document.body.classList.add('theme-classic');
-                document.getElementById('theme-icon').className = 'fas fa-moon';
-                Chart.defaults.color = '#475569';
-            } else {
-                Chart.defaults.color = '#cbd5e1';
-            }
-            Chart.defaults.font.family = "'Inter', sans-serif";
             document.getElementById('print-date').innerText = "Data do Cálculo: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
-            
             await carregarDadosContrato(); 
         });
 
@@ -451,18 +494,13 @@
             $('#btnSalvarProc').html('<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...').prop('disabled', true);
 
             try {
-                // 1. Salva a Meta e Descrição na tabela de Contratos
                 const { error: err1 } = await client.from('procedimentos_contrato').upsert({
-                    codigo: cod,
-                    descricao: desc,
-                    meta_fisica: meta
+                    codigo: cod, descricao: desc, meta_fisica: meta
                 }, { onConflict: 'codigo' });
                 if(err1) throw err1;
 
-                // 2. Salva o Preço Personalizado na tabela SUS MT 2026
                 const { error: err2 } = await client.from('tabela_sus_mt_2026').upsert({
-                    codigo_sigtap: parseInt(cod, 10),
-                    valor_unitario: valor
+                    codigo_sigtap: parseInt(cod, 10), valor_unitario: valor
                 }, { onConflict: 'codigo_sigtap' });
                 if(err2) throw err2;
                 
@@ -498,26 +536,26 @@
 
             let html = `
                 <div class="mb-4">
-                    <div class="text-xs text-gray-400 font-bold uppercase mb-1">Procedimento (${item.tipo})</div>
+                    <div class="text-xs text-gray-500 font-bold uppercase mb-1">Procedimento (${item.tipo})</div>
                     <div class="text-lg font-bold text-blue-400 leading-tight">${item.codigo} - ${item.descricao}</div>
                     <div class="text-sm text-cyan-400 mt-2 font-bold"><i class="fas fa-bullseye mr-1"></i> Meta Física: ${item.meta} / mês</div>
                 </div>
                 
                 <table class="w-full text-left border-collapse mt-4">
                     <thead>
-                        <tr class="${corTh} border-b border-white/10">
+                        <tr class="${corTh} border-b border-gray-600/30">
                             <th class="p-3 font-bold text-xs uppercase tracking-wider">Composição Financeira</th>
                             <th class="p-3 text-right font-bold text-xs uppercase tracking-wider">Valor Unitário</th>
                             <th class="p-3 text-right font-bold text-xs uppercase tracking-wider">Projeção (Mês)</th>
                         </tr>
                     </thead>
                     <tbody class="text-[0.9rem]">
-                        <tr class="border-b border-white/5">
+                        <tr class="border-b border-gray-600/30">
                             <td class="p-3 font-bold text-pink-400"><i class="fas fa-arrow-trend-up mr-2"></i>1. Receita Contrato (MT)</td>
                             <td class="p-3 text-right font-mono text-pink-400">${formatBrl.format(item.val_unit_mt)}</td>
                             <td class="p-3 text-right font-mono font-bold text-pink-400">${formatBrl.format(totMt)}</td>
                         </tr>
-                        <tr class="border-b border-white/5 bg-purple-500/10">
+                        <tr class="border-b border-gray-600/30 bg-purple-500/10">
                             <td class="p-3 font-bold text-purple-400"><i class="fas fa-user-md mr-2"></i>2. Custo / Repasse Médico</td>
                             <td class="p-3 text-right font-mono text-purple-400">${formatBrl.format(medUnit)}</td>
                             <td class="p-3 text-right font-mono font-bold text-purple-400">${formatBrl.format(medTot)}</td>
@@ -526,15 +564,15 @@
 
             if (isCirurgia && medUnit > 0) {
                 html += `
-                        <tr class="border-b border-dashed border-white/5 bg-purple-500/5 text-[0.8rem]">
-                            <td class="p-2 pl-8 text-blue-300"><i class="fas fa-angle-right mr-2"></i>↳ Cirurgião (70%)</td>
-                            <td class="p-2 text-right font-mono text-blue-300 opacity-80">${formatBrl.format(cirUnit)}</td>
-                            <td class="p-2 text-right font-mono font-bold text-blue-300">${formatBrl.format(cirTot)}</td>
+                        <tr class="border-b border-dashed border-gray-600/30 bg-purple-500/5 text-[0.8rem]">
+                            <td class="p-2 pl-8 text-blue-400"><i class="fas fa-angle-right mr-2"></i>↳ Cirurgião (70%)</td>
+                            <td class="p-2 text-right font-mono text-blue-400 opacity-80">${formatBrl.format(cirUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold text-blue-400">${formatBrl.format(cirTot)}</td>
                         </tr>
-                        <tr class="border-b border-white/5 bg-purple-500/5 text-[0.8rem]">
-                            <td class="p-2 pl-8 text-purple-300"><i class="fas fa-angle-right mr-2"></i>↳ Anestesista (30%)</td>
-                            <td class="p-2 text-right font-mono text-purple-300 opacity-80">${formatBrl.format(aneUnit)}</td>
-                            <td class="p-2 text-right font-mono font-bold text-purple-300">${formatBrl.format(aneTot)}</td>
+                        <tr class="border-b border-gray-600/30 bg-purple-500/5 text-[0.8rem]">
+                            <td class="p-2 pl-8 text-purple-400"><i class="fas fa-angle-right mr-2"></i>↳ Anestesista (30%)</td>
+                            <td class="p-2 text-right font-mono text-purple-400 opacity-80">${formatBrl.format(aneUnit)}</td>
+                            <td class="p-2 text-right font-mono font-bold text-purple-400">${formatBrl.format(aneTot)}</td>
                         </tr>
                 `;
             }
@@ -558,25 +596,34 @@
         }
 
         // ===============================================
+        // FUNÇÃO QUE BURRLA O LIMITE DE 1000 LINHAS
+        // ===============================================
+        async function fetchAllData(table, selectFields = '*') {
+            let results = [];
+            let from = 0;
+            const step = 1000;
+            while(true) {
+                const { data, error } = await client.from(table).select(selectFields).range(from, from + step - 1);
+                if(error) throw error;
+                if(!data || data.length === 0) break;
+                results = results.concat(data);
+                if(data.length < step) break;
+                from += step;
+            }
+            return results;
+        }
+
+        // ===============================================
         // CÁLCULOS E CRUZAMENTO OFICIAL
         // ===============================================
         async function carregarDadosContrato() {
             try {
-                const { data: prodData, error: err1 } = await client.from('tb_producao_sus').select('*');
-                if(err1) throw err1;
-
-                const { data: contratoData, error: err2 } = await client.from('tabela_contrato_mt2026').select('*');
-                if(err2) throw err2;
+                const prodData = await fetchAllData('tb_producao_sus');
+                const contratoData = await fetchAllData('tabela_contrato_mt2026');
 
                 let mapMtOficial = {};
                 try {
-                    let allMtData = [];
-                    let fromMt = 0; let stepMt = 1000; let keepFetchingMt = true;
-                    while (keepFetchingMt) {
-                        const { data: mtData, error: errMt } = await client.from('tabela_sus_mt_2026').select('*').range(fromMt, fromMt + stepMt - 1);
-                        if (mtData && mtData.length > 0) { allMtData = allMtData.concat(mtData); fromMt += stepMt; }
-                        if (!mtData || mtData.length < stepMt) keepFetchingMt = false;
-                    }
+                    const allMtData = await fetchAllData('tabela_sus_mt_2026');
                     if (allMtData.length > 0) {
                         allMtData.forEach(m => {
                             let c = m.codigo || m.codigo_sigtap || m.co_procedimento;
@@ -594,9 +641,16 @@
 
                 let allCodes = Array.from(new Set([...Object.keys(mapProducao), ...Object.keys(mapContrato)]));
                 
-                const { data: sigtapData, error: err3 } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', allCodes);
+                let sigtapData = [];
+                // Baixa Sigtap em lotes para não estourar a URL (filtro IN suporta limitados itens)
+                for (let i = 0; i < allCodes.length; i += 100) {
+                    const batch = allCodes.slice(i, i + 100);
+                    const { data } = await client.from('sigtap_oficial').select('codigo, valor_profissional').in('codigo', batch);
+                    if(data) sigtapData = sigtapData.concat(data);
+                }
+
                 let mapSigtapSp = {};
-                if(sigtapData && !err3) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
+                if(sigtapData) sigtapData.forEach(s => mapSigtapSp[String(s.codigo).padStart(10, '0')] = Number(s.valor_profissional || 0));
 
                 dadosBase = [];
                 
@@ -692,7 +746,6 @@
 
             let impactoGeral = totMT - totValMedio;
 
-            // ATUALIZA KPIs
             $('#kpi-meta').text(new Intl.NumberFormat('pt-BR').format(totMeta));
             $('#kpi-sigtap').text(formatBrl.format(totValMedio));
             $('#kpi-mt').text(formatBrl.format(totMT));
@@ -712,7 +765,6 @@
 
             renderizarGrafico(acumuladoRepasse, acumuladoSobra);
 
-            // MONTAGEM DAS TABELAS
             if ($.fn.DataTable.isDataTable('#tabelaContrato')) $('#tabelaContrato').DataTable().destroy();
             if ($.fn.DataTable.isDataTable('#tabelaRepasses')) $('#tabelaRepasses').DataTable().destroy();
 
@@ -732,7 +784,7 @@
                 },
                 { data: 'meta', className: 'text-center font-bold text-lg' },
                 { 
-                    data: null, className: 'text-right font-mono text-gray-300', 
+                    data: null, className: 'text-right font-mono text-gray-500', 
                     render: function(d, type, row) { 
                         let val = (window.modoExibicao === 'total' && row.meta > 0) ? row.tot_medio_hist : row.val_unit_medio_hist;
                         if(type === 'display') return formatBrl.format(val);
@@ -762,7 +814,7 @@
             ];
 
             const commonColumnsRepasse = [
-                { data: 'codigo', className: 'text-center font-mono font-bold text-cyan-400', render: function(d, type) { if(type === 'display') return `<a href="#" onclick="abrirDetalheRepasse('${d}')" class="hover:text-white underline">${d}</a>`; return d;} },
+                { data: 'codigo', className: 'text-center font-mono font-bold text-cyan-400', render: function(d, type) { if(type === 'display') return `<a href="#" onclick="abrirDetalheRepasse('${d}')" class="hover:text-blue-400 underline">${d}</a>`; return d;} },
                 { 
                     data: 'descricao', className: 'font-semibold td-truncate text-left', 
                     render: function(d, type, row) { 
@@ -792,7 +844,6 @@
                     } 
                 },
                 { 
-                    // COLUNA INVISÍVEL: CIRURGIÃO EXPORT EXCEL
                     data: null, visible: false, 
                     render: function(d, type, row) { 
                         let isTotal = window.modoExibicao === 'total';
@@ -801,7 +852,6 @@
                     } 
                 },
                 { 
-                    // COLUNA INVISÍVEL: ANESTESISTA EXPORT EXCEL
                     data: null, visible: false, 
                     render: function(d, type, row) { 
                         let isTotal = window.modoExibicao === 'total';
@@ -838,11 +888,9 @@
                     text: '<i class="fas fa-file-excel"></i> Exportar Repasses (.xlsx)', 
                     className: 'dt-button', 
                     title: 'Proj_Repasses_MT_2026',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // Inclui colunas invisíveis
-                    }
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] }
                 } ],
-                order: [[ 7, 'desc' ]], // Ordena pela Sobra Hospitalar
+                order: [[ 7, 'desc' ]],
                 pageLength: 25,
                 lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
                 columns: commonColumnsRepasse,
