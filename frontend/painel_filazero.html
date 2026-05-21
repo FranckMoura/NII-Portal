@@ -161,51 +161,39 @@
 
     <div class="px-4">
         
-        <div class="kpi-grid">
-            <div class="kpi-card highlight">
-                <div class="kpi-card-header">
-                    <span class="kpi-title text-yellow-500">Total Fila Zero</span>
-                    <i class="fas fa-users kpi-card-icon text-yellow-500"></i>
-                </div>
-                <div class="kpi-value text-yellow-500" id="kpi-total">0</div>
-                <div class="kpi-desc">PACIENTES ELEGÍVEIS (MÊS)</div>
-            </div>
-            
-            <div class="kpi-card">
-                <div class="kpi-card-header">
-                    <span class="kpi-title text-emerald-400">Procedimentos Mapeados</span>
-                    <i class="fas fa-check-circle kpi-card-icon text-emerald-500"></i>
-                </div>
-                <div class="kpi-value text-emerald-400" id="kpi-mapeados">0</div>
-                <div class="kpi-desc">VINCULADOS À TABELA MT</div>
-            </div>
-            
-            <div class="kpi-card" id="kpi-pendentes-card">
-                <div class="kpi-card-header">
-                    <span class="kpi-title text-red-400">Pendentes / Falhas</span>
-                    <i class="fas fa-exclamation-triangle kpi-card-icon text-red-500"></i>
-                </div>
-                <div class="kpi-value text-red-400" id="kpi-pendentes">0</div>
-                <div class="kpi-desc">REQUEREM REVISÃO MANUAL</div>
-            </div>
-            
-            <div class="kpi-card" style="border-top: 3px solid #38bdf8; display: none;" id="card-faturamento">
-                <div class="kpi-card-header">
-                    <span class="kpi-title text-blue-400">Faturamento Total</span>
-                    <i class="fas fa-dollar-sign kpi-card-icon text-blue-500"></i>
-                </div>
-                <div class="kpi-value text-blue-400" id="kpi-faturamento">R$ 0,00</div>
-                <div class="kpi-desc flex justify-between items-center w-full">
-                    <span>CONTRATO REGULAR</span>
-                    <span class="text-emerald-400 font-bold" id="kpi-faturamento-excedente" title="Receita extra garantida pelo Programa Fila Zero" style="display:none;">Fila Zero: R$ 0,00</span>
-                </div>
-            </div>
-        </div>
-
         <div class="section-container" style="padding: 0; background: transparent; border: none; box-shadow: none;">
             
             <div id="tab-operacional" class="tab-content active">
                 
+                <div class="kpi-grid">
+                    <div class="kpi-card highlight">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-yellow-500">Total Fila Zero</span>
+                            <i class="fas fa-users kpi-card-icon text-yellow-500"></i>
+                        </div>
+                        <div class="kpi-value text-yellow-500" id="kpi-total">0</div>
+                        <div class="kpi-desc">PACIENTES ELEGÍVEIS (MÊS)</div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-emerald-400">Procedimentos Mapeados</span>
+                            <i class="fas fa-check-circle kpi-card-icon text-emerald-500"></i>
+                        </div>
+                        <div class="kpi-value text-emerald-400" id="kpi-mapeados">0</div>
+                        <div class="kpi-desc">VINCULADOS À TABELA MT</div>
+                    </div>
+                    
+                    <div class="kpi-card" id="kpi-pendentes-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-red-400">Pendentes / Falhas</span>
+                            <i class="fas fa-exclamation-triangle kpi-card-icon text-red-500"></i>
+                        </div>
+                        <div class="kpi-value text-red-400" id="kpi-pendentes">0</div>
+                        <div class="kpi-desc">REQUEREM REVISÃO MANUAL</div>
+                    </div>
+                </div>
+
                 <div class="cyber-container" style="padding: 24px; margin-bottom: 24px;">
                     <h2 class="text-lg font-bold mb-4" style="color:var(--text-main);"><i class="fas fa-tasks mr-2 text-emerald-400"></i> Cumprimento de Metas Físicas</h2>
                     <table id="tabelaFisica" class="display" style="width:100%">
@@ -241,7 +229,37 @@
 
             </div>
 
-            <div id="tab-financeiro" class="tab-content" style="display: none;">
+            <div id="tab-financeiro" class="tab-content">
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card" style="border-top: 3px solid #10b981;">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-emerald-400">Faturamento Global (Mês)</span>
+                            <i class="fas fa-dollar-sign kpi-card-icon text-emerald-500"></i>
+                        </div>
+                        <div class="kpi-value text-emerald-400" id="kpi-faturamento-geral">R$ 0,00</div>
+                        <div class="kpi-desc">RECEITA BASE + EXCEDENTE</div>
+                    </div>
+
+                    <div class="kpi-card" style="border-top: 3px solid #3b82f6;">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-blue-400">Faturamento Teto (Base)</span>
+                            <i class="fas fa-file-contract kpi-card-icon text-blue-500"></i>
+                        </div>
+                        <div class="kpi-value text-blue-400" id="kpi-faturamento-base">R$ 0,00</div>
+                        <div class="kpi-desc">CONTRATO REGULAR APROVADO</div>
+                    </div>
+
+                    <div class="kpi-card" style="border-top: 3px solid #f472b6;">
+                        <div class="kpi-card-header">
+                            <span class="kpi-title text-pink-400">Receita Excedente (Extra FZ)</span>
+                            <i class="fas fa-arrow-trend-up kpi-card-icon text-pink-500"></i>
+                        </div>
+                        <div class="kpi-value text-pink-400" id="kpi-faturamento-extra">R$ 0,00</div>
+                        <div class="kpi-desc">PRODUÇÃO ACIMA DA META MENSAL</div>
+                    </div>
+                </div>
+
                 <div class="cyber-container" style="padding: 24px;">
                     <h2 class="text-lg font-bold mb-4" style="color:var(--text-main);"><i class="fas fa-dollar-sign mr-2 text-emerald-400"></i> Relatório Financeiro do Contrato</h2>
                     <table id="tabelaFinanceira" class="display" style="width:100%">
@@ -249,6 +267,7 @@
                             <tr>
                                 <th class="text-center w-24">Código</th>
                                 <th class="text-left">Procedimento Fila Zero</th>
+                                <th class="text-center w-20">Meta Mês</th>
                                 <th class="text-center w-20">Realizado</th>
                                 <th class="text-right">Val. Unitário MT</th>
                                 <th class="text-right text-blue-400">Fat. Base (Teto)</th>
@@ -383,11 +402,8 @@
                     if (perfil && (perfil.nivel_acesso.toUpperCase().includes('DIRETORIA') || perfil.nivel_acesso.toUpperCase().includes('ADMIN'))) { 
                         isDiretoriaOuAdmin = true;
                         $('#btn-tab-financeiro').show();
-                        $('#card-faturamento').css('display', 'flex');
                     } else {
                         $('#btn-tab-financeiro').hide();
-                        $('#tab-financeiro').hide();
-                        $('#card-faturamento').hide();
                     }
                 }
             } catch (error) {
@@ -446,7 +462,6 @@
             try {
                 let allIndicaData = []; let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
-                    // ADICIONADO AIH E COD_SOLICITACAO_SISREG NA CHAMADA
                     const { data: indData, error } = await client.from('indicasus_leitos')
                         .select('nome_paciente, data_internacao, diagnostico, evolucao_clinica, internacao_sus, plano_sus, aih, cod_solicitacao_sisreg')
                         .gte('data_internacao', d1).lte('data_internacao', d2)
@@ -520,6 +535,7 @@
                     }
                 });
 
+                // Atualiza KPIs da Aba Operacional
                 $('#kpi-total').text(dadosPacientes.length);
                 $('#kpi-mapeados').text(qtdMapeados);
                 $('#kpi-pendentes').text(qtdPendentes);
@@ -527,13 +543,35 @@
                 if(qtdPendentes > 0) $('#kpi-pendentes-card').addClass('highlight').css('border-color', 'var(--color-danger)');
                 else $('#kpi-pendentes-card').removeClass('highlight').css('border-color', 'var(--border-color)');
                 
+                // Atualiza KPIs da Aba Financeira (Só renderiza se tiver permissão)
                 if(isDiretoriaOuAdmin) {
-                    $('#kpi-faturamento').text(formatBrl.format(fatAprovadoGerado));
-                    if(fatExcedenteGerado > 0) {
-                        $('#kpi-faturamento-excedente').html(`Fila Zero (Extra): <b>${formatBrl.format(fatExcedenteGerado)}</b>`).show();
-                    } else {
-                        $('#kpi-faturamento-excedente').hide();
-                    }
+                    $('#kpi-faturamento-geral').text(formatBrl.format(fatAprovadoGerado + fatExcedenteGerado));
+                    $('#kpi-faturamento-base').text(formatBrl.format(fatAprovadoGerado));
+                    $('#kpi-faturamento-extra').text(formatBrl.format(fatExcedenteGerado));
+
+                    if ($.fn.DataTable.isDataTable('#tabelaFinanceira')) $('#tabelaFinanceira').DataTable().destroy();
+                    tabelaFinanceira = $('#tabelaFinanceira').DataTable({
+                        data: dadosMetas,
+                        dom: '<"flex justify-between items-center mb-4"lB>rtip',
+                        buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Financeiro', className: 'dt-button' } ],
+                        order: [[ 5, 'desc' ]], pageLength: 25,
+                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                        columns: [
+                            { data: 'codigo', className: 'text-center font-mono font-bold text-gray-400' },
+                            { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { return type==='display' ? `<span title="${d}">${d}</span>` : d; } },
+                            { data: 'meta', className: 'text-center font-bold text-lg text-blue-300' }, 
+                            { data: 'realizado', className: 'text-center font-bold text-lg' },
+                            { data: 'valor_unit', className: 'text-right font-mono text-gray-500', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                            { data: 'faturamento_aprovado', className: 'text-right font-mono font-bold text-blue-400', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                            { 
+                                data: 'faturamento_excedente', className: 'text-right font-mono font-bold',
+                                render: function(d, type) {
+                                    if(type === 'display') return d > 0 ? `<span class="text-emerald-400">+${formatBrl.format(d)}</span>` : `<span class="text-gray-500 opacity-50">-</span>`;
+                                    return d;
+                                }
+                            }
+                        ]
+                    });
                 }
 
                 if ($.fn.DataTable.isDataTable('#tabelaFisica')) $('#tabelaFisica').DataTable().destroy();
@@ -566,31 +604,6 @@
                     ]
                 });
 
-                if(isDiretoriaOuAdmin) {
-                    if ($.fn.DataTable.isDataTable('#tabelaFinanceira')) $('#tabelaFinanceira').DataTable().destroy();
-                    tabelaFinanceira = $('#tabelaFinanceira').DataTable({
-                        data: dadosMetas,
-                        dom: '<"flex justify-between items-center mb-4"lB>rtip',
-                        buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar', className: 'dt-button' } ],
-                        order: [[ 4, 'desc' ]], pageLength: 25,
-                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-                        columns: [
-                            { data: 'codigo', className: 'text-center font-mono font-bold text-gray-400' },
-                            { data: 'descricao', className: 'font-semibold td-truncate text-left', render: function(d, type) { return type==='display' ? `<span title="${d}">${d}</span>` : d; } },
-                            { data: 'realizado', className: 'text-center font-bold text-lg' },
-                            { data: 'valor_unit', className: 'text-right font-mono text-gray-500', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                            { data: 'faturamento_aprovado', className: 'text-right font-mono font-bold text-blue-400', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
-                            { 
-                                data: 'faturamento_excedente', className: 'text-right font-mono font-bold',
-                                render: function(d, type) {
-                                    if(type === 'display') return d > 0 ? `<span class="text-emerald-400">+${formatBrl.format(d)}</span>` : `<span class="text-gray-500 opacity-50">-</span>`;
-                                    return d;
-                                }
-                            }
-                        ]
-                    });
-                }
-
                 if ($.fn.DataTable.isDataTable('#tabelaPacientes')) $('#tabelaPacientes').DataTable().destroy();
                 tabelaPacientes = $('#tabelaPacientes').DataTable({
                     data: dadosPacientes,
@@ -612,7 +625,6 @@
                             }
                         },
                         { 
-                            // RENDERIZAÇÃO MELHORADA PARA EXIBIR AIH E SISREG
                             data: 'aih', 
                             className: 'text-center font-mono text-xs text-gray-500', 
                             render: function(d, type, row) {
