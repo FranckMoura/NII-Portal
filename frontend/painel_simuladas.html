@@ -25,8 +25,8 @@
         /* VARIÁVEIS DE TEMA HERDADAS DO INDEX_V2 (SAAS DESIGN)      */
         /* ========================================================= */
         :root {
-            --bg-body: #0f172a;       
-            --bg-card: #1e293b;       
+            --bg-body: #0f172a;        
+            --bg-card: #1e293b;        
             --bg-hover: #334155;      
             --border-color: #334155;
             --text-main: #f8fafc;     
@@ -41,8 +41,8 @@
         }
 
         body.theme-classic {
-            --bg-body: #f1f5f9;       
-            --bg-card: #ffffff;       
+            --bg-body: #f1f5f9;        
+            --bg-card: #ffffff;        
             --bg-hover: #f8fafc;      
             --border-color: #cbd5e1;  
             --text-main: #0f172a;     
@@ -57,7 +57,7 @@
 
         body { 
             font-family: 'Inter', sans-serif; 
-            background: transparent; /* O Iframe deve ser transparente para herdar do pai, ou usar var(--bg-body) */
+            background: transparent;
             background-color: var(--bg-body);
             color: var(--text-main); 
             padding: 0; margin: 0; min-height: 100vh; padding-bottom: 90px; 
@@ -198,7 +198,6 @@
 </head>
 <body>
 
-    <!-- Modais -->
     <div id="modalAuditoria" class="modal-overlay no-print">
         <div class="modal-content">
             <div class="modal-header">
@@ -265,7 +264,6 @@
 
     <div class="max-w-[98%] mx-auto p-4 pt-0">
 
-        <!-- Novo Cabeçalho Limpo (Estilo SaaS) -->
         <div class="page-header-iframe no-print flex-wrap gap-4">
             <div>
                 <h1 class="page-title">Análise Interativa de Fichas</h1>
@@ -299,11 +297,17 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
                     <div class="card-padrao">
                         <div class="kpi-title"><i class="fas fa-hospital-user mr-1 dyn-text-accent"></i> Total de AIHs</div>
                         <div class="kpi-number" id="kpi-aih" style="color: var(--color-primary);">0</div>
                     </div>
+                    
+                    <div class="card-padrao">
+                        <div class="kpi-title"><i class="fas fa-users mr-1 text-orange-500"></i> Fila Zero</div>
+                        <div class="kpi-number" id="kpi-filazero" style="color: var(--color-warning);">0</div>
+                    </div>
+
                     <div class="card-padrao">
                         <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-500"></i> Faturamento Total</div>
                         <div class="kpi-number" id="kpi-valor" style="color: var(--color-success);">R$ 0,00</div>
@@ -665,6 +669,58 @@ async function carregarDados() {
         const responseJson = await fetch(linkJson);
         dadosIndiceGlobal = await responseJson.json();
 
+// =========================================================
+        // NOVO CÓDIGO: VERIFICAÇÃO DE PACIENTES FILA ZERO (CORREÇÃO DE HÍFEN)
+        // =========================================================
+        loaderText.innerText = "Cruzando dados com Fila Zero...";
+        
+        // 1. Limpa todas as AIHs do JSON, tirando o Hífen e espaços vazios
+        let aihsJSON = dadosIndiceGlobal
+            .map(d => d.AIH ? String(d.AIH).replace(/-/g, '').trim() : null) // <-- A MÁGICA ESTÁ AQUI
+            .filter(aih => aih && aih !== '');
+            
+        let aihsUnicas = [...new Set(aihsJSON)];
+        
+        console.log("🔍 [FILA ZERO] AIHs limpas (sem hífen) prontas para busca:", aihsUnicas.length);
+        
+        let countFilaZero = 0;
+        if(aihsUnicas.length > 0) {
+            let filaZeroEncontradas = new Set();
+            
+            // 2. Consulta em lotes para não sobrecarregar o banco
+            for(let i = 0; i < aihsUnicas.length; i += 100) {
+                let batch = aihsUnicas.slice(i, i + 100);
+                
+                // 3. Trazemos todos que bateram a AIH
+                let { data: fzData, error: fzError } = await client
+                    .from('indicasus_leitos')
+                    .select('aih, nome_paciente, plano_sus')
+                    .in('aih', batch);
+                
+                if (fzError) {
+                    console.error("❌ Erro ao consultar Supabase:", fzError);
+                } else if (fzData) {
+                    // 4. Fazemos a validação do Plano SUS
+                    fzData.forEach(d => {
+                        let plano = d.plano_sus ? String(d.plano_sus).toUpperCase() : "NÃO INFORMADO";
+                        // Limpamos a AIH que vem do banco também, apenas por precaução
+                        let aihBanco = d.aih ? String(d.aih).replace(/-/g, '').trim() : "";
+                        
+                        if (plano.includes("FILA ZERO") && aihBanco) {
+                            filaZeroEncontradas.add(aihBanco);
+                            console.log(`✅ [MATCH] Paciente: ${d.nome_paciente} | AIH: ${aihBanco}`);
+                        }
+                    });
+                }
+            }
+            
+            countFilaZero = filaZeroEncontradas.size;
+            console.log("📊 [FILA ZERO] Total final que cruzou com sucesso:", countFilaZero);
+        }
+        
+        $('#kpi-filazero').text(countFilaZero);
+        // =========================================================
+
         atualizarBI(dadosIndiceGlobal);
 
         $('#tabelaIndice thead tr:eq(0) th').each( function (i) {
@@ -843,7 +899,6 @@ function copyAllPages() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Ao iniciar, puxa o estado da variável guardada pelo parent index_v2.html
     window.toggleTheme();
     inicializarDropdown();
 });
