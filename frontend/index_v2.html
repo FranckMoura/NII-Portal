@@ -451,7 +451,7 @@
                             <div class="kpi-desc" id="kpi-internacoes-sub">Pacientes admitidos</div>
                         </div>
                         
-                        <div class="kpi-card orange" onclick="abrirModulo('painel_simuladas.html', 'simuladas', null, 'Produção AIH (Simuladas)')" title="Ver Contas Faturadas">
+                        <div class="kpi-card orange" onclick="abrirFiltradoFilaZero()" title="Ver Contas Faturadas Fila Zero">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">AIH Fila Zero (Fat)</span>
                                 <i class="fas fa-file-invoice-dollar kpi-card-icon text-orange-500"></i>
@@ -493,10 +493,9 @@
         const cfgLeitos = { uti: 10, utin: 18, ucinco: 4, ucinca: 3 };
 
         // ==========================================
-        // MOTOR SPA (SINGLE PAGE APPLICATION)
+        // MOTOR SPA E FILTROS DIRETOS
         // ==========================================
         function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
-            // Ajusta estado do Menu Lateral
             $('#main-nav .nav-item').removeClass('active');
             if(elMenu && $(elMenu).hasClass('nav-item')) {
                 $(elMenu).addClass('active');
@@ -504,7 +503,6 @@
                 $(elMenu).closest('.nav-item').addClass('active');
             }
 
-            // Descobre o título para colocar na TopBar
             let nomePuro = tituloManual;
             if(!tituloManual && elMenu) {
                 nomePuro = $(elMenu).find('.nav-label').text();
@@ -512,36 +510,28 @@
             if(!nomePuro) nomePuro = "Painel";
 
             $('#top-title').html(`<i class="fas fa-layer-group" style="color:var(--color-primary);"></i> ${nomePuro}`);
-
-            // Esconde o Hub e mostra o Iframe
             $('#view-hub').hide();
             $('#view-iframe').show();
-            
-            // Carrega o conteúdo no iframe
             $('#app-frame').attr('src', arquivoHtml);
-            
-            // Muda a URL de forma elegante
             window.history.pushState({ painel: arquivoHtml, titulo: nomePuro }, '', '?app=' + nomeUrl);
         }
 
+        // Nova Função que injeta a flag no SessionStorage antes de abrir o módulo
+        function abrirFiltradoFilaZero() {
+            sessionStorage.setItem('auto_filter_filazero', 'true');
+            abrirModulo('painel_simuladas.html', 'simuladas', null, 'Produção AIH (Fila Zero)');
+        }
+
         function voltarParaHub() {
-            // Ajusta Menu
             $('#main-nav .nav-item').removeClass('active');
             $('#nav-hub').addClass('active');
-
-            // Retorna título original
             $('#top-title').html('<i class="fas fa-home" style="color:var(--text-muted);"></i> Início');
-
-            // Esconde Iframe, mostra Hub
             $('#view-iframe').hide();
             $('#app-frame').attr('src', ''); 
             $('#view-hub').show();
-            
-            // Limpa a URL
             window.history.pushState({ painel: 'hub' }, '', window.location.pathname);
         }
 
-        // Se o usuário clicar no botão "Voltar" do próprio navegador
         window.onpopstate = function(event) {
             if (event.state && event.state.painel && event.state.painel !== 'hub') {
                 $('#view-hub').hide();
@@ -573,7 +563,6 @@
             const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
             meses.forEach((m, i) => mesSel.append(`<option value="${String(i+1).padStart(2,'0')}">${m}</option>`));
             
-            // FORÇA A DATA ATUAL SEMPRE QUE ABRIR O HUB
             anoSel.val(anoAtual);
             mesSel.val(mesAtual);
             localStorage.setItem('nii_competencia_ano', anoAtual);
@@ -597,8 +586,6 @@
 
         function renderizarGrafico(labels, values) {
             const ctx = document.getElementById('chartEspecHub').getContext('2d');
-            
-            // Definição de cores distintas para cada barra
             let coresBarras = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
 
             if(window.chartEspecInstance) window.chartEspecInstance.destroy();
@@ -607,27 +594,19 @@
                 data: {
                     labels: labels,
                     datasets: [{ 
-                        data: values, 
-                        backgroundColor: coresBarras, 
-                        borderRadius: 6, 
-                        categoryPercentage: 0.9, 
-                        barPercentage: 0.9 
+                        data: values, backgroundColor: coresBarras, borderRadius: 6, 
+                        categoryPercentage: 0.9, barPercentage: 0.9 
                     }]
                 },
                 options: {
-                    indexAxis: 'x', 
-                    maintainAspectRatio: false,
+                    indexAxis: 'x', maintainAspectRatio: false,
                     layout: { padding: { right: 0, left: 0, top: 15, bottom: 0 } },
                     plugins: { legend: { display: false }, tooltip: { enabled: false } },
                     scales: { 
                         y: { display: false, suggestedMax: Math.max(...values, 1) * 1.3 }, 
                         x: { 
-                            ticks: { 
-                                color: document.body.classList.contains('theme-classic') ? '#64748b' : '#94a3b8', 
-                                font: { size: 9, weight: 'bold' } 
-                            }, 
-                            grid: { display: false }, 
-                            border: {display: false} 
+                            ticks: { color: document.body.classList.contains('theme-classic') ? '#64748b' : '#94a3b8', font: { size: 9, weight: 'bold' } }, 
+                            grid: { display: false }, border: {display: false} 
                         } 
                     }
                 },
@@ -656,11 +635,8 @@
                 window.chartEspecInstance.update();
             }
             
-            // Troca o tema do iframe se estiver aberto
             const iframeWin = document.getElementById('app-frame').contentWindow;
-            if (iframeWin && typeof iframeWin.toggleTheme === 'function') {
-                iframeWin.toggleTheme();
-            }
+            if (iframeWin && typeof iframeWin.toggleTheme === 'function') { iframeWin.toggleTheme(); }
         }
 
         async function carregarResumoCentral() {
@@ -687,7 +663,6 @@
 
                 $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero-censo, #kpi-aih-filazero, #kpi-internacoes, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-circle-notch fa-spin text-sm"></i>');
 
-                // 1. AIHs & Faturamento Fila Zero
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
                 let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
 
@@ -706,9 +681,6 @@
                     
                     $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(Object.keys(aihMap).length));
 
-                    // ==========================================
-                    // CRUZAMENTO: AIHS FILA ZERO NO JSON
-                    // ==========================================
                     let aihsJSON = dadosFichas
                         .map(d => d.AIH ? String(d.AIH).replace(/-/g, '').trim() : null)
                         .filter(aih => aih && aih !== '');
@@ -720,10 +692,7 @@
                         let filaZeroEncontradas = new Set();
                         for(let i = 0; i < aihsUnicas.length; i += 100) {
                             let batch = aihsUnicas.slice(i, i + 100);
-                            let { data: fzData } = await client
-                                .from('indicasus_leitos')
-                                .select('aih, plano_sus')
-                                .in('aih', batch);
+                            let { data: fzData } = await client.from('indicasus_leitos').select('aih, plano_sus').in('aih', batch);
                             
                             if (fzData) {
                                 fzData.forEach(d => {
@@ -738,23 +707,18 @@
                         countFilaZeroFat = filaZeroEncontradas.size;
                     }
                     $('#kpi-aih-filazero').text(countFilaZeroFat);
-                    // ==========================================
 
                     let especMap = {};
                     Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
-                    
-                    // Ordena por volume para mostrar os top 4
                     let arrEspec = Object.keys(especMap).map(k => ({nome: k, qtd: especMap[k]})).sort((a,b) => b.qtd - a.qtd).slice(0, 4);
                     renderizarGrafico(arrEspec.map(x => x.nome), arrEspec.map(x => x.qtd));
                 } else {
-                    $('#kpi-aih-real').text('0');
-                    $('#kpi-aih-filazero').text('0');
+                    $('#kpi-aih-real').text('0'); $('#kpi-aih-filazero').text('0');
                     if(window.chartEspecInstance) {
                         window.chartEspecInstance.data.labels = []; window.chartEspecInstance.data.datasets[0].data = []; window.chartEspecInstance.update();
                     }
                 }
 
-                // 2. SISREG
                 let allSisregData = []; let fromS = 0; let stepS = 1000;
                 while (true) {
                     const { data } = await client.from('regulacao').select('status, carater_internacao').gte('data_solicitacao', d1).lte('data_solicitacao', d2).range(fromS, fromS + stepS - 1);
@@ -767,7 +731,6 @@
                 }).length;
                 $('#kpi-sisreg').text(pUrg);
 
-                // 3. IndicaSUS
                 let allIndicaData = []; let fromI = 0; let stepI = 1000;
                 while (true) {
                     const { data } = await client.from('indicasus_leitos').select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, plano_sus').gte('data_extracao', d1).lte('data_extracao', d2).range(fromI, fromI + stepI - 1);
@@ -801,7 +764,6 @@
                 $('#taxa-ucinco').text(ocup.ucinco); $('#meta-ucinco').html(`Ocup: <b>${Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalc))*100)}%</b>`);
                 $('#taxa-ucinca').text(ocup.ucinca); $('#meta-ucinca').html(`Ocup: <b>${Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalc))*100)}%</b>`);
 
-                // 3.5 Fila Zero (Cálculo independente fiel ao Painel Fila Zero)
                 let allFzData = []; let fromFz = 0; let stepFz = 1000;
                 while (true) {
                     const { data } = await client.from('indicasus_leitos')
@@ -816,7 +778,6 @@
                 allFzData.forEach(d => { mapFz[d.nome_paciente + "_" + d.data_internacao] = true; });
                 $('#kpi-fila-zero-censo').text(Object.keys(mapFz).length);
 
-                // 4. Internações
                 const { count } = await client.from('cirurgias_detalhe').select('*', { count: 'exact', head: true }).gte('data_cirurgia', d1).lte('data_cirurgia', d2).in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
                 $('#kpi-internacoes').text(count || 0);
 
@@ -833,10 +794,7 @@
             }
             
             const savedTheme = localStorage.getItem('nii_theme_hub');
-            if (savedTheme === 'classic') { 
-                document.body.classList.add('theme-classic'); 
-                document.getElementById('theme-icon').className = 'fas fa-moon'; 
-            }
+            if (savedTheme === 'classic') { document.body.classList.add('theme-classic'); document.getElementById('theme-icon').className = 'fas fa-moon'; }
             
             setupAnoMes(); 
             carregarResumoCentral(); 

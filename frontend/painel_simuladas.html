@@ -64,24 +64,13 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Loading */
         .loading { display: flex; justify-content: center; align-items: center; height: 300px; font-size: 1.2rem; color: var(--text-muted); font-weight: bold; flex-direction: column; gap: 15px; }
 
-        /* Estilo SaaS de Cards (Substitui os painéis Cyberpunk/Vidro) */
-        .card-padrao {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-default);
-            padding: 20px;
-            box-shadow: var(--shadow-card);
-            transition: all 0.3s ease;
-        }
-        
+        .card-padrao { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-default); padding: 20px; box-shadow: var(--shadow-card); transition: all 0.3s ease; }
         .kpi-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; }
         .kpi-number { font-size: 2.2rem; font-weight: 800; line-height: 1.1; color: var(--text-main); }
         .glass-chart-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
 
-        /* ABAS */
         .tab-btn { padding: 12px 24px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; color: var(--text-muted); background: transparent; outline: none; }
         .tab-btn:hover { color: var(--text-main); }
         .tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
@@ -89,7 +78,6 @@
         .tab-content.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Classes Dinâmicas de Texto e Badges */
         .dyn-text-primary { color: var(--text-main); }
         .dyn-text-secondary { color: var(--text-muted); } 
         .dyn-text-muted { color: var(--text-muted); } 
@@ -100,37 +88,24 @@
         .dyn-badge-sai { background-color: rgba(248, 113, 113, 0.1); color: var(--color-danger); border-color: rgba(248, 113, 113, 0.2); }
         .dyn-badge-cod { background-color: rgba(56, 189, 248, 0.1); color: var(--color-primary); }
         
-        /* Nova classe de linha impressa/lida */
         .row-printed { opacity: 0.5; background-color: var(--bg-hover) !important; text-decoration: line-through; }
 
-        /* Estilo para Select Personalizado no Cabeçalho da Tabela */
-        .custom-filter-select { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; outline: none; margin-left: 15px; }
+        .custom-filter-select { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; outline: none; margin-left: 5px; }
 
-        /* ========================================================= */
-        /* DATATABLES - COMPATÍVEL COM AMBOS OS TEMAS                */
-        /* ========================================================= */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
         table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 10px 8px !important; white-space: nowrap; font-weight: 700; border: none !important; background-color: var(--bg-hover) !important; color: var(--text-muted) !important; }
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 8px !important; color: var(--text-main) !important; border-bottom: 1px solid var(--border-color); }
         table.dataTable tbody tr { background-color: transparent !important; transition: all 0.2s; }
         table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
         
-        .dataTables_wrapper .dataTables_length, 
-        .dataTables_wrapper .dataTables_filter, 
-        .dataTables_wrapper .dataTables_info, 
-        .dataTables_wrapper .dataTables_paginate { color: var(--text-muted) !important; margin-top: 10px;}
-        
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: var(--text-muted) !important; margin-top: 10px;}
         .dataTables_wrapper .dataTables_paginate .paginate_button { color: var(--text-muted) !important; border-radius: 6px !important;}
         .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important; }
         
         .search-input { width: 100%; padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-color); outline: none; margin-top: 5px; }
-        
         .dt-button { background: var(--bg-card) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 12px !important; font-weight: bold !important; font-size: 0.75rem !important; margin-right: 5px !important; transition: 0.2s; }
         .dt-button:hover { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important; }
 
-        /* ========================================================= */
-        /* MODAIS E BOTÕES                                           */
-        /* ========================================================= */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; transition: 0.3s; }
         .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 95%; max-width: 950px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow: hidden; animation: popIn 0.3s; color: var(--text-main);}
         .modal-header { background: var(--bg-hover); border-bottom: 1px solid var(--border-color); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
@@ -148,7 +123,6 @@
         .btn-check { background: #64748b; } .btn-check:hover { background: #475569; }
         .btn-checked { background: #10b981; } .btn-checked:hover { background: #059669; }
 
-        /* Cores Auxiliares Modal */
         .bg-blue-50-dark { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); }
         .bg-green-50-dark { background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2); }
         .text-blue-900-dark { color: var(--text-main); }
@@ -164,7 +138,6 @@
         .btn-copy { background: var(--color-primary); color: white; border: none; padding: 8px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copy:hover { transform: scale(1.05); }
 
-        /* Ajustes Estruturais Cabecalho e Filtro */
         .page-header-iframe { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; padding-top: 10px;}
         .page-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
         .page-desc { font-size: 0.85rem; color: var(--text-muted); }
@@ -175,18 +148,14 @@
         @media print {
             body.printing-modal > *:not(#modalAuditoria) { display: none !important; }
             body.printing-modal { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
-            
             body.printing-modal #modalAuditoria { position: static !important; display: block !important; background: white !important; padding: 0 !important; }
             body.printing-modal .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; transform: none !important; animation: none !important; max-height: none !important; background: white !important; color: black !important; }
             body.printing-modal .modal-header { background: white !important; border-bottom: 2px solid #cbd5e1 !important; padding: 10px 0 20px 0 !important; }
             body.printing-modal .no-print-btn { display: none !important; }
             body.printing-modal .modal-body { overflow: visible !important; padding: 20px 0 !important; background: white !important; }
-            
-            body.printing-modal .dyn-text-primary { color: black !important; }
+            body.printing-modal .dyn-text-primary, body.printing-modal .dyn-text-accent { color: black !important; }
             body.printing-modal .dyn-text-secondary, body.printing-modal .dyn-text-muted { color: #475569 !important; }
-            body.printing-modal .dyn-text-accent { color: black !important; }
             body.printing-modal .text-green-700-dark { color: black !important; font-size: 20pt !important; text-shadow: none !important; }
-            
             body.printing-modal .dyn-badge-aih { background: #f1f5f9 !important; color: black !important; border: 1px solid #cbd5e1 !important; }
             body.printing-modal .dyn-badge-int, body.printing-modal .dyn-badge-sai, body.printing-modal .dyn-badge-cod { background: transparent !important; color: black !important; border: none !important; }
             body.printing-modal .bg-blue-50-dark, body.printing-modal .bg-green-50-dark { background: white !important; border: 1px solid #cbd5e1 !important; }
@@ -302,12 +271,10 @@
                         <div class="kpi-title"><i class="fas fa-hospital-user mr-1 dyn-text-accent"></i> Total de AIHs</div>
                         <div class="kpi-number" id="kpi-aih" style="color: var(--color-primary);">0</div>
                     </div>
-                    
                     <div class="card-padrao">
                         <div class="kpi-title"><i class="fas fa-users mr-1 text-orange-500"></i> Fila Zero</div>
                         <div class="kpi-number" id="kpi-filazero" style="color: var(--color-warning);">0</div>
                     </div>
-
                     <div class="card-padrao">
                         <div class="kpi-title"><i class="fas fa-file-invoice-dollar mr-1 text-emerald-500"></i> Faturamento Total</div>
                         <div class="kpi-number" id="kpi-valor" style="color: var(--color-success);">R$ 0,00</div>
@@ -337,15 +304,27 @@
 
         <div id="aba-indice" class="tab-content active w-full" style="opacity:0;">
             <div class="card-padrao">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
                     <h3 class="font-bold text-lg dyn-text-primary"><i class="fas fa-list mr-2 dyn-text-accent"></i> Tabela de Fichas (Espelhos)</h3>
-                    <div>
-                        <span class="text-sm font-bold uppercase dyn-text-muted mr-2"><i class="fas fa-filter"></i> Status de Impressão:</span>
-                        <select id="filtroImpressao" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
-                            <option value="todos">Mostrar Todas</option>
-                            <option value="pendentes">Apenas PENDENTES</option>
-                            <option value="impressas">Apenas LIDADAS/IMPRESSAS</option>
-                        </select>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        
+                        <div>
+                            <span class="text-[0.7rem] font-bold uppercase dyn-text-muted"><i class="fas fa-users"></i> Programa:</span>
+                            <select id="filtroPrograma" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
+                                <option value="todos">Todos os Pacientes</option>
+                                <option value="filazero">Apenas Fila Zero</option>
+                            </select>
+                        </div>
+
+                        <div class="pl-4 border-l border-gray-600/50">
+                            <span class="text-[0.7rem] font-bold uppercase dyn-text-muted"><i class="fas fa-print"></i> Impressão:</span>
+                            <select id="filtroImpressao" onchange="aplicarFiltroImpressao()" class="custom-filter-select">
+                                <option value="todos">Mostrar Todas</option>
+                                <option value="pendentes">Apenas PENDENTES</option>
+                                <option value="impressas">Apenas LIDADAS/IMPRESSAS</option>
+                            </select>
+                        </div>
+                        
                     </div>
                 </div>
 
@@ -398,36 +377,28 @@ let chartEspecObj = null;
 let chartProcObj = null;
 let mesCorrenteStorageKey = ""; 
 
+// NOVO: Array global para armazenar as AIHs cruzadas
+let aihsFilaZeroGlobal = []; 
+
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-// ==========================================
-// FUNÇÃO EXPOSTA PARA O INDEX_V2 (PAI)
-// ==========================================
 window.toggleTheme = function() {
     const body = document.body;
-    // O hub salva na chave 'nii_theme_hub'
     const savedThemeHub = localStorage.getItem('nii_theme_hub');
-    
-    if (savedThemeHub === 'classic') {
-        body.classList.add('theme-classic');
-    } else {
-        body.classList.remove('theme-classic');
-    }
-    
+    if (savedThemeHub === 'classic') { body.classList.add('theme-classic'); } 
+    else { body.classList.remove('theme-classic'); }
     if (dadosIndiceGlobal.length > 0) atualizarBI(dadosIndiceGlobal);
 };
 
 const alwaysShowLabels = {
     id: 'alwaysShowLabels',
     afterDatasetsDraw(chart, args, pluginOptions) {
-        const { ctx, data } = chart;
-        ctx.save();
+        const { ctx, data } = chart; ctx.save();
         chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
             const value = data.datasets[0].data[index];
             ctx.font = 'bold 12px Inter';
             ctx.fillStyle = document.body.classList.contains('theme-classic') ? '#0f172a' : '#ffffff';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText(value, datapoint.x + 5, datapoint.y);
         });
         ctx.restore();
@@ -437,10 +408,8 @@ const alwaysShowLabels = {
 function mudarAba(nomeAba) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    
     document.getElementById('aba-' + nomeAba).classList.add('active');
     document.getElementById('btn-' + nomeAba).classList.add('active');
-
     if(nomeAba === 'indice') {
         $('#barra-impressao').fadeIn();
         if(dtIndice) dtIndice.columns.adjust();
@@ -452,35 +421,21 @@ function mudarAba(nomeAba) {
 async function inicializarDropdown() {
     const select = $('#filtroCompetencia');
     select.empty();
-    
     const { data, error } = await client.from('controle_simuladas').select('*');
-    
     if(data && data.length > 0) {
         let dadosValidos = data.filter(arq => arq.competencia_arquivo && arq.competencia_arquivo !== 'null');
-
         dadosValidos.sort((a, b) => {
-            let [mesA, anoA] = a.competencia_arquivo.split('/');
-            let [mesB, anoB] = b.competencia_arquivo.split('/');
-            anoA = parseInt(anoA); mesA = parseInt(mesA);
-            anoB = parseInt(anoB); mesB = parseInt(mesB);
-            
-            if (anoA !== anoB) return anoB - anoA; 
-            else return mesB - mesA; 
+            let [mesA, anoA] = a.competencia_arquivo.split('/'); let [mesB, anoB] = b.competencia_arquivo.split('/');
+            if (parseInt(anoA) !== parseInt(anoB)) return parseInt(anoB) - parseInt(anoA); 
+            else return parseInt(mesB) - parseInt(mesA); 
         });
-
         if (dadosValidos.length > 0) {
             dadosValidos.forEach(arq => {
                 let val = JSON.stringify({ comp: arq.competencia_arquivo, pdf: arq.link_pdf, json: arq.link_indice });
                 select.append(`<option value='${val}'>${arq.competencia_arquivo}</option>`);
             });
             carregarDados(); 
-        } else {
-            select.append(`<option value="">Nenhum dado válido</option>`);
-            $('#loading-text').text("Nenhuma competência válida encontrada.");
         }
-    } else {
-        select.append(`<option value="">Nenhum dado encontrado</option>`);
-        $('#loading-text').text("Nenhuma competência processada ainda.");
     }
 }
 
@@ -490,17 +445,10 @@ function parseMoeda(str) {
 }
 
 function atualizarBI(data) {
-    let totalProcs = 0;
-    let valorTotal = 0;
-    let procMap = {};
-    let aihMap = {}; 
-
+    let totalProcs = 0; let valorTotal = 0; let procMap = {}; let aihMap = {}; 
     data.forEach(d => {
         totalProcs += d.procedimentos ? d.procedimentos.length : 0;
-        
-        let vTotal = parseMoeda(d.valor_total);
-        valorTotal += vTotal;
-
+        valorTotal += parseMoeda(d.valor_total);
         let aih = d.AIH && d.AIH.trim() !== '-' ? d.AIH.trim() : null;
         if (aih) {
             if (!aihMap[aih]) {
@@ -509,106 +457,47 @@ function atualizarBI(data) {
                 aihMap[aih] = { especialidade: esp };
             }
         }
-
         if (d.procedimentos) {
             d.procedimentos.forEach(p => {
                 let nomeProc = p.descricao || "NÃO INFORMADO";
                 nomeProc = nomeProc.length > 25 ? nomeProc.substring(0,25) + '...' : nomeProc;
-                let qtd = parseInt(p.qtde) || 1;
-                procMap[nomeProc] = (procMap[nomeProc] || 0) + qtd;
+                procMap[nomeProc] = (procMap[nomeProc] || 0) + (parseInt(p.qtde) || 1);
             });
         }
     });
 
     let totalAih = Object.keys(aihMap).length;
+    let especMap = {}; Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
 
-    let especMap = {};
-    Object.values(aihMap).forEach(info => {
-        especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1;
-    });
+    $('#kpi-aih').text(totalAih); $('#kpi-procs').text(totalProcs); $('#kpi-valor').text(brl.format(valorTotal)); $('#kpi-ticket').text(brl.format(totalAih > 0 ? valorTotal / totalAih : 0));
 
-    $('#kpi-aih').text(totalAih);
-    $('#kpi-procs').text(totalProcs);
-    $('#kpi-valor').text(brl.format(valorTotal));
-    $('#kpi-ticket').text(brl.format(totalAih > 0 ? valorTotal / totalAih : 0));
-
-    let arrEspec = [];
-    for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]});
-    arrEspec.sort((a,b) => b.qtd - a.qtd);
-
+    let arrEspec = []; for(let k in especMap) arrEspec.push({nome: k, qtd: especMap[k]}); arrEspec.sort((a,b) => b.qtd - a.qtd);
     let isClassic = document.body.classList.contains('theme-classic');
     Chart.defaults.color = isClassic ? '#64748b' : 'rgba(255,255,255,0.7)'; 
 
     if(chartEspecObj) chartEspecObj.destroy();
     chartEspecObj = new Chart(document.getElementById('chartEspec').getContext('2d'), {
         type: 'bar',
-        data: {
-            labels: arrEspec.map(x => x.nome),
-            datasets: [{ 
-                label: 'Qtd. de AIHs', 
-                data: arrEspec.map(x => x.qtd), 
-                backgroundColor: isClassic ? '#0ea5e9' : 'rgba(56, 189, 248, 0.8)',
-                borderRadius: 4
-            }]
-        },
-        options: { 
-            indexAxis: 'y', 
-            maintainAspectRatio: false,
-            layout: { padding: { right: 40 } },
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { display: false }, 
-                y: { grid: { display: false }, border: {display: false} }
-            }
-        },
+        data: { labels: arrEspec.map(x => x.nome), datasets: [{ data: arrEspec.map(x => x.qtd), backgroundColor: isClassic ? '#0ea5e9' : 'rgba(56, 189, 248, 0.8)', borderRadius: 4 }] },
+        options: { indexAxis: 'y', maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false }, border: {display: false} } } },
         plugins: [alwaysShowLabels]
     });
 
-    let arrProcs = [];
-    for(let k in procMap) arrProcs.push({nome: k, qtd: procMap[k]});
-    arrProcs.sort((a,b) => b.qtd - a.qtd);
-    let top10 = arrProcs.slice(0, 10);
-
+    let arrProcs = []; for(let k in procMap) arrProcs.push({nome: k, qtd: procMap[k]}); arrProcs.sort((a,b) => b.qtd - a.qtd);
     if(chartProcObj) chartProcObj.destroy();
     chartProcObj = new Chart(document.getElementById('chartProc').getContext('2d'), {
         type: 'bar',
-        data: {
-            labels: top10.map(x => x.nome),
-            datasets: [{ 
-                label: 'Qtd. Lançada', 
-                data: top10.map(x => x.qtd), 
-                backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.8)',
-                borderRadius: 4
-            }]
-        },
-        options: { 
-            indexAxis: 'y', 
-            maintainAspectRatio: false, 
-            layout: { padding: { right: 40 } },
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { display: false },
-                y: { grid: { display: false }, border: {display: false} }
-            }
-        },
+        data: { labels: arrProcs.slice(0, 10).map(x => x.nome), datasets: [{ data: arrProcs.slice(0, 10).map(x => x.qtd), backgroundColor: isClassic ? '#8b5cf6' : 'rgba(192, 132, 252, 0.8)', borderRadius: 4 }] },
+        options: { indexAxis: 'y', maintainAspectRatio: false, layout: { padding: { right: 40 } }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { display: false }, border: {display: false} } } },
         plugins: [alwaysShowLabels]
     });
 }
 
-function getAihsLidas() {
-    let mem = localStorage.getItem(mesCorrenteStorageKey);
-    return mem ? JSON.parse(mem) : [];
-}
-
-function salvarAihsLidas(arrayAihs) {
-    localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayAihs));
-}
+function getAihsLidas() { let mem = localStorage.getItem(mesCorrenteStorageKey); return mem ? JSON.parse(mem) : []; }
+function salvarAihsLidas(arrayAihs) { localStorage.setItem(mesCorrenteStorageKey, JSON.stringify(arrayAihs)); }
 
 function toggleLeitura(chaveUnica, btnElement) {
-    let lidas = getAihsLidas();
-    let isLido = lidas.includes(chaveUnica);
-    let tr = $(btnElement).closest('tr');
-
+    let lidas = getAihsLidas(); let isLido = lidas.includes(chaveUnica); let tr = $(btnElement).closest('tr');
     if (isLido) {
         lidas = lidas.filter(c => c !== chaveUnica);
         $(btnElement).removeClass('btn-checked').addClass('btn-check').html('<i class="fas fa-check-circle"></i>');
@@ -618,108 +507,80 @@ function toggleLeitura(chaveUnica, btnElement) {
         $(btnElement).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
         tr.addClass('row-printed');
     }
-    salvarAihsLidas(lidas);
-    aplicarFiltroImpressao(); 
+    salvarAihsLidas(lidas); aplicarFiltroImpressao(); 
 }
 
+// =======================================================
+// DATATABLES: NOVO MOTOR DE PESQUISA COM O FILA ZERO
+// =======================================================
 $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     if (settings.nTable.id !== 'tabelaIndice') return true;
     
-    let filtroValue = $('#filtroImpressao').val();
-    if (filtroValue === 'todos') return true;
+    let rowData = dadosIndiceGlobal[dataIndex];
+    let aihOriginal = rowData.AIH;
+    let aihLimpa = aihOriginal ? String(aihOriginal).replace(/-/g, '').trim() : '';
+    let chaveDaLinha = (aihOriginal && aihOriginal.trim() !== '-' && aihOriginal.trim() !== '') ? aihOriginal.trim() : 'PAG_' + rowData.PAGINA;
 
-    let lidas = getAihsLidas();
-    let aihOriginal = dadosIndiceGlobal[dataIndex].AIH;
-    let pagOriginal = dadosIndiceGlobal[dataIndex].PAGINA;
-    let chaveDaLinha = (aihOriginal && aihOriginal.trim() !== '-' && aihOriginal.trim() !== '') ? aihOriginal.trim() : 'PAG_' + pagOriginal;
-
-    if (filtroValue === 'pendentes') {
-        return !lidas.includes(chaveDaLinha); 
-    } else if (filtroValue === 'impressas') {
-        return lidas.includes(chaveDaLinha); 
+    // 1. APLICA FILTRO DO PROGRAMA
+    let filtroProg = $('#filtroPrograma').val();
+    if (filtroProg === 'filazero') {
+        if (!aihsFilaZeroGlobal.includes(aihLimpa)) return false; // Bloqueia se não for fila zero
     }
+
+    // 2. APLICA FILTRO DE IMPRESSÃO
+    let filtroValue = $('#filtroImpressao').val();
+    if (filtroValue !== 'todos') {
+        let lidas = getAihsLidas();
+        if (filtroValue === 'pendentes' && lidas.includes(chaveDaLinha)) return false; 
+        else if (filtroValue === 'impressas' && !lidas.includes(chaveDaLinha)) return false; 
+    }
+
     return true;
 });
 
-function aplicarFiltroImpressao() {
-    if(dtIndice) dtIndice.draw();
-}
+function aplicarFiltroImpressao() { if(dtIndice) dtIndice.draw(); }
 
 async function carregarDados() {
     const jsonStr = document.getElementById('filtroCompetencia').value;
     if(!jsonStr) return;
-
     const infos = JSON.parse(jsonStr);
-    const competencia = infos.comp;
     linkPdfAtual = infos.pdf;
-    const linkJson = infos.json;
-    
-    mesCorrenteStorageKey = "nii_lidas_aih_" + competencia;
+    mesCorrenteStorageKey = "nii_lidas_aih_" + infos.comp;
 
     const loaderText = document.getElementById('loading-text');
     const loader = document.getElementById('loader');
     
-    loader.style.display = 'flex';
-    document.getElementById('aba-indice').style.opacity = '0';
-    
+    loader.style.display = 'flex'; document.getElementById('aba-indice').style.opacity = '0';
     if(dtIndice) { dtIndice.destroy(); $('#tabelaIndice tbody').empty(); $('#tabelaIndice thead .table-search').empty(); }
     
     try {
         loaderText.innerText = "Lendo Índice Interativo (JSON)...";
-        const responseJson = await fetch(linkJson);
-        dadosIndiceGlobal = await responseJson.json();
+        dadosIndiceGlobal = await (await fetch(infos.json)).json();
 
-// =========================================================
-        // NOVO CÓDIGO: VERIFICAÇÃO DE PACIENTES FILA ZERO (CORREÇÃO DE HÍFEN)
-        // =========================================================
+        // Cruzamento Fila Zero
         loaderText.innerText = "Cruzando dados com Fila Zero...";
+        aihsFilaZeroGlobal = []; // Limpa o array global ao carregar
         
-        // 1. Limpa todas as AIHs do JSON, tirando o Hífen e espaços vazios
-        let aihsJSON = dadosIndiceGlobal
-            .map(d => d.AIH ? String(d.AIH).replace(/-/g, '').trim() : null) // <-- A MÁGICA ESTÁ AQUI
-            .filter(aih => aih && aih !== '');
-            
+        let aihsJSON = dadosIndiceGlobal.map(d => d.AIH ? String(d.AIH).replace(/-/g, '').trim() : null).filter(aih => aih && aih !== '');
         let aihsUnicas = [...new Set(aihsJSON)];
         
-        console.log("🔍 [FILA ZERO] AIHs limpas (sem hífen) prontas para busca:", aihsUnicas.length);
-        
-        let countFilaZero = 0;
         if(aihsUnicas.length > 0) {
             let filaZeroEncontradas = new Set();
-            
-            // 2. Consulta em lotes para não sobrecarregar o banco
             for(let i = 0; i < aihsUnicas.length; i += 100) {
-                let batch = aihsUnicas.slice(i, i + 100);
-                
-                // 3. Trazemos todos que bateram a AIH
-                let { data: fzData, error: fzError } = await client
-                    .from('indicasus_leitos')
-                    .select('aih, nome_paciente, plano_sus')
-                    .in('aih', batch);
-                
-                if (fzError) {
-                    console.error("❌ Erro ao consultar Supabase:", fzError);
-                } else if (fzData) {
-                    // 4. Fazemos a validação do Plano SUS
+                let { data: fzData } = await client.from('indicasus_leitos').select('aih, plano_sus').in('aih', aihsUnicas.slice(i, i + 100));
+                if (fzData) {
                     fzData.forEach(d => {
-                        let plano = d.plano_sus ? String(d.plano_sus).toUpperCase() : "NÃO INFORMADO";
-                        // Limpamos a AIH que vem do banco também, apenas por precaução
+                        let plano = d.plano_sus ? String(d.plano_sus).toUpperCase() : "";
                         let aihBanco = d.aih ? String(d.aih).replace(/-/g, '').trim() : "";
-                        
                         if (plano.includes("FILA ZERO") && aihBanco) {
                             filaZeroEncontradas.add(aihBanco);
-                            console.log(`✅ [MATCH] Paciente: ${d.nome_paciente} | AIH: ${aihBanco}`);
                         }
                     });
                 }
             }
-            
-            countFilaZero = filaZeroEncontradas.size;
-            console.log("📊 [FILA ZERO] Total final que cruzou com sucesso:", countFilaZero);
+            aihsFilaZeroGlobal = Array.from(filaZeroEncontradas); // Salva para o Filtro da Tabela
         }
-        
-        $('#kpi-filazero').text(countFilaZero);
-        // =========================================================
+        $('#kpi-filazero').text(aihsFilaZeroGlobal.length);
 
         atualizarBI(dadosIndiceGlobal);
 
@@ -731,20 +592,12 @@ async function carregarDados() {
         let lidasIniciais = getAihsLidas();
 
         dtIndice = $('#tabelaIndice').DataTable({
-            data: dadosIndiceGlobal,
-            pageLength: 20,
-            dom: 'lBrtip',
-            orderCellsTop: true,
+            data: dadosIndiceGlobal, pageLength: 20, dom: 'lBrtip', orderCellsTop: true,
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
-            buttons: [
-                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' },
-                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' }
-            ],
-            createdRow: function(row, data, dataIndex) {
+            buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'dt-button' }, { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir Tabela', className: 'dt-button' } ],
+            createdRow: function(row, data) {
                 let chaveRow = (data.AIH && data.AIH.trim() !== '-' && data.AIH.trim() !== '') ? data.AIH.trim() : 'PAG_' + data.PAGINA;
-                if (lidasIniciais.includes(chaveRow)) {
-                    $(row).addClass('row-printed');
-                }
+                if (lidasIniciais.includes(chaveRow)) $(row).addClass('row-printed');
             },
             columns: [
                 { data: 'PAGINA', className: 'text-center font-bold dyn-text-accent' },
@@ -759,20 +612,17 @@ async function carregarDados() {
                 {
                     data: null, className: 'text-center no-print w-48', orderable: false,
                     render: function(d, type, row, meta) {
-                        
                         let chaveUnique = (row.AIH && row.AIH.trim() !== '-' && row.AIH.trim() !== '') ? row.AIH.trim() : 'PAG_' + row.PAGINA;
                         let isLida = lidasIniciais.includes(chaveUnique);
                         let btnClasse = isLida ? 'btn-checked' : 'btn-check';
                         let btnText = isLida ? '<i class="fas fa-check-circle"></i> Lida' : '<i class="fas fa-check-circle"></i>';
-
                         return `
                         <div class="flex gap-1 justify-center">
-                            <button id="btn-read-${chaveUnique}" onclick="toggleLeitura('${chaveUnique}', this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada/Impressa">${btnText}</button>
+                            <button id="btn-read-${chaveUnique}" onclick="toggleLeitura('${chaveUnique}', this)" class="btn-action ${btnClasse}" title="Marcar como Visualizada">${btnText}</button>
                             <button onclick="abrirLeitorPdf(${row.PAGINA})" class="btn-action btn-open" title="Visualizar PDF"><i class="fas fa-external-link-alt"></i></button>
                             <button onclick="addPage(${row.PAGINA}, '${chaveUnique}', this)" class="btn-action btn-add" title="Add Fila de Impressão"><i class="fas fa-print"></i></button>
                             <button onclick="abrirModalIndice(${meta.row})" class="btn-action btn-fatura" title="Ver Conta Médica"><i class="fas fa-list-alt"></i></button>
-                        </div>
-                        `;
+                        </div>`;
                     }
                 }
             ],
@@ -789,9 +639,15 @@ async function carregarDados() {
 
         loader.style.display = 'none';
         document.getElementById('aba-indice').style.opacity = '1';
-        
-        if(document.getElementById('btn-indice').classList.contains('active')) {
-            $('#barra-impressao').fadeIn();
+        if(document.getElementById('btn-indice').classList.contains('active')) $('#barra-impressao').fadeIn();
+
+        // ====================================================================
+        // CHECA A "BANDEIRA SECRETA" DO HUB E APLICA O FILTRO SE NECESSÁRIO
+        // ====================================================================
+        if (sessionStorage.getItem('auto_filter_filazero') === 'true') {
+            $('#filtroPrograma').val('filazero'); // Muda o Dropdown UI
+            sessionStorage.removeItem('auto_filter_filazero'); // Limpa a bandeira
+            aplicarFiltroImpressao(); // Engatilha a renderização do DataTable
         }
 
     } catch(e) {
@@ -801,93 +657,48 @@ async function carregarDados() {
 }
 
 function desenharModal(nome, aih, procPrincipal, valorTotal, arrProcsHTML, arrValsHTML) {
-    $('#modalNome').text(nome);
-    $('#modalAih').text(aih);
-    $('#modalProcPrincipal').text(procPrincipal);
-    $('#modalValorTotal').text("R$ " + valorTotal);
-
+    $('#modalNome').text(nome); $('#modalAih').text(aih); $('#modalProcPrincipal').text(procPrincipal); $('#modalValorTotal').text("R$ " + valorTotal);
     const tbProc = $('#tbodyProcedimentos'); tbProc.empty();
-    if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join(''));
-    else tbProc.append('<tr><td colspan="8" class="text-center dyn-text-muted py-4">Nenhum procedimento.</td></tr>');
-
+    if(arrProcsHTML.length > 0) tbProc.append(arrProcsHTML.join('')); else tbProc.append('<tr><td colspan="8" class="text-center dyn-text-muted py-4">Nenhum procedimento.</td></tr>');
     const tbVal = $('#tbodyValores'); tbVal.empty();
-    if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join(''));
-    else tbVal.append('<tr><td colspan="2" class="text-center dyn-text-muted py-4">Nenhum valor.</td></tr>');
-
+    if(arrValsHTML.length > 0) tbVal.append(arrValsHTML.join('')); else tbVal.append('<tr><td colspan="2" class="text-center dyn-text-muted py-4">Nenhum valor.</td></tr>');
     $('#modalAuditoria').css('display', 'flex');
 }
 
 function abrirModalIndice(rowIndex) {
-    const d = dadosIndiceGlobal[rowIndex];
-    if(!d) return;
-
+    const d = dadosIndiceGlobal[rowIndex]; if(!d) return;
     let htmlProcs = (d.procedimentos || []).map(p => {
-        let docsStr = p.doc_cnes || p.documento_cnes || '-';
-        let partes = docsStr.split('/').map(s => s.trim()); 
-
-        let doc = partes[0] || '-';
-        let cbo = partes[1] || '-';
-        let cnes = partes[2] || '-';
-
+        let partes = (p.doc_cnes || p.documento_cnes || '-').split('/').map(s => s.trim()); 
         return `<tr class="dyn-tr-hover transition">
-                    <td class="font-bold dyn-text-muted">${p.linha||'-'}</td>
-                    <td class="font-mono dyn-badge-cod px-1 rounded">${p.codigo||'-'}</td>
-                    <td class="font-mono text-[0.7rem] dyn-text-muted">${doc}</td>
-                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cbo}</td>
-                    <td class="font-mono text-[0.7rem] dyn-text-muted">${cnes}</td>
-                    <td class="text-center font-bold dyn-text-primary">${p.qtde||'-'}</td>
-                    <td class="dyn-text-muted text-center">${p.cmpt||'-'}</td>
-                    <td class="font-semibold uppercase dyn-text-primary">${p.descricao||'-'}</td>
+                    <td class="font-bold dyn-text-muted">${p.linha||'-'}</td><td class="font-mono dyn-badge-cod px-1 rounded">${p.codigo||'-'}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${partes[0]||'-'}</td><td class="font-mono text-[0.7rem] dyn-text-muted">${partes[1]||'-'}</td>
+                    <td class="font-mono text-[0.7rem] dyn-text-muted">${partes[2]||'-'}</td><td class="text-center font-bold dyn-text-primary">${p.qtde||'-'}</td>
+                    <td class="dyn-text-muted text-center">${p.cmpt||'-'}</td><td class="font-semibold uppercase dyn-text-primary">${p.descricao||'-'}</td>
                 </tr>`;
     });
-    
     let htmlVals = (d.valores || []).map(v => `<tr class="dyn-tr-hover transition"><td class="uppercase dyn-text-secondary font-semibold">${v.descricao||'-'}</td><td class="text-right font-mono font-bold dyn-text-accent">${v.valor||'-'}</td></tr>`);
-
     desenharModal(d.NOME, d.AIH, d.PROC, d.valor_total || "0,00", htmlProcs, htmlVals);
 }
 
-function abrirLeitorPdf(pagina) {
-    if(!linkPdfAtual) return;
-    $('#iframePdf').attr('src', `${linkPdfAtual}#page=${pagina}&zoom=100`);
-    $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200);
-}
-
-function imprimirModal() {
-    $('body').addClass('printing-modal');
-    window.print();
-    setTimeout(() => {
-        $('body').removeClass('printing-modal');
-    }, 500);
-}
+function abrirLeitorPdf(pagina) { if(!linkPdfAtual) return; $('#iframePdf').attr('src', `${linkPdfAtual}#page=${pagina}&zoom=100`); $('#modalPdfViewer').css('display', 'flex').hide().fadeIn(200); }
+function imprimirModal() { $('body').addClass('printing-modal'); window.print(); setTimeout(() => { $('body').removeClass('printing-modal'); }, 500); }
 
 let collectedPages = [];
 function addPage(pageNumber, chaveUnique, btn) {
     if (!collectedPages.includes(pageNumber)) {
-        collectedPages.push(pageNumber); 
-        collectedPages.sort((a,b)=>a-b);
-        $('#pageList').text(collectedPages.join(', '));
-        $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
-
+        collectedPages.push(pageNumber); collectedPages.sort((a,b)=>a-b);
+        $('#pageList').text(collectedPages.join(', ')); $(btn).addClass('btn-added').html('<i class="fas fa-check"></i> Fila');
         let lidas = getAihsLidas();
         if(!lidas.includes(chaveUnique)) {
-            lidas.push(chaveUnique);
-            salvarAihsLidas(lidas);
-            
+            lidas.push(chaveUnique); salvarAihsLidas(lidas);
             let btnLido = document.getElementById('btn-read-' + chaveUnique);
-            if(btnLido) {
-                $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida');
-                $(btnLido).closest('tr').addClass('row-printed');
-            }
+            if(btnLido) { $(btnLido).removeClass('btn-check').addClass('btn-checked').html('<i class="fas fa-check-circle"></i> Lida'); $(btnLido).closest('tr').addClass('row-printed'); }
             aplicarFiltroImpressao(); 
         }
     }
 }
 
-function clearPages() {
-    collectedPages = []; $('#pageList').text("Nenhuma página");
-    $('.btn-added').html('<i class="fas fa-print"></i>').removeClass('btn-added');
-}
-
+function clearPages() { collectedPages = []; $('#pageList').text("Nenhuma página"); $('.btn-added').html('<i class="fas fa-print"></i>').removeClass('btn-added'); }
 function copyAllPages() {
     if (collectedPages.length > 0) {
         navigator.clipboard.writeText(collectedPages.join(',')).then(() => {
@@ -898,11 +709,7 @@ function copyAllPages() {
     } else { alert('Adicione páginas à fila primeiro.'); }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.toggleTheme();
-    inicializarDropdown();
-});
-
+document.addEventListener('DOMContentLoaded', () => { window.toggleTheme(); inicializarDropdown(); });
 document.getElementById('filtroCompetencia').addEventListener('change', carregarDados);
 
 </script>
