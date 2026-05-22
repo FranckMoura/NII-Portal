@@ -217,6 +217,7 @@
         body.theme-classic .kpi-card.green:hover { border-top-color: var(--color-success); }
         body.theme-classic .kpi-card.yellow:hover { border-top-color: var(--color-warning); }
         body.theme-classic .kpi-card.red:hover { border-top-color: var(--color-danger); }
+        body.theme-classic .kpi-card.orange:hover { border-top-color: #f97316; }
 
         .kpi-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
         .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; z-index: 2;}
@@ -230,8 +231,9 @@
         .kpi-card.green:hover .kpi-value, .kpi-card.green:hover .kpi-card-icon { color: var(--color-success); opacity: 1;}
         .kpi-card.yellow:hover .kpi-value, .kpi-card.yellow:hover .kpi-card-icon { color: var(--color-warning); opacity: 1;}
         .kpi-card.red:hover .kpi-value, .kpi-card.red:hover .kpi-card-icon { color: var(--color-danger); opacity: 1;}
+        .kpi-card.orange:hover .kpi-value, .kpi-card.orange:hover .kpi-card-icon { color: #f97316; opacity: 1;}
 
-        /* CARD DESTAQUE (FILA ZERO) */
+        /* CARD DESTAQUE (FILA ZERO CENSO) */
         .card-destaque { 
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--bg-body) 100%); 
             border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 0 15px rgba(245, 158, 11, 0.05);
@@ -288,7 +290,6 @@
                 <i class="fas fa-book-medical nav-icon text-yellow-400"></i>
                 <span class="nav-label">Catálogo SIGTAP</span>
             </a>
-            <!-- ADICIONE ESTA NOVA LINHA AQUI -->
             <a onclick="abrirModulo('painel_contrato_cofinanciamento.html', 'contrato', this)" class="nav-item" data-restrict="true" title="Cofinanciamento Estadual">
                 <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
                 <span class="nav-label">Contrato MT</span>
@@ -449,13 +450,22 @@
                             <div class="kpi-value text-emerald-500" id="kpi-internacoes"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                             <div class="kpi-desc" id="kpi-internacoes-sub">Pacientes admitidos</div>
                         </div>
+                        
+                        <div class="kpi-card orange" onclick="abrirModulo('painel_simuladas.html', 'simuladas', null, 'Produção AIH (Simuladas)')" title="Ver Contas Faturadas">
+                            <div class="kpi-card-header">
+                                <span class="kpi-title">AIH Fila Zero (Fat)</span>
+                                <i class="fas fa-file-invoice-dollar kpi-card-icon text-orange-500"></i>
+                            </div>
+                            <div class="kpi-value text-orange-500" id="kpi-aih-filazero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="kpi-desc">Contas processadas no Mês</div>
+                        </div>
 
-                        <div class="kpi-card yellow col-span-2 card-destaque" onclick="abrirModulo('painel_filazero.html', 'filazero', null, 'Programa Fila Zero')">
+                        <div class="kpi-card yellow card-destaque" onclick="abrirModulo('painel_filazero.html', 'filazero', null, 'Programa Fila Zero')">
                             <div class="kpi-card-header">
                                 <span class="kpi-title" style="color:var(--color-warning);">Programa Fila Zero</span>
                                 <i class="fas fa-star kpi-card-icon text-yellow-500" style="opacity: 0.8; font-size: 1.5rem;"></i>
                             </div>
-                            <div class="kpi-value text-yellow-500" style="font-size: 3rem;" id="kpi-fila-zero"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                            <div class="kpi-value text-yellow-500" style="font-size: 2.8rem;" id="kpi-fila-zero-censo"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
                             <div class="kpi-desc" id="kpi-fila-zero-sub">Censo Apurado (IndicaSUS)</div>
                         </div>
 
@@ -675,9 +685,9 @@
                 else if (diffMeses === 0) $('#status-competencia').html('<span class="text-[10px] font-bold text-blue-500 uppercase">Em Andamento</span>');
                 else $('#status-competencia').html('<span class="text-[10px] font-bold text-emerald-500 uppercase">Fechada</span>');
 
-                $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero, #kpi-internacoes, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-circle-notch fa-spin text-sm"></i>');
+                $('#kpi-aih-real, #kpi-sisreg, #kpi-fila-zero-censo, #kpi-aih-filazero, #kpi-internacoes, #taxa-uti, #taxa-utin, #taxa-ucinco, #taxa-ucinca').html('<i class="fas fa-circle-notch fa-spin text-sm"></i>');
 
-                // 1. AIHs
+                // 1. AIHs & Faturamento Fila Zero
                 const { data: compData } = await client.from('controle_simuladas').select('link_indice').eq('competencia_arquivo', compString).order('id', { ascending: false }).limit(1);
                 let linkJson = (compData && compData.length > 0) ? compData[0].link_indice : null;
 
@@ -696,6 +706,40 @@
                     
                     $('#kpi-aih-real').text(new Intl.NumberFormat('pt-BR').format(Object.keys(aihMap).length));
 
+                    // ==========================================
+                    // CRUZAMENTO: AIHS FILA ZERO NO JSON
+                    // ==========================================
+                    let aihsJSON = dadosFichas
+                        .map(d => d.AIH ? String(d.AIH).replace(/-/g, '').trim() : null)
+                        .filter(aih => aih && aih !== '');
+                        
+                    let aihsUnicas = [...new Set(aihsJSON)];
+                    let countFilaZeroFat = 0;
+                    
+                    if(aihsUnicas.length > 0) {
+                        let filaZeroEncontradas = new Set();
+                        for(let i = 0; i < aihsUnicas.length; i += 100) {
+                            let batch = aihsUnicas.slice(i, i + 100);
+                            let { data: fzData } = await client
+                                .from('indicasus_leitos')
+                                .select('aih, plano_sus')
+                                .in('aih', batch);
+                            
+                            if (fzData) {
+                                fzData.forEach(d => {
+                                    let plano = d.plano_sus ? String(d.plano_sus).toUpperCase() : "";
+                                    let aihBanco = d.aih ? String(d.aih).replace(/-/g, '').trim() : "";
+                                    if (plano.includes("FILA ZERO") && aihBanco) {
+                                        filaZeroEncontradas.add(aihBanco);
+                                    }
+                                });
+                            }
+                        }
+                        countFilaZeroFat = filaZeroEncontradas.size;
+                    }
+                    $('#kpi-aih-filazero').text(countFilaZeroFat);
+                    // ==========================================
+
                     let especMap = {};
                     Object.values(aihMap).forEach(info => { especMap[info.especialidade] = (especMap[info.especialidade] || 0) + 1; });
                     
@@ -704,6 +748,7 @@
                     renderizarGrafico(arrEspec.map(x => x.nome), arrEspec.map(x => x.qtd));
                 } else {
                     $('#kpi-aih-real').text('0');
+                    $('#kpi-aih-filazero').text('0');
                     if(window.chartEspecInstance) {
                         window.chartEspecInstance.data.labels = []; window.chartEspecInstance.data.datasets[0].data = []; window.chartEspecInstance.update();
                     }
@@ -769,7 +814,7 @@
                 }
                 let mapFz = {};
                 allFzData.forEach(d => { mapFz[d.nome_paciente + "_" + d.data_internacao] = true; });
-                $('#kpi-fila-zero').text(Object.keys(mapFz).length);
+                $('#kpi-fila-zero-censo').text(Object.keys(mapFz).length);
 
                 // 4. Internações
                 const { count } = await client.from('cirurgias_detalhe').select('*', { count: 'exact', head: true }).gte('data_cirurgia', d1).lte('data_cirurgia', d2).in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
