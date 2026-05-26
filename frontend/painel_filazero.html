@@ -102,8 +102,10 @@
         .modal-close:hover { color: var(--color-danger); }
         .modal-body { padding: 24px; overflow-y: auto; max-height: 75vh; }
         
+        /* CORREÇÃO DO SELECT (OPTIONS) */
         .input-form { width: 100%; padding: 12px; border-radius: 8px; font-size: 0.85rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none; transition: 0.2s;}
         .input-form:focus { border-color: var(--color-warning); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
+        .input-form option { background-color: var(--bg-card); color: var(--text-main); } /* Fundo escuro nas opções por padrão */
         
         .btn-submit { width: 100%; background: var(--color-warning); color: #000; font-weight: 800; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(251, 191, 36, 0.3);}
         .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
@@ -136,8 +138,14 @@
         body.theme-classic .modal-header { background: #f8fafc; border-color: #e2e8f0; }
         body.theme-classic .modal-header h3 { color: #0f172a; }
         body.theme-classic .modal-close { color: #64748b; }
+        
+        /* CORREÇÃO DO SELECT MODO CLÁSSICO */
         body.theme-classic .input-form { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
         body.theme-classic .input-form:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15); }
+        body.theme-classic .input-form option { background-color: #ffffff; color: #0f172a; }
+
+        /* Ocultar abas financeiras inicialmente */
+        .area-restrita { display: none; }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -161,39 +169,51 @@
 
     <div class="px-4">
         
+        <div class="kpi-grid">
+            <div class="kpi-card highlight">
+                <div class="kpi-card-header">
+                    <span class="kpi-title text-yellow-500">Total Fila Zero</span>
+                    <i class="fas fa-users kpi-card-icon text-yellow-500"></i>
+                </div>
+                <div class="kpi-value text-yellow-500" id="kpi-total">0</div>
+                <div class="kpi-desc">PACIENTES ELEGÍVEIS (MÊS)</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-card-header">
+                    <span class="kpi-title text-emerald-400">Procedimentos Mapeados</span>
+                    <i class="fas fa-check-circle kpi-card-icon text-emerald-500"></i>
+                </div>
+                <div class="kpi-value text-emerald-400" id="kpi-mapeados">0</div>
+                <div class="kpi-desc">VINCULADOS À TABELA MT</div>
+            </div>
+            
+            <div class="kpi-card" id="kpi-pendentes-card">
+                <div class="kpi-card-header">
+                    <span class="kpi-title text-red-400">Pendentes / Falhas</span>
+                    <i class="fas fa-exclamation-triangle kpi-card-icon text-red-500"></i>
+                </div>
+                <div class="kpi-value text-red-400" id="kpi-pendentes">0</div>
+                <div class="kpi-desc">REQUEREM REVISÃO MANUAL</div>
+            </div>
+            
+            <div class="kpi-card" style="border-top: 3px solid #38bdf8; display: none;" id="card-faturamento">
+                <div class="kpi-card-header">
+                    <span class="kpi-title text-blue-400">Faturamento Total</span>
+                    <i class="fas fa-dollar-sign kpi-card-icon text-blue-500"></i>
+                </div>
+                <div class="kpi-value text-blue-400" id="kpi-faturamento">R$ 0,00</div>
+                <div class="kpi-desc flex justify-between items-center w-full">
+                    <span>CONTRATO REGULAR</span>
+                    <span class="text-emerald-400 font-bold" id="kpi-faturamento-excedente" title="Receita extra garantida pelo Programa Fila Zero" style="display:none;">Fila Zero: R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+
         <div class="section-container" style="padding: 0; background: transparent; border: none; box-shadow: none;">
             
             <div id="tab-operacional" class="tab-content active">
                 
-                <div class="kpi-grid">
-                    <div class="kpi-card highlight">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-yellow-500">Total Fila Zero</span>
-                            <i class="fas fa-users kpi-card-icon text-yellow-500"></i>
-                        </div>
-                        <div class="kpi-value text-yellow-500" id="kpi-total">0</div>
-                        <div class="kpi-desc">PACIENTES ELEGÍVEIS (MÊS)</div>
-                    </div>
-                    
-                    <div class="kpi-card">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-emerald-400">Procedimentos Mapeados</span>
-                            <i class="fas fa-check-circle kpi-card-icon text-emerald-500"></i>
-                        </div>
-                        <div class="kpi-value text-emerald-400" id="kpi-mapeados">0</div>
-                        <div class="kpi-desc">VINCULADOS À TABELA MT</div>
-                    </div>
-                    
-                    <div class="kpi-card" id="kpi-pendentes-card">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-red-400">Pendentes / Falhas</span>
-                            <i class="fas fa-exclamation-triangle kpi-card-icon text-red-500"></i>
-                        </div>
-                        <div class="kpi-value text-red-400" id="kpi-pendentes">0</div>
-                        <div class="kpi-desc">REQUEREM REVISÃO MANUAL</div>
-                    </div>
-                </div>
-
                 <div class="cyber-container" style="padding: 24px; margin-bottom: 24px;">
                     <h2 class="text-lg font-bold mb-4" style="color:var(--text-main);"><i class="fas fa-tasks mr-2 text-emerald-400"></i> Cumprimento de Metas Físicas</h2>
                     <table id="tabelaFisica" class="display" style="width:100%">
@@ -229,37 +249,7 @@
 
             </div>
 
-            <div id="tab-financeiro" class="tab-content">
-                
-                <div class="kpi-grid">
-                    <div class="kpi-card" style="border-top: 3px solid #10b981;">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-emerald-400">Faturamento Global (Mês)</span>
-                            <i class="fas fa-dollar-sign kpi-card-icon text-emerald-500"></i>
-                        </div>
-                        <div class="kpi-value text-emerald-400" id="kpi-faturamento-geral">R$ 0,00</div>
-                        <div class="kpi-desc">RECEITA BASE + EXCEDENTE</div>
-                    </div>
-
-                    <div class="kpi-card" style="border-top: 3px solid #3b82f6;">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-blue-400">Faturamento Teto (Base)</span>
-                            <i class="fas fa-file-contract kpi-card-icon text-blue-500"></i>
-                        </div>
-                        <div class="kpi-value text-blue-400" id="kpi-faturamento-base">R$ 0,00</div>
-                        <div class="kpi-desc">CONTRATO REGULAR APROVADO</div>
-                    </div>
-
-                    <div class="kpi-card" style="border-top: 3px solid #f472b6;">
-                        <div class="kpi-card-header">
-                            <span class="kpi-title text-pink-400">Receita Excedente (Extra FZ)</span>
-                            <i class="fas fa-arrow-trend-up kpi-card-icon text-pink-500"></i>
-                        </div>
-                        <div class="kpi-value text-pink-400" id="kpi-faturamento-extra">R$ 0,00</div>
-                        <div class="kpi-desc">PRODUÇÃO ACIMA DA META MENSAL</div>
-                    </div>
-                </div>
-
+            <div id="tab-financeiro" class="tab-content" style="display: none;">
                 <div class="cyber-container" style="padding: 24px;">
                     <h2 class="text-lg font-bold mb-4" style="color:var(--text-main);"><i class="fas fa-dollar-sign mr-2 text-emerald-400"></i> Relatório Financeiro do Contrato</h2>
                     <table id="tabelaFinanceira" class="display" style="width:100%">
@@ -267,7 +257,6 @@
                             <tr>
                                 <th class="text-center w-24">Código</th>
                                 <th class="text-left">Procedimento Fila Zero</th>
-                                <th class="text-center w-20">Meta Mês</th>
                                 <th class="text-center w-20">Realizado</th>
                                 <th class="text-right">Val. Unitário MT</th>
                                 <th class="text-right text-blue-400">Fat. Base (Teto)</th>
@@ -322,9 +311,10 @@
         let tabelaFinanceira = null;
         let tabelaPacientes = null;
         
-        let isDiretoriaOuAdmin = false; 
+        let isDiretoriaOuAdmin = false; // Controle de Permissão
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
+        // DICIONÁRIO OFICIAL DAS METAS FILA ZERO
         const metasFilaZero = [
             { Codigo: "0407010297", Descricao: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", Meta: 1, Valor: 2298.18 },
             { Codigo: "0407020284", Descricao: "HEMORROIDECTOMIA", Meta: 2, Valor: 947.82 },
@@ -395,27 +385,36 @@
         $(document).ready(async function() { 
             if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
 
+            // 1. VERIFICAÇÃO DE SESSÃO E PERMISSÃO
             try {
                 const { data: { session } } = await client.auth.getSession();
                 if (session) {
                     const { data: perfil } = await client.from('perfis').select('nivel_acesso').eq('id', session.user.id).single();
                     if (perfil && (perfil.nivel_acesso.toUpperCase().includes('DIRETORIA') || perfil.nivel_acesso.toUpperCase().includes('ADMIN'))) { 
                         isDiretoriaOuAdmin = true;
+                        
+                        // Libera as abas restritas (Remove display none)
                         $('#btn-tab-financeiro').show();
+                        $('#card-faturamento').css('display', 'flex');
                     } else {
+                        // Força Ocultação das Finanças (Segurança)
                         $('#btn-tab-financeiro').hide();
+                        $('#tab-financeiro').hide();
+                        $('#card-faturamento').hide();
                     }
                 }
             } catch (error) {
                 console.error("Erro ao verificar permissão.", error);
             }
             
+            // Popula o select do Mapeamento Manual
             let selectHtml = `<option value="0000000000">0000000000 - PROCEDIMENTO EXTRA-META / OUTROS</option>`;
             metasFilaZero.forEach(m => {
                 selectHtml += `<option value="${m.Codigo}">${m.Codigo} - ${m.Descricao}</option>`;
             });
             $('#map_codigo').append(selectHtml);
 
+            // Carrega Pela Casca
             let globalAno = localStorage.getItem('nii_competencia_ano') || new Date().getFullYear();
             let globalMes = localStorage.getItem('nii_competencia_mes') || String(new Date().getMonth() + 1).padStart(2, '0');
             $('#anoFilter').val(globalAno);

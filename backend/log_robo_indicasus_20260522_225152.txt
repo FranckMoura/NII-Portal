@@ -1,0 +1,1942 @@
+--- 🚜 ROBÔ AUDITOR (V34: LOG AUTOMÁTICO EM TXT + PAGINAÇÃO AJAX) ---
+📄 Salvando cópia do log de execução no arquivo: log_robo_indicasus_20260522_225152.txt
+
+[ ⚠️ MODO DE CARGA CONTÍNUA EM LOTES ⚠️ ]
+>> 1. Deseja APAGAR O CACHE e começar do ZERO? (Pressione 'S' para forçar a correção das diárias): ✅ Caches Limpos! O robô vai reprocessar e corrigir a linha do tempo.
+🧠 Memória Local Ativa: 0 pacientes ignorados.
+
+>> Abrindo navegador...
+>> Fazendo login no IndicaSUS...
+>> Acessando a fila de Internações...
+>> Aplicando Filtro ZERO (Buscando 100% dos pacientes)...
+
+🚀 INICIANDO NAVEGAÇÃO E PROCESSAMENTO EM LOTES...
+ 📖 Lendo Página 1...
+ 📖 Lendo Página 2...
+ 📖 Lendo Página 3...
+ 📖 Lendo Página 4...
+ 📖 Lendo Página 5...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] RN DE VANESSA MARIA CORREA...
+  ↳ NASC: 2026-05-22 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 1 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JAINA DA SILVA TRINDADE...
+  ↳ NASC: 1998-08-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ODILA CELIA PIMENTA CARDOZO...
+  ↳ NASC: 1973-09-14 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARLA BEATRIZ SOUZA DE CARVALHO...
+  ↳ NASC: 2000-01-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O00.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TELMA VICENTINA DA SILVA MARQUES...
+  ↳ NASC: 1984-01-22 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TAYLLANY DA SILVA RODRIGUES...
+  ↳ NASC: 1999-07-27 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MILLENA CRISTINA DA SILVA RODRIGUES...
+  ↳ NASC: 2012-05-05 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIU DEL VALLE OCHOA MORLES...
+  ↳ NASC: 1988-10-22 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOANA TAMIRES CARDOSO DA SILVA...
+  ↳ NASC: 2002-05-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O75.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EDILAINE DE ARRUDA ALMEIDA...
+  ↳ NASC: 2001-07-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BRENDA LUCY DA SILVA SANTOS AMARAL...
+  ↳ NASC: 2002-12-09 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PATRICIA RODRIGUES DE SOUZA...
+  ↳ NASC: 2005-02-09 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELIAS FERREIRA VIANA...
+  ↳ NASC: 1965-02-22 | SUS: Sim | PLANO: PLANO UNICO | CID: J44.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BRUNA TATIANE LEMES DE FRANCA...
+  ↳ NASC: 1996-07-17 | SUS: Sim | PLANO: FILA ZERO | CID: K46.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TEREZINHA VIEIRA BORGES...
+  ↳ NASC: 1940-02-23 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KAWEYNE COSTA DIAS...
+  ↳ NASC: 2004-12-20 | SUS: Sim | PLANO: FILA ZERO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RAUL PAULO CAROLLO...
+  ↳ NASC: 1965-12-15 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JHULLY KAROLINE ALVES NUNES...
+  ↳ NASC: 1994-08-25 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELISA PAMYLLA AQUINO COSTA...
+  ↳ NASC: 2000-10-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O02.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELY ESTEVARENGO DE MATOS NEVES...
+  ↳ NASC: 1996-02-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O00.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DJALMA CAMILO DE GODOI...
+  ↳ NASC: 1978-09-28 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DEBORHA FERNANDES DE ARAUJO...
+  ↳ NASC: 2009-03-29 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JESSICA SCHIMITH DA SILVA...
+  ↳ NASC: 1992-06-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EMILI MIKAELI DE OLIVEIRA DE MORAES...
+  ↳ NASC: 2006-12-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LECIANA GONCALINA DE AGUIAR...
+  ↳ NASC: 1989-10-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THAIS SILVA DONATO...
+  ↳ NASC: 1998-02-09 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KETILY RAYARA LIRA FERREIRA...
+  ↳ NASC: 2001-06-19 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOAQUIM PEREIRA DE ARRUDA...
+  ↳ NASC: 1961-09-04 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MILEIDY FRANCISCA LEITE DE SA COSTA...
+  ↳ NASC: 1986-07-18 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GILMAR RODRIGUES DE LIMA...
+  ↳ NASC: 1984-05-27 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RENATA DOS SANTOS FERREIRA...
+  ↳ NASC: 1995-11-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA CAROLINA DO ESPIRITO SANTO LIMA...
+  ↳ NASC: 2000-07-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O75.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELEN ESTEFANIA EVANGELISTA DELLA BETTA...
+  ↳ NASC: 1992-02-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ISABELA FERNANDA MENDES DE ALMEIDA...
+  ↳ NASC: 1997-08-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA MARIA HERRERA CHAVEZ...
+  ↳ NASC: 2000-09-21 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MAELI OLIVEIRA DOS SANTOS SOUSA...
+  ↳ NASC: 1996-06-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VANESSA DOS SANTOS RIZO...
+  ↳ NASC: 2003-03-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIZELI APARECIDA RIBEIRO SANCHES...
+  ↳ NASC: 2000-03-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOAO MIGUEL TAVARES DE OLIVEIRA...
+  ↳ NASC: 2026-04-25 | SUS: Sim | PLANO: PLANO UNICO | CID: P28.5
+  ↳ UTIN: 2 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GRAZIELLY TAVARES LIMA...
+  ↳ NASC: 2005-08-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O80
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] AMANDA VITORIA THEODORO RIBEIRO...
+  ↳ NASC: 2006-02-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O06.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE UYGNA MARTINS TEIXEIRA...
+  ↳ NASC: 2026-05-21 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELOIZA MIRTES DE PINHO VIANA...
+  ↳ NASC: 2000-07-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O20.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] UYGNA MARTINS TEXEIRA...
+  ↳ NASC: 1990-01-29 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EMILY KAROLINE DE SOUZA OLIVEIRA...
+  ↳ NASC: 2005-02-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARTA MARIA DOS SANTOS...
+  ↳ NASC: 1973-12-03 | SUS: Sim | PLANO: FILA ZERO | CID: N82.3
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FABIELLY MIRELLY DE CARVALHO MENDES...
+  ↳ NASC: 1993-03-02 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KATIANE ROSE DE PAULA LEITE COSTA...
+  ↳ NASC: 1980-07-02 | SUS: Sim | PLANO: FILA ZERO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] APARECIDA SOARES DA CRUZ...
+  ↳ NASC: 2001-10-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FRANCISCA ALEXSANDRA DO NASCIMENTO...
+  ↳ NASC: 1985-03-22 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 6...
+ 📖 Lendo Página 7...
+ 📖 Lendo Página 8...
+ 📖 Lendo Página 9...
+ 📖 Lendo Página 10...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] ELOY SANTANA...
+  ↳ NASC: 1995-05-05 | SUS: Sim | PLANO: FILA ZERO | CID: K42.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOAQUIM PINTO...
+  ↳ NASC: 2026-05-20 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ UTIN: 2 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VIVIANE GUERREIRO...
+  ↳ NASC: 1992-05-27 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELLY CAMPOS DA SILVA...
+  ↳ NASC: 2006-04-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ODETE PEREIRA DA CUNHA MOTA...
+  ↳ NASC: 1952-03-03 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE JANETE NUNES DA SILVA...
+  ↳ NASC: 2026-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA CECILIA BEZERRA SILVA...
+  ↳ NASC: 2026-05-16 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DEBORA REGINA BORGES ZANELLA...
+  ↳ NASC: 1991-06-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O02.1
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CLAUDY NATHALY TEIXEIRA DA SILVA SANTANA...
+  ↳ NASC: 1987-08-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] YASMIN CACERES RODRIGUES...
+  ↳ NASC: 2006-10-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O24.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIA CRISTINA CAVALCANTE MARIMON...
+  ↳ NASC: 2010-03-28 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KAMILLY FERNANDA FIGUEIREDO DE SOUZA...
+  ↳ NASC: 2004-04-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SARA ALVES CARDOSO DA SILVA...
+  ↳ NASC: 1994-07-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELA DA SILVA GILIOLI BRINGANTI...
+  ↳ NASC: 1996-09-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KAILLANE JESUS DOS SANTOS...
+  ↳ NASC: 2006-11-14 | SUS: Sim | PLANO: PLANO UNICO | CID: S31.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GENILZA FELIPE DA SILVA...
+  ↳ NASC: 1985-07-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O10.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GRAZIELA DOS SANTOS GONCALVES DE ALMEIDA...
+  ↳ NASC: 2000-11-10 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN EMANUELLY VITORIA PEREIRA...
+  ↳ NASC: 2026-05-20 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ UTIN: 3 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELLY KETHINE SOUZA GOMES...
+  ↳ NASC: 1999-11-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAYANE ARRUDA DE JESUS...
+  ↳ NASC: 1994-08-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] QUEREM HAPUQUE SILVA...
+  ↳ NASC: 1998-09-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O63.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JANAINA MATIUSSO ASSIS DE MENEZES...
+  ↳ NASC: 2000-04-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CRISBEL CELESTE LOPEZ SEQUEA...
+  ↳ NASC: 2003-04-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BENEDITA MONTEIRO SIQUEIRA...
+  ↳ NASC: 1951-10-27 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CARLA CRISTINA BARBOSA DA SILVA...
+  ↳ NASC: 2005-08-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELA DA SILVA LIMA...
+  ↳ NASC: 2001-09-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O14.1
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LAURA DA SILVA PINTO...
+  ↳ NASC: 2006-03-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JAMILY MARIA TEIXEIRA TRAJANO...
+  ↳ NASC: 2009-03-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARILENA FERREIRA...
+  ↳ NASC: 1966-12-06 | SUS: Sim | PLANO: FILA ZERO | CID: K21.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IVO IPOLITO DA SILVA...
+  ↳ NASC: 1964-06-09 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EMANUELLY VITORIA PEREIRA...
+  ↳ NASC: 2004-02-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NUBERLYS MARIA BOMPART AGUIRRE...
+  ↳ NASC: 1996-10-01 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANTONIO CLAUDIONOR DE LIMA...
+  ↳ NASC: 1965-11-11 | SUS: Não | PLANO: PLANO UNICO | CID: N15.8
+  ↳ UTI AD: 3 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CAROLINE SANTOS DE ALMEIDA...
+  ↳ NASC: 1996-07-12 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NILCE MARIA MAGALHAES DE MELO...
+  ↳ NASC: 1996-11-21 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CLAUDIA INES DA SILVA SOUZA...
+  ↳ NASC: 1982-08-14 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FABRICIA VITORIA GETULIO DA SILVA...
+  ↳ NASC: 2008-04-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LIGIANE SEBASTIANA DE SOUZA...
+  ↳ NASC: 2005-01-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O42.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ROSINEIA MARIA SILVA FERNANDES...
+  ↳ NASC: 1992-06-15 | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JASMIN MOURA DE AMORIM...
+  ↳ NASC: 2003-10-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JANETE NUNES DA SILVA...
+  ↳ NASC: 1984-10-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ALINE INACIO GONCALVES...
+  ↳ NASC: 1996-03-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KARINA SOUZA NONATO...
+  ↳ NASC: 1993-04-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O10.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARCELLY LOPES METELLO DA COSTA...
+  ↳ NASC: 1995-09-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O13
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VIVIANE JONES SAGAZ...
+  ↳ NASC: 1995-02-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JENIFFER MICKAELA OLIMPIA DE ALMEIDA...
+  ↳ NASC: 2000-06-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FLAVIA APARECIDA DE ARRUDA...
+  ↳ NASC: 1995-04-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA PAULA LIMA DE ASSUNCAO...
+  ↳ NASC: 2005-05-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIANA HELENA STEFANONI DE SIMONI...
+  ↳ NASC: 1988-08-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O62.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ALINE VITORIA SANTANA DE ASSIS...
+  ↳ NASC: 2001-12-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 11...
+ 📖 Lendo Página 12...
+ 📖 Lendo Página 13...
+ 📖 Lendo Página 14...
+ 📖 Lendo Página 15...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] HELENA LORRAINE RODRIGUES AMORIM...
+  ↳ NASC: 2001-07-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOAO GABRIEL GALVAO RAMOS...
+  ↳ NASC: 2003-04-14 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IGOR AVELINO DA SILVA...
+  ↳ NASC: 2006-02-18 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PATRICIA OLIVEIRA DE SOUZA...
+  ↳ NASC: 1983-05-25 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ARYANE DO ESPIRITO SANTO GOMES...
+  ↳ NASC: 1993-09-07 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELA CRISTINA MORAES DA SILVA...
+  ↳ NASC: 1993-01-05 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VICENTE KHOURI FERREIRA...
+  ↳ NASC: 2026-05-08 | SUS: Sim | PLANO: PLANO UNICO | CID: D75.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CARLOS EDUARDO YURE HERMOZA...
+  ↳ NASC: 2026-05-08 | SUS: Sim | PLANO: PLANO UNICO | CID: P59.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] YERISLEIDIS LAURENCIO VEGA...
+  ↳ NASC: 2003-10-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOSIELE RODRIGUES DA GUIA FERRAZ...
+  ↳ NASC: 1994-12-16 | SUS: Sim | PLANO: PLANO UNICO | CID: O13
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CRISTIANE DA SILVA SOUZA...
+  ↳ NASC: 1988-07-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THAYNNE LIMA DE ANDRADE...
+  ↳ NASC: 1993-03-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O62.3
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LORENA FERNANDES DA SILVA...
+  ↳ NASC: 2005-05-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE DANIELLE SOUZA DE LIMA SILVA...
+  ↳ NASC: 2026-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 3 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELLE SOUZA DE LIMA SILVA...
+  ↳ NASC: 2002-05-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O98.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PAOLLA SANTANA DOS SANTOS...
+  ↳ NASC: 2005-03-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] HEVILLEN LUZ NOGUEIRA...
+  ↳ NASC: 1996-11-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O24.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELLY VIEIRA DOS SANTOS...
+  ↳ NASC: 2001-07-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA VITORIA DA SILVA HOEPPERS...
+  ↳ NASC: 2006-03-16 | SUS: Sim | PLANO: PLANO UNICO | CID: O10.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELLE STHEPHANY LARA DO AMARAL...
+  ↳ NASC: 1994-05-09 | SUS: Sim | PLANO: FILA ZERO | CID: N87.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE LUDMYLLA GEOVANNA DA SILVA...
+  ↳ NASC: 2026-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELZA GOMES BARBOSA...
+  ↳ NASC: 1969-06-22 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ UTI AD: 4 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MIRIAM REGINA BOMDESPACHO...
+  ↳ NASC: 1975-08-13 | SUS: Sim | PLANO: FILA ZERO | CID: N87.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ADRYELEN CRISTINA FONTES SILVA...
+  ↳ NASC: 1993-07-20 | SUS: Sim | PLANO: FILA ZERO | CID: N87.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SUELLEN SILVA DE JESUS...
+  ↳ NASC: 1983-12-04 | SUS: Sim | PLANO: FILA ZERO | CID: N87.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LEIDA CHUVE SOCORE...
+  ↳ NASC: 2008-03-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MAYARA FERREIRA DE ASSIS...
+  ↳ NASC: 1993-09-06 | SUS: Sim | PLANO: FILA ZERO | CID: N87.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ZAYRA NASCIMENTO PARRAGA SERRA...
+  ↳ NASC: 2026-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: D75.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE MARIANA HELENA STEFANONI DE SIMONI...
+  ↳ NASC: 2026-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 2 | UCINCA: 2 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VITÓRIA LOUSANO DE OLIVEIRA...
+  ↳ NASC: 1999-08-18 | SUS: Sim | PLANO: PLANO UNICO | CID: O42.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KAMILA VITORIA DE SOUZA MORAES...
+  ↳ NASC: 2000-07-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIA DA CRUZ MOREIRA...
+  ↳ NASC: 2008-08-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CLEBER DA COSTA PRADO...
+  ↳ NASC: 1981-06-09 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOVERLANDIO CUNHA...
+  ↳ NASC: 1970-02-20 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GIOVANE ARRUDA NOGUEIRA...
+  ↳ NASC: 1999-07-07 | SUS: Sim | PLANO: FILA ZERO | CID: S83.6
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DEIJEANE DA SILVA E SILVA...
+  ↳ NASC: 1993-03-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIANGEL PATRICIA RODRIGUEZ PARICHE...
+  ↳ NASC: 2008-09-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LIDIANE GOMES DE SOUZA CONRADO...
+  ↳ NASC: 1994-03-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA INES DE ARAUJO...
+  ↳ NASC: 1969-02-02 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUCINETE IDELFONSO...
+  ↳ NASC: 1975-08-03 | SUS: Sim | PLANO: PLANO UNICO | CID: K44.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ERIC GOMES CORDEIRO...
+  ↳ NASC: 1970-02-17 | SUS: Sim | PLANO: PLANO UNICO | CID: K40.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JEFFERSON OLIVEIRA BASTOS...
+  ↳ NASC: 1991-09-19 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ALAOR MARQUES...
+  ↳ NASC: 1950-11-16 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] INGRID MIRANDA PEREZ BOLANI BENTO...
+  ↳ NASC: 1999-09-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O75.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUANA NUNES GUIMARAES...
+  ↳ NASC: 2002-02-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O32.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FALINE FERREIRA DA SILVA...
+  ↳ NASC: 1992-09-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LIZANDRA PEREIRA AZNAR...
+  ↳ NASC: 1978-05-16 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELLY FERREIRA NASCIMENTO...
+  ↳ NASC: 1995-11-08 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JAQUELINE CARINE NOGUEIRA...
+  ↳ NASC: 1987-04-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O90.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VICTORIA APARECIDA BATISTA RAMOS...
+  ↳ NASC: 1994-12-03 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 16...
+ 📖 Lendo Página 17...
+ 📖 Lendo Página 18...
+ 📖 Lendo Página 19...
+ 📖 Lendo Página 20...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] CLAUDIA DE OLIVEIRA NUNES CARVALHO...
+  ↳ NASC: 1978-04-25 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VALDEMIR APARECIDO THEODORO...
+  ↳ NASC: 1968-08-06 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SERGIO ALVES DEOLIVEIRA...
+  ↳ NASC: 1966-09-09 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KAMILLA FLORENCE DIAS DE MOURA...
+  ↳ NASC: 1987-12-27 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA DE FATIMA NASCIMENTO DA SILVA...
+  ↳ NASC: 1962-06-13 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VALDESON ALVES DE OLIVEIRA...
+  ↳ NASC: 1957-10-24 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VITORIA DE PROENCA LOURENCO SIQUEIRA...
+  ↳ NASC: 2000-09-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EDILAINE NEVES PARABA...
+  ↳ NASC: 2001-02-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THAYSE GISELLE PINHO SANTANA...
+  ↳ NASC: 1993-05-19 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA DOMINGAS DA SILVA...
+  ↳ NASC: 2001-10-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THAISA VITÓRIA DE SOUZA LEITE...
+  ↳ NASC: 2003-02-09 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN JACKELINE MAGALHAES CHAGAS...
+  ↳ NASC: 2026-05-13 | SUS: Sim | PLANO: PLANO UNICO | CID: P59.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FABIOLA DA SILVA PINHEIRO MELO...
+  ↳ NASC: 2004-10-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MALU MADER MOURA DE SOUZA...
+  ↳ NASC: 1989-11-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O91.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SHAYANNE BOTELHO BATISTA...
+  ↳ NASC: 1989-08-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VANIA AUXILIADORA DE ARRUDA...
+  ↳ NASC: 1986-01-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O42.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOYCE SANTOS COUTOQ...
+  ↳ NASC: 1988-11-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAIANE REGINA DA CRUZ...
+  ↳ NASC: 1998-03-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IZABELLA HARYCKA HADASSA ALVES...
+  ↳ NASC: 2009-03-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIANA SILVA FERNANDES...
+  ↳ NASC: 1993-07-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JANAYNA DE MOURA BARROS...
+  ↳ NASC: 2000-09-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAFHINY RODRIGUES ALVES...
+  ↳ NASC: 2008-10-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O20.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LILITH VERONIQUE FERNANDES ROSPIRSKI...
+  ↳ NASC: 1995-09-01 | SUS: Não | PLANO: PLANO UNICO | CID: O13
+  ↳ UTI AD: 2 | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDREZA SILVA DOS SANTOS...
+  ↳ NASC: 1994-03-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA LUIZA DE SOUZA FELIX...
+  ↳ NASC: 2007-05-10 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELLOA VITORIA DA SILVA LEITE...
+  ↳ NASC: 2010-03-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O98.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SARA CRISTINA DE OLIVEIRA SANTANA...
+  ↳ NASC: 2005-07-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O62.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VANESSA MARIA CORREA...
+  ↳ NASC: 1999-02-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O10.0
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUANA FRANCA NEVES...
+  ↳ NASC: 2007-12-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GRACIELLE MARTINS ORDANO...
+  ↳ NASC: 1989-08-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O14.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RAQUEL PIRES DE LIMA...
+  ↳ NASC: 1994-07-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIELA ESPINOZA ARIAS...
+  ↳ NASC: 1986-12-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA LUISA OLIVEIRA GERMANO...
+  ↳ NASC: 2026-05-13 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EMILLY CRISTINA DE ALMEIDA RODRIGUES...
+  ↳ NASC: 2002-01-22 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN DE LEYDY LAURA FERREIRA DE SOUZA...
+  ↳ NASC: 2026-05-14 | SUS: Sim | PLANO: PLANO UNICO | CID: P01.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NATACHA CARLA SALVADOR DA SILVA...
+  ↳ NASC: 2000-03-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LETICIA QUIXABA GONCALVES...
+  ↳ NASC: 1997-04-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ASHLEY CHRYSTHYNE SOUZA SILVA...
+  ↳ NASC: 2007-07-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JAYNNE SILVA DA COSTA...
+  ↳ NASC: 2011-03-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIANA MACEDO DE CASTRO...
+  ↳ NASC: 1987-09-17 | SUS: Sim | PLANO: PLANO UNICO | CID: A90
+  ↳ UTI AD: 5 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LAILA CICERO DE SA PEDROSO DE ALVARENGA...
+  ↳ NASC: 1993-09-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ALBERTINA CRISTINS PAQUETTI...
+  ↳ NASC: 1993-08-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELLYNA KARLA MARTINS DOS SANTOS...
+  ↳ NASC: 2026-05-16 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 7 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BRUNA SANNY MAGALHAES LIMA SOARES...
+  ↳ NASC: 1995-01-22 | SUS: Sim | PLANO: PLANO UNICO | CID: O63.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAYANA PADRON VALDES...
+  ↳ NASC: 1991-08-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O69.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PAULO DIAS COSTA...
+  ↳ NASC: 1964-05-05 | SUS: Sim | PLANO: FILA ZERO | CID: K42.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NIVALDO PEREIRA DA SILVA...
+  ↳ NASC: 1955-05-05 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VITORIA CARDOSO DO CARMO...
+  ↳ NASC: 2000-06-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O02.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IARASMIN MARIA PEREIRA...
+  ↳ NASC: 2005-05-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CAROLINA DA SILVA SANTOS...
+  ↳ NASC: 2009-01-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 21...
+ 📖 Lendo Página 22...
+ 📖 Lendo Página 23...
+ 📖 Lendo Página 24...
+ 📖 Lendo Página 25...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] YASMIN LORENA SILVA...
+  ↳ NASC: 1996-11-03 | SUS: Sim | PLANO: PLANO UNICO | CID: B24
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NILZETE MARTINS DOS SANTOS...
+  ↳ NASC: 1982-08-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O14.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GABRIELA AMORIM DA SILVA...
+  ↳ NASC: 2000-09-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NIDIA THAMILLA DE CAMPOS MOREIRA...
+  ↳ NASC: 1998-03-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EDUARDA FERNANDA ALMEIDA SILVA...
+  ↳ NASC: 2005-02-10 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIANA GUBANYI...
+  ↳ NASC: 1990-01-18 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JESSIANE KELLEN DA SILVA RODRIGUES...
+  ↳ NASC: 1994-03-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EUZELIA GONCALVES NEGRIS...
+  ↳ NASC: 1970-08-03 | SUS: Sim | PLANO: PLANO UNICO | CID: T88.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ZILDA RODRIGUES TEIXEIRA...
+  ↳ NASC: 1973-06-29 | SUS: Sim | PLANO: PLANO UNICO | CID: Z00
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDREIA PETRONIA DOS SANTOS REY DE CAMPO...
+  ↳ NASC: 1981-07-22 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] POLIANE DA SILVA PAIXAO...
+  ↳ NASC: 1996-07-30 | SUS: Sim | PLANO: PLANO UNICO | CID: T88.8
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PEROLA ESTER CAMPOS FAUSTINO DOS SANTOS...
+  ↳ NASC: 2026-04-23 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NEMORA BARROS FARIA...
+  ↳ NASC: 1986-08-24 | SUS: Sim | PLANO: PLANO UNICO | CID: P95
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TIFANY GABRIELY LOPES DE MORAES...
+  ↳ NASC: 2004-01-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LETICIA NUNES DE MORAES...
+  ↳ NASC: 1995-06-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] POLIANA OLIVEIRA DE SOUZA...
+  ↳ NASC: 1996-10-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THYELLE CRISTINA MOURA XAVIER...
+  ↳ NASC: 2005-05-16 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PRISCILA VILAS BOAS DE ALCANTARA...
+  ↳ NASC: 2002-11-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARCELA DOS SANTOS BEZERRA...
+  ↳ NASC: 2001-05-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SUZANA DE MORAES E SOUZA...
+  ↳ NASC: 1983-09-26 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EUZIMAR BORGES DOS SANTOS...
+  ↳ NASC: 1972-05-02 | SUS: Sim | PLANO: FILA ZERO | CID: K42.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GESIBELY CRISTINA SANTOS DA SILVA...
+  ↳ NASC: 2002-01-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DIANA DIAS DA CRUZ...
+  ↳ NASC: 1990-12-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ARIADNY RODRIGUES E SILVA...
+  ↳ NASC: 1991-04-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUDMYLLA GEOVANNA DA SILVA...
+  ↳ NASC: 2005-04-03 | SUS: Sim | PLANO: PLANO UNICO | CID: O62.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BEATRIZ ALVES DO ESPIRITO SANTO...
+  ↳ NASC: 2003-12-13 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] WANESSA SOUZA MARQUES...
+  ↳ NASC: 2003-03-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O02.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDREELY MARIA RODRIGUES DE ALMEIDA...
+  ↳ NASC: 2000-07-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA PAULA DA SILVA PEREIRA...
+  ↳ NASC: 1996-08-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O11
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUCIMAIRA RIBEIRO DE BOMFIM...
+  ↳ NASC: 1984-06-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O23.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FERNANDA LEITE SILVA...
+  ↳ NASC: 1987-02-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TAYNARA MIRANDA DA SILVA...
+  ↳ NASC: 2007-12-11 | SUS: Sim | PLANO: PLANO UNICO | CID: T07
+  ↳ UTI AD: 6 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FRANCIELE DA SILVA SANTANA...
+  ↳ NASC: 1997-09-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O73.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARAIZA ADRIANA LAURA DA SILVA...
+  ↳ NASC: 1996-08-10 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TIFANY KENNY GOMES DE CARVALHO...
+  ↳ NASC: 2007-11-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TANIA ALVES RODRIGUES...
+  ↳ NASC: 1984-12-07 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELY TRINDADE DA SILVA OLIVEIRA...
+  ↳ NASC: 1966-08-25 | SUS: Sim | PLANO: PLANO UNICO | CID: R10.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KASSIA SILVIA ROSA...
+  ↳ NASC: 1980-12-23 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] UENMILA CRISTINA LIVIA COSTA CONCEICAO...
+  ↳ NASC: 1992-01-29 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VERA LUCIA BATISTA...
+  ↳ NASC: 1975-04-10 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MEIRIANE CARMO DA SILVA...
+  ↳ NASC: 1997-01-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CINTIA AQUINO PEREIRA...
+  ↳ NASC: 1989-01-25 | SUS: Sim | PLANO: PLANO UNICO | CID: A49.9
+  ↳ UTI AD: 4 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANTONIO JOSE LOPES DA SILVA...
+  ↳ NASC: 1963-04-03 | SUS: Não | PLANO: PLANO UNICO | CID: Y83.1
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIEL LIMA DE OLIVEIRA...
+  ↳ NASC: 1958-01-03 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EUZEBIO FERREIRA MARCAL...
+  ↳ NASC: 1944-04-05 | SUS: Não | PLANO: PLANO UNICO | CID: I20.0
+  ↳ UTI AD: 1 | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOEDILSON RIBEIRO DE SOUZA...
+  ↳ NASC: 1978-01-30 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ UTI AD: 9 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VITORIA CLAUDIA DE OLIVEIRA DA SILVA...
+  ↳ NASC: 2001-03-07 | SUS: Sim | PLANO: PLANO UNICO | CID: B24
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SEYLA POLIANA MIRANDA PESSOA MALAQUIAS D...
+  ↳ NASC: 1989-04-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] YAN CARLOS OLIVEIRA DA SILVA LOPES...
+  ↳ NASC: 2026-05-14 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 8 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARCIO VALDEMIR EVANGELISTA...
+  ↳ NASC: 1969-03-27 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 26...
+ 📖 Lendo Página 27...
+ 📖 Lendo Página 28...
+ 📖 Lendo Página 29...
+ 📖 Lendo Página 30...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] IZABELA PINHEIRO CUNHA...
+  ↳ NASC: 2002-01-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RHAISA SUZANE DE PAIVA MIRANDA...
+  ↳ NASC: 2001-05-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O42.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA JULIA NUNES LOPES...
+  ↳ NASC: 2006-10-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IZABELE CONCEICAO DE OLIVEIRA...
+  ↳ NASC: 2003-01-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VIVIANNY SAMPAIO DE MELO...
+  ↳ NASC: 2007-09-29 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIANA DE ARRUDA SILVA...
+  ↳ NASC: 1993-04-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELOAINY JORRAYNE SILVA DE SOUZA...
+  ↳ NASC: 2010-09-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN KATILA WANNITHA DA SILVA FERREIRA...
+  ↳ NASC: 2026-05-14 | SUS: Sim | PLANO: PLANO UNICO | CID: J96.0
+  ↳ UTIN: 4 | UCINCO: 3 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIE NADINE LEVEILLE...
+  ↳ NASC: 1986-03-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] APOLONIO GONCALO DE ARRUDA...
+  ↳ NASC: 1950-02-09 | SUS: Sim | PLANO: PLANO UNICO | CID: I50.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] NEUCIMAR BENTO DA SILVA MIRANDA...
+  ↳ NASC: 1987-03-21 | SUS: Sim | PLANO: PLANO UNICO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RAQUEL PEREIRA PONTES...
+  ↳ NASC: 1997-10-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LAIS CARLA DA SILVA...
+  ↳ NASC: 2000-01-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ESTER ARRUDA DOS SANTOS...
+  ↳ NASC: 2004-07-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] REGIANE DE AMORIM GOMES...
+  ↳ NASC: 1986-01-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O20.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARCOS ANTONIO SENA...
+  ↳ NASC: 1983-12-02 | SUS: Sim | PLANO: FILA ZERO | CID: K80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUANA DOMINGAS DA SILVA...
+  ↳ NASC: 2005-05-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA BEATRIZ ALVES REGINALDO...
+  ↳ NASC: 2003-10-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O75.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VALDOMIRO FAUSTINO DE SOUZA...
+  ↳ NASC: 1959-02-01 | SUS: Sim | PLANO: PLANO UNICO | CID: K81.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JACKELINE MAGALHAES CHAGAS...
+  ↳ NASC: 1989-03-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ROSANGELA JESUS DA SILVA DIAS DE MOURA...
+  ↳ NASC: 1983-08-27 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DROSNELLYS NATALITH GOMEZ SILVERA...
+  ↳ NASC: 1992-06-18 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EMANUELLE DA SILVA ALVES...
+  ↳ NASC: 1996-04-03 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DRIELLY ANTERO BARBOSA...
+  ↳ NASC: 1989-12-27 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] TUANY GONCALVES DE MOURA...
+  ↳ NASC: 1993-11-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CLAUDICELIA ALVES MIRANDA DA SILVA...
+  ↳ NASC: 1979-04-30 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CECILENE DA SILVA LIMA MONTEIRO...
+  ↳ NASC: 1986-07-08 | SUS: Sim | PLANO: PLANO UNICO | CID: D25.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] BENEDITO SALVELINO...
+  ↳ NASC: 1946-10-07 | SUS: Sim | PLANO: FILA ZERO | CID: N40
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DURVALINA FRANCISCO DOS SANTOS...
+  ↳ NASC: 1959-10-23 | SUS: Sim | PLANO: PLANO UNICO | CID: I67.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RN SILVANA STHEFANE DE ALMEIDA SILVA...
+  ↳ NASC: 2026-05-11 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PRISCILA CRISTINA NEVES DE OLIVEIRA...
+  ↳ NASC: 1984-10-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CINTIA MARQUES DA SILVA...
+  ↳ NASC: 2003-07-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ADRIANA MOURA RIBEIRO DA SILVA...
+  ↳ NASC: 1988-03-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PALOMA DE OLIVEIRA FRANCA DOS SANTOS...
+  ↳ NASC: 1996-09-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KETLY CHRISTINI DE SOUZA RAMALHO...
+  ↳ NASC: 2003-11-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O90.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DEBORA BIBIANE SANTANA...
+  ↳ NASC: 2000-12-09 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANA BEATRIZ RODRIGUES SOBRINHO...
+  ↳ NASC: 2003-06-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LEYDY LAURA FERREIRA DE SOUZA...
+  ↳ NASC: 1989-01-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EDSON PEREIRA DOS SANTOS...
+  ↳ NASC: 1965-04-15 | SUS: Sim | PLANO: PLANO UNICO | CID: J96.9
+  ↳ UTI AD: 7 | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA ELIANA COSTA DE MORAIS...
+  ↳ NASC: 1982-11-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O02.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CAMILA FRANCISCA DOS SANTOS FERREIRA...
+  ↳ NASC: 1997-12-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAMIRELLY LUIZA DA SILVA...
+  ↳ NASC: 2000-07-20 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] HELENA GOMIERI DAUFENBACH...
+  ↳ NASC: 2026-04-25 | SUS: Sim | PLANO: PLANO UNICO | CID: J96.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUCINEUDA FERREIRA GONCALVES...
+  ↳ NASC: 1969-10-20 | SUS: Sim | PLANO: PLANO UNICO | CID: K57.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA EDUARDA LARA BRANDAO...
+  ↳ NASC: 2006-06-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CHARLYE LEANNA DE SOUSA MENDES...
+  ↳ NASC: 2006-07-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O62.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GESCYANY KETELLY SOUZA SENE...
+  ↳ NASC: 2002-01-18 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JUCILENE SEVERINA DA SILVA...
+  ↳ NASC: 1995-01-09 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELA LUJAN RAMOS...
+  ↳ NASC: 2000-03-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SIMONI MENDES GUIMARÃES...
+  ↳ NASC: 2000-05-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O13
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 31...
+ 📖 Lendo Página 32...
+ 📖 Lendo Página 33...
+ 📖 Lendo Página 34...
+ 📖 Lendo Página 35...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] KATILA WANNITHA DA SILVA FERREIRA...
+  ↳ NASC: 2005-07-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JUSCIMARA SANTOS DA SILVA...
+  ↳ NASC: 1992-09-26 | SUS: Sim | PLANO: PLANO UNICO | CID: N70.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RAVI LOPES LIMA FERRAZ...
+  ↳ NASC: 2026-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: P96.8
+  ↳ UTIN: 6 | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARCIA MARINA DA SILVA...
+  ↳ NASC: 1991-05-23 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] YASMIN DA SILVA FONSECA...
+  ↳ NASC: 2007-07-21 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDYARA KETYNA SOUZA MAIA...
+  ↳ NASC: 2000-01-10 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ARIELY VITORIA GONCALVES...
+  ↳ NASC: 2001-07-04 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA DA SILVA DAMACENA...
+  ↳ NASC: 1952-02-06 | SUS: Sim | PLANO: FILA ZERO | CID: K80.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ELAINE FAEDA SIERRA...
+  ↳ NASC: 1988-09-18 | SUS: Sim | PLANO: PLANO UNICO | CID: O03.4
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDERSON ANTONIO BARROS E SILVA...
+  ↳ NASC: 1969-11-15 | SUS: Sim | PLANO: PLANO UNICO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FERNANDA FERREIRA LACERDA PAZ...
+  ↳ NASC: 1994-05-01 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] YELIS ECHEVARRIA PEREZ...
+  ↳ NASC: 2005-03-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] EVELIN CRISTINE ALVES BARBOSA...
+  ↳ NASC: 2002-04-30 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LETICIA DIVINA LOPES DE ARRUDA...
+  ↳ NASC: 2000-06-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUCINETE DOMINGAS DA SILVA...
+  ↳ NASC: 1998-11-29 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PAMELA KAMILY MARCIANO DE MELO SOUZA...
+  ↳ NASC: 1994-01-26 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] UNEILY OLIVEIRA DA CRUZ...
+  ↳ NASC: 1990-08-04 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ESTHER CHRISTIE PEREIRA DO ESPIRITO SANT...
+  ↳ NASC: 2008-06-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JULIA ELENA BOLICO DOS SANTOS...
+  ↳ NASC: 2001-09-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA JAINE DA SILVA...
+  ↳ NASC: 2002-04-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] RAQUEL LINDAMAR RIBEIRO...
+  ↳ NASC: 1987-02-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.6
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JUCIMARA ROSA DA SILVA...
+  ↳ NASC: 1993-07-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MICKAELLY DE ARRUDA TAQUES...
+  ↳ NASC: 1997-04-25 | SUS: Sim | PLANO: PLANO UNICO | CID: O14.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CRISTIANA KUTZ DE OLIVEIRA...
+  ↳ NASC: 1993-03-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O90.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAIANE FERREIRA DOS SANTOS...
+  ↳ NASC: 1996-01-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PEDRO BOIKO...
+  ↳ NASC: 2026-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.3
+  ↳ UTIN: 9 | UCINCO: 2 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] FRANCISCA PAULA VIEIRA DE SOUSA...
+  ↳ NASC: 1994-02-01 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LARISSA COSTA SOARES...
+  ↳ NASC: 2000-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.3
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] IARASMIN MARIA PEREIRA...
+  ↳ NASC: 2005-05-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOABE SILVA DO AMARAL...
+  ↳ NASC: 2026-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.0
+  ↳ UTIN: 11 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIA EDUARDA DE ARRUDA MORAES...
+  ↳ NASC: 2007-04-22 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CECILIA GOMES DE OLIVEIRA...
+  ↳ NASC: 2026-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.0
+  ↳ UTIN: 3 | UCINCO: 8 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PEDRO PINTO DE MIRANDA...
+  ↳ NASC: 1957-06-29 | SUS: Sim | PLANO: PLANO UNICO | CID: R10.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] JOANA GOMES DE OLIVEIRA...
+  ↳ NASC: 2026-05-12 | SUS: Sim | PLANO: PLANO UNICO | CID: P07.0
+  ↳ UTIN: 1 | UCINCO: 10 | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] THAISSA SAMARA OLIVEIRA SILVA...
+  ↳ NASC: 2003-01-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] PAULA CAROLINE DE SOUZA PEREIRA...
+  ↳ NASC: 1998-12-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] GLAUCIA SOARES JARDIM...
+  ↳ NASC: 1989-03-22 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MIGUEL BRANDAO DIAS...
+  ↳ NASC: 2026-05-05 | SUS: Sim | PLANO: PLANO UNICO | CID: P59.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ALUIZIO DOS SANTOS...
+  ↳ NASC: 1960-08-31 | SUS: Sim | PLANO: PLANO UNICO | CID: I21.9
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ADRIELLY APARECIDA GUSMAO DE MORAES...
+  ↳ NASC: 2002-08-01 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VALERIA APARECIDA DOS SANTOS...
+  ↳ NASC: 1960-07-26 | SUS: Sim | PLANO: PLANO UNICO | CID: E11.5
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VALDINEIA PEREIRA DOS SANTOS...
+  ↳ NASC: 1988-12-29 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MAYRA MITIKO GONCALVES OTOMURA...
+  ↳ NASC: 1996-04-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LORENA MARIA SINAGA SOUZA...
+  ↳ NASC: 2005-03-08 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CARLA CRISTINE DE ALMEIDA E SILVA...
+  ↳ NASC: 2000-01-05 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DAIANA RIBEIRO...
+  ↳ NASC: 1985-12-27 | SUS: Sim | PLANO: FILA ZERO | CID: Z30.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DIEGO LEMES DE ALMEIDA...
+  ↳ NASC: 1993-07-03 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] VIVIANA JOSEFINA BENITEZ URRIETA...
+  ↳ NASC: 1995-12-27 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] ANDRESSA DE SOUZA DAVID...
+  ↳ NASC: 1991-01-05 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] AMANDA MONICO PRADO...
+  ↳ NASC: 2005-05-06 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+💾 [AUTO-SAVE] Lote salvo no disco! Retomando a paginação da fila principal...
+
+ 📖 Lendo Página 36...
+ 📖 Lendo Página 37...
+ 📖 Lendo Página 38...
+ 📖 Lendo Página 39...
+ 📖 Lendo Página 40...
+
+📦 LOTE DE 50 ATINGIDO! Pausando fila principal para processar...
+
+[Extraindo] JOSE POMPILIO DE ARAUJO FILHO...
+  ↳ NASC: 1964-09-13 | SUS: Sim | PLANO: FILA ZERO | CID: K40.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUIZ FERNANDO DE SOUZA SILVA...
+  ↳ NASC: 1999-04-17 | SUS: Sim | PLANO: FILA ZERO | CID: S83.5
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CINTIA AQUINO PEREIRA...
+  ↳ NASC: 1989-01-25 | SUS: Sim | PLANO: FILA ZERO | CID: N85.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] MARIZA HELENA LINHARES DA SILVA...
+  ↳ NASC: 1950-07-19 | SUS: Sim | PLANO: FILA ZERO | CID: K81.1
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] STHEFANY LIDIANE SIQUEIRA NASCIMENTO...
+  ↳ NASC: 1995-01-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O69.9
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LEIDIANE DE ARAUJO NASCIMENTO...
+  ↳ NASC: 1991-05-17 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LEANDRA VITORIA CERQUEIRA SOUZA...
+  ↳ NASC: 2007-02-24 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] AMANDA LOPES FERRAZ...
+  ↳ NASC: 2007-03-02 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] LUZIA ALVES DA SILVA...
+  ↳ NASC: 2005-05-19 | SUS: Sim | PLANO: PLANO UNICO | CID: O99.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] CAROLLINE CUSTODIO PINHEIRO...
+  ↳ NASC: 1995-06-11 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] DANIELA GARCIA LOPES...
+  ↳ NASC: 2001-02-07 | SUS: Sim | PLANO: PLANO UNICO | CID: O34.2
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] KARLIELE DA SILVA SANTOS...
+  ↳ NASC: 1998-08-28 | SUS: Sim | PLANO: PLANO UNICO | CID: O80.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] WILLYANE NAYRA DE MORAES SILVA...
+  ↳ NASC: 2003-07-14 | SUS: Sim | PLANO: PLANO UNICO | CID: O82.0
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] SILVANA STHEFANE DE ALMEIDA SILVA...
+  ↳ NASC: 2006-02-15 | SUS: Sim | PLANO: PLANO UNICO | CID: O30.8
+  ↳ ENF/ALOJ | ALTA: Sim
+  ✅ Dados capturados e salvos no banco!
+
+[Extraindo] INGRID IANNA GONCALVES DE OLIVEIRA...
+  ⚠️ Tabela de leitos não encontrada. Resgatando dados base do paciente!
+  ↳ NASC: None | SUS: Sim | PLANO: PLANO UNICO | CID: NÃO IN
+  ↳ ENF/ALOJ | ALTA: NÃO
+  ✅ Dados capturados e salvos no banco!
+
+❌ Erro Crítico ou Robô Parado Manualmente: Message: invalid session id; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidsessionidexception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ab593+105d3]
+	chromedriver!GetHandleVerifier [0x7ab6c4+10704]
+	chromedriver!(No symbol) [0x5b1cde]
+	chromedriver!(No symbol) [0x5efb77]
+	chromedriver!(No symbol) [0x61d636]
+	chromedriver!(No symbol) [0x618861]
+	chromedriver!(No symbol) [0x618241]
+	chromedriver!(No symbol) [0x58502e]
+	chromedriver!(No symbol) [0x5855ce]
+	chromedriver!(No symbol) [0x585aad]
+	chromedriver!GetHandleVerifier [0xa33014+298054]
+	chromedriver!GetHandleVerifier [0xa2e603+293643]
+	chromedriver!GetHandleVerifier [0xa4ea05+2b3a45]
+	chromedriver!GetHandleVerifier [0x7c54e8+2a528]
+	chromedriver!GetHandleVerifier [0x7ccd1d+31d5d]
+	chromedriver!(No symbol) [0x584ba6]
+	chromedriver!(No symbol) [0x5841e0]
+	chromedriver!GetHandleVerifier [0xb987af+3fd7ef]
+	KERNEL32!BaseThreadInitThunk [0x75d55d49+19]
+	ntdll!RtlInitializeExceptionChain [0x772fd83b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x772fd7c1+231]
+
+💾 [SALVAMENTO FINAL] Caches protegidos no disco.
