@@ -285,10 +285,14 @@
     <div id="modalMapeamento" class="modal-overlay no-print">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-edit text-orange-500 mr-2"></i> Mapear Procedimento do Paciente</h3>
+                <h3><i class="fas fa-edit text-orange-500 mr-2"></i> Mapear Procedimento (Simulação Local)</h3>
                 <button class="modal-close" onclick="$('#modalMapeamento').fadeOut(200);"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
+                <div class="mb-4 bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg text-xs text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-info-circle mr-1"></i> Este botão serve para <b>simular</b> um código antes do sistema faturar. Quando você atualizar o relatório oficial do MV (Robô Python), o sistema puxará o código real automaticamente para todos os usuários.
+                </div>
+
                 <input type="hidden" id="map_paciente_key">
                 
                 <div class="mb-4">
@@ -302,13 +306,13 @@
                 </div>
 
                 <div class="mb-6">
-                    <label for="map_codigo" class="block text-xs font-bold text-gray-400 uppercase mb-2">Selecione a Cirurgia Realizada (Meta Fila Zero):</label>
+                    <label for="map_codigo" class="block text-xs font-bold text-gray-400 uppercase mb-2">Selecione a Cirurgia (Simulação):</label>
                     <select id="map_codigo" class="input-form font-semibold" style="height: auto;">
                         <option value="">-- SELECIONE O PROCEDIMENTO --</option>
                     </select>
                 </div>
 
-                <button onclick="salvarMapeamento()" class="btn-submit"><i class="fas fa-save mr-2"></i> Salvar Mapeamento</button>
+                <button onclick="salvarMapeamento()" class="btn-submit"><i class="fas fa-save mr-2"></i> Salvar Simulação Local</button>
             </div>
         </div>
     </div>
@@ -460,6 +464,7 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
+                // 1. Puxa os pacientes do Fila Zero (IndicaSUS)
                 let allIndicaData = []; let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data: indData, error } = await client.from('indicasus_leitos')
@@ -480,6 +485,29 @@
                 });
 
                 let dadosPacientes = Object.values(mapPacientes);
+
+                // =========================================================
+                // 2. CRUZAMENTO GLOBAL OFICIAL: PUXA CÓDIGOS DO MV (cirurgias_detalhe)
+                // =========================================================
+                let mapaOficialMV = {};
+                try {
+                    const { data: cirurgiasData } = await client.from('cirurgias_detalhe')
+                        .select('paciente, cod_tabela')
+                        .gte('data_cirurgia', d1).lte('data_cirurgia', d2)
+                        .eq('convenio', 'FILA ZERO'); // Puxa apenas do Fila Zero para otimizar
+                        
+                    if (cirurgiasData) {
+                        cirurgiasData.forEach(c => {
+                            if (c.paciente && c.cod_tabela && c.cod_tabela !== "null") {
+                                // Padroniza o nome para cruzamento exato
+                                let nomeMV = c.paciente.trim().toUpperCase();
+                                mapaOficialMV[nomeMV] = c.cod_tabela;
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Erro ao cruzar base MV", e); }
+                // =========================================================
+
                 let contadorRealizadoMeta = {};
                 metasFilaZero.forEach(m => contadorRealizadoMeta[m.Codigo] = 0);
 
@@ -490,7 +518,21 @@
                     let keyUnica = d.nome_paciente + "_" + d.data_internacao;
                     let cidOriginal = d.diagnostico && d.diagnostico !== 'NÃO INFORMADO' ? d.diagnostico : 'SEM REGISTRO';
                     
-                    let codigoSigtapFinal = localStorage.getItem('nii_fz_override_' + keyUnica) || inferirSigtapFilaZero(cidOriginal);
+                    let nomeLimpo = d.nome_paciente.trim().toUpperCase();
+                    
+                    // Hierarquia de Inteligência:
+                    // 1º Tenta achar o código oficial no banco de dados do MV (Global)
+                    let codigoOficialMV = mapaOficialMV[nomeLimpo];
+                    // 2º Tenta achar uma simulação local da máquina do usuário
+                    let codigoManualLocal = localStorage.getItem('nii_fz_override_' + keyUnica);
+                    // 3º Tenta adivinhar pelo texto do CID
+                    let codigoInferido = inferirSigtapFilaZero(cidOriginal);
+
+                    // A mágica acontece aqui:
+                    let codigoSigtapFinal = codigoOficialMV || codigoManualLocal || codigoInferido;
+
+                    // Salvamos a origem para mostrar um ícone bonito na tabela
+                    d.origem_codigo = codigoOficialMV ? 'MV' : (codigoManualLocal ? 'MANUAL' : (codigoInferido ? 'CID' : 'NENHUM'));
 
                     let evol = String(d.evolucao_clinica || "").toUpperCase();
                     d.status_real = (evol.includes("ALTA") || evol.includes("ÓBITO") || evol.includes("OBITO") || evol.includes("TRANSF") || evol.includes("EVAS")) ? 'ALTA' : 'INTERNADO';
@@ -643,8 +685,15 @@
                             render: function(d, type, row) {
                                 if(type === 'display') {
                                     if (row.codigo_mapeado === 'SEM_MAP') return `<span class="text-red-400 font-bold text-xs"><i class="fas fa-exclamation-circle mr-1"></i> Não mapeado (CID: ${row.cid_original})</span>`;
+                                    
+                                    // NOVO: Adiciona um ícone bonito mostrando de onde o código veio!
+                                    let iconeOrigem = "";
+                                    if(row.origem_codigo === 'MV') iconeOrigem = `<i class="fas fa-check-double text-emerald-400 mr-1" title="Código Oficial validado via relatório do MV"></i>`;
+                                    else if(row.origem_codigo === 'MANUAL') iconeOrigem = `<i class="fas fa-user-edit text-orange-400 mr-1" title="Código Simulado Manualmente por você"></i>`;
+                                    else if(row.origem_codigo === 'CID') iconeOrigem = `<i class="fas fa-robot text-blue-400 mr-1" title="Código deduzido automaticamente pelo Robô com base no CID"></i>`;
+
                                     let c = row.codigo_mapeado === '0000000000' ? 'text-gray-500' : 'text-emerald-400';
-                                    return `<div class="font-bold text-xs ${c}">${row.codigo_mapeado} - ${row.desc_mapeado}</div>
+                                    return `<div class="font-bold text-xs ${c}">${iconeOrigem} ${row.codigo_mapeado} - ${row.desc_mapeado}</div>
                                             <div class="text-[0.6rem] text-gray-500 mt-1">Reg. Clínico: ${row.cid_original}</div>`;
                                 }
                                 return row.codigo_mapeado;
@@ -653,7 +702,11 @@
                         { 
                             data: null, className: 'text-center',
                             render: function(d, type, row) {
-                                return `<button onclick="abrirModalMapeamento('${row.nome_paciente}', '${row.data_internacao}', '${row.cid_original}', '${row.codigo_mapeado}', '${row.key_unica}')" class="btn-edit"><i class="fas fa-edit"></i> Mapear</button>`;
+                                // Se o código já veio do MV (Oficial), não tem porque o usuário mapear de novo
+                                if (row.origem_codigo === 'MV') {
+                                    return `<span class="text-[0.65rem] font-bold text-emerald-500 uppercase bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20"><i class="fas fa-lock mr-1"></i> Faturado</span>`;
+                                }
+                                return `<button onclick="abrirModalMapeamento('${row.nome_paciente}', '${row.data_internacao}', '${row.cid_original}', '${row.codigo_mapeado}', '${row.key_unica}')" class="btn-edit" title="Simular um código temporário"><i class="fas fa-edit"></i> Simular</button>`;
                             }
                         }
                     ]
