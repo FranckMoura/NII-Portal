@@ -82,8 +82,9 @@
         .search-label { font-weight: 700; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .input-wrapper { position: relative; width: 100%; margin-top: 5px;}
         .input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .input-wrapper input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.6); color: white; border-radius: 8px; outline: none; font-size: 0.9rem;}
-        .input-wrapper input:focus { border-color: #38bdf8; }
+        .input-wrapper input, .input-wrapper select { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.6); color: white; border-radius: 8px; outline: none; font-size: 0.9rem;}
+        .input-wrapper input:focus, .input-wrapper select:focus { border-color: #38bdf8; }
+        .input-wrapper select { cursor: pointer; appearance: auto; }
 
         .btn-view { background-color: transparent; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; transition: 0.2s; cursor: pointer; }
         .btn-view:hover { background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: #38bdf8; }
@@ -135,8 +136,8 @@
         body.theme-classic .badge-internado { background: #f0fdf4; color: #059669; border-color: #bbf7d0; }
 
         body.theme-classic .search-label { color: #475569; }
-        body.theme-classic .input-wrapper input { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
-        body.theme-classic .input-wrapper input:focus { border-color: #004e92; }
+        body.theme-classic .input-wrapper input, body.theme-classic .input-wrapper select { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+        body.theme-classic .input-wrapper input:focus, body.theme-classic .input-wrapper select:focus { border-color: #004e92; }
         
         body.theme-classic .btn-limpar { background: white; border: 1px solid #cbd5e1; color: #64748b; }
         body.theme-classic .btn-limpar:hover { background: #f1f5f9; }
@@ -187,9 +188,6 @@
         .dt-button:hover { background: rgba(255, 255, 255, 0.1) !important; color: white !important;}
         body.theme-classic .dt-button { background: white !important; color: #475569 !important; border-color: #cbd5e1 !important; }
         body.theme-classic .dt-button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
-
-        /* Filtro escondido para ler da casca */
-        .hidden-filters { display: none; }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -263,10 +261,9 @@
         </div>
     </div>
 
-    <div class="hidden-filters">
+    <div style="display: none;">
         <input type="hidden" id="anoFilter">
         <input type="hidden" id="mesFilter">
-        <input type="hidden" id="susFilter" value="TODOS">
     </div>
 
     <div>
@@ -278,6 +275,21 @@
                     <input type="text" id="tableSearch" placeholder="Digite para pesquisar..." onkeyup="filtrarTabelaLocal()">
                 </div>
             </div>
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label class="search-label"><i class="fas fa-hand-holding-medical dyn-text-accent"></i> Convênio / Financiamento:</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-filter"></i>
+                    <select id="susFilter" onchange="aplicarFiltroSusLocal()">
+                        <option value="SUS_TODOS" selected>Apenas SUS (Geral)</option>
+                        <option value="SUS_UNICO">SUS - Plano Único</option>
+                        <option value="SUS_FILAZERO">SUS - Fila Zero</option>
+                        <option value="NAO">Particular / Outros Convênios</option>
+                        <option value="TODOS">Todos (SUS + Particular)</option>
+                    </select>
+                </div>
+            </div>
+
             <div>
                 <button class="btn-filter btn-limpar" onclick="limparFiltrosTabela()"><i class="fas fa-eraser"></i> Limpar Filtros</button>
             </div>
@@ -287,7 +299,7 @@
             <div class="glass-card" onclick="$('#susFilter').val('SUS_FILAZERO'); aplicarFiltroSusLocal();" title="Filtrar pacientes Fila Zero">
                 <div class="kpi-title" style="color: #f472b6;">Fila Zero <i class="fas fa-star text-pink-400"></i></div>
                 <div class="kpi-number" style="color: #f472b6;" id="kpiFilaZero">0</div>
-                <div class="kpi-sub">Internações no mês</div>
+                <div class="kpi-sub">Censo Faturado no mês</div>
             </div>
 
             <div class="glass-card" onclick="filtrarPorLeito('UTI ADULTO')" title="Clique para listar na tabela">
@@ -376,14 +388,10 @@
         let dadosOriginaisBrutos = []; let dadosFiltradosGlobais = [];
         let filtroLeitoAtivo = 'TODOS';
 
-        // ==========================================
-        // EDITE AQUI A QUANTIDADE FÍSICA DE LEITOS
-        // ==========================================
         let cfgLeitosTotal = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 100 };
         let cfgLeitosSUS = { utiAd: 10, utin: 18, ucinco: 4, ucinca: 3, enf: 80 };
         let cfgLeitosNaoSUS = { utiAd: 0, utin: 0, ucinco: 0, ucinca: 0, enf: 20 };
 
-        // Função de Tema chamada pela Casca
         window.toggleTheme = function() {
             const body = document.body;
             let isClassic = localStorage.getItem('nii_theme_hub') === 'classic';
@@ -402,9 +410,6 @@
             if (event.target == modal) { fecharModal(); }
         }
 
-        // ========================================================
-        // AQUI FOI AJUSTADO O MODAL: Lendo da matriz de forma segura
-        // ========================================================
         window.abrirModalIndice = function(rowIndex) {
             let p = dadosFiltradosGlobais[rowIndex];
             if (!p) return;
@@ -484,7 +489,7 @@
         }
 
         function limparFiltrosTabela() {
-            $('#tableSearch').val(''); $('.search-input').val(''); $('#susFilter').val('TODOS');
+            $('#tableSearch').val(''); $('.search-input').val(''); $('#susFilter').val('SUS_TODOS');
             filtrarPorLeito('TODOS'); aplicarFiltroSusLocal(); 
         }
 
@@ -544,9 +549,10 @@
                 const planoSus = (row.plano_sus || "PLANO UNICO").toUpperCase();
                 const dtInt = row.data_internacao || "SEM DATA";
 
+                // APLICA O FILTRO DO DROPDOWN NO LOOP PRINCIPAL
                 if (susFilterValue === 'SUS_TODOS' && !isSus) return;
                 if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
-                if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO') || !dtInt.startsWith(prefixoMesAtual))) return;
+                if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO'))) return;
                 if (susFilterValue === 'NAO' && isSus) return;
 
                 const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
@@ -681,9 +687,10 @@
 
             $('#kpiPacientes').text(dadosFiltradosGlobais.length);
 
+            // Censo Fila Zero Perfeito (Sincronizado com o Hub)
             let filaZeroCount = 0;
             Array.from(map.values()).forEach(p => {
-                 if(p.plano_sus && p.plano_sus.includes('FILA ZERO') && p.data_internacao && p.data_internacao.startsWith(prefixoMesAtual)) {
+                 if(p.plano_sus && p.plano_sus.includes('FILA ZERO')) {
                      filaZeroCount++;
                  }
             });

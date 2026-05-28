@@ -492,9 +492,6 @@
         window.chartEspecInstance = null;
         const cfgLeitos = { uti: 10, utin: 18, ucinco: 4, ucinca: 3 };
 
-        // ==========================================
-        // MOTOR SPA E FILTROS DIRETOS
-        // ==========================================
         function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
             $('#main-nav .nav-item').removeClass('active');
             if(elMenu && $(elMenu).hasClass('nav-item')) {
@@ -516,7 +513,6 @@
             window.history.pushState({ painel: arquivoHtml, titulo: nomePuro }, '', '?app=' + nomeUrl);
         }
 
-        // Nova Função que injeta a flag no SessionStorage antes de abrir o módulo
         function abrirFiltradoFilaZero() {
             sessionStorage.setItem('auto_filter_filazero', 'true');
             abrirModulo('painel_simuladas.html', 'simuladas', null, 'Produção AIH (Fila Zero)');
@@ -549,9 +545,6 @@
             client.auth.signOut().then(() => { window.location.replace('login.html'); });
         }
 
-        // ==========================================
-        // DADOS E GRÁFICOS
-        // ==========================================
         function setupAnoMes() {
             const anoSel = $('#anoFilter'); const mesSel = $('#mesFilter');
             const data = new Date(); 
@@ -747,7 +740,17 @@
                 });
                 
                 let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 }; 
+                
+                // ==========================================
+                // NOVO: CALCULO DO CENSO FILA ZERO SINCRONIZADO
+                // ==========================================
+                let filaZeroCount = 0;
+                
                 mapP.forEach(p => {
+                    if(p.plano && p.plano.includes('FILA ZERO')) {
+                        filaZeroCount++;
+                    }
+                    
                     p.dias_map.forEach(leitoBruto => {
                         let l = (leitoBruto||'').toUpperCase();
                         if(l.includes("UTI ADULTO") || l === "UTI") ocup.uti++;
@@ -757,26 +760,15 @@
                     });
                 });
                 
+                $('#kpi-fila-zero-censo').text(filaZeroCount);
+                // ==========================================
+                
                 let diasParaCalc = (parseInt(ano) === dataAtual.getFullYear() && parseInt(mes) === dataAtual.getMonth()+1) ? dataAtual.getDate() : dataFimObj.getDate();
                 
                 $('#taxa-uti').text(ocup.uti); $('#meta-uti').html(`Ocup: <b>${Math.round((ocup.uti/(cfgLeitos.uti*diasParaCalc))*100)}%</b>`);
                 $('#taxa-utin').text(ocup.utin); $('#meta-utin').html(`Ocup: <b>${Math.round((ocup.utin/(cfgLeitos.utin*diasParaCalc))*100)}%</b>`);
                 $('#taxa-ucinco').text(ocup.ucinco); $('#meta-ucinco').html(`Ocup: <b>${Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalc))*100)}%</b>`);
                 $('#taxa-ucinca').text(ocup.ucinca); $('#meta-ucinca').html(`Ocup: <b>${Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalc))*100)}%</b>`);
-
-                let allFzData = []; let fromFz = 0; let stepFz = 1000;
-                while (true) {
-                    const { data } = await client.from('indicasus_leitos')
-                        .select('nome_paciente, data_internacao')
-                        .gte('data_internacao', d1).lte('data_internacao', d2)
-                        .ilike('plano_sus', '%FILA ZERO%')
-                        .range(fromFz, fromFz + stepFz - 1);
-                    if (data && data.length > 0) { allFzData = allFzData.concat(data); fromFz += stepFz; }
-                    if (!data || data.length < stepFz) break;
-                }
-                let mapFz = {};
-                allFzData.forEach(d => { mapFz[d.nome_paciente + "_" + d.data_internacao] = true; });
-                $('#kpi-fila-zero-censo').text(Object.keys(mapFz).length);
 
                 const { count } = await client.from('cirurgias_detalhe').select('*', { count: 'exact', head: true }).gte('data_cirurgia', d1).lte('data_cirurgia', d2).in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
                 $('#kpi-internacoes').text(count || 0);
