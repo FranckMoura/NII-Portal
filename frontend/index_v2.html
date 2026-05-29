@@ -492,7 +492,7 @@
         window.chartEspecInstance = null;
         const cfgLeitos = { uti: 10, utin: 18, ucinco: 4, ucinca: 3 };
 
-        function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
+function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
             $('#main-nav .nav-item').removeClass('active');
             if(elMenu && $(elMenu).hasClass('nav-item')) {
                 $(elMenu).addClass('active');
@@ -510,7 +510,9 @@
             $('#view-hub').hide();
             $('#view-iframe').show();
             $('#app-frame').attr('src', arquivoHtml);
-            window.history.pushState({ painel: arquivoHtml, titulo: nomePuro }, '', '?app=' + nomeUrl);
+            
+            // CORREÇÃO AQUI: Mantém a URL intacta, sem adicionar o "?app="
+            window.history.pushState({ painel: arquivoHtml, titulo: nomePuro }, '', window.location.pathname);
         }
 
         function abrirFiltradoFilaZero() {
