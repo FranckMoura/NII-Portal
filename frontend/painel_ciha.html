@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tratamento CIHA01 - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* TEMA GLOBAL DARK NEON / CLASSIC */
+        :root {
+            --bg-body: #0f172a;       
+            --bg-card: #1e293b;       
+            --bg-hover: #334155;      
+            --border-color: #334155;
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;    
+            --color-primary: #38bdf8; 
+            --color-success: #34d399; 
+            --color-warning: #fbbf24; 
+            --color-danger:  #f87171; 
+            --radius-default: 12px;
+        }
+
+        body.theme-classic {
+            --bg-body: #f1f5f9;       
+            --bg-card: #ffffff;       
+            --bg-hover: #f8fafc;      
+            --border-color: #cbd5e1;  
+            --text-main: #0f172a;     
+            --text-muted: #475569;    
+            --color-primary: #0056b3; 
+            --color-success: #059669; 
+            --color-warning: #d97706; 
+            --color-danger:  #dc2626; 
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            margin: 0; padding-bottom: 40px; 
+            transition: 0.3s; 
+        }
+
+        .cyber-container {
+            background: var(--bg-card); border-radius: var(--radius-default); 
+            padding: 24px; border: 1px solid var(--border-color); 
+            margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;}
+        .kpi-card { 
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; 
+            padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        .kpi-value { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-top: 8px;}
+
+        /* ESTILOS DE ARQUIVO */
+        .file-drop-area {
+            border: 2px dashed var(--color-primary); border-radius: 12px; padding: 40px; 
+            text-align: center; cursor: pointer; transition: 0.3s; background: rgba(56, 189, 248, 0.05);
+        }
+        .file-drop-area:hover { background: rgba(56, 189, 248, 0.1); }
+        body.theme-classic .file-drop-area { background: #eff6ff; }
+        body.theme-classic .file-drop-area:hover { background: #e0f2fe; }
+
+        /* BADGES */
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; }
+        .badge-ok { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-erro { background: rgba(248, 113, 113, 0.1); color: var(--color-danger); border: 1px solid rgba(248, 113, 113, 0.3); animation: pulse 2s infinite;}
+        .badge-removido { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); text-decoration: line-through;}
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
+
+        .btn-action { color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; border: none;}
+        .btn-limpar { background: var(--color-danger); } .btn-limpar:hover { filter: brightness(1.1); }
+        .btn-exportar { background: var(--color-success); } .btn-exportar:hover { filter: brightness(1.1); }
+        .btn-edit { background: var(--color-warning); color: #000; padding: 4px 10px; font-size: 0.7rem; border-radius: 6px; }
+
+        .row-removida { opacity: 0.4; background-color: var(--bg-body) !important; }
+
+        /* MODAIS SAAS DESIGN */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: var(--text-main); }
+        .modal-header { background: var(--bg-body); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main);}
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: var(--color-danger); }
+        .modal-body { padding: 24px; }
+        .input-form { width: 100%; padding: 12px; border-radius: 8px; font-size: 0.9rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none;}
+        .input-form:focus { border-color: var(--color-warning); }
+
+        /* DATATABLES */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
+        table.dataTable thead th { font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px !important; background-color: var(--bg-body) !important; color: var(--color-primary) !important; border-bottom: 2px solid var(--border-color) !important;}
+        table.dataTable tbody td { font-size: 0.8rem; vertical-align: middle; padding: 10px !important; border-bottom: 1px solid var(--border-color) !important;}
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: var(--text-muted) !important; }
+
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-[98%] mx-auto px-4 pt-6">
+        
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold"><i class="fas fa-file-code text-blue-400 mr-2"></i> Tratamento de Arquivo CIHA01</h1>
+                <p class="text-sm text-gray-500 mt-1">Identifique e corrija inconsistências (Procedimento 0000000000) antes de enviar ao DATASUS.</p>
+            </div>
+            <button onclick="toggleTheme()" class="text-gray-500 hover:text-white transition"><i class="fas fa-moon text-2xl" id="theme-icon"></i></button>
+        </div>
+
+        <div class="cyber-container">
+            <label class="file-drop-area block">
+                <i class="fas fa-cloud-upload-alt text-4xl mb-3" style="color:var(--color-primary);"></i>
+                <h3 class="text-lg font-bold" style="color:var(--text-main);">Selecione ou Arraste o arquivo CIHA (.txt) gerado pelo SoulMV</h3>
+                <p class="text-sm mt-2" style="color:var(--text-muted);">Os dados são processados de forma 100% segura e local no seu navegador.</p>
+                <input type="file" id="fileInput" accept=".txt" style="display: none;" onchange="lerArquivo(event)">
+            </label>
+        </div>
+
+        <div id="painelDados" style="display: none;">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-title">Total de Registros Lidos</span>
+                    <span class="kpi-value text-blue-400" id="kpiTotal">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i> Com Erro (0000000000)</span>
+                    <span class="kpi-value text-red-500" id="kpiErro">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title text-green-400">Prontos para Exportação</span>
+                    <span class="kpi-value text-green-500" id="kpiValidos">0</span>
+                </div>
+            </div>
+
+            <div class="cyber-container">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h2 class="text-lg font-bold"><i class="fas fa-list mr-2 text-blue-400"></i> Inspeção de Linhas do CIHA</h2>
+                    <div class="flex gap-3">
+                        <button onclick="removerErrosMassa()" class="btn-action btn-limpar"><i class="fas fa-trash-alt"></i> Excluir Linhas com Erro</button>
+                        <button onclick="exportarNovoCiha()" class="btn-action btn-exportar"><i class="fas fa-download"></i> Exportar CIHA Corrigido</button>
+                    </div>
+                </div>
+
+                <table id="tabelaCiha" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center w-16">Linha</th>
+                            <th class="text-center w-24">Data Int.</th>
+                            <th class="text-left">Nome do Paciente</th>
+                            <th class="text-center w-32">Procedimento</th>
+                            <th class="text-center w-24">Status</th>
+                            <th class="text-center w-32">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modalEdicao" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit text-orange-500 mr-2"></i> Corrigir Procedimento</h3>
+                <button class="modal-close" onclick="$('#modalEdicao').fadeOut(200);"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_linha_id">
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase mb-1" style="color:var(--text-muted);">Paciente</label>
+                    <input type="text" id="edit_nome" class="input-form font-bold cursor-not-allowed" style="opacity: 0.7;" disabled>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-bold uppercase mb-1" style="color:var(--text-muted);">Novo Código SIGTAP (10 Dígitos)</label>
+                    <input type="text" id="edit_procedimento" class="input-form font-mono font-bold text-blue-400" maxlength="10" placeholder="Ex: 0303010126">
+                </div>
+
+                <button onclick="salvarCorrecao()" class="btn-action" style="width: 100%; background: var(--color-warning); color: black; justify-content: center;"><i class="fas fa-save mr-2"></i> Aplicar Correção</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dtInstancia = null;
+        let dadosGlobais = [];
+        let arquivoNomeOriginal = "CIHA_Corrigido.txt";
+
+        window.toggleTheme = function() {
+            const body = document.body;
+            let isClassic = localStorage.getItem('nii_theme_hub') === 'classic';
+            
+            if (isClassic) { 
+                body.classList.remove('theme-classic'); 
+                localStorage.setItem('nii_theme_hub', 'neon');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            } else { 
+                body.classList.add('theme-classic'); 
+                localStorage.setItem('nii_theme_hub', 'classic');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+            }
+        }
+
+        $(document).ready(function() {
+            if (localStorage.getItem('nii_theme_hub') === 'classic') {
+                document.body.classList.add('theme-classic');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+            } else {
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            }
+        });
+
+        // ==============================================================
+        // LÓGICA CORE: LEITURA E PARSE POSICIONAL DO CIHA01
+        // ==============================================================
+        function lerArquivo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            arquivoNomeOriginal = file.name.replace('.txt', '') + "_NII_CORRIGIDO.txt";
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const linhas = text.split(/\r?\n/);
+                dadosGlobais = [];
+
+                linhas.forEach((linhaStr, index) => {
+                    if (linhaStr.trim() === '') return;
+
+                    if (linhaStr.length > 280) {
+                        let proc = linhaStr.substring(14, 24).trim();
+                        let dtIntRaw = linhaStr.substring(38, 46); 
+                        let dtIntFormatada = `${dtIntRaw.substring(0,2)}/${dtIntRaw.substring(2,4)}/${dtIntRaw.substring(4,8)}`;
+                        
+                        // CORREÇÃO APLICADA: Posição exata do nome, tirando o excesso (data nascimento e sexo)
+                        let nome = linhaStr.substring(205, 275).trim();
+
+                        let hasError = (proc === '0000000000' || proc === '');
+
+                        dadosGlobais.push({
+                            linha_fisica: index,
+                            originalLine: linhaStr,
+                            nome: nome,
+                            dtInt: dtIntFormatada,
+                            proc: proc,
+                            erro: hasError,
+                            removido: false
+                        });
+                    } else {
+                        dadosGlobais.push({
+                            linha_fisica: index,
+                            originalLine: linhaStr,
+                            nome: 'LINHA DE CONTROLE/CABEÇALHO',
+                            dtInt: '-',
+                            proc: '-',
+                            erro: false,
+                            removido: false,
+                            isHeader: true
+                        });
+                    }
+                });
+
+                $('#painelDados').fadeIn();
+                atualizarTabelaEKPIs();
+            };
+
+            reader.readAsText(file, 'ISO-8859-1'); 
+        }
+
+        // ==============================================================
+        // ATUALIZAÇÃO DA INTERFACE (TABELA E NÚMEROS)
+        // ==============================================================
+        function atualizarTabelaEKPIs() {
+            let total = 0; let erros = 0; let validos = 0;
+            let dadosParaTabela = [];
+
+            dadosGlobais.forEach(d => {
+                if(d.isHeader) return; 
+                
+                total++;
+                if (!d.removido) {
+                    if (d.erro) erros++;
+                    else validos++;
+                }
+                dadosParaTabela.push(d);
+            });
+
+            $('#kpiTotal').text(total);
+            $('#kpiErro').text(erros);
+            $('#kpiValidos').text(validos);
+
+            if ($.fn.DataTable.isDataTable('#tabelaCiha')) $('#tabelaCiha').DataTable().destroy();
+
+            dtInstancia = $('#tabelaCiha').DataTable({
+                data: dadosParaTabela,
+                pageLength: 25,
+                order: [[4, 'desc']], 
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                createdRow: function(row, data) {
+                    if (data.removido) $(row).addClass('row-removida');
+                },
+                columns: [
+                    { data: 'linha_fisica', className: "text-center font-bold", render: d => d + 1 },
+                    { data: 'dtInt', className: "text-center font-mono text-gray-500" },
+                    { data: 'nome', className: "font-bold text-[0.85rem]", render: d => `<span style="color:var(--color-primary);">${d}</span>` },
+                    { 
+                        data: 'proc', className: "text-center font-mono font-bold",
+                        render: function(d, type, row) {
+                            if (row.erro && !row.removido) return `<span class="text-red-500">${d}</span>`;
+                            return d;
+                        }
+                    },
+                    { 
+                        data: null, className: "text-center",
+                        render: function(d, type, row) {
+                            if (row.removido) return `<span class="badge badge-removido">Excluído do Lote</span>`;
+                            if (row.erro) return `<span class="badge badge-erro"><i class="fas fa-times mr-1"></i> Inválido</span>`;
+                            return `<span class="badge badge-ok"><i class="fas fa-check mr-1"></i> OK</span>`;
+                        }
+                    },
+                    { 
+                        data: null, className: "text-center",
+                        render: function(d, type, row) {
+                            if (row.removido) {
+                                return `<button onclick="restaurarLinha(${row.linha_fisica})" class="text-green-500 hover:text-green-400 font-bold text-xs underline"><i class="fas fa-undo"></i> Restaurar</button>`;
+                            }
+                            
+                            let htmlBtns = `<button onclick="excluirLinha(${row.linha_fisica})" class="text-red-500 hover:text-red-400 font-bold text-xs mr-3"><i class="fas fa-trash"></i></button>`;
+                            
+                            if (row.erro) {
+                                htmlBtns += `<button onclick="abrirEdicao(${row.linha_fisica})" class="btn-action btn-edit"><i class="fas fa-edit"></i> Corrigir</button>`;
+                            }
+                            return htmlBtns;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // ==============================================================
+        // AÇÕES DO USUÁRIO
+        // ==============================================================
+        function removerErrosMassa() {
+            let apagouAlgo = false;
+            dadosGlobais.forEach(d => {
+                if (d.erro && !d.removido && !d.isHeader) {
+                    d.removido = true;
+                    apagouAlgo = true;
+                }
+            });
+            
+            if (apagouAlgo) {
+                atualizarTabelaEKPIs();
+            } else {
+                alert("Não há registros com erro para excluir.");
+            }
+        }
+
+        function excluirLinha(linhaFisica) {
+            let item = dadosGlobais.find(d => d.linha_fisica === linhaFisica);
+            if (item) { item.removido = true; atualizarTabelaEKPIs(); }
+        }
+
+        function restaurarLinha(linhaFisica) {
+            let item = dadosGlobais.find(d => d.linha_fisica === linhaFisica);
+            if (item) { item.removido = false; atualizarTabelaEKPIs(); }
+        }
+
+        function abrirEdicao(linhaFisica) {
+            let item = dadosGlobais.find(d => d.linha_fisica === linhaFisica);
+            if (!item) return;
+
+            $('#edit_linha_id').val(linhaFisica);
+            $('#edit_nome').val(item.nome);
+            $('#edit_procedimento').val("");
+            $('#modalEdicao').fadeIn(200);
+        }
+
+        function salvarCorrecao() {
+            const linhaFisica = parseInt($('#edit_linha_id').val());
+            const novoProc = $('#edit_procedimento').val().trim();
+
+            if (novoProc.length !== 10 || isNaN(novoProc)) {
+                alert("O Código SIGTAP deve conter exatamente 10 números válidos.");
+                return;
+            }
+
+            let item = dadosGlobais.find(d => d.linha_fisica === linhaFisica);
+            if (item) {
+                let stringCortadaAntes = item.originalLine.substring(0, 14);
+                let stringCortadaDepois = item.originalLine.substring(24);
+                
+                item.originalLine = stringCortadaAntes + novoProc + stringCortadaDepois;
+                item.proc = novoProc;
+                item.erro = false; 
+                
+                $('#modalEdicao').fadeOut(200);
+                atualizarTabelaEKPIs();
+            }
+        }
+
+        // ==============================================================
+        // EXPORTAÇÃO FINAL DO NOVO TXT
+        // ==============================================================
+        function exportarNovoCiha() {
+            let linhasValidas = dadosGlobais.filter(d => !d.removido).map(d => d.originalLine);
+            
+            if (linhasValidas.length === 0) {
+                alert("Nenhum registro para exportar!");
+                return;
+            }
+
+            let blob = new Blob([linhasValidas.join('\r\n')], { type: "text/plain;charset=ISO-8859-1" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = arquivoNomeOriginal;
+            link.click();
+        }
+    </script>
+</body>
+</html>
