@@ -13,9 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================================= */
-        /* VARIÁVEIS DE TEMA (ENTERPRISE / SAAS DESIGN)              */
-        /* ========================================================= */
         :root {
             --bg-body: #0f172a;       
             --bg-card: #1e293b;       
@@ -64,9 +61,6 @@
             background-size: 30px 30px; z-index: -1; pointer-events: none;
         }
 
-        /* ========================================================= */
-        /* MINI-SIDEBAR RETRÁTIL (Navegação Principal)               */
-        /* ========================================================= */
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width);
             background: var(--bg-card); border-right: 1px solid var(--border-color);
@@ -118,9 +112,6 @@
         .nav-divider { height: 1px; background: var(--border-color); margin: 10px 20px; min-width: calc(var(--sidebar-expanded) - 40px); opacity: 0; transition: 0.3s;}
         .sidebar:hover .nav-divider { opacity: 1; }
 
-        /* ========================================================= */
-        /* CABEÇALHO SUPERIOR E ÁREA DO APP                          */
-        /* ========================================================= */
         .app-wrapper {
             margin-left: var(--sidebar-width); height: 100vh; display: flex; flex-direction: column;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -155,16 +146,12 @@
         }
         .icon-btn:hover { background-color: var(--bg-hover); color: var(--text-main); }
 
-        /* Áreas de Visualização (SPA) */
         #view-hub { flex: 1; overflow-y: auto; padding: 30px 24px; }
         #view-iframe { flex: 1; display: none; background: var(--bg-body); }
         #app-frame { width: 100%; height: 100%; border: none; background: transparent; }
 
         .container-central { max-width: 1400px; margin: 0 auto; }
 
-        /* ========================================================= */
-        /* COMPONENTES DO HUB E GRID                                 */
-        /* ========================================================= */
         .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 40px; }
         .module-btn { 
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-default); 
@@ -192,7 +179,6 @@
         .section-container { background: var(--bg-card); border-radius: var(--radius-default); padding: 24px; box-shadow: var(--shadow-card); border: 1px solid var(--border-color); margin-bottom: 24px; }
         .section-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;}
         
-        /* NOVO FORMATO DE GRID (4 COLUNAS) */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         .col-span-2 { grid-column: span 2; } 
         @media (max-width: 1024px) { 
@@ -233,7 +219,6 @@
         .kpi-card.red:hover .kpi-value, .kpi-card.red:hover .kpi-card-icon { color: var(--color-danger); opacity: 1;}
         .kpi-card.orange:hover .kpi-value, .kpi-card.orange:hover .kpi-card-icon { color: #f97316; opacity: 1;}
 
-        /* CARD DESTAQUE (FILA ZERO CENSO) */
         .card-destaque { 
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--bg-body) 100%); 
             border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 0 15px rgba(245, 158, 11, 0.05);
@@ -268,24 +253,19 @@
                 <i class="fas fa-th-large nav-icon"></i>
                 <span class="nav-label">Hub Central</span>
             </a>
-            
             <div class="nav-divider"></div>
-
             <a onclick="abrirModulo('painel_regulacao.html', 'regulacao', this)" class="nav-item" title="Regulação">
                 <i class="fas fa-ambulance nav-icon text-green-400"></i>
                 <span class="nav-label">Regulação</span>
             </a>
-            
             <a onclick="abrirModulo('painel_indicasus_v2.html', 'indicasus', this)" class="nav-item" title="Auditoria IndicaSUS">
                 <i class="fas fa-bed-pulse nav-icon text-blue-400"></i>
                 <span class="nav-label">IndicaSUS</span>
             </a>
-            
             <a onclick="abrirModulo('painel_filazero.html', 'filazero', this)" class="nav-item" title="Programa Fila Zero">
                 <i class="fas fa-star nav-icon text-red-400"></i>
                 <span class="nav-label">Fila Zero</span>
             </a>
-            
             <a onclick="abrirModulo('painel_sigtap.html', 'sigtap', this)" class="nav-item" title="Catálogo SIGTAP">
                 <i class="fas fa-book-medical nav-icon text-yellow-400"></i>
                 <span class="nav-label">Catálogo SIGTAP</span>
@@ -294,19 +274,15 @@
                 <i class="fas fa-file-contract nav-icon text-emerald-400"></i>
                 <span class="nav-label">Contrato MT</span>
             </a>
-
             <a onclick="abrirModulo('painel_ferramentas.html', 'ferramentas', this)" class="nav-link nav-item" title="Central de Ferramentas">
                 <i class="fas fa-toolbox nav-icon text-purple-400"></i>
                 <span class="nav-label">Ferramentas</span>
             </a>
-
             <div class="nav-divider" data-restrict="true"></div>
-
             <a onclick="abrirModulo('painel_financeiro.html', 'financeiro', this)" class="nav-item" data-restrict="true" title="Faturamento SUS">
                 <i class="fas fa-file-invoice-dollar nav-icon text-emerald-400"></i>
                 <span class="nav-label">Faturamento SUS</span>
             </a>
-            
             <a onclick="abrirModulo('painel_cruzamento_sih_sp.html', 'auditoria', this)" class="nav-item" data-restrict="true" title="Auditoria Inteligente">
                 <i class="fas fa-search-dollar nav-icon text-orange-400"></i>
                 <span class="nav-label">Auditoria AIH</span>
@@ -315,12 +291,10 @@
     </aside>
 
     <div class="app-wrapper">
-        
         <header class="top-header">
             <div class="header-title" id="top-title">
                 <i class="fas fa-home" style="color:var(--text-muted);"></i> Início
             </div>
-
             <div class="header-actions">
                 <button onclick="toggleTheme()" class="icon-btn" title="Alternar Tema">
                     <i class="fas fa-sun" id="theme-icon"></i>
@@ -328,9 +302,7 @@
                 <button onclick="fazerLogout()" class="icon-btn" style="color: var(--color-danger); border-color: rgba(248, 113, 113, 0.3);" title="Sair do Sistema">
                     <i class="fas fa-power-off"></i>
                 </button>
-
                 <div class="separator-vertical"></div>
-
                 <a href="#" class="header-brand" title="Hospital Santa Helena">
                     <div class="brand-text">
                         <span class="brand-title">Portal NII</span>
@@ -343,7 +315,6 @@
 
         <div id="view-hub">
             <div class="container-central">
-                
                 <div class="modules-grid">
                     <a onclick="abrirModulo('modulo_gerencial.html', 'gerencial', null, 'Gerência e Controle')" class="module-btn border-l-blue" data-restrict="true">
                         <i class="fas fa-chart-line text-blue-400 text-3xl opacity-80"></i>
@@ -352,7 +323,6 @@
                             <p class="text-xs" style="color:var(--text-muted);">Visão diretoria e financeiro</p>
                         </div>
                     </a>
-                    
                     <a onclick="abrirModulo('modulo_operacional.html', 'operacional', null, 'Operacional')" class="module-btn border-l-orange">
                         <i class="fas fa-hospital-user text-orange-400 text-3xl opacity-80"></i>
                         <div>
@@ -360,7 +330,6 @@
                             <p class="text-xs" style="color:var(--text-muted);">Acompanhamento e monitoramento</p>
                         </div>
                     </a>
-
                     <a onclick="abrirModulo('modulo_dev.html', 'dev', null, 'Laboratório Dev')" class="module-btn border-l-purple" data-restrict="true">
                         <i class="fas fa-flask text-purple-400 text-3xl opacity-80"></i>
                         <div>
@@ -375,7 +344,6 @@
                         <h1 class="page-title">Visão Geral do Hospital</h1>
                         <p class="page-desc">Resumo da competência e indicadores em tempo real.</p>
                     </div>
-                    
                     <div class="filter-box">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] font-bold uppercase text-gray-500">Mês/Ano:</span>
@@ -391,14 +359,12 @@
                     <h3 class="section-title"><i class="fas fa-server"></i> Status Operacional</h3>
                     
                     <div class="kpi-grid">
-                        
                         <div class="kpi-card col-span-2 flex flex-col md:flex-row gap-6 items-center blue" onclick="abrirModulo('painel_simuladas.html', 'simuladas', null, 'Produção AIH (Simuladas)')" title="Ver Painel de Simuladas">
                             <div class="text-center md:text-left flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-600/30 pb-4 md:pb-0 md:pr-6 w-full md:w-auto">
                                 <span class="kpi-title block mb-2 text-[0.65rem] tracking-widest text-blue-400">Produção AIH</span>
                                 <div class="kpi-value text-4xl font-black mb-1" id="kpi-aih-real"><i class="fas fa-circle-notch fa-spin"></i></div>
                                 <span class="text-[0.65rem] font-bold uppercase" style="color:var(--text-muted);">Contas processadas</span>
                             </div>
-                            
                             <div class="flex-grow w-full relative" style="height: 100px; pointer-events: none;">
                                 <canvas id="chartEspecHub"></canvas>
                             </div>
@@ -406,7 +372,7 @@
 
                         <div class="kpi-card col-span-2 blue" onclick="abrirModulo('painel_indicasus_v2.html', 'indicasus', null, 'Auditoria IndicaSUS')" title="Ver Painel IndicaSUS">
                             <div class="kpi-card-header mb-1">
-                                <span class="kpi-title">Monitoramento de Leitos (IndicaSUS)</span>
+                                <span class="kpi-title">Monitoramento de Leitos (Apenas SUS)</span>
                                 <i class="fas fa-bed-pulse kpi-card-icon text-blue-400"></i>
                             </div>
                             <div class="leitos-grid">
@@ -492,7 +458,7 @@
         window.chartEspecInstance = null;
         const cfgLeitos = { uti: 10, utin: 18, ucinco: 4, ucinca: 3 };
 
-function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
+        function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
             $('#main-nav .nav-item').removeClass('active');
             if(elMenu && $(elMenu).hasClass('nav-item')) {
                 $(elMenu).addClass('active');
@@ -510,8 +476,6 @@ function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
             $('#view-hub').hide();
             $('#view-iframe').show();
             $('#app-frame').attr('src', arquivoHtml);
-            
-            // CORREÇÃO AQUI: Mantém a URL intacta, sem adicionar o "?app="
             window.history.pushState({ painel: arquivoHtml, titulo: nomePuro }, '', window.location.pathname);
         }
 
@@ -726,51 +690,78 @@ function abrirModulo(arquivoHtml, nomeUrl, elMenu, tituloManual) {
                 }).length;
                 $('#kpi-sisreg').text(pUrg);
 
+                // ==============================================================
+                // NOVA LÓGICA DE AGRUPAMENTO (IGUAL AO PAINEL INDICASUS E AO ROBÔ)
+                // ==============================================================
                 let allIndicaData = []; let fromI = 0; let stepI = 1000;
                 while (true) {
-                    const { data } = await client.from('indicasus_leitos').select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, plano_sus').gte('data_extracao', d1).lte('data_extracao', d2).range(fromI, fromI + stepI - 1);
+                    const { data } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, tipo_leito, data_extracao, internacao_sus, evolucao_clinica, plano_sus')
+                        .gte('data_extracao', d1).lte('data_extracao', d2).range(fromI, fromI + stepI - 1);
                     if (data && data.length > 0) { allIndicaData = allIndicaData.concat(data); fromI += stepI; }
                     if (!data || data.length < stepI) break;
                 }
+                
                 let mapP = new Map();
                 allIndicaData.forEach(row => {
+                    // O Hub Central mostra APENAS SUS.
                     if (!(row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'))) return;
-                    let key = (row.nome_paciente || "").trim().toUpperCase() + "_" + row.data_internacao;
-                    if (!mapP.has(key)) mapP.set(key, { dias_map: new Map(), plano: (row.plano_sus||'').toUpperCase(), dtInt: row.data_internacao });
-                    let dataDia = (row.data_extracao || "").split('T')[0].split(' ')[0];
-                    if (dataDia.startsWith(prefixoMesAtual)) mapP.get(key).dias_map.set(dataDia, row.tipo_leito);
-                });
-                
-                let ocup = { uti:0, utin:0, ucinco:0, ucinca:0 }; 
-                
-                // ==========================================
-                // NOVO: CALCULO DO CENSO FILA ZERO SINCRONIZADO
-                // ==========================================
-                let filaZeroCount = 0;
-                
-                mapP.forEach(p => {
-                    if(p.plano && p.plano.includes('FILA ZERO')) {
-                        filaZeroCount++;
+                    
+                    const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
+                    const dtInt = row.data_internacao || "SEM DATA";
+                    const key = nome + "_" + dtInt; 
+                    
+                    if (!mapP.has(key)) {
+                        mapP.set(key, { 
+                            dias_map: new Map(), 
+                            max_date: "0000-00-00", 
+                            plano_sus: (row.plano_sus || "PLANO UNICO").toUpperCase(),
+                            evolucao_clinica: ""
+                        });
                     }
                     
-                    p.dias_map.forEach(leitoBruto => {
-                        let l = (leitoBruto||'').toUpperCase();
-                        if(l.includes("UTI ADULTO") || l === "UTI") ocup.uti++;
-                        else if(l.includes("UTIN")) ocup.utin++;
-                        else if(l.includes("UCINCO")) ocup.ucinco++;
-                        else if(l.includes("UCINCA")) ocup.ucinca++;
-                    });
+                    const p = mapP.get(key);
+                    const dataExt = row.data_extracao || "";
+                    const dataDia = dataExt.includes('T') ? dataExt.split('T')[0] : dataExt.split(' ')[0];
+                    
+                    if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
+
+                    p.dias_map.set(dataDia, row.tipo_leito);
+
+                    if (dataDia > p.max_date) {
+                        p.max_date = dataDia;
+                        p.evolucao_clinica = row.evolucao_clinica || p.evolucao_clinica;
+                    }
+                });
+
+                let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0;
+                let filaZeroCount = 0;
+
+                Array.from(mapP.values()).forEach(p => {
+                    if(p.plano_sus && p.plano_sus.includes('FILA ZERO')) {
+                        filaZeroCount++;
+                    }
+
+                    for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
+                        let leito = (leitoBruto || "").toUpperCase();
+                        
+                        // Aqui calculamos os dias FÍSICOS ocupados no mês
+                        if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
+                        else if (leito === "UTIN" || leito === "UTI NEONATAL" || leito.includes("NEO")) pacDiaUtin++;
+                        else if (leito === "UCINCO" || leito === "CONVENCIONAL") pacDiaUcinco++;
+                        else if (leito === "UCINCA" || leito === "CANGURU") pacDiaUcinca++;
+                    }
                 });
                 
                 $('#kpi-fila-zero-censo').text(filaZeroCount);
-                // ==========================================
-                
+                // ==============================================================
+
                 let diasParaCalc = (parseInt(ano) === dataAtual.getFullYear() && parseInt(mes) === dataAtual.getMonth()+1) ? dataAtual.getDate() : dataFimObj.getDate();
                 
-                $('#taxa-uti').text(ocup.uti); $('#meta-uti').html(`Ocup: <b>${Math.round((ocup.uti/(cfgLeitos.uti*diasParaCalc))*100)}%</b>`);
-                $('#taxa-utin').text(ocup.utin); $('#meta-utin').html(`Ocup: <b>${Math.round((ocup.utin/(cfgLeitos.utin*diasParaCalc))*100)}%</b>`);
-                $('#taxa-ucinco').text(ocup.ucinco); $('#meta-ucinco').html(`Ocup: <b>${Math.round((ocup.ucinco/(cfgLeitos.ucinco*diasParaCalc))*100)}%</b>`);
-                $('#taxa-ucinca').text(ocup.ucinca); $('#meta-ucinca').html(`Ocup: <b>${Math.round((ocup.ucinca/(cfgLeitos.ucinca*diasParaCalc))*100)}%</b>`);
+                $('#taxa-uti').text(pacDiaUti); $('#meta-uti').html(`Ocup: <b>${Math.round((pacDiaUti/(cfgLeitos.uti*diasParaCalc))*100)}%</b>`);
+                $('#taxa-utin').text(pacDiaUtin); $('#meta-utin').html(`Ocup: <b>${Math.round((pacDiaUtin/(cfgLeitos.utin*diasParaCalc))*100)}%</b>`);
+                $('#taxa-ucinco').text(pacDiaUcinco); $('#meta-ucinco').html(`Ocup: <b>${Math.round((pacDiaUcinco/(cfgLeitos.ucinco*diasParaCalc))*100)}%</b>`);
+                $('#taxa-ucinca').text(pacDiaUcinca); $('#meta-ucinca').html(`Ocup: <b>${Math.round((pacDiaUcinca/(cfgLeitos.ucinca*diasParaCalc))*100)}%</b>`);
 
                 const { count } = await client.from('cirurgias_detalhe').select('*', { count: 'exact', head: true }).gte('data_cirurgia', d1).lte('data_cirurgia', d2).in('convenio', ['PLANO UNICO', 'FILA ZERO', 'SUS - INTERNACAO', 'SUS']);
                 $('#kpi-internacoes').text(count || 0);

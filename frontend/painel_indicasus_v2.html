@@ -20,9 +20,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON / CLASSIC (Controlado pela Casca)   */
-        /* ========================================================= */
         body { 
             font-family: 'Inter', sans-serif; 
             background: transparent; 
@@ -89,7 +86,6 @@
         .btn-view { background-color: transparent; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; transition: 0.2s; cursor: pointer; }
         .btn-view:hover { background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: #38bdf8; }
 
-        /* MODAIS SAAS DESIGN */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 5, 15, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
         .modal-content { background: #1e293b; border: 1px solid #334155; width: 90%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s ease-out; color: #f8fafc; }
@@ -107,9 +103,6 @@
 
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII                                         */
-        /* ========================================================= */
         body.theme-classic { color: #0f172a; }
         body.theme-classic #loading { background: rgba(255,255,255,0.9); color: #004e92; }
         
@@ -145,7 +138,6 @@
         body.theme-classic .btn-view { background-color: white; color: #64748b; border-color: #cbd5e1; }
         body.theme-classic .btn-view:hover { background-color: #eff6ff; color: #004e92; border-color: #004e92; }
 
-        /* Modais Classic */
         body.theme-classic .modal-overlay { background: rgba(0, 21, 40, 0.7); }
         body.theme-classic .modal-content { background: white; color: #1e293b; border-color: #cbd5e1; }
         body.theme-classic .modal-header { background: #f8fafc; border-color: #e2e8f0; }
@@ -156,7 +148,6 @@
         body.theme-classic .info-value { color: #0f172a; }
         body.theme-classic .section-title { color: #004e92; border-bottom-color: #e2e8f0; }
 
-        /* DATATABLES */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important; }
         table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; text-align: center; background-color: rgba(30,41,59,0.8) !important; color: #38bdf8 !important; border-bottom: 2px solid #334155 !important;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px 8px !important; color: white !important; text-align: center; border-bottom: 1px solid #334155 !important;}
@@ -261,6 +252,7 @@
         </div>
     </div>
 
+    <!-- Filtros de Mês escondidos (lidos da casca) -->
     <div style="display: none;">
         <input type="hidden" id="anoFilter">
         <input type="hidden" id="mesFilter">
@@ -540,34 +532,27 @@
                 return;
             }
 
-            const map = new Map();
-            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0; 
-            let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0, pacDiaEnf = 0; 
+            const mapP = new Map();
 
+            // ==============================================================
+            // NOVA LÓGICA DE AGRUPAMENTO (GÊMEA DO INDEX_V2 E DO ROBÔ)
+            // ==============================================================
             dadosOriginaisBrutos.forEach(row => {
                 const isSus = (row.internacao_sus && row.internacao_sus.toUpperCase().includes('SIM'));
                 const planoSus = (row.plano_sus || "PLANO UNICO").toUpperCase();
-                const dtInt = row.data_internacao || "SEM DATA";
-
-                // APLICA O FILTRO DO DROPDOWN NO LOOP PRINCIPAL
+                
+                // Aplica o filtro de Convênio escolhido na tela
                 if (susFilterValue === 'SUS_TODOS' && !isSus) return;
                 if (susFilterValue === 'SUS_UNICO' && (!isSus || !planoSus.includes('PLANO UNICO'))) return;
                 if (susFilterValue === 'SUS_FILAZERO' && (!isSus || !planoSus.includes('FILA ZERO'))) return;
                 if (susFilterValue === 'NAO' && isSus) return;
 
                 const nome = String(row.nome_paciente || "SEM NOME").trim().toUpperCase();
-                let cpfOk = (row.cpf && row.cpf.trim() !== '' && row.cpf !== 'null' && row.cpf.length > 8);
-                let cnsOk = (row.cns && row.cns.trim() !== '' && row.cns !== 'null' && row.cns.length > 8);
-                let maeOk = (row.nome_mae && row.nome_mae.trim() !== '' && row.nome_mae.trim().toUpperCase() !== 'NÃO INFORMADO' && row.nome_mae !== 'null');
-
-                let key = "";
-                if (cpfOk) key = "CPF_" + row.cpf.trim();
-                else if (cnsOk) key = "CNS_" + row.cns.trim();
-                else if (maeOk) key = "MAE_" + row.nome_mae.trim().toUpperCase() + "_" + dtInt;
-                else key = "NOME_" + nome + "_" + dtInt;
+                const dtInt = row.data_internacao || "SEM DATA";
+                const key = nome + "_" + dtInt; 
                 
-                if (!map.has(key)) {
-                    map.set(key, { 
+                if (!mapP.has(key)) {
+                    mapP.set(key, { 
                         ...row, 
                         nome_exibicao: nome, 
                         dias_map: new Map(), 
@@ -578,7 +563,7 @@
                     });
                 }
                 
-                const p = map.get(key);
+                const p = mapP.get(key);
                 if (nome && !nome.startsWith("RN DE ") && !nome.startsWith("RECEM NASCIDO")) { p.nome_exibicao = nome; }
                 
                 const dataExt = row.data_extracao || "";
@@ -586,8 +571,7 @@
                 
                 if (!dataDia || !dataDia.startsWith(prefixoMesAtual)) return; 
 
-                let leitoAtual = row.tipo_leito;
-                p.dias_map.set(dataDia, leitoAtual);
+                p.dias_map.set(dataDia, row.tipo_leito);
 
                 if (dataDia > p.max_date) {
                     p.max_date = dataDia;
@@ -600,28 +584,39 @@
                 }
             });
 
-            dadosFiltradosGlobais = Array.from(map.values()).map(p => {
+            let pacDiaUti = 0, pacDiaUtin = 0, pacDiaUcinco = 0, pacDiaUcinca = 0, pacDiaEnf = 0; 
+            let kpiUtiAdulto = 0, kpiUtin = 0, kpiUcinco = 0, kpiUcinca = 0, kpiEnfermaria = 0; 
+            let filaZeroCount = 0;
+
+            dadosFiltradosGlobais = Array.from(mapP.values()).map(p => {
                 p.nome_paciente = p.nome_exibicao; 
                 
+                if(p.plano_sus && p.plano_sus.includes('FILA ZERO')) {
+                    filaZeroCount++;
+                }
+
                 let isAltaPadrao = false;
                 let evol = String(p.evolucao_clinica || "").toUpperCase();
-                if (evol.includes("ALTA") && !evol.includes("ÓBITO") && !evol.includes("OBITO") && !evol.includes("TRANSF") && !evol.includes("EVAS")) {
+                // A regra de Faturamento SUS: O dia da Alta/Transferência não é faturado. (Óbito é faturado).
+                if (evol.includes("ALTA") || evol.includes("TRANSF") || evol.includes("EVAS")) {
                     isAltaPadrao = true;
                 }
 
                 for (let [dataDia, leitoBruto] of p.dias_map.entries()) {
                     let leito = (leitoBruto || "").toUpperCase();
 
+                    // Conta TOTAL Física Ocupada (Número Grande Azul)
                     if (leito === "UTI ADULTO" || leito === "UTI") pacDiaUti++;
-                    else if (leito === "UTIN" || leito === "UTI NEONATAL") pacDiaUtin++;
+                    else if (leito === "UTIN" || leito === "UTI NEONATAL" || leito.includes("NEO")) pacDiaUtin++;
                     else if (leito === "UCINCO" || leito === "CONVENCIONAL") pacDiaUcinco++;
                     else if (leito === "UCINCA" || leito === "CANGURU") pacDiaUcinca++;
                     else pacDiaEnf++;
 
+                    // Conta TOTAL Faturada (Ignora o último dia se for alta)
                     if (isAltaPadrao && dataDia === p.max_date) continue; 
 
                     if (leito === "UTI ADULTO" || leito === "UTI") p.dias_uti_ad++;
-                    else if (leito === "UTIN" || leito === "UTI NEONATAL") p.dias_utin++;
+                    else if (leito === "UTIN" || leito === "UTI NEONATAL" || leito.includes("NEO")) p.dias_utin++;
                     else if (leito === "UCINCO" || leito === "CONVENCIONAL") p.dias_ucinco++;
                     else if (leito === "UCINCA" || leito === "CANGURU") p.dias_ucinca++;
                     else p.dias_enf++;
@@ -686,14 +681,6 @@
             $('#subEnfermaria').html(`Ocupação: <b style="color:${colorEnf};">${txEnf}%</b><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:800;">FATURADAS: ${kpiEnfermaria} DIÁRIAS</span>`);
 
             $('#kpiPacientes').text(dadosFiltradosGlobais.length);
-
-            // Censo Fila Zero Perfeito (Sincronizado com o Hub)
-            let filaZeroCount = 0;
-            Array.from(map.values()).forEach(p => {
-                 if(p.plano_sus && p.plano_sus.includes('FILA ZERO')) {
-                     filaZeroCount++;
-                 }
-            });
             $('#kpiFilaZero').text(filaZeroCount);
 
             renderizarGraficos(dadosFiltradosGlobais);
