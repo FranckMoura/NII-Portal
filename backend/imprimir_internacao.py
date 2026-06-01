@@ -19,8 +19,8 @@ print(f"--- 2. AUTOMAÇÃO SISREG (V66 - CORREÇÃO DA PAGINAÇÃO 'SETA DIREITA
 FORCAR_RE_DOWNLOAD = True 
 
 # --- DEFINIÇÃO DE DATAS (ALTERE AQUI) ---
-DT_INICIO = "20/05/2026"
-DT_FIM = "25/05/2026"
+DT_INICIO = "25/05/2026"
+DT_FIM = "31/05/2026"
 
 # --- 1. CONFIGURAÇÕES DO SUPABASE ---
 SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co" 

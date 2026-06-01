@@ -19,245 +19,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ========================================================= */
-        /* TEMA GLOBAL DARK NEON (CYBERPUNK PADRÃO)                  */
-        /* ========================================================= */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #001528;
-            background-image: linear-gradient(135deg, #001528 0%, #002244 100%);
-            background-attachment: fixed;
-            color: white; 
-            padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; 
-            transition: background 0.5s ease, color 0.5s ease;
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; z-index: -1; pointer-events: none;
-        }
-
-        .blob-1 { position: fixed; top: -50px; left: -50px; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.35); border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none; transition: 0.5s; }
-        .blob-2 { position: fixed; bottom: 50px; right: -50px; width: 450px; height: 450px; background: rgba(16, 185, 129, 0.20); border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; transition: 0.5s; }
-
+        /* TEMA GLOBAL DARK NEON E CLASSIC */
+        body { font-family: 'Inter', sans-serif; background: #001528; background-image: linear-gradient(135deg, #001528 0%, #002244 100%); background-attachment: fixed; color: white; padding: 0; margin: 0; min-height: 100vh; padding-bottom: 40px; transition: background 0.5s ease, color 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .header-bg { background: transparent; padding: 30px 0 60px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 30px; transition: 0.5s; }
         .header-mini-logo { height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition: transform 0.3s; }
-        .header-mini-logo:hover { transform: scale(1.05); }
         .header-print { display: none; }
-
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
-
-        /* ABAS NEON */
         .module-nav { display: flex; gap: 8px; margin-top: -45px; padding: 0 20px; align-items: flex-end; position: relative; z-index: 10;}
-        .module-tab { 
-            padding: 14px 30px; 
-            background: rgba(0, 0, 0, 0.4); 
-            border-radius: 12px 12px 0 0; 
-            color: #94a3b8; 
-            cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05); border-bottom: none; backdrop-filter: blur(5px);
-        }
+        .module-tab { padding: 14px 30px; background: rgba(0, 0, 0, 0.4); border-radius: 12px 12px 0 0; color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); border-bottom: none; backdrop-filter: blur(5px); }
         .module-tab:hover { background: rgba(56, 189, 248, 0.1); color: white; }
-        .module-tab.active { 
-            background: rgba(255,255,255,0.05); color: #38bdf8; 
-            border-color: rgba(56,189,248,0.5); font-weight: 800; padding-bottom: 18px; 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.3); text-shadow: 0 0 8px rgba(56,189,248,0.5);
-            border-bottom: 2px solid transparent;
-        }
-
-        /* CONTEÚDO */
+        .module-tab.active { background: rgba(255,255,255,0.05); color: #38bdf8; border-color: rgba(56,189,248,0.5); font-weight: 800; padding-bottom: 18px; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: 2px solid transparent; }
         .view-section { display: none; animation: fadeIn 0.3s; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .filter-area { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 4px 30px rgba(0,0,0,0.1); padding: 20px; transition: 0.5s;
-        }
-
-        .filter-area label { color: #cbd5e1; }
-        .filter-area select, .filter-area input { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); outline: none; transition: 0.3s; }
-        .filter-area select:focus, .filter-area input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .filter-area { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 30px rgba(0,0,0,0.1); padding: 20px; transition: 0.5s; }
+        .filter-area select, .filter-area input { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); outline: none; border-radius: 6px; padding: 5px; }
         .filter-area select option { background: #0f172a; color: white; }
-
-        .btn-sync { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 8px 15px; border-radius: 6px; font-weight: bold; transition: 0.3s;}
-        .btn-sync:hover { background: rgba(56, 189, 248, 0.4); color: white; }
-
-        /* CARDS KPI DE VIDRO */
-        .card { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 25px; position: relative; z-index: 2;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-        }
-        .card:hover {
-            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.05) translateZ(10px);
-            background: rgba(255, 255, 255, 0.08); 
-            box-shadow: -15px 15px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(56, 189, 248, 0.15);
-        }
-
-        .border-blue-500 { border-left-color: #38bdf8 !important; }
-        .border-orange-500 { border-left-color: #fbbf24 !important; }
-        .border-green-500 { border-left-color: #34d399 !important; }
-        .border-cyan-500 { border-left-color: #22d3ee !important; }
-        .border-pink-500 { border-left-color: #f472b6 !important; }
-
-        .card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #cbd5e1; margin-bottom: 5px;}
-
-        /* TABELAS DATATABLES (Dark/Neon) */
-        .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); transition: 0.5s; }
-        .table-container h2 { color: #f8fafc; }
-
-        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: white !important;}
-        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; font-weight: 700 !important; text-transform: uppercase; padding: 12px 10px !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important; text-align: center !important; font-size: 0.85rem;}
-        table.dataTable tbody td { padding: 12px 10px !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; vertical-align: middle; font-size: 0.85rem;}
-        table.dataTable tbody tr { background-color: transparent !important; } 
-        table.dataTable tbody tr:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
-
-        .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { color: #94a3b8 !important; margin-bottom: 15px; }
-        .dataTables_length select, .dataTables_filter input { background: rgba(0,0,0,0.3) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 6px; padding: 5px; outline: none; margin: 0 5px; }
-        .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
-        .dataTables_paginate .paginate_button.current { background: rgba(56, 189, 248, 0.2) !important; color: white !important; border-color: rgba(56, 189, 248, 0.5) !important; }
-
-        .dt-button { background: rgba(16, 185, 129, 0.2) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; border-radius: 6px !important; padding: 6px 15px !important; font-weight: bold !important; font-size: 0.85rem !important; transition: 0.2s; }
-        .dt-button:hover { background: rgba(16, 185, 129, 0.4) !important; color: white !important; }
-
-        /* ========================================================= */
-        /* MODO CLÁSSICO NII (Azul + Branco)                         */
-        /* ========================================================= */
-        body.theme-classic { background: #f3f4f6 !important; background-image: none !important; color: #1e293b !important; }
-        body.theme-classic .blob-1, body.theme-classic .blob-2 { display: none !important; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; transition: 0.4s; }
+        .border-blue-500 { border-left: 4px solid #38bdf8 !important; }
+        .border-orange-500 { border-left: 4px solid #fbbf24 !important; }
+        .border-green-500 { border-left: 4px solid #34d399 !important; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #cbd5e1; }
+        .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; }
+        table.dataTable { color: white !important;}
+        table.dataTable thead th { background-color: rgba(0, 0, 0, 0.2) !important; color: #38bdf8 !important; border: none !important; border-bottom: 1px solid rgba(56, 189, 248, 0.3) !important;}
+        table.dataTable tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; }
         
-        body.theme-classic .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; padding: 30px 0 60px 0 !important; border: none !important; }
-        body.theme-classic .btn-theme { border-color: rgba(255,255,255,0.3) !important; }
-        body.theme-classic .btn-theme:hover { background: rgba(255,255,255,0.2) !important; }
-
-        /* Abas Clássicas */
-        body.theme-classic .module-tab { background: rgba(0, 0, 0, 0.4) !important; color: #cbd5e1 !important; border: 1px solid rgba(255,255,255,0.1) !important; border-bottom: none !important; backdrop-filter: blur(5px) !important;}
-        body.theme-classic .module-tab:hover { background: rgba(255, 255, 255, 0.1) !important; color: white !important; }
-        body.theme-classic .module-tab.active { background: #f3f4f6 !important; color: #004e92 !important; border-top: 4px solid #004e92 !important; border-left: 1px solid #e5e7eb !important; border-right: 1px solid #e5e7eb !important; font-weight: 800 !important; padding-bottom: 15px !important; box-shadow: 0 -4px 10px rgba(0,0,0,0.1) !important; text-shadow: none !important;}
-
-        /* Elementos Brancos */
-        body.theme-classic .filter-area, body.theme-classic .card, body.theme-classic .table-container {
-            background: #ffffff !important; border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-            border-radius: 8px !important;
-        }
-        
-        body.theme-classic .card:hover { transform: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; } 
-
-        body.theme-classic .filter-area label { color: #475569 !important; }
+        body.theme-classic { background: #f3f4f6 !important; color: #1e293b !important; }
+        body.theme-classic::before { display: none; }
+        body.theme-classic .header-bg { background: linear-gradient(135deg, #000428 0%, #004e92 100%) !important; }
+        body.theme-classic .module-tab.active { background: #f3f4f6 !important; color: #004e92 !important; border-top: 4px solid #004e92 !important; }
+        body.theme-classic .filter-area, body.theme-classic .card, body.theme-classic .table-container { background: #ffffff !important; border: 1px solid #e2e8f0 !important; }
         body.theme-classic .filter-area select, body.theme-classic .filter-area input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .filter-area select:focus, body.theme-classic .filter-area input:focus { border-color: #004e92 !important; box-shadow: 0 0 0 2px rgba(0,78,146,0.1) !important; }
-        body.theme-classic .btn-sync { background: #16a34a !important; color: white !important; border: none !important; }
-        body.theme-classic .btn-sync:hover { background: #15803d !important; }
-        body.theme-classic .btn-sync-blue { background: #2563eb !important; color: white !important; border: none !important; }
-        body.theme-classic .btn-sync-blue:hover { background: #1d4ed8 !important; }
-
         body.theme-classic .card h3 { color: #475569 !important; }
-        body.theme-classic .table-container h2 { color: #334155 !important; }
-
-        /* Datatables Clássico */
         body.theme-classic table.dataTable { color: #334155 !important; }
-        body.theme-classic table.dataTable thead th { background-color: #e2e8f0 !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; }
-        body.theme-classic table.dataTable tbody td { border: 1px solid #e2e8f0 !important; color: #334155 !important;}
-        body.theme-classic table.dataTable tbody tr:nth-child(even) { background-color: #f1f5f9 !important; }
-        body.theme-classic table.dataTable tbody tr:nth-child(odd) { background-color: #ffffff !important; }
-        body.theme-classic table.dataTable tbody tr:hover { background-color: #e0f2fe !important; }
-
-        body.theme-classic .dataTables_length, body.theme-classic .dataTables_filter, body.theme-classic .dataTables_info, body.theme-classic .dataTables_paginate { color: #475569 !important; }
-        body.theme-classic .dataTables_length select, body.theme-classic .dataTables_filter input { background: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
-        body.theme-classic .dataTables_paginate .paginate_button { color: #475569 !important; }
-        body.theme-classic .dataTables_paginate .paginate_button.current { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
-        
-        body.theme-classic .dt-button { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
-        body.theme-classic .dt-button:hover { background: #1e3a8a !important; color: white !important; }
-
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (P&B FORTE, SEM ZEBRADO)          */
-        /* ========================================================= */
-        @media print {
-            @page { margin: 10mm; size: A4 portrait; }
-            
-            /* Força bruta: Tudo preto no branco absoluto, sem efeitos */
-            * { 
-                background: transparent !important; 
-                color: #000000 !important; 
-                text-shadow: none !important;
-                box-shadow: none !important;
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-            }
-            body, html { background: #FFFFFF !important; font-family: 'Arial', sans-serif !important; }
-            
-            /* Esconde elementos inúteis no papel */
-            .header-bg, .btn-theme, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .module-nav, .dataTables_info, .blob-1, .blob-2 { display: none !important; }
-            
-            /* Cabeçalho da Folha */
-            .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000000 !important; padding-bottom: 10px; margin-bottom: 20px; }
-            .header-print img { height: 45px; margin-right: 15px; }
-            .header-info { flex: 1; text-align: center; }
-            .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900 !important; text-transform: uppercase; }
-            .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold !important; }
-            .header-meta { font-size: 9pt; text-align: right; line-height: 1.3; font-weight: bold !important; }
-
-            /* Cards Superiores - Forçados a aparecer com borda preta */
-            .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px !important; width: 100% !important;}
-            .card { 
-                padding: 10px !important; 
-                border: 1px solid #000000 !important; 
-                background-color: #FFFFFF !important; 
-                display: block !important;
-                page-break-inside: avoid;
-                border-radius: 4px !important;
-            }
-            .card h3 { font-size: 9pt !important; font-weight: 900 !important; margin-bottom: 5px !important; text-transform: uppercase; color: #000 !important;}
-            
-            /* Controle de Tamanho: Valor Principal vs Cálculo */
-            .card p.val-principal { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; color: #000 !important; display: block !important; }
-            .card p.val-calc { font-size: 8pt !important; font-weight: normal !important; margin-top: 4px !important; color: #555555 !important; display: block !important; }
-            .card p.val-calc span { font-weight: bold !important; font-size: 8pt !important; color: #000 !important;}
-
-            /* Tabela - Clean Print (Fim do Zebrado) */
-            .table-container { background: transparent !important; border: none !important; padding: 0 !important; }
-            .table-container h2 { display: none !important; }
-
-            table.dataTable { border: 1px solid #000000 !important; margin-top: 0 !important; width: 100% !important; border-collapse: collapse !important; color: #000 !important; }
-            table.dataTable thead th { 
-                background-color: #FFFFFF !important; 
-                color: #000000 !important;
-                font-weight: 900 !important; 
-                border: 1px solid #000000 !important; 
-                border-bottom: 2px solid #000000 !important;
-                font-size: 9pt !important; 
-                padding: 6px !important; 
-                text-align: left !important;
-            }
-            table.dataTable tbody td { 
-                background-color: #FFFFFF !important;
-                border: 1px solid #cccccc !important; /* Linha divisória bem suave para P&B */
-                color: #000000 !important;
-                font-size: 8.5pt !important; 
-                padding: 4px 6px !important; 
-            }
-            
-            /* Anulação total de cores zebradas */
-            table.dataTable tbody tr { background-color: #FFFFFF !important; }
-            table.dataTable tbody tr:nth-child(even), table.dataTable tbody tr:nth-child(odd) { background-color: #FFFFFF !important; } 
-            
-            #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; font-weight: bold !important; border-top: 1px solid #000000 !important; padding-top: 5px; display: block !important; color: #000 !important;}
-        }
+        body.theme-classic table.dataTable thead th { background-color: #e2e8f0 !important; color: #1e293b !important; border-bottom: 1px solid #cbd5e1 !important; }
+        body.theme-classic table.dataTable tbody td { border-bottom: 1px solid #e2e8f0 !important; color: #334155 !important;}
     </style>
 </head>
 <body>
-
-    <div class="blob-1"></div>
-    <div class="blob-2"></div>
 
     <div class='header-bg pb-12 no-print'>
         <div class='max-w-7xl mx-auto flex justify-between items-center px-4'>
@@ -265,146 +67,81 @@
                 <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-coins text-3xl text-emerald-400"></i></div>
                 <div>
                     <h1 class='text-3xl font-bold text-white'>Gestão Financeira</h1>
-                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Portal NII - Núcleo Interno de Informação</p>
+                    <p class='text-emerald-200 text-sm mt-1 opacity-80'>Portal NII - Repasses e Rateios</p>
                 </div>
             </div>
-            
             <div class="flex items-center gap-4">
-                <button onclick="toggleTheme()" id="btn-theme-toggle" class="btn-theme" title="Alternar Tema (Neon/Clássico)">
-                    <i class="fas fa-magic"></i>
-                </button>
-                <img src="../logo.png" alt="Logo HSH" class="header-mini-logo" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
-                <a href="modulo_gerencial.html" class="btn-theme text-white">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </a>
+                <button onclick="toggleTheme()" class="btn-theme"><i class="fas fa-magic"></i></button>
+                <img src="../logo.png" class="header-mini-logo" onerror="this.style.display='none'">
             </div>
         </div>
     </div>
 
     <div class='max-w-7xl mx-auto module-nav no-print'>
-        <div class="module-tab active" onclick="trocarModulo('medico')">
-            <i class="fas fa-user-md mr-2"></i> Repasse Médico
-        </div>
-        <div class="module-tab" onclick="trocarModulo('terceiros')">
-            <i class="fas fa-truck-medical mr-2"></i> Repasse Terceiros
-        </div>
+        <div class="module-tab active" onclick="trocarModulo('medico')"><i class="fas fa-user-md mr-2"></i> Repasse Médico</div>
+        <div class="module-tab" onclick="trocarModulo('terceiros')"><i class="fas fa-truck-medical mr-2"></i> Repasse Terceiros</div>
     </div>
 
-    <div class="header-print">
-        <img src="../logo.png" alt="Logo HSH" onerror="this.src='https://voweywtzoldwfhgkniup.supabase.co/storage/v1/object/public/arquivos-faturamento/logo.png'">
-        <div class="header-info">
-            <h1>Hospital Beneficente Santa Helena</h1>
-            <h2 id="print-title">Relatório Financeiro</h2>
-            <p style="font-size:10pt; margin:0;">Portal NII - Núcleo Interno de Informação</p>
-        </div>
-        <div class="header-meta">
-            <div><b>Competência:</b> <span id="print-comp">--/--</span></div>
-            <div><b>Emissão:</b> <span id="print-data"></span></div>
-        </div>
-    </div>
-
-    <div id="view-medico" class="view-section active max-w-7xl mx-auto px-4">
-        
+    <div id="view-medico" class="view-section active max-w-7xl mx-auto px-4 mt-6">
         <div class='mb-6 filter-area flex gap-4 items-center'>
             <label class="font-bold text-sm uppercase">Competência:</label>
-            <select id="selCompMedico" onchange="Medico.carregarDados()" class="min-w-[150px]"></select>
-            <button onclick="Medico.carregarDados()" class="btn-sync"><i class="fas fa-sync"></i></button>
+            <select id="selCompMedico" onchange="Medico.carregarDados()"></select>
+            
+            <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
+            <select id="selConvenioMedico" onchange="Medico.carregarDados()">
+                <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
+                <option value="FILA ZERO">FILA ZERO</option>
+            </select>
         </div>
 
-        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
             <div class='card border-l-4 border-blue-500'>
                 <h3>Receita Rateio (SP)</h3>
-                <p class='text-2xl font-bold neon-text-blue val-principal' id="card-med-rateio">R$ 0,00</p>
+                <p class='text-2xl font-bold' id="card-med-rateio">R$ 0,00</p>
             </div>
             <div class='card border-l-4 border-orange-500'>
                 <h3>Produção Geral</h3>
-                <p class='text-2xl font-bold neon-text-yellow val-principal' id="card-med-prod">R$ 0,00</p>
+                <p class='text-2xl font-bold' id="card-med-prod">R$ 0,00</p>
             </div>
             <div class='card border-l-4 border-green-500'>
                 <h3>Total a Repassar</h3>
-                <p class='text-2xl font-bold neon-text-green val-principal' id="card-med-total">R$ 0,00</p>
+                <p class='text-2xl font-bold' id="card-med-total">R$ 0,00</p>
             </div>
         </div>
 
         <div class="table-container mb-8">
-            <h2 class='text-xl font-bold mb-4 no-print'><i class="fas fa-list mr-2 text-blue-400"></i> Detalhamento por Profissional</h2>
             <table id='tblMedico' class="display w-full">
-                <thead>
-                    <tr>
-                        <th>Profissional</th>
-                        <th class="text-right">V. Rateio</th>
-                        <th class="text-right">V. Prod. Geral</th>
-                        <th class="text-center">TOTAL (R$)</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Profissional</th><th class="text-right">V. Rateio</th><th class="text-right">V. Prod. Geral</th><th class="text-center">TOTAL (R$)</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
 
-    <div id="view-terceiros" class="view-section max-w-7xl mx-auto px-4">
-        
-        <div class='mb-6 filter-area flex flex-wrap gap-4 items-end'>
-            <div class="flex flex-col">
-                <label class="font-bold text-sm uppercase mb-1">Competência:</label>
-                <div class="flex gap-2">
-                    <select id="selCompTerc" onchange="Terceiros.carregarDados()" class="min-w-[150px]"></select>
-                    <button onclick="Terceiros.carregarDados()" class="btn-sync btn-sync-blue"><i class="fas fa-sync"></i></button>
-                </div>
-            </div>
-            <div class="flex flex-col flex-1">
-                <label class="font-bold text-sm uppercase mb-1">Buscar (Grupo, Código, Descrição):</label>
-                <div class="relative search-box flex">
-                    <input type="text" id="txtSearchTerc" onkeyup="Terceiros.aplicarFiltroTexto()" placeholder="Filtrar..." class="w-full">
-                </div>
-            </div>
-            <div class="flex flex-col">
-                <label class="font-bold text-sm uppercase mb-1">Presets Rápidos:</label>
-                <select id="selPresetTerc" onchange="Terceiros.aplicarPreset()">
-                    <option value="">Nenhum</option>
-                    <option value="BANCO_SANGUE">Banco de Sangue</option>
-                    <option value="ULTRASSONOGRAFIA">Ultrassonografia</option>
-                    <option value="TOMOGRAFIA">Tomografia</option>
-                </select>
-            </div>
+    <div id="view-terceiros" class="view-section max-w-7xl mx-auto px-4 mt-6">
+        <div class='mb-6 filter-area flex flex-wrap gap-4 items-center'>
+            <label class="font-bold text-sm uppercase">Competência:</label>
+            <select id="selCompTerc" onchange="Terceiros.carregarDados()"></select>
+
+            <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
+            <select id="selConvenioTerc" onchange="Terceiros.carregarDados()">
+                <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
+                <option value="FILA ZERO">FILA ZERO</option>
+            </select>
         </div>
 
-        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
             <div class='card border-l-4 border-blue-500'>
-                <h3>Faturamento Total (Filtro)</h3>
-                <p class='text-2xl font-bold neon-text-blue val-principal' id="card-terc-total">R$ 0,00</p>
-            </div>
-            <div class='card border-l-4 border-cyan-500'>
-                <h3>SADT UTI ADULTO</h3>
-                <p class='text-2xl font-bold text-cyan-400 val-principal' style="text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);" id="card-terc-uti-adulto">R$ 0,00</p>
-                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
-            </div>
-            <div class='card border-l-4 border-pink-500'>
-                <h3>SADT UTI NEONATAL</h3>
-                <p class='text-2xl font-bold neon-text-pink val-principal' id="card-terc-uti-neo">R$ 0,00</p>
-                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
+                <h3>Faturamento Total</h3>
+                <p class='text-2xl font-bold' id="card-terc-total">R$ 0,00</p>
             </div>
         </div>
 
         <div class="table-container mb-8">
-            <h2 class='text-xl font-bold mb-4 no-print'><i class="fas fa-list-ul mr-2 text-blue-400"></i> Detalhamento</h2>
             <table id='tblTerceiros' class="display w-full">
-                <thead>
-                    <tr>
-                        <th>Grupo</th>
-                        <th>Código</th>
-                        <th>Descrição</th>
-                        <th class="text-center">Qtd</th>
-                        <th class="text-center">Valor Total</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Grupo</th><th>Código</th><th>Descrição</th><th class="text-center">Qtd</th><th class="text-center">Valor Total</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
-    </div>
-
-    <div id="print-footer" style="display:none;">
-        Relatório gerado pelo Portal NII em <span id="footer-data"></span>.
     </div>
 
     <script>
@@ -413,85 +150,52 @@
         const client = window.supabase.createClient(SB_URL, SB_KEY);
         const fmt = v => parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-        // ==========================================
-        // TEMA: CLÁSSICO NII vs NEON CYBERPUNK
-        // ==========================================
         function toggleTheme() {
             const body = document.body;
             if (body.classList.contains('theme-classic')) {
-                body.classList.remove('theme-classic');
-                localStorage.setItem('nii_theme_fin_int', 'neon');
+                body.classList.remove('theme-classic'); localStorage.setItem('nii_theme_fin_int', 'neon');
             } else {
-                body.classList.add('theme-classic');
-                localStorage.setItem('nii_theme_fin_int', 'classic');
+                body.classList.add('theme-classic'); localStorage.setItem('nii_theme_fin_int', 'classic');
             }
         }
 
         const commonDTConfig = (filename) => ({
-            destroy: true, 
-            dom: 'lBrtip',
-            pageLength: 25,
-            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
-            buttons: [
-                { extend: 'excelHtml5', title: filename, className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Excel' },
-                { text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button bg-blue-600', action: function () { window.print(); } }
-            ],
-            language: { 
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
-                lengthMenu: "Mostrar _MENU_ registros"
-            }
+            destroy: true, dom: 'lBrtip', pageLength: 25,
+            buttons: [ { extend: 'excelHtml5', title: filename } ],
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" }
         });
 
         function trocarModulo(modulo) {
-            $('.view-section').removeClass('active');
-            $('#view-' + modulo).addClass('active');
-            
-            $('.module-tab').removeClass('active');
-            $(`.module-tab[onclick="trocarModulo('${modulo}')"]`).addClass('active');
-
-            const titulos = { 'medico': 'Relatório de Repasse Médico', 'terceiros': 'Relatório de Repasse Terceiros (SADT)' };
-            $('#print-title').text(titulos[modulo]);
-
+            $('.view-section').removeClass('active'); $('#view-' + modulo).addClass('active');
+            $('.module-tab').removeClass('active'); $(`.module-tab[onclick="trocarModulo('${modulo}')"]`).addClass('active');
             if(modulo === 'medico' && !Medico.carregado) Medico.init();
             if(modulo === 'terceiros' && !Terceiros.carregado) Terceiros.init();
         }
 
         $(document).ready(function() {
-            const savedTheme = localStorage.getItem('nii_theme_fin_int');
-            if (savedTheme === 'classic') { 
-                document.body.classList.add('theme-classic');
-            } else {
-                document.body.classList.remove('theme-classic');
-            }
-
-            const hoje = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
-            $('#print-data').text(hoje);
-            $('#footer-data').text(hoje);
-            
+            if (localStorage.getItem('nii_theme_fin_int') === 'classic') document.body.classList.add('theme-classic');
             trocarModulo('medico');
         });
 
-        // NAMESPACE: MÉDICO
         const Medico = {
             carregado: false,
             init: async function() {
                 const { data } = await client.from('financeiro_repasses').select('competencia');
-                const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
-                    const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
-                    return new Date(y2, m2) - new Date(y1, m1);
-                });
-                const sel = $('#selCompMedico');
-                sel.empty();
+                if(!data) return;
+                const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
+                const sel = $('#selCompMedico'); sel.empty();
                 comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
                 if(comps.length > 0) this.carregarDados();
                 this.carregado = true;
             },
             carregarDados: async function() {
                 const comp = $('#selCompMedico').val();
-                if($('#view-medico').hasClass('active')) $('#print-comp').text(comp);
-                
-                const { data } = await client.from('financeiro_repasses').select('*').eq('competencia', comp);
-                
+                const conv = $('#selConvenioMedico').val();
+                if(!comp) return;
+
+                const { data } = await client.from('financeiro_repasses').select('*').eq('competencia', comp).eq('convenio', conv);
+                if(!data) return;
+
                 const totRateio = data.reduce((s, i) => s + (i.valor_rateio || 0), 0);
                 const totProd = data.reduce((s, i) => s + (i.valor_prod_extra || 0), 0);
                 const totGeral = totRateio + totProd;
@@ -500,106 +204,51 @@
                 $('#card-med-prod').text('R$ ' + fmt(totProd));
                 $('#card-med-total').text('R$ ' + fmt(totGeral));
 
-                const isClassic = document.body.classList.contains('theme-classic');
-
                 if ($.fn.DataTable.isDataTable('#tblMedico')) $('#tblMedico').DataTable().destroy();
                 $('#tblMedico').DataTable({
-                    ...commonDTConfig('Repasse_Medico'),
-                    data: data,
+                    ...commonDTConfig('Repasse_Medico'), data: data,
                     columns: [
                         { data: 'medico', className: 'font-bold' },
                         { data: 'valor_rateio', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
                         { data: 'valor_prod_extra', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
-                        { data: 'valor_liquido', className: `text-center font-bold font-mono ${isClassic ? 'text-green-700' : 'text-emerald-400'}`, render: d => 'R$ ' + fmt(d) }
+                        { data: 'valor_liquido', className: `text-center font-bold font-mono`, render: d => 'R$ ' + fmt(d) }
                     ]
                 });
             }
         };
 
-        // NAMESPACE: TERCEIROS
         const Terceiros = {
             carregado: false,
-            dadosBrutos: [],
-            PRESETS: {
-                'BANCO_SANGUE': { tipo: 'lista', codigos: ['0306020106', '0306020084', '0306020076', '0306020068', '0212010026', '0212010034'] },
-                'ULTRASSONOGRAFIA': { tipo: 'sigtap', grupo: '02', subgrupo: '05', excluir: ['0205010032'] },
-                'TOMOGRAFIA': { tipo: 'sigtap', grupo: '02', subgrupo: '06' }
-            },
             init: async function() {
                 const { data } = await client.from('financeiro_geral').select('competencia');
+                if(!data) return;
                 const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
-                const sel = $('#selCompTerc');
-                sel.empty();
+                const sel = $('#selCompTerc'); sel.empty();
                 comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
                 if(comps.length > 0) this.carregarDados();
                 this.carregado = true;
             },
             carregarDados: async function() {
                 const comp = $('#selCompTerc').val();
-                if($('#view-terceiros').hasClass('active')) $('#print-comp').text(comp);
+                const conv = $('#selConvenioTerc').val();
+                if(!comp) return;
 
-                const { data } = await client.from('financeiro_geral').select('*').eq('competencia', comp);
-                this.dadosBrutos = data;
-                $('#txtSearchTerc').val('');
-                $('#selPresetTerc').val('');
-                this.renderizar(data);
-            },
-            aplicarFiltroTexto: function() {
-                const termo = $('#txtSearchTerc').val().toLowerCase().trim();
-                $('#selPresetTerc').val(''); 
-                if (!termo) { this.renderizar(this.dadosBrutos); return; }
-                
-                const filtrados = this.dadosBrutos.filter(d => (
-                    (d.grupo || '') + ' ' + (d.codigo || '') + ' ' + (d.descricao || '')
-                ).toLowerCase().includes(termo));
-                this.renderizar(filtrados);
-            },
-            aplicarPreset: function() {
-                const key = $('#selPresetTerc').val();
-                $('#txtSearchTerc').val(''); 
-                if(!key) { this.renderizar(this.dadosBrutos); return; }
+                const { data } = await client.from('financeiro_geral').select('*').eq('competencia', comp).eq('convenio', conv);
+                if(!data) return;
 
-                const regra = this.PRESETS[key];
-                const filtrados = this.dadosBrutos.filter(d => {
-                    if (regra.tipo === 'lista') return regra.codigos.includes(d.codigo);
-                    if (regra.tipo === 'sigtap') {
-                        if (regra.grupo && d.cod_grupo !== regra.grupo) return false;
-                        if (regra.subgrupo && d.cod_subgrupo !== regra.subgrupo) return false;
-                        if (regra.excluir && regra.excluir.includes(d.codigo)) return false;
-                        return true;
-                    }
-                    return false;
-                });
-                this.renderizar(filtrados);
-            },
-            renderizar: function(data) {
-                let qtdUtiAdulto = 0, qtdUtiNeo = 0, totalGeral = 0;
-                data.forEach(d => {
-                    totalGeral += (d.valor_total || 0);
-                    if (d.grupo === 'UTI ADULTO') qtdUtiAdulto += (d.qtd || 0);
-                    if (d.grupo === 'UTI NEONATAL') qtdUtiNeo += (d.qtd || 0);
-                });
-
+                const totalGeral = data.reduce((s, i) => s + (i.valor_total || 0), 0);
                 $('#card-terc-total').text('R$ ' + fmt(totalGeral));
-                $('#qtd-uti-adulto').text(qtdUtiAdulto);
-                $('#card-terc-uti-adulto').text('R$ ' + fmt(qtdUtiAdulto * 50));
-                $('#qtd-uti-neo').text(qtdUtiNeo);
-                $('#card-terc-uti-neo').text('R$ ' + fmt(qtdUtiNeo * 70));
-
-                const isClassic = document.body.classList.contains('theme-classic');
 
                 if ($.fn.DataTable.isDataTable('#tblTerceiros')) $('#tblTerceiros').DataTable().destroy();
                 $('#tblTerceiros').DataTable({
-                    ...commonDTConfig('Repasse_Terceiros'),
-                    data: data,
+                    ...commonDTConfig('Repasse_Terceiros'), data: data,
                     columns: [
                         { data: 'grupo', className: 'text-xs font-bold uppercase' },
                         { data: 'codigo', className: 'font-mono text-xs' },
                         { data: 'descricao' },
                         { data: 'qtd', className: 'text-center font-bold' },
-                        { data: 'valor_total', className: `text-center font-bold font-mono ${isClassic ? 'text-blue-600' : 'text-blue-400'}`, render: d => 'R$ ' + fmt(d) }
-                    ],
-                    order: [[0, 'asc']]
+                        { data: 'valor_total', className: `text-center font-bold font-mono`, render: d => 'R$ ' + fmt(d) }
+                    ]
                 });
             }
         };
