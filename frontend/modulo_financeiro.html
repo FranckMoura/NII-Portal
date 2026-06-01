@@ -35,12 +35,14 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .filter-area { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 30px rgba(0,0,0,0.1); padding: 20px; transition: 0.5s; }
-        .filter-area select, .filter-area input { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); outline: none; border-radius: 6px; padding: 5px; }
+        .filter-area select, .filter-area input { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); outline: none; border-radius: 6px; padding: 5px; cursor: pointer; }
         .filter-area select option { background: #0f172a; color: white; }
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; transition: 0.4s; }
         .border-blue-500 { border-left: 4px solid #38bdf8 !important; }
         .border-orange-500 { border-left: 4px solid #fbbf24 !important; }
         .border-green-500 { border-left: 4px solid #34d399 !important; }
+        .border-cyan-500 { border-left: 4px solid #22d3ee !important; }
+        .border-pink-500 { border-left: 4px solid #f472b6 !important; }
         .card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #cbd5e1; }
         .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; }
         table.dataTable { color: white !important;}
@@ -82,10 +84,16 @@
         <div class="module-tab" onclick="trocarModulo('terceiros')"><i class="fas fa-truck-medical mr-2"></i> Repasse Terceiros</div>
     </div>
 
+    <div id="print-footer" style="display:none;">
+        Relatório gerado pelo Portal NII em <span id="footer-data"></span>.
+    </div>
+
     <div id="view-medico" class="view-section active max-w-7xl mx-auto px-4 mt-6">
         <div class='mb-6 filter-area flex gap-4 items-center'>
             <label class="font-bold text-sm uppercase">Competência:</label>
-            <select id="selCompMedico" onchange="Medico.carregarDados()"></select>
+            <select id="selCompMedico" onchange="Medico.carregarDados()" class="min-w-[150px]">
+                <option value="">Aguardando Base...</option>
+            </select>
             
             <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
             <select id="selConvenioMedico" onchange="Medico.carregarDados()">
@@ -118,15 +126,29 @@
     </div>
 
     <div id="view-terceiros" class="view-section max-w-7xl mx-auto px-4 mt-6">
-        <div class='mb-6 filter-area flex flex-wrap gap-4 items-center'>
-            <label class="font-bold text-sm uppercase">Competência:</label>
-            <select id="selCompTerc" onchange="Terceiros.carregarDados()"></select>
-
-            <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
-            <select id="selConvenioTerc" onchange="Terceiros.carregarDados()">
-                <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
-                <option value="FILA ZERO">FILA ZERO</option>
-            </select>
+        <div class='mb-6 filter-area flex flex-wrap gap-4 items-end'>
+            <div class="flex flex-col">
+                <label class="font-bold text-sm uppercase mb-1">Competência:</label>
+                <div class="flex gap-2">
+                    <select id="selCompTerc" onchange="Terceiros.carregarDados()" class="min-w-[150px]">
+                        <option value="">Aguardando Base...</option>
+                    </select>
+                    <button onclick="Terceiros.carregarDados()" class="btn-sync btn-sync-blue"><i class="fas fa-sync"></i></button>
+                </div>
+            </div>
+            <div class="flex flex-col flex-1">
+                <label class="font-bold text-sm uppercase mb-1">Buscar (Grupo, Código, Descrição):</label>
+                <div class="relative search-box flex">
+                    <input type="text" id="txtSearchTerc" onkeyup="Terceiros.aplicarFiltroTexto()" placeholder="Filtrar..." class="w-full">
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <label class="font-bold text-sm uppercase mb-1">Convênio:</label>
+                <select id="selConvenioTerc" onchange="Terceiros.carregarDados()">
+                    <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
+                    <option value="FILA ZERO">FILA ZERO</option>
+                </select>
+            </div>
         </div>
 
         <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
@@ -180,62 +202,122 @@
         const Medico = {
             carregado: false,
             init: async function() {
-                const { data } = await client.from('financeiro_repasses').select('competencia');
-                if(!data) return;
-                const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
-                const sel = $('#selCompMedico'); sel.empty();
-                comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
-                if(comps.length > 0) this.carregarDados();
-                this.carregado = true;
+                try {
+                    const sel = $('#selCompMedico');
+                    sel.html('<option value="">Conectando...</option>');
+                    
+                    const { data, error } = await client.from('financeiro_repasses').select('competencia');
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0) {
+                        sel.html('<option value="">Base Vazia</option>');
+                        return;
+                    }
+                    
+                    // Ordenação robusta de datas MM/YYYY
+                    const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
+                        const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
+                        return new Date(y2, m2) - new Date(y1, m1);
+                    });
+                    
+                    sel.empty();
+                    comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                    this.carregarDados();
+                    this.carregado = true;
+                } catch(e) {
+                    console.error("Erro na leitura de competências médicas:", e);
+                    $('#selCompMedico').html('<option value="">Erro de Conexão</option>');
+                    alert("Não foi possível carregar a lista de competências. Verifique sua tabela no Supabase.");
+                }
             },
             carregarDados: async function() {
                 const comp = $('#selCompMedico').val();
                 const conv = $('#selConvenioMedico').val();
                 if(!comp) return;
 
-                const { data } = await client.from('financeiro_repasses').select('*').eq('competencia', comp).eq('convenio', conv);
-                if(!data) return;
+                try {
+                    const { data, error } = await client.from('financeiro_repasses').select('*').eq('competencia', comp).eq('convenio', conv);
+                    if (error) throw error;
 
-                const totRateio = data.reduce((s, i) => s + (i.valor_rateio || 0), 0);
-                const totProd = data.reduce((s, i) => s + (i.valor_prod_extra || 0), 0);
-                const totGeral = totRateio + totProd;
+                    const totRateio = data.reduce((s, i) => s + (i.valor_rateio || 0), 0);
+                    const totProd = data.reduce((s, i) => s + (i.valor_prod_extra || 0), 0);
+                    const totGeral = totRateio + totProd;
 
-                $('#card-med-rateio').text('R$ ' + fmt(totRateio));
-                $('#card-med-prod').text('R$ ' + fmt(totProd));
-                $('#card-med-total').text('R$ ' + fmt(totGeral));
+                    $('#card-med-rateio').text('R$ ' + fmt(totRateio));
+                    $('#card-med-prod').text('R$ ' + fmt(totProd));
+                    $('#card-med-total').text('R$ ' + fmt(totGeral));
 
-                if ($.fn.DataTable.isDataTable('#tblMedico')) $('#tblMedico').DataTable().destroy();
-                $('#tblMedico').DataTable({
-                    ...commonDTConfig('Repasse_Medico'), data: data,
-                    columns: [
-                        { data: 'medico', className: 'font-bold' },
-                        { data: 'valor_rateio', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
-                        { data: 'valor_prod_extra', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
-                        { data: 'valor_liquido', className: `text-center font-bold font-mono`, render: d => 'R$ ' + fmt(d) }
-                    ]
-                });
+                    if ($.fn.DataTable.isDataTable('#tblMedico')) $('#tblMedico').DataTable().destroy();
+                    $('#tblMedico').DataTable({
+                        ...commonDTConfig('Repasse_Medico'), data: data,
+                        columns: [
+                            { data: 'medico', className: 'font-bold' },
+                            { data: 'valor_rateio', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
+                            { data: 'valor_prod_extra', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
+                            { data: 'valor_liquido', className: `text-center font-bold font-mono`, render: d => 'R$ ' + fmt(d) }
+                        ]
+                    });
+                } catch(e) {
+                    console.error("Erro ao carregar dados da tabela médica:", e);
+                }
             }
         };
 
         const Terceiros = {
             carregado: false,
+            dadosBrutos: [],
             init: async function() {
-                const { data } = await client.from('financeiro_geral').select('competencia');
-                if(!data) return;
-                const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
-                const sel = $('#selCompTerc'); sel.empty();
-                comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
-                if(comps.length > 0) this.carregarDados();
-                this.carregado = true;
+                try {
+                    const sel = $('#selCompTerc');
+                    sel.html('<option value="">Conectando...</option>');
+                    
+                    const { data, error } = await client.from('financeiro_geral').select('competencia');
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0) {
+                        sel.html('<option value="">Base Vazia</option>');
+                        return;
+                    }
+                    
+                    const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
+                        const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
+                        return new Date(y2, m2) - new Date(y1, m1);
+                    });
+                    
+                    sel.empty();
+                    comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                    this.carregarDados();
+                    this.carregado = true;
+                } catch(e) {
+                    console.error("Erro na leitura de competências de terceiros:", e);
+                    $('#selCompTerc').html('<option value="">Erro de Conexão</option>');
+                }
             },
             carregarDados: async function() {
                 const comp = $('#selCompTerc').val();
                 const conv = $('#selConvenioTerc').val();
                 if(!comp) return;
 
-                const { data } = await client.from('financeiro_geral').select('*').eq('competencia', comp).eq('convenio', conv);
-                if(!data) return;
-
+                try {
+                    const { data, error } = await client.from('financeiro_geral').select('*').eq('competencia', comp).eq('convenio', conv);
+                    if (error) throw error;
+                    
+                    this.dadosBrutos = data;
+                    $('#txtSearchTerc').val('');
+                    this.renderizar(data);
+                } catch(e) {
+                    console.error("Erro ao carregar dados de terceiros:", e);
+                }
+            },
+            aplicarFiltroTexto: function() {
+                const termo = $('#txtSearchTerc').val().toLowerCase().trim();
+                if (!termo) { this.renderizar(this.dadosBrutos); return; }
+                const filtrados = this.dadosBrutos.filter(d => (
+                    (d.grupo || '') + ' ' + (d.codigo || '') + ' ' + (d.descricao || '')
+                ).toLowerCase().includes(termo));
+                this.renderizar(filtrados);
+            },
+            renderizar: function(data) {
                 const totalGeral = data.reduce((s, i) => s + (i.valor_total || 0), 0);
                 $('#card-terc-total').text('R$ ' + fmt(totalGeral));
 
@@ -248,7 +330,8 @@
                         { data: 'descricao' },
                         { data: 'qtd', className: 'text-center font-bold' },
                         { data: 'valor_total', className: `text-center font-bold font-mono`, render: d => 'R$ ' + fmt(d) }
-                    ]
+                    ],
+                    order: [[0, 'asc']]
                 });
             }
         };
