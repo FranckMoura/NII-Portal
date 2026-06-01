@@ -236,6 +236,18 @@
                 <h3>Faturamento Total</h3>
                 <p class='text-2xl font-bold val-principal' id="card-terc-total">R$ 0,00</p>
             </div>
+            
+            <div class='card border-l-4 border-cyan-500'>
+                <h3>SADT UTI ADULTO</h3>
+                <p class='text-2xl font-bold text-cyan-400 val-principal' style="text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);" id="card-terc-uti-adulto">R$ 0,00</p>
+                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
+            </div>
+            
+            <div class='card border-l-4 border-pink-500'>
+                <h3>SADT UTI NEONATAL</h3>
+                <p class='text-2xl font-bold text-pink-400 val-principal' style="text-shadow: 0 0 10px rgba(244, 114, 182, 0.5);" id="card-terc-uti-neo">R$ 0,00</p>
+                <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
+            </div>
         </div>
 
         <div class="table-container mb-8">
@@ -315,6 +327,7 @@
                         return;
                     }
                     
+                    // Ordenação robusta de datas MM/YYYY
                     const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
                         const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
                         return new Date(y2, m2) - new Date(y1, m1);
@@ -422,8 +435,18 @@
                 this.renderizar(filtrados);
             },
             renderizar: function(data) {
-                const totalGeral = data.reduce((s, i) => s + (i.valor_total || 0), 0);
+                let qtdUtiAdulto = 0, qtdUtiNeo = 0, totalGeral = 0;
+                data.forEach(d => {
+                    totalGeral += (d.valor_total || 0);
+                    if (d.grupo === 'UTI ADULTO') qtdUtiAdulto += (d.qtd || 0);
+                    if (d.grupo === 'UTI NEONATAL') qtdUtiNeo += (d.qtd || 0);
+                });
+
                 $('#card-terc-total').text('R$ ' + fmt(totalGeral));
+                $('#qtd-uti-adulto').text(qtdUtiAdulto);
+                $('#card-terc-uti-adulto').text('R$ ' + fmt(qtdUtiAdulto * 50));
+                $('#qtd-uti-neo').text(qtdUtiNeo);
+                $('#card-terc-uti-neo').text('R$ ' + fmt(qtdUtiNeo * 70));
 
                 if ($.fn.DataTable.isDataTable('#tblTerceiros')) $('#tblTerceiros').DataTable().destroy();
                 $('#tblTerceiros').DataTable({
