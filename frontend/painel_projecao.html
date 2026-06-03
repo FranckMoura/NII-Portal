@@ -91,6 +91,12 @@
         .dt-button { background: var(--bg-hover) !important; color: var(--text-muted) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: 600 !important; transition: 0.2s !important; }
         .dt-button:hover { border-color: var(--color-primary) !important; color: var(--color-primary) !important;}
 
+        .bg-blue-600 { background: rgba(56, 189, 248, 0.2) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; }
+        .bg-blue-600:hover { background: rgba(56, 189, 248, 0.4) !important; color: white !important; }
+        
+        body.theme-classic .bg-blue-600 { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
+        body.theme-classic .bg-blue-600:hover { background: #1e3a8a !important; color: white !important; }
+
         .dataTables_wrapper .dataTables_paginate .paginate_button { color: var(--text-muted) !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: var(--bg-hover) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
         .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important; }
@@ -105,7 +111,6 @@
         .row-selecionada { background-color: rgba(56, 189, 248, 0.1) !important; }
         .chk-custom { width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary); }
 
-        /* CAIXA DE PESQUISA CUSTOMIZADA NA TABELA */
         .search-input { width: 100%; padding: 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(15, 23, 42, 0.6); color: white; border: 1px solid var(--border-color); outline: none; margin-top: 5px; transition: 0.3s; }
         .search-input:focus { border-color: var(--color-primary); }
         body.theme-classic .search-input { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
@@ -137,9 +142,7 @@
             .td-truncate { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
             table.dataTable tbody tr { page-break-inside: avoid !important; }
             
-            /* Remove a coluna do checkbox na impressão */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { display: none !important; }
-
             .val-positivo, .val-negativo { color: black !important; }
         }
     </style>
@@ -219,9 +222,20 @@
 
         <div class="cyber-container">
             <div class="flex justify-between items-center mb-4 no-print flex-wrap gap-4">
-                <h2 class='text-lg font-bold'><i class="fas fa-list mr-2 text-blue-400"></i> Painel de Inteligência</h2>
-                <div id="avisoSelecao" class="hidden text-sm font-bold px-3 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                    <i class="fas fa-mouse-pointer mr-1"></i> Modo Seleção Ativo: Marque as caixinhas abaixo para simular o impacto.
+                <div class="flex items-center gap-4">
+                    <h2 class='text-lg font-bold'><i class="fas fa-list mr-2 text-blue-400"></i> Painel de Inteligência</h2>
+                    <div id="avisoSelecao" class="hidden text-sm font-bold px-3 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                        <i class="fas fa-mouse-pointer mr-1"></i> Modo Seleção Ativo
+                    </div>
+                </div>
+
+                <div class="flex gap-2 items-center bg-black/10 p-2 rounded-lg border border-gray-600/30">
+                    <i class="fas fa-bookmark text-emerald-400 ml-1"></i>
+                    <select id="selCenarioSalvo" onchange="Projecao.aplicarCenario()" class="bg-transparent text-[var(--text-main)] outline-none cursor-pointer text-sm font-bold w-48">
+                        <option value="" class="text-black">-- Meus Cenários --</option>
+                    </select>
+                    <button onclick="Projecao.salvarCenario()" class="text-blue-400 hover:text-blue-300 ml-2 transition" title="Salvar Marcações Atuais"><i class="fas fa-save text-lg"></i></button>
+                    <button onclick="Projecao.excluirCenario()" class="text-red-400 hover:text-red-300 ml-2 mr-1 transition" title="Excluir Cenário Selecionado"><i class="fas fa-trash text-lg"></i></button>
                 </div>
             </div>
 
@@ -295,6 +309,7 @@
 
         const Projecao = {
             init: async function() {
+                this.carregarListaCenarios();
                 try {
                     const sel = $('#selCompProj');
                     sel.html('<option value="">Conectando...</option>');
@@ -328,7 +343,6 @@
                 $('#print-comp').text("Competência Base: " + comp + " | " + $('#filtroModo option:selected').text());
 
                 try {
-                    // Carga Única (Full Fetch)
                     const { data, error } = await client.from('projecao_faturamento').select('*').eq('competencia', comp);
                     if (error) throw error;
 
@@ -354,11 +368,11 @@
                     $('#avisoSelecao').hide();
                     $('#chkTodos').prop('checked', false).prop('disabled', true);
                     dadosCompletosMemoria.forEach(d => d.selecionado = false);
+                    $('#selCenarioSalvo').val(''); 
                     dadosParaProcessar = dadosCompletosMemoria;
                 } else {
                     $('#avisoSelecao').show();
                     $('#chkTodos').prop('disabled', false);
-                    // No modo filtro, exibe TUDO na tabela, MAS os KPIs só somarão os selecionados!
                     dadosParaProcessar = dadosCompletosMemoria;
                 }
 
@@ -371,11 +385,9 @@
                 let dadosAtivos = [];
                 
                 if (modo === 'TUDO') {
-                    // Pega tudo que está visível e filtrado pelo DataTables
                     if(tabelaProjecao) dadosAtivos = tabelaProjecao.rows({ filter: 'applied' }).data().toArray();
                     else dadosAtivos = dadosCompletosMemoria;
                 } else {
-                    // Pega APENAS os selecionados (mesmo se o filtro do datatables esconder eles, eles contam pro KPI)
                     dadosAtivos = dadosCompletosMemoria.filter(d => d.selecionado);
                 }
 
@@ -393,7 +405,6 @@
                 $('#kpi-projetado').text(formatBrl.format(totProj));
                 $('#kpi-impacto').text(formatBrl.format(totImp));
 
-                // Atualiza o rodapé da tabela também
                 $('#foot-qtd').html(new Intl.NumberFormat('pt-BR').format(totAih));
                 $('#foot-atual').html(formatBrl.format(totAtual));
                 $('#foot-proj').html(formatBrl.format(totProj));
@@ -402,12 +413,10 @@
 
             toggleLinha: function(codigo) {
                 if ($('#filtroModo').val() !== 'SELECIONADOS') return;
-                
                 let item = dadosCompletosMemoria.find(d => d.codigo === codigo);
                 if (item) {
                     item.selecionado = !item.selecionado;
                     this.atualizarKPIs();
-                    // Atualiza a classe da linha na hora sem recarregar a tabela
                     tabelaProjecao.rows().every(function () {
                         if(this.data().codigo === codigo) {
                             if(item.selecionado) $(this.node()).addClass('row-selecionada');
@@ -420,8 +429,6 @@
             toggleTodos: function(source) {
                 if ($('#filtroModo').val() !== 'SELECIONADOS') return;
                 let isChecked = source.checked;
-                
-                // Marca as linhas atualmente VISÍVEIS na tabela (respeita a barra de busca)
                 let visiveis = tabelaProjecao.rows({ filter: 'applied' }).data().toArray();
                 
                 visiveis.forEach(v => {
@@ -429,9 +436,79 @@
                     if(item) item.selecionado = isChecked;
                 });
 
-                // Redesenha a tabela para marcar os checkboxes e atualizar cores
                 tabelaProjecao.rows().invalidate().draw(false); 
                 this.atualizarKPIs();
+            },
+
+            carregarListaCenarios: function() {
+                let cenarios = JSON.parse(localStorage.getItem('nii_cenarios_projecao') || '{}');
+                let sel = $('#selCenarioSalvo');
+                sel.empty().append('<option value="" class="text-black">-- Meus Cenários --</option>');
+                for(let nome in cenarios) {
+                    sel.append(`<option value="${nome}" class="text-black">${nome}</option>`);
+                }
+            },
+
+            salvarCenario: function() {
+                if ($('#filtroModo').val() !== 'SELECIONADOS') {
+                    alert("Por favor, ative o Modo Seleção e marque os procedimentos que deseja salvar.");
+                    return;
+                }
+                
+                let selecionados = dadosCompletosMemoria.filter(d => d.selecionado).map(d => d.codigo);
+                if(selecionados.length === 0) {
+                    alert("Você não selecionou nenhum procedimento.");
+                    return;
+                }
+                
+                let nome = prompt("Digite um nome para salvar este Cenário (Ex: Pacote UTI):");
+                if(!nome) return;
+                
+                let cenarios = JSON.parse(localStorage.getItem('nii_cenarios_projecao') || '{}');
+                cenarios[nome] = selecionados;
+                localStorage.setItem('nii_cenarios_projecao', JSON.stringify(cenarios));
+                
+                this.carregarListaCenarios();
+                $('#selCenarioSalvo').val(nome);
+                alert(`Cenário "${nome}" salvo com sucesso!`);
+            },
+
+            aplicarCenario: function() {
+                let nome = $('#selCenarioSalvo').val();
+                if(!nome) return;
+                
+                let cenarios = JSON.parse(localStorage.getItem('nii_cenarios_projecao') || '{}');
+                let codigos = cenarios[nome] || [];
+                
+                if($('#filtroModo').val() !== 'SELECIONADOS') {
+                    $('#filtroModo').val('SELECIONADOS');
+                    $('#avisoSelecao').show();
+                    $('#chkTodos').prop('disabled', false);
+                    $('#print-comp').text("Competência Base: " + $('#selCompProj').val() + " | Filtro Interativo (Selecionados)");
+                }
+
+                dadosCompletosMemoria.forEach(d => {
+                    d.selecionado = codigos.includes(d.codigo);
+                });
+                
+                if(tabelaProjecao) tabelaProjecao.rows().invalidate().draw(false);
+                this.atualizarKPIs();
+            },
+
+            excluirCenario: function() {
+                let nome = $('#selCenarioSalvo').val();
+                if(!nome) {
+                    alert("Selecione um cenário na lista para excluir."); 
+                    return;
+                }
+                if(confirm(`Tem certeza que deseja apagar o cenário "${nome}"?`)) {
+                    let cenarios = JSON.parse(localStorage.getItem('nii_cenarios_projecao') || '{}');
+                    delete cenarios[nome];
+                    localStorage.setItem('nii_cenarios_projecao', JSON.stringify(cenarios));
+                    
+                    $('#selCenarioSalvo').val('');
+                    this.carregarListaCenarios();
+                }
             },
 
             renderizarTabela: function(dados) {
@@ -446,7 +523,10 @@
                 tabelaProjecao = $('#tabelaProjecao').DataTable({
                     data: dados,
                     dom: '<"flex justify-between items-center mb-4 no-print"lB>rtip',
-                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados', className: 'dt-button', title: 'Projecao_Faturamento_3x' } ],
+                    buttons: [ 
+                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados', className: 'dt-button', title: 'Projecao_Faturamento_3x' },
+                        { text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button bg-blue-600', action: function () { window.print(); } }
+                    ],
                     order: [[ 8, 'desc' ]], 
                     pageLength: 25,
                     lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
@@ -483,7 +563,6 @@
                             });
                         });
                         
-                        // Atualiza os KPIs sempre que o usuário faz uma busca na tabela e está no Modo "TUDO"
                         that_api.on('search.dt', function() {
                             if ($('#filtroModo').val() === 'TUDO') Projecao.atualizarKPIs();
                         });
