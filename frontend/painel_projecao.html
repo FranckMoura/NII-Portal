@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeção de Faturamento - NII Portal</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #0f172a;       
+            --bg-card: #1e293b;       
+            --bg-header: rgba(15, 23, 42, 0.95);
+            --bg-hover: #334155;      
+            --border-color: #334155;
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;    
+            --color-primary: #38bdf8; 
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --radius-default: 12px;
+        }
+
+        body.theme-classic {
+            --bg-body: #f1f5f9;       
+            --bg-card: #ffffff;       
+            --bg-header: rgba(255, 255, 255, 0.98);
+            --bg-hover: #f8fafc;      
+            --border-color: #cbd5e1;  
+            --text-main: #0f172a;     
+            --text-muted: #475569;    
+            --color-primary: #0056b3; 
+            --shadow-card: 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; transition: color 0.3s ease; scroll-behavior: smooth; }
+
+        body:not(.theme-classic)::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: -1; pointer-events: none;
+        }
+
+        body.is-iframe { background: transparent !important; }
+        body.is-iframe::before { display: none !important; }
+        body.is-iframe .header-bg { display: none !important; }
+        
+        #loader { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; font-weight: bold; backdrop-filter: blur(5px); }
+
+        .cyber-container {
+            background: var(--bg-card); border-radius: var(--radius-default); 
+            padding: 24px; box-shadow: var(--shadow-card); 
+            border: 1px solid var(--border-color); margin-bottom: 24px; transition: 0.3s;
+        }
+
+        .glass-card {
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; 
+            padding: 20px; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; text-align: center;
+        }
+        .glass-card:hover { transform: translateY(-3px); border-color: var(--color-primary); box-shadow: var(--shadow-card); }
+
+        .kpi-title { font-size: 0.70rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .kpi-number { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px;}
+
+        .btn-action { background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-action:hover { background: #0284c7; transform: translateY(-2px); }
+
+        .btn-theme { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;}
+        .btn-theme:hover { background: var(--bg-hover); color: var(--text-main); }
+
+        /* DATATABLES */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; background-color: var(--bg-hover) !important; color: var(--color-primary) !important; border-bottom: 2px solid var(--border-color) !important;}
+        table.dataTable tbody td { font-size: 0.80rem; vertical-align: middle; padding: 10px !important; color: var(--text-main) !important; border-bottom: 1px solid var(--border-color) !important;}
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
+        table.dataTable tfoot th { background-color: var(--bg-hover) !important; color: var(--text-main) !important; font-weight: 900 !important; padding: 15px 10px !important; border-top: 2px solid var(--border-color) !important; text-align: center; }
+
+        .dt-button { background: var(--bg-hover) !important; color: var(--text-muted) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: 600 !important; transition: 0.2s !important; }
+        .dt-button:hover { border-color: var(--color-primary) !important; color: var(--color-primary) !important;}
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button { color: var(--text-muted) !important; border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 10px !important;}
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: var(--bg-hover) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important; }
+
+        .td-truncate { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .val-positivo { color: #34d399; font-weight: bold; }
+        .val-negativo { color: #f87171; font-weight: bold; }
+        body.theme-classic .val-positivo { color: #10b981; }
+        body.theme-classic .val-negativo { color: #ef4444; }
+
+        .row-selecionada { background-color: rgba(56, 189, 248, 0.1) !important; }
+        .chk-custom { width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary); }
+
+        /* CAIXA DE PESQUISA CUSTOMIZADA NA TABELA */
+        .search-input { width: 100%; padding: 6px; border-radius: 4px; font-size: 0.7rem; font-weight: normal; background: rgba(15, 23, 42, 0.6); color: white; border: 1px solid var(--border-color); outline: none; margin-top: 5px; transition: 0.3s; }
+        .search-input:focus { border-color: var(--color-primary); }
+        body.theme-classic .search-input { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
+        body.theme-classic .search-input:focus { border-color: #004e92; }
+
+        .print-header-visible { display: none; }
+        
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            * { background-color: transparent !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
+            body::before, .no-print, .header-bg, .dt-buttons, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+            
+            body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 8pt !important; height: auto !important; overflow: visible !important; min-height: 100% !important; }
+            .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; height: auto !important; overflow: visible !important; }
+            
+            .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
+            .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
+            .print-header-visible h3 { font-size: 11pt !important; font-weight: bold !important; margin: 5px 0 !important; }
+            
+            .grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; margin-bottom: 20px !important; }
+            .glass-card { border: 1px solid #ccc !important; border-radius: 6px !important; padding: 10px !important; text-align: center !important; page-break-inside: avoid !important; }
+            .kpi-title { font-size: 8pt !important; font-weight: bold !important; margin-bottom: 4px !important; text-transform: uppercase; }
+            .kpi-number { font-size: 14pt !important; margin: 0 !important; font-weight: 900 !important; }
+            
+            .dataTables_wrapper { overflow: visible !important; }
+            table.dataTable { width: 100% !important; border-collapse: collapse !important; border: 1px solid black !important; table-layout: auto !important; margin: 0 !important; }
+            table.dataTable thead th, table.dataTable tfoot th { background-color: #f3f4f6 !important; font-size: 8pt !important; font-weight: bold !important; border: 1px solid black !important; padding: 6px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: black !important;}
+            table.dataTable tbody td { font-size: 8pt !important; border: 1px solid black !important; padding: 6px 4px !important; vertical-align: middle !important; text-align: right !important; }
+            .td-truncate { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+            table.dataTable tbody tr { page-break-inside: avoid !important; }
+            
+            /* Remove a coluna do checkbox na impressão */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { display: none !important; }
+
+            .val-positivo, .val-negativo { color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:flex;">
+        <i class="fas fa-chart-line fa-spin text-5xl text-blue-400 mb-4"></i>
+        <p class="text-white font-bold" id="loader-text">Calculando Projeções...</p>
+    </div>
+
+    <div class='header-bg shadow-lg no-print'>
+        <div class='max-w-[98%] mx-auto flex justify-between items-center px-4'>
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3 rounded-lg"><i class="fa-solid fa-rocket text-3xl text-blue-400"></i></div>
+                <div>
+                    <h1 class='text-2xl font-bold'>Painel de Projeção de Faturamento</h1>
+                    <p class='text-xs opacity-70'>Simulação Baseada em Multiplicador (3x) da Tabela SIGTAP</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="btn-action bg-orange-500 hover:bg-orange-600"><i class="fas fa-print"></i> Imprimir / PDF</button>
+                <button onclick="toggleTheme()" class="btn-theme" title="Alternar Tema"><i class="fas fa-sun" id="theme-icon"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-header-iframe no-print px-4 pt-4 mb-4 flex justify-between items-end border-b border-gray-600/30 pb-2">
+        <div>
+            <h2 class="text-xl font-bold text-[var(--text-main)]">Projeção por Competência</h2>
+        </div>
+        <div class="flex items-center gap-3 pb-1">
+            <div class="text-sm font-bold text-gray-400 bg-black/10 px-3 py-1.5 rounded-lg border border-gray-600/30">
+                <i class="fas fa-filter mr-1 text-pink-400"></i> Simulação: 
+                <select id="filtroModo" onchange="Projecao.aplicarFiltroSelecao()" class="bg-transparent text-gray-300 ml-1 outline-none cursor-pointer">
+                    <option value="TUDO" class="text-black">Geral (Hospital Inteiro)</option>
+                    <option value="SELECIONADOS" class="text-black font-bold">Filtro Interativo (Selecionados)</option>
+                </select>
+            </div>
+
+            <div class="text-sm font-bold text-gray-400 bg-black/10 px-3 py-1.5 rounded-lg border border-gray-600/30">
+                <i class="fas fa-calendar-alt mr-1 text-blue-400"></i> Mês Base: 
+                <select id="selCompProj" onchange="Projecao.carregarDados()" class="bg-transparent text-gray-300 ml-1 outline-none cursor-pointer">
+                    <option value="">Aguardando Base...</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-header-visible">
+        <h2>Hospital Beneficente Santa Helena</h2>
+        <h3>Projeção de Faturamento Estimado (Base Atual x 3)</h3>
+        <p id="print-comp"></p>
+        <p id="print-date"></p>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass-card">
+                <div class="kpi-title text-gray-400">Total de AIHs (Cenário)</div>
+                <div class="kpi-number text-[var(--text-main)]" id="kpi-aihs">0</div>
+            </div>
+            <div class="glass-card">
+                <div class="kpi-title text-orange-400">Faturamento Realizado (1x)</div>
+                <div class="kpi-number text-[var(--text-main)]" id="kpi-atual">R$ 0,00</div>
+            </div>
+            <div class="glass-card" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.3);">
+                <div class="kpi-title text-blue-400">Faturamento Projetado (3x)</div>
+                <div class="kpi-number text-blue-400" id="kpi-projetado">R$ 0,00</div>
+            </div>
+            <div class="glass-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+                <div class="kpi-title text-emerald-400">Impacto / Ganho Líquido</div>
+                <div class="kpi-number text-emerald-400" id="kpi-impacto">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="cyber-container">
+            <div class="flex justify-between items-center mb-4 no-print flex-wrap gap-4">
+                <h2 class='text-lg font-bold'><i class="fas fa-list mr-2 text-blue-400"></i> Painel de Inteligência</h2>
+                <div id="avisoSelecao" class="hidden text-sm font-bold px-3 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                    <i class="fas fa-mouse-pointer mr-1"></i> Modo Seleção Ativo: Marque as caixinhas abaixo para simular o impacto.
+                </div>
+            </div>
+
+            <table id="tabelaProjecao" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center w-10 no-print" title="Marque os procedimentos para simulação isolada">
+                            <input type="checkbox" id="chkTodos" class="chk-custom" onclick="Projecao.toggleTodos(this)">
+                        </th>
+                        <th class="text-center w-24">Cód. SIGTAP</th>
+                        <th class="text-left">Descrição do Procedimento</th>
+                        <th class="text-center">Qtd AIH</th>
+                        <th class="text-right">Val. Médio Atual (1x)</th>
+                        <th class="text-right text-blue-400">Val. Proj. Unit (3x)</th>
+                        <th class="text-right">Total Atual</th>
+                        <th class="text-right text-blue-400">Total Projetado</th>
+                        <th class="text-right text-emerald-400">Impacto Bruto</th>
+                    </tr>
+                    <tr class="table-search no-print"></tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-right">TOTAIS DO CENÁRIO ATUAL:</th>
+                        <th id="foot-qtd" class="text-center">0</th>
+                        <th></th>
+                        <th></th>
+                        <th id="foot-atual" class="text-right">0</th>
+                        <th id="foot-proj" class="text-right text-blue-400">0</th>
+                        <th id="foot-imp" class="text-right text-emerald-400">0</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaProjecao = null;
+        let dadosCompletosMemoria = [];
+        const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+            document.body.classList.add('is-iframe');
+            window.toggleTheme = function() {
+                if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
+                else document.body.classList.remove('theme-classic');
+            };
+            window.toggleTheme();
+        } else {
+            window.toggleTheme = function() {
+                const body = document.body;
+                if (body.classList.contains('theme-classic')) {
+                    body.classList.remove('theme-classic'); localStorage.setItem('nii_theme_hub', 'neon');
+                } else {
+                    body.classList.add('theme-classic'); localStorage.setItem('nii_theme_hub', 'classic');
+                }
+            }
+            if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
+        }
+
+        $(document).ready(async function() { 
+            document.getElementById('print-date').innerText = "Emitido em: " + new Date().toLocaleDateString('pt-BR') + " às " + new Date().toLocaleTimeString('pt-BR');
+            await Projecao.init(); 
+        });
+
+        const Projecao = {
+            init: async function() {
+                try {
+                    const sel = $('#selCompProj');
+                    sel.html('<option value="">Conectando...</option>');
+                    
+                    const { data, error } = await client.from('projecao_faturamento').select('competencia');
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0) {
+                        sel.html('<option value="">Base Vazia (Rode o Robô)</option>');
+                        $('#loader').fadeOut();
+                        return;
+                    }
+                    
+                    const comps = [...new Set(data.map(i => i.competencia))].sort().reverse();
+                    sel.empty();
+                    comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                    
+                    await this.carregarDados();
+                } catch(e) {
+                    console.error("Erro na leitura:", e);
+                    $('#selCompProj').html('<option value="">Erro de Conexão</option>');
+                    $('#loader').fadeOut();
+                }
+            },
+            
+            carregarDados: async function() {
+                $('#loader').fadeIn(200);
+                const comp = $('#selCompProj').val();
+                if(!comp) return;
+
+                $('#print-comp').text("Competência Base: " + comp + " | " + $('#filtroModo option:selected').text());
+
+                try {
+                    // Carga Única (Full Fetch)
+                    const { data, error } = await client.from('projecao_faturamento').select('*').eq('competencia', comp);
+                    if (error) throw error;
+
+                    dadosCompletosMemoria = data.map(d => ({...d, selecionado: false}));
+                    $('#filtroModo').val('TUDO');
+                    this.aplicarFiltroSelecao();
+
+                } catch (err) {
+                    console.error("Erro ao cruzar dados:", err);
+                    alert("Erro ao carregar a tabela de Projeções.");
+                } finally {
+                    $('#loader').fadeOut();
+                }
+            },
+
+            aplicarFiltroSelecao: function() {
+                const modo = $('#filtroModo').val();
+                $('#print-comp').text("Competência Base: " + $('#selCompProj').val() + " | " + $('#filtroModo option:selected').text());
+
+                let dadosParaProcessar = [];
+                
+                if (modo === 'TUDO') {
+                    $('#avisoSelecao').hide();
+                    $('#chkTodos').prop('checked', false).prop('disabled', true);
+                    dadosCompletosMemoria.forEach(d => d.selecionado = false);
+                    dadosParaProcessar = dadosCompletosMemoria;
+                } else {
+                    $('#avisoSelecao').show();
+                    $('#chkTodos').prop('disabled', false);
+                    // No modo filtro, exibe TUDO na tabela, MAS os KPIs só somarão os selecionados!
+                    dadosParaProcessar = dadosCompletosMemoria;
+                }
+
+                this.renderizarTabela(dadosParaProcessar);
+                this.atualizarKPIs();
+            },
+
+            atualizarKPIs: function() {
+                const modo = $('#filtroModo').val();
+                let dadosAtivos = [];
+                
+                if (modo === 'TUDO') {
+                    // Pega tudo que está visível e filtrado pelo DataTables
+                    if(tabelaProjecao) dadosAtivos = tabelaProjecao.rows({ filter: 'applied' }).data().toArray();
+                    else dadosAtivos = dadosCompletosMemoria;
+                } else {
+                    // Pega APENAS os selecionados (mesmo se o filtro do datatables esconder eles, eles contam pro KPI)
+                    dadosAtivos = dadosCompletosMemoria.filter(d => d.selecionado);
+                }
+
+                let totAih = 0, totAtual = 0, totProj = 0, totImp = 0;
+
+                dadosAtivos.forEach(d => {
+                    totAih += d.quantidade;
+                    totAtual += d.valor_total_atual;
+                    totProj += d.total_projetado;
+                    totImp += d.impacto;
+                });
+
+                $('#kpi-aihs').text(new Intl.NumberFormat('pt-BR').format(totAih));
+                $('#kpi-atual').text(formatBrl.format(totAtual));
+                $('#kpi-projetado').text(formatBrl.format(totProj));
+                $('#kpi-impacto').text(formatBrl.format(totImp));
+
+                // Atualiza o rodapé da tabela também
+                $('#foot-qtd').html(new Intl.NumberFormat('pt-BR').format(totAih));
+                $('#foot-atual').html(formatBrl.format(totAtual));
+                $('#foot-proj').html(formatBrl.format(totProj));
+                $('#foot-imp').html('+ ' + formatBrl.format(totImp));
+            },
+
+            toggleLinha: function(codigo) {
+                if ($('#filtroModo').val() !== 'SELECIONADOS') return;
+                
+                let item = dadosCompletosMemoria.find(d => d.codigo === codigo);
+                if (item) {
+                    item.selecionado = !item.selecionado;
+                    this.atualizarKPIs();
+                    // Atualiza a classe da linha na hora sem recarregar a tabela
+                    tabelaProjecao.rows().every(function () {
+                        if(this.data().codigo === codigo) {
+                            if(item.selecionado) $(this.node()).addClass('row-selecionada');
+                            else $(this.node()).removeClass('row-selecionada');
+                        }
+                    });
+                }
+            },
+
+            toggleTodos: function(source) {
+                if ($('#filtroModo').val() !== 'SELECIONADOS') return;
+                let isChecked = source.checked;
+                
+                // Marca as linhas atualmente VISÍVEIS na tabela (respeita a barra de busca)
+                let visiveis = tabelaProjecao.rows({ filter: 'applied' }).data().toArray();
+                
+                visiveis.forEach(v => {
+                    let item = dadosCompletosMemoria.find(d => d.codigo === v.codigo);
+                    if(item) item.selecionado = isChecked;
+                });
+
+                // Redesenha a tabela para marcar os checkboxes e atualizar cores
+                tabelaProjecao.rows().invalidate().draw(false); 
+                this.atualizarKPIs();
+            },
+
+            renderizarTabela: function(dados) {
+                if ($.fn.DataTable.isDataTable('#tabelaProjecao')) $('#tabelaProjecao').DataTable().destroy();
+
+                $('.table-search').empty();
+                $('#tabelaProjecao thead tr:eq(0) th').each( function (i) {
+                    if (i === 0) $('.table-search').append('<th class="no-print"></th>');
+                    else $('.table-search').append('<th><input type="text" placeholder="Filtrar..." class="search-input" /></th>');
+                });
+
+                tabelaProjecao = $('#tabelaProjecao').DataTable({
+                    data: dados,
+                    dom: '<"flex justify-between items-center mb-4 no-print"lB>rtip',
+                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados', className: 'dt-button', title: 'Projecao_Faturamento_3x' } ],
+                    order: [[ 8, 'desc' ]], 
+                    pageLength: 25,
+                    lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
+                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    createdRow: function(row, data) {
+                        if (data.selecionado) $(row).addClass('row-selecionada');
+                    },
+                    columns: [
+                        { 
+                            data: null, className: "text-center no-print", sortable: false,
+                            render: function(d, type, row) {
+                                let disabled = $('#filtroModo').val() === 'TUDO' ? 'disabled' : '';
+                                let checked = row.selecionado ? 'checked' : '';
+                                return `<input type="checkbox" class="chk-custom chk-linha" onclick="Projecao.toggleLinha('${row.codigo}')" ${checked} ${disabled}>`;
+                            }
+                        },
+                        { data: 'codigo', className: 'text-center font-mono font-bold text-gray-500' },
+                        { data: 'descricao', className: 'font-semibold td-truncate text-left', render: d => `<span title="${d}">${d}</span>` },
+                        { data: 'quantidade', className: 'text-center font-bold' },
+                        { data: 'valor_medio_atual', className: 'text-right font-mono text-gray-500', render: d => formatBrl.format(d) },
+                        { data: 'valor_medio_projetado', className: 'text-right font-mono font-bold text-blue-400', render: d => formatBrl.format(d) },
+                        { data: 'valor_total_atual', className: 'text-right font-mono text-gray-500', render: d => formatBrl.format(d) },
+                        { data: 'total_projetado', className: 'text-right font-mono font-bold text-blue-400', render: d => formatBrl.format(d) },
+                        { data: 'impacto', className: 'text-right font-mono font-bold', render: d => `<span class="val-positivo">+${formatBrl.format(d)}</span>` }
+                    ],
+                    initComplete: function () {
+                        let that_api = this.api();
+                        this.api().columns().every( function () {
+                            var that = this;
+                            $('input', $('.table-search th').eq(this.index())).on('keyup change clear', function () {
+                                if (that.search() !== this.value) {
+                                    that.search(this.value).draw();
+                                }
+                            });
+                        });
+                        
+                        // Atualiza os KPIs sempre que o usuário faz uma busca na tabela e está no Modo "TUDO"
+                        that_api.on('search.dt', function() {
+                            if ($('#filtroModo').val() === 'TUDO') Projecao.atualizarKPIs();
+                        });
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>

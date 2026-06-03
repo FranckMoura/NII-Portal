@@ -1,172 +1,162 @@
-import pandas as pd
-from supabase import create_client, Client
+import time
 import os
 import glob
-import sys
-import re
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support import expected_conditions as EC
 
-print("--- 💰 PROCESSADOR DE FATURAMENTO V10 (MASTER KEY) ---")
+print(f"--- 🏥 EXTRAÇÃO TABNET V15.2 (COLETOR SP - BLINDADO) ---")
 
-# --- CREDENCIAIS ---
-SUPABASE_URL = "https://voweywtzoldwfhgkniup.supabase.co"
+CNES_ALVO = "2311682"
+PASTA_DOWNLOAD = r"C:\Users\DELL\OneDrive\NII-Portal-Cloud\backend\tabnet_sp"
+URL_TABNET = "http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sih/cnv/spgmt.def"
 
-# ⚠️ CHAVE MESTRA (SERVICE ROLE) - Acesso Total
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk"
+if not os.path.exists(PASTA_DOWNLOAD): os.makedirs(PASTA_DOWNLOAD)
+
+options = webdriver.ChromeOptions()
+prefs = {"download.default_directory": PASTA_DOWNLOAD}
+options.add_experimental_option("prefs", prefs)
+# options.add_argument('--headless') # Descomente para rodar invisível no futuro
 
 try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print(f"❌ Erro na configuração do Supabase: {e}")
-    sys.exit()
+    print(">> Abrindo navegador...")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    wait = WebDriverWait(driver, 20)
+    driver.get(URL_TABNET)
+    driver.maximize_window()
+    time.sleep(3)
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-arquivos = glob.glob("*.csv") + glob.glob("*.txt")
-arquivos = [f for f in arquivos if "processar" not in f and not f.startswith("~")]
+    janela_principal = driver.current_window_handle
+    
+    # Espera explícita pelo campo de períodos
+    wait.until(EC.presence_of_element_located((By.ID, "A")))
+    select_periodos = Select(driver.find_element(By.ID, "A"))
+    total_opcoes = len(select_periodos.options)
+    indices = list(range(total_opcoes))
 
-if not arquivos:
-    print("❌ Nenhum arquivo encontrado.")
-    sys.exit()
+    print(f">> Iniciando extração DETALHADA de {total_opcoes} meses...")
 
-# --- PASSO 1: LIMPEZA ---
-print("\n🧹 LIMPANDO BANCO DE DADOS...")
-try:
-    supabase.table('faturamento').delete().gt('id', 0).execute()
-    print("✅ Tabela limpa.")
-except Exception as e:
-    print(f"⚠️ Erro ao limpar: {e}")
-
-# --- PASSO 2: PROCESSAMENTO ---
-print("\n⚙️  PROCESSANDO ARQUIVOS...")
-
-registros_unicos = {} 
-
-def str_to_float(valor):
-    s = str(valor).strip().replace('"', '').replace("'", '')
-    if pd.isna(valor) or s in ['-', '', '0,00']: return 0.0
-    val_str = s.replace('.', '').replace(',', '.')
-    try: return float(val_str)
-    except: return 0.0
-
-def converter_int(valor):
-    s = str(valor).strip().replace('"', '').replace("'", '')
-    if pd.isna(valor) or s in ['-', '']: return 0
-    try: return int(float(s.replace('.', '').replace(',', '.')))
-    except: return 0
-
-def extrair_competencia(linhas):
-    for linha in linhas[:30]:
-        match = re.search(r'([A-Z][a-z]{2}/\d{4})', linha)
-        if match: return match.group(1)
-    return "Desconhecida"
-
-meses_map = {'Jan':'01', 'Fev':'02', 'Mar':'03', 'Abr':'04', 'Mai':'05', 'Jun':'06', 'Jul':'07', 'Ago':'08', 'Set':'09', 'Out':'10', 'Nov':'11', 'Dez':'12'}
-
-def ler_arquivo_seguro(caminho):
-    try:
-        with open(caminho, 'r', encoding='utf-8') as f: return f.readlines()
-    except:
-        with open(caminho, 'r', encoding='latin-1') as f: return f.readlines()
-
-for arquivo in arquivos:
-    try:
-        linhas = ler_arquivo_seguro(arquivo)
-        comp_txt = extrair_competencia(linhas)
-
-        for linha in linhas:
-            linha = linha.strip()
-            if not linha: continue
-
-            match_codigo = re.match(r'^"?(\d{7,})', linha)
-            if not match_codigo: continue 
-
-            try:
-                valores_brutos = []
-                if ';' in linha:
-                    partes = [p.replace('"', '').strip() for p in linha.split(';')]
-                    if len(partes) < 4: continue
-                    proc_full = partes[0]
-                    m_proc = re.match(r'^(\d+)\s+(.+)$', proc_full)
-                    if m_proc:
-                        proc_cod, proc_nome = m_proc.group(1), m_proc.group(2)
-                    else:
-                        proc_cod, proc_nome = match_codigo.group(1), proc_full
-                    valores_brutos = partes[1:]
-                else:
-                    m_split = re.match(r'^(\d+)\s+(.+?)\s+(\d+.*)$', linha)
-                    if not m_split: continue
-                    proc_cod, proc_nome = m_split.group(1), m_split.group(2).strip()
-                    valores_brutos = re.split(r'\s+', m_split.group(3))
-
-                numeros = [str_to_float(v) for v in valores_brutos]
-                inteiros = [converter_int(v) for v in valores_brutos]
-                if not numeros: continue
-
-                aih = inteiros[0] if len(inteiros) > 0 else 0
-                internacoes = inteiros[1] if len(inteiros) > 1 else 0
-                dias = inteiros[-4] if len(inteiros) >= 4 else 0
-                obitos = inteiros[-2] if len(inteiros) >= 2 else 0
-
-                valores_validos = [n for n in numeros if n < 5000000]
-                if not valores_validos: continue
-                valor_total = max(valores_validos)
-
-                valor_hosp = numeros[3] if len(numeros) > 3 else 0.0
-                valor_prof = numeros[6] if len(numeros) > 6 else 0.0
-
-                media = round(dias / aih, 1) if aih > 0 else 0.0
-
-                item = {
-                    "competencia_fmt": comp_txt,
-                    "procedimento": f"{proc_cod} {proc_nome}",
-                    "aih_aprovadas": aih,
-                    "internacoes": internacoes,
-                    "valor_total": valor_total, 
-                    "valor_serv_hosp": valor_hosp,
-                    "valor_serv_prof": valor_prof,
-                    "obitos": obitos,
-                    "dias_permanencia": dias,
-                    "media_permanencia": media
-                }
-
-                if '/' in comp_txt and comp_txt != "Desconhecida":
-                    try:
-                        m, a = comp_txt.split('/')
-                        if m.strip().title() in meses_map:
-                            item["competencia_iso"] = f"{a.strip()}-{meses_map[m.strip().title()]}-01"
-                    except: pass
-
-                chave = (comp_txt, proc_cod)
-                if chave in registros_unicos:
-                    reg = registros_unicos[chave]
-                    reg['aih_aprovadas'] += aih
-                    reg['valor_total'] += valor_total
-                    reg['internacoes'] += internacoes
-                    reg['dias_permanencia'] += dias
-                    if reg['aih_aprovadas'] > 0:
-                        reg['media_permanencia'] = round(reg['dias_permanencia']/reg['aih_aprovadas'], 1)
-                else:
-                    registros_unicos[chave] = item
-
-            except Exception as ex: continue
-
-    except Exception as e:
-        print(f"❌ Erro arquivo {arquivo}: {e}")
-
-dados_finais = list(registros_unicos.values())
-total_val_nov = sum(d['valor_total'] for d in dados_finais if 'Nov/2025' in d['competencia_fmt'])
-print(f"\n🔎 AUDITORIA (NOV/2025): R$ {total_val_nov:,.2f}")
-
-if dados_finais:
-    print(f"\n☁️  ENVIANDO {len(dados_finais)} REGISTROS...")
-    batch_size = 200
-    total = len(dados_finais)
-    for i in range(0, total, batch_size):
-        batch = dados_finais[i:i + batch_size]
+    for idx_loop, i in enumerate(indices):
         try:
-            supabase.table('faturamento').insert(batch).execute()
-            sys.stdout.write(f"\r   Progresso: {int((i/total)*100)}%")
-            sys.stdout.flush()
-        except: pass
-    print(f"\n\n🎉 SUCESSO! Faturamento atualizado com Chave Mestra.")
-else:
-    print("Nenhum dado extraído.")
+            if driver.current_window_handle != janela_principal:
+                driver.switch_to.window(janela_principal)
+
+            # 1. LINHA: Buscar inteligentemente por "Procedimento"
+            wait.until(EC.presence_of_element_located((By.ID, "L")))
+            select_linha = Select(driver.find_element(By.ID, "L"))
+            for opt in select_linha.options:
+                if "PROCEDIMENTO" in opt.text.upper():
+                    select_linha.select_by_visible_text(opt.text)
+                    break
+            
+            # 2. COLUNA: Não Ativa
+            try: 
+                wait.until(EC.presence_of_element_located((By.ID, "C")))
+                Select(driver.find_element(By.ID, "C")).select_by_visible_text("--Não-Ativa--")
+            except: 
+                Select(driver.find_element(By.ID, "C")).select_by_index(0)
+
+            # 3. CONTEÚDO: Seleciona Todas as colunas
+            wait.until(EC.presence_of_element_located((By.ID, "I")))
+            driver.execute_script("""
+                var options = document.getElementById('I').options;
+                for(var j=0; j<options.length; j++) {
+                    options[j].selected = true;
+                }
+            """)
+
+            # 4. HOSPITAL (LÓGICA DINÂMICA)
+            gaveta_cnes = None
+            for num in range(1, 15):
+                script_procura = f"var s=document.getElementById('S{num}'); if(!s) return false; for(var k=0;k<s.length;k++){{ if(s.options[k].text.indexOf('{CNES_ALVO}')>-1) return true; }} return false;"
+                tem_cnes = driver.execute_script(script_procura)
+                if tem_cnes:
+                    gaveta_cnes = num
+                    break
+            
+            if gaveta_cnes:
+                try:
+                    if not driver.find_element(By.ID, f"S{gaveta_cnes}").is_displayed():
+                        driver.find_element(By.ID, f"fig{gaveta_cnes}").click()
+                except: pass
+                
+                script_busca = f"var s=document.getElementById('S{gaveta_cnes}'); for(var k=0;k<s.length;k++){{ if(s.options[k].text.indexOf('{CNES_ALVO}')>-1){{ s.selectedIndex=k; return true; }} }} return false;"
+                driver.execute_script(script_busca)
+            else:
+                print("   ⚠️ ALERTA: CNES não encontrado na página! O download pode vir zerado ou de todo o estado.")
+
+            # 5. DATA (AQUI ESTAVA O SEU ERRO)
+            wait.until(EC.presence_of_element_located((By.ID, "A")))
+            # Força o JS a "limpar" a seleção com um try catch, caso o browser fique confuso
+            driver.execute_script("try { var options = document.getElementById('A').options; for(var k=0; k<options.length; k++) { options[k].selected = false; } } catch(e) {}")
+            
+            select_periodos_loop = Select(driver.find_element(By.ID, "A"))
+            nome_mes = select_periodos_loop.options[i].text.strip().replace("/", "-")
+            driver.execute_script(f"document.getElementById('A').options[{i}].selected = true;")
+            
+            # 6. FORMATO: CSV (;)
+            try: 
+                wait.until(EC.element_to_be_clickable((By.XPATH, "//label[contains(text(), ';')]"))).click()
+            except: 
+                try: driver.find_element(By.XPATH, "//input[@value='scsv']").click()
+                except: pass
+
+            print(f"   ⬇️ [{idx_loop+1}/{total_opcoes}] Baixando ITENS SECUNDÁRIOS: {nome_mes}...")
+
+            janelas_antes = driver.window_handles
+            botao_mostra = wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@type='submit' and contains(@value, 'Mostra')]")))
+            botao_mostra.click()
+            time.sleep(3) # Aumentei o tempo de espera pra dar tempo do DATASUS processar
+
+            sucesso = False
+            conteudo_csv = ""
+            
+            janelas_depois = driver.window_handles
+            if len(janelas_depois) > len(janelas_antes):
+                nova_janela = [j for j in janelas_depois if j not in janelas_antes][0]
+                driver.switch_to.window(nova_janela)
+                
+                # Aguarda o "body" carregar os dados
+                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                conteudo_csv = driver.find_element(By.TAG_NAME, "body").text
+                
+                if "Procedimento" in conteudo_csv:
+                    sucesso = True
+                    driver.close()
+                    driver.switch_to.window(janela_principal)
+            
+            # Fallback: Se não abrir aba, olha na pasta de downloads
+            if not sucesso:
+                time.sleep(3)
+                lista = glob.glob(os.path.join(PASTA_DOWNLOAD, "*.*"))
+                if lista:
+                    recente = max(lista, key=os.path.getctime)
+                    if (time.time() - os.path.getctime(recente)) < 15:
+                        with open(recente, 'r', encoding='latin-1') as f:
+                            conteudo_csv = f.read()
+                        sucesso = True
+                        try: os.remove(recente) 
+                        except: pass
+
+            if sucesso and conteudo_csv:
+                conteudo_csv = "\n".join([line for line in conteudo_csv.split('\n') if line.strip() != ''])
+                caminho_final = os.path.join(PASTA_DOWNLOAD, f"tabnet_sp_{CNES_ALVO}_{nome_mes}.csv")
+                with open(caminho_final, 'w', encoding='latin-1') as f:
+                    f.write(conteudo_csv)
+            else:
+                print(f"      ❌ Falha no download de {nome_mes}")
+                if len(driver.window_handles) > 1: driver.close(); driver.switch_to.window(janela_principal)
+                else: driver.back()
+
+        except Exception as e:
+            print(f"   ❌ Erro durante o loop: {e}")
+            driver.get(URL_TABNET)
+            time.sleep(3)
+
+    print("\n✅ EXTRAÇÃO DE PROCEDIMENTOS REALIZADOS (SP) CONCLUÍDA!")
+    driver.quit()
+    
+except Exception as e: print(f"❌ Erro Crítico: {e}")
