@@ -118,6 +118,9 @@
 
         .print-header-visible { display: none; }
         
+        /* ========================================================= */
+        /* OTIMIZAÇÃO DE IMPRESSÃO (P&B FORTE, SEM ZEBRADO E COM FILTRO) */
+        /* ========================================================= */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             * { background-color: transparent !important; background-image: none !important; color: black !important; text-shadow: none !important; box-shadow: none !important; }
@@ -126,6 +129,9 @@
             body { padding: 0 !important; margin: 0 !important; background: white !important; font-size: 8pt !important; height: auto !important; overflow: visible !important; min-height: 100% !important; }
             .cyber-container { padding: 0 !important; margin-bottom: 20px !important; border: none !important; height: auto !important; overflow: visible !important; }
             
+            /* REGRA MÁGICA: Se o modo seleção estiver ativo, esconde as linhas desmarcadas na impressão */
+            body.modo-selecionados table.dataTable tbody tr:not(.row-selecionada) { display: none !important; }
+
             .print-header-visible { display: block !important; text-align: center; border-bottom: 2px solid black !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
             .print-header-visible h2 { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; text-transform: uppercase !important; }
             .print-header-visible h3 { font-size: 11pt !important; font-weight: bold !important; margin: 5px 0 !important; }
@@ -142,6 +148,7 @@
             .td-truncate { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
             table.dataTable tbody tr { page-break-inside: avoid !important; }
             
+            /* Remove a coluna do checkbox na impressão */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { display: none !important; }
             .val-positivo, .val-negativo { color: black !important; }
         }
@@ -307,6 +314,24 @@
             await Projecao.init(); 
         });
 
+        // Configuração Dinâmica para Filtrar o Excel Exatamente Como a Tela
+        const exportOptsCustom = {
+            columns: [1, 2, 3, 4, 5, 6, 7, 8], // Oculta a coluna 0 (Checkbox)
+            rows: function(idx, data, node) {
+                let api = $('#tabelaProjecao').DataTable();
+                let indexes = api.rows({ search: 'applied' }).indexes().toArray();
+                
+                // Se a linha estiver escondida pela barra de pesquisa do usuário, não exporta
+                if (!indexes.includes(idx)) return false;
+
+                // Se estiver no modo SELECIONADOS, garante que a linha tem a caixa marcada
+                if ($('#filtroModo').val() === 'SELECIONADOS') {
+                    return data.selecionado === true;
+                }
+                return true;
+            }
+        };
+
         const Projecao = {
             init: async function() {
                 this.carregarListaCenarios();
@@ -365,12 +390,14 @@
                 let dadosParaProcessar = [];
                 
                 if (modo === 'TUDO') {
+                    $('body').removeClass('modo-selecionados');
                     $('#avisoSelecao').hide();
                     $('#chkTodos').prop('checked', false).prop('disabled', true);
                     dadosCompletosMemoria.forEach(d => d.selecionado = false);
                     $('#selCenarioSalvo').val(''); 
                     dadosParaProcessar = dadosCompletosMemoria;
                 } else {
+                    $('body').addClass('modo-selecionados');
                     $('#avisoSelecao').show();
                     $('#chkTodos').prop('disabled', false);
                     dadosParaProcessar = dadosCompletosMemoria;
@@ -482,6 +509,7 @@
                 
                 if($('#filtroModo').val() !== 'SELECIONADOS') {
                     $('#filtroModo').val('SELECIONADOS');
+                    $('body').addClass('modo-selecionados');
                     $('#avisoSelecao').show();
                     $('#chkTodos').prop('disabled', false);
                     $('#print-comp').text("Competência Base: " + $('#selCompProj').val() + " | Filtro Interativo (Selecionados)");
@@ -524,8 +552,18 @@
                     data: dados,
                     dom: '<"flex justify-between items-center mb-4 no-print"lB>rtip',
                     buttons: [ 
-                        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Dados', className: 'dt-button', title: 'Projecao_Faturamento_3x' },
-                        { text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button bg-blue-600', action: function () { window.print(); } }
+                        { 
+                            extend: 'excelHtml5', 
+                            text: '<i class="fas fa-file-excel"></i> Exportar Dados', 
+                            className: 'dt-button', 
+                            title: 'Projecao_Faturamento_3x',
+                            exportOptions: exportOptsCustom
+                        },
+                        { 
+                            text: '<i class="fas fa-print"></i> Imprimir', 
+                            className: 'dt-button bg-blue-600', 
+                            action: function () { window.print(); } 
+                        }
                     ],
                     order: [[ 8, 'desc' ]], 
                     pageLength: 25,
