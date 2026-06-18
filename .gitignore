@@ -45,3 +45,9 @@ Thumbs.db
 
 # --- 6. SCRIPTS DE DEPLOY COM TOKENS ---
 backend/downloads_cliente/deploy_github.py
+
+# --- 7. BACKUPS E LOGS DOS ROBÔS ---
+backups/
+*.GBK
+log_robo_indicasus_*.txt
+*.log
