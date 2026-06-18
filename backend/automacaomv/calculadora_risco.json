@@ -1,0 +1,115 @@
+{
+    "title": "calculadora_risco",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1905,
+            "height": 625,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "http://departamentos.cardiol.br/sbc-da/2015/CALCULADORAER2017/etapa1.html",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://departamentos.cardiol.br/sbc-da/2015/CALCULADORAER2017/etapa1.html",
+                    "title": "Etapa 1 - Calculadora de Risco Cardiovascular"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/NÃO"
+                ],
+                [
+                    "a.r-nao"
+                ],
+                [
+                    "xpath//html/body/div/section/div[2]/div/a[2]"
+                ],
+                [
+                    "pierce/a.r-nao"
+                ],
+                [
+                    "text/NÃO"
+                ]
+            ],
+            "offsetY": 9.59375,
+            "offsetX": 44.890625,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://departamentos.cardiol.br/sbc-da/2015/CALCULADORAER2017/etapa2.html",
+                    "title": "Etapa 2 - Calculadora de Risco Cardiovascular"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/NÃO"
+                ],
+                [
+                    "a.r-nao"
+                ],
+                [
+                    "xpath//html/body/div/section/div[2]/div/a[2]"
+                ],
+                [
+                    "pierce/a.r-nao"
+                ],
+                [
+                    "text/NÃO"
+                ]
+            ],
+            "offsetY": 18,
+            "offsetX": 41.890625,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://departamentos.cardiol.br/sbc-da/2015/CALCULADORAER2017/etapa3.html",
+                    "title": "Etapa 3 - Calculadora de Risco Cardiovascular"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/SIM"
+                ],
+                [
+                    "a.r-sim"
+                ],
+                [
+                    "xpath//html/body/div/section/div[2]/div/a[1]"
+                ],
+                [
+                    "pierce/a.r-sim"
+                ],
+                [
+                    "text/SIM"
+                ]
+            ],
+            "offsetY": 6.359375,
+            "offsetX": 34.90625,
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "http://departamentos.cardiol.br/sbc-da/2015/CALCULADORAER2017/resultado.html?result=alto",
+                    "title": "Resultado - Calculadora de Risco Cardiovascular"
+                }
+            ]
+        }
+    ]
+}
