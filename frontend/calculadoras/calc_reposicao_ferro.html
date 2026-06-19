@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reposição de Ferro EV - Portal NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --color-primary: #38bdf8;
+            --color-success: #34d399;
+            --color-warning: #fbbf24;
+            --color-danger:  #f87171;
+            --color-purple:  #c084fc;
+        }
+        
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .calc-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 550px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .input-form { width: 100%; padding: 12px; border-radius: 8px; font-size: 0.9rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none; margin-top: 6px; transition: 0.2s; }
+        .input-form:focus { border-color: var(--color-danger); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15); }
+        .btn-submit { width: 100%; background: var(--color-danger); color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(248, 113, 113, 0.3); }
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+    <div class="calc-container">
+        <h2 class="font-bold text-xl mb-6 border-b border-slate-700 pb-3 flex items-center gap-2">
+            <i class="fas fa-syringe text-red-500"></i> Reposição de Ferro EV (Ganzoni)
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Peso do Paciente (kg)</label>
+                <input type="number" id="fPeso" class="input-form" placeholder="Ex: 65" min="1" step="0.1">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Hb Atual (g/dL)</label>
+                <input type="number" id="fHbAtual" class="input-form" placeholder="Ex: 8.5" step="0.1">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Hb Alvo (g/dL)</label>
+                <input type="number" id="fHbAlvo" class="input-form" value="15" step="0.1">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Reserva (Depósito)</label>
+                <select id="fReserva" class="input-form border-red-500/50">
+                    <option value="auto">Cálculo Automático</option>
+                    <option value="500">Forçar 500 mg</option>
+                    <option value="0">Sem Reserva (0 mg)</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="calcularFerro()" class="btn-submit bg-red-500 hover:bg-red-600 shadow-red-500/30">Calcular Dose (Ganzoni)</button>
+        
+        <div id="calcResult" class="mt-6 hidden"></div>
+        
+        <div class="mt-8 text-center text-xs font-semibold text-slate-500 border-t border-slate-700/50 pt-4">
+            Fórmula de Ganzoni • Desenvolvido por Franck Moura
+        </div>
+    </div>
+
+    <script>
+        function calcularFerro() {
+            let peso = parseFloat($('#fPeso').val());
+            let hbAtual = parseFloat($('#fHbAtual').val());
+            let hbAlvo = parseFloat($('#fHbAlvo').val());
+            let reservaOpt = $('#fReserva').val();
+
+            if (!peso || !hbAtual || !hbAlvo) {
+                alert("Preencha o peso e as hemoglobinas corretamente.");
+                return;
+            }
+
+            if (hbAlvo <= hbAtual) {
+                alert("A Hemoglobina alvo deve ser maior que a atual para haver déficit.");
+                return;
+            }
+
+            // Cálculo do Depósito de Ferro (Reserva)
+            let deposito = 0;
+            if (reservaOpt === "auto") {
+                // Padrão Ganzoni: peso <= 35kg é 15mg/kg. Peso > 35kg é 500mg cravado.
+                deposito = (peso <= 35) ? (peso * 15) : 500;
+            } else {
+                deposito = parseInt(reservaOpt);
+            }
+
+            // FÓRMULA DE GANZONI: Déficit (mg) = Peso * (Hb Alvo - Hb Atual) * 2.4 + Depósito
+            let deficitTotal = peso * (hbAlvo - hbAtual) * 2.4 + deposito;
+            
+            // Ampolas padrão geralmente têm 100mg de ferro elementar (ex: Noripurum EV)
+            let ampolas = deficitTotal / 100;
+
+            $('#calcResult').html(`
+                <div class="bg-black/20 p-5 rounded-lg border border-red-500/30">
+                    <h3 class="text-lg font-bold text-white border-b border-slate-700/50 pb-2 mb-3 text-center">Dose Total Recomendada</h3>
+                    
+                    <div class="text-center mb-4">
+                        <div class="text-4xl font-black text-red-500 mb-1">${deficitTotal.toFixed(0)} <span class="text-lg text-red-400">mg</span></div>
+                        <div class="text-xs text-gray-400 uppercase tracking-widest">Ferro Elementar EV</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-y-2 text-sm bg-slate-800/50 p-3 rounded">
+                        <div class="text-gray-400">Depósito Adicionado:</div>
+                        <div class="text-right font-mono text-gray-200">${deposito.toFixed(0)} mg</div>
+                        
+                        <div class="text-gray-400 font-bold text-white">Qtd. Ampolas (100mg):</div>
+                        <div class="text-right font-mono font-bold text-white">~ ${Math.ceil(ampolas)} ampolas</div>
+                    </div>
+                    
+                    <div class="mt-3 text-[0.7rem] text-gray-500 leading-tight">
+                        * Nota: A dose máxima diária / por infusão e a diluição variam conforme o sal de ferro escolhido (Ex: Sacarato de Hidróxido Férrico vs Carboximaltose Férrica). Verifique a bula do medicamento institucional.
+                    </div>
+                </div>
+            `).removeClass('hidden');
+        }
+    </script>
+</body>
+</html>

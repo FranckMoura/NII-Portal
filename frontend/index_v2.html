@@ -226,6 +226,13 @@
         .card-destaque:hover { border-color: var(--color-warning); box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
         body.theme-classic .card-destaque { background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%); border-color: #fcd34d; }
 
+        .card-rubi { 
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.1) 0%, var(--bg-body) 100%); 
+            border-color: rgba(225, 29, 72, 0.4); box-shadow: 0 0 15px rgba(225, 29, 72, 0.05);
+        }
+        .card-rubi:hover { border-color: #e11d48; box-shadow: 0 0 20px rgba(225, 29, 72, 0.15); }
+        body.theme-classic .card-rubi { background: linear-gradient(135deg, #ffe4e6 0%, #ffffff 100%); border-color: #fda4af; }
+
         .leitos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .leito-box { background: var(--bg-body); border: 1px solid var(--border-color); padding: 12px 8px; border-radius: 10px; text-align: center; }
         body.theme-classic .leito-box { background: #f8fafc; border-color: #e2e8f0; }
@@ -296,6 +303,11 @@
             <a onclick="abrirModulo('painel_cruzamento_sih_sp.html', 'auditoria', this)" class="nav-item" data-restrict="true" title="Auditoria Inteligente">
                 <i class="fas fa-search-dollar nav-icon text-orange-400"></i>
                 <span class="nav-label">Auditoria AIH</span>
+            </a>
+
+            <a onclick="abrirModulo('painel_malha_fina.html', 'malhafina', this)" class="nav-item" data-restrict="true" title="Auditoria Fila Zero (Malha Fina)">
+                <i class="fas fa-shield-alt nav-icon text-rose-500"></i>
+                <span class="nav-label">Auditoria FZ (Malha)</span>
             </a>
 
             <a onclick="abrirModulo('painel_ciha.html', 'ciha', this)" class="nav-item" data-restrict="true" title="Tratamento CIHA01">
@@ -447,7 +459,7 @@
                             <div class="kpi-desc" id="kpi-internacoes-sub">Pacientes admitidos</div>
                         </div>
                         
-                        <div class="kpi-card orange" onclick="abrirFiltradoFilaZero()" title="Ver Contas Faturadas Fila Zero">
+                        <div class="kpi-card orange col-span-2 md:col-span-1" onclick="abrirFiltradoFilaZero()" title="Ver Contas Faturadas Fila Zero">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">AIH Fila Zero (Fat)</span>
                                 <i class="fas fa-file-invoice-dollar kpi-card-icon text-orange-500"></i>
@@ -456,13 +468,26 @@
                             <div class="kpi-desc">Contas processadas no Mês</div>
                         </div>
 
-                        <div class="kpi-card yellow card-destaque" onclick="abrirModulo('painel_filazero.html', 'filazero', null, 'Programa Fila Zero')">
-                            <div class="kpi-card-header">
-                                <span class="kpi-title" style="color:var(--color-warning);">Programa Fila Zero</span>
-                                <i class="fas fa-star kpi-card-icon text-yellow-500" style="opacity: 0.8; font-size: 1.5rem;"></i>
+                        <div class="col-span-2 md:col-span-3 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            
+                            <div class="kpi-card yellow card-destaque" onclick="abrirModulo('painel_filazero.html', 'filazero', null, 'Programa Fila Zero')" title="Gerir Fila Zero e Pacientes Operacionalmente">
+                                <div class="kpi-card-header">
+                                    <span class="kpi-title" style="color:var(--color-warning);">Fila Zero (Clínico)</span>
+                                    <i class="fas fa-star kpi-card-icon text-yellow-500" style="opacity: 0.8; font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="kpi-value text-yellow-500" style="font-size: 2.8rem;" id="kpi-fila-zero-censo"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
+                                <div class="kpi-desc" id="kpi-fila-zero-sub">Censo Apurado (IndicaSUS)</div>
                             </div>
-                            <div class="kpi-value text-yellow-500" style="font-size: 2.8rem;" id="kpi-fila-zero-censo"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>
-                            <div class="kpi-desc" id="kpi-fila-zero-sub">Censo Apurado (IndicaSUS)</div>
+
+                            <div class="kpi-card red card-rubi" onclick="abrirModulo('painel_malha_fina.html', 'malhafina', null, 'Auditoria Fatura Fila Zero')" data-restrict="true" title="Cruzamento Financeiro Inteligente">
+                                <div class="kpi-card-header">
+                                    <span class="kpi-title" style="color:#f43f5e;">Fatura Fila Zero</span>
+                                    <i class="fas fa-shield-alt kpi-card-icon text-rose-500" style="opacity: 0.8; font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="kpi-value text-rose-500" style="font-size: 2.8rem;"><i class="fas fa-search-dollar"></i></div>
+                                <div class="kpi-desc" style="color:#f43f5e;">Auditoria e Cruzamento</div>
+                            </div>
+                            
                         </div>
 
                     </div>

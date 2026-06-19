@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risco Cardiovascular (Framingham) - Portal NII</title>
+    <title>Calculadora de Risco Cardiovascular 2017 (SBC) - Portal NII</title>
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,97 +25,482 @@
         }
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .calc-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 600px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .calc-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 650px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
         .input-form { width: 100%; padding: 12px; border-radius: 8px; font-size: 0.9rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none; margin-top: 6px; transition: 0.2s; }
-        .input-form:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
-        .btn-submit { width: 100%; background: var(--color-primary); color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(56, 189, 248, 0.3); }
+        .input-form:focus { border-color: var(--color-danger); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15); }
+        .btn-submit { width: 100%; background: var(--color-danger); color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(248, 113, 113, 0.3); }
         .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
         
-        /* Classes extras para a Prevent e layouts duplos */
-        .label-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .alert-box { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 20px; text-align: justify; }
+        /* Checkbox styling */
+        .check-container { display: flex; align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .check-container:hover { border-color: var(--color-danger); background: rgba(248, 113, 113, 0.05); }
+        .check-container input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--color-danger); cursor: pointer; }
+        .check-container label { font-size: 0.85rem; color: var(--text-main); font-weight: 500; cursor: pointer; user-select: none; flex: 1; }
+        
+        .check-none { border-style: dashed; border-color: #64748b; background: rgba(255,255,255,0.02); }
+        .check-none:hover { border-color: #94a3b8; }
+        .check-none span { color: #94a3b8; font-style: italic; }
+
+        /* Steps Animation */
+        .etapa { display: none; animation: fadeIn 0.4s ease-out; }
+        .etapa.ativa { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-bar { height: 4px; background: var(--bg-body); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: var(--color-danger); width: 25%; transition: 0.4s ease; }
     </style>
 </head>
 <body>
 
     <div class="calc-container">
-        <h2 class="font-bold text-xl mb-6 border-b border-slate-700 pb-3 flex items-center gap-2">
-            <i class="fas fa-heart text-red-500"></i> Risco Cardiovascular (Framingham)
+        <h2 class="font-bold text-xl mb-4 border-b border-slate-700 pb-3 flex items-center gap-2">
+            <i class="fas fa-heartbeat text-red-400"></i> Estratificação de Risco Cardiovascular
         </h2>
         
-        
-            <div class="grid grid-cols-2 gap-4 mb-3">
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Idade (anos)</label><input type="number" id="fIdade" class="input-form" placeholder="30 a 74"></div>
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
-                    <select id="fSexo" class="input-form"><option value="M">Masculino</option><option value="F">Feminino</option></select>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+        <div id="etapa1" class="etapa ativa">
+            <p class="text-sm text-gray-400 mb-4 font-semibold uppercase"><i class="fas fa-search-plus text-red-400 mr-1"></i> Etapa 1: Condições Clínicas</p>
+            <p class="text-[0.8rem] text-gray-300 mb-3">O paciente apresenta alguma destas condições?</p>
+            
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa1">
+                <span>Doença arterial coronária (Infarto, angina, cirurgia de revascularização)</span>
+            </label>
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa1">
+                <span>Doença cerebrovascular (AVC isquêmico, AIT)</span>
+            </label>
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa1">
+                <span>Doença arterial periférica obstrutiva</span>
+            </label>
+            
+            <label class="check-container check-none mt-4">
+                <input type="checkbox" id="nenhuma1">
+                <span>Não, o paciente não apresenta nenhuma das opções acima.</span>
+            </label>
+
+            <button type="button" onclick="avancarEtapa1()" class="btn-submit">Próxima Etapa <i class="fas fa-arrow-right ml-1"></i></button>
+        </div>
+
+        <div id="etapa2" class="etapa">
+            <p class="text-sm text-gray-400 mb-4 font-semibold uppercase"><i class="fas fa-exclamation-triangle text-orange-400 mr-1"></i> Etapa 2: Fatores Agravantes</p>
+            <p class="text-[0.8rem] text-gray-300 mb-3">Selecione se o paciente apresenta:</p>
+            
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa2">
+                <span>Colesterol LDL ≥ 190 mg/dL</span>
+            </label>
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa2">
+                <span>Aterosclerose subclínica (ex: espessamento carotídeo > 1.5mm, Escore de Cálcio > 100)</span>
+            </label>
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa2">
+                <span>Aneurisma de aorta abdominal</span>
+            </label>
+            <label class="check-container">
+                <input type="checkbox" class="condicao-etapa2">
+                <span>Doença renal crônica (ClCr < 60 mL/min não em diálise)</span>
+            </label>
+
+            <label class="check-container check-none mt-4">
+                <input type="checkbox" id="nenhuma2">
+                <span>Não, o paciente não apresenta nenhuma das opções acima.</span>
+            </label>
+
+            <div class="flex gap-2">
+                <button type="button" onclick="voltarEtapa(1)" class="btn-submit bg-slate-600 hover:bg-slate-500 shadow-none"><i class="fas fa-arrow-left mr-1"></i> Voltar</button>
+                <button type="button" onclick="avancarEtapa2()" class="btn-submit">Próxima Etapa <i class="fas fa-arrow-right ml-1"></i></button>
+            </div>
+        </div>
+
+        <div id="etapa3" class="etapa">
+            <p class="text-sm text-gray-400 mb-4 font-semibold uppercase"><i class="fas fa-tint text-blue-400 mr-1"></i> Etapa 3: Diabetes Mellitus</p>
+            
+            <div class="mb-4 bg-black/20 p-4 rounded border border-slate-700">
+                <label class="text-xs font-bold text-gray-400 uppercase block mb-2">O Paciente tem Diabetes?</label>
+                <select id="temDiabetes" class="input-form mt-0" onchange="toggleDiabetesOptions()">
+                    <option value="nao" selected>Não</option>
+                    <option value="sim">Sim</option>
+                </select>
+            </div>
+
+            <div id="opcoesDiabetes" class="hidden mb-4">
+                <p class="text-[0.8rem] text-gray-300 mb-3">Apresenta algum destes Estratificadores de Risco (ER)?</p>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Idade (Homem > 48 anos / Mulher > 54 anos)</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Tempo de diagnóstico do DM > 10 anos</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Histórico familiar de doença CV prematura (H < 55 / M < 65)</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Tabagismo ativo (ou parou < 1 ano)</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Hipertensão Arterial Sistêmica</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Síndrome Metabólica</span>
+                </label>
+                <label class="check-container">
+                    <input type="checkbox" class="condicao-etapa3-er">
+                    <span>Albuminúria (> 30 mg/g de creatinina) ou Retinopatia</span>
+                </label>
+                
+                <label class="check-container check-none mt-4">
+                    <input type="checkbox" id="nenhuma3">
+                    <span>Não apresenta nenhum destes estratificadores.</span>
+                </label>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="button" onclick="voltarEtapa(2)" class="btn-submit bg-slate-600 hover:bg-slate-500 shadow-none"><i class="fas fa-arrow-left mr-1"></i> Voltar</button>
+                <button type="button" onclick="avancarEtapa3()" class="btn-submit">Próxima Etapa <i class="fas fa-arrow-right ml-1"></i></button>
+            </div>
+        </div>
+
+        <div id="etapa4" class="etapa">
+            <p class="text-sm text-gray-400 mb-4 font-semibold uppercase"><i class="fas fa-calculator text-green-400 mr-1"></i> Etapa 4: Escore de Risco Global (Framingham)</p>
+            <p class="text-[0.8rem] text-gray-400 mb-4 text-justify">A estratificação prossegue calculando a pontuação baseada no estudo de Framingham para estimar a probabilidade de infarto ou morte coronária em 10 anos.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Sexo</label>
+                    <select id="fSexo" class="input-form">
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Idade (30-74 anos)</label>
+                    <input type="number" id="fIdade" class="input-form" value="50" min="30" max="74">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Colesterol HDL (mg/dL)</label>
+                    <input type="number" id="fHdl" class="input-form" value="45" min="10" max="130">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Colesterol Total (mg/dL)</label>
+                    <input type="number" id="fTotal" class="input-form" value="180" min="100" max="400">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Pressão Sistólica (mmHg)</label>
+                    <input type="number" id="fPas" class="input-form" value="120" min="80" max="250">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase">Usa remédio para pressão?</label>
+                    <select id="fTrataHas" class="input-form">
+                        <option value="nao">Não</option>
+                        <option value="sim">Sim</option>
+                    </select>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-3">
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Colesterol Total</label><input type="number" id="fCT" class="input-form" placeholder="mg/dL"></div>
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Colesterol HDL</label><input type="number" id="fHDL" class="input-form" placeholder="mg/dL"></div>
+
+            <label class="check-container mb-4">
+                <input type="checkbox" id="fTabagista">
+                <span>Tabagista?</span>
+            </label>
+
+            <div class="flex gap-2">
+                <button type="button" onclick="voltarEtapa(3)" class="btn-submit bg-slate-600 hover:bg-slate-500 shadow-none"><i class="fas fa-arrow-left mr-1"></i> Voltar</button>
+                <button type="button" onclick="calcularFraminghamEFinalizar()" class="btn-submit bg-green-500 hover:bg-green-600 shadow-green-500/30">Processar Risco Final <i class="fas fa-check-double ml-1"></i></button>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-3">
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Pressão Sistólica</label><input type="number" id="fPAS" class="input-form" placeholder="mmHg"></div>
-                <div><label class="text-xs font-bold text-gray-400 uppercase">Trata Hipertensão?</label>
-                    <select id="fTrataPAS" class="input-form"><option value="N">Não</option><option value="S">Sim</option></select>
+        </div>
+
+        <div id="resultadoFinal" class="etapa hidden">
+            <h3 class="font-bold text-2xl text-center text-white mb-2">Classificação Final</h3>
+            <div id="resultadoClasse" class="text-center font-black text-3xl py-4 rounded mb-4"></div>
+            
+            <div id="resultadoMetas" class="bg-black/20 p-4 rounded border border-slate-700/50 text-sm text-gray-300 mb-6">
                 </div>
-            </div>
-            <div class="mb-4">
-                <label class="text-xs font-bold text-gray-400 uppercase">Fatores Adicionais</label>
-                <div class="flex gap-4 mt-2">
-                    <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" id="fFumante" class="w-4 h-4 accent-red-500"> Fumante</label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" id="fDiabetes" class="w-4 h-4 accent-red-500"> Diabetes</label>
-                </div>
-            </div>
-            <button onclick="calcularFramingham()" class="btn-submit bg-red-500 hover:bg-red-600 shadow-red-500/30">Calcular Risco (10 Anos)</button>
-        
-        
-        <div id="calcResult" class="mt-6 text-center font-bold text-xl py-4 bg-black/20 rounded hidden border border-gray-600/30"></div>
-        
+
+            <button type="button" onclick="resetarCalculadora()" class="btn-submit bg-slate-600 hover:bg-slate-500 shadow-none"><i class="fas fa-redo mr-1"></i> Novo Cálculo</button>
+        </div>
+
         <div class="mt-8 text-center text-xs font-semibold text-slate-500 border-t border-slate-700/50 pt-4">
-            Desenvolvido por Franck Moura
+            Diretriz SBC 2017 • Desenvolvido por Franck Moura
         </div>
     </div>
 
     <script>
-        
-            function calcularFramingham() {
-                let idade = parseFloat($('#fIdade').val()); let ct = parseFloat($('#fCT').val());
-                let hdl = parseFloat($('#fHDL').val()); let pas = parseFloat($('#fPAS').val());
-                let sexo = $('#fSexo').val(); let trata = $('#fTrataPAS').val() === 'S';
-                let fumante = $('#fFumante').is(':checked'); let diabetes = $('#fDiabetes').is(':checked');
-                
-                if(!idade || !ct || !hdl || !pas) { alert("Preencha todos os valores numéricos!"); return; }
-                if(idade < 30 || idade > 74) { alert("Atenção: A calculadora de Framingham é mais precisa para idades entre 30 e 74 anos."); }
-                
-                let lnIdade = Math.log(idade); let lnCT = Math.log(ct); let lnHDL = Math.log(hdl); let lnPAS = Math.log(pas);
-                let riskFactors = 0; let risk = 0;
-                
-                if(sexo === 'F') {
-                    riskFactors = (2.32888 * lnIdade) + (1.20904 * lnCT) - (0.70833 * lnHDL) + 
-                                  (trata ? 2.82263 * lnPAS : 2.76157 * lnPAS) + 
-                                  (fumante ? 0.52873 : 0) + (diabetes ? 0.69154 : 0);
-                    risk = 100 * (1 - Math.pow(0.9533, Math.exp(riskFactors - 26.1931)));
-                } else {
-                    riskFactors = (3.06117 * lnIdade) + (1.12370 * lnCT) - (0.93263 * lnHDL) + 
-                                  (trata ? 1.99881 * lnPAS : 1.93303 * lnPAS) + 
-                                  (fumante ? 0.65451 : 0) + (diabetes ? 0.57367 : 0);
-                    risk = 100 * (1 - Math.pow(0.88936, Math.exp(riskFactors - 23.9802)));
+        // Inteligência para os checkboxes de "Nenhuma"
+        function configurarExclusividade(classeDoencas, idNenhuma) {
+            $(classeDoencas).on('change', function() {
+                if ($(this).is(':checked')) {
+                    $(idNenhuma).prop('checked', false);
                 }
-                
-                let classificacao = ""; let cor = "";
-                if(risk < 10) { classificacao = "Risco Baixo"; cor = "text-green-500"; }
-                else if(risk <= 20) { classificacao = "Risco Intermediário"; cor = "text-yellow-500"; }
-                else { classificacao = "Risco Alto"; cor = "text-red-500"; }
-                
-                $('#calcResult').html(`Risco em 10 anos: <span class="${cor} text-2xl">${risk.toFixed(1)}%</span><br>
-                    <div class="mt-3 text-sm border border-slate-600/50 p-3 rounded bg-black/30">
-                        <span class="font-bold block mb-1 ${cor}">${classificacao}</span>
-                        <span class="font-normal text-gray-300">Probabilidade de sofrer um evento cardiovascular maior na próxima década.</span>
-                    </div>
-                `).removeClass('hidden');
+            });
+            $(idNenhuma).on('change', function() {
+                if ($(this).is(':checked')) {
+                    $(classeDoencas).prop('checked', false);
+                }
+            });
+        }
+
+        configurarExclusividade('.condicao-etapa1', '#nenhuma1');
+        configurarExclusividade('.condicao-etapa2', '#nenhuma2');
+        configurarExclusividade('.condicao-etapa3-er', '#nenhuma3');
+
+
+        function mudarEtapa(atual, proxima, progress) {
+            $('.etapa').removeClass('ativa');
+            $('#etapa' + proxima).addClass('ativa');
+            $('#progressFill').css('width', progress + '%');
+        }
+
+        function voltarEtapa(etapaAnterior) {
+            let progress = (etapaAnterior * 25);
+            mudarEtapa('x', etapaAnterior, progress);
+        }
+
+        // --- Lógica SBC: Funil de Exclusão Direta ---
+
+        function avancarEtapa1() {
+            let condicoes = $('.condicao-etapa1:checked').length;
+            let nenhuma = $('#nenhuma1').is(':checked');
+
+            if (condicoes === 0 && !nenhuma) {
+                alert("Por favor, selecione as condições do paciente ou marque a opção 'Não / Nenhuma'.");
+                return;
             }
-        
+
+            if (condicoes > 0) {
+                mostrarResultadoDireto("MUITO ALTO RISCO", "text-red-500", "Meta de LDL-c: < 50 mg/dL e Colesterol Não-HDL < 80 mg/dL.");
+            } else {
+                mudarEtapa(1, 2, 50);
+            }
+        }
+
+        function avancarEtapa2() {
+            let condicoes = $('.condicao-etapa2:checked').length;
+            let nenhuma = $('#nenhuma2').is(':checked');
+
+            if (condicoes === 0 && !nenhuma) {
+                alert("Por favor, selecione as condições do paciente ou marque a opção 'Não / Nenhuma'.");
+                return;
+            }
+
+            if (condicoes > 0) {
+                mostrarResultadoDireto("ALTO RISCO", "text-orange-500", "Meta de LDL-c: < 70 mg/dL e Colesterol Não-HDL < 100 mg/dL.");
+            } else {
+                mudarEtapa(2, 3, 75);
+            }
+        }
+
+        function toggleDiabetesOptions() {
+            if ($('#temDiabetes').val() === 'sim') {
+                $('#opcoesDiabetes').slideDown();
+            } else {
+                $('#opcoesDiabetes').slideUp();
+                $('.condicao-etapa3-er').prop('checked', false);
+                $('#nenhuma3').prop('checked', false);
+            }
+        }
+
+        function avancarEtapa3() {
+            let temDm = $('#temDiabetes').val() === 'sim';
+            
+            if (temDm) {
+                let qtdEr = $('.condicao-etapa3-er:checked').length;
+                let nenhuma = $('#nenhuma3').is(':checked');
+
+                if (qtdEr === 0 && !nenhuma) {
+                    alert("Por favor, selecione os estratificadores do paciente ou marque a opção 'Nenhum destes estratificadores'.");
+                    return;
+                }
+
+                if (qtdEr > 0) {
+                    mostrarResultadoDireto("ALTO RISCO", "text-orange-500", "Meta de LDL-c: < 70 mg/dL e Colesterol Não-HDL < 100 mg/dL.");
+                } else {
+                    mostrarResultadoDireto("RISCO INTERMEDIÁRIO", "text-yellow-500", "Meta de LDL-c: < 100 mg/dL e Colesterol Não-HDL < 130 mg/dL.");
+                }
+            } else {
+                mudarEtapa(3, 4, 100);
+            }
+        }
+
+        function calcularFraminghamEFinalizar() {
+            // Pontuações oficias Escore de Risco Global (Framingham) adaptado SBC
+            let sexo = $('#fSexo').val();
+            let id = parseInt($('#fIdade').val());
+            let hdl = parseInt($('#fHdl').val());
+            let tot = parseInt($('#fTotal').val());
+            let pas = parseInt($('#fPas').val());
+            let trata = $('#fTrataHas').val() === 'sim';
+            let fuma = $('#fTabagista').is(':checked');
+
+            let pts = 0;
+
+            if (sexo === 'M') {
+                // Idade M
+                if (id >= 30 && id <= 34) pts += 0;
+                else if (id >= 35 && id <= 39) pts += 2;
+                else if (id >= 40 && id <= 44) pts += 5;
+                else if (id >= 45 && id <= 49) pts += 7;
+                else if (id >= 50 && id <= 54) pts += 8;
+                else if (id >= 55 && id <= 59) pts += 10;
+                else if (id >= 60 && id <= 64) pts += 11;
+                else if (id >= 65 && id <= 69) pts += 12;
+                else if (id >= 70 && id <= 74) pts += 14;
+                else pts += 15;
+
+                // Colesterol M
+                if (tot >= 160 && tot <= 199) pts += 1;
+                else if (tot >= 200 && tot <= 239) pts += 2;
+                else if (tot >= 240 && tot <= 279) pts += 3;
+                else if (tot >= 280) pts += 4;
+
+                // HDL M
+                if (hdl >= 60) pts -= 2;
+                else if (hdl >= 50 && hdl <= 59) pts -= 1;
+                else if (hdl >= 45 && hdl <= 49) pts += 0;
+                else if (hdl >= 35 && hdl <= 44) pts += 1;
+                else if (hdl < 35) pts += 2;
+
+                // Pressão M
+                if (!trata) {
+                    if (pas >= 120 && pas <= 129) pts += 0;
+                    else if (pas >= 130 && pas <= 139) pts += 1;
+                    else if (pas >= 140 && pas <= 159) pts += 2;
+                    else if (pas >= 160) pts += 3;
+                } else {
+                    if (pas < 120) pts += 0;
+                    else if (pas >= 120 && pas <= 129) pts += 2;
+                    else if (pas >= 130 && pas <= 139) pts += 3;
+                    else if (pas >= 140 && pas <= 159) pts += 4;
+                    else if (pas >= 160) pts += 5;
+                }
+
+                // Fumo M
+                if (fuma) pts += 4;
+
+            } else {
+                // Idade F
+                if (id >= 30 && id <= 34) pts += 0;
+                else if (id >= 35 && id <= 39) pts += 2;
+                else if (id >= 40 && id <= 44) pts += 4;
+                else if (id >= 45 && id <= 49) pts += 5;
+                else if (id >= 50 && id <= 54) pts += 7;
+                else if (id >= 55 && id <= 59) pts += 8;
+                else if (id >= 60 && id <= 64) pts += 9;
+                else if (id >= 65 && id <= 69) pts += 10;
+                else if (id >= 70 && id <= 74) pts += 11;
+                else pts += 12;
+
+                // Colesterol F
+                if (tot >= 160 && tot <= 199) pts += 1;
+                else if (tot >= 200 && tot <= 239) pts += 3;
+                else if (tot >= 240 && tot <= 279) pts += 4;
+                else if (tot >= 280) pts += 5;
+
+                // HDL F
+                if (hdl >= 60) pts -= 2;
+                else if (hdl >= 50 && hdl <= 59) pts -= 1;
+                else if (hdl >= 45 && hdl <= 49) pts += 0;
+                else if (hdl >= 35 && hdl <= 44) pts += 1;
+                else if (hdl < 35) pts += 2;
+
+                // Pressão F
+                if (!trata) {
+                    if (pas >= 120 && pas <= 129) pts += 1;
+                    else if (pas >= 130 && pas <= 139) pts += 2;
+                    else if (pas >= 140 && pas <= 159) pts += 3;
+                    else if (pas >= 160) pts += 4;
+                } else {
+                    if (pas < 120) pts += 1;
+                    else if (pas >= 120 && pas <= 129) pts += 3;
+                    else if (pas >= 130 && pas <= 139) pts += 4;
+                    else if (pas >= 140 && pas <= 159) pts += 5;
+                    else if (pas >= 160) pts += 6;
+                }
+
+                // Fumo F
+                if (fuma) pts += 3;
+            }
+
+            // Calculando Risco % a partir dos pontos (Aproximação SBC)
+            let riscoPCT = 0;
+            if(sexo === 'M') {
+                if(pts <= 0) riscoPCT = 1;
+                else if(pts === 1 || pts === 2) riscoPCT = 2;
+                else if(pts === 3 || pts === 4) riscoPCT = 3;
+                else if(pts === 5 || pts === 6) riscoPCT = 5;
+                else if(pts === 7) riscoPCT = 6;
+                else if(pts === 8) riscoPCT = 7;
+                else if(pts === 9) riscoPCT = 9;
+                else if(pts === 10) riscoPCT = 11;
+                else if(pts === 11) riscoPCT = 14;
+                else if(pts === 12) riscoPCT = 18;
+                else if(pts === 13) riscoPCT = 22;
+                else if(pts === 14) riscoPCT = 27;
+                else riscoPCT = 30; // Maior que 14
+            } else {
+                if(pts <= 2) riscoPCT = 1;
+                else if(pts === 3) riscoPCT = 1;
+                else if(pts === 4) riscoPCT = 2;
+                else if(pts === 5) riscoPCT = 2;
+                else if(pts === 6) riscoPCT = 3;
+                else if(pts === 7) riscoPCT = 4;
+                else if(pts === 8) riscoPCT = 4;
+                else if(pts === 9) riscoPCT = 5;
+                else if(pts === 10) riscoPCT = 6;
+                else if(pts === 11) riscoPCT = 8;
+                else if(pts === 12) riscoPCT = 10;
+                else if(pts === 13) riscoPCT = 11;
+                else if(pts === 14) riscoPCT = 13;
+                else if(pts === 15) riscoPCT = 17;
+                else if(pts === 16) riscoPCT = 20;
+                else if(pts === 17) riscoPCT = 24;
+                else riscoPCT = 30; // Maior que 17
+            }
+
+            let classeF = ""; let corF = ""; let metas = "";
+            if(sexo === 'M') {
+                if(riscoPCT < 5) { classeF = "BAIXO RISCO"; corF = "text-green-500"; metas = "Meta de LDL-c: < 130 mg/dL e Colesterol Não-HDL < 160 mg/dL."; }
+                else if (riscoPCT >= 5 && riscoPCT <= 20) { classeF = "RISCO INTERMEDIÁRIO"; corF = "text-yellow-500"; metas = "Meta de LDL-c: < 100 mg/dL e Colesterol Não-HDL < 130 mg/dL."; }
+                else { classeF = "ALTO RISCO"; corF = "text-orange-500"; metas = "Meta de LDL-c: < 70 mg/dL e Colesterol Não-HDL < 100 mg/dL."; }
+            } else {
+                if(riscoPCT < 5) { classeF = "BAIXO RISCO"; corF = "text-green-500"; metas = "Meta de LDL-c: < 130 mg/dL e Colesterol Não-HDL < 160 mg/dL."; }
+                else if (riscoPCT >= 5 && riscoPCT <= 10) { classeF = "RISCO INTERMEDIÁRIO"; corF = "text-yellow-500"; metas = "Meta de LDL-c: < 100 mg/dL e Colesterol Não-HDL < 130 mg/dL."; }
+                else { classeF = "ALTO RISCO"; corF = "text-orange-500"; metas = "Meta de LDL-c: < 70 mg/dL e Colesterol Não-HDL < 100 mg/dL."; }
+            }
+
+            mostrarResultadoDireto(classeF, corF, metas + `<br><br><span class="text-xs font-mono text-gray-500 block mt-2 pt-2 border-t border-gray-700">Risco Global (Framingham): ${riscoPCT}% (Pontos: ${pts})</span>`);
+        }
+
+        function mostrarResultadoDireto(classe, corClass, descricaoMetas) {
+            $('.etapa').removeClass('ativa');
+            $('#progressFill').css('width', '100%');
+            
+            $('#resultadoClasse').html(classe).removeClass().addClass(`text-center font-black text-3xl py-4 rounded mb-4 bg-black/30 border border-slate-700/50 ${corClass}`);
+            $('#resultadoMetas').html(`
+                <span class="text-gray-500 font-bold uppercase text-[0.70rem] block mb-1">Recomendação / Metas Lipídicas:</span>
+                <p class="font-medium text-gray-300">${descricaoMetas}</p>
+            `);
+
+            $('#resultadoFinal').addClass('ativa');
+        }
+
+        function resetarCalculadora() {
+            $('input[type="checkbox"]').prop('checked', false);
+            $('#fIdade').val('50'); $('#fHdl').val('45'); $('#fTotal').val('180'); $('#fPas').val('120');
+            $('#temDiabetes, #fSexo, #fTrataHas').prop('selectedIndex', 0);
+            toggleDiabetesOptions();
+            
+            mudarEtapa('x', 1, 25);
+            $('#resultadoFinal').removeClass('ativa');
+        }
     </script>
 </body>
 </html>

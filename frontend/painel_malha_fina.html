@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malha Fina - Auditoria Fila Zero x Faturamento</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #0f172a; --bg-card: #1e293b; --bg-hover: #334155; --border-color: #334155;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --color-primary: #38bdf8;
+        }
+
+        body.theme-classic {
+            --bg-body: #f1f5f9; --bg-card: #ffffff; --bg-hover: #f8fafc; --border-color: #cbd5e1;
+            --text-main: #0f172a; --text-muted: #475569; --color-primary: #0056b3;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 20px; transition: 0.3s; }
+        
+        #loader { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #38bdf8; backdrop-filter: blur(5px); }
+        
+        .card-padrao { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 24px; }
+        .page-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin-bottom: 5px; }
+        .page-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;}
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; transition: 0.3s; }
+        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; z-index: 2; margin-bottom: 10px;}
+        .kpi-value { font-size: 2.2rem; font-weight: 800; line-height: 1; z-index: 2;}
+        .kpi-value-money { font-size: 1.8rem; font-weight: 900; line-height: 1; z-index: 2; letter-spacing: -0.5px;}
+
+        /* Filtros Clicáveis */
+        .kpi-card-filter:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); cursor: pointer; }
+        
+        /* SEMÁFORO CORES */
+        .semaforo-verde { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+        .semaforo-amarelo { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; }
+        .semaforo-vermelho { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; }
+
+        body.theme-classic .semaforo-verde { background: #f0fdf4; border-color: #bbf7d0; color: #059669; }
+        body.theme-classic .semaforo-amarelo { background: #fffbeb; border-color: #fde68a; color: #d97706; }
+        body.theme-classic .semaforo-vermelho { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+
+        .badge-status { padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.70rem; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;}
+
+        /* DataTables */
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
+        table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; text-align: left; background-color: var(--bg-hover) !important; color: var(--color-primary) !important; border-bottom: 2px solid var(--border-color) !important;}
+        table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px !important; color: var(--text-muted) !important; border-bottom: 1px solid var(--border-color) !important;}
+        table.dataTable tbody tr { background-color: transparent !important; transition: 0.2s;}
+        table.dataTable tbody tr:hover { background-color: var(--bg-hover) !important; }
+        
+        .dt-button { background: var(--bg-hover) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; margin-right: 5px;}
+        .dt-button:hover { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important;}
+
+        .filter-input { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; outline: none; margin-left: 5px; }
+        
+        .bg-money-verde { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.0) 100%); }
+        .bg-money-amarelo { background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.0) 100%); }
+        .bg-money-vermelho { background: linear-gradient(135deg, rgba(248, 113, 113, 0.1) 0%, rgba(248, 113, 113, 0.0) 100%); }
+    </style>
+</head>
+<body>
+
+    <div id="loader" style="display:flex;">
+        <i class="fas fa-radar fa-spin text-5xl mb-4 text-emerald-400"></i>
+        <h2 class="font-bold text-xl text-white">Auditoria de Malha Fina</h2>
+        <p class="font-medium text-gray-400 mt-2" id="loader-text">A iniciar sincronização...</p>
+        
+        <div class="w-64 bg-gray-800 rounded-full h-2.5 mt-4">
+            <div id="loader-bar" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h1 class="page-title"><i class="fas fa-search-dollar text-emerald-400 mr-2"></i> Conciliação: Fila Zero vs Faturamento</h1>
+                <p class="page-desc">Cruzamento em tempo real das internações cirúrgicas com o retorno do DATASUS (Simuladas).</p>
+            </div>
+            <div class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700">
+                <span class="text-xs font-bold uppercase text-gray-400">Mês da Internação:</span>
+                <input type="month" id="mesInternacao" class="filter-input" onchange="iniciarCruzamento()">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold uppercase text-gray-500"><i class="fas fa-users mr-1"></i> Filtros Operacionais (Clique para Filtrar)</h2>
+            <span class="text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded border border-blue-500/30 hidden" id="filtroAtivoBadge"><i class="fas fa-filter"></i> Filtro Ativado</span>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-card-filter border-t-4 border-blue-500" id="card-Todos" onclick="filtrarTabelaMalha('Todos', 'card-Todos', 'ring-blue-500')">
+                <div class="kpi-title">Total Internados (Fila Zero)</div>
+                <div class="kpi-value text-blue-400" id="kpi-total">0</div>
+                <div class="absolute -right-4 -bottom-4 text-blue-500/10 text-7xl"><i class="fas fa-bed"></i></div>
+            </div>
+            <div class="kpi-card kpi-card-filter border-t-4 border-emerald-500" id="card-Correto" onclick="filtrarTabelaMalha('Correto', 'card-Correto', 'ring-emerald-500')">
+                <div class="kpi-title">Faturados e Corretos</div>
+                <div class="kpi-value text-emerald-400" id="kpi-corretos">0</div>
+                <div class="absolute -right-4 -bottom-4 text-emerald-500/10 text-7xl"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="kpi-card kpi-card-filter border-t-4 border-yellow-500" id="card-Divergente" onclick="filtrarTabelaMalha('Divergente', 'card-Divergente', 'ring-yellow-500')">
+                <div class="kpi-title">Divergência de Código</div>
+                <div class="kpi-value text-yellow-400" id="kpi-divergentes">0</div>
+                <div class="absolute -right-4 -bottom-4 text-yellow-500/10 text-7xl"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+            <div class="kpi-card kpi-card-filter border-t-4 border-red-500" id="card-Pendente" onclick="filtrarTabelaMalha('Pendente', 'card-Pendente', 'ring-red-500')">
+                <div class="kpi-title">Pendentes (Prateleira)</div>
+                <div class="kpi-value text-red-400" id="kpi-pendentes">0</div>
+                <div class="absolute -right-4 -bottom-4 text-red-500/10 text-7xl"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+
+        <h2 class="text-sm font-bold uppercase text-gray-500 mb-3 mt-6"><i class="fas fa-chart-pie mr-1"></i> Impacto Financeiro (Tabela MT - Diretoria)</h2>
+        <div class="kpi-grid">
+            <div class="kpi-card border-t-4 border-emerald-500 bg-money-verde">
+                <div class="kpi-title">Faturamento Garantido</div>
+                <div class="kpi-value-money text-emerald-400" id="kpi-val-corretos">R$ 0,00</div>
+                <div class="text-[0.65rem] font-bold text-gray-500 uppercase mt-2">Contas Corretas e Mapeadas</div>
+            </div>
+            <div class="kpi-card border-t-4 border-yellow-500 bg-money-amarelo">
+                <div class="kpi-title">Risco de Glosa / Perda</div>
+                <div class="kpi-value-money text-yellow-400" id="kpi-val-divergentes">R$ 0,00</div>
+                <div class="text-[0.65rem] font-bold text-gray-500 uppercase mt-2">Faturado com código de menor valor</div>
+            </div>
+            <div class="kpi-card border-t-4 border-red-500 bg-money-vermelho">
+                <div class="kpi-title">Receita Retida (Pendentes)</div>
+                <div class="kpi-value-money text-red-400" id="kpi-val-pendentes">R$ 0,00</div>
+                <div class="text-[0.65rem] font-bold text-gray-500 uppercase mt-2">Dinheiro parado na prateleira</div>
+            </div>
+        </div>
+
+        <div class="card-padrao" id="secao-tabela">
+            <h2 class="text-sm font-bold uppercase text-gray-500 mb-4"><i class="fas fa-list mr-1"></i> Detalhamento de Pacientes</h2>
+            <table id="tabelaConciliacao" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center w-28">Status</th>
+                        <th>Paciente / Internação</th>
+                        <th class="text-center w-24">AIH Faturada</th>
+                        <th>O que era esperado? (Fila Zero)</th>
+                        <th class="text-right w-24 text-emerald-400">Valor MT (R$)</th>
+                        <th>O que foi faturado? (Conta Médica)</th>
+                        <th class="text-center w-20">Cmpt Fat.</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card-padrao mt-6">
+            <h2 class="text-sm font-bold uppercase text-gray-500 mb-4"><i class="fas fa-layer-group mr-1"></i> Resumo Analítico por Procedimento (Metas Fila Zero)</h2>
+            <table id="tabelaResumo" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center w-24">Código Sigtap</th>
+                        <th>Descrição do Procedimento (Fila Zero)</th>
+                        <th class="text-center w-20">Qtd Esperada</th>
+                        <th class="text-center w-20 text-emerald-400">Corretos</th>
+                        <th class="text-center w-20 text-yellow-400">Divergentes</th>
+                        <th class="text-center w-20 text-red-400">Pendentes</th>
+                        <th class="text-right w-32 text-emerald-400">Valor Liberado (R$)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const SB_URL = 'https://voweywtzoldwfhgkniup.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvd2V5d3R6b2xkd2ZoZ2tuaXVwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODEwMTU5NSwiZXhwIjoyMDgzNjc3NTk1fQ.deftZEa4j3SFFsNNjVhU4cE67CGi1rVQSBAltz-AmPk';
+        const client = window.supabase.createClient(SB_URL, SB_KEY);
+        
+        let tabelaCruzamento = null;
+        let tabelaResumo = null;
+        const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        const metasFilaZero = {
+            "0407010297": { desc: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", valor: 2298.18 },
+            "0407020284": { desc: "HEMORROIDECTOMIA", valor: 947.82 },
+            "0407020276": { desc: "FISTULECTOMIA / FISTULOTOMIA ANAL", valor: 1091.70 },
+            "0407030026": { desc: "COLECISTECTOMIA", valor: 2989.02 },
+            "0409070050": { desc: "COLPOPERINEOPLASTIA ANTERIOR E POSTERIOR", valor: 1889.72 },
+            "0407040080": { desc: "HERNIOPLASTIA INCISIONAL", valor: 1619.76 },
+            "0407040099": { desc: "HERNIOPLASTIA INGUINAL (BILATERAL)", valor: 1830.18 },
+            "0407040102": { desc: "HERNIOPLASTIA INGUINAL / CRURAL (UNILATERAL)", valor: 1913.91 },
+            "0407040129": { desc: "HERNIOPLASTIA UMBILICAL", valor: 1304.97 },
+            "0408050160": { desc: "RECONSTRUCAO LIGAMENTAR INTRA-ARTICULAR DO JOELHO (CRUZADO ANTERIOR)", valor: 31202.76 },
+            "0409030040": { desc: "RESSECCAO ENDOSCOPICA DE PROSTATA", valor: 8158.78 },
+            "0409020176": { desc: "URETROTOMIA INTERNA", valor: 1279.68 },
+            "0409040240": { desc: "VASECTOMIA", valor: 1755.48 },
+            "0409040169": { desc: "ORQUIECTOMIA UNILATERAL", valor: 1400.52 },
+            "0409040215": { desc: "TRATAMENTO CIRURGICO DE HIDROCELE", valor: 1027.88 },
+            "0409060038": { desc: "EXCISÃO TIPO 3 DO COLO UTERINO", valor: 1774.64 },
+            "0409060046": { desc: "CURETAGEM SEMIOTICA C/ OU S/ DILATACAO DO COLO DO UTERO", valor: 669.68 },
+            "0409060119": { desc: "HISTERECTOMIA C/ ANEXECTOMIA (UNI / BILATERAL)", valor: 4414.56 },
+            "0409060135": { desc: "HISTERECTOMIA TOTAL", valor: 3631.72 },
+            "0409060194": { desc: "MIOMECTOMIA", valor: 2115.76 },
+            "0409060186": { desc: "LAQUEADURA TUBARIA", valor: 1941.92 },
+            "0409060216": { desc: "OOFORECTOMIA / OOFOROPLASTIA", valor: 2039.44 },
+            "0409060232": { desc: "SALPINGECTOMIA UNI / BILATERAL", valor: 1862.36 },
+            "0409070157": { desc: "EXERESE DE GLANDULA DE BARTHOLIN / SKENE", valor: 898.72 },
+            "0409070190": { desc: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", valor: 559.84 }
+        };
+
+        function inferirSigtapFilaZero(cid) {
+            if (!cid || cid === 'SEM REGISTRO') return null;
+            let c = cid.replace('.', '').toUpperCase();
+            if (c.startsWith('M') || c.startsWith('S') || c.startsWith('T')) return '0408050160'; 
+            if (c.startsWith('N40') || c.startsWith('N43') || c.startsWith('N47')) return '0409030040'; 
+            if (c.startsWith('K80') || c.startsWith('K81')) return '0407030026'; 
+            if (c === 'Z302') return '0409060186'; 
+            if (c.startsWith('Z30')) return '0409040240'; 
+            if (c.startsWith('D25') || c.startsWith('N80') || c.startsWith('N92') || c.startsWith('N93')) return '0409060135'; 
+            if (c.startsWith('K40') || c.startsWith('K41')) return '0407040102'; 
+            if (c.startsWith('K42')) return '0407040129'; 
+            if (c.startsWith('K43')) return '0407040080'; 
+            if (c.startsWith('N87')) return '0409060038';
+            return null; 
+        }
+
+        $(document).ready(function() { 
+            if (localStorage.getItem('nii_theme_hub') === 'classic') document.body.classList.add('theme-classic');
+            let dataHoje = new Date();
+            $('#mesInternacao').val(`${dataHoje.getFullYear()}-${String(dataHoje.getMonth() + 1).padStart(2, '0')}`);
+            iniciarCruzamento();
+        });
+
+        function updateLoader(text, percentage) {
+            $('#loader-text').text(text);
+            $('#loader-bar').css('width', percentage + '%');
+        }
+
+        // ========================================================
+        // FUNÇÃO DE FILTRO INTERATIVO (CARDS)
+        // ========================================================
+        window.filtrarTabelaMalha = function(statusBusca, cardId, ringColor) {
+            if(!tabelaCruzamento) return;
+
+            // Reset visual de todos os cards
+            $('.kpi-card-filter').removeClass('ring-2 ring-offset-2 ring-offset-slate-900 border-transparent scale-[1.02] shadow-xl').css('opacity', '0.6');
+            
+            // Se for "Todos", limpa o filtro e acende todos os cards
+            if(statusBusca === 'Todos') {
+                $('.kpi-card-filter').css('opacity', '1');
+                $('#filtroAtivoBadge').hide();
+                tabelaCruzamento.column(0).search('').draw();
+            } else {
+                // Destaca o card clicado
+                $('#' + cardId).addClass(`ring-2 ring-offset-2 ring-offset-slate-900 ${ringColor} scale-[1.02] shadow-xl`).css('opacity', '1');
+                $('#filtroAtivoBadge').show().text('Filtrando: ' + statusBusca);
+                // Filtra a coluna 0 (que contém a palavra Correto, Pendente ou Divergente no HTML do badge)
+                tabelaCruzamento.column(0).search(statusBusca).draw();
+            }
+
+            // Scroll suave até a tabela
+            $('html, body').animate({ scrollTop: $("#secao-tabela").offset().top - 30 }, 400);
+        }
+
+        async function iniciarCruzamento() {
+            $('#loader').fadeIn();
+            const mesSel = $('#mesInternacao').val(); 
+            if(!mesSel) return;
+            
+            let [ano, mes] = mesSel.split('-');
+            const d1 = `${ano}-${mes}-01`;
+            const dataFimObj = new Date(ano, mes, 0);
+            const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
+
+            try {
+                // 1. CARREGAR OS PACIENTES FILA ZERO
+                updateLoader("Buscando pacientes elegíveis do Fila Zero...", 15);
+                let indicaData = []; let fromI = 0; let stepI = 1000; let keepF = true;
+                while (keepF) {
+                    const { data, error } = await client.from('indicasus_leitos')
+                        .select('nome_paciente, data_internacao, diagnostico, aih, cod_solicitacao_sisreg')
+                        .gte('data_internacao', d1).lte('data_internacao', d2)
+                        .ilike('plano_sus', '%FILA ZERO%')
+                        .range(fromI, fromI + stepI - 1);
+                    if (error) throw error;
+                    if (data && data.length > 0) { indicaData = indicaData.concat(data); fromI += stepI; } else { keepF = false; }
+                }
+
+                let mapUnicos = {};
+                indicaData.forEach(d => { mapUnicos[`${d.nome_paciente}_${d.data_internacao}`] = d; });
+                let pacientesFZ = Object.values(mapUnicos);
+
+                // 2. PROCEDIMENTO ESPERADO
+                updateLoader("Calculando inteligência clínica...", 30);
+                let mapOficialMV = {};
+                const { data: mvData } = await client.from('cirurgias_detalhe').select('paciente, cod_tabela').gte('data_cirurgia', d1).lte('data_cirurgia', d2).eq('convenio', 'FILA ZERO');
+                if (mvData) mvData.forEach(c => { if(c.paciente) mapOficialMV[c.paciente.trim().toUpperCase()] = c.cod_tabela; });
+
+                let mapOverrides = {};
+                const { data: overData } = await client.from('fila_zero_overrides').select('*');
+                if (overData) overData.forEach(o => { mapOverrides[o.key_unica] = o.codigo; });
+
+                pacientesFZ.forEach(p => {
+                    let key = p.nome_paciente + "_" + p.data_internacao;
+                    let codigoFinal = mapOverrides[key] || mapOficialMV[p.nome_paciente.trim().toUpperCase()] || inferirSigtapFilaZero(p.diagnostico) || "SEM_MAP";
+                    let infoMeta = metasFilaZero[codigoFinal];
+                    
+                    p.esperado_codigo = codigoFinal;
+                    p.esperado_desc = infoMeta ? infoMeta.desc : "PROCEDIMENTO EXTRA-META / NÃO LOCALIZADO";
+                    p.esperado_valor = infoMeta ? infoMeta.valor : 0;
+                });
+
+                // 3. BAIXAR JSONS
+                updateLoader("Mapeando histórico de contas faturadas...", 50);
+                const { data: arquivosJson } = await client.from('controle_simuladas').select('competencia_arquivo, link_indice').not('link_indice', 'is', null);
+                let faturamentoGlobal = {}; 
+
+                if (arquivosJson && arquivosJson.length > 0) {
+                    let fetchPromises = arquivosJson.map(async arq => {
+                        try {
+                            let resp = await fetch(arq.link_indice);
+                            let jsonContas = await resp.json();
+                            jsonContas.forEach(conta => {
+                                let aihLimpa = conta.AIH ? String(conta.AIH).replace(/-/g, '').trim() : '';
+                                if(aihLimpa && aihLimpa !== '') {
+                                    let cods = []; if(conta.procedimentos) conta.procedimentos.forEach(proc => cods.push(proc.codigo));
+                                    faturamentoGlobal[aihLimpa] = { competencia: arq.competencia_arquivo, procPrincipal: conta.PROC, codigos: cods };
+                                }
+                            });
+                        } catch(e) {}
+                    });
+                    await Promise.all(fetchPromises);
+                }
+
+                // 4. CRUZAMENTO FINAL E PREPARAÇÃO DOS DADOS DO RESUMO
+                updateLoader("Realizando Conciliação e Agrupamento...", 80);
+                
+                let kpiVerde = 0; let kpiAmarelo = 0; let kpiVermelho = 0;
+                let valVerde = 0; let valAmarelo = 0; let valVermelho = 0;
+                let dadosTabela = [];
+                
+                // Objeto para gerar a Tabela de Resumo
+                let agregadorResumo = {};
+
+                pacientesFZ.forEach(p => {
+                    let aihFormatada = p.aih ? String(p.aih).trim() : '';
+                    let aihBusca = aihFormatada.replace(/-/g, '');
+                    let fatEncontrado = faturamentoGlobal[aihBusca];
+                    
+                    let sts = ""; let htmlStatus = ""; let procFaturado = "-"; let compFaturada = "-";
+
+                    if (!fatEncontrado) {
+                        sts = "PENDENTE"; kpiVermelho++; valVermelho += p.esperado_valor;
+                        htmlStatus = `<span class="badge-status semaforo-vermelho"><i class="fas fa-clock"></i> Pendente</span>`;
+                    } else {
+                        procFaturado = fatEncontrado.procPrincipal; compFaturada = fatEncontrado.competencia;
+                        let faturouOQueEsperava = fatEncontrado.codigos.includes(p.esperado_codigo);
+                        if (faturouOQueEsperava) {
+                            sts = "CORRETO"; kpiVerde++; valVerde += p.esperado_valor;
+                            htmlStatus = `<span class="badge-status semaforo-verde"><i class="fas fa-check-circle"></i> Correto</span>`;
+                        } else {
+                            sts = "DIVERGENTE"; kpiAmarelo++; valAmarelo += p.esperado_valor;
+                            htmlStatus = `<span class="badge-status semaforo-amarelo"><i class="fas fa-exclamation-triangle"></i> Divergente</span>`;
+                        }
+                    }
+
+                    dadosTabela.push({
+                        status_html: htmlStatus, status_raw: sts,
+                        paciente: `<b class="text-[0.8rem]" style="color:var(--text-main);">${p.nome_paciente}</b><br><span class="text-xs text-gray-500"><i class="fas fa-calendar-alt"></i> Int: ${p.data_internacao.split('-').reverse().join('/')}</span>`,
+                        aih: aihFormatada || '<span class="text-gray-500 opacity-50">S/Registro</span>',
+                        esperado: `<b class="text-blue-400 font-mono text-[0.7rem]">${p.esperado_codigo}</b><br><span class="text-xs text-gray-400 uppercase">${p.esperado_desc}</span>`,
+                        valor_mt: p.esperado_valor,
+                        faturado: sts === 'PENDENTE' ? '<span class="text-gray-500 italic text-xs">Não localizado nos retornos (AIH não exportada).</span>' : `<span class="text-[0.70rem] text-emerald-400 uppercase font-bold">${procFaturado}</span>`,
+                        competencia: compFaturada
+                    });
+
+                    // Agrega no Resumo
+                    let codGrp = p.esperado_codigo;
+                    if(!agregadorResumo[codGrp]) {
+                        agregadorResumo[codGrp] = { codigo: codGrp, descricao: p.esperado_desc, total: 0, corretos: 0, divergentes: 0, pendentes: 0, recuperado: 0 };
+                    }
+                    agregadorResumo[codGrp].total++;
+                    if(sts === 'CORRETO') { agregadorResumo[codGrp].corretos++; agregadorResumo[codGrp].recuperado += p.esperado_valor; }
+                    else if(sts === 'DIVERGENTE') { agregadorResumo[codGrp].divergentes++; }
+                    else if(sts === 'PENDENTE') { agregadorResumo[codGrp].pendentes++; }
+                });
+
+                // 5. RENDERIZAR TABELAS E KPIs
+                $('#kpi-total').text(pacientesFZ.length); $('#kpi-corretos').text(kpiVerde);
+                $('#kpi-divergentes').text(kpiAmarelo); $('#kpi-pendentes').text(kpiVermelho);
+                $('#kpi-val-corretos').text(formatBrl.format(valVerde));
+                $('#kpi-val-divergentes').text(formatBrl.format(valAmarelo));
+                $('#kpi-val-pendentes').text(formatBrl.format(valVermelho));
+
+                // Reset visual dos botões de filtro
+                $('.kpi-card-filter').removeClass('ring-2 ring-offset-2 ring-offset-slate-900 border-transparent scale-[1.02] shadow-xl').css('opacity', '1');
+                $('#filtroAtivoBadge').hide();
+
+                if ($.fn.DataTable.isDataTable('#tabelaConciliacao')) $('#tabelaConciliacao').DataTable().destroy();
+                tabelaCruzamento = $('#tabelaConciliacao').DataTable({
+                    data: dadosTabela,
+                    dom: '<"flex justify-between items-center mb-4"lB>rtip',
+                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Malha Fina', className: 'dt-button' } ],
+                    pageLength: 15, language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    order: [[0, 'desc']], 
+                    columns: [
+                        { data: 'status_html', className: 'text-center' },
+                        { data: 'paciente' },
+                        { data: 'aih', className: 'text-center font-mono font-bold text-gray-500' },
+                        { data: 'esperado' },
+                        { data: 'valor_mt', className: 'text-right font-mono font-bold text-emerald-400', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
+                        { data: 'faturado' },
+                        { data: 'competencia', className: 'text-center font-bold font-mono text-xs' }
+                    ]
+                });
+
+                // Renderiza Tabela de Resumo Agrupado
+                let dadosResumo = Object.values(agregadorResumo);
+                if ($.fn.DataTable.isDataTable('#tabelaResumo')) $('#tabelaResumo').DataTable().destroy();
+                tabelaResumo = $('#tabelaResumo').DataTable({
+                    data: dadosResumo,
+                    dom: '<"flex justify-between items-center mb-4"B>rt', // Sem paginação, apenas tabela e botões
+                    buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-table"></i> Exportar Resumo', className: 'dt-button' } ],
+                    paging: false, order: [[2, 'desc']], language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
+                    columns: [
+                        { data: 'codigo', className: 'text-center font-mono text-gray-500 font-bold' },
+                        { data: 'descricao', className: 'font-semibold text-[0.75rem]' },
+                        { data: 'total', className: 'text-center font-black text-blue-400 text-lg' },
+                        { data: 'corretos', className: 'text-center font-bold text-emerald-400' },
+                        { data: 'divergentes', className: 'text-center font-bold text-yellow-400' },
+                        { data: 'pendentes', className: 'text-center font-bold text-red-400' },
+                        { data: 'recuperado', className: 'text-right font-mono font-bold text-emerald-400', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') }
+                    ]
+                });
+
+                setTimeout(() => { $('#loader').fadeOut(); }, 500);
+
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao realizar o cruzamento de dados. Tente novamente.");
+                $('#loader').fadeOut();
+            }
+        }
+    </script>
+</body>
+</html>

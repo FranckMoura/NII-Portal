@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escore de Child-Pugh - Portal NII</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --color-primary: #38bdf8;
+            --color-success: #34d399;
+            --color-warning: #fbbf24;
+            --color-danger:  #f87171;
+            --color-purple:  #c084fc;
+        }
+        
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .calc-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 600px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .input-form { width: 100%; padding: 12px; border-radius: 8px; font-size: 0.9rem; background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); outline: none; margin-top: 6px; transition: 0.2s; }
+        .input-form:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
+        .btn-submit { width: 100%; background: var(--color-primary); color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(56, 189, 248, 0.3); }
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+    <div class="calc-container">
+        <h2 class="font-bold text-xl mb-6 border-b border-slate-700 pb-3 flex items-center gap-2">
+            <i class="fas fa-liver text-emerald-400"></i> Classificação de Child-Pugh
+        </h2>
+        
+        <div class="space-y-3.5">
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Bilirrubina Total (mg/dL)</label>
+                <select id="cpBilirrubina" class="input-form">
+                    <option value="1">Menor que 2,0 mg/dL</option>
+                    <option value="2">Entre 2,0 e 3,0 mg/dL</option>
+                    <option value="3">Maior que 3,0 mg/dL</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Albumina Sérica (g/dL)</label>
+                <select id="cpAlbumina" class="input-form">
+                    <option value="1">Maior que 3,5 g/dL</option>
+                    <option value="2">Entre 2,8 e 3,5 g/dL</option>
+                    <option value="3">Menor que 2,8 g/dL</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Relação INR / Protrombina</label>
+                <select id="cpINR" class="input-form">
+                    <option value="1">INR menor que 1,7</option>
+                    <option value="2">INR entre 1,7 e 2,3</option>
+                    <option value="3">INR maior que 2,3</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Ascite</label>
+                <select id="cpAscite" class="input-form">
+                    <option value="1">Nenhuma</option>
+                    <option value="2">Leve / Moderada (Controlada com diuréticos)</option>
+                    <option value="3">Grave / Severa / Tensa (Refratária ao tratamento)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Encefalopatia Hepática</label>
+                <select id="cpEncefalopatia" class="input-form">
+                    <option value="1">Nenhuma</option>
+                    <option value="2">Grau I - II (Leve a moderada, distúrbio de sono/confusão)</option>
+                    <option value="3">Grau III - IV (Grave, torpor a coma profundo)</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="calcularChildPugh()" class="btn-submit bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30">Calcular Child-Pugh</button>
+        
+        <div id="calcResult" class="mt-6 font-bold text-xl py-4 px-5 bg-black/20 rounded hidden border border-gray-600/30"></div>
+        
+        <div class="mt-8 text-center text-xs font-semibold text-slate-500 border-t border-slate-700/50 pt-4">
+            Desenvolvido por Franck Moura
+        </div>
+    </div>
+
+    <script>
+        function calcularChildPugh() {
+            let bil = parseInt($('#cpBilirrubina').val());
+            let alb = parseInt($('#cpAlbumina').val());
+            let inr = parseInt($('#cpINR').val());
+            let asc = parseInt($('#cpAscite').val());
+            let enc = parseInt($('#cpEncefalopatia').val());
+
+            let pontos = bil + alb + inr + asc + enc;
+
+            let classe = ""; let cor = ""; let sobrevida = "";
+            if (pontos >= 5 && pontos <= 6) {
+                classe = "Classe A";
+                cor = "text-green-400";
+                sobrevida = "Doença bem compensada. Sobrevida de 1 ano: ~100% | Sobrevida de 2 anos: ~85%";
+            } else if (pontos >= 7 && pontos <= 9) {
+                classe = "Classe B";
+                cor = "text-yellow-400";
+                sobrevida = "Comprometimento funcional moderado. Sobrevida de 1 ano: ~80% | Sobrevida de 2 anos: ~60%";
+            } else {
+                classe = "Classe C";
+                cor = "text-red-400";
+                sobrevida = "Doença hepática avançada/descompensada. Sobrevida de 1 ano: ~45% | Sobrevida de 2 anos: ~35%";
+            }
+
+            $('#calcResult').html(`
+                <div class="flex justify-between items-center border-b border-gray-600/50 pb-3 mb-3">
+                    <span class="text-gray-400 text-sm">Pontuação Total: <span class="text-white text-2xl ml-1">${pontos}</span> / 15</span>
+                    <span class="${cor} text-2xl tracking-wide font-extrabold">${classe}</span>
+                </div>
+                <div class="text-xs font-normal text-gray-400 leading-relaxed">
+                    <span class="text-gray-500 font-bold uppercase text-[0.65rem] block mb-1">Análise Clínico-Cirúrgica:</span>
+                    <p class="text-gray-300 font-medium">${sobrevida}</p>
+                </div>
+            `).removeClass('hidden');
+        }
+    </script>
+</body>
+</html>

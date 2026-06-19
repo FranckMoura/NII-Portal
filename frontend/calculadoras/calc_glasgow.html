@@ -40,44 +40,54 @@
 
     <div class="calc-container">
         <h2 class="font-bold text-xl mb-6 border-b border-slate-700 pb-3 flex items-center gap-2">
-            <i class="fas fa-brain text-purple-400"></i> Escala de Glasgow
+            <i class="fas fa-brain text-purple-400"></i> Escala de Glasgow (ECG-P)
         </h2>
         
+        <div class="mb-3">
+            <label class="text-xs font-bold text-gray-400 uppercase">Abertura Ocular</label>
+            <select id="gOcular" class="input-form">
+                <option value="4">4 - Espontânea</option>
+                <option value="3">3 - À voz (comando verbal)</option>
+                <option value="2">2 - À dor (estímulo doloroso)</option>
+                <option value="1">1 - Nenhuma</option>
+            </select>
+        </div>
         
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-400 uppercase">Abertura Ocular</label>
-                <select id="gOcular" class="input-form">
-                    <option value="4">4 - Espontânea</option>
-                    <option value="3">3 - À voz (comando verbal)</option>
-                    <option value="2">2 - À dor (estímulo doloroso)</option>
-                    <option value="1">1 - Nenhuma</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-400 uppercase">Resposta Verbal</label>
-                <select id="gVerbal" class="input-form">
-                    <option value="5">5 - Orientada e conversando</option>
-                    <option value="4">4 - Confusa (desorientada)</option>
-                    <option value="3">3 - Palavras inapropriadas</option>
-                    <option value="2">2 - Sons incompreensíveis</option>
-                    <option value="1">1 - Nenhuma</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="text-xs font-bold text-gray-400 uppercase">Resposta Motora</label>
-                <select id="gMotora" class="input-form">
-                    <option value="6">6 - Obedece a comandos</option>
-                    <option value="5">5 - Localiza dor</option>
-                    <option value="4">4 - Retirada (flexão normal)</option>
-                    <option value="3">3 - Flexão anormal (Decorticação)</option>
-                    <option value="2">2 - Extensão anormal (Descerebração)</option>
-                    <option value="1">1 - Nenhuma</option>
-                </select>
-            </div>
-            <button onclick="calcularGlasgow()" class="btn-submit bg-purple-500 hover:bg-purple-600 shadow-purple-500/30">Calcular Glasgow</button>
+        <div class="mb-3">
+            <label class="text-xs font-bold text-gray-400 uppercase">Resposta Verbal</label>
+            <select id="gVerbal" class="input-form">
+                <option value="5">5 - Orientada e conversando</option>
+                <option value="4">4 - Confusa (desorientada)</option>
+                <option value="3">3 - Palavras inapropriadas</option>
+                <option value="2">2 - Sons incompreensíveis</option>
+                <option value="1">1 - Nenhuma</option>
+            </select>
+        </div>
         
+        <div class="mb-3">
+            <label class="text-xs font-bold text-gray-400 uppercase">Resposta Motora</label>
+            <select id="gMotora" class="input-form">
+                <option value="6">6 - Obedece a comandos</option>
+                <option value="5">5 - Localiza dor</option>
+                <option value="4">4 - Retirada (flexão normal)</option>
+                <option value="3">3 - Flexão anormal (Decorticação)</option>
+                <option value="2">2 - Extensão anormal (Descerebração)</option>
+                <option value="1">1 - Nenhuma</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label class="text-xs font-bold text-gray-400 uppercase">Reatividade Pupilar</label>
+            <select id="gPupila" class="input-form border-purple-500/50">
+                <option value="0">0 - Ambas reagem à luz (Normais)</option>
+                <option value="-1">-1 - Apenas uma reage (Anisocóricas)</option>
+                <option value="-2">-2 - Nenhuma reage (Midriáticas / Fixas)</option>
+            </select>
+        </div>
         
-        <div id="calcResult" class="mt-6 text-center font-bold text-xl py-4 bg-black/20 rounded hidden border border-gray-600/30"></div>
+        <button onclick="calcularGlasgow()" class="btn-submit bg-purple-500 hover:bg-purple-600 shadow-purple-500/30">Calcular Escore ECG-P</button>
+        
+        <div id="calcResult" class="mt-6 text-left font-bold text-xl py-4 px-5 bg-black/20 rounded hidden border border-gray-600/30"></div>
         
         <div class="mt-8 text-center text-xs font-semibold text-slate-500 border-t border-slate-700/50 pt-4">
             Desenvolvido por Franck Moura
@@ -85,17 +95,53 @@
     </div>
 
     <script>
-        
-            function calcularGlasgow() {
-                let oc = parseInt($('#gOcular').val()); let vb = parseInt($('#gVerbal').val()); let mt = parseInt($('#gMotora').val());
-                let total = oc + vb + mt;
-                let diag = ""; let color = "";
-                if(total >= 13) { diag = "Trauma Leve"; color = "text-green-500"; }
-                else if(total >= 9) { diag = "Trauma Moderado"; color = "text-yellow-500"; }
-                else { diag = "Trauma Grave (Intubação indicada)"; color = "text-red-500"; }
-                $('#calcResult').html(`ECG Total: <span class="${color} text-2xl">${total}</span> / 15<br><span class="text-sm font-normal text-gray-500 mt-1 block">${diag}</span>`).removeClass('hidden');
+        function calcularGlasgow() {
+            let oc = parseInt($('#gOcular').val()); 
+            let vb = parseInt($('#gVerbal').val()); 
+            let mt = parseInt($('#gMotora').val());
+            let pu = parseInt($('#gPupila').val());
+            
+            // ECG Clássica (base para avaliação de consciência e TCE)
+            let escoreBase = oc + vb + mt; 
+            
+            // ECG-P Final (com dedução pupilar)
+            let escoreFinal = escoreBase + pu; 
+
+            // 1. Nível de Consciência
+            let consciencia = "";
+            if(escoreBase === 15) { consciencia = "Consciente"; }
+            else if(escoreBase >= 13 && escoreBase <= 14) { consciencia = "Sonolento"; }
+            else if(escoreBase >= 11 && escoreBase <= 12) { consciencia = "Obnubilado"; }
+            else if(escoreBase >= 9 && escoreBase <= 10) { consciencia = "Torpor"; }
+            else { consciencia = "Coma"; }
+
+            // 2. Classificação em caso de Trauma (TCE) e Cores
+            let trauma = ""; let color = "";
+            if(escoreBase >= 13) { 
+                trauma = "Traumatismo Craniano Leve"; 
+                color = "text-green-400"; 
             }
-        
+            else if(escoreBase >= 9) { 
+                trauma = "Traumatismo Craniano Moderado"; 
+                color = "text-yellow-400"; 
+            }
+            else { 
+                trauma = "Traumatismo Craniano Grave (Indicação de IOT)"; 
+                color = "text-red-400"; 
+            }
+
+            // Exibição do Resultado
+            $('#calcResult').html(`
+                <div class="flex justify-between items-center border-b border-gray-600/50 pb-3 mb-3">
+                    <span class="text-gray-400 text-sm">ECG Base: <span class="text-white">${escoreBase}</span></span>
+                    <span class="text-gray-300 text-sm">ECG-P Final: <span class="${color} text-3xl ml-2">${escoreFinal}</span></span>
+                </div>
+                <div class="text-sm font-normal text-gray-300 leading-relaxed">
+                    <div class="mb-1"><span class="text-gray-500 font-bold uppercase text-xs mr-2">Estado Clínico:</span> ${consciencia}</div>
+                    <div><span class="text-gray-500 font-bold uppercase text-xs mr-2">Em caso de Trauma:</span> <span class="${color} font-semibold">${trauma}</span></div>
+                </div>
+            `).removeClass('hidden');
+        }
     </script>
 </body>
 </html>
