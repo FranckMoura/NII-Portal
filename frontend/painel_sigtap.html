@@ -150,35 +150,43 @@
         .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } 
 
         /* ==================================================== */
-        /* RESET NUCLEAR DE IMPRESSÃO (BRANCO E PRETO ABSOLUTO) */
+        /* RESET NUCLEAR DE IMPRESSÃO (PRETO ABSOLUTO)          */
         /* ==================================================== */
         @media print {
-            /* 1. Esconde menus, botões e barras que não interessam */
             .no-print, .tab-btn, .filter-bar, #compBar, .sidebar, .top-header, .flex.mb-4, #tab-rentabilidade { 
                 display: none !important; 
             }
             
             @page { margin: 10mm; size: A4 landscape; } 
             
-            /* 2. Força Fundo Branco e Margens a Zero */
+            /* Força fundo branco em toda a estrutura do site */
             body, html { 
-                background: white !important; 
+                background: #ffffff !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
+                color: #000000 !important;
             }
             
-            /* 3. Força tudo o que for texto a ficar Preto e tira fundos coloridos */
-            body * {
-                color: black !important;
+            /* FORÇA PRETO ABSOLUTO SOBRE AS CLASSES TAILWIND */
+            body *, 
+            .modal-content *, 
+            .compare-tbl *, 
+            .compare-tbl span, 
+            .compare-tbl div,
+            .compare-tbl b,
+            .compare-tbl i,
+            .compare-tbl li {
+                color: #000000 !important;
                 background-color: transparent !important;
                 box-shadow: none !important;
                 text-shadow: none !important;
             }
 
-            /* 4. Fixa o Modal na tela toda */
+            /* Liberta o modal da "caixa" escura */
             .modal { 
                 display: block !important; 
                 position: static !important; 
+                background: transparent !important;
             }
             .modal-content { 
                 border: none !important; 
@@ -188,38 +196,54 @@
                 max-width: 100% !important; 
                 max-height: none !important; 
                 overflow: visible !important; 
+                background: #ffffff !important;
             }
+
+            .modal-header {
+                background: #ffffff !important;
+                border-bottom: 2px solid #000000 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
             .modal-header h2 { 
                 font-size: 16pt !important; 
-                border-bottom: 2px solid black !important; 
-                padding-bottom: 10px !important; 
-                margin-bottom: 15px !important;
+                color: #000000 !important;
             }
             .close-modal { display: none !important; }
-            .modal-body { padding: 0 !important; overflow: visible !important; }
-            .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
             
-            /* 5. Grelha da Tabela de Comparação Limpa e Visível */
+            .modal-body { 
+                padding: 10px 0 !important; 
+                overflow: visible !important; 
+                background: #ffffff !important;
+            }
+
+            .tbl-scroll-box { 
+                max-height: none !important; 
+                overflow: visible !important; 
+            }
+            
+            /* Design minimalista da tabela para papel */
             table.compare-tbl { 
                 width: 100% !important; 
                 border-collapse: collapse !important; 
                 font-size: 10pt !important; 
+                border: 2px solid #000000 !important;
             }
             table.compare-tbl th, table.compare-tbl td { 
-                border: 1px solid black !important; 
-                padding: 8px !important; 
-                background: white !important;
+                border: 1px solid #000000 !important; 
+                padding: 10px !important; 
+                background: #ffffff !important;
             }
             table.compare-tbl th { 
-                /* Permite um cinzento muito claro no título apenas se a impressora suportar */
-                background-color: #f1f5f9 !important; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact; 
-                width: 150px !important; 
+                width: 160px !important; 
                 text-align: left !important;
+                font-weight: bold !important;
             }
 
-            /* 6. Esconde a tabela que ficou por baixo do modal */
+            /* Remove ícones na impressão (opcional, mas ajuda a ficar limpo) */
+            table.compare-tbl th i { display: none !important; }
+
             .cyber-container { display: none !important; }
         }
     </style>
@@ -409,7 +433,7 @@
     <div id="modalComp" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-balance-scale mr-2 text-blue-400"></i> Comparativo de Procedimentos e Repasse Contratual</h2>
+                <h2><i class="fas fa-balance-scale mr-2 text-blue-400 no-print"></i> Comparativo de Procedimentos e Repasse Contratual</h2>
                 <button class="close-modal no-print" onclick="fecharModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="modalBody"></div>
