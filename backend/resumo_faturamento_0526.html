@@ -1,0 +1,72 @@
+
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resumo de Faturamento SUS</title>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; }
+            h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+            h3 { color: #34495e; margin-top: 30px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+            th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #f8f9fa; font-weight: 600; color: #2c3e50; }
+            tr:hover { background-color: #f5f5f5; }
+            .header-info { background: #eef2f5; padding: 15px; border-radius: 5px; margin-bottom: 30px; }
+        </style>
+    </head>
+    <body>
+
+        <div class="header-info">
+            <h2>Resumo Executivo de Faturamento SUS</h2>
+            <p><strong>Hospital Beneficente Santa Helena</strong> | CNES: 231168-2</p>
+            <p><strong>Competência:</strong> 05/2026 | <strong>Apresentação:</strong> 06/2026</p>
+        </div>
+
+        <h3>1. Produção de AIHs por Especialidade</h3>
+        <table>
+            <thead>
+                <tr><th>Especialidade</th><th>Quantidade de AIHs</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>02-OBSTETRICOS</td><td>635</td></tr>
+                <tr><td>01-CIRURGICO</td><td>230</td></tr>
+                <tr><td>07-PEDIATRICOS</td><td>95</td></tr>
+                <tr><td>03-CLINICOS</td><td>80</td></tr>
+                <tr><td><strong>Total Geral</strong></td><td><strong>1040</strong></td></tr>
+            </tbody>
+        </table>
+
+        <h3>2. Receita Faturada por Grupo de Procedimento</h3>
+        <table>
+            <thead>
+                <tr><th>Grupo de Procedimento</th><th>Valor Faturado (R$)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Ações Complementares Da Atenção À Saúde</td><td>R$ 640.321,49</td></tr>
+                <tr><td>Procedimentos Cirúrgicos</td><td>R$ 522.976,91</td></tr>
+                <tr><td>Procedimentos Clínicos</td><td>R$ 293.953,51</td></tr>
+                <tr><td>Procedimentos Com Finalidade Diagnóstica</td><td>R$ 57.092,90</td></tr>
+                <tr><td>Órteses, Próteses E Materiais Especiais</td><td>R$ 34.382,30</td></tr>
+                <tr><td>Medicamentos</td><td>R$ 13.824,04</td></tr>
+                <tr><td><strong>Total Geral Faturado</strong></td><td><strong>R$ 1.562.551,15</strong></td></tr>
+            </tbody>
+        </table>
+
+        <h3>3. Destaque: Diárias de UTI e Cuidados Neonatais</h3>
+        <table>
+            <thead>
+                <tr><th>Tipo de Leito / Procedimento</th><th>Quantidade de Diárias</th><th>Valor Faturado (R$)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>UTI Adulto</strong> (Cód. 0802010083)</td><td>269</td><td>R$ 161.400,00</td></tr>
+                <tr><td><strong>UTI Neonatal</strong> (Cód. 0802010121)</td><td>572</td><td>R$ 411.840,00</td></tr>
+                <tr><td><strong>UCINCo</strong> (Cód. 0802010237)</td><td>92</td><td>R$ 27.600,00</td></tr>
+                <tr><td><strong>UCINCa</strong> (Cód. 0802010245)</td><td>53</td><td>R$ 15.900,00</td></tr>
+            </tbody>
+        </table>
+
+    </body>
+    </html>
+    

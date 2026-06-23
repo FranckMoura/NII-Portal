@@ -149,19 +149,78 @@
         table.compare-tbl th { background: var(--bg-hover); text-align: right; width: 180px; color: var(--color-primary); font-weight: 800; }
         .tbl-scroll-box { max-height: 150px; overflow-y: auto; padding-right: 5px; } 
 
+        /* ==================================================== */
+        /* RESET NUCLEAR DE IMPRESSÃO (BRANCO E PRETO ABSOLUTO) */
+        /* ==================================================== */
         @media print {
-            .no-print { display: none !important; }
-            @page { margin: 10mm; size: A4 landscape; } 
-            body, .modal, .modal-content, table.compare-tbl, table.compare-tbl th, table.compare-tbl td, .tbl-scroll-box { 
-                background: white !important; color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; text-shadow: none !important;
+            /* 1. Esconde menus, botões e barras que não interessam */
+            .no-print, .tab-btn, .filter-bar, #compBar, .sidebar, .top-header, .flex.mb-4, #tab-rentabilidade { 
+                display: none !important; 
             }
-            .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
-            #modalComp { position: absolute; left: 0; top: 0; width: 100%; height: auto; z-index: 9999; display:block !important; }
-            .modal-content { border: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-height: none !important; overflow: visible !important; }
             
-            table.compare-tbl { font-size: 9pt; margin-top: 0; width: 100%; }
-            table.compare-tbl th, table.compare-tbl td { padding: 6px 8px; border: 1px solid #000 !important; }
-            table.compare-tbl th { width: 120px; font-weight: bold; }
+            @page { margin: 10mm; size: A4 landscape; } 
+            
+            /* 2. Força Fundo Branco e Margens a Zero */
+            body, html { 
+                background: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            
+            /* 3. Força tudo o que for texto a ficar Preto e tira fundos coloridos */
+            body * {
+                color: black !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            /* 4. Fixa o Modal na tela toda */
+            .modal { 
+                display: block !important; 
+                position: static !important; 
+            }
+            .modal-content { 
+                border: none !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                max-height: none !important; 
+                overflow: visible !important; 
+            }
+            .modal-header h2 { 
+                font-size: 16pt !important; 
+                border-bottom: 2px solid black !important; 
+                padding-bottom: 10px !important; 
+                margin-bottom: 15px !important;
+            }
+            .close-modal { display: none !important; }
+            .modal-body { padding: 0 !important; overflow: visible !important; }
+            .tbl-scroll-box { max-height: none !important; overflow: visible !important; }
+            
+            /* 5. Grelha da Tabela de Comparação Limpa e Visível */
+            table.compare-tbl { 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                font-size: 10pt !important; 
+            }
+            table.compare-tbl th, table.compare-tbl td { 
+                border: 1px solid black !important; 
+                padding: 8px !important; 
+                background: white !important;
+            }
+            table.compare-tbl th { 
+                /* Permite um cinzento muito claro no título apenas se a impressora suportar */
+                background-color: #f1f5f9 !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                width: 150px !important; 
+                text-align: left !important;
+            }
+
+            /* 6. Esconde a tabela que ficou por baixo do modal */
+            .cyber-container { display: none !important; }
         }
     </style>
 </head>
@@ -172,14 +231,14 @@
         <p class="text-white font-bold" id="status-text">Sincronizando Bancos de Dados...</p>
     </div>
 
-    <div class="flex mb-4 border-b border-gray-600/30">
+    <div class="flex mb-4 border-b border-gray-600/30 no-print">
         <button id="btn-tab-catalogo" class="tab-btn active" onclick="switchTab('catalogo')"><i class="fas fa-book-medical mr-2"></i> Catálogo de Procedimentos</button>
         <button id="btn-tab-rentabilidade" class="tab-btn" onclick="switchTab('rentabilidade')"><i class="fas fa-chart-bar mr-2"></i> Ranking de Rentabilidade</button>
     </div>
 
     <div id="tab-catalogo" class="tab-content active">
         
-        <div class="filter-bar">
+        <div class="filter-bar no-print">
             <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase">Origem do Preço:</label>
@@ -539,7 +598,6 @@
                 if(filaZeroData) filaZeroData.forEach(fz => {
                     let c = fz.codigo || fz.codigo_sigtap || fz.co_procedimento;
                     let v = fz.valor || fz.valor_unitario || fz.valor_mt || fz.fz_valor || fz.valor_fz;
-                    // FORÇANDO O ZERO AQUI
                     if(c) mapFZ[String(c).padStart(10, '0')] = { valor_unitario: Number(v || 0) };
                 });
 
@@ -547,7 +605,6 @@
                 if(mt2026Data) mt2026Data.forEach(mt => {
                     let c = mt.codigo || mt.codigo_sigtap || mt.co_procedimento;
                     let v = mt.valor || mt.valor_unitario || mt.valor_mt || mt.valor_mt2026;
-                    // FORÇANDO O ZERO AQUI
                     if(c) mapMT2026[String(c).padStart(10, '0')] = Number(v || 0);
                 });
 
@@ -557,7 +614,6 @@
                     let codO = o.codigo_opme || o.co_opme || o.opme;
                     let qtd = o.quantidade_maxima || o.qtd_max || o.quantidade || 1;
                     if(codP && codO) {
-                        // FORÇANDO O ZERO AQUI
                         codP = String(codP).padStart(10, '0');
                         if(!mapOPME[codP]) mapOPME[codP] = [];
                         mapOPME[codP].push({ codigo: String(codO).padStart(10, '0'), qtd: qtd });
@@ -571,7 +627,6 @@
                     let nome_cid = c.nome_cid || c.descricao_cid || c.nome;
                     let status = c.status_principal || c.st_principal || '';
                     if(codP && cid) {
-                        // FORÇANDO O ZERO AQUI
                         codP = String(codP).padStart(10, '0');
                         if(!mapCID[codP]) mapCID[codP] = [];
                         mapCID[codP].push({ cid: cid, nome: nome_cid, princ: status });
