@@ -122,11 +122,9 @@
 
         /* TAGS COLORIDAS NA TABELA */
         .tag-detalhe { background-color: rgba(30, 58, 138, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .tag-fz { background-color: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
         .tag-fz-nova { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
         
         body.theme-classic .tag-detalhe { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
-        body.theme-classic .tag-fz { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
         body.theme-classic .tag-fz-nova { background-color: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
 
         /* BARRA INFERIOR DE COMPARAÇÃO */
@@ -236,14 +234,16 @@
                 background: #ffffff !important;
             }
             table.compare-tbl th { 
-                width: 160px !important; 
+                /* Permite um cinzento muito claro no título apenas se a impressora suportar */
+                background-color: #f1f5f9 !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                width: 150px !important; 
                 text-align: left !important;
                 font-weight: bold !important;
             }
 
-            /* Remove ícones na impressão (opcional, mas ajuda a ficar limpo) */
             table.compare-tbl th i { display: none !important; }
-
             .cyber-container { display: none !important; }
         }
     </style>
@@ -269,7 +269,6 @@
                     <select id="filtroOrigemCat" class="filter-select mt-1" onchange="if(dtCat) dtCat.draw();">
                         <option value="todos">Todas as Tabelas</option>
                         <option value="sigtap">Apenas Tabela SUS Padrão</option>
-                        <option value="filazero">Apenas Fila Zero (Atual)</option>
                         <option value="mt2026">Apenas Tabela MT 2026</option>
                     </select>
                 </div>
@@ -319,7 +318,6 @@
                         <th class="text-right w-20">Valor SA</th>
                         <th class="text-right w-20">Valor SH</th>
                         <th class="text-right w-20">Honorário (SP)</th>
-                        <th class="text-right w-24">Fila Zero</th>
                         <th class="text-right w-24">Tabela MT 2026</th>
                         <th class="text-center w-20">Anexos</th>
                         <th class="text-center w-24">Ação</th>
@@ -565,14 +563,13 @@
             let filtroSub = $('#filtroSubgrupoCat').val();
             let filtroForma = $('#filtroFormaCat').val();
             
-            let fzValor = dadosGlobais[dataIndex].fz_valor;
             let mt2026Valor = dadosGlobais[dataIndex].mt2026_valor;
             let codigo = dadosGlobais[dataIndex].codigo;
 
             let passaOrigem = true;
-            if (filtroOrigem === 'filazero' && fzValor <= 0) passaOrigem = false;
             if (filtroOrigem === 'mt2026' && mt2026Valor <= 0) passaOrigem = false;
-            if (filtroOrigem === 'sigtap' && fzValor > 0 && mt2026Valor > 0) passaOrigem = false;
+            // Se "sigtap" for selecionado, quer apenas os do SUS padrão
+            if (filtroOrigem === 'sigtap' && mt2026Valor > 0) passaOrigem = false;
 
             let passaGrupo = true;
             if (filtroGrupo !== 'todos' && codigo.substring(0,2) !== filtroGrupo) passaGrupo = false;
@@ -608,22 +605,12 @@
                 $('#status-text').text("Baixando Tabela SIGTAP (Pode demorar uns segundos)...");
                 const sigtapDataRaw = await fetchAllData('sigtap_oficial');
                 
-                $('#status-text').text("Sincronizando Fila Zero (Atual)...");
-                const filaZeroData = await fetchAllData('fila_zero_procedimentos');
-                
                 $('#status-text').text("Sincronizando Nova Tabela MT 2026...");
                 const mt2026Data = await fetchAllData('tabela_sus_mt_2026_v2');
 
                 $('#status-text').text("Cruzando OPMEs e CIDs...");
                 const opmeData = await fetchAllData('sigtap_opme');
                 const cidData = await fetchAllData('vw_sigtap_cid'); 
-
-                let mapFZ = {};
-                if(filaZeroData) filaZeroData.forEach(fz => {
-                    let c = fz.codigo || fz.codigo_sigtap || fz.co_procedimento;
-                    let v = fz.valor || fz.valor_unitario || fz.valor_mt || fz.fz_valor || fz.valor_fz;
-                    if(c) mapFZ[String(c).padStart(10, '0')] = { valor_unitario: Number(v || 0) };
-                });
 
                 let mapMT2026 = {};
                 if(mt2026Data) mt2026Data.forEach(mt => {
@@ -672,7 +659,6 @@
                 dadosGlobais = sigtapFiltrado.map(item => {
                     let c = item.codigo || item.codigo_sigtap || item.co_procedimento;
                     let codReal = String(c).padStart(10, '0');
-                    let fz = mapFZ[codReal];
                     let mt2026 = mapMT2026[codReal];
                     
                     let complexidadeLimpa = (item.complexidade === '1' || item.complexidade === 'AB') ? 'Básica' : 
@@ -706,7 +692,6 @@
                         valor_sh: item.valor_hospitalar || 0,
                         valor_sp: item.valor_profissional || 0,
                         valor_total: (item.valor_hospitalar || 0) + (item.valor_profissional || 0),
-                        fz_valor: fz ? fz.valor_unitario : 0,
                         mt2026_valor: valor_contrato_total,
                         
                         repasse_medico: repasse_medico_calculado,
@@ -764,7 +749,6 @@
                             return d;
                         } 
                     },
-                    { data: 'fz_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-30 text-gray-500">-</span>`; } },
                     { data: 'mt2026_valor', className: 'text-right font-mono', render: function(d) { return d > 0 ? `<span class="tag-fz-nova font-bold px-2 py-1 rounded text-[0.9rem]">${brl.format(d)}</span>` : `<span class="opacity-30 text-gray-500">-</span>`; } },
                     { 
                         data: null, className: 'text-center',
