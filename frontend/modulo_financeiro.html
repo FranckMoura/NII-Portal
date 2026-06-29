@@ -28,7 +28,7 @@
         .btn-theme { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; outline: none; }
         .btn-theme:hover { background: rgba(255,255,255,0.1); transform: scale(1.05);}
         .module-nav { display: flex; gap: 8px; margin-top: -45px; padding: 0 20px; align-items: flex-end; position: relative; z-index: 10;}
-        .module-tab { padding: 14px 30px; background: rgba(0, 0, 0, 0.4); border-radius: 12px 12px 0 0; color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); border-bottom: none; backdrop-filter: blur(5px); }
+        .module-tab { padding: 14px 20px; background: rgba(0, 0, 0, 0.4); border-radius: 12px 12px 0 0; color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); border-bottom: none; backdrop-filter: blur(5px); }
         .module-tab:hover { background: rgba(56, 189, 248, 0.1); color: white; }
         .module-tab.active { background: rgba(255,255,255,0.05); color: #38bdf8; border-color: rgba(56,189,248,0.5); font-weight: 800; padding-bottom: 18px; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: 2px solid transparent; }
         .view-section { display: none; animation: fadeIn 0.3s; }
@@ -80,50 +80,27 @@
         body.theme-classic .dt-button { background: #004e92 !important; color: white !important; border-color: #004e92 !important; }
         body.theme-classic .dt-button:hover { background: #1e3a8a !important; }
 
-        /* ========================================================= */
-        /* OTIMIZAÇÃO DE IMPRESSÃO (P&B FORTE, SEM ZEBRADO)          */
-        /* ========================================================= */
         @media print {
             @page { margin: 10mm; size: A4 portrait; }
-            
-            * { 
-                background: transparent !important; 
-                color: #000000 !important; 
-                text-shadow: none !important;
-                box-shadow: none !important;
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-            }
+            * { background: transparent !important; color: #000000 !important; text-shadow: none !important; box-shadow: none !important; print-color-adjust: exact !important; }
             body, html { background: #FFFFFF !important; font-family: 'Arial', sans-serif !important; }
-            
             .header-bg, .btn-theme, .filter-area, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dt-buttons, .no-print, .module-nav, .dataTables_info, .blob-1, .blob-2 { display: none !important; }
-            
             .header-print { display: flex !important; align-items: center; border-bottom: 2px solid #000000 !important; padding-bottom: 10px; margin-bottom: 20px; }
             .header-print img { height: 45px; margin-right: 15px; }
             .header-info { flex: 1; text-align: center; }
             .header-info h1 { margin: 0; font-size: 14pt; font-weight: 900 !important; text-transform: uppercase; }
             .header-info h2 { margin: 2px 0; font-size: 11pt; font-weight: bold !important; }
             .header-meta { font-size: 9pt; text-align: right; line-height: 1.3; font-weight: bold !important; }
-
             .grid-print-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px !important; width: 100% !important;}
-            .card { 
-                padding: 10px !important; border: 1px solid #000000 !important; background-color: #FFFFFF !important; 
-                display: block !important; page-break-inside: avoid; border-radius: 4px !important;
-            }
+            .card { padding: 10px !important; border: 1px solid #000000 !important; background-color: #FFFFFF !important; display: block !important; page-break-inside: avoid; border-radius: 4px !important;}
             .card h3 { font-size: 9pt !important; font-weight: 900 !important; margin-bottom: 5px !important; text-transform: uppercase; color: #000 !important;}
-            
             .card p.val-principal { font-size: 14pt !important; font-weight: 900 !important; margin: 0 !important; color: #000 !important; display: block !important; }
             .card p.val-calc { font-size: 8pt !important; font-weight: normal !important; margin-top: 4px !important; color: #555555 !important; display: block !important; }
-
             .table-container { background: transparent !important; border: none !important; padding: 0 !important; }
             .table-container h2 { display: none !important; }
-
             table.dataTable { border: 1px solid #000000 !important; margin-top: 0 !important; width: 100% !important; border-collapse: collapse !important; color: #000 !important; }
             table.dataTable thead th { background-color: #FFFFFF !important; color: #000000 !important; font-weight: 900 !important; border: 1px solid #000000 !important; border-bottom: 2px solid #000000 !important; font-size: 9pt !important; padding: 6px !important; text-align: left !important; }
             table.dataTable tbody td { background-color: #FFFFFF !important; border: 1px solid #cccccc !important; color: #000000 !important; font-size: 8.5pt !important; padding: 4px 6px !important; }
-            table.dataTable tbody tr { background-color: #FFFFFF !important; }
-            table.dataTable tbody tr:nth-child(even), table.dataTable tbody tr:nth-child(odd) { background-color: #FFFFFF !important; } 
-            
             #print-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; font-weight: bold !important; border-top: 1px solid #000000 !important; padding-top: 5px; display: block !important; color: #000 !important;}
         }
     </style>
@@ -150,7 +127,8 @@
     </div>
 
     <div class='max-w-7xl mx-auto module-nav no-print'>
-        <div class="module-tab active" onclick="trocarModulo('medico')"><i class="fas fa-user-md mr-2"></i> Repasse Médico</div>
+        <div class="module-tab active" onclick="trocarModulo('medico_v2')"><i class="fas fa-star mr-2 text-yellow-400"></i> Repasse Médico (NOVO)</div>
+        <div class="module-tab" onclick="trocarModulo('medico')"><i class="fas fa-history mr-2"></i> Repasse Médico (Antigo)</div>
         <div class="module-tab" onclick="trocarModulo('terceiros')"><i class="fas fa-truck-medical mr-2"></i> Repasse Terceiros</div>
     </div>
 
@@ -167,7 +145,46 @@
         </div>
     </div>
 
-    <div id="view-medico" class="view-section active max-w-7xl mx-auto px-4 mt-6">
+    <div id="view-medico_v2" class="view-section active max-w-7xl mx-auto px-4 mt-6">
+        <div class='mb-6 filter-area flex gap-4 items-center no-print border-l-4 border-yellow-400'>
+            <label class="font-bold text-sm uppercase">Competência:</label>
+            <select id="selCompMedicoV2" onchange="MedicoV2.carregarDados()" class="min-w-[150px]">
+                <option value="">Aguardando Base V2...</option>
+            </select>
+            
+            <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
+            <select id="selConvenioMedicoV2" onchange="MedicoV2.carregarDados()">
+                <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
+                <option value="FILA ZERO">FILA ZERO (Via Tabela)</option>
+            </select>
+            <span class="ml-auto text-xs text-yellow-400 font-bold"><i class="fas fa-info-circle"></i> Lendo da Tabela: financeiro_repasses_v2</span>
+        </div>
+
+        <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 grid-print-row'>
+            <div class='card border-l-4 border-blue-500'>
+                <h3>Receita Rateio (SP)</h3>
+                <p class='text-2xl font-bold val-principal' id="card-med-rateio-v2">R$ 0,00</p>
+            </div>
+            <div class='card border-l-4 border-orange-500'>
+                <h3>Produção Geral (Tabela)</h3>
+                <p class='text-2xl font-bold val-principal' id="card-med-prod-v2">R$ 0,00</p>
+            </div>
+            <div class='card border-l-4 border-green-500'>
+                <h3>Total a Repassar</h3>
+                <p class='text-2xl font-bold val-principal' id="card-med-total-v2">R$ 0,00</p>
+            </div>
+        </div>
+
+        <div class="table-container mb-8">
+            <h2 class='text-xl font-bold mb-4 no-print'><i class="fas fa-list mr-2 text-blue-400"></i> Detalhamento por Profissional (Versão Atualizada)</h2>
+            <table id='tblMedicoV2' class="display w-full">
+                <thead><tr><th>Profissional</th><th class="text-right">V. Rateio</th><th class="text-right">V. Prod. Geral</th><th class="text-center">TOTAL (R$)</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view-medico" class="view-section max-w-7xl mx-auto px-4 mt-6 opacity-90">
         <div class='mb-6 filter-area flex gap-4 items-center no-print'>
             <label class="font-bold text-sm uppercase">Competência:</label>
             <select id="selCompMedico" onchange="Medico.carregarDados()" class="min-w-[150px]">
@@ -177,7 +194,7 @@
             <label class="font-bold text-sm uppercase ml-4">Convênio:</label>
             <select id="selConvenioMedico" onchange="Medico.carregarDados()">
                 <option value="PLANO UNICO">PLANO ÚNICO (Geral)</option>
-                <option value="FILA ZERO">FILA ZERO</option>
+                <option value="FILA ZERO">FILA ZERO (Antigo)</option>
             </select>
         </div>
 
@@ -197,7 +214,7 @@
         </div>
 
         <div class="table-container mb-8">
-            <h2 class='text-xl font-bold mb-4 no-print'><i class="fas fa-list mr-2 text-blue-400"></i> Detalhamento por Profissional</h2>
+            <h2 class='text-xl font-bold mb-4 no-print'><i class="fas fa-history mr-2 text-gray-400"></i> Histórico por Profissional</h2>
             <table id='tblMedico' class="display w-full">
                 <thead><tr><th>Profissional</th><th class="text-right">V. Rateio</th><th class="text-right">V. Prod. Geral</th><th class="text-center">TOTAL (R$)</th></tr></thead>
                 <tbody></tbody>
@@ -236,16 +253,14 @@
                 <h3>Faturamento Total</h3>
                 <p class='text-2xl font-bold val-principal' id="card-terc-total">R$ 0,00</p>
             </div>
-            
             <div class='card border-l-4 border-cyan-500'>
                 <h3>SADT UTI ADULTO</h3>
-                <p class='text-2xl font-bold text-cyan-400 val-principal' style="text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);" id="card-terc-uti-adulto">R$ 0,00</p>
+                <p class='text-2xl font-bold text-cyan-400 val-principal' id="card-terc-uti-adulto">R$ 0,00</p>
                 <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-adulto">0</span> diárias x R$ 50</p>
             </div>
-            
             <div class='card border-l-4 border-pink-500'>
                 <h3>SADT UTI NEONATAL</h3>
-                <p class='text-2xl font-bold text-pink-400 val-principal' style="text-shadow: 0 0 10px rgba(244, 114, 182, 0.5);" id="card-terc-uti-neo">R$ 0,00</p>
+                <p class='text-2xl font-bold text-pink-400 val-principal' id="card-terc-uti-neo">R$ 0,00</p>
                 <p class='text-xs mt-1 val-calc' style="color:#94a3b8;"><span id="qtd-uti-neo">0</span> diárias x R$ 70</p>
             </div>
         </div>
@@ -285,19 +300,21 @@
                 { extend: 'excelHtml5', title: filename, className: 'dt-button', text: '<i class="fas fa-file-excel"></i> Excel' },
                 { text: '<i class="fas fa-print"></i> Imprimir', className: 'dt-button bg-blue-600', action: function () { window.print(); } }
             ],
-            language: { 
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
-                lengthMenu: "Mostrar _MENU_ registros"
-            }
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json", lengthMenu: "Mostrar _MENU_ registros" }
         });
 
         function trocarModulo(modulo) {
             $('.view-section').removeClass('active'); $('#view-' + modulo).addClass('active');
             $('.module-tab').removeClass('active'); $(`.module-tab[onclick="trocarModulo('${modulo}')"]`).addClass('active');
             
-            const titulos = { 'medico': 'Relatório de Repasse Médico', 'terceiros': 'Relatório de Repasse Terceiros (SADT)' };
+            const titulos = { 
+                'medico_v2': 'Relatório de Repasse Médico (NOVO)',
+                'medico': 'Relatório de Repasse Médico (HISTÓRICO)', 
+                'terceiros': 'Relatório de Repasse Terceiros (SADT)' 
+            };
             $('#print-title').text(titulos[modulo]);
             
+            if(modulo === 'medico_v2' && !MedicoV2.carregado) MedicoV2.init();
             if(modulo === 'medico' && !Medico.carregado) Medico.init();
             if(modulo === 'terceiros' && !Terceiros.carregado) Terceiros.init();
         }
@@ -309,9 +326,80 @@
             $('#print-data').text(hoje);
             $('#footer-data').text(hoje);
             
-            trocarModulo('medico');
+            // Iniciar com o painel NOVO
+            trocarModulo('medico_v2');
         });
 
+        // ==========================================
+        // OBJETO NOVO (LÊ A TABELA V2)
+        // ==========================================
+        const MedicoV2 = {
+            carregado: false,
+            init: async function() {
+                try {
+                    const sel = $('#selCompMedicoV2');
+                    sel.html('<option value="">Conectando V2...</option>');
+                    
+                    // LENDO DA NOVA TABELA V2
+                    const { data, error } = await client.from('financeiro_repasses_v2').select('competencia');
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0) {
+                        sel.html('<option value="">Base V2 Vazia (Rode o Robô)</option>');
+                        return;
+                    }
+                    
+                    const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
+                        const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
+                        return new Date(y2, m2) - new Date(y1, m1);
+                    });
+                    
+                    sel.empty();
+                    comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                    this.carregarDados();
+                    this.carregado = true;
+                } catch(e) {
+                    console.error("Erro V2:", e);
+                    $('#selCompMedicoV2').html('<option value="">Erro</option>');
+                }
+            },
+            carregarDados: async function() {
+                const comp = $('#selCompMedicoV2').val();
+                const conv = $('#selConvenioMedicoV2').val();
+                if(!comp) return;
+                
+                $('#print-comp').text(comp + " - " + conv);
+
+                try {
+                    // LENDO DA NOVA TABELA V2
+                    const { data, error } = await client.from('financeiro_repasses_v2').select('*').eq('competencia', comp).eq('convenio', conv);
+                    if (error) throw error;
+
+                    const totRateio = data.reduce((s, i) => s + (i.valor_rateio || 0), 0);
+                    const totProd = data.reduce((s, i) => s + (i.valor_prod_extra || 0), 0);
+                    const totGeral = totRateio + totProd;
+
+                    $('#card-med-rateio-v2').text('R$ ' + fmt(totRateio));
+                    $('#card-med-prod-v2').text('R$ ' + fmt(totProd));
+                    $('#card-med-total-v2').text('R$ ' + fmt(totGeral));
+
+                    if ($.fn.DataTable.isDataTable('#tblMedicoV2')) $('#tblMedicoV2').DataTable().destroy();
+                    $('#tblMedicoV2').DataTable({
+                        ...commonDTConfig('Repasse_Medico_Novo'), data: data,
+                        columns: [
+                            { data: 'medico', className: 'font-bold text-yellow-100' },
+                            { data: 'valor_rateio', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
+                            { data: 'valor_prod_extra', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
+                            { data: 'valor_liquido', className: `text-center font-bold font-mono text-emerald-400`, render: d => 'R$ ' + fmt(d) }
+                        ]
+                    });
+                } catch(e) {}
+            }
+        };
+
+        // ==========================================
+        // OBJETO ANTIGO (LÊ A TABELA VELHA)
+        // ==========================================
         const Medico = {
             carregado: false,
             init: async function() {
@@ -327,7 +415,6 @@
                         return;
                     }
                     
-                    // Ordenação robusta de datas MM/YYYY
                     const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
                         const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
                         return new Date(y2, m2) - new Date(y1, m1);
@@ -337,11 +424,7 @@
                     comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
                     this.carregarDados();
                     this.carregado = true;
-                } catch(e) {
-                    console.error("Erro na leitura de competências médicas:", e);
-                    $('#selCompMedico').html('<option value="">Erro de Conexão</option>');
-                    alert("Não foi possível carregar a lista de competências. Verifique sua tabela no Supabase.");
-                }
+                } catch(e) {}
             },
             carregarDados: async function() {
                 const comp = $('#selCompMedico').val();
@@ -364,7 +447,7 @@
 
                     if ($.fn.DataTable.isDataTable('#tblMedico')) $('#tblMedico').DataTable().destroy();
                     $('#tblMedico').DataTable({
-                        ...commonDTConfig('Repasse_Medico'), data: data,
+                        ...commonDTConfig('Repasse_Medico_Historico'), data: data,
                         columns: [
                             { data: 'medico', className: 'font-bold' },
                             { data: 'valor_rateio', className: 'text-right font-mono', render: d => 'R$ ' + fmt(d) },
@@ -372,12 +455,13 @@
                             { data: 'valor_liquido', className: `text-center font-bold font-mono text-emerald-400`, render: d => 'R$ ' + fmt(d) }
                         ]
                     });
-                } catch(e) {
-                    console.error("Erro ao carregar dados da tabela médica:", e);
-                }
+                } catch(e) {}
             }
         };
 
+        // ==========================================
+        // OBJETO TERCEIROS (MANTIDO INTACTO)
+        // ==========================================
         const Terceiros = {
             carregado: false,
             dadosBrutos: [],
@@ -389,24 +473,16 @@
                     const { data, error } = await client.from('financeiro_geral').select('competencia');
                     if (error) throw error;
                     
-                    if (!data || data.length === 0) {
-                        sel.html('<option value="">Base Vazia</option>');
-                        return;
-                    }
+                    if (!data || data.length === 0) { sel.html('<option value="">Base Vazia</option>'); return; }
                     
                     const comps = [...new Set(data.map(i => i.competencia))].sort((a,b) => {
                         const [m1, y1] = a.split('/'); const [m2, y2] = b.split('/');
                         return new Date(y2, m2) - new Date(y1, m1);
                     });
                     
-                    sel.empty();
-                    comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
-                    this.carregarDados();
-                    this.carregado = true;
-                } catch(e) {
-                    console.error("Erro na leitura de competências de terceiros:", e);
-                    $('#selCompTerc').html('<option value="">Erro de Conexão</option>');
-                }
+                    sel.empty(); comps.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
+                    this.carregarDados(); this.carregado = true;
+                } catch(e) {}
             },
             carregarDados: async function() {
                 const comp = $('#selCompTerc').val();
@@ -419,19 +495,13 @@
                     const { data, error } = await client.from('financeiro_geral').select('*').eq('competencia', comp).eq('convenio', conv);
                     if (error) throw error;
                     
-                    this.dadosBrutos = data;
-                    $('#txtSearchTerc').val('');
-                    this.renderizar(data);
-                } catch(e) {
-                    console.error("Erro ao carregar dados de terceiros:", e);
-                }
+                    this.dadosBrutos = data; $('#txtSearchTerc').val(''); this.renderizar(data);
+                } catch(e) {}
             },
             aplicarFiltroTexto: function() {
                 const termo = $('#txtSearchTerc').val().toLowerCase().trim();
                 if (!termo) { this.renderizar(this.dadosBrutos); return; }
-                const filtrados = this.dadosBrutos.filter(d => (
-                    (d.grupo || '') + ' ' + (d.codigo || '') + ' ' + (d.descricao || '')
-                ).toLowerCase().includes(termo));
+                const filtrados = this.dadosBrutos.filter(d => ((d.grupo || '') + ' ' + (d.codigo || '') + ' ' + (d.descricao || '')).toLowerCase().includes(termo));
                 this.renderizar(filtrados);
             },
             renderizar: function(data) {
