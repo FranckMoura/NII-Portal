@@ -285,7 +285,6 @@
         let isDiretoriaOuAdmin = false; 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // PROCEDIMENTOS E METAS PADRÃO (VALORES SERÃO ATUALIZADOS DO SUPABASE)
         const metasFilaZero = [
             { Codigo: "0407010297", Descricao: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", Meta: 1, Valor: 2298.18 },
             { Codigo: "0407020284", Descricao: "HEMORROIDECTOMIA", Meta: 2, Valor: 947.82 },
@@ -312,7 +311,8 @@
             { Codigo: "0409060232", Descricao: "SALPINGECTOMIA UNI / BILATERAL", Meta: 1, Valor: 1862.36 },
             { Codigo: "0409070157", Descricao: "EXERESE DE GLANDULA DE BARTHOLIN / SKENE", Meta: 1, Valor: 898.72 },
             { Codigo: "0409070190", Descricao: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", Meta: 1, Valor: 559.84 },
-            // NOVOS PROCEDIMENTOS INCLUÍDOS
+
+            // NOVOS PROCEDIMENTOS
             { Codigo: "0407010386", Descricao: "CIRURGIA BARIÁTRICA POR VIDEOLAPAROSCOPIA", Meta: 0, Valor: 0.00 },
             { Codigo: "0406030022", Descricao: "ANGIOPLASTIA CORONARIANA C/ IMPLANTE DE DOIS STENTS", Meta: 0, Valor: 0.00 },
             { Codigo: "0406030030", Descricao: "ANGIOPLASTIA CORONARIANA COM IMPLANTE DE STENT", Meta: 0, Valor: 0.00 },
@@ -377,26 +377,6 @@
                 }
             } catch (error) {
                 console.error("Erro ao verificar permissão.", error);
-            }
-
-            // BUSCA VALORES UNITÁRIOS DA TABELA DE REFERÊNCIA (tabela_sus_mt_2026_v2) AUTOMATICAMENTE
-            try {
-                const { data: valoresSigtap, error: errSigtap } = await client.from('tabela_sus_mt_2026_v2').select('codigo_sigtap, valor_unitario');
-                if (valoresSigtap && !errSigtap) {
-                    let mapaValoresDb = {};
-                    valoresSigtap.forEach(v => {
-                        let codLimpo = v.codigo_sigtap.replace(/[^0-9]/g, ''); // Remove pontos e traços p/ alinhar
-                        mapaValoresDb[codLimpo] = v.valor_unitario;
-                    });
-                    
-                    metasFilaZero.forEach(m => {
-                        if (mapaValoresDb[m.Codigo] !== undefined && mapaValoresDb[m.Codigo] !== null) {
-                            m.Valor = parseFloat(mapaValoresDb[m.Codigo]);
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error("Falha ao atualizar valores da tabela_sus_mt_2026_v2", e);
             }
             
             let selectHtml = `<option value="0000000000">0000000000 - PROCEDIMENTO EXTRA-META / OUTROS</option>`;
@@ -469,6 +449,33 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
+                // ATUALIZA VALORES UNITÁRIOS DA TABELA DE REFERÊNCIA (tabela_sus_mt_2026_v2) DENTRO DO CARREGAMENTO
+                try {
+                    const { data: valoresSigtap, error: errSigtap } = await client
+                        .from('tabela_sus_mt_2026_v2')
+                        .select('codigo_sigtap, valor_unitario');
+                        
+                    if (valoresSigtap && !errSigtap) {
+                        let mapaValoresDb = {};
+                        valoresSigtap.forEach(v => {
+                            if (v.codigo_sigtap) {
+                                // Trata o código garantindo 10 dígitos com zeros à esquerda
+                                let codLimpo = String(v.codigo_sigtap).replace(/[^0-9]/g, '').padStart(10, '0');
+                                mapaValoresDb[codLimpo] = v.valor_unitario;
+                            }
+                        });
+                        
+                        metasFilaZero.forEach(m => {
+                            let codM = String(m.Codigo).replace(/[^0-9]/g, '').padStart(10, '0');
+                            if (mapaValoresDb[codM] !== undefined && mapaValoresDb[codM] !== null) {
+                                m.Valor = parseFloat(mapaValoresDb[codM]) || 0;
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Falha ao atualizar valores da tabela_sus_mt_2026_v2", e);
+                }
+
                 let allIndicaData = []; let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data: indData, error } = await client.from('indicasus_leitos')
@@ -593,7 +600,7 @@
                         data: dadosMetas,
                         dom: '<"flex justify-between items-center mb-4"lB>rtip',
                         buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Exportar Financeiro', className: 'dt-button' } ],
-                        order: [[ 5, 'desc' ]], pageLength: 25,
+                        order: [[ 3, 'desc' ]], pageLength: 25,
                         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                         columns: [
                             { data: 'codigo', className: 'text-center font-mono font-bold text-gray-400' },
