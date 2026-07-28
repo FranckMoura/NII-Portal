@@ -285,6 +285,7 @@
         let isDiretoriaOuAdmin = false; 
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
+        // PROCEDIMENTOS E METAS PADRÃO (VALORES SERÃO ATUALIZADOS DO SUPABASE)
         const metasFilaZero = [
             { Codigo: "0407010297", Descricao: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", Meta: 1, Valor: 2298.18 },
             { Codigo: "0407020284", Descricao: "HEMORROIDECTOMIA", Meta: 2, Valor: 947.82 },
@@ -310,7 +311,15 @@
             { Codigo: "0409060216", Descricao: "OOFORECTOMIA / OOFOROPLASTIA", Meta: 1, Valor: 2039.44 },
             { Codigo: "0409060232", Descricao: "SALPINGECTOMIA UNI / BILATERAL", Meta: 1, Valor: 1862.36 },
             { Codigo: "0409070157", Descricao: "EXERESE DE GLANDULA DE BARTHOLIN / SKENE", Meta: 1, Valor: 898.72 },
-            { Codigo: "0409070190", Descricao: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", Meta: 1, Valor: 559.84 }
+            { Codigo: "0409070190", Descricao: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", Meta: 1, Valor: 559.84 },
+            // NOVOS PROCEDIMENTOS INCLUÍDOS
+            { Codigo: "0407010386", Descricao: "CIRURGIA BARIÁTRICA POR VIDEOLAPAROSCOPIA", Meta: 0, Valor: 0.00 },
+            { Codigo: "0406030022", Descricao: "ANGIOPLASTIA CORONARIANA C/ IMPLANTE DE DOIS STENTS", Meta: 0, Valor: 0.00 },
+            { Codigo: "0406030030", Descricao: "ANGIOPLASTIA CORONARIANA COM IMPLANTE DE STENT", Meta: 0, Valor: 0.00 },
+            { Codigo: "0406040095", Descricao: "ANGIOPLASTIA INTRALUMINAL DE VASOS DO PESCOÇO OU TRONCOS SUPRA-AÓRTICOS (COM STENT NÃO RECOBERTO)", Meta: 0, Valor: 0.00 },
+            { Codigo: "0406030014", Descricao: "ANGIOPLASTIA CORONARIANA", Meta: 0, Valor: 0.00 },
+            { Codigo: "0408040092", Descricao: "ARTROPLASTIA TOTAL PRIMARIA DO QUADRIL NÃO CIMENTADA / HÍBRIDA", Meta: 0, Valor: 0.00 },
+            { Codigo: "0408050063", Descricao: "ARTROPLASTIA TOTAL PRIMÁRIA DO JOELHO", Meta: 0, Valor: 0.00 }
         ];
 
         function inferirSigtapFilaZero(cid) {
@@ -327,8 +336,6 @@
             if (c.startsWith('K40') || c.startsWith('K41')) return '0407040102'; 
             if (c.startsWith('K42')) return '0407040129'; 
             if (c.startsWith('K43')) return '0407040080'; 
-
-            // NOVO: Adicionado variação do N87 para Excisão Tipo 3 (0409060038)
             if (c.startsWith('N87')) return '0409060038';
 
             return null; 
@@ -371,6 +378,26 @@
             } catch (error) {
                 console.error("Erro ao verificar permissão.", error);
             }
+
+            // BUSCA VALORES UNITÁRIOS DA TABELA DE REFERÊNCIA (tabela_sus_mt_2026_v2) AUTOMATICAMENTE
+            try {
+                const { data: valoresSigtap, error: errSigtap } = await client.from('tabela_sus_mt_2026_v2').select('codigo_sigtap, valor_unitario');
+                if (valoresSigtap && !errSigtap) {
+                    let mapaValoresDb = {};
+                    valoresSigtap.forEach(v => {
+                        let codLimpo = v.codigo_sigtap.replace(/[^0-9]/g, ''); // Remove pontos e traços p/ alinhar
+                        mapaValoresDb[codLimpo] = v.valor_unitario;
+                    });
+                    
+                    metasFilaZero.forEach(m => {
+                        if (mapaValoresDb[m.Codigo] !== undefined && mapaValoresDb[m.Codigo] !== null) {
+                            m.Valor = parseFloat(mapaValoresDb[m.Codigo]);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Falha ao atualizar valores da tabela_sus_mt_2026_v2", e);
+            }
             
             let selectHtml = `<option value="0000000000">0000000000 - PROCEDIMENTO EXTRA-META / OUTROS</option>`;
             metasFilaZero.forEach(m => {
@@ -404,9 +431,6 @@
             $('#modalMapeamento').css('display', 'flex').hide().fadeIn(200);
         }
 
-        // =========================================================
-        // NOVO: SALVA CORREÇÃO NA NUVEM (SUPABASE)
-        // =========================================================
         window.salvarMapeamento = async function() {
             const keyUnica = $('#map_paciente_key').val();
             const novoCod = $('#map_codigo').val();
@@ -418,10 +442,8 @@
 
             try {
                 if(!novoCod) { 
-                    // Se estiver em branco, apaga a correção
                     await client.from('fila_zero_overrides').delete().eq('key_unica', keyUnica);
                 } else {
-                    // Atualiza ou insere a nova correção
                     await client.from('fila_zero_overrides').upsert({
                         key_unica: keyUnica,
                         codigo: novoCod
@@ -437,7 +459,6 @@
                 btn.disabled = false;
             }
         }
-        // =========================================================
 
         async function carregarDadosFilaZero() {
             $('#loader').fadeIn(200);
@@ -448,7 +469,6 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
-                // 1. Puxa os pacientes do Fila Zero (IndicaSUS)
                 let allIndicaData = []; let fromI = 0; let stepI = 1000; let keepFetchingIndica = true;
                 while (keepFetchingIndica) {
                     const { data: indData, error } = await client.from('indicasus_leitos')
@@ -469,7 +489,6 @@
                 });
                 let dadosPacientes = Object.values(mapPacientes);
 
-                // 2. CRUZAMENTO OFICIAL (MV)
                 let mapaOficialMV = {};
                 try {
                     const { data: cirurgiasData } = await client.from('cirurgias_detalhe')
@@ -486,9 +505,6 @@
                     }
                 } catch(e) { console.error("Erro ao cruzar base MV", e); }
 
-                // =========================================================
-                // 3. PUXA AS CORREÇÕES FORÇADAS (NUVEM)
-                // =========================================================
                 let mapaOverridesGlobais = {};
                 try {
                     const { data: overData } = await client.from('fila_zero_overrides').select('*');
@@ -496,7 +512,6 @@
                         overData.forEach(o => { mapaOverridesGlobais[o.key_unica] = o.codigo; });
                     }
                 } catch(e) { console.log("Tabela de overrides vazia ou erro."); }
-                // =========================================================
 
                 let contadorRealizadoMeta = {};
                 metasFilaZero.forEach(m => contadorRealizadoMeta[m.Codigo] = 0);
@@ -510,12 +525,10 @@
                     
                     let nomeLimpo = d.nome_paciente.trim().toUpperCase();
                     
-                    // PRIORIDADES DO NOVO MOTOR:
                     let codigoForcadoNuvem = mapaOverridesGlobais[keyUnica];
                     let codigoOficialMV = mapaOficialMV[nomeLimpo];
                     let codigoInferido = inferirSigtapFilaZero(cidOriginal);
 
-                    // Prioridade 1: Nuvem (Forçado). Prioridade 2: MV (Oficial). Prioridade 3: Robô CID.
                     let codigoSigtapFinal = codigoForcadoNuvem || codigoOficialMV || codigoInferido;
 
                     d.origem_codigo = codigoForcadoNuvem ? 'FORCADO_NUVEM' : (codigoOficialMV ? 'MV' : (codigoInferido ? 'CID' : 'NENHUM'));
@@ -670,7 +683,6 @@
                                 if(type === 'display') {
                                     if (row.codigo_mapeado === 'SEM_MAP') return `<span class="text-red-400 font-bold text-xs"><i class="fas fa-exclamation-circle mr-1"></i> Não mapeado (CID: ${row.cid_original})</span>`;
                                     
-                                    // Adiciona ícone de Origem visual
                                     let iconeOrigem = "";
                                     if(row.origem_codigo === 'FORCADO_NUVEM') iconeOrigem = `<i class="fas fa-cloud-upload-alt text-orange-400 mr-1" title="Correção Forçada na Nuvem"></i>`;
                                     else if(row.origem_codigo === 'MV') iconeOrigem = `<i class="fas fa-check-double text-emerald-400 mr-1" title="Oficial validado via MV"></i>`;
@@ -689,7 +701,6 @@
                                 let btnClasses = "btn-edit";
                                 let btnText = "<i class='fas fa-edit'></i> Corrigir";
                                 
-                                // Destaca o botão se ele já tiver uma correção na nuvem
                                 if (row.origem_codigo === 'FORCADO_NUVEM') {
                                     btnClasses = "btn-edit !bg-orange-500 !text-white hover:!bg-orange-600";
                                     btnText = "<i class='fas fa-lock'></i> Forçado";
