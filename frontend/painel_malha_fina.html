@@ -42,10 +42,8 @@
         .kpi-value { font-size: 2.2rem; font-weight: 800; line-height: 1; z-index: 2;}
         .kpi-value-money { font-size: 1.8rem; font-weight: 900; line-height: 1; z-index: 2; letter-spacing: -0.5px;}
 
-        /* Filtros Clicáveis */
         .kpi-card-filter:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); cursor: pointer; }
         
-        /* SEMÁFORO CORES */
         .semaforo-verde { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
         .semaforo-amarelo { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; }
         .semaforo-vermelho { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; }
@@ -56,7 +54,6 @@
 
         .badge-status { padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.70rem; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;}
 
-        /* DataTables */
         table.dataTable { width: 100% !important; border-collapse: collapse !important; color: var(--text-main) !important; }
         table.dataTable thead th { font-size: 0.70rem; text-transform: uppercase; padding: 12px 10px !important; white-space: nowrap; font-weight: 800; border: none !important; text-align: left; background-color: var(--bg-hover) !important; color: var(--color-primary) !important; border-bottom: 2px solid var(--border-color) !important;}
         table.dataTable tbody td { font-size: 0.75rem; vertical-align: middle; padding: 10px !important; color: var(--text-muted) !important; border-bottom: 1px solid var(--border-color) !important;}
@@ -65,7 +62,6 @@
         
         .dt-button { background: var(--bg-hover) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; padding: 6px 15px !important; font-size: 0.8rem !important; font-weight: bold !important; transition: 0.2s !important; margin-right: 5px;}
         .dt-button:hover { background: var(--color-primary) !important; color: white !important; border-color: var(--color-primary) !important;}
-
         .filter-input { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; outline: none; margin-left: 5px; }
         
         .bg-money-verde { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.0) 100%); }
@@ -79,7 +75,6 @@
         <i class="fas fa-radar fa-spin text-5xl mb-4 text-emerald-400"></i>
         <h2 class="font-bold text-xl text-white">Auditoria de Malha Fina</h2>
         <p class="font-medium text-gray-400 mt-2" id="loader-text">A iniciar sincronização...</p>
-        
         <div class="w-64 bg-gray-800 rounded-full h-2.5 mt-4">
             <div id="loader-bar" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
         </div>
@@ -89,7 +84,7 @@
         <div class="flex justify-between items-end mb-6">
             <div>
                 <h1 class="page-title"><i class="fas fa-search-dollar text-emerald-400 mr-2"></i> Conciliação: Fila Zero vs Faturamento</h1>
-                <p class="page-desc">Cruzamento em tempo real das internações cirúrgicas com o retorno do DATASUS (Simuladas).</p>
+                <p class="page-desc">Cruzamento Inteligente de Internações com o Retorno de Produção (Soul MV).</p>
             </div>
             <div class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700">
                 <span class="text-xs font-bold uppercase text-gray-400">Mês da Internação:</span>
@@ -98,7 +93,7 @@
         </div>
 
         <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-bold uppercase text-gray-500"><i class="fas fa-users mr-1"></i> Filtros Operacionais (Clique para Filtrar)</h2>
+            <h2 class="text-sm font-bold uppercase text-gray-500"><i class="fas fa-users mr-1"></i> Filtros Operacionais</h2>
             <span class="text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded border border-blue-500/30 hidden" id="filtroAtivoBadge"><i class="fas fa-filter"></i> Filtro Ativado</span>
         </div>
         
@@ -125,7 +120,7 @@
             </div>
         </div>
 
-        <h2 class="text-sm font-bold uppercase text-gray-500 mb-3 mt-6"><i class="fas fa-chart-pie mr-1"></i> Impacto Financeiro (Tabela MT - Diretoria)</h2>
+        <h2 class="text-sm font-bold uppercase text-gray-500 mb-3 mt-6"><i class="fas fa-chart-pie mr-1"></i> Impacto Financeiro (Tabela MT)</h2>
         <div class="kpi-grid">
             <div class="kpi-card border-t-4 border-emerald-500 bg-money-verde">
                 <div class="kpi-title">Faturamento Garantido</div>
@@ -151,7 +146,7 @@
                     <tr>
                         <th class="text-center w-28">Status</th>
                         <th>Paciente / Internação</th>
-                        <th class="text-center w-24">AIH Faturada</th>
+                        <th class="text-center w-32">AIH Faturada / SISREG</th>
                         <th>O que era esperado? (Fila Zero)</th>
                         <th class="text-right w-24 text-emerald-400">Valor MT (R$)</th>
                         <th>O que foi faturado? (Conta Médica)</th>
@@ -179,7 +174,6 @@
                 <tbody></tbody>
             </table>
         </div>
-
     </div>
 
     <script>
@@ -190,6 +184,17 @@
         let tabelaCruzamento = null;
         let tabelaResumo = null;
         const formatBrl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // Normalização Avançada para Limpeza de Textos
+        function normalizarTexto(txt) {
+            if (!txt) return '';
+            return String(txt)
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "") 
+                .toUpperCase()
+                .replace(/\s+/g, ' ')            
+                .trim();
+        }
 
         const metasFilaZero = {
             "0407010297": { desc: "TRATAMENTO CIRURGICO DE REFLUXO GASTROESOFAGICO", valor: 2298.18 },
@@ -216,12 +221,28 @@
             "0409060216": { desc: "OOFORECTOMIA / OOFOROPLASTIA", valor: 2039.44 },
             "0409060232": { desc: "SALPINGECTOMIA UNI / BILATERAL", valor: 1862.36 },
             "0409070157": { desc: "EXERESE DE GLANDULA DE BARTHOLIN / SKENE", valor: 898.72 },
-            "0409070190": { desc: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", valor: 559.84 }
+            "0409070190": { desc: "MARSUPIALIZACAO DE GLANDULA DE BARTOLIN", valor: 559.84 },
+            
+            // Procedimentos adicionados recentemente
+            "0408050063": { desc: "ARTROPLASTIA TOTAL PRIMÁRIA DO JOELHO", valor: 0.00 },
+            "0408040092": { desc: "ARTROPLASTIA TOTAL PRIMARIA DO QUADRIL NÃO CIMENTADA / HÍBRIDA", valor: 0.00 },
+            "0407010386": { desc: "CIRURGIA BARIÁTRICA POR VIDEOLAPAROSCOPIA", valor: 0.00 },
+            "0406030022": { desc: "ANGIOPLASTIA CORONARIANA C/ IMPLANTE DE DOIS STENTS", valor: 0.00 },
+            "0406030030": { desc: "ANGIOPLASTIA CORONARIANA COM IMPLANTE DE STENT", valor: 0.00 },
+            "0406040095": { desc: "ANGIOPLASTIA INTRALUMINAL DE VASOS DO PESCOÇO OU TRONCOS SUPRA-AÓRTICOS (COM STENT NÃO RECOBERTO)", valor: 0.00 },
+            "0406030014": { desc: "ANGIOPLASTIA CORONARIANA", valor: 0.00 }
         };
 
         function inferirSigtapFilaZero(cid) {
             if (!cid || cid === 'SEM REGISTRO') return null;
             let c = cid.replace('.', '').toUpperCase();
+            
+            if (c.startsWith('E66')) return '0407010386'; 
+            if (c.startsWith('M16')) return '0408040092'; 
+            if (c.startsWith('M17')) return '0408050063'; 
+            if (c.startsWith('I20') || c.startsWith('I21') || c.startsWith('I25')) return '0406030030'; 
+            if (c.startsWith('I65') || c.startsWith('I66')) return '0406040095'; 
+            
             if (c.startsWith('M') || c.startsWith('S') || c.startsWith('T')) return '0408050160'; 
             if (c.startsWith('N40') || c.startsWith('N43') || c.startsWith('N47')) return '0409030040'; 
             if (c.startsWith('K80') || c.startsWith('K81')) return '0407030026'; 
@@ -247,29 +268,18 @@
             $('#loader-bar').css('width', percentage + '%');
         }
 
-        // ========================================================
-        // FUNÇÃO DE FILTRO INTERATIVO (CARDS)
-        // ========================================================
         window.filtrarTabelaMalha = function(statusBusca, cardId, ringColor) {
             if(!tabelaCruzamento) return;
-
-            // Reset visual de todos os cards
             $('.kpi-card-filter').removeClass('ring-2 ring-offset-2 ring-offset-slate-900 border-transparent scale-[1.02] shadow-xl').css('opacity', '0.6');
-            
-            // Se for "Todos", limpa o filtro e acende todos os cards
             if(statusBusca === 'Todos') {
                 $('.kpi-card-filter').css('opacity', '1');
                 $('#filtroAtivoBadge').hide();
                 tabelaCruzamento.column(0).search('').draw();
             } else {
-                // Destaca o card clicado
                 $('#' + cardId).addClass(`ring-2 ring-offset-2 ring-offset-slate-900 ${ringColor} scale-[1.02] shadow-xl`).css('opacity', '1');
                 $('#filtroAtivoBadge').show().text('Filtrando: ' + statusBusca);
-                // Filtra a coluna 0 (que contém a palavra Correto, Pendente ou Divergente no HTML do badge)
                 tabelaCruzamento.column(0).search(statusBusca).draw();
             }
-
-            // Scroll suave até a tabela
             $('html, body').animate({ scrollTop: $("#secao-tabela").offset().top - 30 }, 400);
         }
 
@@ -284,7 +294,6 @@
             const d2 = `${ano}-${mes}-${String(dataFimObj.getDate()).padStart(2, '0')}`;
 
             try {
-                // 1. CARREGAR OS PACIENTES FILA ZERO
                 updateLoader("Buscando pacientes elegíveis do Fila Zero...", 15);
                 let indicaData = []; let fromI = 0; let stepI = 1000; let keepF = true;
                 while (keepF) {
@@ -301,11 +310,10 @@
                 indicaData.forEach(d => { mapUnicos[`${d.nome_paciente}_${d.data_internacao}`] = d; });
                 let pacientesFZ = Object.values(mapUnicos);
 
-                // 2. PROCEDIMENTO ESPERADO
                 updateLoader("Calculando inteligência clínica...", 30);
                 let mapOficialMV = {};
                 const { data: mvData } = await client.from('cirurgias_detalhe').select('paciente, cod_tabela').gte('data_cirurgia', d1).lte('data_cirurgia', d2).eq('convenio', 'FILA ZERO');
-                if (mvData) mvData.forEach(c => { if(c.paciente) mapOficialMV[c.paciente.trim().toUpperCase()] = c.cod_tabela; });
+                if (mvData) mvData.forEach(c => { if(c.paciente) mapOficialMV[normalizarTexto(c.paciente)] = c.cod_tabela; });
 
                 let mapOverrides = {};
                 const { data: overData } = await client.from('fila_zero_overrides').select('*');
@@ -313,7 +321,8 @@
 
                 pacientesFZ.forEach(p => {
                     let key = p.nome_paciente + "_" + p.data_internacao;
-                    let codigoFinal = mapOverrides[key] || mapOficialMV[p.nome_paciente.trim().toUpperCase()] || inferirSigtapFilaZero(p.diagnostico) || "SEM_MAP";
+                    let nomeNormP = normalizarTexto(p.nome_paciente);
+                    let codigoFinal = mapOverrides[key] || mapOficialMV[nomeNormP] || inferirSigtapFilaZero(p.diagnostico) || "SEM_MAP";
                     let infoMeta = metasFilaZero[codigoFinal];
                     
                     p.esperado_codigo = codigoFinal;
@@ -321,51 +330,156 @@
                     p.esperado_valor = infoMeta ? infoMeta.valor : 0;
                 });
 
-                // 3. BAIXAR JSONS
+                // ==============================================================
+                // MAPEAMENTO SUPER BLINDADO DO JSON (O "Plano B" Absoluto)
+                // ==============================================================
                 updateLoader("Mapeando histórico de contas faturadas...", 50);
                 const { data: arquivosJson } = await client.from('controle_simuladas').select('competencia_arquivo, link_indice').not('link_indice', 'is', null);
+                
                 let faturamentoGlobal = {}; 
+                let faturamentoPorNome = {}; 
 
                 if (arquivosJson && arquivosJson.length > 0) {
                     let fetchPromises = arquivosJson.map(async arq => {
                         try {
                             let resp = await fetch(arq.link_indice);
-                            let jsonContas = await resp.json();
-                            jsonContas.forEach(conta => {
-                                let aihLimpa = conta.AIH ? String(conta.AIH).replace(/-/g, '').trim() : '';
-                                if(aihLimpa && aihLimpa !== '') {
-                                    let cods = []; if(conta.procedimentos) conta.procedimentos.forEach(proc => cods.push(proc.codigo));
-                                    faturamentoGlobal[aihLimpa] = { competencia: arq.competencia_arquivo, procPrincipal: conta.PROC, codigos: cods };
-                                }
+                            let textResp = await resp.text();
+                            let jsonContas;
+                            try { jsonContas = JSON.parse(textResp); } catch(err) { return; }
+
+                            let arrayContas = Array.isArray(jsonContas) ? jsonContas : (jsonContas.data || Object.values(jsonContas));
+                            if (!Array.isArray(arrayContas)) return;
+                            
+                            arrayContas.forEach(conta => {
+                                try {
+                                    if (!conta || typeof conta !== 'object') return;
+
+                                    let aihLimpa = '';
+                                    let procValor = '-';
+                                    let nomeSimulada = '';
+                                    let cods = [];
+
+                                    // Busca de Chaves Extrema (Ignora todos os espaços em branco nos cabeçalhos)
+                                    Object.keys(conta).forEach(key => {
+                                        let kStr = normalizarTexto(key).replace(/ /g, ''); // Ex: "NOME DO PACIENTE" vira "NOMEDOPACIENTE"
+
+                                        if (kStr.includes('AIH') || kStr === 'NAIH' || kStr === 'NUMEROAIH') {
+                                            if (conta[key]) aihLimpa = String(conta[key]).replace(/[^0-9]/g, '');
+                                        }
+                                        else if (kStr.includes('PROC') || kStr.includes('SIGTAP') || kStr.includes('CODIGO')) {
+                                            if (conta[key]) {
+                                                let rawProc = String(conta[key]).replace(/[^0-9]/g, '');
+                                                if (rawProc) { procValor = rawProc; cods.push(rawProc); }
+                                            }
+                                        }
+                                        else if (kStr.includes('PACIENTE') || kStr.includes('NOME')) {
+                                            if (conta[key]) nomeSimulada = String(conta[key]);
+                                        }
+                                    });
+
+                                    // Arrays aninhados
+                                    if (conta.procedimentos && Array.isArray(conta.procedimentos)) {
+                                        conta.procedimentos.forEach(proc => { 
+                                            if(proc && proc.codigo) cods.push(String(proc.codigo).replace(/[^0-9]/g, '')); 
+                                        });
+                                    }
+                                    
+                                    // Padroniza as chaves do banco de dados (SIGTAP exige 10 dígitos)
+                                    let codsNorm = cods.map(c => String(c).padStart(10, '0'));
+                                    let procPrincipalNorm = procValor !== '-' ? String(procValor).padStart(10, '0') : '-';
+                                    
+                                    let objConta = { 
+                                        competencia: arq.competencia_arquivo, 
+                                        procPrincipal: procPrincipalNorm, 
+                                        codigos: codsNorm, 
+                                        aihFaturadaReal: aihLimpa 
+                                    };
+
+                                    // Salva AIH Verdadeira (Exatamente 13 Dígitos)
+                                    if(aihLimpa.length === 13) faturamentoGlobal[aihLimpa] = objConta;
+
+                                    // Salva Nome do Paciente (O Famoso Plano B)
+                                    if (nomeSimulada) {
+                                        let nomeNorm = normalizarTexto(nomeSimulada);
+                                        if (nomeNorm) faturamentoPorNome[nomeNorm] = objConta;
+                                    }
+                                } catch(errRow) {}
                             });
                         } catch(e) {}
                     });
                     await Promise.all(fetchPromises);
                 }
 
-                // 4. CRUZAMENTO FINAL E PREPARAÇÃO DOS DADOS DO RESUMO
                 updateLoader("Realizando Conciliação e Agrupamento...", 80);
                 
                 let kpiVerde = 0; let kpiAmarelo = 0; let kpiVermelho = 0;
                 let valVerde = 0; let valAmarelo = 0; let valVermelho = 0;
                 let dadosTabela = [];
-                
-                // Objeto para gerar a Tabela de Resumo
                 let agregadorResumo = {};
 
                 pacientesFZ.forEach(p => {
-                    let aihFormatada = p.aih ? String(p.aih).trim() : '';
-                    let aihBusca = aihFormatada.replace(/-/g, '');
-                    let fatEncontrado = faturamentoGlobal[aihBusca];
+                    // O Robô do IndicaSUS pode ter sugado o Código SISREG no lugar da AIH!
+                    let aihDoBancoRaw = p.aih ? String(p.aih).replace(/[^0-9]/g, '') : '';
+                    let aihRealPesquisa = '';
+                    let sisregMapeado = p.cod_solicitacao_sisreg ? String(p.cod_solicitacao_sisreg) : '';
+
+                    // Inteligência para separar AIH verdadeira de SISREG disfarçado
+                    if (aihDoBancoRaw.length === 13) {
+                        aihRealPesquisa = aihDoBancoRaw;
+                    } else if (aihDoBancoRaw.length > 0 && aihDoBancoRaw.length < 11) {
+                        sisregMapeado = aihDoBancoRaw; // Era um SISREG disfarçado
+                    }
+
+                    let nomePacienteNorm = normalizarTexto(p.nome_paciente);
+                    
+                    // ==============================================================
+                    // TENTATIVA 1: AIH VERDADEIRA (SE HOUVER)
+                    let fatEncontrado = aihRealPesquisa ? faturamentoGlobal[aihRealPesquisa] : null;
+                    
+                    // TENTATIVA 2: BUSCA POR NOME (PLANO B E FUZZY MATCHING)
+                    if (!fatEncontrado && nomePacienteNorm) {
+                        // Match Exato
+                        fatEncontrado = faturamentoPorNome[nomePacienteNorm];
+                        
+                        // Match Parcial (Fuzzy): Ex "MARCIA LEITE SAMPAIO" vs "MARCIA LEITE SAMPAIO SILVA"
+                        if (!fatEncontrado) {
+                            let nomesNoFaturamento = Object.keys(faturamentoPorNome);
+                            for (let nFat of nomesNoFaturamento) {
+                                if (nFat.length > 10 && nomePacienteNorm.length > 10) {
+                                    if (nFat.includes(nomePacienteNorm) || nomePacienteNorm.includes(nFat)) {
+                                        fatEncontrado = faturamentoPorNome[nFat];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // ==============================================================
                     
                     let sts = ""; let htmlStatus = ""; let procFaturado = "-"; let compFaturada = "-";
+                    let aihFinalMostrada = aihRealPesquisa;
 
                     if (!fatEncontrado) {
                         sts = "PENDENTE"; kpiVermelho++; valVermelho += p.esperado_valor;
                         htmlStatus = `<span class="badge-status semaforo-vermelho"><i class="fas fa-clock"></i> Pendente</span>`;
+                        aihFinalMostrada = aihFinalMostrada || '<span class="text-gray-500 opacity-50">S/Registro</span>';
+                        if (sisregMapeado) {
+                            aihFinalMostrada += `<br><span class="text-[0.65rem] text-orange-400 font-bold" title="Código SISREG">SISREG: ${sisregMapeado}</span>`;
+                        }
                     } else {
-                        procFaturado = fatEncontrado.procPrincipal; compFaturada = fatEncontrado.competencia;
-                        let faturouOQueEsperava = fatEncontrado.codigos.includes(p.esperado_codigo);
+                        // Se resgatou pelo nome, mostra a AIH que estava escondida!
+                        if (!aihFinalMostrada && fatEncontrado.aihFaturadaReal) {
+                            aihFinalMostrada = `${fatEncontrado.aihFaturadaReal} <br><span class="text-[0.6rem] bg-blue-500/20 text-blue-400 px-1 rounded font-bold" title="Conta recuperada via cruzamento avançado de nome">🤖 RECUPERADO</span>`;
+                        } else if (!aihFinalMostrada) {
+                            aihFinalMostrada = '<span class="text-gray-500 opacity-50">S/Registro</span>';
+                        }
+
+                        procFaturado = fatEncontrado.procPrincipal; 
+                        compFaturada = fatEncontrado.competencia;
+                        
+                        let esperadoNorm = String(p.esperado_codigo).padStart(10, '0');
+                        let faturouOQueEsperava = fatEncontrado.codigos.includes(esperadoNorm);
+                        
                         if (faturouOQueEsperava) {
                             sts = "CORRETO"; kpiVerde++; valVerde += p.esperado_valor;
                             htmlStatus = `<span class="badge-status semaforo-verde"><i class="fas fa-check-circle"></i> Correto</span>`;
@@ -378,14 +492,13 @@
                     dadosTabela.push({
                         status_html: htmlStatus, status_raw: sts,
                         paciente: `<b class="text-[0.8rem]" style="color:var(--text-main);">${p.nome_paciente}</b><br><span class="text-xs text-gray-500"><i class="fas fa-calendar-alt"></i> Int: ${p.data_internacao.split('-').reverse().join('/')}</span>`,
-                        aih: aihFormatada || '<span class="text-gray-500 opacity-50">S/Registro</span>',
+                        aih: `<span class="font-mono text-[0.8rem]">${aihFinalMostrada}</span>`,
                         esperado: `<b class="text-blue-400 font-mono text-[0.7rem]">${p.esperado_codigo}</b><br><span class="text-xs text-gray-400 uppercase">${p.esperado_desc}</span>`,
                         valor_mt: p.esperado_valor,
-                        faturado: sts === 'PENDENTE' ? '<span class="text-gray-500 italic text-xs">Não localizado nos retornos (AIH não exportada).</span>' : `<span class="text-[0.70rem] text-emerald-400 uppercase font-bold">${procFaturado}</span>`,
+                        faturado: sts === 'PENDENTE' ? '<span class="text-gray-500 italic text-xs">Aguardando Retorno / Sem AIH</span>' : `<span class="text-[0.70rem] text-emerald-400 uppercase font-bold">${procFaturado}</span>`,
                         competencia: compFaturada
                     });
 
-                    // Agrega no Resumo
                     let codGrp = p.esperado_codigo;
                     if(!agregadorResumo[codGrp]) {
                         agregadorResumo[codGrp] = { codigo: codGrp, descricao: p.esperado_desc, total: 0, corretos: 0, divergentes: 0, pendentes: 0, recuperado: 0 };
@@ -396,14 +509,12 @@
                     else if(sts === 'PENDENTE') { agregadorResumo[codGrp].pendentes++; }
                 });
 
-                // 5. RENDERIZAR TABELAS E KPIs
                 $('#kpi-total').text(pacientesFZ.length); $('#kpi-corretos').text(kpiVerde);
                 $('#kpi-divergentes').text(kpiAmarelo); $('#kpi-pendentes').text(kpiVermelho);
                 $('#kpi-val-corretos').text(formatBrl.format(valVerde));
                 $('#kpi-val-divergentes').text(formatBrl.format(valAmarelo));
                 $('#kpi-val-pendentes').text(formatBrl.format(valVermelho));
 
-                // Reset visual dos botões de filtro
                 $('.kpi-card-filter').removeClass('ring-2 ring-offset-2 ring-offset-slate-900 border-transparent scale-[1.02] shadow-xl').css('opacity', '1');
                 $('#filtroAtivoBadge').hide();
 
@@ -417,7 +528,7 @@
                     columns: [
                         { data: 'status_html', className: 'text-center' },
                         { data: 'paciente' },
-                        { data: 'aih', className: 'text-center font-mono font-bold text-gray-500' },
+                        { data: 'aih', className: 'text-center text-gray-400' },
                         { data: 'esperado' },
                         { data: 'valor_mt', className: 'text-right font-mono font-bold text-emerald-400', render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ') },
                         { data: 'faturado' },
@@ -425,12 +536,11 @@
                     ]
                 });
 
-                // Renderiza Tabela de Resumo Agrupado
                 let dadosResumo = Object.values(agregadorResumo);
                 if ($.fn.DataTable.isDataTable('#tabelaResumo')) $('#tabelaResumo').DataTable().destroy();
                 tabelaResumo = $('#tabelaResumo').DataTable({
                     data: dadosResumo,
-                    dom: '<"flex justify-between items-center mb-4"B>rt', // Sem paginação, apenas tabela e botões
+                    dom: '<"flex justify-between items-center mb-4"B>rt', 
                     buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-table"></i> Exportar Resumo', className: 'dt-button' } ],
                     paging: false, order: [[2, 'desc']], language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json" },
                     columns: [
